@@ -5,6 +5,8 @@ file(GLOB app_SRC CONFIGURE_DEPENDS
 "*.c"
 )
 
+set(CMAKE_BUILD_TYPE Debug)
+
 link_directories(${VULKAN_LIBRARY_PATH})
 
 add_executable(application ${app_SRC})

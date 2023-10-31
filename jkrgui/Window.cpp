@@ -58,9 +58,13 @@ SDL_HitTestResult HitTestCallback(SDL_Window* Window, const SDL_Point* Area, voi
 	return SDL_HITTEST_NORMAL; // SDL_HITTEST_NORMAL <- Windows behaviour
 }
 
-/*
-dele256/sdl_borderless_resize.cpp (Github) Finished
-*/
+
+
+void Jkr::SDLWindow::SetWindowBorderless()
+{
+	SDL_SetWindowBordered(mSDLWindowPtr, SDL_FALSE);
+	SDL_SetWindowHitTest(mSDLWindowPtr, HitTestCallback, 0);
+}
 
 Jkr::SDLWindow::SDLWindow(std::string inName, int inHeight, int inWidth)
 	: mName(std::move(inName)),
@@ -73,10 +77,9 @@ Jkr::SDLWindow::SDLWindow(std::string inName, int inHeight, int inWidth)
 		SDL_WINDOWPOS_CENTERED,
 		mWidth,
 		mHeight,
-		SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_BORDERLESS
+		SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE
 	);
 
-	SDL_SetWindowHitTest(mSDLWindowPtr, HitTestCallback, 0);
 }
 
 Jkr::SDLWindow::~SDLWindow()
@@ -98,39 +101,6 @@ std::pair<int, int> Jkr::SDLWindow::GetWindowSize() const
 	int w, h;
 	SDL_Vulkan_GetDrawableSize(mSDLWindowPtr, &w, &h);
 	return std::make_pair(w, h);
-}
-
-void Jkr::SDLWindow::PollEvents()
-{
-	int x, y;
-	SDL_GetWindowSize(mSDLWindowPtr, &x, &y);
-	while (x == 0 || y == 0) {
-
-	}
-
-	SDL_Event Event;
-	while (SDL_PollEvent(&Event))
-	{
-		switch (Event.type)
-		{
-		case SDL_QUIT:
-			mWindowShouldClose = true;
-			break;
-		case SDL_WINDOWEVENT:
-			switch (Event.window.event)
-			{
-			case SDL_WINDOWEVENT_SIZE_CHANGED:
-				mResizeFunction(mData);
-				break;
-			default:
-				break;
-			}
-			break;
-		default:
-			mMouseFunction(static_cast<std::any>(mData), &Event);
-			break;
-		}
-	}
 }
 
 void Jkr::SDLWindow::ToggleWindowFullScreen() {

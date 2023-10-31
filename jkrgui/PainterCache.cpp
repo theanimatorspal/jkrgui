@@ -15,7 +15,7 @@ Jkr::PainterCache::PainterCache(const Instance& inInstance, PipelinePropertiesCo
 {
 }
 
-Jkr::PainterCache& Jkr::PainterCache::Load(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader)
+Jkr::PainterCache& Jkr::PainterCache::Load(const std::string& fileName)
 {
 	time.reset();
 	LoadSPIRVsFromFile(fileName);
@@ -59,7 +59,7 @@ Jkr::PainterCache& Jkr::PainterCache::Store(const std::string& fileName, const s
 }
 
 
-Jkr::PainterCache& Jkr::PainterCache::Load_EXT(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader)
+Jkr::PainterCache& Jkr::PainterCache::Load_EXT(const std::string& fileName)
 {
 	time.reset();
 	LoadSPIRVsFromFile(fileName);

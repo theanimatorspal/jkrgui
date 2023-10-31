@@ -36,12 +36,12 @@ void Jkr::Renderer::Renderer_base::ResizeStagingBuffer(const Instance& inInstanc
 	CreateStagingBuffers(inInstance, inVertexStagingBufferSizeInBytes, inIndexStagingBufferSizeInBytes);
 }
 
-void Jkr::Renderer::Renderer_base::CmdCopyToPrimitiveFromStagingBufferSingleTime(const Instance& inInstance, Primitive& inPrimitive, Window& inWindow, size_t inVertexMemorySizeToBeBarriered, size_t inIndexMemorySizeToBeBarriered)
+void Jkr::Renderer::Renderer_base::CmdCopyToPrimitiveFromStagingBuffer(const Instance& inInstance, Primitive& inPrimitive, Window& inWindow, size_t inVertexMemorySizeToBeBarriered, size_t inIndexMemorySizeToBeBarriered)
 {
 	inInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()].GetCommandBufferHandle().copyBuffer(
 		mStagingVertexBuffer->GetBufferHandle(),
 		inPrimitive.GetVertexBufferPtr()->GetBufferHandle(),
-		mVertexCopyRegionsToBeSubmittedOnce
+		mVertexCopyRegionsToBeSubmitted
 	);
 
 	inPrimitive.GetVertexBufferPtr()->SetBarrier(
@@ -57,7 +57,7 @@ void Jkr::Renderer::Renderer_base::CmdCopyToPrimitiveFromStagingBufferSingleTime
 	inInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()].GetCommandBufferHandle().copyBuffer(
 		mStagingIndexBuffer->GetBufferHandle(),
 		inPrimitive.GetIndexBufferPtr()->GetBufferHandle(),
-		mIndexCopyRegionsToBeSubmittedOnce
+		mIndexCopyRegionsToBeSubmitted
 	);
 
 	inPrimitive.GetIndexBufferPtr()->SetBarrier(
@@ -69,53 +69,14 @@ void Jkr::Renderer::Renderer_base::CmdCopyToPrimitiveFromStagingBufferSingleTime
 		vk::PipelineStageFlagBits::eTransfer,
 		vk::PipelineStageFlagBits::eVertexInput
 	);
-	mVertexCopyRegionsToBeSubmittedOnce.clear();
-	mIndexCopyRegionsToBeSubmittedOnce.clear();
+	mVertexCopyRegionsToBeSubmitted.clear();
+	mIndexCopyRegionsToBeSubmitted.clear();
 }
 
-void Jkr::Renderer::Renderer_base::CmdCopyToPrimitiveFromStagingBufferEachFrame(const Instance& inInstance, Primitive& inPrimitive, Window& inWindow, size_t inVertexMemorySizeToBeBarriered, size_t inIndexMemorySizeToBeBarriered)
+
+void Jkr::Renderer::Renderer_base::RegisterBufferCopyRegionToPrimitiveFromStaging(size_t inVertexOffset, size_t inIndexOffset, size_t inVertexSize, size_t inIndexSize)
 {
-	inInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()].GetCommandBufferHandle().copyBuffer(
-		mStagingVertexBuffer->GetBufferHandle(),
-		inPrimitive.GetVertexBufferPtr()->GetBufferHandle(),
-		mVertexCopyRegionsToBeSubmittedEachFrame
-	);
-
-	inPrimitive.GetVertexBufferPtr()->SetBarrier(
-		inInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()],
-		0,
-		inVertexMemorySizeToBeBarriered,
-		vk::AccessFlagBits::eTransferWrite,
-		vk::AccessFlagBits::eVertexAttributeRead,
-		vk::PipelineStageFlagBits::eTransfer,
-		vk::PipelineStageFlagBits::eVertexInput
-	);
-
-	inInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()].GetCommandBufferHandle().copyBuffer(
-		mStagingIndexBuffer->GetBufferHandle(),
-		inPrimitive.GetIndexBufferPtr()->GetBufferHandle(),
-		mIndexCopyRegionsToBeSubmittedEachFrame
-	);
-
-	inPrimitive.GetIndexBufferPtr()->SetBarrier(
-		inInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()],
-		0,
-		inIndexMemorySizeToBeBarriered,
-		vk::AccessFlagBits::eTransferWrite,
-		vk::AccessFlagBits::eVertexAttributeRead,
-		vk::PipelineStageFlagBits::eTransfer,
-		vk::PipelineStageFlagBits::eVertexInput
-	);
+	mVertexCopyRegionsToBeSubmitted.push_back(vk::BufferCopy(inVertexOffset, inVertexOffset, inVertexSize));
+	mIndexCopyRegionsToBeSubmitted.push_back(vk::BufferCopy(inIndexOffset, inIndexOffset, inIndexSize));
 }
 
-void Jkr::Renderer::Renderer_base::RegisterBufferCopyRegionToPrimitiveFromStagingFirstFrameOnly(size_t inVertexOffset, size_t inIndexOffset, size_t inVertexSize, size_t inIndexSize)
-{
-	mVertexCopyRegionsToBeSubmittedOnce.push_back(vk::BufferCopy(inVertexOffset, inVertexOffset, inVertexSize));
-	mIndexCopyRegionsToBeSubmittedOnce.push_back(vk::BufferCopy(inIndexOffset, inIndexOffset, inIndexSize));
-}
-
-void Jkr::Renderer::Renderer_base::RegisterBufferCopyRegionToPrimitiveFromStagingEachFrame(size_t inVertexOffset, size_t inIndexOffset, size_t inVertexSize, size_t inIndexSize)
-{
-	mVertexCopyRegionsToBeSubmittedEachFrame.push_back(vk::BufferCopy(inVertexOffset, inVertexOffset, inVertexSize));
-	mIndexCopyRegionsToBeSubmittedEachFrame.push_back(vk::BufferCopy(inIndexOffset, inIndexOffset, inVertexSize));
-}

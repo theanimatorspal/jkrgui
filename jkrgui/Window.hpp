@@ -11,20 +11,17 @@ namespace Jkr {
 		~SDLWindow();
 		void SetSize(int inWidth, int inHeight);
 		void SetTitle(std::string inString) const;
+		void SetWindowBorderless();
 		std::pair<int, int> GetWindowSize() const;
-		void PollEvents();
 		GETTER GetWindowHandle() const { return mSDLWindowPtr; }
-		GETTER WindowShouldClose() const { return mWindowShouldClose; }
 		void SetWindowShouldClose(bool inValue) { mWindowShouldClose = inValue; }
 		void SetResizeCallBack(const std::function<void(void*)>& inFunction) { mResizeFunction = inFunction; }
-		void SetMouseCallBack(const std::function<void(std::any, std::any)>& inFunction) { mMouseFunction = inFunction; }
 		void ToggleWindowFullScreen();
 		void Minimize();
 		static auto GetWindowCurrentTime() { return SDL_GetTicks(); }
 	protected:
 		void* mData = nullptr;
 		std::function<void(void*)> mResizeFunction = [](void*) {};
-		std::function<void(std::any, std::any)> mMouseFunction = [](std::any, std::any) {};
 		bool mWindowShouldClose = false;
 		bool mWindowIsFullScreen = false;
 		std::string mName;

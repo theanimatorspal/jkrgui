@@ -1,6 +1,8 @@
-#include "FastText.hpp"
+#include "FastText_base.hpp"
 
-void ksai::Font::FastText::GenerateQuadsAt(const char* inString, std::vector<kstd::Vertex>& outVertices, std::vector<kstd::ui32>& outIndices, kstd::ui32 inX, kstd::ui32 inY, kstd::f32 inFontSize, kstd::ui32 inStartIndex, kstd::ui32 inDepthValue)
+using namespace ksai;
+using namespace Jkr::Renderer;
+FastText_base::TextDimensions Jkr::Renderer::FastText_base::GenerateQuadsAt(const char* inString, std::vector<kstd::Vertex>& outVertices, std::vector<kstd::ui32>& outIndices, kstd::ui32 inX, kstd::ui32 inY, kstd::f32 inFontSize, kstd::ui32 inStartIndex, kstd::ui32 inDepthValue)
 {
 	auto inTextSize = strlen(inString);
 	if (outVertices.size() < 4 * inTextSize + inStartIndex * 4)
@@ -18,7 +20,7 @@ void ksai::Font::FastText::GenerateQuadsAt(const char* inString, std::vector<kst
 
 	for (uint32_t i = 0; i < inTextSize; i++)
 	{
-		bmchar char_info = mFontDescription.fchars[(int)inString[i]];
+		BmChar char_info = mFontDescription.fchars[(int)inString[i]];
 
 		for (int j = 0; j < 255; j++)
 		{
@@ -37,7 +39,7 @@ void ksai::Font::FastText::GenerateQuadsAt(const char* inString, std::vector<kst
 		float charw = ((char_info.width)) / ResizeFactor;
 		float dimx = 1.0f * charw;
 		float charh = ((char_info.height)) / ResizeFactor;
-		float dimy =   1.0f * charh;
+		float dimy = 1.0f * charh;
 
 		float us = char_info.x / w;
 		float ue = (char_info.x + char_info.width) / w;
@@ -50,7 +52,7 @@ void ksai::Font::FastText::GenerateQuadsAt(const char* inString, std::vector<kst
 
 		const auto v_index = i * 4 + inStartIndex * 4;
 		outVertices[v_index + 0] = kstd::Vertex{
-			.mPosition = { posx + xo,  ( posy + dimy ), inDepthValue },
+			.mPosition = { posx + xo,  (posy + dimy), inDepthValue },
 			.mTextureCoordinates = { us, te },
 		};
 
@@ -65,7 +67,7 @@ void ksai::Font::FastText::GenerateQuadsAt(const char* inString, std::vector<kst
 		};
 
 		outVertices[v_index + 3] = kstd::Vertex{
-			.mPosition = { posx + dimx + xo, ( posy + dimy ), inDepthValue},
+			.mPosition = { posx + dimx + xo, (posy + dimy), inDepthValue},
 			.mTextureCoordinates = { ue, te },
 		};
 
@@ -86,40 +88,39 @@ void ksai::Font::FastText::GenerateQuadsAt(const char* inString, std::vector<kst
 		float advance = ((float)(char_info.xadvance) / ResizeFactor);
 		posx += advance;
 	}
-	//for (auto& u : outVertices) {
-	//	u.mPosition.y -= maxH;
-	//}
+
+	return TextDimensions{ .mWidth = posx, .mHeight = maxH };
 }
 
-int ksai::Font::FastText::GetNthPair(int inN, char* inString)
+
+int Jkr::Renderer::FastText_base::GetNthPair(int inN, char* inString)
 {
-    int equal_to_sign_index = 0;
-    int count_eq = 0;
-    for (int i = 0; inString[i] != '\n' && inString[i] != '\0'; i++)
-    {
-        if (inString[i] == '=')
-        {
-            count_eq++;
-            if (count_eq == inN)
-            {
-                int j = i + 1;
-                char dummy[1 << 5];
-                int x;
-                for (x = 0; inString[j] != ' ' && inString[j] != '\t'; x++)
-                {
-                    dummy[x] = inString[j];
-                    j++;
-                }
-                dummy[x] = '\0';
-                int out;
-                sscanf_s(dummy, "%d", &out);
-                return out;
-            }
-        }
-    }
+	int count_eq = 0;
+	for (int i = 0; inString[i] != '\n' && inString[i] != '\0'; i++)
+	{
+		if (inString[i] == '=')
+		{
+			count_eq++;
+			if (count_eq == inN)
+			{
+				int j = i + 1;
+				char dummy[1 << 5];
+				int x;
+				for (x = 0; inString[j] != ' ' && inString[j] != '\t'; x++)
+				{
+					dummy[x] = inString[j];
+					j++;
+				}
+				dummy[x] = '\0';
+				int out;
+				sscanf_s(dummy, "%d", &out);
+				return out;
+			}
+		}
+	}
 }
 
-void ksai::Font::FastText::ParseBMFont(const char* inPath, font_description* inFontDesp)
+void Jkr::Renderer::FastText_base::ParseBMFont(const char* inPath, FontDescription* inFontDesp)
 {
 	static char file_buffer[1 << 25];
 

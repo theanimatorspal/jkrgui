@@ -8,19 +8,20 @@ namespace Jkr::Renderer {
 	class Renderer_base
 	{
 	public:
-		using ImageType = Jkr::PainterParameter<Jkr::PainterParameterContext::StorageImage>;
-		using StagingBuffer = Jkr::VulkanBufferVMA<BufferContext::Staging, MemoryType::HostVisibleAndHostCached>;
+		using ImageType = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
+		using StorageImageType = Jkr::PainterParameter<Jkr::PainterParameterContext::StorageImage>;
 		using SamplerType = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformSampler>;
 		using UniformType = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformBuffer>;
+		const uint32_t InitialRendererElementArraySize = 10;
+	public:
+		using StagingBuffer = Jkr::VulkanBufferVMA<BufferContext::Staging, MemoryType::HostVisibleAndHostCached>;
 	private:
 		Up<StagingBuffer> mStagingVertexBuffer;
 		Up<StagingBuffer> mStagingIndexBuffer;
 		void* mVertexStagingBufferMemoryMapPtr = nullptr;
 		void* mIndexStagingBufferMemoryMapPtr = nullptr;
-		std::vector<vk::BufferCopy> mVertexCopyRegionsToBeSubmittedEachFrame;
-		std::vector<vk::BufferCopy> mIndexCopyRegionsToBeSubmittedEachFrame;
-		std::vector<vk::BufferCopy> mVertexCopyRegionsToBeSubmittedOnce;
-		std::vector<vk::BufferCopy> mIndexCopyRegionsToBeSubmittedOnce;
+		std::vector<vk::BufferCopy> mVertexCopyRegionsToBeSubmitted;
+		std::vector<vk::BufferCopy> mIndexCopyRegionsToBeSubmitted;
 	private:
 		size_t mStagingVertexBufferSize = 0;
 		size_t mStagingIndexBufferSize = 0;
@@ -30,11 +31,9 @@ namespace Jkr::Renderer {
 		void CopyToStagingBuffers(void* inVertexData, void* inIndexData, size_t inVertexOffset, size_t inIndexOffset, size_t inVertexSize, size_t inIndexSize);
 		void ResizeStagingBuffer(const Instance& inInstance, size_t inVertexStagingBufferSizeInBytes, size_t inIndexStagingBufferSizeInBytes);
 
-		bool IsSingleTimeCopyRegionsEmpty() const { return mVertexCopyRegionsToBeSubmittedOnce.empty() && mIndexCopyRegionsToBeSubmittedOnce.empty(); }
-		void CmdCopyToPrimitiveFromStagingBufferSingleTime(const Instance& inInstance, Primitive& inPrimitive, Window& inWindow, size_t inVertexMemorySizeToBeBarriered, size_t inIndexMemorySizeToBeBarriered);
-		void CmdCopyToPrimitiveFromStagingBufferEachFrame(const Instance& inInstance, Primitive& inPrimitive, Window& inWindow, size_t inVertexMemorySizeToBeBarriered, size_t inIndexMemorySizeToBeBarriered);
-		void RegisterBufferCopyRegionToPrimitiveFromStagingFirstFrameOnly(size_t inVertexOffset, size_t inIndexOffset, size_t inVertexSize, size_t inIndexSize);
-		void RegisterBufferCopyRegionToPrimitiveFromStagingEachFrame(size_t inVertexOffset, size_t inIndexOffset, size_t inVertexSize, size_t inIndexSize);
+		bool IsCopyRegionsEmpty() const { return mVertexCopyRegionsToBeSubmitted.empty() && mIndexCopyRegionsToBeSubmitted.empty(); }
+		void CmdCopyToPrimitiveFromStagingBuffer(const Instance& inInstance, Primitive& inPrimitive, Window& inWindow, size_t inVertexMemorySizeToBeBarriered, size_t inIndexMemorySizeToBeBarriered);
+		void RegisterBufferCopyRegionToPrimitiveFromStaging(size_t inVertexOffset, size_t inIndexOffset, size_t inVertexSize, size_t inIndexSize);
 
 		GETTER& GetVertexStagingBufferMemoryMapPtr() { return mVertexStagingBufferMemoryMapPtr; }
 		GETTER& GetIndexStagingBufferMemoryMapPtr() { return mIndexStagingBufferMemoryMapPtr; }

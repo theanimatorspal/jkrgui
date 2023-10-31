@@ -29,7 +29,7 @@ void Jkr::Renderer::Line::AddLine(glm::vec2 inFirstPoint, glm::vec2 inSecondPoin
 		lb::LineCountToVertexBytes(1),
 		lb::LineCountToIndexBytes(1)
 	);
-	rb::RegisterBufferCopyRegionToPrimitiveFromStagingFirstFrameOnly(
+	rb::RegisterBufferCopyRegionToPrimitiveFromStaging(
 		lb::LineCountToVertexBytes(lb::GetCurrentLineOffset()),
 		lb::LineCountToIndexBytes(lb::GetCurrentLineOffset()),
 		lb::LineCountToVertexBytes(1),
@@ -50,7 +50,7 @@ void Jkr::Renderer::Line::UpdateLine(uint32_t inId, glm::vec2 inFirstPoint, glm:
 		lb::LineCountToVertexBytes(1),
 		lb::LineCountToIndexBytes(1)
 	);
-	rb::RegisterBufferCopyRegionToPrimitiveFromStagingFirstFrameOnly(
+	rb::RegisterBufferCopyRegionToPrimitiveFromStaging(
 		lb::LineCountToVertexBytes(LineOffset),
 		lb::LineCountToIndexBytes(LineOffset),
 		lb::LineCountToVertexBytes(1),
@@ -60,9 +60,9 @@ void Jkr::Renderer::Line::UpdateLine(uint32_t inId, glm::vec2 inFirstPoint, glm:
 
 void Jkr::Renderer::Line::Dispatch(Window& inWindow)
 {
-	if (!rb::IsSingleTimeCopyRegionsEmpty())
+	if (!rb::IsCopyRegionsEmpty())
 	{
-		rb::CmdCopyToPrimitiveFromStagingBufferSingleTime(
+		rb::CmdCopyToPrimitiveFromStagingBuffer(
 			mInstance,
 			*mPrimitive,
 			inWindow,
@@ -77,7 +77,7 @@ void Jkr::Renderer::Line::DrawInit(Window& inWindow)
 	mPainter->BindDrawParamters_EXT<PushConstant>(*mPrimitive, inWindow);
 }
 
-void Jkr::Renderer::Line::DrawBatched(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inLineOffset, uint32_t inNoOfLines)
+void Jkr::Renderer::Line::DrawBatched(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inStartLineId, uint32_t inNoOfLines, glm::mat4 inMatrix)
 {
 	glm::mat4 Matrix = glm::ortho(
 		0.0f,
@@ -86,7 +86,7 @@ void Jkr::Renderer::Line::DrawBatched(Window& inWindow, glm::vec4 inColor, uint3
 		static_cast<float>(inWindowH),
 		100.0f,
 		-100.0f
-	);
+	) * inMatrix;
 	PushConstant Push;
 	Push.mColor = inColor;
 	Push.mMatrix = Matrix;
@@ -97,36 +97,11 @@ void Jkr::Renderer::Line::DrawBatched(Window& inWindow, glm::vec4 inColor, uint3
 			inWindow,
 			2 * inNoOfLines,
 			1,
-			inLineOffset,
+			inStartLineId * 2,
 			0
 		);
 }
 
-void Jkr::Renderer::Line::DrawSingle(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inId)
-{
-	glm::mat4 Matrix = glm::ortho(
-		0.0f,
-		static_cast<float>(inWindowW),
-		0.0f,
-		static_cast<float>(inWindowH),
-		100.0f,
-		-100.0f
-	);
-	PushConstant Push;
-	Push.mColor = inColor;
-	Push.mMatrix = Matrix;
-
-	mPainter->Draw_EXT<PushConstant>(
-			*mPrimitive,
-			Push,
-			inWindow,
-			2,
-			1,
-			inId * 2,
-			0
-		);
-
-}
 
 void Jkr::Renderer::Line::CheckAndResize(const Instance& inInstance, uint32_t inNewSizeNeeded)
 {
@@ -152,7 +127,7 @@ void Jkr::Renderer::Line::CheckAndResize(const Instance& inInstance, uint32_t in
 			lb::LineCountToVertexBytes(mTotalNoOfLinesRendererCanHold),
 			lb::LineCountToIndexBytes(mTotalNoOfLinesRendererCanHold)
 		);
-		rb::RegisterBufferCopyRegionToPrimitiveFromStagingFirstFrameOnly(
+		rb::RegisterBufferCopyRegionToPrimitiveFromStaging(
 			lb::LineCountToVertexBytes(0),
 			lb::LineCountToIndexBytes(0),
 			lb::LineCountToVertexBytes(mTotalNoOfLinesRendererCanHold),
