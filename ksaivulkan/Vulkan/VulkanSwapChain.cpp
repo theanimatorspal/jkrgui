@@ -1,5 +1,6 @@
 #include "VulkanSwapChain.hpp"
 using namespace ksai;
+#undef max
 
 ksai::VulkanSwapChainBase::VulkanSwapChainBase(const VulkanDevice& inDevice)
 	: mDevice(inDevice.GetDeviceHandle())

@@ -1,11 +1,11 @@
 #pragma once
-#include "GUIWindow.hpp"
-#include "GUIPrimitive.hpp"
-#include "GUIPainterCache.hpp"
-#include "GUIPainterParameter.hpp"
+#include "Window.hpp"
+#include "Primitive.hpp"
+#include "PainterCache.hpp"
+#include "PainterParameter.hpp"
 
 namespace Jkr {
-	class GUIPainterBase
+	class PainterBase
 	{
 	public:
 	private:
@@ -14,15 +14,15 @@ namespace Jkr {
 
 
 namespace Jkr {
-	class GUIPainter
+	class Painter
 	{
 	public:
-		GUIPainter(const Instance& inInstance, const GUIWindow& inWindow, const GUIPainterCache& inCache);
-		GUIPainter(const Instance& inInstance, const GUIWindow& inWindow, const GUIPainterCache& inCache, uint32_t inNoOfVariableDescriptorCount);
+		Painter(const Instance& inInstance, const Window& inWindow, const PainterCache& inCache);
+		Painter(const Instance& inInstance, const Window& inWindow, const PainterCache& inCache, uint32_t inNoOfVariableDescriptorCount);
 
 
 		template<class PushType>
-		constexpr void Draw(const GUIPrimitive& inPrimitive, const vk::ArrayProxy<PushType>  inPushConstants, const GUIWindow& inWindow)
+		constexpr void Draw(const Primitive& inPrimitive, const vk::ArrayProxy<PushType>  inPushConstants, const Window& inWindow)
 		{
 			auto& Cmd = mInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()];
 			inPrimitive.GetVertexBufferPtr()->Bind<BufferContext::Vertex>(Cmd);
@@ -38,13 +38,13 @@ namespace Jkr {
 			mVulkanPipeline.DrawIndexed(Cmd, inPrimitive.GetIndexCount(), 1, 0, 0, 0);
 		}
 		template<class PushType>
-		constexpr void Draw(const GUIPrimitive& inPrimitive, const vk::ArrayProxy<PushType>  inPushConstants)
+		constexpr void Draw(const Primitive& inPrimitive, const vk::ArrayProxy<PushType>  inPushConstants)
 		{
 			Draw(inPrimitive, inPushConstants, mWindow);
 		}
 
 		template<class PushType>
-		constexpr void BindDrawParamters_EXT(const GUIPrimitive& inPrimitive, const GUIWindow& inWindow)
+		constexpr void BindDrawParamters_EXT(const Primitive& inPrimitive, const Window& inWindow)
 		{
 			auto& Cmd = mInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()];
 			inPrimitive.GetVertexBufferPtr()->Bind<BufferContext::Vertex>(Cmd);
@@ -58,20 +58,20 @@ namespace Jkr {
 			mVulkanPipeline.Bind<PipelineContext::Default>(Cmd);
 		}
 		template<class PushType>
-		constexpr void BindDrawParamters_EXT(const GUIPrimitive& inPrimitive)
+		constexpr void BindDrawParamters_EXT(const Primitive& inPrimitive)
 		{
 			BindDrawParamters_EXT<PushType>(inPrimitive, mWindow);
 		}
 
 		template<class PushType>
-		constexpr void Draw_EXT(const GUIPrimitive& inPrimitive, const vk::ArrayProxy<PushType> inPushConstants, const GUIWindow& inWindow, uint32_t inIndexCount, uint32_t inInstanceCount, uint32_t inFirstIndex, uint32_t inFirstInstance)
+		constexpr void Draw_EXT(const Primitive& inPrimitive, const vk::ArrayProxy<PushType> inPushConstants, const Window& inWindow, uint32_t inIndexCount, uint32_t inInstanceCount, uint32_t inFirstIndex, uint32_t inFirstInstance)
 		{
 			auto& Cmd = mInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()];
 			Cmd.PushConstants<PushType>(mGUIPainterCache.GetVertexFragmentPipelineLayout(), inPushConstants);
 			mVulkanPipeline.DrawIndexed(Cmd, inIndexCount, inInstanceCount, inFirstIndex, 0, inFirstInstance);
 		}
 		template<class PushType>
-		constexpr void Draw_EXT(const GUIPrimitive& inPrimitive, const vk::ArrayProxy<PushType> inPushConstants, uint32_t inIndexCount, uint32_t inInstanceCount, uint32_t inFirstIndex, uint32_t inFirstInstance)
+		constexpr void Draw_EXT(const Primitive& inPrimitive, const vk::ArrayProxy<PushType> inPushConstants, uint32_t inIndexCount, uint32_t inInstanceCount, uint32_t inFirstIndex, uint32_t inFirstInstance)
 		{
 			Draw_EXT(inPrimitive, inPushConstants, mWindow, inIndexCount, inInstanceCount, inFirstIndex, inFirstInstance);
 		}
@@ -91,7 +91,7 @@ namespace Jkr {
 
 
 		template <class PushType>
-		constexpr void Dispatch_GUIRenderer(const GUIPrimitive& inPrimitive, const vk::ArrayProxy<PushType> inPushConstants, const GUIWindow& inWindow, uint32_t inCountX, uint32_t inCountY, uint32_t inCountZ)
+		constexpr void Dispatch_GUIRenderer(const Primitive& inPrimitive, const vk::ArrayProxy<PushType> inPushConstants, const Window& inWindow, uint32_t inCountX, uint32_t inCountY, uint32_t inCountZ)
 		{
 			auto& Cmd = mInstance.GetCommandBuffers()[mWindow.GetCurrentFrame()];
 			Cmd.GetCommandBufferHandle().bindDescriptorSets(
@@ -105,14 +105,14 @@ namespace Jkr {
 			Cmd.GetCommandBufferHandle().dispatch(inCountX, inCountY, inCountZ);
 		}
 		template <class PushType>
-		constexpr void Dispatch_GUIRenderer(const GUIPrimitive& inPrimitive, const vk::ArrayProxy<PushType> inPushConstants, uint32_t inCountX, uint32_t inCountY, uint32_t inCountZ)
+		constexpr void Dispatch_GUIRenderer(const Primitive& inPrimitive, const vk::ArrayProxy<PushType> inPushConstants, uint32_t inCountX, uint32_t inCountY, uint32_t inCountZ)
 		{
 			Dispatch_GUIRenderer(inPrimitive, inPushConstants, mWindow, inCountX, inCountY, inCountZ);
 		}
 
 
 		template <class PushType>
-		constexpr void BindDispatchParameters_EXT(const GUIPrimitive& inPrimitive, const GUIWindow& inWindow)
+		constexpr void BindDispatchParameters_EXT(const Primitive& inPrimitive, const Window& inWindow)
 		{
 			auto& Cmd = mInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()];
 			Cmd.GetCommandBufferHandle().bindDescriptorSets(
@@ -125,14 +125,14 @@ namespace Jkr {
 		}
 
 		template <class PushType>
-		constexpr void BindDispatchParameters_EXT(const GUIPrimitive& inPrimitive)
+		constexpr void BindDispatchParameters_EXT(const Primitive& inPrimitive)
 		{
 			BindDispatchParameters_EXT<PushType>(inPrimitive, mWindow);
 		}
 
 
 		template <class PushType>
-		constexpr void Dispatch_EXT(const GUIPrimitive& inPrimitive, const vk::ArrayProxy<PushType> inPushConstants, uint32_t inCountX, uint32_t inCountY, uint32_t inCountZ)
+		constexpr void Dispatch_EXT(const Primitive& inPrimitive, const vk::ArrayProxy<PushType> inPushConstants, uint32_t inCountX, uint32_t inCountY, uint32_t inCountZ)
 		{
 			auto& Cmd = mInstance.GetCommandBuffers()[mWindow.GetCurrentFrame()];
 			Cmd.PushConstants<PushType>(mGUIPainterCache.GetVertexFragmentPipelineLayout(), inPushConstants);
@@ -149,14 +149,14 @@ namespace Jkr {
 
 
 
-		template<GUIPainterParameterContext inContext>
+		template<PainterParameterContext inContext>
 		void RegisterPainterParameter(
-			const GUIPainterParameter<inContext>& inPainterParameter,
+			const PainterParameter<inContext>& inPainterParameter,
 			vk::DeviceSize inOffset,
 			uint32_t inDstBinding,
 			uint32_t inDstArrayElement
 		);
-		void  OptimizeParameter(const GUIPainterParameter<GUIPainterParameterContext::StorageImage>& inImage, const GUIWindow& inWindow)
+		void  OptimizeParameter(const PainterParameter<PainterParameterContext::StorageImage>& inImage, const Window& inWindow)
 		{
 			auto& Cmd = mInstance.GetUtilCommandBuffer().GetCommandBufferHandle();
 			Cmd.begin(vk::CommandBufferBeginInfo());
@@ -170,10 +170,10 @@ namespace Jkr {
 
 
 	private:
-		void OptimizeImageParameter(const VulkanCommandBuffer& inBuffer, const GUIPainterParameter<GUIPainterParameterContext::StorageImage>& inImage, const GUIWindow& inWindow);
+		void OptimizeImageParameter(const VulkanCommandBuffer& inBuffer, const PainterParameter<PainterParameterContext::StorageImage>& inImage, const Window& inWindow);
 		const Instance& mInstance;
-		const GUIWindow& mWindow;
-		const GUIPainterCache& mGUIPainterCache;
+		const Window& mWindow;
+		const PainterCache& mGUIPainterCache;
 		VulkanPipeline<2, PipelineContext::Default> mVulkanPipeline;
 		VulkanPipeline<1, PipelineContext::Compute> mVulkanComputePipeline;
 	private:
@@ -192,7 +192,7 @@ namespace Jkr
 
 
 
-//void RegisterPainterParameter(const GUIPrimitive& inPrimitive, vk::DeviceSize inOffset, uint32_t inDstBinding, uint32_t inDstArrayElement)
+//void RegisterPainterParameter(const Primitive& inPrimitive, vk::DeviceSize inOffset, uint32_t inDstBinding, uint32_t inDstArrayElement)
 //{
 //	if (inPrimitive.GetStorageBufferPtr()) {
 //		mDescriptorUpdateHandler.Write<BufferContext::Storage>(mComputeDescriptorSet, *inPrimitive.GetStorageBufferPtr(), inOffset, inDstBinding, inDstArrayElement);

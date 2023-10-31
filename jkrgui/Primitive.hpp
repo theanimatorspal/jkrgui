@@ -16,14 +16,14 @@ namespace Jkr {
 }
 
 namespace Jkr {
-	class GUIPrimitive
+	class Primitive
 	{
 	public:
-		GUIPrimitive(const Instance& inInstance);
-		GUIPrimitive(const Instance& inInstance, const vk::ArrayProxyNoTemporaries<kstd::Vertex>& inVertices, const vk::ArrayProxyNoTemporaries<kstd::ui32>& inIndices);
-		GUIPrimitive(const Instance& inInstance, const vk::ArrayProxyNoTemporaries<kstd::VertexEXT>& inVertices, const vk::ArrayProxyNoTemporaries<kstd::ui32>& inIndices, int inExtParameter_DoesNotDoAnything);
-		GUIPrimitive(const Instance& inInstance, vk::DeviceSize inVertexBufferSizeInBytes, vk::DeviceSize inIndexBufferSizeInBytes);
-		~GUIPrimitive() = default;
+		Primitive(const Instance& inInstance);
+		Primitive(const Instance& inInstance, const vk::ArrayProxyNoTemporaries<kstd::Vertex>& inVertices, const vk::ArrayProxyNoTemporaries<kstd::ui32>& inIndices);
+		Primitive(const Instance& inInstance, const vk::ArrayProxyNoTemporaries<kstd::VertexEXT>& inVertices, const vk::ArrayProxyNoTemporaries<kstd::ui32>& inIndices, int inExtParameter_DoesNotDoAnything);
+		Primitive(const Instance& inInstance, vk::DeviceSize inVertexBufferSizeInBytes, vk::DeviceSize inIndexBufferSizeInBytes);
+		~Primitive() = default;
 	public:
 		GETTER& GetVertexBufferPtr() const { return mVertexBufferPtr; }
 		GETTER& GetIndexBufferPtr() const { return mIndexBufferPtr; }

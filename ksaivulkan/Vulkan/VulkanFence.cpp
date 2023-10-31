@@ -1,5 +1,6 @@
 #include "VulkanFence.hpp"
 using namespace ksai;
+#undef max
 
 VulkanFence::VulkanFence(const VulkanDevice& inDevice) : mDevice(inDevice.GetDeviceHandle())
 {

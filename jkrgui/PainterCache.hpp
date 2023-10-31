@@ -25,14 +25,14 @@ namespace Jkr {
 }
 
 namespace Jkr {
-	class GUIPainterCache
+	class PainterCache
 	{
 	public:
-		explicit GUIPainterCache(const Instance& inInstance, PipelinePropertiesContext inContext = PipelinePropertiesContext::Default);
-		GUIPainterCache& Store(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader);
-		GUIPainterCache& Load(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader);
-		GUIPainterCache& Store_EXT(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader);
-		GUIPainterCache& Load_EXT(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader);
+		explicit PainterCache(const Instance& inInstance, PipelinePropertiesContext inContext = PipelinePropertiesContext::Default);
+		PainterCache& Store(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader);
+		PainterCache& Load(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader);
+		PainterCache& Store_EXT(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader);
+		PainterCache& Load_EXT(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader);
 		// TODO For now, EXT indicates it supports variable descriptor sets (the last one in fragment shader)
 
 		/*

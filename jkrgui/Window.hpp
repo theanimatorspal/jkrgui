@@ -35,11 +35,11 @@ namespace Jkr {
 }
 
 namespace Jkr {
-	class GUIWindow : public SDLWindow
+	class Window : public SDLWindow
 	{
 	public:
-		GUIWindow(const Instance& inInstance, std::string inTitle, int inHeight, int inWidth);
-		~GUIWindow() { mInstance.GetDevice().Wait(); }
+		Window(const Instance& inInstance, std::string inTitle, int inHeight, int inWidth);
+		~Window() { mInstance.GetDevice().Wait(); }
 		void SetDrawCallBack(const std::function<void(void*)>& inFunction) { mDrawFunction = inFunction; }
 		void SetUpdateCallBack(const std::function<void(void*)>& inFunction) { mUpdateFunction = inFunction; }
 		void SetComputeDispatchCallBack(const std::function<void(void*)>& inFunction) { mComputeDispatchFunction = inFunction; }

@@ -1,14 +1,17 @@
 #pragma once
-#include "GUI2DRenderer.hpp"
+#include "Window.hpp"
+#include "Painter.hpp"
+#include "PainterParameter.hpp"
+#include <Vulkan/VulkanBufferVMA.hpp>
 
 namespace Jkr::Renderer {
 	class Renderer_base
 	{
 	public:
-		using ImageType = Jkr::GUIPainterParameter<Jkr::GUIPainterParameterContext::StorageImage>;
+		using ImageType = Jkr::PainterParameter<Jkr::PainterParameterContext::StorageImage>;
 		using StagingBuffer = Jkr::VulkanBufferVMA<BufferContext::Staging, MemoryType::HostVisibleAndHostCached>;
-		using SamplerType = Jkr::GUIPainterParameter<Jkr::GUIPainterParameterContext::UniformSampler>;
-		using UniformType = Jkr::GUIPainterParameter<Jkr::GUIPainterParameterContext::UniformBuffer>;
+		using SamplerType = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformSampler>;
+		using UniformType = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformBuffer>;
 	private:
 		Up<StagingBuffer> mStagingVertexBuffer;
 		Up<StagingBuffer> mStagingIndexBuffer;
@@ -22,14 +25,14 @@ namespace Jkr::Renderer {
 		size_t mStagingVertexBufferSize = 0;
 		size_t mStagingIndexBufferSize = 0;
 	protected:
-		void CreatePainter(const Instance& inInstance, GUIWindow& inCompatibleWindow, GUIPainterCache& inPainterCache);
+		void CreatePainter(const Instance& inInstance, Window& inCompatibleWindow, PainterCache& inPainterCache);
 		void CreateStagingBuffers(const Instance& inInstance, size_t inVertexStagingBufferSizeInBytes, size_t inIndexStagingBufferSizeInBytes);
 		void CopyToStagingBuffers(void* inVertexData, void* inIndexData, size_t inVertexOffset, size_t inIndexOffset, size_t inVertexSize, size_t inIndexSize);
 		void ResizeStagingBuffer(const Instance& inInstance, size_t inVertexStagingBufferSizeInBytes, size_t inIndexStagingBufferSizeInBytes);
 
 		bool IsSingleTimeCopyRegionsEmpty() const { return mVertexCopyRegionsToBeSubmittedOnce.empty() && mIndexCopyRegionsToBeSubmittedOnce.empty(); }
-		void CmdCopyToPrimitiveFromStagingBufferSingleTime(const Instance& inInstance, GUIPrimitive& inPrimitive, GUIWindow& inWindow, size_t inVertexMemorySizeToBeBarriered, size_t inIndexMemorySizeToBeBarriered);
-		void CmdCopyToPrimitiveFromStagingBufferEachFrame(const Instance& inInstance, GUIPrimitive& inPrimitive, GUIWindow& inWindow, size_t inVertexMemorySizeToBeBarriered, size_t inIndexMemorySizeToBeBarriered);
+		void CmdCopyToPrimitiveFromStagingBufferSingleTime(const Instance& inInstance, Primitive& inPrimitive, Window& inWindow, size_t inVertexMemorySizeToBeBarriered, size_t inIndexMemorySizeToBeBarriered);
+		void CmdCopyToPrimitiveFromStagingBufferEachFrame(const Instance& inInstance, Primitive& inPrimitive, Window& inWindow, size_t inVertexMemorySizeToBeBarriered, size_t inIndexMemorySizeToBeBarriered);
 		void RegisterBufferCopyRegionToPrimitiveFromStagingFirstFrameOnly(size_t inVertexOffset, size_t inIndexOffset, size_t inVertexSize, size_t inIndexSize);
 		void RegisterBufferCopyRegionToPrimitiveFromStagingEachFrame(size_t inVertexOffset, size_t inIndexOffset, size_t inVertexSize, size_t inIndexSize);
 

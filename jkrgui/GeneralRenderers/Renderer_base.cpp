@@ -36,7 +36,7 @@ void Jkr::Renderer::Renderer_base::ResizeStagingBuffer(const Instance& inInstanc
 	CreateStagingBuffers(inInstance, inVertexStagingBufferSizeInBytes, inIndexStagingBufferSizeInBytes);
 }
 
-void Jkr::Renderer::Renderer_base::CmdCopyToPrimitiveFromStagingBufferSingleTime(const Instance& inInstance, GUIPrimitive& inPrimitive, GUIWindow& inWindow, size_t inVertexMemorySizeToBeBarriered, size_t inIndexMemorySizeToBeBarriered)
+void Jkr::Renderer::Renderer_base::CmdCopyToPrimitiveFromStagingBufferSingleTime(const Instance& inInstance, Primitive& inPrimitive, Window& inWindow, size_t inVertexMemorySizeToBeBarriered, size_t inIndexMemorySizeToBeBarriered)
 {
 	inInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()].GetCommandBufferHandle().copyBuffer(
 		mStagingVertexBuffer->GetBufferHandle(),
@@ -73,7 +73,7 @@ void Jkr::Renderer::Renderer_base::CmdCopyToPrimitiveFromStagingBufferSingleTime
 	mIndexCopyRegionsToBeSubmittedOnce.clear();
 }
 
-void Jkr::Renderer::Renderer_base::CmdCopyToPrimitiveFromStagingBufferEachFrame(const Instance& inInstance, GUIPrimitive& inPrimitive, GUIWindow& inWindow, size_t inVertexMemorySizeToBeBarriered, size_t inIndexMemorySizeToBeBarriered)
+void Jkr::Renderer::Renderer_base::CmdCopyToPrimitiveFromStagingBufferEachFrame(const Instance& inInstance, Primitive& inPrimitive, Window& inWindow, size_t inVertexMemorySizeToBeBarriered, size_t inIndexMemorySizeToBeBarriered)
 {
 	inInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()].GetCommandBufferHandle().copyBuffer(
 		mStagingVertexBuffer->GetBufferHandle(),

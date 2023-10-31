@@ -14,6 +14,24 @@ add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED)
 
 set(CMAKE_CXX_STANDARD 20)
 
+if (ANDROID)
+    add_definitions(-DVULKAN_HPP_NO_SMART_HANDLE)
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
+    set(APP_GLUE_DIR ${ANDROID_NDK}/sources/android/native_app_glue)
+    include_directories(${APP_GLUE_DIR})
+    add_library(app-glue STATIC ${APP_GLUE_DIR}/android_native_app_glue.c)
+endif()
+
+if (ANDROID)
+    add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR)
+elseif (WIN32)
+    add_definitions(-DVK_USE_PLATFORM_WIN32_KHR)
+else()
+    add_definitions(-DVK_USE_PLATFORM_XCB_KHR)
+    find_package(XCB REQUIRED)
+    link_libraries(${XCB_LIBRARIES})
+endif()
+
 
 project ("jkrengine")
 

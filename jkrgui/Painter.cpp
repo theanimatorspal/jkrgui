@@ -1,6 +1,6 @@
-#include "GUIPainter.hpp"
+#include "Painter.hpp"
 
-Jkr::GUIPainter::GUIPainter(const Instance& inInstance, const GUIWindow& inWindow, const GUIPainterCache& inCache) :
+Jkr::Painter::Painter(const Instance& inInstance, const Window& inWindow, const PainterCache& inCache) :
     mInstance(inInstance),
     mWindow(inWindow),
     mGUIPainterCache(inCache),
@@ -26,7 +26,7 @@ Jkr::GUIPainter::GUIPainter(const Instance& inInstance, const GUIWindow& inWindo
 {
 }
 
-Jkr::GUIPainter::GUIPainter(const Instance& inInstance, const GUIWindow& inWindow, const GUIPainterCache& inCache, uint32_t inNoOfVariableDescriptorCount)
+Jkr::Painter::Painter(const Instance& inInstance, const Window& inWindow, const PainterCache& inCache, uint32_t inNoOfVariableDescriptorCount)
 	: mInstance(inInstance),
 	mWindow(inWindow),
 	mGUIPainterCache(inCache),
@@ -52,7 +52,7 @@ Jkr::GUIPainter::GUIPainter(const Instance& inInstance, const GUIWindow& inWindo
 {
 }
 
-void Jkr::GUIPainter::OptimizeImageParameter(const VulkanCommandBuffer& inBuffer, const GUIPainterParameter<GUIPainterParameterContext::StorageImage>& inImage, const GUIWindow& inWindow)
+void Jkr::Painter::OptimizeImageParameter(const VulkanCommandBuffer& inBuffer, const PainterParameter<PainterParameterContext::StorageImage>& inImage, const Window& inWindow)
 {
 	inImage.GetStorageImage().CmdTransitionImageLayout(
 		inBuffer,
@@ -68,8 +68,8 @@ void Jkr::GUIPainter::OptimizeImageParameter(const VulkanCommandBuffer& inBuffer
 using namespace Jkr;
 
 template<>
-void GUIPainter::RegisterPainterParameter<GUIPainterParameterContext::StorageBuffer>
-(const GUIPainterParameter<GUIPainterParameterContext::StorageBuffer>& inPainterParameter,
+void Painter::RegisterPainterParameter<PainterParameterContext::StorageBuffer>
+(const PainterParameter<PainterParameterContext::StorageBuffer>& inPainterParameter,
 	vk::DeviceSize inOffset, uint32_t inDstBinding, uint32_t inDstArrayElement)
 {
 	mDescriptorUpdateHandler.Write<BufferContext::Storage>(mVertexFragmentDescriptorSet, inPainterParameter.GetStorageBuffer(), inOffset, inDstBinding, inDstArrayElement);
@@ -77,8 +77,8 @@ void GUIPainter::RegisterPainterParameter<GUIPainterParameterContext::StorageBuf
 }
 
 template<>
-void GUIPainter::RegisterPainterParameter<GUIPainterParameterContext::UniformBuffer>
-(const GUIPainterParameter<GUIPainterParameterContext::UniformBuffer>& inPainterParameter,
+void Painter::RegisterPainterParameter<PainterParameterContext::UniformBuffer>
+(const PainterParameter<PainterParameterContext::UniformBuffer>& inPainterParameter,
 	vk::DeviceSize inOffset, uint32_t inDstBinding, uint32_t inDstArrayElement)
 {
 	mDescriptorUpdateHandler.Write<BufferContext::Uniform>(mVertexFragmentDescriptorSet, inPainterParameter.GetUniformBuffer(), inOffset, inDstBinding, inDstArrayElement);
@@ -86,8 +86,8 @@ void GUIPainter::RegisterPainterParameter<GUIPainterParameterContext::UniformBuf
 }
 
 template<>
-void GUIPainter::RegisterPainterParameter<GUIPainterParameterContext::StorageImage>
-(const GUIPainterParameter<GUIPainterParameterContext::StorageImage>& inPainterParameter,
+void Painter::RegisterPainterParameter<PainterParameterContext::StorageImage>
+(const PainterParameter<PainterParameterContext::StorageImage>& inPainterParameter,
 	vk::DeviceSize inOffset, uint32_t inDstBinding, uint32_t inDstArrayElement)
 {
 	mDescriptorUpdateHandler.Write<ImageContext::Storage>(
@@ -108,8 +108,8 @@ void GUIPainter::RegisterPainterParameter<GUIPainterParameterContext::StorageIma
 
 
 template<>
-void GUIPainter::RegisterPainterParameter<GUIPainterParameterContext::UniformImage>
-(const GUIPainterParameter<GUIPainterParameterContext::UniformImage>& inPainterParameter,
+void Painter::RegisterPainterParameter<PainterParameterContext::UniformImage>
+(const PainterParameter<PainterParameterContext::UniformImage>& inPainterParameter,
 	vk::DeviceSize inOffset, uint32_t inDstBinding, uint32_t inDstArrayElement)
 {
 	mDescriptorUpdateHandler.Write<ImageContext::Default>(
@@ -130,8 +130,8 @@ void GUIPainter::RegisterPainterParameter<GUIPainterParameterContext::UniformIma
 
 
 template<>
-void GUIPainter::RegisterPainterParameter<GUIPainterParameterContext::UniformSampler> (
-	const GUIPainterParameter<GUIPainterParameterContext::UniformSampler>& inPainterParameter,
+void Painter::RegisterPainterParameter<PainterParameterContext::UniformSampler> (
+	const PainterParameter<PainterParameterContext::UniformSampler>& inPainterParameter,
 	vk::DeviceSize inOffset, uint32_t inDstBinding, uint32_t inDstArrayElement)
 {
 	mDescriptorUpdateHandler.Write(

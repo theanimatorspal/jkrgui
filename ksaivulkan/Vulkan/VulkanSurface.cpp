@@ -3,6 +3,7 @@
 #include <cglm/cglm.h>
 #include <iostream>
 using namespace ksai;
+#undef max
 
 VulkanSurface::VulkanSurface(const VulkanInstance& inInstance, SDL_Window* inWindow) : mInstance(inInstance.GetInstanceHandle()), mWindow(inWindow)
 {

@@ -1,6 +1,8 @@
 #pragma once
-#include "GUI2DRenderer.hpp"
 #include "../Global/Standards.hpp"
+#include "Window.hpp"
+#include "Painter.hpp"
+#include "PainterParameter.hpp"
 
 namespace Jkr::Renderer
 {

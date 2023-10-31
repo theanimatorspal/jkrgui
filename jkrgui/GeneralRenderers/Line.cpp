@@ -1,15 +1,16 @@
 #include "Line.hpp"
+#include <glm/ext/matrix_clip_space.hpp>
 
-Jkr::Renderer::Line::Line(const Instance& inInstance, GUIWindow& inCompatibleWindow, GUIPainterCache& inPainterCache)
+Jkr::Renderer::Line::Line(const Instance& inInstance, Window& inCompatibleWindow, PainterCache& inPainterCache)
 	: mInstance(inInstance)
 {
-	mPainter = MakeUp<GUIPainter>(inInstance, inCompatibleWindow, inPainterCache);
+	mPainter = MakeUp<Painter>(inInstance, inCompatibleWindow, inPainterCache);
 	rb::CreateStagingBuffers(
 		inInstance,
 		lb::LineCountToVertexBytes(mTotalNoOfLinesRendererCanHold),
 		lb::LineCountToIndexBytes(mTotalNoOfLinesRendererCanHold)
 	);
-	mPrimitive = MakeUp<GUIPrimitive>(
+	mPrimitive = MakeUp<Primitive>(
 		inInstance,
 		lb::LineCountToVertexBytes(mTotalNoOfLinesRendererCanHold),
 		lb::LineCountToIndexBytes(mTotalNoOfLinesRendererCanHold)
@@ -57,7 +58,7 @@ void Jkr::Renderer::Line::UpdateLine(uint32_t inId, glm::vec2 inFirstPoint, glm:
 	);
 }
 
-void Jkr::Renderer::Line::Dispatch(GUIWindow& inWindow)
+void Jkr::Renderer::Line::Dispatch(Window& inWindow)
 {
 	if (!rb::IsSingleTimeCopyRegionsEmpty())
 	{
@@ -71,12 +72,12 @@ void Jkr::Renderer::Line::Dispatch(GUIWindow& inWindow)
 	}
 }
 
-void Jkr::Renderer::Line::DrawInit(GUIWindow& inWindow)
+void Jkr::Renderer::Line::DrawInit(Window& inWindow)
 {
 	mPainter->BindDrawParamters_EXT<PushConstant>(*mPrimitive, inWindow);
 }
 
-void Jkr::Renderer::Line::DrawBatched(GUIWindow& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inLineOffset, uint32_t inNoOfLines)
+void Jkr::Renderer::Line::DrawBatched(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inLineOffset, uint32_t inNoOfLines)
 {
 	glm::mat4 Matrix = glm::ortho(
 		0.0f,
@@ -101,7 +102,7 @@ void Jkr::Renderer::Line::DrawBatched(GUIWindow& inWindow, glm::vec4 inColor, ui
 		);
 }
 
-void Jkr::Renderer::Line::DrawSingle(GUIWindow& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inId)
+void Jkr::Renderer::Line::DrawSingle(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inId)
 {
 	glm::mat4 Matrix = glm::ortho(
 		0.0f,
@@ -133,7 +134,7 @@ void Jkr::Renderer::Line::CheckAndResize(const Instance& inInstance, uint32_t in
 	{
 		mTotalNoOfLinesRendererCanHold *= 2;
 		mPrimitive.reset();
-		mPrimitive = MakeUp<GUIPrimitive>(
+		mPrimitive = MakeUp<Primitive>(
 			inInstance,
 			lb::LineCountToVertexBytes(mTotalNoOfLinesRendererCanHold),
 			lb::LineCountToIndexBytes(mTotalNoOfLinesRendererCanHold)

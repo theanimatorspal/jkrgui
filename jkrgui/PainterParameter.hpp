@@ -1,9 +1,9 @@
 #pragma once
 #include "Instance.hpp"
-#include "GUIWindow.hpp"
+#include "Window.hpp"
 namespace Jkr
 {
-	enum class GUIPainterParameterContext
+	enum class PainterParameterContext
 	{
 		StorageBuffer,
 		UniformBuffer,
@@ -21,12 +21,12 @@ namespace Jkr
 
 namespace Jkr
 {
-	class GUIPainterParameterBase
+	class PainterParameterBase
 	{
 	public:
-		GUIPainterParameterBase(const Instance& inInstance) : mInstance(inInstance) {}
-		~GUIPainterParameterBase() = default;
-		GUIPainterParameterBase(GUIPainterParameterBase&& inParam) = default;
+		PainterParameterBase(const Instance& inInstance) : mInstance(inInstance) {}
+		~PainterParameterBase() = default;
+		PainterParameterBase(PainterParameterBase&& inParam) = default;
 	protected:
 		void Setup(Up<StorageBufferType>& inStorageBuffer, vk::DeviceSize inDeviceSize);
 		void Setup(Up<UniformBufferType>& inUniformBuffer, vk::DeviceSize inDeviceSize, void** inMappedMemoryRegion);
@@ -35,27 +35,27 @@ namespace Jkr
 		void Setup(Up<VulkanSampler>& inUniformImageSampler, Up<UniformImageType>& inUniformImage, void** inData, uint32_t inWidth, uint32_t inHeight, uint32_t inChannelCount);
 		const Instance& mInstance;
 	};
-	template <GUIPainterParameterContext inContext>
-	class GUIPainterParameter : public GUIPainterParameterBase { };
+	template <PainterParameterContext inContext>
+	class PainterParameter : public PainterParameterBase { };
 }
 
 namespace Jkr
 {
 	template<>
-	class GUIPainterParameter<GUIPainterParameterContext::StorageBuffer> : public GUIPainterParameterBase {
+	class PainterParameter<PainterParameterContext::StorageBuffer> : public PainterParameterBase {
 	public:
-		GUIPainterParameter(const Instance& inInstance) : GUIPainterParameterBase(inInstance) {}
-		inline void Setup(vk::DeviceSize inStorageBufferSize) { GUIPainterParameterBase::Setup(mStorageBufferPtr, inStorageBufferSize); }
+		PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
+		inline void Setup(vk::DeviceSize inStorageBufferSize) { PainterParameterBase::Setup(mStorageBufferPtr, inStorageBufferSize); }
 		GETTER& GetStorageBuffer() const { return *mStorageBufferPtr; }
 	private:
 		Up<StorageBufferType> mStorageBufferPtr;
 	};
 
 	template<>
-	class GUIPainterParameter<GUIPainterParameterContext::UniformBuffer> : public GUIPainterParameterBase {
+	class PainterParameter<PainterParameterContext::UniformBuffer> : public PainterParameterBase {
 	public:
-		GUIPainterParameter(const Instance& inInstance) : GUIPainterParameterBase(inInstance) {}
-		inline void Setup(vk::DeviceSize inUniformBufferSize) { GUIPainterParameterBase::Setup(mUniformBufferPtr, inUniformBufferSize, &mUniformMappedMemoryRegion); }
+		PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
+		inline void Setup(vk::DeviceSize inUniformBufferSize) { PainterParameterBase::Setup(mUniformBufferPtr, inUniformBufferSize, &mUniformMappedMemoryRegion); }
 		GETTER& GetUniformMappedMemoryRegion() { return mUniformMappedMemoryRegion; }
 		GETTER& GetUniformBuffer() const { return *mUniformBufferPtr; }
 	private:
@@ -64,12 +64,12 @@ namespace Jkr
 	};
 
 	template<>
-	class GUIPainterParameter<GUIPainterParameterContext::StorageImage> : public GUIPainterParameterBase {
+	class PainterParameter<PainterParameterContext::StorageImage> : public PainterParameterBase {
 	public:
-		GUIPainterParameter(const Instance& inInstance) : GUIPainterParameterBase(inInstance) {}
+		PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
 		inline void Setup(uint32_t inWidth, uint32_t inHeight)
 		{
-			GUIPainterParameterBase::Setup(mSampler, mStorageImagePtr, inWidth, inHeight);
+			PainterParameterBase::Setup(mSampler, mStorageImagePtr, inWidth, inHeight);
 		}
 		GETTER& GetStorageImage() const { return *mStorageImagePtr; }
 		GETTER& GetStorageImageSampler() const { return *mSampler; }
@@ -79,11 +79,11 @@ namespace Jkr
 	};
 
 	template<>
-	class GUIPainterParameter<GUIPainterParameterContext::UniformImage> : public GUIPainterParameterBase {
+	class PainterParameter<PainterParameterContext::UniformImage> : public PainterParameterBase {
 	public:
-		GUIPainterParameter(const Instance& inInstance) : GUIPainterParameterBase(inInstance) {}
-		inline void Setup(std::string inFileName) { GUIPainterParameterBase::Setup(mSampler, mUniformImagePtr, inFileName); }
-		inline void Setup(void** inData, uint32_t inWidth, uint32_t inHeight, uint32_t inChannelCount) { GUIPainterParameterBase::Setup(mSampler, mUniformImagePtr, inData, inWidth, inHeight, inChannelCount); }
+		PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
+		inline void Setup(std::string inFileName) { PainterParameterBase::Setup(mSampler, mUniformImagePtr, inFileName); }
+		inline void Setup(void** inData, uint32_t inWidth, uint32_t inHeight, uint32_t inChannelCount) { PainterParameterBase::Setup(mSampler, mUniformImagePtr, inData, inWidth, inHeight, inChannelCount); }
 		GETTER& GetStorageImage() const { return *mUniformImagePtr; }
 		GETTER& GetStorageImageSampler() const { return *mSampler; }
 	private:
@@ -92,9 +92,9 @@ namespace Jkr
 	};
 
 	template<>
-	class GUIPainterParameter<GUIPainterParameterContext::UniformSampler> : public GUIPainterParameterBase {
+	class PainterParameter<PainterParameterContext::UniformSampler> : public PainterParameterBase {
 	public:
-		GUIPainterParameter(const Instance& inInstance) : GUIPainterParameterBase(inInstance) {}
+		PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
 		inline void Setup() { mSampler = MakeUp<VulkanSampler>(mInstance.GetDevice()); }
 		GETTER& GetSampler() const { return *mSampler; }
 	private:

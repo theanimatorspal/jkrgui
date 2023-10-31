@@ -1,4 +1,4 @@
-﻿#include "GUIWindow.hpp"
+﻿#include "Window.hpp"
 #include <SDL2/SDL_vulkan.h>
 
 /*
@@ -154,7 +154,7 @@ void Jkr::SDLWindow::Minimize()
 }
 
 
-Jkr::GUIWindow::GUIWindow(const Instance& inInstance, std::string inTitle, int inHeight, int inWidth)
+Jkr::Window::Window(const Instance& inInstance, std::string inTitle, int inHeight, int inWidth)
 	: SDLWindow(std::move(inTitle), inHeight, inWidth),
 	mInstance(inInstance),
 	mSurface(mInstance.GetVulkanInstance(), mSDLWindowPtr),
@@ -179,7 +179,7 @@ Jkr::GUIWindow::GUIWindow(const Instance& inInstance, std::string inTitle, int i
 {
 }
 
-void Jkr::GUIWindow::Draw()
+void Jkr::Window::Draw()
 {
 	mUpdateFunction(mData);
 	std::array<float, 5>
@@ -233,7 +233,7 @@ void Jkr::GUIWindow::Draw()
 
 }
 
-void Jkr::GUIWindow::Refresh()
+void Jkr::Window::Refresh()
 {
 	mSurface.ProcessCurrentSurfaceConditions(mInstance.GetPhysicalDevice());
 	mSwapChain = VulkanSwapChain<mMaxFramesInFlight>(mInstance.GetDevice(), mInstance.GetQueueContext(), mSurface);

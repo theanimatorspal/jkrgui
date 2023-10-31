@@ -1,11 +1,11 @@
-#include "GUIPrimitive.hpp"
+#include "Primitive.hpp"
 
-Jkr::GUIPrimitive::GUIPrimitive(const Instance& inInstance)
+Jkr::Primitive::Primitive(const Instance& inInstance)
 	: mInstance(inInstance)
 {
 }
 
-Jkr::GUIPrimitive::GUIPrimitive(
+Jkr::Primitive::Primitive(
 	const Instance& inInstance,
 	const vk::ArrayProxyNoTemporaries<kstd::Vertex>& inVertices,
 	const vk::ArrayProxyNoTemporaries<kstd::ui32>& inIndices
@@ -19,7 +19,7 @@ Jkr::GUIPrimitive::GUIPrimitive(
 	mInstance.GetGraphicsQueue().Wait();
 }
 
-Jkr::GUIPrimitive::GUIPrimitive(const Instance& inInstance, const vk::ArrayProxyNoTemporaries<kstd::VertexEXT>& inVertices, const vk::ArrayProxyNoTemporaries<kstd::ui32>& inIndices, int inExtParameter_DoesNotDoAnything)
+Jkr::Primitive::Primitive(const Instance& inInstance, const vk::ArrayProxyNoTemporaries<kstd::VertexEXT>& inVertices, const vk::ArrayProxyNoTemporaries<kstd::ui32>& inIndices, int inExtParameter_DoesNotDoAnything)
 	: mInstance(inInstance), mIndexCount(inIndices.size())
 {
 	mVertexBufferPtr = MakeUp<VulkanBufferVMA<BufferContext::Vertex, MemoryType::DeviceLocal>>(inInstance.GetVMA(), mInstance.GetDevice(), vk::DeviceSize(sizeof(inVertices.front()) * inVertices.size()));
@@ -29,7 +29,7 @@ Jkr::GUIPrimitive::GUIPrimitive(const Instance& inInstance, const vk::ArrayProxy
 	mInstance.GetGraphicsQueue().Wait();
 }
 
-Jkr::GUIPrimitive::GUIPrimitive(const Instance& inInstance, vk::DeviceSize inVertexBufferSizeInBytes, vk::DeviceSize inIndexBufferSizeInBytes)
+Jkr::Primitive::Primitive(const Instance& inInstance, vk::DeviceSize inVertexBufferSizeInBytes, vk::DeviceSize inIndexBufferSizeInBytes)
 	: mInstance(inInstance), mIndexCount(0)
 {
 	mVertexBufferPtr = MakeUp<VulkanBufferVMA<BufferContext::Vertex, MemoryType::DeviceLocal>>(inInstance.GetVMA(), mInstance.GetDevice(), inVertexBufferSizeInBytes);

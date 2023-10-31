@@ -1,4 +1,4 @@
-#include "GUIPainterCache.hpp"
+#include "PainterCache.hpp"
 #include <iostream>
 #include <fstream>
 
@@ -9,13 +9,13 @@ Jkr::ShaderModules::ShaderModules(const VulkanDevice& inDevice, const std::vecto
 {}
 
 
-Jkr::GUIPainterCache::GUIPainterCache(const Instance& inInstance, PipelinePropertiesContext inContext)
+Jkr::PainterCache::PainterCache(const Instance& inInstance, PipelinePropertiesContext inContext)
 	: mInstance(inInstance),
 	mPipelineContext(inContext)
 {
 }
 
-Jkr::GUIPainterCache& Jkr::GUIPainterCache::Load(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader)
+Jkr::PainterCache& Jkr::PainterCache::Load(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader)
 {
 	time.reset();
 	LoadSPIRVsFromFile(fileName);
@@ -35,7 +35,7 @@ Jkr::GUIPainterCache& Jkr::GUIPainterCache::Load(const std::string& fileName, co
 	return *this;
 }
 
-Jkr::GUIPainterCache& Jkr::GUIPainterCache::Store(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader)
+Jkr::PainterCache& Jkr::PainterCache::Store(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader)
 {
 
 	time.reset();
@@ -59,7 +59,7 @@ Jkr::GUIPainterCache& Jkr::GUIPainterCache::Store(const std::string& fileName, c
 }
 
 
-Jkr::GUIPainterCache& Jkr::GUIPainterCache::Load_EXT(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader)
+Jkr::PainterCache& Jkr::PainterCache::Load_EXT(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader)
 {
 	time.reset();
 	LoadSPIRVsFromFile(fileName);
@@ -79,7 +79,7 @@ Jkr::GUIPainterCache& Jkr::GUIPainterCache::Load_EXT(const std::string& fileName
 	return *this;
 }
 
-Jkr::GUIPainterCache& Jkr::GUIPainterCache::Store_EXT(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader)
+Jkr::PainterCache& Jkr::PainterCache::Store_EXT(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader)
 {
 
 	time.reset();
@@ -104,7 +104,7 @@ Jkr::GUIPainterCache& Jkr::GUIPainterCache::Store_EXT(const std::string& fileNam
 
 
 
-void Jkr::GUIPainterCache::StoreSPIRVsToFile(const std::string inFileName)
+void Jkr::PainterCache::StoreSPIRVsToFile(const std::string inFileName)
 {
 	std::ofstream Fstream(inFileName, std::ios_base::binary);
 	uint32_t size_V = mVertexFragmentShaderSPIRV[0].size() * sizeof(uint32_t);
@@ -118,7 +118,7 @@ void Jkr::GUIPainterCache::StoreSPIRVsToFile(const std::string inFileName)
 	Fstream.write(reinterpret_cast<char*>(mComputeShaderSPIRV[0].data()), mComputeShaderSPIRV[0].size() * sizeof(uint32_t));
 }
 
-void Jkr::GUIPainterCache::LoadSPIRVsFromFile(const std::string inFileName)
+void Jkr::PainterCache::LoadSPIRVsFromFile(const std::string inFileName)
 {
 	std::ifstream Fstream(inFileName, std::ios_base::binary);
 	uint32_t size_V = 0;
