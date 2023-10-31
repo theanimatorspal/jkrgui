@@ -3,22 +3,18 @@ file(GLOB app_SRC CONFIGURE_DEPENDS
 "*.cpp"
 "*.h"
 "*.c"
-"NodeEditor/*.hpp"
-"NodeEditor/*.cpp"
-"NodeEditor/*.h"
-"NodeEditor/*.c"
 )
 
-message(STATUS "${app_SRC}")
+link_directories(${VULKAN_LIBRARY_PATH})
 
 add_executable(application ${app_SRC})
+
 
 target_link_libraries(application 
 	${Vulkan_LIBRARIES}
 	ksaivulkan 
 	jkrgui 
 	SDL2
-	lua54
 	SPIRVd
 	MachineIndependentd
 	SPIRV-Toolsd
@@ -26,7 +22,7 @@ target_link_libraries(application
 	SPIRV-Tools-linkd
 	SPIRV-Tools-lintd
 	SPIRV-Tools-optd
-	SPIRV-Tools-reduce
+	SPIRV-Tools-reduced
 	SPIRV-Tools-sharedd
 	OSDependentd
 	GenericCodeGend
@@ -42,13 +38,3 @@ target_link_libraries(application
 	spirv-cross-msld
 	spirv-cross-reflectd
 )
-
-#	harfbuzz
-#	harfbuzz-subset
-#	freetype
-# Add source to this project's executable.
-
-
-# TODO: Add tests and install targets if needed.
-
-
