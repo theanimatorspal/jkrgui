@@ -73,7 +73,15 @@ VulkanInstance::VulkanInstance()
 		std::cout << "Something Went Very Wrong : Extension not found" << std::endl;
 	}
 
+#ifdef USE_VULKAN_1_2
+	auto ApplicationInfo = vk::ApplicationInfo("JkrGUI", 1, "JkrEngine", 1, VK_API_VERSION_1_1);
+#endif
+#ifdef USE_VULKAN_1_3
 	auto ApplicationInfo = vk::ApplicationInfo("JkrGUI", 1, "JkrEngine", 1, VK_API_VERSION_1_3);
+#endif
+#ifdef USE_VULKAN_1_1
+	auto ApplicationInfo = vk::ApplicationInfo("JkrGUI", 1, "JkrEngine", 1, VK_API_VERSION_1_1);
+#endif
 	auto InstanceCreateInfo = vk::InstanceCreateInfo({}, &ApplicationInfo, mInstanceLayerNames, mInstanceExtensionNames);
 	mInstance = vk::createInstance(InstanceCreateInfo);
 }

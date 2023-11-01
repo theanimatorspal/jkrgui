@@ -13,7 +13,6 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice, const V
 	std::vector<char const*> deviceLayerNames;
 	std::vector<char const*> deviceExtensionNames;
 	deviceExtensionNames.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-	vk::PhysicalDeviceDescriptorIndexingFeatures DescriptorIndexingFeatures;
 
 	vk::PhysicalDeviceFeatures Features;
 	Features.fillModeNonSolid = VK_TRUE;
@@ -26,7 +25,8 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice, const V
 		&Features
 	);
 
-
+#ifdef USE_VARIABLE_DESCRIPTOR_INDEXING_FEATURE
+	vk::PhysicalDeviceDescriptorIndexingFeatures DescriptorIndexingFeatures;
 	vk::StructureChain< vk::DeviceCreateInfo, vk::PhysicalDeviceDescriptorIndexingFeatures> createInfo(
 		deviceCreateInfo, DescriptorIndexingFeatures
 	);
@@ -34,9 +34,10 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice, const V
 	createInfo.get<vk::PhysicalDeviceDescriptorIndexingFeatures>().descriptorBindingVariableDescriptorCount = VK_TRUE;
 	createInfo.get<vk::PhysicalDeviceDescriptorIndexingFeatures>().descriptorBindingPartiallyBound = VK_TRUE;
 	createInfo.get<vk::PhysicalDeviceDescriptorIndexingFeatures>().descriptorBindingUpdateUnusedWhilePending = VK_TRUE;
-
-
 	mDevice = mPhysicalDevice.createDevice(createInfo.get<vk::DeviceCreateInfo>());
+#else
+	mDevice = mPhysicalDevice.createDevice(deviceCreateInfo);
+#endif
 }
 
 VulkanDevice::~VulkanDevice()

@@ -1,10 +1,10 @@
 #pragma once
 #include <glm/glm.hpp>
+#include "Config.hpp"
 
 /*
 CONFIGURATION
 */
-#define JKR_NO_STAGING_BUFFERS
 
 namespace ksai::kstd
 {

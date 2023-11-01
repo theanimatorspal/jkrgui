@@ -4,6 +4,7 @@
 #include <Renderers/ResourceManager.hpp>
 #include <Renderers/Line.hpp>
 #include <Renderers/FastText.hpp>
+#include <sol/sol.hpp>
 
 int main()
 {
@@ -11,9 +12,11 @@ int main()
 	auto Window = Jkr::Window(Instance, "Heell", 1080 / 2, 1920 / 2);
 	auto EventManager = Jkr::EventManager();
 	auto RendererResources = Jkr::Renderer::ResourceManager();
+	auto lua = sol::state();
 	RendererResources.Load(Instance);
 	auto lr = Jkr::Renderer::Line(Instance, Window, RendererResources.GetLineRendererCache());
 	auto ftx = Jkr::Renderer::FastText(Instance, Window, RendererResources.GetFastTextRendererCache());
+
 	for (int i = 0; i < 3; i++)
 	{
 		uint32_t id;
@@ -44,6 +47,7 @@ int main()
 	auto Update = [&](void* data)
 		{
 			lr.AddLine(glm::vec2(10 * 20, i), glm::vec2(100, 100), 5, id);
+			ftx.AddText("Fucko", 500, 300, 5, id);
 			i++;
 		};
 

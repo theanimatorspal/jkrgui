@@ -39,4 +39,5 @@ target_link_libraries(application
 	spirv-cross-hlsld
 	spirv-cross-msld
 	spirv-cross-reflectd
+	lua54
 )
