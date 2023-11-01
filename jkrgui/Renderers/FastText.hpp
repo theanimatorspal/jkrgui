@@ -13,13 +13,18 @@ namespace Jkr::Renderer
 		using fb = FastText_base;
 		using rb = Renderer_base;
 	public:
-		FastText(const Instance& inInstance, const Window& inCompatibleWindow, const PainterCache& inCache, std::string inFolderPath);
-		fb::TextDimensions AddText(const std::string_view inText, uint32_t inX, uint32_t inY, uint32_t& outId);
-		fb::TextDimensions UpdateText(const std::string_view inText, uint32_t inX, uint32_t inY);
+		FastText(const Instance& inInstance, const Window& inCompatibleWindow, const PainterCache& inCache);
+		fb::TextDimensions AddText(const std::string_view inText, uint32_t inX, uint32_t inY, uint32_t inDepthValue, uint32_t& outId);
+		fb::TextDimensions UpdateText(uint32_t inId, const std::string_view inText, uint32_t inX, uint32_t inY, uint32_t inDepthValue);
 		void Dispatch(Window& inWindow);
 		void DrawInit(Window& inWindow);
-		void DrawBatched(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inStartLineId, uint32_t inNoOfLines, glm::mat4 inMatrix = glm::mat4());
+		void Draw(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inStartLineId, uint32_t inNoOfChars, glm::mat4 inMatrix);
+		void DrawAll(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, glm::mat4 inMatrix)
+		{
+			Draw(inWindow, inColor, inWindowW, inWindowH, 0, GetCurrentCharOffsetAbsolute(), inMatrix);
+		}
 	private:
+		const Instance& mInstance;
 		void CheckAndResize(size_t inNewSize);
 		struct PushConstant
 		{
@@ -27,5 +32,9 @@ namespace Jkr::Renderer
 			glm::vec4 mColor;
 		};
 		uint32_t mTotalNoOfCharsRendererCanHold = rb::InitialRendererElementArraySize;
+	private:
+		Up<Primitive> mPrimitive;
+		Up<Painter> mPainter;
+		Up<ImageType> mImage;
 	};
 };

@@ -2,9 +2,9 @@
 
 using namespace ksai;
 using namespace Jkr::Renderer;
-FastText_base::TextDimensions Jkr::Renderer::FastText_base::GenerateQuadsAt(const char* inString, std::vector<kstd::Vertex>& outVertices, std::vector<kstd::ui32>& outIndices, kstd::ui32 inX, kstd::ui32 inY, kstd::f32 inFontSize, kstd::ui32 inStartIndex, kstd::ui32 inDepthValue)
+FastText_base::TextDimensions Jkr::Renderer::FastText_base::GenerateQuadsAt(const std::string_view inString, std::vector<kstd::Vertex>& outVertices, std::vector<kstd::ui32>& outIndices, kstd::ui32 inX, kstd::ui32 inY, kstd::f32 inFontSize, kstd::ui32 inStartIndex, kstd::ui32 inDepthValue)
 {
-	auto inTextSize = strlen(inString);
+	auto inTextSize = inString.size();
 	if (outVertices.size() < 4 * inTextSize + inStartIndex * 4)
 	{
 		outVertices.resize(4 * inTextSize + inStartIndex * 4);
@@ -155,4 +155,109 @@ void Jkr::Renderer::FastText_base::ParseBMFont(const char* inPath, FontDescripti
 		inFontDesp->fchars[i].page = GetNthPair(9, file_buffer);
 	}
 	fclose(file);
+}
+
+Jkr::Renderer::FastText_base::TextDimensions Jkr::Renderer::FastText_base::AddText(const std::string_view inText, uint32_t inX, uint32_t inY, uint32_t inDepthValue, uint32_t& outId)
+{
+	auto prop = GetTextProperty();
+	auto dim = GetTextDimensions(inText);
+	uint32_t x = 0, y = 0;
+	switch (mCurrentTextProp.H)
+	{
+	case AlignH::Left:
+		x = inX;
+		break;
+	case AlignH::Right:
+		x = inX - dim.mWidth;
+		break;
+	case AlignH::Center:
+		x = inX - dim.mWidth / 2.0f;
+		break;
+	}
+
+	switch (mCurrentTextProp.V)
+	{
+	case AlignV::Bottom:
+		y = inY;
+		break;
+	case AlignV::Top:
+		y = inY + dim.mHeight;
+		break;
+	case AlignV::Center:
+		y = inY + dim.mHeight / 2.0f;
+		break;
+	}
+
+	GenerateQuadsAt(inText, mCharVertices, mCharIndices, x, y, 1.0f, mCharCount, inDepthValue);
+
+	outId = mCharCount;
+	mCharCount += inText.size();
+	return dim;
+}
+
+FastText_base::TextDimensions Jkr::Renderer::FastText_base::GetTextDimensions(const std::string_view inString, kstd::f32 inFontSizeInverseFactor)
+{
+	auto inTextSize = inString.size();
+
+	const auto ResizeFactor = inFontSizeInverseFactor;
+	float posx = 0;
+	float maxH = 0.0f;
+	for (uint32_t i = 0; i < inTextSize; i++)
+	{
+		BmChar char_info = mFontDescription.fchars[(int)inString[i]];
+
+		for (int j = 0; j < 255; j++)
+		{
+			if (mFontDescription.fchars[j].id == inString[i])
+			{
+				char_info = mFontDescription.fchars[j];
+				break;
+			}
+		}
+		float charh = ((char_info.height)) / ResizeFactor;
+		float yo = char_info.yoffset / ResizeFactor;
+		if (charh > maxH)
+		{
+			maxH = charh + yo;
+		}
+
+		float advance = ((float)(char_info.xadvance) / ResizeFactor);
+		posx += advance;
+	}
+	return TextDimensions{ .mWidth = posx, .mHeight = maxH };
+}
+
+FastText_base::TextDimensions Jkr::Renderer::FastText_base::UpdateText(uint32_t inId, const std::string_view inText, uint32_t inX, uint32_t inY, uint32_t inDepthValue)
+{
+	auto prop = GetTextProperty();
+	auto dim = GetTextDimensions(inText);
+	uint32_t x = 0, y = 0;
+	switch (mCurrentTextProp.H)
+	{
+	case AlignH::Left:
+		x = inX;
+		break;
+	case AlignH::Right:
+		x = inX - dim.mWidth;
+		break;
+	case AlignH::Center:
+		x = inX - dim.mWidth / 2.0f;
+		break;
+	}
+
+	switch (mCurrentTextProp.V)
+	{
+	case AlignV::Bottom:
+		y = inY;
+		break;
+	case AlignV::Top:
+		y = inY + dim.mHeight;
+		break;
+	case AlignV::Center:
+		y = inY + dim.mHeight / 2.0f;
+		break;
+	}
+
+	GenerateQuadsAt(inText, mCharVertices, mCharIndices, x, y, 1.0f, inId, inDepthValue);
+	return dim;
 }

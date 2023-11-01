@@ -307,6 +307,7 @@ namespace FontShader
 
 		layout(push_constant, std430) uniform pc {
 			mat4 Matrix;
+			vec4 Color;
 		} push;
 
 		void GlslMain() {
@@ -339,8 +340,8 @@ namespace FontShader
 		const float smoothing = 1.0 / 2.0;
 
 		layout(push_constant, std430) uniform pc {
-			vec3 vt;
 			mat4 mvp;
+			vec4 color;
 		} push;
 
 		layout(set = 0, binding = 0) uniform sampler2D u_atlas;
@@ -350,7 +351,7 @@ namespace FontShader
 			vec4 color = texture(u_atlas, inTextCoord);
 			float distance = color.a;
 			float alpha = smoothstep(0.8 - smoothing, 0.8 + smoothing, distance * 2);
-			outColor = vec4(0.0f, 0.0f, 0.0f, alpha);
+			outColor = vec4(push.color.x, push.color.y, push.color.z, alpha);
 		}
 
 		GlslCodeFinish();

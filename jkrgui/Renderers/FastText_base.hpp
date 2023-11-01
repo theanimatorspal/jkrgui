@@ -13,18 +13,17 @@ namespace Jkr::Renderer
 	class FastText_base
 	{
 	public:
-		struct TextDimensions
-		{
-			float mWidth;
-			float mHeight;
-		};
+		struct TextDimensions { float mWidth; float mHeight; };
+		enum class AlignH { Center, Left, Right };
+		enum class AlignV { Center, Top, Bottom };
+		struct TextProperty { AlignH H = AlignH::Left; AlignV V = AlignV::Bottom; };
 	public:
 		FastText_base(std::string inFontPath)
 		{
 			ParseBMFont(inFontPath.c_str(), &mFontDescription);
 		}
 
-		TextDimensions GenerateQuadsAt(const char* inString,
+		TextDimensions GenerateQuadsAt(const std::string_view inString,
 			std::vector<kstd::Vertex>& outVertices,
 			std::vector<kstd::ui32>& outIndices,
 			kstd::ui32 inX,
@@ -33,16 +32,28 @@ namespace Jkr::Renderer
 			kstd::ui32 offset_NoOfCharactersDrawn,
 			kstd::ui32 inDepthValue = 0
 		);
+		TextDimensions GetTextDimensions(const std::string_view inString, kstd::f32 inFontSizeInverseFactor = 1.0f);
 	public:
-		GETTER CharCountToVertexBytes(size_t inCharCount) { return 4 * sizeof(kstd::LineVertex) * inCharCount; }
+		TextDimensions AddText(const std::string_view inText, uint32_t inX, uint32_t inY, uint32_t inDepthValue, uint32_t& outId);
+		TextDimensions UpdateText(uint32_t inId, const std::string_view inText, uint32_t inX, uint32_t inY, uint32_t inDepthValue);
+	public:
+		GETTER CharCountToVertexBytes(size_t inCharCount) { return 4 * sizeof(kstd::Vertex) * inCharCount; }
 		GETTER CharCountToIndexBytes(size_t inCharCount) { return 6 * sizeof(uint32_t) * inCharCount; }
-		GETTER GetCurrentCharOffset() const { return mCharCount - 1; }
+		GETTER GetCurrentCharOffset(const std::string_view inString) const { return mCharCount - inString.size(); }
+		GETTER GetCurrentCharOffsetAbsolute() const { return mCharCount; }
 		GETTER GetVertexBufferData() { return reinterpret_cast<void*>(mCharVertices.data()); }
 		GETTER GetIndexBufferData() { return  reinterpret_cast<void*>(mCharIndices.data()); }
+		void SetTextProperty(TextProperty inProp) { mCurrentTextProp = inProp; };
+		GETTER GetTextProperty() const { return mCurrentTextProp; };
+		void Resize(uint32_t inNewSize) {
+			mCharVertices.reserve(CharCountToVertexBytes(inNewSize));
+			mCharIndices.reserve(CharCountToIndexBytes(inNewSize));
+		}
 	private:
 		std::vector<ksai::kstd::Vertex>  mCharVertices;
 		std::vector<ksai::kstd::ui32> mCharIndices;
 		uint32_t mCharCount = 0;
+		TextProperty mCurrentTextProp = { .H = AlignH::Left, .V = AlignV::Bottom };
 	private:
 		struct FontContainer
 		{

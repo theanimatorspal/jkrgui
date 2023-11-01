@@ -1,5 +1,6 @@
 #include "Renderer_base.hpp"
 
+#ifndef JKR_NO_STAGING_BUFFERS
 void Jkr::Renderer::Renderer_base::CreateStagingBuffers(const Instance& inInstance, size_t inVertexStagingBufferSizeInBytes, size_t inIndexStagingBufferSizeInBytes)
 {
 	mStagingVertexBuffer = MakeUp<StagingBuffer>(inInstance.GetVMA(), inInstance.GetDevice(), inVertexStagingBufferSizeInBytes);
@@ -80,3 +81,21 @@ void Jkr::Renderer::Renderer_base::RegisterBufferCopyRegionToPrimitiveFromStagin
 	mIndexCopyRegionsToBeSubmitted.push_back(vk::BufferCopy(inIndexOffset, inIndexOffset, inIndexSize));
 }
 
+#else
+void Jkr::Renderer::Renderer_base::CopyToPrimitive(Primitive& inPrimitive, void* inVertexData, void* inIndexData, size_t inVertexOffset, size_t inIndexOffset, size_t inVertexSize, size_t inIndexSize)
+{
+	std::memcpy(
+		(char*)inPrimitive.GetVertexMemoryMapPtr() + inVertexOffset,
+		(char*)inVertexData + inVertexOffset,
+		inVertexSize
+	);
+	inPrimitive.GetVertexBufferPtr()->FlushMemoryRanges(inVertexOffset, inVertexSize);
+
+	std::memcpy(
+		(char*)inPrimitive.GetIndexMemoryMapPtr() + inIndexOffset,
+		(char*)inIndexData + inIndexOffset,
+		inIndexSize
+	);
+	inPrimitive.GetIndexBufferPtr()->FlushMemoryRanges(inIndexOffset, inIndexSize);
+}
+#endif

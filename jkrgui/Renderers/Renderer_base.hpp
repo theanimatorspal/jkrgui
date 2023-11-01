@@ -15,6 +15,7 @@ namespace Jkr::Renderer {
 		const uint32_t InitialRendererElementArraySize = 10;
 	public:
 		using StagingBuffer = Jkr::VulkanBufferVMA<BufferContext::Staging, MemoryType::HostVisibleAndHostCached>;
+#ifndef JKR_NO_STAGING_BUFFERS
 	private:
 		Up<StagingBuffer> mStagingVertexBuffer;
 		Up<StagingBuffer> mStagingIndexBuffer;
@@ -26,7 +27,9 @@ namespace Jkr::Renderer {
 		size_t mStagingVertexBufferSize = 0;
 		size_t mStagingIndexBufferSize = 0;
 	protected:
+#endif
 		void CreatePainter(const Instance& inInstance, Window& inCompatibleWindow, PainterCache& inPainterCache);
+#ifndef JKR_NO_STAGING_BUFFERS
 		void CreateStagingBuffers(const Instance& inInstance, size_t inVertexStagingBufferSizeInBytes, size_t inIndexStagingBufferSizeInBytes);
 		void CopyToStagingBuffers(void* inVertexData, void* inIndexData, size_t inVertexOffset, size_t inIndexOffset, size_t inVertexSize, size_t inIndexSize);
 		void ResizeStagingBuffer(const Instance& inInstance, size_t inVertexStagingBufferSizeInBytes, size_t inIndexStagingBufferSizeInBytes);
@@ -39,5 +42,10 @@ namespace Jkr::Renderer {
 		GETTER& GetIndexStagingBufferMemoryMapPtr() { return mIndexStagingBufferMemoryMapPtr; }
 		GETTER& GetVertexStagingBufferSize() { return mStagingVertexBufferSize; }
 		GETTER& GetIndexStagingBufferSize() { return mStagingIndexBufferSize; }
+#endif
+
+#ifdef JKR_NO_STAGING_BUFFERS
+		void CopyToPrimitive(Primitive& inPrimitive, void* inVertexData, void* inIndexData, size_t inVertexOffset, size_t inIndexOffset, size_t inVertexSize, size_t inIndexSize);
+#endif
 	};
 }

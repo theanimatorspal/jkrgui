@@ -17,8 +17,13 @@ namespace Jkr::Renderer
 		GETTER LineCountToVertexBytes(size_t inLineCount) { return 2 * sizeof(kstd::LineVertex) * inLineCount; }
 		GETTER LineCountToIndexBytes(size_t inLineCount) { return 2 * sizeof(uint32_t) * inLineCount; }
 		GETTER GetCurrentLineOffset() const { return mLineCount - 1; }
+		GETTER GetCurrentLineOffsetAbsolute() const { return mLineCount; }
 		GETTER GetVertexBufferData() { return reinterpret_cast<void*>(mLineVertices.data()); }
 		GETTER GetIndexBufferData() { return  reinterpret_cast<void*>(mLineIndices.data()); }
+		void Resize(uint32_t inNewSize) {
+			mLineVertices.reserve(LineCountToVertexBytes(inNewSize)); 
+			mLineIndices.reserve(LineCountToIndexBytes(inNewSize));
+		}
 	private:
 		std::vector<kstd::LineVertex> mLineVertices;
 		std::vector<uint32_t> mLineIndices;

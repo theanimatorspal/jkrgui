@@ -32,7 +32,23 @@ namespace Jkr {
 	private:
 		const Instance& mInstance;
 		uint32_t mIndexCount = 0;
+
+#ifndef JKR_NO_STAGING_BUFFERS
 		Up<VulkanBufferVMA<BufferContext::Vertex, MemoryType::DeviceLocal>> mVertexBufferPtr = nullptr;
 		Up<VulkanBufferVMA<BufferContext::Index, MemoryType::DeviceLocal>> mIndexBufferPtr = nullptr;
+#endif
+
+#ifdef JKR_NO_STAGING_BUFFERS
+	public:
+		GETTER& GetVertexMemoryMapPtr() { return mVertexBufferMappedMemory; }
+		GETTER& GetIndexMemoryMapPtr() { return mIndexBufferMappedMemory; }
+	private:
+		Up<VulkanBufferVMA<BufferContext::Vertex, MemoryType::HostVisibleAndHostCached>> mVertexBufferPtr = nullptr;
+		Up<VulkanBufferVMA<BufferContext::Index, MemoryType::HostVisibleAndHostCached>> mIndexBufferPtr = nullptr;
+		void* mVertexBufferMappedMemory = nullptr;
+		void* mIndexBufferMappedMemory = nullptr;
+#endif
 	};
 }
+
+

@@ -13,19 +13,41 @@ int main()
 	auto RendererResources = Jkr::Renderer::ResourceManager();
 	RendererResources.Load(Instance);
 	auto lr = Jkr::Renderer::Line(Instance, Window, RendererResources.GetLineRendererCache());
+	auto ftx = Jkr::Renderer::FastText(Instance, Window, RendererResources.GetFastTextRendererCache());
+	for (int i = 0; i < 3; i++)
+	{
+		uint32_t id;
+		lr.AddLine(glm::vec2(i * 20, 0), glm::vec2(100, 100), 5, id);
+	}
+	uint32_t xxx;
 	uint32_t id;
-	lr.AddLine(glm::vec2(0, 0), glm::vec2(100, 100), 5, id);
+	uint32_t idx;
+	ftx.AddText("Hello", 300, 300, 5, xxx);
+	ftx.AddText("World", 400, 300, 5, idx);
+	ftx.AddText("Fucko", 500, 300, 5, id);
+	ftx.UpdateText(id, "Hello", 500, 300, 5);
 
 	auto Dispatch = [&](void* data)
 		{
 			lr.Dispatch(Window);
+			ftx.Dispatch(Window);
 		};
 	auto Draw = [&](void* data)
 		{
 			lr.DrawInit(Window);
-			lr.DrawBatched(Window, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), Window.GetWindowSize().first, Window.GetWindowSize().second, 0, 1, glm::identity<glm::mat4>());
+			lr.DrawAll(Window, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), Window.GetWindowSize().first, Window.GetWindowSize().second, glm::identity<glm::mat4>());
+			ftx.DrawInit(Window);
+			ftx.DrawAll(Window, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), Window.GetWindowSize().first, Window.GetWindowSize().second, glm::identity<glm::mat4>());
 		};
 
+	static int i = 0;
+	auto Update = [&](void* data)
+		{
+			lr.AddLine(glm::vec2(10 * 20, i), glm::vec2(100, 100), 5, id);
+			i++;
+		};
+
+	Window.SetUpdateCallBack(Update);
 	Window.SetDrawCallBack(Draw);
 	Window.SetComputeDispatchCallBack(Dispatch);
 

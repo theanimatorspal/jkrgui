@@ -2,7 +2,9 @@
 #include "Line_base.hpp"
 #include "Renderer_base.hpp"
 
+
 namespace Jkr::Renderer {
+
 	class Line : public Line_base, Renderer_base
 	{
 		using rb = Renderer_base;
@@ -13,7 +15,11 @@ namespace Jkr::Renderer {
 		lb::LineFeatures UpdateLine(uint32_t inId, glm::vec2 inFirstPoint, glm::vec2 inSecondPoint, float inDepthValue);
 		void Dispatch(Window& inWindow);
 		void DrawInit(Window& inWindow);
-		void DrawBatched(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inStartLineId, uint32_t inNoOfLines, glm::mat4 inMatrix);
+		void Draw(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inStartLineId, uint32_t inNoOfChars, glm::mat4 inMatrix);
+		void DrawAll(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, glm::mat4 inMatrix)
+		{
+			Draw(inWindow, inColor, inWindowW, inWindowH, 0, lb::GetCurrentLineOffsetAbsolute(), inMatrix);
+		}
 	private:
 		struct PushConstant {
 			glm::mat4 mMatrix;
@@ -23,7 +29,7 @@ namespace Jkr::Renderer {
 	private:
 		void CheckAndResize(const Instance& inInstance, uint32_t inNewSizeNeeded);
 		const Instance& mInstance;
-		Up<Primitive> mPrimitive;
 		Up<Painter> mPainter;
+		Up<Primitive> mPrimitive;
 	};
 }

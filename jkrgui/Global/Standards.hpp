@@ -1,6 +1,11 @@
 #pragma once
 #include <glm/glm.hpp>
 
+/*
+CONFIGURATION
+*/
+#define JKR_NO_STAGING_BUFFERS
+
 namespace ksai::kstd
 {
 	struct Vertex
