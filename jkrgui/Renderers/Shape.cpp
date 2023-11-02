@@ -4,6 +4,7 @@
 Jkr::Renderer::Shape::Shape(const Instance& inInstance, Window& inCompatibleWindow, std::unordered_map<FillType, Up<PainterCache>>& inPainterCaches) : mInstance(inInstance), mPainterCaches(inPainterCaches)
 {
 	mPainters[FillType::Fill] = MakeUp<Painter>(inInstance, inCompatibleWindow, *inPainterCaches[FillType::Fill]);
+	mPainters[FillType::Image] = MakeUp<Painter>(inInstance, inCompatibleWindow, *inPainterCaches[FillType::Image]);
 #ifndef JKR_NO_STAGING_BUFFERS
 	rb::CreateStagingBuffers(
 		inInstance,
@@ -44,6 +45,19 @@ void Jkr::Renderer::Shape::Add(Jkr::Generator& inShape, uint32_t inX, uint32_t i
 		sb::IndexCountToBytes(inShape.GetIndexCount())
 	);
 #endif
+}
+
+void Jkr::Renderer::Shape::AddImage(const std::string_view inFileName, uint32_t& outIndex)
+{
+	Up<VulkanDescriptorSet> Desset = MakeUp<VulkanDescriptorSet>(mInstance.GetDevice(), mInstance.GetDescriptorPool(), mPainterCaches[FillType::Image]->GetVertexFragmentDescriptorSetLayout());
+	Up<ImageType> Image = MakeUp<ImageType>(mInstance);
+	Image->Setup(inFileName);
+	Image->Register(
+		0, 0, 0, *Desset
+	);
+	outIndex = mImages.size();
+	mImages.push_back(std::move(Image));
+	mVulkanPerImageDescriptorSets.push_back(std::move(Desset));
 }
 
 void Jkr::Renderer::Shape::Update(uint32_t inId, Jkr::Generator& inShape, uint32_t inX, uint32_t inY, uint32_t inZ)
@@ -95,9 +109,30 @@ void Jkr::Renderer::Shape::Dispatch(Window& inWindow)
 #endif
 }
 
-void Jkr::Renderer::Shape::DrawInit(Window& inWindow, FillType inFillType)
+void Jkr::Renderer::Shape::BindFillMode(FillType inFillType, Window& inWindow)
 {
-	mPainters[inFillType]->BindDrawParamters_EXT<PushConstant>(*mPrimitive, inWindow);
+	mPainters[inFillType]->BindDrawParamtersPipelineOnly_EXT<PushConstant>(*mPrimitive, inWindow);
+}
+
+void Jkr::Renderer::Shape::BindImage(Window& inWindow, uint32_t inImageId)
+{
+	if (inImageId != -1)
+	{
+		auto& Cmd = mInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()];
+		Cmd.GetCommandBufferHandle().bindDescriptorSets(
+			vk::PipelineBindPoint::eGraphics,
+			mPainterCaches[FillType::Image]->GetVertexFragmentPipelineLayout().GetPipelineLayoutHandle(),
+			0,
+			mVulkanPerImageDescriptorSets[inImageId]->GetDescriptorSetHandle(),
+			{}
+		);
+	}
+}
+
+
+void Jkr::Renderer::Shape::BindShapes(FillType inFillType, Window& inWindow)
+{
+	Painter::BindDrawParamtersVertexAndIndexBuffersOnly_EXT<PushConstant>(mInstance, *mPrimitive, inWindow);
 }
 
 void Jkr::Renderer::Shape::Draw(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inStartShapeId, uint32_t inEndShapeId, glm::mat4 inMatrix)

@@ -101,7 +101,7 @@ void Jkr::Renderer::Line::Dispatch(Window& inWindow)
 #endif
 }
 
-void Jkr::Renderer::Line::DrawInit(Window& inWindow)
+void Jkr::Renderer::Line::Bind(Window& inWindow)
 {
 	mPainter->BindDrawParamters_EXT<PushConstant>(*mPrimitive, inWindow);
 }

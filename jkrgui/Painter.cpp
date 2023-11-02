@@ -114,15 +114,15 @@ void Painter::RegisterPainterParameter<PainterParameterContext::UniformImage>
 {
 	mDescriptorUpdateHandler.Write<ImageContext::Default>(
 		mVertexFragmentDescriptorSet,
-		inPainterParameter.GetStorageImage(),
-		inPainterParameter.GetStorageImageSampler(),
+		inPainterParameter.GetUniformImage(),
+		inPainterParameter.GetUniformImageSampler(),
 		inDstBinding,
 		inDstArrayElement
 	);
 	mDescriptorUpdateHandler.Write<ImageContext::Default>(
 		mComputeDescriptorSet,
-		inPainterParameter.GetStorageImage(),
-		inPainterParameter.GetStorageImageSampler(),
+		inPainterParameter.GetUniformImage(),
+		inPainterParameter.GetUniformImageSampler(),
 		inDstBinding,
 		inDstArrayElement
 	);

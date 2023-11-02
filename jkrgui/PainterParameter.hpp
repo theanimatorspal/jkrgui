@@ -31,7 +31,7 @@ namespace Jkr
 		void Setup(Up<StorageBufferType>& inStorageBuffer, vk::DeviceSize inDeviceSize);
 		void Setup(Up<UniformBufferType>& inUniformBuffer, vk::DeviceSize inDeviceSize, void** inMappedMemoryRegion);
 		void Setup(Up<VulkanSampler>& inStorageImageSampler, Up<StorageImageType>& inStorageImage, uint32_t inWidth, uint32_t inHeight);
-		void Setup(Up<VulkanSampler>& inUniformImageSampler, Up<UniformImageType>& inUniformImage, std::string inFileName);
+		void Setup(Up<VulkanSampler>& inUniformImageSampler, Up<UniformImageType>& inUniformImage, const std::string_view inFileName);
 		void Setup(Up<VulkanSampler>& inUniformImageSampler, Up<UniformImageType>& inUniformImage, void** inData, uint32_t inWidth, uint32_t inHeight, uint32_t inChannelCount);
 	protected:
 		const Instance& mInstance;
@@ -84,10 +84,26 @@ namespace Jkr
 	class PainterParameter<PainterParameterContext::UniformImage> : public PainterParameterBase {
 	public:
 		PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
-		inline void Setup(std::string inFileName) { PainterParameterBase::Setup(mSampler, mUniformImagePtr, inFileName); }
+		inline void Setup(const std::string_view inFileName) { PainterParameterBase::Setup(mSampler, mUniformImagePtr, inFileName); }
 		inline void Setup(void** inData, uint32_t inWidth, uint32_t inHeight, uint32_t inChannelCount) { PainterParameterBase::Setup(mSampler, mUniformImagePtr, inData, inWidth, inHeight, inChannelCount); }
-		GETTER& GetStorageImage() const { return *mUniformImagePtr; }
-		GETTER& GetStorageImageSampler() const { return *mSampler; }
+		GETTER& GetUniformImage() const { return *mUniformImagePtr; }
+		GETTER& GetUniformImageSampler() const { return *mSampler; }
+		void Register(
+			vk::DeviceSize inOffset,
+			uint32_t inDstBinding,
+			uint32_t inDstArrayElement,
+			VulkanDescriptorSet& inDescriptorSet
+		)
+		{
+			mVulkanDescriptorSetHandler.Write<ImageContext::Default>(
+				inDescriptorSet,
+				*mUniformImagePtr,
+				*mSampler,
+				inDstBinding,
+				inDstArrayElement
+			);
+
+		}
 	private:
 		Up<UniformImageType> mUniformImagePtr;
 		Up<VulkanSampler> mSampler;

@@ -19,12 +19,12 @@ void Jkr::PainterParameterBase::Setup(Up<VulkanSampler>& inStorageImageSampler, 
 	inStorageImageSampler = MakeUp<VulkanSampler>(mInstance.GetDevice());
 }
 
-void Jkr::PainterParameterBase::Setup(Up<VulkanSampler>& inUniformImageSampler, Up<UniformImageType>& inUniformImage, std::string inFileName)
+void Jkr::PainterParameterBase::Setup(Up<VulkanSampler>& inUniformImageSampler, Up<UniformImageType>& inUniformImage, const std::string_view inFileName)
 {
 	int Width;
 	int Height;
 	int Channels;
-	void* data = stbi_load(inFileName.c_str(), &Width, &Height, &Channels, STBI_rgb_alpha);
+	void* data = stbi_load(inFileName.data(), &Width, &Height, &Channels, STBI_rgb_alpha);
 	inUniformImage = MakeUp<VulkanImageVMA<ImageContext::Default>>(mInstance.GetVMA(), mInstance.GetDevice(), Width, Height);
 	inUniformImageSampler = MakeUp<VulkanSampler>(mInstance.GetDevice());
 

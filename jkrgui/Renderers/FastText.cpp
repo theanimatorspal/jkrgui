@@ -110,7 +110,7 @@ void Jkr::Renderer::FastText::Dispatch(Window& inWindow)
 #endif
 }
 
-void Jkr::Renderer::FastText::DrawInit(Window& inWindow)
+void Jkr::Renderer::FastText::Bind(Window& inWindow)
 {
 	mPainter->BindDrawParamters_EXT<PushConstant>(*mPrimitive, inWindow);
 }
