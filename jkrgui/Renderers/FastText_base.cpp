@@ -261,3 +261,5 @@ FastText_base::TextDimensions Jkr::Renderer::FastText_base::UpdateText(uint32_t 
 	GenerateQuadsAt(inText, mCharVertices, mCharIndices, x, y, 1.0f, inId, inDepthValue);
 	return dim;
 }
+
+

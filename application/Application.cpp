@@ -4,6 +4,7 @@
 #include <Renderers/ResourceManager.hpp>
 #include <Renderers/Line.hpp>
 #include <Renderers/FastText.hpp>
+#include <Renderers/Shape.hpp>
 #include <sol/sol.hpp>
 
 int main()
@@ -16,6 +17,11 @@ int main()
 	RendererResources.Load(Instance);
 	auto lr = Jkr::Renderer::Line(Instance, Window, RendererResources.GetLineRendererCache());
 	auto ftx = Jkr::Renderer::FastText(Instance, Window, RendererResources.GetFastTextRendererCache());
+	auto sr = Jkr::Renderer::Shape(Instance, Window, RendererResources.GetShapePainterCaches());
+	uint32_t sid;
+	Jkr::Generator Rectangle(Jkr::Shapes::Rectangle, glm::uvec2(10, 10));
+	sr.Add(Rectangle, 300, 300, 5, sid);
+	//sr.Add(Rectangle, 200, 200, 5, sid);
 
 	for (int i = 0; i < 3; i++)
 	{
@@ -34,13 +40,17 @@ int main()
 		{
 			lr.Dispatch(Window);
 			ftx.Dispatch(Window);
+			sr.Dispatch(Window);
 		};
 	auto Draw = [&](void* data)
 		{
+			auto ws = Window.GetWindowSize();
 			lr.DrawInit(Window);
-			lr.DrawAll(Window, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), Window.GetWindowSize().first, Window.GetWindowSize().second, glm::identity<glm::mat4>());
+			lr.DrawAll(Window, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), ws.first, ws.second, glm::identity<glm::mat4>());
 			ftx.DrawInit(Window);
-			ftx.DrawAll(Window, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), Window.GetWindowSize().first, Window.GetWindowSize().second, glm::identity<glm::mat4>());
+			ftx.DrawAll(Window, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), ws.first, ws.second, glm::identity<glm::mat4>());
+			sr.DrawInit(Window, Jkr::Renderer::FillType::Fill);
+			sr.Draw(Window, glm::vec4(1.0f, 0.3f, 0.5f, 1.0f), ws.first, ws.second, sid, sid, glm::identity<glm::mat4>());
 		};
 
 	static int i = 0;
@@ -59,7 +69,7 @@ int main()
 	while (!EventManager.ShouldQuit())
 	{
 		EventManager.ProcessEvents();
-		Window.Draw();
+		Window.Draw(1.0f, 1.0f, 1.0f, 0.2f);
 	}
 	return 0;
 }

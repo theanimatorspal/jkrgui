@@ -156,6 +156,7 @@ namespace Jkr {
 			uint32_t inDstBinding,
 			uint32_t inDstArrayElement
 		);
+
 		void  OptimizeParameter(const PainterParameter<PainterParameterContext::StorageImage>& inImage, const Window& inWindow)
 		{
 			auto& Cmd = mInstance.GetUtilCommandBuffer().GetCommandBufferHandle();

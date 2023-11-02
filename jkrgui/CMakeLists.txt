@@ -6,4 +6,4 @@ file(GLOB_RECURSE app_SRC CONFIGURE_DEPENDS
 )
 
 
-add_library(jkrgui ${app_SRC} "Renderers/FastText.hpp" "Renderers/FastText.cpp")
+add_library(jkrgui ${app_SRC} "Renderers/FastText.hpp" "Renderers/FastText.cpp" "Renderers/Shape_base.cpp" "Renderers/Shape.cpp" )

@@ -42,6 +42,100 @@ float sdf_line(in vec2 p, in vec2 a, in vec2 b) {
 #define sdf_line(vec2_xy, vec2_a, vec2_b)
 
 
+namespace ShapeRenderers_Fill
+{
+	using namespace glm;
+	const auto VertexShader = [](ksai::Shader& inShader) {
+		GlslShaderStart(vertex);
+
+		GlslVersion(450);
+		GlslShader(vertex);
+		GlslExtension(GL_EXT_debug_printf);
+
+		GlslCodeStart();
+
+		layout(location = 0) in vec3 inPosition;
+		layout(location = 1) in vec2 inTexCoord;
+		layout(location = 0) out vec2 outTexCoord;
+
+		layout(push_constant, std430) uniform pc {
+			mat4 Matrix;
+			vec4 Color;
+			vec4 mParams;
+		} push;
+
+
+		void GlslMain() {
+			vec4 dx = vec4(inPosition.x, inPosition.y, inPosition.z, 1.0);
+			gl_Position = push.Matrix * dx;
+		}
+
+		GlslCodeFinish();
+
+		};
+
+	const auto FragmentShader = [](ksai::Shader& inShader)
+		{
+			GlslShaderStart(fragment);
+
+			GlslVersion(450);
+			GlslExtension(GL_EXT_debug_printf);
+
+			GlslBindOut(vec4, 0, outColor);
+			layout(location = 0) out vec2 inTexCoord;
+
+			GlslCodeStart();
+
+			layout(push_constant, std430) uniform pc {
+				mat4 Matrix;
+				vec4 Color;
+				vec4 mParams;
+			} push;
+
+			void GlslMain()
+			{
+				outColor = push.Color;
+			}
+
+			GlslCodeFinish();
+		};
+
+	const auto ComputeShader = [](ksai::Shader& inShader)
+		{
+			GlslShaderStart(compute);
+
+			GlslVersion(450);
+
+			GlslExtension(GL_EXT_debug_printf);
+
+			GlslCodeStart();
+
+			layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+			layout(push_constant, std430) uniform pc {
+				mat4 Matrix;
+				vec4 Color;
+				vec4 mParams;
+			} push;
+
+			layout(set = 0, binding = 0) uniform sampler2D u_atlas8;
+
+			void GlslMain()
+			{
+				uint gID = gl_GlobalInvocationID.x;
+			}
+
+			GlslCodeFinish();
+
+		};
+}
+
+
+
+
+
+
+
 namespace LineRendererShaders
 {
 	using namespace glm;
@@ -123,6 +217,14 @@ namespace LineRendererShaders
 
 		};
 }
+
+
+
+
+
+
+
+
 
 namespace GUI2DShaders
 {
@@ -281,9 +383,12 @@ namespace GUI2DShaders
 
 }
 
-/*
 
-*/
+
+
+
+
+
 
 
 namespace FontShader
@@ -386,124 +491,15 @@ namespace FontShader
 		};
 }
 
-namespace Sample
-{
-	using namespace glm;
-
-	auto VertexShader = [](ksai::Shader& inShader) {
-		GlslShaderStart(vertex);
-
-		GlslVersion(450);
-		GlslShader(vertex);
-		GlslExtension(GL_EXT_debug_printf);
-
-		GlslCodeStart();
-
-		layout(location = 0) in vec3 inPosition;
-		layout(location = 1) in vec2 inTexCoord;
-
-		layout(location = 0) out vec3 outColor;
-		layout(location = 1) out vec2 outTexCoord;
-
-		layout(push_constant, std430) uniform pc {
-			vec3 vt;
-			mat4 mvp;
-		} push;
-
-		layout(set = 0, binding = 0) uniform  UniformBufferObject {
-			mat4 va;
-		} aUniform;
 
 
-		//layout(set = 0, binding = 0) buffer ModifyBuffer {
-		//	float vectors;
-		//} modifyData;
 
-		void GlslMain() {
-			//			outColor = vec3(modifyData.vectors, 1.0, 0.0);
-			vec4 dx = vec4(inPosition.x, inPosition.y, inPosition.z, 1.0);
-			gl_Position = aUniform.va * dx;
-			outColor = vec3(0, 0, 0);
-			outTexCoord = inTexCoord;
-		}
 
-		GlslCodeFinish();
 
-		};
 
-	auto FragmentShader = [](ksai::Shader& inShader) {
-		GlslShaderStart(fragment);
 
-		GlslVersion(450);
-		GlslExtension(GL_EXT_debug_printf);
 
-		GlslBindIn(vec3, 0, inColor);
-		GlslBindIn(vec2, 1, inTextCoord);
-		GlslBindOut(vec4, 0, outColor);
 
-		GlslCodeStart();
 
-		layout(push_constant, std430) uniform pc {
-			vec3 vt;
-			mat4 mvp;
-		} push;
-
-		layout(set = 0, binding = 0) uniform  UniformBufferObject {
-			mat4 va;
-		} aUniform;
-
-		layout(set = 0, binding = 1, rgba8) uniform readonly image2D storageImage;
-		layout(set = 0, binding = 2) uniform sampler2D Texture;
-		layout(set = 0, binding = 3) uniform sampler2D Glyph;
-
-		void GlslMain()
-		{
-			ivec2  imageSize = imageSize(storageImage);
-			outColor = texture(Texture, inTextCoord);
-		}
-
-		GlslCodeFinish();
-		};
-
-	const auto ComputeShader = [](ksai::Shader& inShader)
-		{
-			GlslShaderStart(compute);
-
-			GlslVersion(450);
-
-			GlslExtension(GL_EXT_debug_printf);
-
-			GlslCodeStart();
-
-			layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
-
-			layout(push_constant, std430) uniform pc {
-				vec3 vt;
-			} push;
-
-			layout(set = 0, binding = 0) uniform  UniformBufferObject {
-				mat4 va;
-			} aUniform;
-
-			layout(set = 0, binding = 1) uniform sampler Sampler;
-
-			//layout(set = 0, binding = 0) buffer ModifyBuffer {
-			//	float vectors;
-			//} modifyData;
-
-			layout(set = 0, binding = 1, rgba8) uniform image2D storageImage;
-			layout(set = 0, binding = 2) uniform sampler2D Texture;
-			layout(set = 0, binding = 3) uniform sampler2D Glyph;
-
-			void GlslMain()
-			{
-				uint gID = gl_GlobalInvocationID.x;
-				imageStore(storageImage, ivec2(gl_GlobalInvocationID.xy), vec4(0, sin(gID), sin(gl_GlobalInvocationID.y), 1));
-			}
-
-			GlslCodeFinish();
-
-		};
-}
 
 #include <ksaiSandBox/UndefGlsl.hpp>

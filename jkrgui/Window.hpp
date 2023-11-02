@@ -42,7 +42,7 @@ namespace Jkr {
 		void SetComputeDispatchCallBack(const std::function<void(void*)>& inFunction) { mComputeDispatchFunction = inFunction; }
 		void SetContextData(void* inData) { mData = inData; }
 		void Refresh();
-		void Draw();
+		void Draw(float r = 0.1f, float g = 0.1f, float b = 0.1f, float a = 0.1f, float d =  1.0f);
 		GETTER& GetCurrentFrame() const { return mCurrentFrame; }
 		GETTER& GetInstance() const { return mInstance; }
 		GETTER& GetRenderPass() const { return mRenderPass; }

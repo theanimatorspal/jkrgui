@@ -17,7 +17,7 @@ namespace Jkr::Renderer
 		enum class AlignH { Center, Left, Right };
 		enum class AlignV { Center, Top, Bottom };
 		struct TextProperty { AlignH H = AlignH::Left; AlignV V = AlignV::Bottom; };
-	public:
+	protected:
 		FastText_base(std::string inFontPath)
 		{
 			ParseBMFont(inFontPath.c_str(), &mFontDescription);
@@ -33,10 +33,10 @@ namespace Jkr::Renderer
 			kstd::ui32 inDepthValue = 0
 		);
 		TextDimensions GetTextDimensions(const std::string_view inString, kstd::f32 inFontSizeInverseFactor = 1.0f);
-	public:
+	protected:
 		TextDimensions AddText(const std::string_view inText, uint32_t inX, uint32_t inY, uint32_t inDepthValue, uint32_t& outId);
 		TextDimensions UpdateText(uint32_t inId, const std::string_view inText, uint32_t inX, uint32_t inY, uint32_t inDepthValue);
-	public:
+	protected:
 		GETTER CharCountToVertexBytes(size_t inCharCount) { return 4 * sizeof(kstd::Vertex) * inCharCount; }
 		GETTER CharCountToIndexBytes(size_t inCharCount) { return 6 * sizeof(uint32_t) * inCharCount; }
 		GETTER GetCurrentCharOffset(const std::string_view inString) const { return mCharCount - inString.size(); }

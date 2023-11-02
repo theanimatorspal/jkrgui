@@ -24,7 +24,7 @@ namespace Jkr
 	class PainterParameterBase
 	{
 	public:
-		PainterParameterBase(const Instance& inInstance) : mInstance(inInstance) {}
+		PainterParameterBase(const Instance& inInstance) : mInstance(inInstance), mVulkanDescriptorSetHandler(mInstance.GetDevice()) {}
 		~PainterParameterBase() = default;
 		PainterParameterBase(PainterParameterBase&& inParam) = default;
 	protected:
@@ -33,7 +33,9 @@ namespace Jkr
 		void Setup(Up<VulkanSampler>& inStorageImageSampler, Up<StorageImageType>& inStorageImage, uint32_t inWidth, uint32_t inHeight);
 		void Setup(Up<VulkanSampler>& inUniformImageSampler, Up<UniformImageType>& inUniformImage, std::string inFileName);
 		void Setup(Up<VulkanSampler>& inUniformImageSampler, Up<UniformImageType>& inUniformImage, void** inData, uint32_t inWidth, uint32_t inHeight, uint32_t inChannelCount);
+	protected:
 		const Instance& mInstance;
+		VulkanDescriptorUpdateHandler mVulkanDescriptorSetHandler;
 	};
 	template <PainterParameterContext inContext>
 	class PainterParameter : public PainterParameterBase { };

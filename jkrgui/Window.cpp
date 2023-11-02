@@ -149,7 +149,7 @@ Jkr::Window::Window(const Instance& inInstance, std::string inTitle, int inHeigh
 {
 }
 
-void Jkr::Window::Draw()
+void Jkr::Window::Draw(float r, float g, float b, float a, float d)
 {
 	mUpdateFunction(mData);
 	std::array<float, 5>
