@@ -16,6 +16,7 @@ Jkr::Renderer::Shape::Shape(const Instance& inInstance, Window& inCompatibleWind
 
 void Jkr::Renderer::Shape::Add(Jkr::Generator& inShape, uint32_t inX, uint32_t inY, uint32_t inZ, uint32_t& outId)
 {
+	CheckAndResize(inShape);
 	sb::Add(inShape, inX, inY, inZ, outId);
 	const auto OffsetId = (uint32_t)outId;
 #ifndef JKR_NO_STAGING_BUFFERS
@@ -124,6 +125,51 @@ void Jkr::Renderer::Shape::Draw(Window& inWindow, glm::vec4 inColor, uint32_t in
 	);
 }
 
-void Jkr::Renderer::Shape::CheckAndResize(const Jkr::Generator& inShape, const Instance& inInstance, uint32_t inNewSizeNeeded)
+void Jkr::Renderer::Shape::CheckAndResize(const Jkr::Generator& inShape)
 {
+	bool ResizeRequired =
+		(inShape.GetIndexCount() + sb::GetCurrentIndexOffset() >= mTotalNoOfIndicesRendererCanHold) ||
+		(inShape.GetVertexCount() + sb::GetCurrentVertexOffset() >= mTotalNoOfVerticesRendererCanHold);
+	if (ResizeRequired)
+	{
+		mTotalNoOfVerticesRendererCanHold *= 2;
+		mTotalNoOfIndicesRendererCanHold *= 2;
+		sb::Resize(mTotalNoOfVerticesRendererCanHold, mTotalNoOfIndicesRendererCanHold);
+		mPrimitive.reset();
+		mPrimitive = MakeUp<Primitive>(
+			mInstance,
+			sb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
+			sb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold)
+		);
+#ifndef JKR_NO_STAGING_BUFFERS
+		rb::ResizeStagingBuffer(
+			mInstance,
+			sb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
+			sb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold)
+		);
+		rb::CopyToStagingBuffers(
+			sb::GetVertexBufferData(),
+			sb::GetIndexBufferData(),
+			sb::VertexCountToBytes(0),
+			sb::IndexCountToBytes(0),
+			sb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
+			sb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold)
+		);
+		rb::RegisterBufferCopyRegionToPrimitiveFromStaging(
+			sb::VertexCountToBytes(0),
+			sb::IndexCountToBytes(0),
+			sb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
+			sb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold)
+		);
+#else
+		rb::CopyToPrimitive(*mPrimitive,
+			sb::GetVertexBufferData(),
+			sb::GetIndexBufferData(),
+			sb::LineCountToVertexBytes(0),
+			sb::LineCountToIndexBytes(0),
+			sb::LineCountToVertexBytes(mTotalNoOfLinesRendererCanHold),
+			sb::LineCountToIndexBytes(mTotalNoOfLinesRendererCanHold)
+		);
+#endif
+	}
 }

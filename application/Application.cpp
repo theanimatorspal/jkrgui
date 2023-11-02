@@ -18,10 +18,10 @@ int main()
 	auto lr = Jkr::Renderer::Line(Instance, Window, RendererResources.GetLineRendererCache());
 	auto ftx = Jkr::Renderer::FastText(Instance, Window, RendererResources.GetFastTextRendererCache());
 	auto sr = Jkr::Renderer::Shape(Instance, Window, RendererResources.GetShapePainterCaches());
-	uint32_t sid;
+	uint32_t sid1, sid2;
 	Jkr::Generator Rectangle(Jkr::Shapes::Rectangle, glm::uvec2(10, 10));
-	sr.Add(Rectangle, 300, 300, 5, sid);
-	//sr.Add(Rectangle, 200, 200, 5, sid);
+	sr.Add(Rectangle, 300, 300, 5, sid1);
+	sr.Add(Rectangle, 200, 200, 5, sid2);
 
 	for (int i = 0; i < 3; i++)
 	{
@@ -50,7 +50,7 @@ int main()
 			ftx.DrawInit(Window);
 			ftx.DrawAll(Window, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), ws.first, ws.second, glm::identity<glm::mat4>());
 			sr.DrawInit(Window, Jkr::Renderer::FillType::Fill);
-			sr.Draw(Window, glm::vec4(1.0f, 0.3f, 0.5f, 1.0f), ws.first, ws.second, sid, sid, glm::identity<glm::mat4>());
+			sr.Draw(Window, glm::vec4(1.0f, 0.3f, 0.5f, 1.0f), ws.first, ws.second, sid1, sid2, glm::identity<glm::mat4>());
 		};
 
 	static int i = 0;

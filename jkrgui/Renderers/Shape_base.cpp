@@ -3,11 +3,21 @@
 using namespace Jkr;
 using namespace Jkr::Renderer;
 
+Generator::Generator(Shapes inShape, Arguments inArgs) : mArgs(inArgs), mShape(inShape)
+{
+	switch (inShape)
+	{
+	case Shapes::Rectangle:
+		mVertexCount = 4;
+		mIndexCount = 6;
+		break;
+	}
+}
 
 void Jkr::Generator::operator()(uint32_t inX, uint32_t inY, uint32_t inZ, uint32_t inStartVertexIndex, uint32_t inStartIndexIndex, std::vector<kstd::Vertex>& modVertices, std::vector<uint32_t>& modIndices, uint32_t& outVertexCount, uint32_t& outIndexCount)
 {
-	if (mShape == Shapes::Rectangle)
-	{
+	switch (mShape) {
+	case Shapes::Rectangle:
 		auto x = inX;
 		auto dx = std::get<glm::uvec2>(mArgs).x;
 		auto y = inY;
@@ -43,12 +53,11 @@ void Jkr::Generator::operator()(uint32_t inX, uint32_t inY, uint32_t inZ, uint32
 		modIndices[i_index + 5] = v_index + 3;
 		outVertexCount = 4;
 		outIndexCount = 6;
-		mVertexCount = 4;
-		mIndexCount = 6;
+		break;
 	}
 }
 
-void Jkr::Renderer::Shape_base::Add(Jkr::Generator &inShape, uint32_t inX, uint32_t inY, uint32_t inZ, uint32_t& outId)
+void Jkr::Renderer::Shape_base::Add(Jkr::Generator& inShape, uint32_t inX, uint32_t inY, uint32_t inZ, uint32_t& outId)
 {
 	uint32_t vcount = 0;
 	uint32_t icount = 0;

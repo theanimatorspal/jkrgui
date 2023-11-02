@@ -29,7 +29,7 @@ namespace Jkr::Renderer
 		uint32_t mTotalNoOfVerticesRendererCanHold = 10;
 		uint32_t mTotalNoOfIndicesRendererCanHold = 10;
 	private:
-		void CheckAndResize(const Jkr::Generator& inShape, const Instance& inInstance, uint32_t inNewSizeNeeded);
+		void CheckAndResize(const Jkr::Generator& inShape);
 		const Instance& mInstance;
 		std::unordered_map<FillType, Up<PainterCache>>& mPainterCaches;
 		std::unordered_map<FillType, Up<Painter>> mPainters;

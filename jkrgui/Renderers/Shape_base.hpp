@@ -19,8 +19,7 @@ namespace Jkr
 			std::vector<glm::uvec2>,
 			uint32_t
 		>;
-		Generator(Shapes inShape, Arguments inArgs) : mArgs(inArgs), mShape(inShape)
-		{ }
+		Generator(Shapes inShape, Arguments inArgs);
 		void operator()(uint32_t inX,
 			uint32_t inY,
 			uint32_t inZ,
@@ -64,6 +63,13 @@ namespace Jkr::Renderer
 		GETTER GetIndexCount(uint32_t inId) const { return mGenerators[inId].GetIndexCount(); }
 		GETTER GetEndVertexOffsetAbsolute(uint32_t inId) const { return mEndOffsetVertexOfShape[inId]; }
 		GETTER GetEndIndexOffsetAbsolute(uint32_t inId) const { return mEndOffsetIndexOfShape[inId]; }
+		GETTER GetCurrentVertexOffset() const { return mOffsetVertex; }
+		GETTER GetCurrentIndexOffset() const { return mOffsetIndices; }
+		void Resize(uint32_t inNewSizeVertex, uint32_t inNewSizeIndex)
+		{
+			mVertices.reserve(inNewSizeVertex);
+			mIndices.reserve(inNewSizeIndex);
+		}
 	private:
 		uint32_t mNoOfShapes = 0;
 		std::vector<kstd::Vertex> mVertices;
