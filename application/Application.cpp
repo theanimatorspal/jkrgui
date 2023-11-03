@@ -21,19 +21,29 @@ int main()
 	uint32_t sid1, sid2;
 	Jkr::Generator Rectangle(Jkr::Shapes::Rectangle, glm::uvec2(50, 50));
 	sr.Add(Rectangle, 300, 300, 5, sid1);
-	sr.Add(Rectangle, 200, 200, 5, sid2);
+	sr.Add(Rectangle, 0, 0, 5, sid2);
 
-	Jkr::Generator Rectangle2(Jkr::Shapes::Rectangle, glm::uvec2(50, 50));
+	
+	std::array<glm::uvec2, 4> Pts;
+	Pts[0] = glm::uvec2(300, 150);
+	Pts[1] = glm::uvec2(500, 100);
+	Pts[2] = glm::uvec2(300, 50);
+	Pts[3] = glm::uvec2(500, 0);
+	Jkr::Generator::Arguments x = Pts;
+	Jkr::Generator Bezier(Jkr::Shapes::Bezier2_8, x);
+
+	uint32_t bez_id;
+	sr.Add(Bezier, 100, 100, 6, bez_id);
 
 	uint32_t imageId; sr.AddImage("image.png", imageId);
-	uint32_t imageId2; sr.AddImage("image.png", imageId);
+	uint32_t imageId2; sr.AddImage("image.png", imageId2);
 
 	uint32_t sidn;
 	for (int i = 0; i < 3; i++)
 	{
 		uint32_t id;
 		lr.AddLine(glm::vec2(i * 20, 0), glm::vec2(100, 100), 5, id);
-		sr.Add(Rectangle, i*20, 300, 5, sidn);
+		sr.Add(Rectangle, i * 20, 300, 5, sidn);
 	}
 	uint32_t xxx;
 	uint32_t id;
@@ -49,31 +59,34 @@ int main()
 			ftx.Dispatch(Window);
 			sr.Dispatch(Window);
 		};
-	auto Draw = [&](void* data)
-		{
-			auto ws = Window.GetWindowSize();
-			lr.Bind(Window);
-			lr.DrawAll(Window, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), ws.first, ws.second, glm::identity<glm::mat4>());
-			ftx.Bind(Window);
-			ftx.DrawAll(Window, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), ws.first, ws.second, glm::identity<glm::mat4>());
-
-			sr.BindShapes(Jkr::Renderer::FillType::Fill, Window);
-			//sr.BindFillMode(Jkr::Renderer::FillType::Fill, Window);
-			//sr.Draw(Window, glm::vec4(1.0f, 0.3f, 0.5f, 1.0f), ws.first, ws.second, sid1, sid1, glm::identity<glm::mat4>());
-			sr.BindFillMode(Jkr::Renderer::FillType::Image, Window);
-			sr.BindImage(Window, imageId);
-			sr.Draw(Window, glm::vec4(1.0f, 0.3f, 0.5f, 1.0f), ws.first, ws.second, sid1, sid1, glm::identity<glm::mat4>());
-			sr.BindImage(Window, imageId2);
-			sr.Draw(Window, glm::vec4(1.0f, 0.3f, 0.5f, 1.0f), ws.first, ws.second, sid2, sid2, glm::identity<glm::mat4>());
-			sr.BindFillMode(Jkr::Renderer::FillType::Fill, Window);
-			sr.Draw(Window, glm::vec4(1.0f, 0.3f, 0.5f, 1.0f), ws.first, ws.second, sid2, sidn, glm::identity<glm::mat4>());
-		};
 
 	static int i = 0;
+	auto Draw = [&](void* data)
+		{
+			glm::mat4 matrixF = glm::identity<glm::mat4>();
+			auto ws = Window.GetWindowSize();
+			lr.Bind(Window);
+			lr.DrawAll(Window, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), ws.first, ws.second, matrixF);
+			ftx.Bind(Window);
+			ftx.DrawAll(Window, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), ws.first, ws.second, matrixF);
+
+
+			sr.BindShapes(Jkr::Renderer::FillType::Fill, Window);
+			matrixF = glm::translate(matrixF, glm::vec3(1.0f * i, 0.0f, 0.0f));
+
+			sr.BindFillMode(Jkr::Renderer::FillType::Image, Window);
+			sr.BindImage(Window, imageId);
+			sr.Draw(Window, glm::vec4(1.0f, 0.3f, 0.5f, 1.0f), ws.first, ws.second, sid1, sid1, matrixF);
+			matrixF = glm::translate(matrixF, glm::vec3(-5.0f * i, 0.0f, 0.0f));
+			sr.Draw(Window, glm::vec4(1.0f, 0.3f, 0.5f, 1.0f), ws.first, ws.second, sid1, sid1, matrixF);
+			sr.BindFillMode(Jkr::Renderer::FillType::ContinousLine, Window);
+			sr.Draw(Window, glm::vec4(1.0f, 0.3f, 0.5f, 1.0f), ws.first, ws.second, bez_id, bez_id, glm::identity<glm::mat4>());
+		};
+
 	auto Update = [&](void* data)
 		{
-			lr.AddLine(glm::vec2(10 * 20, i), glm::vec2(100, 100), 5, id);
-			ftx.AddText("Fucko", 500, 300, 5, id);
+			//lr.AddLine(glm::vec2(10 * 20, i), glm::vec2(100, 100), 5, id);
+			//ftx.AddText("Fucko", 500, 300, 5, id);
 			i++;
 		};
 

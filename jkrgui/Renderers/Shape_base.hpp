@@ -5,10 +5,11 @@
 #include <string>
 #include <variant>
 #include <Global/Standards.hpp>
+#include <span>
 
 namespace Jkr
 {
-	enum class Shapes { Circle, Rectangle };
+	enum class Shapes { Circle, Rectangle, Bezier2_8 };
 	using namespace Jkr;
 	using namespace ksai;
 	class Generator
@@ -16,7 +17,7 @@ namespace Jkr
 	public:
 		using Arguments = std::variant<
 			glm::uvec2,
-			std::vector<glm::uvec2>,
+			std::span<glm::uvec2>,
 			uint32_t
 		>;
 		Generator(Shapes inShape, Arguments inArgs);
@@ -26,9 +27,7 @@ namespace Jkr
 			uint32_t inStartVertexIndex,
 			uint32_t inStartIndexIndex,
 			std::vector<kstd::Vertex>& modVertices,
-			std::vector<uint32_t>& modIndices,
-			uint32_t& outVertexCount,
-			uint32_t& outIndexCount
+			std::vector<uint32_t>& modIndices
 			);
 		Shapes GetShape() const { return mShape; }
 		uint32_t GetVertexCount() const { return mVertexCount; }

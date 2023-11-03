@@ -5,6 +5,7 @@ Jkr::Renderer::Shape::Shape(const Instance& inInstance, Window& inCompatibleWind
 {
 	mPainters[FillType::Fill] = MakeUp<Painter>(inInstance, inCompatibleWindow, *inPainterCaches[FillType::Fill]);
 	mPainters[FillType::Image] = MakeUp<Painter>(inInstance, inCompatibleWindow, *inPainterCaches[FillType::Image]);
+	mPainters[FillType::ContinousLine] = MakeUp<Painter>(inInstance, inCompatibleWindow, *inPainterCaches[FillType::ContinousLine]);
 #ifndef JKR_NO_STAGING_BUFFERS
 	rb::CreateStagingBuffers(
 		inInstance,
@@ -112,6 +113,7 @@ void Jkr::Renderer::Shape::Dispatch(Window& inWindow)
 void Jkr::Renderer::Shape::BindFillMode(FillType inFillType, Window& inWindow)
 {
 	mPainters[inFillType]->BindDrawParamtersPipelineOnly_EXT<PushConstant>(*mPrimitive, inWindow);
+	mCurrentFillMode = inFillType;
 }
 
 void Jkr::Renderer::Shape::BindImage(Window& inWindow, uint32_t inImageId)
@@ -149,11 +151,12 @@ void Jkr::Renderer::Shape::Draw(Window& inWindow, glm::vec4 inColor, uint32_t in
 	Push.mColor = inColor;
 	Push.mMatrix = Matrix;
 
-	mPainters[FillType::Fill]->Draw_EXT<PushConstant>(
+
+	mPainters[mCurrentFillMode]->Draw_EXT<PushConstant>(
 		*mPrimitive,
 		Push,
 		inWindow,
-		sb::GetEndIndexOffsetAbsolute(inEndShapeId),//TODO
+		sb::GetEndIndexOffsetAbsolute(inEndShapeId) - sb::GetIndexOffsetAbsolute(inStartShapeId),//TODO
 		1,
 		sb::GetIndexOffsetAbsolute(inStartShapeId),
 		0
@@ -167,8 +170,8 @@ void Jkr::Renderer::Shape::CheckAndResize(const Jkr::Generator& inShape)
 		(inShape.GetVertexCount() + sb::GetCurrentVertexOffset() >= mTotalNoOfVerticesRendererCanHold);
 	if (ResizeRequired)
 	{
-		mTotalNoOfVerticesRendererCanHold *= 2;
-		mTotalNoOfIndicesRendererCanHold *= 2;
+		mTotalNoOfVerticesRendererCanHold *= rb::RendererCapacityResizeFactor;
+		mTotalNoOfIndicesRendererCanHold *= rb::RendererCapacityResizeFactor;
 		sb::Resize(mTotalNoOfVerticesRendererCanHold, mTotalNoOfIndicesRendererCanHold);
 		mPrimitive.reset();
 		mPrimitive = MakeUp<Primitive>(
@@ -200,10 +203,10 @@ void Jkr::Renderer::Shape::CheckAndResize(const Jkr::Generator& inShape)
 		rb::CopyToPrimitive(*mPrimitive,
 			sb::GetVertexBufferData(),
 			sb::GetIndexBufferData(),
-			sb::LineCountToVertexBytes(0),
-			sb::LineCountToIndexBytes(0),
-			sb::LineCountToVertexBytes(mTotalNoOfLinesRendererCanHold),
-			sb::LineCountToIndexBytes(mTotalNoOfLinesRendererCanHold)
+			sb::VertexCountToBytes(0),
+			sb::IndexCountToBytes(0),
+			sb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
+			sb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold)
 		);
 #endif
 	}

@@ -144,7 +144,7 @@ void Jkr::Renderer::FastText::CheckAndResize(size_t inNewSize)
 {
 	if (inNewSize + GetCurrentCharOffsetAbsolute() >= mTotalNoOfCharsRendererCanHold || inNewSize >= mTotalNoOfCharsRendererCanHold)
 	{
-		mTotalNoOfCharsRendererCanHold *= 2;
+		mTotalNoOfCharsRendererCanHold *= rb::RendererCapacityResizeFactor;
 		fb::Resize(mTotalNoOfCharsRendererCanHold);
 		mPrimitive.reset();
 		mPrimitive = MakeUp<Primitive>(

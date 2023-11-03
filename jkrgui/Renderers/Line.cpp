@@ -136,7 +136,7 @@ void Jkr::Renderer::Line::CheckAndResize(const Instance& inInstance, uint32_t in
 {
 	if (inNewSizeNeeded + lb::GetCurrentLineOffset() >= mTotalNoOfLinesRendererCanHold)
 	{
-		mTotalNoOfLinesRendererCanHold *= 2;
+		mTotalNoOfLinesRendererCanHold *= rb::RendererCapacityResizeFactor;
 		lb::Resize(mTotalNoOfLinesRendererCanHold);
 		mPrimitive.reset();
 		mPrimitive = MakeUp<Primitive>(

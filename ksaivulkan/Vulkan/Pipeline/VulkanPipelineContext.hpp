@@ -7,7 +7,7 @@ namespace ksai {
 	{
 		Default,
 		Line,
-		GUI
+		LineStrip
 	};
 
 	class VulkanPipelineContextBase
@@ -46,6 +46,14 @@ namespace ksai {
 				mPolygonMode = vk::PolygonMode::eLine;
 				mCullMode = vk::CullModeFlagBits::eNone;
 				mFrontFace = vk::FrontFace::eCounterClockwise;
+			}
+			if (inContext == PipelinePropertiesContext::LineStrip)
+			{
+				mTopology = vk::PrimitiveTopology::eLineStrip;
+				mPolygonMode = vk::PolygonMode::eLine;
+				mCullMode = vk::CullModeFlagBits::eNone;
+				mFrontFace = vk::FrontFace::eCounterClockwise;
+
 			}
 		}
 	};

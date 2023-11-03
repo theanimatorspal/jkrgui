@@ -29,8 +29,9 @@ namespace Jkr::Renderer
 		/*
 		Here Primitive Elements is a factor
 		*/
-		uint32_t mTotalNoOfVerticesRendererCanHold = 10;
-		uint32_t mTotalNoOfIndicesRendererCanHold = 10;
+		uint32_t mTotalNoOfVerticesRendererCanHold = rb::InitialRendererElementArraySize;
+		uint32_t mTotalNoOfIndicesRendererCanHold = rb::InitialRendererElementArraySize;
+		FillType mCurrentFillMode = FillType::Fill;
 	private:
 		void CheckAndResize(const Jkr::Generator& inShape);
 		const Instance& mInstance;

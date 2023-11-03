@@ -10,7 +10,7 @@ namespace Jkr::Renderer
 	{
 		Fill,
 		Image,
-		WireFrame
+		ContinousLine
 	};
 	class ResourceManager
 	{
@@ -18,11 +18,13 @@ namespace Jkr::Renderer
 		std::string FastTextRendererCacheFileName = "FastTextRendererCache.bin";
 		std::string ShapeRendererCacheFileName_Fill = "ShapeRendererCache_Fill.bin";
 		std::string ShapeRendererCacheFileName_Image = "ShapeRendererCache_Image.bin";
+		std::string ShapeRendererCacheFileName_ContinousLine = "ShapeRendererCache_ContinousLine.bin";
 		void Make(const Jkr::Instance& inInstance) {
 			mLineRendererCache = MakeUp<Jkr::PainterCache>(inInstance, ksai::PipelinePropertiesContext::Line);
 			mFastTextRendererCache = MakeUp<Jkr::PainterCache>(inInstance);
 			mShapePainterCaches[FillType::Fill] = MakeUp<Jkr::PainterCache>(inInstance);
 			mShapePainterCaches[FillType::Image] = MakeUp<Jkr::PainterCache>(inInstance);
+			mShapePainterCaches[FillType::ContinousLine] = MakeUp<Jkr::PainterCache>(inInstance, ksai::PipelinePropertiesContext::LineStrip);
 		}
 	public:
 		ResourceManager& Load(const Jkr::Instance& inInstance) {
@@ -31,6 +33,7 @@ namespace Jkr::Renderer
 			mFastTextRendererCache->Load(FastTextRendererCacheFileName);
 			mShapePainterCaches[FillType::Fill]->Load(ShapeRendererCacheFileName_Fill);
 			mShapePainterCaches[FillType::Image]->Load(ShapeRendererCacheFileName_Image);
+			mShapePainterCaches[FillType::ContinousLine]->Load(ShapeRendererCacheFileName_ContinousLine);
 			return *this;
 		}
 		ResourceManager& Store(const Jkr::Instance& inInstance) {
@@ -47,6 +50,7 @@ namespace Jkr::Renderer
 			mFastTextRendererCache->Store(FastTextRendererCacheFileName, FastText.GetVertexShader().str(), FastText.GetFragmentShader().str(), FastTextCompute.GetComputeShader().str());
 			mShapePainterCaches[FillType::Fill]->Store(ShapeRendererCacheFileName_Fill, Shape_Fill.GetVertexShader().str(), Shape_Fill.GetFragmentShader().str(), Shape_FillCompute.GetComputeShader().str());
 			mShapePainterCaches[FillType::Image]->Store(ShapeRendererCacheFileName_Image, Shape_Image.GetVertexShader().str(), Shape_Image.GetFragmentShader().str(), Shape_ImageCompute.GetComputeShader().str());
+			mShapePainterCaches[FillType::ContinousLine]->Store(ShapeRendererCacheFileName_ContinousLine, Shape_Fill.GetVertexShader().str(), Shape_Fill.GetFragmentShader().str(), Shape_FillCompute.GetComputeShader().str());
 			return *this;
 		}
 		GETTER& GetLineRendererCache() { return *mLineRendererCache; }

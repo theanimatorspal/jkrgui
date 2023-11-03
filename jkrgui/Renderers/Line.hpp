@@ -25,7 +25,7 @@ namespace Jkr::Renderer {
 			glm::mat4 mMatrix;
 			glm::vec4 mColor;
 		};
-		uint32_t mTotalNoOfLinesRendererCanHold = 10;
+		uint32_t mTotalNoOfLinesRendererCanHold = rb::InitialRendererElementArraySize;
 	private:
 		void CheckAndResize(const Instance& inInstance, uint32_t inNewSizeNeeded);
 		const Instance& mInstance;

@@ -11,13 +11,18 @@ Generator::Generator(Shapes inShape, Arguments inArgs) : mArgs(inArgs), mShape(i
 		mVertexCount = 4;
 		mIndexCount = 6;
 		break;
+	case Shapes::Bezier2_8:
+		mVertexCount = 8;
+		mIndexCount = 8;
 	}
 }
 
-void Jkr::Generator::operator()(uint32_t inX, uint32_t inY, uint32_t inZ, uint32_t inStartVertexIndex, uint32_t inStartIndexIndex, std::vector<kstd::Vertex>& modVertices, std::vector<uint32_t>& modIndices, uint32_t& outVertexCount, uint32_t& outIndexCount)
+void Jkr::Generator::operator()(uint32_t inX, uint32_t inY, uint32_t inZ, uint32_t inStartVertexIndex, uint32_t inStartIndexIndex, std::vector<kstd::Vertex>& modVertices, std::vector<uint32_t>& modIndices)
 {
-	switch (mShape) {
+	switch (mShape) 
+	{
 	case Shapes::Rectangle:
+	{
 		auto x = inX;
 		auto dx = std::get<glm::uvec2>(mArgs).x;
 		auto y = inY;
@@ -51,22 +56,49 @@ void Jkr::Generator::operator()(uint32_t inX, uint32_t inY, uint32_t inZ, uint32
 		modIndices[i_index + 3] = v_index + 0;
 		modIndices[i_index + 4] = v_index + 2;
 		modIndices[i_index + 5] = v_index + 3;
-		outVertexCount = 4;
-		outIndexCount = 6;
 		break;
+	}
+	case Shapes::Bezier2_8:
+	{
+		modVertices.resize(8 + modVertices.size());
+		modIndices.resize(8 + modIndices.size());
+		const auto v_index = inStartVertexIndex;
+		const auto i_index = inStartIndexIndex;
+		float del_t = 1.0f / 8.0f;
+		float t = 0.0f;
+		auto& p = std::get<std::span<glm::uvec2>>(mArgs);
+		auto p_o = glm::vec2(p[0].x, p[0].y);
+		auto p_1 = glm::vec2(p[1].x, p[1].y);
+		auto p_2 = glm::vec2(p[2].x, p[2].y);
+		auto p_3 = glm::vec2(p[3].x, p[3].y);
+		for (int i = 0; i < 8; i++)
+		{
+			const glm::vec2 pt =
+				(1-t) * (1-t) * (1-t) * p_o +
+				3 * (1-t) * (1-t) * t * p_1 + 
+				3 * (1-t) * t * t * p_2 +
+				t * t * t * p_3;
+
+			modVertices[v_index + i] = kstd::Vertex{
+				.mPosition = glm::vec3(pt.x + inX, pt.y + inY, inZ),
+				.mTextureCoordinates = glm::vec2(0, 0)
+			};
+			modIndices[i + i_index] = i + v_index;
+			t += del_t;
+		}
+	}
+	break;
 	}
 }
 
 void Jkr::Renderer::Shape_base::Add(Jkr::Generator& inShape, uint32_t inX, uint32_t inY, uint32_t inZ, uint32_t& outId)
 {
-	uint32_t vcount = 0;
-	uint32_t icount = 0;
-	inShape(inX, inY, inZ, mOffsetVertex, mOffsetIndices, mVertices, mIndices, vcount, icount);
+	inShape(inX, inY, inZ, mOffsetVertex, mOffsetIndices, mVertices, mIndices);
 	mOffsetVertexOfShape.push_back(mOffsetVertex);
 	mOffsetIndexOfShape.push_back(mOffsetIndices);
 	mGenerators.push_back(inShape);
-	mOffsetVertex += vcount;
-	mOffsetIndices += icount;
+	mOffsetVertex += inShape.GetVertexCount();
+	mOffsetIndices += inShape.GetIndexCount();
 	mEndOffsetVertexOfShape.push_back(mOffsetVertex);
 	mEndOffsetIndexOfShape.push_back(mOffsetIndices);
 	outId = mNoOfShapes;
@@ -80,5 +112,5 @@ void Jkr::Renderer::Shape_base::Update(Jkr::Generator& inShape, uint32_t inId, u
 {
 	uint32_t vcount = 0;
 	uint32_t icount = 0;
-	inShape(inX, inY, inZ, mOffsetVertexOfShape[inId], mOffsetIndexOfShape[inId], mVertices, mIndices, vcount, icount);
+	inShape(inX, inY, inZ, mOffsetVertexOfShape[inId], mOffsetIndexOfShape[inId], mVertices, mIndices);
 }

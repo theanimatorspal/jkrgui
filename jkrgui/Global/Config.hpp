@@ -1,3 +1,10 @@
 #pragma once
-//#define JKR_NO_STAGING_BUFFERS
+#include <Vulkan/Config.hpp>
+
+#define JKR_NO_STAGING_BUFFERS
 //#define JKR_USE_COMPUTE_SHADER_TO_GENERATE_SHAPES
+
+
+#ifdef USE_VARIABLE_DESCRIPTOR_INDEXING_FEATURE
+	#define JKR_USE_VARIABLE_DES_INDEXING
+#endif
