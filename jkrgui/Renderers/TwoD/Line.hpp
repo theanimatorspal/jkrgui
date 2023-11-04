@@ -1,6 +1,6 @@
 #pragma once
 #include "Line_base.hpp"
-#include "Renderer_base.hpp"
+#include "../Renderer_base.hpp"
 
 
 namespace Jkr::Renderer {
@@ -15,7 +15,7 @@ namespace Jkr::Renderer {
 		void UpdateLine(uint32_t inId, glm::vec2 inFirstPoint, glm::vec2 inSecondPoint, float inDepthValue);
 		void Dispatch(Window& inWindow);
 		void Bind(Window& inWindow);
-		void Draw(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inStartLineId, uint32_t inNoOfChars, glm::mat4 inMatrix);
+		void Draw(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inStartLineId, uint32_t inEndLineId, glm::mat4 inMatrix);
 		void DrawAll(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, glm::mat4 inMatrix)
 		{
 			Draw(inWindow, inColor, inWindowW, inWindowH, 0, lb::GetCurrentLineOffsetAbsolute(), inMatrix);

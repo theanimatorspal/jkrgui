@@ -53,7 +53,6 @@ namespace Jkr {
 			bool success = SpirvHelper::GLSLtoSPV(vk::ShaderStageFlagBits::eCompute, inComputeShaderString.c_str(), outComputeShaderModule);
 			if (!success) __debugbreak();
 			SpirvHelper::Finalize();
-
 		}
 	};
 }

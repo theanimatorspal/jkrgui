@@ -7,6 +7,7 @@ namespace ksai
 		{
 			uint32_t previousBindingIndex = 0;
 			uint32_t AttributeOffset = 0;
+			InputAttrDescription.resize(Resources.stage_inputs.size());
 			for (auto i = 0; i < Resources.stage_inputs.size(); i++)
 			{
 				auto& u = Resources.stage_inputs[i];
@@ -63,7 +64,9 @@ namespace ksai
 		auto& VertexShaderCompiler = inModules[0].GetShaderResourcesCompilerHandle();
 		auto& VertexShaderResources = inModules[0].GetShaderResourcesHandle();
 		std::vector<vk::VertexInputBindingDescription> VertexInputBindingDesp;
-		std::vector<vk::VertexInputAttributeDescription> InputAttrDescription(VertexShaderResources.stage_inputs.size());
+
+		std::vector<vk::VertexInputAttributeDescription> InputAttrDescription;
+
 		FillVertexInputDescriptions(VertexShaderResources, VertexShaderCompiler, VertexInputBindingDesp, InputAttrDescription);
 		auto PipelineVertexInputStateCreateInfo = vk::PipelineVertexInputStateCreateInfo(
 			vk::PipelineVertexInputStateCreateFlags(),

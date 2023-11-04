@@ -106,7 +106,7 @@ void Jkr::Renderer::Line::Bind(Window& inWindow)
 	mPainter->BindDrawParamters_EXT<PushConstant>(*mPrimitive, inWindow);
 }
 
-void Jkr::Renderer::Line::Draw(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inStartLineId, uint32_t inNoOfLines, glm::mat4 inMatrix)
+void Jkr::Renderer::Line::Draw(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inStartLineId, uint32_t inEndLineId, glm::mat4 inMatrix)
 {
 	glm::mat4 Matrix = glm::ortho(
 		0.0f,
@@ -124,7 +124,7 @@ void Jkr::Renderer::Line::Draw(Window& inWindow, glm::vec4 inColor, uint32_t inW
 		*mPrimitive,
 		Push,
 		inWindow,
-		2 * inNoOfLines,
+		2 * (inEndLineId - inStartLineId + 1),
 		1,
 		inStartLineId * 2,
 		0
@@ -134,9 +134,22 @@ void Jkr::Renderer::Line::Draw(Window& inWindow, glm::vec4 inColor, uint32_t inW
 
 void Jkr::Renderer::Line::CheckAndResize(const Instance& inInstance, uint32_t inNewSizeNeeded)
 {
-	if (inNewSizeNeeded + lb::GetCurrentLineOffset() >= mTotalNoOfLinesRendererCanHold)
+	bool ResizeRequired = false;
+	while (true)
 	{
-		mTotalNoOfLinesRendererCanHold *= rb::RendererCapacityResizeFactor;
+		bool ResizeRequiredi = (inNewSizeNeeded + lb::GetCurrentLineOffset() >= mTotalNoOfLinesRendererCanHold);
+		if (ResizeRequiredi)
+		{
+			mTotalNoOfLinesRendererCanHold *= rb::RendererCapacityResizeFactor;
+			ResizeRequired = true;
+		}
+		else {
+			break;
+		}
+	}
+
+	if (ResizeRequired)
+	{
 		lb::Resize(mTotalNoOfLinesRendererCanHold);
 		mPrimitive.reset();
 		mPrimitive = MakeUp<Primitive>(

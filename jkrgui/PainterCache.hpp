@@ -31,10 +31,11 @@ namespace Jkr {
 		explicit PainterCache(const Instance& inInstance, PipelinePropertiesContext inContext = PipelinePropertiesContext::Default);
 		PainterCache& Store(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader);
 		PainterCache& Load(const std::string& fileName);
-		PainterCache& Store_EXT(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader);
-		PainterCache& Load_EXT(const std::string& fileName);
-		// TODO For now, EXT indicates it supports variable descriptor sets (the last one in fragment shader)
 
+#ifdef JKR_USE_VARIABLE_DES_INDEXING
+		PainterCache& __var_des_index_Store_EXT(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader);
+		PainterCache& __var_des_index_Load_EXT(const std::string& fileName);
+#endif
 		/*
 			The Store And Load functions take the same paramter for consistency.
 		*/

@@ -59,7 +59,8 @@ Jkr::PainterCache& Jkr::PainterCache::Store(const std::string& fileName, const s
 }
 
 
-Jkr::PainterCache& Jkr::PainterCache::Load_EXT(const std::string& fileName)
+#ifdef JKR_USE_VARIABLE_DES_INDEXING
+Jkr::PainterCache& Jkr::PainterCache::__var_des_index_Load_EXT(const std::string& fileName)
 {
 	time.reset();
 	LoadSPIRVsFromFile(fileName);
@@ -79,7 +80,7 @@ Jkr::PainterCache& Jkr::PainterCache::Load_EXT(const std::string& fileName)
 	return *this;
 }
 
-Jkr::PainterCache& Jkr::PainterCache::Store_EXT(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader)
+Jkr::PainterCache& Jkr::PainterCache::__var_des_index_Store_EXT(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader)
 {
 
 	time.reset();
@@ -101,6 +102,8 @@ Jkr::PainterCache& Jkr::PainterCache::Store_EXT(const std::string& fileName, con
 
 	return *this;
 }
+
+#endif
 
 
 

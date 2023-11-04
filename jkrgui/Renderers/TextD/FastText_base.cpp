@@ -1,5 +1,7 @@
 #include "FastText_base.hpp"
 
+constexpr float FontSizeInverseFactor = 2.0f;
+
 using namespace ksai;
 using namespace Jkr::Renderer;
 FastText_base::TextDimensions Jkr::Renderer::FastText_base::GenerateQuadsAt(const std::string_view inString, std::vector<kstd::Vertex>& outVertices, std::vector<kstd::ui32>& outIndices, kstd::ui32 inX, kstd::ui32 inY, kstd::f32 inFontSize, kstd::ui32 inStartIndex, kstd::ui32 inDepthValue)
@@ -14,7 +16,7 @@ FastText_base::TextDimensions Jkr::Renderer::FastText_base::GenerateQuadsAt(cons
 
 	float posx = inX;
 	float posy = inY;
-	const auto ResizeFactor = static_cast<float>(inFontSize);
+	const auto ResizeFactor = FontSizeInverseFactor;
 
 	float maxH = 0.0f;
 
@@ -188,7 +190,7 @@ Jkr::Renderer::FastText_base::TextDimensions Jkr::Renderer::FastText_base::AddTe
 		break;
 	}
 
-	GenerateQuadsAt(inText, mCharVertices, mCharIndices, x, y, 1.0f, mCharCount, inDepthValue);
+	GenerateQuadsAt(inText, mCharVertices, mCharIndices, x, y, FontSizeInverseFactor, mCharCount, inDepthValue);
 
 	outId = mCharCount;
 	mCharCount += inText.size();
@@ -199,7 +201,7 @@ FastText_base::TextDimensions Jkr::Renderer::FastText_base::GetTextDimensions(co
 {
 	auto inTextSize = inString.size();
 
-	const auto ResizeFactor = inFontSizeInverseFactor;
+	const auto ResizeFactor = 2.0f;
 	float posx = 0;
 	float maxH = 0.0f;
 	for (uint32_t i = 0; i < inTextSize; i++)

@@ -1,5 +1,6 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <Global/Config.hpp>
 #include <ksaiSandBox/glslShader.hpp>
 #include <ksaiSandBox/DefGlsl.hpp>	
 #pragma warning(disable : 4101 )
@@ -42,6 +43,8 @@ float sdf_line(in vec2 p, in vec2 a, in vec2 b) {
 #define sdf_line(vec2_xy, vec2_a, vec2_b)
 
 
+
+#ifndef JKR_USE_VARIABLE_DES_INDEXING
 namespace ShapeRenderers_Image
 {
 	using namespace glm;
@@ -131,7 +134,104 @@ namespace ShapeRenderers_Image
 
 		};
 }
+#else
+namespace ShapeRenderers_Image
+{
+	using namespace glm;
+	const auto VertexShader = [](ksai::Shader& inShader) {
+		GlslShaderStart(vertex);
 
+		GlslVersion(450);
+		GlslShader(vertex);
+		GlslExtension(GL_EXT_debug_printf);
+
+		GlslCodeStart();
+
+		layout(location = 0) in vec3 inPosition;
+		layout(location = 1) in vec2 inTexCoord;
+
+		layout(location = 0) out vec2 outTexCoord;
+
+		layout(push_constant, std430) uniform pc {
+			mat4 Matrix;
+			vec4 Window;
+			vec4 mParams;
+		} push;
+
+
+		void GlslMain() {
+			vec4 dx = vec4(inPosition.x, inPosition.y, inPosition.z, 1.0);
+			gl_Position = push.Matrix * dx;
+			outTexCoord = inTexCoord;
+		}
+
+		GlslCodeFinish();
+
+		};
+
+	const auto FragmentShader = [](ksai::Shader& inShader)
+		{
+			GlslShaderStart(fragment);
+
+			GlslVersion(450);
+			GlslExtension(GL_EXT_debug_printf);
+			GlslExtension(GL_EXT_nonuniform_qualifier);
+
+			GlslBindOut(vec4, 0, outColor);
+
+			ShaderRawAdd("layout(set = 0, binding = 0) uniform sampler2D u_image[];");
+
+			GlslCodeStart();
+			layout(location = 0) in vec2 inTextCoord;
+
+			layout(push_constant, std430) uniform pc {
+				mat4 Matrix;
+				vec4 Color;
+				vec4 mParams;
+			} push;
+
+			void GlslMain()
+			{
+				outColor = texture(u_image[int(push.mParams.x)], inTextCoord);
+			}
+
+			GlslCodeFinish();
+		};
+
+	/* Not Used */
+	const auto ComputeShader = [](ksai::Shader& inShader)
+		{
+			GlslShaderStart(compute);
+
+			GlslVersion(450);
+
+			GlslExtension(GL_EXT_debug_printf);
+			GlslExtension(GL_EXT_nonuniform_qualifier);
+
+			ShaderRawAdd(ShaderGlobals);
+			ShaderRawAdd("layout(set = 0, binding = 0) uniform sampler2D storageImage[];");
+
+			GlslCodeStart();
+
+			layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+			layout(push_constant, std430) uniform pc {
+				mat4 Matrix;
+				vec4 Window;
+				vec4 mParams;
+			} push;
+
+			void GlslMain()
+			{
+			}
+
+			GlslCodeFinish();
+
+		};
+
+}
+
+#endif
 
 
 

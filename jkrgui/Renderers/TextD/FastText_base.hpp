@@ -6,6 +6,7 @@
 #include <Global/Standards.hpp>
 
 #define GETTER inline auto
+#define SETTER inline void
 
 namespace Jkr::Renderer
 {

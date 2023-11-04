@@ -2,103 +2,58 @@
 #include <Window.hpp>
 #include <EventManager.hpp>
 #include <Renderers/ResourceManager.hpp>
-#include <Renderers/Line.hpp>
-#include <Renderers/FastText.hpp>
-#include <Renderers/Shape.hpp>
-#include <sol/sol.hpp>
+#include <Renderers/TwoD/2d.hpp>
+#include <Components/GridSheet.hpp>
 
 int main()
 {
+	constexpr uint32_t h = 1080 / 2;
+	constexpr uint32_t w = 1920 / 2;
 	auto Instance = Jkr::Instance();
 	auto Window = Jkr::Window(Instance, "Heell", 1080 / 2, 1920 / 2);
 	auto EventManager = Jkr::EventManager();
 	auto RendererResources = Jkr::Renderer::ResourceManager();
-	auto lua = sol::state();
 	RendererResources.Load(Instance);
-	auto lr = Jkr::Renderer::Line(Instance, Window, RendererResources.GetLineRendererCache());
-	auto ftx = Jkr::Renderer::FastText(Instance, Window, RendererResources.GetFastTextRendererCache());
-	auto sr = Jkr::Renderer::Shape(Instance, Window, RendererResources.GetShapePainterCaches());
-	uint32_t sid1, sid2;
-	Jkr::Generator Rectangle(Jkr::Shapes::Rectangle, glm::uvec2(50, 50));
-	sr.Add(Rectangle, 300, 300, 5, sid1);
-	sr.Add(Rectangle, 0, 0, 5, sid2);
+	auto TwoD = Jkr::Renderer::_2d(Instance, Window, RendererResources);
+	auto GSheet = Jkr::Component::GridSheet(TwoD, EventManager);
+	GSheet.Load(w, h);
 
-	
-	std::array<glm::uvec2, 4> Pts;
-	Pts[0] = glm::uvec2(300, 150);
-	Pts[1] = glm::uvec2(500, 100);
-	Pts[2] = glm::uvec2(300, 50);
-	Pts[3] = glm::uvec2(500, 0);
-	Jkr::Generator::Arguments x = Pts;
-	Jkr::Generator Bezier(Jkr::Shapes::Bezier2_8, x);
-
-	uint32_t bez_id;
-	sr.Add(Bezier, 100, 100, 6, bez_id);
-
-	uint32_t imageId; sr.AddImage("image.png", imageId);
-	uint32_t imageId2; sr.AddImage("image.png", imageId2);
-
-	uint32_t sidn;
-	for (int i = 0; i < 3; i++)
-	{
-		uint32_t id;
-		lr.AddLine(glm::vec2(i * 20, 0), glm::vec2(100, 100), 5, id);
-		sr.Add(Rectangle, i * 20, 300, 5, sidn);
-	}
-	uint32_t xxx;
-	uint32_t id;
-	uint32_t idx;
-	ftx.AddText("Hello", 300, 300, 5, xxx);
-	ftx.AddText("World", 400, 300, 5, idx);
-	ftx.AddText("Fucko", 500, 300, 5, id);
-	ftx.UpdateText(id, "Hello", 500, 300, 5);
-
-	auto Dispatch = [&](void* data)
+	auto Event = [&](void*)
 		{
-			lr.Dispatch(Window);
-			ftx.Dispatch(Window);
-			sr.Dispatch(Window);
+			GSheet.Event(Window, w, h);
 		};
 
-	static int i = 0;
-	auto Draw = [&](void* data)
-		{
-			glm::mat4 matrixF = glm::identity<glm::mat4>();
-			auto ws = Window.GetWindowSize();
-			lr.Bind(Window);
-			lr.DrawAll(Window, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), ws.first, ws.second, matrixF);
-			ftx.Bind(Window);
-			ftx.DrawAll(Window, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), ws.first, ws.second, matrixF);
+	EventManager.SetEventCallBack(Event);
 
-
-			sr.BindShapes(Jkr::Renderer::FillType::Fill, Window);
-			matrixF = glm::translate(matrixF, glm::vec3(1.0f * i, 0.0f, 0.0f));
-
-			sr.BindFillMode(Jkr::Renderer::FillType::Image, Window);
-			sr.BindImage(Window, imageId);
-			sr.Draw(Window, glm::vec4(1.0f, 0.3f, 0.5f, 1.0f), ws.first, ws.second, sid1, sid1, matrixF);
-			matrixF = glm::translate(matrixF, glm::vec3(-5.0f * i, 0.0f, 0.0f));
-			sr.Draw(Window, glm::vec4(1.0f, 0.3f, 0.5f, 1.0f), ws.first, ws.second, sid1, sid1, matrixF);
-			sr.BindFillMode(Jkr::Renderer::FillType::ContinousLine, Window);
-			sr.Draw(Window, glm::vec4(1.0f, 0.3f, 0.5f, 1.0f), ws.first, ws.second, bez_id, bez_id, glm::identity<glm::mat4>());
+	auto Draw = [&](void* data) {
+		TwoD.ln.Bind(Window);
+		GSheet.DrawLines(Window, w, h);
+		TwoD.sh.BindShapes(Window);
+		TwoD.sh.BindFillMode(Jkr::Renderer::FillType::Fill, Window);
+		GSheet.DrawShapes(Window, w, h);
+		TwoD.ft.Bind(Window);
 		};
+	Window.SetDrawCallBack(Draw);
 
 	auto Update = [&](void* data)
 		{
-			//lr.AddLine(glm::vec2(10 * 20, i), glm::vec2(100, 100), 5, id);
-			//ftx.AddText("Fucko", 500, 300, 5, id);
-			i++;
+			GSheet.Update(w, h);
 		};
-
 	Window.SetUpdateCallBack(Update);
-	Window.SetDrawCallBack(Draw);
-	Window.SetComputeDispatchCallBack(Dispatch);
 
+	auto Dispatch = [&](void* data)
+		{
+			TwoD.ft.Dispatch(Window);
+			TwoD.ln.Dispatch(Window);
+			TwoD.sh.Dispatch(Window);
+		};
+	Window.SetComputeDispatchCallBack(Dispatch);
 
 	while (!EventManager.ShouldQuit())
 	{
 		EventManager.ProcessEvents();
-		Window.Draw(1.0f, 1.0f, 1.0f, 0.2f);
+		Window.Draw();
 	}
-	return 0;
+	
+
 }

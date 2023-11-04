@@ -4,7 +4,7 @@
 #include <glm/common.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "FastText_base.hpp"
-#include "Renderer_base.hpp"
+#include "../Renderer_base.hpp"
 
 namespace Jkr::Renderer
 {

@@ -1,5 +1,5 @@
 #pragma once
-#include "../Global/Standards.hpp"
+#include </Global/Standards.hpp>
 #include "Window.hpp"
 #include "Painter.hpp"
 #include "PainterParameter.hpp"
@@ -10,13 +10,13 @@ namespace Jkr::Renderer
 	{
 	public:
 		using LineFeatures = void;
+		GETTER GetCurrentLineOffset() const { return mLineCount - 1; }
 	protected:
 		void AddLine(glm::vec2 inFirstPoint, glm::vec2 inSecondPoint, float inDepthValue);
 		void UpdateLine(uint32_t inLineIndex, glm::vec2 inFirstPoint, glm::vec2 inSecondPoint, float inDepthValue);
 	protected:
 		GETTER LineCountToVertexBytes(size_t inLineCount) { return 2 * sizeof(kstd::LineVertex) * inLineCount; }
 		GETTER LineCountToIndexBytes(size_t inLineCount) { return 2 * sizeof(uint32_t) * inLineCount; }
-		GETTER GetCurrentLineOffset() const { return mLineCount - 1; }
 		GETTER GetCurrentLineOffsetAbsolute() const { return mLineCount; }
 		GETTER GetVertexBufferData() { return reinterpret_cast<void*>(mLineVertices.data()); }
 		GETTER GetIndexBufferData() { return  reinterpret_cast<void*>(mLineIndices.data()); }

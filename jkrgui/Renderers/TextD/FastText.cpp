@@ -142,7 +142,23 @@ void Jkr::Renderer::FastText::Draw(Window& inWindow, glm::vec4 inColor, uint32_t
 
 void Jkr::Renderer::FastText::CheckAndResize(size_t inNewSize)
 {
-	if (inNewSize + GetCurrentCharOffsetAbsolute() >= mTotalNoOfCharsRendererCanHold || inNewSize >= mTotalNoOfCharsRendererCanHold)
+
+	bool ResizeRequired = false;
+	while (true)
+	{
+		bool ResizeRequiredi = (inNewSize + GetCurrentCharOffsetAbsolute() >= mTotalNoOfCharsRendererCanHold)
+			|| inNewSize >= mTotalNoOfCharsRendererCanHold;
+		if (ResizeRequiredi)
+		{
+			mTotalNoOfCharsRendererCanHold *= rb::RendererCapacityResizeFactor;
+			ResizeRequired = true;
+		}
+		else {
+			break;
+		}
+	}
+
+	if (ResizeRequired)
 	{
 		mTotalNoOfCharsRendererCanHold *= rb::RendererCapacityResizeFactor;
 		fb::Resize(mTotalNoOfCharsRendererCanHold);
