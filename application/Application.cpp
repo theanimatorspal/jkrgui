@@ -3,7 +3,7 @@
 #include <EventManager.hpp>
 #include <Renderers/ResourceManager.hpp>
 #include <Renderers/TwoD/2d.hpp>
-#include <Components/GridSheet.hpp>
+#include "DrawArea.hpp"
 
 int main()
 {
@@ -16,19 +16,22 @@ int main()
 	RendererResources.Load(Instance);
 	auto TwoD = Jkr::Renderer::_2d(Instance, Window, RendererResources);
 
+	auto DrawArea = App::DrawArea(TwoD, EventManager);
+	DrawArea.SetWindow(&Window, w, h);
+
 	auto Event = [&](void*)
 		{
 		};
 
 	EventManager.SetEventCallBack(Event);
 
-	auto Draw = [&](void* data) {
-		};
+	auto Draw = [&](void* data) { DrawArea.Draw(); };
 	Window.SetDrawCallBack(Draw);
 
 	auto Update = [&](void* data)
 		{
 			auto wh = Window.GetWindowSize();
+			DrawArea.Update(&Window, wh.first, wh.second);
 		};
 	Window.SetUpdateCallBack(Update);
 

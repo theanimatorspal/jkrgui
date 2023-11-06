@@ -43,6 +43,15 @@ namespace Jkr {
 		void SetContextData(void* inData) { mData = inData; }
 		void Refresh();
 		void Draw(float r = 0.1f, float g = 0.1f, float b = 0.1f, float a = 0.1f, float d =  1.0f);
+		void SetScissor(const vk::ArrayProxy<vk::Rect2D>& inScissor)
+		{
+			mInstance.GetCommandBuffers()[mCurrentFrame].GetCommandBufferHandle().setScissor(0, inScissor);
+		}
+		void ResetScissor()
+		{
+			vk::Rect2D Rect(vk::Offset2D(0), mDepthImage.GetImageExtent());
+			mInstance.GetCommandBuffers()[mCurrentFrame].GetCommandBufferHandle().setScissor(0, Rect);
+		}
 		GETTER& GetCurrentFrame() const { return mCurrentFrame; }
 		GETTER& GetInstance() const { return mInstance; }
 		GETTER& GetRenderPass() const { return mRenderPass; }
