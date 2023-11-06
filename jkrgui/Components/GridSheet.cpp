@@ -9,10 +9,10 @@ void GridSheet::Load(uint32_t inW, uint32_t inH)
 	e.MoveDepthValueTowardsTheCamera();
 	e.SetBoundedRect(glm::uvec2(0, 0), glm::uvec2(100, 100), mDepthValue);
 	const glm::uvec2 origin = { 0, 0 };
-	mGridStartId = r.ln.GetCurrentLineOffset() + 1;
+	mGridStartId = r.ln.GetCurrentNewLineId();
 
-	int gW = 500;
-	int gH = 500;
+	int gW = 500 * mNumLineFactor;
+	int gH = 500 * mNumLineFactor;
 	ToWc towc(inW, inH);
 
 	for (int i = -gW; i <= gW; i += mGridSpacing) {
@@ -58,17 +58,13 @@ void GridSheet::Update(uint32_t inW, uint32_t inH)
 
 void GridSheet::DrawLines(Window& inWindow, uint32_t inW, uint32_t inH)
 {
-	mTmatrix = glm::translate(mTmatrix, glm::vec3(mOffset2D, 0.0f));
 	r.ln.Draw(inWindow, glm::vec4(1.0f, 1.0f, 1.0f, 0.04f), inW, inH, mGridStartId, mGridEndId, mTmatrix);
 	r.ln.Draw(inWindow, glm::vec4(1.0f, 1.0f, 1.0f, 0.2f), inW, inH, mGridMainLinesId, mGridMainLinesId + 1, mTmatrix);
-	mTmatrix = glm::identity<glm::mat4>();
 }
 
 void GridSheet::DrawShapes(Window& inWindow, uint32_t inW, uint32_t inH)
 {
-	mTmatrix = glm::translate(mTmatrix, glm::vec3(mOffset2D, 0.0f));
 	r.sh.Draw(inWindow, glm::vec4(1.0f, 1.0f, 1.0f, 0.5f), inW, inH, mCenterIndicatorId, mCenterIndicatorId, mTmatrix);
-	mTmatrix = glm::identity<glm::mat4>();
 }
 
 void GridSheet::Dispatch()
@@ -84,15 +80,15 @@ void GridSheet::Event(Window& inWindow, uint32_t inW, uint32_t inH)
 	auto keystate = SDL_GetKeyboardState(&numKeys);
 
 	int delx, dely;
-	auto mousestate = SDL_GetRelativeMouseState(&delx, &dely);
+	// auto mousestate = SDL_GetRelativeMouseState(&delx, &dely);
+	auto delxy = e.GetRelativeMousePos();
 
 	bool isAltKeyPressed = keystate[SDL_SCANCODE_LALT];
-	bool isLeftButtonPressed = (SDL_BUTTON(SDL_BUTTON_LEFT) & mousestate) != 0;
+	bool isLeftButtonPressed = (SDL_BUTTON(SDL_BUTTON_LEFT) & e.GetMouseButtonValue()) != 0;
 
-	auto xygwc = togwc(glm::vec2(x, y));
 	if (isLeftButtonPressed && isAltKeyPressed)
 	{
-		mOffset2D[0] += delx;
-		mOffset2D[1] += dely;
+		mOffset2D[0] += delxy.x;
+		mOffset2D[1] += delxy.y;
 	}
 }

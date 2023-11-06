@@ -9,8 +9,7 @@ set(CMAKE_BUILD_TYPE Debug)
 
 link_directories(${VULKAN_LIBRARY_PATH})
 
-add_executable(application ${app_SRC} "application.cpp" "NodeEditor/NodeEditorScene.cpp")
-
+add_executable(application ${app_SRC} "application.cpp" "NodeEditor/NodeEditorScene.cpp" "NodeEditor/NodeEditorScene.hpp" "NodeEditor/NodeProperties.cpp" "NodeEditor/NodeProperties.hpp")
 
 target_link_libraries(application 
 	${Vulkan_LIBRARIES}

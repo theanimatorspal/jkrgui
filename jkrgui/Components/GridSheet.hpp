@@ -12,6 +12,8 @@ namespace Jkr::Component
 		using cb = Component_base;
 	public:
 		GridSheet(_2d& inRenderer2D, EventManager& inManager) : r(inRenderer2D), e(inManager) { }
+		void BeginDraw() { mTmatrix = glm::translate(mTmatrix, glm::vec3(mOffset2D, 0.0f)); }
+		void EndDraw() { mTmatrix = glm::identity<glm::mat4>(); }
 		void Load(uint32_t inW, uint32_t inH);
 		void Update(uint32_t inW, uint32_t inH);
 		void DrawLines(Window& inWindow, uint32_t inW, uint32_t inH);
@@ -22,14 +24,16 @@ namespace Jkr::Component
 		_2d& r;
 		EventManager& e;
 		SETTER SetGridSpacing(uint32_t inSpacing) { mGridSpacing = inSpacing; }
+		SETTER SetNumLineFactor(uint32_t inNumLineFactor) { mNumLineFactor = inNumLineFactor; }
+		glm::vec2 mOffset2D = { 0, 0 };
 	private:
 		uint32_t mDepthValue;
 		uint32_t mGridSpacing = 10;
+		uint32_t mNumLineFactor = 1;
 		uint32_t mGridStartId;
 		uint32_t mGridEndId;
 		uint32_t mGridMainLinesId;
 		uint32_t mCenterIndicatorId;
-		glm::vec2 mOffset2D = { 0, 0 };
 		glm::vec2 mPreviousOffset = { 0, 0 };
 		glm::mat4 mTmatrix = glm::identity<glm::mat4>();
 	protected:

@@ -115,7 +115,7 @@ void Jkr::Renderer::FastText::Bind(Window& inWindow)
 	mPainter->BindDrawParamters_EXT<PushConstant>(*mPrimitive, inWindow);
 }
 
-void Jkr::Renderer::FastText::Draw(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inStartLineId, uint32_t inNoOfChars, glm::mat4 inMatrix)
+void Jkr::Renderer::FastText::Draw(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inStartTextId, uint32_t inNoOfChars, glm::mat4 inMatrix)
 {
 	glm::mat4 Matrix = glm::ortho(
 		0.0f,
@@ -125,6 +125,7 @@ void Jkr::Renderer::FastText::Draw(Window& inWindow, glm::vec4 inColor, uint32_t
 		100.0f,
 		-100.0f
 	) * inMatrix;
+
 	PushConstant Push;
 	Push.mColor = inColor;
 	Push.mMatrix = Matrix;
@@ -135,7 +136,7 @@ void Jkr::Renderer::FastText::Draw(Window& inWindow, glm::vec4 inColor, uint32_t
 		inWindow,
 		6 * inNoOfChars,
 		1,
-		inStartLineId,
+		inStartTextId * 6,
 		0
 	);
 }

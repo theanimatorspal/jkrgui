@@ -8,14 +8,14 @@ namespace Jkr::Component
 	public:
 		FastTextButton(_2d& inRenderer2D, EventManager& inManager, const std::string_view inString, glm::uvec2 inPadding, glm::uvec2 inPos, uint32_t inDepthValue) : Button(inRenderer2D, inManager)
 		{
-			Button::SetPos(inPos);
-			Button::SetDepthLevel(inDepthValue);
+			Button::SetPosition(inPos);
+			Button::SetDepthValue(inDepthValue);
 			SetPadding(inPadding);
 			LoadText(inString);
 			Button::LoadShape();
 		}
 		void LoadText(const std::string_view inString);
-		void DrawText(Window& inWindow, uint32_t inW, uint32_t inH, glm::mat4& inMatrix);
+		void DrawTxt(Window& inWindow, uint32_t inW, uint32_t inH, glm::mat4& inMatrix);
 		void UpdateText(const std::string_view inString);
 		SETTER SetPadding(glm::uvec2 inPadding) { mPadding = inPadding; };
 	private:

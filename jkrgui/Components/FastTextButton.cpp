@@ -2,17 +2,15 @@
 
 void Jkr::Component::FastTextButton::LoadText(const std::string_view inString)
 {
-	e.MoveDepthValueTowardsTheCamera();
 	mDimensions = r.ft.AddText(
 		inString,
-		Button::GetPos().x + mPadding.x,
-		Button::GetPos().y + mPadding.y,
-		e.GetDepthValue(),
+		Button::GetPosition().x + mPadding.x,
+		Button::GetPosition().y + mPadding.y,
+		Button::GetDepthValue(),
 		mTextId
 	);
-	e.MoveDepthValueAwayFromTheCamera();
 
-	Button::SetDimensions(
+	Button::SetDimension(
 		glm::uvec2(
 			mPadding.x * 2 + mDimensions.mWidth,
 			mPadding.y * 2 + mDimensions.mHeight
@@ -21,7 +19,7 @@ void Jkr::Component::FastTextButton::LoadText(const std::string_view inString)
 	mNoOfChars = inString.size();
 }
 
-void Jkr::Component::FastTextButton::DrawText(Window& inWindow, uint32_t inW, uint32_t inH, glm::mat4& inMatrix)
+void Jkr::Component::FastTextButton::DrawTxt(Window& inWindow, uint32_t inW, uint32_t inH, glm::mat4& inMatrix)
 {
 	r.ft.Draw(inWindow, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), inW, inH, mTextId, mNoOfChars, inMatrix);
 }
@@ -29,8 +27,8 @@ void Jkr::Component::FastTextButton::DrawText(Window& inWindow, uint32_t inW, ui
 void Jkr::Component::FastTextButton::UpdateText(const std::string_view inString)
 {
 	r.ft.UpdateText(mTextId, inString,
-		Button::GetPos().x + mPadding.x,
-		Button::GetPos().y + mPadding.y,
-		Button::GetDepthLevel()
+		Button::GetPosition().x + mPadding.x,
+		Button::GetPosition().y + mPadding.y,
+		Button::GetDepthValue()
 	);
 }

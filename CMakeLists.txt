@@ -55,6 +55,7 @@ include_directories(ksaivulkan/Vendor)
 include_directories(ksaivulkan/Vendor/stbi)
 include_directories(ksaivulkan/Vendor/lua)
 
+
 message(STATUS "Using module to find Vulkan")
 find_package(Vulkan REQUIRED)
 

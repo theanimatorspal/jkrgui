@@ -108,7 +108,7 @@ void Jkr::Renderer::Line::Bind(Window& inWindow)
 
 void Jkr::Renderer::Line::Draw(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inStartLineId, uint32_t inEndLineId, glm::mat4 inMatrix)
 {
-	glm::mat4 Matrix = glm::ortho(
+	glm::mat4 Matrix =  glm::ortho(
 		0.0f,
 		static_cast<float>(inWindowW),
 		0.0f,

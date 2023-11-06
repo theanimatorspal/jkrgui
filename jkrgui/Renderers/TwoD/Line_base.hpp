@@ -11,6 +11,7 @@ namespace Jkr::Renderer
 	public:
 		using LineFeatures = void;
 		GETTER GetCurrentLineOffset() const { return mLineCount - 1; }
+		GETTER GetCurrentNewLineId() const { return mLineCount; }
 	protected:
 		void AddLine(glm::vec2 inFirstPoint, glm::vec2 inSecondPoint, float inDepthValue);
 		void UpdateLine(uint32_t inLineIndex, glm::vec2 inFirstPoint, glm::vec2 inSecondPoint, float inDepthValue);

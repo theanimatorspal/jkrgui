@@ -30,9 +30,9 @@ namespace Jkr
 				default:
 					break;
 				}
+				SDL_GetRelativeMouseState(&mRelativePos.x, &mRelativePos.y);
 			}
 			mCurrentPushedMouseButton = SDL_GetMouseState(&mMousePos.x, &mMousePos.y);
-			SDL_GetRelativeMouseState(&mRelativePos.x, &mRelativePos.y);
 		}
 
 		GETTER GetDepthValue() { return mCurrentDepthValue; }
@@ -45,11 +45,17 @@ namespace Jkr
 		GETTER GetMouseButtonValue() const { return mCurrentPushedMouseButton; }
 		bool IsMouseWithin(uint32_t inId, uint32_t inDepthValue)
 		{
-			if (mBoundRect2Ds.contains(inDepthValue))
+			for (auto &mapElement : mBoundRect2Ds)
 			{
-				return mBoundRect2Ds[inDepthValue][inId].IsPointWithin(mMousePos);
+				if(mapElement.first < inDepthValue)
+				{
+					for (auto& vecElement : mBoundRect2Ds[mapElement.first])
+					{
+						if (vecElement.IsPointWithin(mMousePos)) return false;
+					}
+				}
 			}
-			return false;
+			return (mBoundRect2Ds.contains(inDepthValue)) && mBoundRect2Ds[inDepthValue][inId].IsPointWithin(mMousePos);
 		}
 		[[nodiscard]] uint32_t SetBoundedRect(glm::uvec2 inXy, glm::uvec2 inWh, uint32_t inDepthValue) {
 			if (!mBoundRect2Ds.contains(inDepthValue))
@@ -62,7 +68,7 @@ namespace Jkr
 			return ret_val;
 		}
 
-		void ModifyBoundRect(uint32_t inDepthValue, uint32_t inId, BoundRect2D& inBoundRect) {
+		void UpdateBoundRect(uint32_t inDepthValue, uint32_t inId, BoundRect2D& inBoundRect) {
 			mBoundRect2Ds[inDepthValue][inId] = inBoundRect;
 		}
 		void SetEventCallBack(const std::function<void(void*)>& inEventCallBack)
@@ -74,7 +80,7 @@ namespace Jkr
 		glm::ivec2 mMousePos;
 		glm::ivec2 mRelativePos;
 		int mCurrentPushedMouseButton;
-		uint32_t mCurrentDepthValue = 99;
+		uint32_t mCurrentDepthValue = 80;
 		bool should_quit = false;
 	private:
 		std::function<void(void*)> mEventCallBack;

@@ -4,6 +4,7 @@
 #include <Renderers/ResourceManager.hpp>
 #include <Renderers/TwoD/2d.hpp>
 #include <Components/GridSheet.hpp>
+#include "NodeEditor/NodeEditorScene.hpp"
 
 int main()
 {
@@ -15,29 +16,39 @@ int main()
 	auto RendererResources = Jkr::Renderer::ResourceManager();
 	RendererResources.Load(Instance);
 	auto TwoD = Jkr::Renderer::_2d(Instance, Window, RendererResources);
-	auto GSheet = Jkr::Component::GridSheet(TwoD, EventManager);
+	auto GSheet = App::NodeScene(TwoD, EventManager);
 	GSheet.Load(w, h);
 
 	auto Event = [&](void*)
 		{
-			GSheet.Event(Window, w, h);
+			auto wh = Window.GetWindowSize();
+			GSheet.Event(Window, wh.first, wh.second);
 		};
 
 	EventManager.SetEventCallBack(Event);
 
 	auto Draw = [&](void* data) {
+		auto wh = Window.GetWindowSize();
+		GSheet.BeginDraw();
+
 		TwoD.ln.Bind(Window);
-		GSheet.DrawLines(Window, w, h);
+		GSheet.DrawLines(Window, wh.first, wh.second);
+
 		TwoD.sh.BindShapes(Window);
 		TwoD.sh.BindFillMode(Jkr::Renderer::FillType::Fill, Window);
-		GSheet.DrawShapes(Window, w, h);
+		GSheet.DrawShapes(Window, wh.first, wh.second);
+
 		TwoD.ft.Bind(Window);
+		GSheet.DrawTexts(Window, wh.first, wh.second);
+
+		GSheet.EndDraw();
 		};
 	Window.SetDrawCallBack(Draw);
 
 	auto Update = [&](void* data)
 		{
-			GSheet.Update(w, h);
+			auto wh = Window.GetWindowSize();
+			GSheet.Update(wh.first, wh.second);
 		};
 	Window.SetUpdateCallBack(Update);
 
@@ -54,6 +65,6 @@ int main()
 		EventManager.ProcessEvents();
 		Window.Draw();
 	}
-	
+
 
 }
