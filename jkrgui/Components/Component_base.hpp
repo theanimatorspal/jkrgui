@@ -15,20 +15,24 @@ namespace Jkr::Component
 		SETTER SetPosition(glm::vec2 inVec) { mPosition = inVec; }
 		SETTER SetDepthValue(uint32_t inDepthValue) { mDepthValue = inDepthValue; }
 		GETTER& GetDepthValue() { return mDepthValue; }
-		class ToWc
+		GETTER GetTranslationMatrix() {
+			glm::mat4 matrix = glm::identity;
+			
+		}
+		class ToWorldCoordinate
 		{
 		public:
-			constexpr ToWc(uint32_t inW, uint32_t inH) : mW(inW), mH(inH) {}
+			constexpr ToWorldCoordinate(uint32_t inW, uint32_t inH) : mW(inW), mH(inH) {}
 			constexpr glm::vec2 operator()(glm::vec2 inC) {
 				return inC + glm::vec2(mW / 2.f, mH / 2.f);
 			}
 		private:
 			uint32_t mW, mH;
 		};
-		class TogWc
+		class ToComponentCoordinate
 		{
 		public:
-			constexpr TogWc(uint32_t inW, uint32_t inH) : mW(inW), mH(inH) {}
+			constexpr ToComponentCoordinate(uint32_t inW, uint32_t inH) : mW(inW), mH(inH) {}
 			constexpr glm::vec2 operator()(glm::vec2 inC) {
 				return inC - glm::vec2(mW / 2.f, mH / 2.f);
 			}
