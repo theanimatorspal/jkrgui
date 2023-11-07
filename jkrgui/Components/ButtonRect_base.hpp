@@ -14,7 +14,7 @@ namespace Jkr::Component
 			bb::Load();
 			Jkr::Generator Rect(Jkr::Shapes::Rectangle, bb::GetDimension());
 			uint32_t id;
-			r.sh.Add(Rect, bb::GetPosition().x, bb::GetPosition().y, bb::GetDepthValue(), id);
+			r.sh.Add(Rect, 0, 0, bb::GetDepthValue(), id);
 			bb::GetShapes().push_back(glm::uvec2(id, id));
 		}
 	};

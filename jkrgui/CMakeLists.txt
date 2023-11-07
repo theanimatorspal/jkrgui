@@ -9,5 +9,12 @@ file(GLOB_RECURSE app_Precompile_SRC CONFIGURE_DEPENDS
 "*.hpp"
 )
 
-add_library(jkrgui ${app_SRC} "Components/Button_base.cpp" "Components/ButtonRect_base.hpp" )
+add_library(jkrgui ${app_SRC} 
+"Components/Button_base.cpp"
+"Components/ButtonRect_base.hpp"
+"Components/Scrollable_base.hpp"
+"Components/ScrollableRect.hpp"
+"Components/HLayout.hpp"
+"Components/VLayout.hpp"
+)
 

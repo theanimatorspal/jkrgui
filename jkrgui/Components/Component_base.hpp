@@ -12,6 +12,11 @@ namespace Jkr::Component
 	class Component_base
 	{
 	public:
+		Component_base(const Component_base&) = default;
+		Component_base(Component_base&&) = default;
+		Component_base& operator=(const Component_base&) = default;
+		Component_base& operator=(Component_base&&) = default;
+	public:
 		GETTER& GetFastTexts() { return mFastTexts; }
 		GETTER& GetLines() { return mLines; }
 		GETTER& GetShapes() { return mShapes; }
@@ -21,8 +26,8 @@ namespace Jkr::Component
 		std::vector<glm::uvec2> mShapes;
 	public:
 		Component_base(_2d& inR, EventManager& inE) : r(inR), e(inE) {}
-		GETTER& GetDimension() { return mDimension; }
-		GETTER& GetPosition() { return mPosition; }
+		GETTER GetDimension() { return mDimension; }
+		GETTER GetPosition() { return mPosition; }
 		SETTER SetDimension(glm::vec2 inVec) { mDimension = inVec; }
 		SETTER SetPosition(glm::vec2 inVec) {
 			mPosition = inVec;
@@ -34,13 +39,13 @@ namespace Jkr::Component
 		GETTER GetTranslationMatrix() {
 			return mTransformMatrix;
 		}
-		glm::vec2 ToComponent(glm::vec2 inCompCoords)
+		glm::vec2 FromComponent(glm::vec2 inComp)
 		{
-			return glm::vec2(inCompCoords) - mPosition;
+			return glm::vec2(inComp) + mPosition;
 		}
-		glm::vec2 ToWindow(glm::vec2 inWorldCoords)
+		glm::vec2 FromWorld(glm::vec2 inWorld)
 		{
-			return glm::vec2(inWorldCoords) + mPosition;
+			return glm::vec2(inWorld) - mPosition;
 		}
 		glm::vec2 ToCentralizedCoords(glm::uvec2 mBoxDimension, glm::uvec2 mBox)
 		{

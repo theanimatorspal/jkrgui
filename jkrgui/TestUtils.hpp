@@ -120,5 +120,10 @@ namespace Jkr::Test {
 }
 
 #define MakeUp std::make_unique
+#define MakeSH std::make_shared
+
 template <class T>
 using Up = std::unique_ptr<T>;
+template <class T>
+using Sp = std::shared_ptr<T>;
+

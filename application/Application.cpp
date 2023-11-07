@@ -16,11 +16,11 @@ int main()
 	RendererResources.Load(Instance);
 	auto TwoD = Jkr::Renderer::_2d(Instance, Window, RendererResources);
 
-	auto DrawArea = App::DrawArea(TwoD, EventManager);
-	DrawArea.SetWindow(&Window, w, h);
+	auto DrawArea = App::DrawArea(TwoD, EventManager, &Window, w, h);
 
 	auto Event = [&](void*)
 		{
+			DrawArea.Event();
 		};
 
 	EventManager.SetEventCallBack(Event);

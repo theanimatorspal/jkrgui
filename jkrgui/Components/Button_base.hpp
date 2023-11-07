@@ -40,6 +40,8 @@ namespace Jkr::Component {
 			}
 		}
 		GETTER GetColor() { return mCurrentColor; }
+		GETTER IsBeingPushed() { return isBeingPushed; }
+		GETTER IsBeingHovered() { return isBeingHovered; }
 	private:
 		uint32_t mBoundedRectId;
 		bool isBeingPushed = false;

@@ -9,7 +9,7 @@ set(CMAKE_BUILD_TYPE Debug)
 
 link_directories(${VULKAN_LIBRARY_PATH})
 
-add_executable(application ${app_SRC} "application.cpp" "DrawArea.hpp")
+add_executable(application ${app_SRC} "application.cpp" "DrawArea.hpp" "DrawArea.cpp" "GridSheet.cpp")
 
 target_link_libraries(application 
 	${Vulkan_LIBRARIES}
