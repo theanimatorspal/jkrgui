@@ -14,6 +14,7 @@ namespace Jkr::Component
 			sb::Load();
 			mScrollBarHeight = sb::GetVerticalScrollBarHeigthRatio() * sb::GetDimension().x;
 			e.MoveDepthValueTowardsTheCamera();
+
 			mVerticalScrollBarButton = MakeUp<ButtonRect_base>(r, e);
 			mVerticalScrollBarButton->SetDimension(glm::uvec2(mScrollBarWidth, mScrollBarHeight));
 			mVerticalScrollBarButton->SetDepthValue(sb::GetDepthValue());
@@ -25,8 +26,9 @@ namespace Jkr::Component
 			);
 			mVerticalScrollBarButton->SetDepthValue(e.GetDepthValue());
 			mVerticalScrollBarButton->Load();
+
 		}
-		void Update()
+		void Update(Window* inWindow, uint32_t inW, uint32_t inH)
 		{
 			Area_base::Update();
 			mVerticalScrollBarButton->SetPosition(
@@ -35,6 +37,7 @@ namespace Jkr::Component
 						(sb::GetDimension().y - mScrollBarHeight) * this->GetNormalizedValue()
 					))
 			);
+			this->SetWindow(inWindow, inW, inH);
 		}
 		void DrawOutlines()
 		{

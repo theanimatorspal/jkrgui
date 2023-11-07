@@ -61,13 +61,27 @@ namespace App
 			mLinesTranslation = glm::identity<glm::mat4>();
 			mLinesTranslation = glm::translate(mLinesTranslation, glm::vec3(ab::GetPosition() + ab::GetDimension()/2.0f, 0.0f));
 		}
-		void DrawLines()
-		{
+
+		constexpr void DrawOutline() {
 			r.ln.Draw(*mWindow, glm::vec4(1.0f, 1.0f, 1.0f, 0.04f), ab::GetWindowWidth(), ab::GetWindowHeight(), this->GetLines()[0].x, this->GetLines()[0].y, ab::GetTranslationMatrix());
+		}
+		constexpr void SetScissor()
+		{
 			mWindow->SetScissor(this->GetScissor());
+		}
+		constexpr void DrawLines()
+		{
 			r.ln.Draw(*mWindow, glm::vec4(1.0f, 1.0f, 1.0f, 0.04f), ab::GetWindowWidth(), ab::GetWindowHeight(), mGridStartId, mGridEndId, mLinesTranslation);
 			r.ln.Draw(*mWindow, glm::vec4(1.0f, 1.0f, 1.0f, 0.2f), ab::GetWindowWidth(), ab::GetWindowHeight(), mGridMainLinesId, mGridMainLinesId + 1, mLinesTranslation);
+		}
+		constexpr void ResetScissor()
+		{
 			mWindow->ResetScissor();
+		}
+		void Update(Window* inWindow, uint32_t inW, uint32_t inH)
+		{
+			ab::Update();
+			this->SetWindow(inWindow, inW, inH);
 		}
 
 		void Event()

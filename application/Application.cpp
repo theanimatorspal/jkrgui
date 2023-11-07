@@ -7,10 +7,10 @@
 
 int main()
 {
-	constexpr uint32_t h = 1080 / 2;
-	constexpr uint32_t w = 1920 / 2;
+	constexpr uint32_t h = 1080 / 1.2;
+	constexpr uint32_t w = 1920 / 1.2;
 	auto Instance = Jkr::Instance();
-	auto Window = Jkr::Window(Instance, "Heell", 1080 / 2, 1920 / 2);
+	auto Window = Jkr::Window(Instance, "Heell", h, w);
 	auto EventManager = Jkr::EventManager();
 	auto RendererResources = Jkr::Renderer::ResourceManager();
 	RendererResources.Load(Instance);

@@ -3,6 +3,7 @@
 #include <Components/ButtonRect_base.hpp>
 #include <Components/Colors.hpp>
 #include <Components/ScrollableRect.hpp>
+#include <Components/HLayout.hpp>
 #include <Components/VLayout.hpp>
 #include "GridSheet.hpp"
 
@@ -26,35 +27,60 @@ namespace App
 			this->SetDepthValue(e.GetDepthValue());
 			this->Load();
 
+			/*1. Setup Layouts*/
+			mVerticalLayout = MakeUp < Component::VerticalLayout<2>>(r, e);
+			mVerticalLayout->SetPosition(glm::vec2(0, 0));
+			mVerticalLayout->SetDimension(glm::vec2(this->GetWindowWidth(), this->GetWindowHeight()));
 
-			mLayout = MakeUp<Component::HorizontalLayout>(r, e);
-			mLayout->SetPosition(glm::vec2(0, 0));
-			mLayout->SetDimension(glm::vec2(this->GetWindowWidth(), this->GetWindowHeight()));
+			mLayout = MakeSH<Component::HorizontalLayout<2>>(r, e);
+			mBottomHorizontalLayout = MakeSH<Component::HorizontalLayout<1>>(r, e);
+			mVerticalLayout->AddComponent(mLayout);
+			mVerticalLayout->AddComponent(mBottomHorizontalLayout);
+			mVerticalLayout->ResetPositionsAndDimensions({ 0.8f, 0.2f });
+
+			mBottomScrollArea = MakeSH<Component::ScrollableRect>(r, e);
+			mBottomHorizontalLayout->AddComponent(mBottomScrollArea);
+			mBottomHorizontalLayout->ResetPositionsAndDimensions({1.0f});
+
 
 			e.MoveDepthValueTowardsTheCamera();
 			mGridSheet = MakeSH<App::GridSheet>(r, e);
-			mGridSheet->SetDepthValue(e.GetDepthValue());
-			mGridSheet->SetWindow(mWindow, this->GetWindowWidth(), this->GetWindowHeight());
-
-
 			mScrollArea = MakeSH<Component::ScrollableRect>(r, e);
-			mScrollArea->SetDepthValue(e.GetDepthValue());
-			mScrollArea->SetWindow(mWindow, this->GetWindowWidth(), this->GetWindowHeight());
-			//mScrollArea->SetDimension(glm::uvec2(100, 100));
-			//mScrollArea->SetPosition(glm::uvec2(400, 400));
-
 			mLayout->AddComponent(mScrollArea);
 			mLayout->AddComponent(mGridSheet);
-			mLayout->ResetPositionsAndDimensions();
+			mLayout->ResetPositionsAndDimensions({ 0.2f, 0.8f });
 
+			/*2. Specify Settings For Components*/
+			mGridSheet->SetDepthValue(e.GetDepthValue());
+			mGridSheet->SetWindow(mWindow, this->GetWindowWidth(), this->GetWindowHeight());
+			mScrollArea->SetDepthValue(e.GetDepthValue());
+			mScrollArea->SetWindow(mWindow, this->GetWindowWidth(), this->GetWindowHeight());
+			mScrollArea->SetVerticalScrollBarHeigthRatio(0.1f);
+			mBottomScrollArea->SetDepthValue(e.GetDepthValue());
+			mBottomScrollArea->SetWindow(mWindow, this->GetWindowWidth(), this->GetWindowHeight());
+			mBottomScrollArea->SetVerticalScrollBarHeigthRatio(0.01f);
+
+			/*3. Load the Components*/
 			mGridSheet->Load();
 			mScrollArea->Load();
+			mBottomScrollArea->Load();
 			e.MoveDepthValueAwayFromTheCamera();
+			mLayout->SetVPadding(0);
+			mLayout->SetHPadding(5);
+			mVerticalLayout->SetVPadding(5);
+			mVerticalLayout->SetHPadding(0);
+			mBottomHorizontalLayout->SetVPadding(0);
+			mBottomHorizontalLayout->SetHPadding(5);
+
 		}
 	private:
 		Sp<Component::ScrollableRect> mScrollArea;
 		Sp<App::GridSheet> mGridSheet;
-		Up<Component::HorizontalLayout> mLayout;
+		Sp<Component::HorizontalLayout<2>> mLayout;
+		Sp<Component::HorizontalLayout<1>> mBottomHorizontalLayout;
+		Sp<Component::ScrollableRect> mBottomScrollArea;
+		Up<Component::VerticalLayout<2>> mVerticalLayout;
+
 
 	public:
 
@@ -67,29 +93,48 @@ namespace App
 					this->GetWindowHeight() - this->GetDimension().y - 10
 				)
 			);
-			mLayout->SetPosition(glm::vec2(0, 0));
-			mLayout->SetDimension(glm::vec2(this->GetWindowWidth(), this->GetWindowHeight()));
-			mLayout->ResetPositionsAndDimensions();
-			mScrollArea->SetWindow(inWindow, this->GetWindowWidth(), this->GetWindowHeight());
-			mScrollArea->Update();
+
+			mVerticalLayout->SetPosition(glm::vec2(0, 0));
+			mVerticalLayout->SetDimension(glm::vec2(this->GetWindowWidth(), this->GetWindowHeight()));
+			mVerticalLayout->ResetPositionsAndDimensions({ 0.8, 0.2 });
+
+			//mLayout->SetPosition(glm::vec2(0, 0));
+			//mLayout->SetDimension(glm::vec2(this->GetWindowWidth(), this->GetWindowHeight()));
+
+			mBottomHorizontalLayout->ResetPositionsAndDimensions({ 1.0f });
+			mLayout->ResetPositionsAndDimensions({ 0.2, 0.8 });
+			mScrollArea->Update(inWindow, this->GetWindowWidth(), this->GetWindowHeight());
+			mBottomScrollArea->Update(inWindow, this->GetWindowWidth(), this->GetWindowHeight());
+			mGridSheet->Update(inWindow, this->GetWindowWidth(), this->GetWindowHeight());
 		}
 
 		void Event()
 		{
 			mScrollArea->Event();
 			mGridSheet->Event();
-
+			mBottomScrollArea->Event();
 		}
 
 		void Draw()
 		{
 			r.ln.Bind(*mWindow);
 			mScrollArea->DrawOutlines();
-			mGridSheet->DrawLines();
+			mBottomScrollArea->DrawOutlines();
+
+			/* GRIDSHEET */
+			{
+				mGridSheet->DrawOutline();
+				mGridSheet->SetScissor();
+				mGridSheet->DrawLines();
+
+
+				mGridSheet->ResetScissor();
+			}
 
 			r.sh.BindShapes(*mWindow);
 			r.sh.BindFillMode(Jkr::Renderer::FillType::Fill, *mWindow);
 			mScrollArea->DrawFillShapes();
+			mBottomScrollArea->DrawFillShapes();
 		}
 
 	};

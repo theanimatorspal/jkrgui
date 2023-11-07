@@ -3,41 +3,42 @@
 
 namespace Jkr::Component
 {
-	class HorizontalLayout : public Component_base
+	template<size_t NoOfComponents>
+	class VerticalLayout : public Component_base
 	{
 		using cb = Component_base;
 	public:
-		HorizontalLayout(_2d& inR, EventManager& inE) : Component_base(inR, inE) { }
+		VerticalLayout(_2d& inR, EventManager& inE) : Component_base(inR, inE) { }
 
 		void AddComponent(const Sp<cb>& inComponent)
 		{
-			mComponents.emplace_back(inComponent);
+			mComponents[mCurrentIndex++] = inComponent;
 		}
-		void ResetPositionsAndDimensions()
+
+		void ResetPositionsAndDimensions(const std::array<float, NoOfComponents> inComponentProportion)
 		{
 			float ComponentCount = mComponents.size();
-			float HSizeOfEachElementWithPadding = static_cast<float>(this->GetDimension().x) / ComponentCount;
-			float HSizeOfEachElementWithoutPadding = HSizeOfEachElementWithPadding - HPadding * 2;
-			float VSizeOfEachElementWithPadding = static_cast<float>(this->GetDimension().y);
-			float VSizeOfEachElementWithoutPadding = VSizeOfEachElementWithPadding - VPadding * 2;
+			float CurrentVSizePointer = 0;
 
-			float CurrentHSizePointer = 0;
 			for (int i = 0; i < mComponents.size(); ++i)
 			{
-				CurrentHSizePointer += HPadding;
+				float VSizeOfEachElementWithPadding = static_cast<float>(this->GetDimension().y) * inComponentProportion[i];
+				float VSizeOfEachElementWithoutPadding = (VSizeOfEachElementWithPadding - VPadding * 2);
+				float HSizeOfEachElementWithPadding = static_cast<float>(this->GetDimension().x);
+				float HSizeOfEachElementWithoutPadding = HSizeOfEachElementWithPadding - HPadding * 2;
+
+				CurrentVSizePointer += VPadding;
 				mComponents[i]->SetDimension(glm::vec2(HSizeOfEachElementWithoutPadding, VSizeOfEachElementWithoutPadding));
-				mComponents[i]->SetPosition(glm::vec2(CurrentHSizePointer, VPadding));
-				CurrentHSizePointer += mComponents[i]->GetDimension().x;
-				CurrentHSizePointer += HPadding;
+				mComponents[i]->SetPosition(glm::vec2(HPadding + this->GetPosition().x, CurrentVSizePointer));
+				CurrentVSizePointer += mComponents[i]->GetDimension().y;
+				CurrentVSizePointer += VPadding;
 			}
 		}
+		SETTER SetHPadding(uint32_t inPadding) { HPadding = inPadding; }
+		SETTER SetVPadding(uint32_t inPadding) { VPadding = inPadding; }
 	private:
-		std::vector<Sp<cb>> mComponents;
-	private:
-		class Bug
-		{
-
-		};
+		std::array<Sp<cb>, NoOfComponents> mComponents;
+		uint32_t mCurrentIndex = 0;
 	private:
 		uint32_t HPadding = 10;
 		uint32_t VPadding = 10;
