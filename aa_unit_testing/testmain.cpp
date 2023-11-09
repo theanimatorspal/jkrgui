@@ -12,7 +12,7 @@ auto BestText_base_utest ( ) -> int
 	BestText_base base;
 	uint32_t fid;
 	base.AddFontFace ( "font.ttf", 16, fid );
-	base.AddText ( "नमस्कारोऽस्तु", fid );
+	base.AddText ( "दर्शन", fid );
 	return 0;
 }
 

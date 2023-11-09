@@ -26,10 +26,11 @@ namespace Jkr::Renderer
 	public:
 		BestText_base ( );
 		~BestText_base ( );
-
-		void AddFontFace ( const std::string_view inString, size_t inFontSize, uint32_t& outFontId );
+		void AddFontFace ( const std::string_view inFontFilePathName, size_t inFontSize, uint32_t& outFontId );
 		void AddText ( const std::string_view inString, uint32_t inFontShapeId );
 	private:
+		void AddRespectiveVerticesAndIndices ( unsigned int len, const uint32_t& inFontShapeId, hb_glyph_info_t* info );
+		void LoadTextToKeyMap ( unsigned int len, const uint32_t& inFontShapeId, hb_glyph_info_t* info, hb_glyph_position_t* pos );
 		[[nodiscard]] constexpr size_t ToPixels ( size_t inSize ) { return inSize >> 6; }
 		[[nodiscard]] constexpr size_t ToFontUnits ( size_t inSize ) { return inSize << 6; }
 		FT_Library mFtLibrary;
