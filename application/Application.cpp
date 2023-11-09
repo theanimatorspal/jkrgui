@@ -46,7 +46,7 @@ int main()
 	while (!EventManager.ShouldQuit())
 	{
 		EventManager.ProcessEvents();
-		Window.Draw();
+		Window.Draw(0.1f, 0.1f, 0.1f, 1.0f);
 	}
 
 

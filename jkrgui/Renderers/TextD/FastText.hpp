@@ -36,5 +36,6 @@ namespace Jkr::Renderer
 		Up<Primitive> mPrimitive;
 		Up<Painter> mPainter;
 		Up<ImageType> mImage;
+	private:
 	};
 };

@@ -54,6 +54,7 @@ include_directories(ksaivulkan/Vulkan)
 include_directories(ksaivulkan/Vendor)
 include_directories(ksaivulkan/Vendor/stbi)
 include_directories(ksaivulkan/Vendor/lua)
+include_directories("${CMAKE_SOURCE_DIR}/libs/")
 
 
 message(STATUS "Using module to find Vulkan")
@@ -67,6 +68,7 @@ include_directories(${VULKAN_INCLUDE_PATH})
 link_directories(${VULKAN_LIBRARY_PATH})
 link_directories("${CMAKE_SOURCE_DIR}/libs/")
 
+add_subdirectory(aa_unit_testing)
 add_subdirectory(application)
 add_subdirectory(jkrgui)
 add_subdirectory(ksaivulkan)

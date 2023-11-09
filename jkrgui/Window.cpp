@@ -153,7 +153,7 @@ void Jkr::Window::Draw(float r, float g, float b, float a, float d)
 {
 	mUpdateFunction(mData);
 	std::array<float, 5>
-		ClearValues = { 0.1f, 0.1f, 0.1f, 0.1f, 1.0f };
+		ClearValues = {r, g, b, a, d};
 	std::pair<uint32_t, uint32_t> SwapChainResult = mSwapChain.AcquireNextImage(mImageAvailableSemaphores[mCurrentFrame]);
 	mFences[mCurrentFrame].Wait();
 	mFences[mCurrentFrame].Reset();
