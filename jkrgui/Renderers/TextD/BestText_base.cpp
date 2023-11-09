@@ -1,4 +1,5 @@
 ﻿#include "BestText_base.hpp"
+#include <Vendor/stbi/stb_image_write.h>
 
 Jkr::Renderer::BestText_base::BestText_base ( )
 {
@@ -113,23 +114,24 @@ void Jkr::Renderer::BestText_base::AddRespectiveVerticesAndIndices ( unsigned in
 			[[maybe_unused]] size_t width = glyphMaxX - glyphMinX + 1;
 			[[maybe_unused]] size_t height = glyphMaxY - glyphMinY + 1;
 
-			for (size_t y = 0; y < bitmap_rows; ++y) {
-				for (size_t x = 0; x < bitmap_width; ++x) {
-					//unsigned char value = bmp[(bitmap_rows - y - 1) * bitmap_width + x];
-					auto value = bmp[(drawY - y) * width + drawX + x];
-					if (value >= 0x80) {
-						std::cout << "XX"; // if it's 128+
-					}
-					else if (value >= 0x40) {
-						std::cout << ".."; // if it's 64+
-					}
-					else {
-						std::cout << "  "; // if its under 64
-					}
-				}
-				std::cout << '\n';
-			}
-			std::cout << '\n';
+			//for (size_t y = 0; y < bitmap_rows; ++y) {
+			//	for (size_t x = 0; x < bitmap_width; ++x) {
+			//		//unsigned char value = bmp[(bitmap_rows - y - 1) * bitmap_width + x];
+			//		auto value = bmp[(drawY - y) * width + drawX + x];
+			//		if (value >= 0x80) {
+			//			std::cout << "XX"; // if it's 128+
+			//		}
+			//		else if (value >= 0x40) {
+			//			std::cout << ".."; // if it's 64+
+			//		}
+			//		else {
+			//			std::cout << "  "; // if its under 64
+			//		}
+			//	}
+			//	std::cout << '\n';
+			//}
+			//std::cout << '\n';
+
 		}
 	}
 }
@@ -170,15 +172,34 @@ void Jkr::Renderer::BestText_base::LoadTextToKeyMap ( unsigned int len, const ui
 				int drawY = originY + ToPixels ( pos[i].y_offset + slot->metrics.horiBearingY );
 				[[maybe_unused]] size_t width = glyphMaxX - glyphMinX + 1;
 				[[maybe_unused]] size_t height = glyphMaxY - glyphMinY + 1;
-				BitmapImage.resize ( width * height );
-				for (size_t y = 0; y < slot->bitmap.rows; ++y)
+				BitmapImage.resize ( mImageChannelCount * width * height );
+				auto* dst = BitmapImage.data ( );
+
+				//for (size_t y = 0; y < slot->bitmap.rows; ++y)
+				//{
+				//	for (size_t x = 0; x < slot->bitmap.width; ++x)
+				//	{
+				//		BitmapImage[(drawY - y) * width + drawX + x] = ptr[x];
+				//	}
+				//	ptr += slot->bitmap.pitch;
+				//}
+				if (mImageChannelCount == 4)
 				{
-					for (size_t x = 0; x < slot->bitmap.width; ++x)
+					uint32_t i = 0;
+					for (size_t y = 0; y < slot->bitmap.rows; ++y)
 					{
-						BitmapImage[(drawY - y) * width + drawX + x] = ptr[x];
+						for (size_t x = 0; x < slot->bitmap.width; ++x)
+						{
+
+							dst[i++] = ptr[x];
+							dst[i++] = ptr[x];
+							dst[i++] = ptr[x];
+							dst[i++] = ptr[x];
+						}
+						ptr += slot->bitmap.pitch;
 					}
-					ptr += slot->bitmap.pitch;
 				}
+
 				mCharacterBitmapSet[key] = std::make_pair ( character_info, std::move ( BitmapImage ) );
 			}
 		}

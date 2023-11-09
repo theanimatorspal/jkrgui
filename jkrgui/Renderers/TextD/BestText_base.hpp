@@ -67,5 +67,7 @@ namespace Jkr::Renderer
 			std::pair<CharacterInfo, std::vector<uint8_t>>,
 			CharacterKeyHash
 		> mCharacterBitmapSet;
+	private:
+		const uint32_t mImageChannelCount = 4;
 	};
 }
