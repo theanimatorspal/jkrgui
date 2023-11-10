@@ -36,11 +36,13 @@ namespace Jkr {
 		GETTER& GetPhysicalDevice() const { return mPhysicalDevice; }
 		GETTER& GetQueueContext() const { return mQueueContext; }
 		GETTER& GetDevice() const { return mDevice; }
+
 		GETTER& GetGraphicsQueue() const { return mGraphicsQueue; }
 		GETTER& GetCommandPool() const { return mCommandPool; }
 		GETTER& GetCommandBuffers() const { return mCommandBuffers; }
 		GETTER& GetUtilCommandBuffer() const { return mUtilCommandBuffer; }
 		GETTER& GetDescriptorPool() const { return mDescriptorPool; }
+
 		GETTER& GetVMA() const { return mVmaAllocator; }
 	private:
 		static const int mMaxFramesInFlight = 2;

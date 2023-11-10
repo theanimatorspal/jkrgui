@@ -9,6 +9,7 @@ set(CMAKE_BUILD_TYPE Debug)
 
 link_directories(${VULKAN_LIBRARY_PATH})
 
+
 add_executable(aa_unit_testing ${app_SRC} "testmain.cpp")
 
 target_link_libraries(aa_unit_testing 

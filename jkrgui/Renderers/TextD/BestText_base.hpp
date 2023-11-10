@@ -18,18 +18,54 @@
 #include <harfbuzz/hb.h>
 #include <harfbuzz/hb-ft.h>
 #include <glm/glm.hpp>
+#include <Global/Standards.hpp>
 
 namespace Jkr::Renderer
 {
 	class BestText_base
 	{
 	public:
+		struct TextDimensions { size_t mWidth; size_t mHeight; };
+		enum class AlignH { Center, Left, Right };
+		enum class AlignV { Center, Top, Bottom };
+		struct TextProperty { AlignH H = AlignH::Left; AlignV V = AlignV::Bottom; };
+	public:
 		BestText_base ( );
 		~BestText_base ( );
 		void AddFontFace ( const std::string_view inFontFilePathName, size_t inFontSize, uint32_t& outFontId );
-		void AddText ( const std::string_view inString, uint32_t inFontShapeId );
+		TextDimensions GetTextDimensions ( const std::string_view inString, uint32_t inFontShapeId, hb_glyph_info_t* info, hb_glyph_position_t* pos, uint32_t len );
+	protected:
+		TextDimensions AddText ( const std::string_view inString, uint32_t inFontShapeId, uint32_t inDepthValue, std::vector<uint32_t>& outCodePoints, uint32_t& outIdt );
+		TextDimensions UpdateText (uint32_t inId, const std::string_view inString, uint32_t inFontShapeId, uint32_t inDepthValue, std::vector<uint32_t>& outCodePoints );
+		constexpr void FillTextureIndexDataInVertexBufferAt ( uint32_t inTextureId, uint32_t inAtIndex )
+		{
+			mVertices[inAtIndex].mIvec3 = { inTextureId, inTextureId, inTextureId };
+		}
+		GETTER CharCountToVertexBytes ( size_t inCharCount ) { return 4 * sizeof ( ksai::kstd::VertexEXT ) * inCharCount; }
+		GETTER CharCountToIndexBytes ( size_t inCharCount ) { return 6 * sizeof ( uint32_t ) * inCharCount; }
+		GETTER GetCurrentCharOffsetAbsolute ( ) const { return mCharQuadGlyphCount; }
+		GETTER GetVertexBufferData ( ) { return reinterpret_cast<void*>(mVertices.data ( )); }
+		GETTER GetIndexBufferData ( ) { return  reinterpret_cast<void*>(mIndices.data ( )); }
+		void SetTextProperty ( TextProperty inProp ) { mCurrentTextProp = inProp; };
+		GETTER GetTextProperty ( ) const { return mCurrentTextProp; };
+		void Resize ( uint32_t inNewSize ) {
+			mVertices.reserve ( CharCountToVertexBytes ( inNewSize ) );
+			mIndices.reserve ( CharCountToIndexBytes ( inNewSize ) );
+		}
+		GETTER GetGlyphTextureData ( uint32_t inFaceId, uint32_t inCodePoint, uint32_t& outWidth, uint32_t& outHeight, uint32_t& outChannelCount )
+		{
+			CharacterKey key{ .mFontShapeId = inFaceId, .mGlyphCodePoint = inCodePoint };
+			outWidth = mCharacterBitmapSet[key].first.mBitmapWidth;
+			outHeight = mCharacterBitmapSet[key].first.mBitmapRows;
+			outChannelCount = mImageChannelCount;
+			return mCharacterBitmapSet[key].second.data ( );
+		}
 	private:
-		void AddRespectiveVerticesAndIndices ( unsigned int len, const uint32_t& inFontShapeId, hb_glyph_info_t* info );
+		std::vector<ksai::kstd::VertexEXT> mVertices;
+		std::vector<uint32_t> mIndices;
+		TextProperty mCurrentTextProp = { .H = AlignH::Left, .V = AlignV::Bottom };
+	private:
+		void AddRespectiveVerticesAndIndicesAt ( unsigned int len, uint32_t inStartIndex, uint32_t inDepthValue, const uint32_t& inFontShapeId, hb_glyph_info_t* info, int inOffsetX, int inOffsetY );
 		void LoadTextToKeyMap ( unsigned int len, const uint32_t& inFontShapeId, hb_glyph_info_t* info, hb_glyph_position_t* pos );
 		[[nodiscard]] constexpr size_t ToPixels ( size_t inSize ) { return inSize >> 6; }
 		[[nodiscard]] constexpr size_t ToFontUnits ( size_t inSize ) { return inSize << 6; }
@@ -38,6 +74,7 @@ namespace Jkr::Renderer
 		std::array<FT_Face, 10> mFaces;
 		std::array<hb_font_t*, 10> mHbFonts;
 		int mFontFaceCount = 0;
+		uint32_t mCharQuadGlyphCount = 0;
 	private:
 		struct CharacterInfo
 		{

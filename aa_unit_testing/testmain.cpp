@@ -5,14 +5,13 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-
 using namespace Jkr::Renderer;
 auto BestText_base_utest ( ) -> int
 {
 	BestText_base base;
 	uint32_t fid;
 	base.AddFontFace ( "font.ttf", 16, fid );
-	base.AddText ( "दर्शन", fid );
+	base.AddText ( "दर्शन", fid, 0 );
 	return 0;
 }
 

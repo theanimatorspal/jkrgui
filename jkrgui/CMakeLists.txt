@@ -18,5 +18,7 @@ add_library(jkrgui ${app_SRC}
 "Components/VLayout.hpp"
 "Renderers/TextD/BestText_base.cpp"
 "Renderers/TextD/BestText_base.hpp"
+"Renderers/TextD/BestText.cpp"
+"Renderers/TextD/BestText.hpp"
 )
 

@@ -18,7 +18,7 @@ namespace ksai::kstd
 	{
 		glm::vec3 mPosition = { 0, 0, 0 };
 		glm::vec2 mTextureCoordinates = { 0, 0 };
-		glm::ivec3 mIvec2 = {0, 0, 0};
+		glm::ivec3 mIvec3 = {0, 0, 0};
 	};
 
 	struct LineVertex
