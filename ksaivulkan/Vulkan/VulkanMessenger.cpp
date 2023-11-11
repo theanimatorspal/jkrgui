@@ -46,11 +46,33 @@ VKAPI_ATTR VkBool32 VKAPI_CALL KsaiDebugMessengerCallback(VkDebugUtilsMessageSev
 
 #ifdef _WIN32
 	std::cout << message.str() << std::endl;
-	MessageBoxA(NULL, message.str().c_str(), "Alert", MB_ICONERROR);
+	bool isError = messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+	bool isWarning = messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
+	bool isInfo = messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
+
+	bool isPerformance = messageTypes & VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+
+	if (isError)
+	{
+		MessageBoxA ( NULL, message.str ( ).c_str ( ), "Error", MB_ICONERROR );
+		__debugbreak();
+	}
+	else if (isWarning && !(isPerformance))
+	{
+		MessageBoxA ( NULL, message.str ( ).c_str ( ), "Warning", MB_ICONWARNING );
+	}
+	else if (isInfo)
+	{
+	std::cout << message.str() << '\n';
+	}
+	else if (isPerformance)
+	{
+	std::cout << "=========================PERFORMANCE================================" << '\n';
+	std::cout << message.str() << '\n';
+	}
 #else
 	std::cout << message.str() << std::endl;
 #endif
-	__debugbreak();
 	return false;
 }
 
@@ -83,12 +105,18 @@ VulkanMessenger::VulkanMessenger(const VulkanInstance& inInstance) : mInstance(i
 		exit(1);
 	}
 
-	vk::DebugUtilsMessageSeverityFlagsEXT severityFlags(vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
-		vk::DebugUtilsMessageSeverityFlagBitsEXT::eError
-		//| vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo 
+	vk::DebugUtilsMessageSeverityFlagsEXT severityFlags(
+		vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
+		vk::DebugUtilsMessageSeverityFlagBitsEXT::eError |
+		vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo
 	);
-	vk::DebugUtilsMessageTypeFlagsEXT messageTypeFlags(vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
-		vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation);
+	vk::DebugUtilsMessageTypeFlagsEXT messageTypeFlags(
+		vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
+		vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
+		vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation |
+		vk::DebugUtilsMessageTypeFlagBitsEXT::eDeviceAddressBinding
+	);
+	
 
 #if defined(_DEBUG)
 	auto DebugUtilsMessengerCreateInfo = vk::DebugUtilsMessengerCreateInfoEXT({}, severityFlags, messageTypeFlags, &KsaiDebugMessengerCallback);
@@ -98,5 +126,7 @@ VulkanMessenger::VulkanMessenger(const VulkanInstance& inInstance) : mInstance(i
 
 VulkanMessenger::~VulkanMessenger()
 {
+#if defined(_DEBUG)
 	mInstance.destroyDebugUtilsMessengerEXT(mMessenger);
+#endif
 }

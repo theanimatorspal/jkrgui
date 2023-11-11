@@ -26,7 +26,7 @@ int main ( )
 	sr.Add ( Rectangle, 0, 0, 5, sid2 );
 	uint32_t Font_id, BestText_id, BestText_length;
 	bst.AddFontFace ( "font.ttf", 64, Font_id );
-	bst.AddText ( "कस्को काम हो यस्तो । कस्तो गिदी भएको ब्रहः", 100, 300, 5, BestText_id, BestText_length);
+	bst.AddText ( "शेंदुर लाल चढायो अच्छा गजमुखको", 100, 300, 5, BestText_id, BestText_length);
 
 
 

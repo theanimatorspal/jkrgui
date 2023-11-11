@@ -49,10 +49,15 @@ void Jkr::Renderer::Renderer_base::CmdCopyToPrimitiveFromStagingBuffer(const Ins
 		inInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()],
 		0,
 		inVertexMemorySizeToBeBarriered,
-		vk::AccessFlagBits::eTransferWrite,
-		vk::AccessFlagBits::eVertexAttributeRead,
-		vk::PipelineStageFlagBits::eTransfer,
-		vk::PipelineStageFlagBits::eVertexInput
+		//vk::AccessFlagBits::eTransferWrite,
+		//vk::AccessFlagBits::eVertexAttributeRead,
+		//vk::PipelineStageFlagBits::eTransfer,
+		//vk::PipelineStageFlagBits::eVertexInput
+
+		vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite,
+		vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite,
+		vk::PipelineStageFlagBits::eAllCommands,
+		vk::PipelineStageFlagBits::eAllCommands
 	);
 
 	inInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()].GetCommandBufferHandle().copyBuffer(
@@ -65,10 +70,14 @@ void Jkr::Renderer::Renderer_base::CmdCopyToPrimitiveFromStagingBuffer(const Ins
 		inInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()],
 		0,
 		inIndexMemorySizeToBeBarriered,
-		vk::AccessFlagBits::eTransferWrite,
-		vk::AccessFlagBits::eVertexAttributeRead,
-		vk::PipelineStageFlagBits::eTransfer,
-		vk::PipelineStageFlagBits::eVertexInput
+		//vk::AccessFlagBits::eTransferWrite,
+		//vk::AccessFlagBits::eVertexAttributeRead,
+		//vk::PipelineStageFlagBits::eTransfer,
+		//vk::PipelineStageFlagBits::eVertexInput
+		vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite,
+		vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite,
+		vk::PipelineStageFlagBits::eAllCommands,
+		vk::PipelineStageFlagBits::eAllCommands
 	);
 	mVertexCopyRegionsToBeSubmitted.clear();
 	mIndexCopyRegionsToBeSubmitted.clear();

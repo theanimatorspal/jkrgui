@@ -16,6 +16,7 @@ add_library(jkrgui ${app_SRC}
 "Components/ScrollableRect.hpp"
 "Components/HLayout.hpp"
 "Components/VLayout.hpp"
+"Components/FTextButtonRect.hpp"
 "Renderers/TextD/BestText_base.cpp"
 "Renderers/TextD/BestText_base.hpp"
 "Renderers/TextD/BestText.cpp"

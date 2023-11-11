@@ -19,6 +19,7 @@
 #define GlslVersion(version) inShader.AddStringToShader(std::string("#version ").append(#version).append( "\n"));
 #define GlslExtension(extension) inShader.AddStringToShader(std::string("#extension ").append(#extension).append(" : enable").append("\n"))
 #define GL_EXT_debug_printf
+#define nonuniformEXT(x) 
 
 #define in
 #define out

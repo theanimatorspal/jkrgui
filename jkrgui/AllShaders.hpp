@@ -102,8 +102,8 @@ namespace BestText
 
 			void GlslMain()
 			{
-				vec4 color = texture(u_image[inTextureIndices[0]], inTextCoord);
-				outColor = vec4 ( color.r, color.r, color.r, color.r );
+				vec4 color = texture(u_image[nonuniformEXT(inTextureIndices[0])], inTextCoord);
+				outColor = vec4 ( color.r * push.Color.x, color.r * push.Color.y, color.r * push.Color.z, color.r * push.Color.w);
 			}
 
 			GlslCodeFinish();

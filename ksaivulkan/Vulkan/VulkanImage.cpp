@@ -28,9 +28,9 @@ void ksai::VulkanImageBase::SubmitImmediateCmdCopyFromData(const VulkanQueue<Que
 	Cmd.begin(vk::CommandBufferBeginInfo());
 	vk::ImageSubresourceLayers ImageSubResourceLayer(mImageProperties.mImageAspect, 0, 0, mImageProperties.mArrayLayers);
 	vk::BufferImageCopy Copy(0, mImageProperties.mExtent.width, mImageProperties.mExtent.height, ImageSubResourceLayer, vk::Offset3D(0, 0, 0), vk::Extent3D(mImageProperties.mExtent, 1));
-	CmdTransitionImageLayout(inCmdBuffer, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, vk::PipelineStageFlagBits::eVertexShader, vk::PipelineStageFlagBits::eFragmentShader, vk::AccessFlagBits::eNone, vk::AccessFlagBits::eNone);
+	CmdTransitionImageLayout(inCmdBuffer, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, vk::PipelineStageFlagBits::eTopOfPipe, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eNone, vk::AccessFlagBits::eTransferWrite);
 	Cmd.copyBufferToImage(StagingBuffer.GetBufferHandle(), mImage, vk::ImageLayout::eTransferDstOptimal, Copy);
-	CmdTransitionImageLayout(inCmdBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eGeneral, vk::PipelineStageFlagBits::eVertexShader, vk::PipelineStageFlagBits::eFragmentShader, vk::AccessFlagBits::eNone, vk::AccessFlagBits::eNone);
+	CmdTransitionImageLayout(inCmdBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eGeneral, vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eBottomOfPipe, vk::AccessFlagBits::eTransferWrite, vk::AccessFlagBits::eNone);
 	Cmd.end();
 	inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer);
 //	inQueue.Wait();

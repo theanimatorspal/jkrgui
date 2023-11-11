@@ -34,6 +34,7 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice, const V
 	createInfo.get<vk::PhysicalDeviceDescriptorIndexingFeatures>().descriptorBindingVariableDescriptorCount = VK_TRUE;
 	createInfo.get<vk::PhysicalDeviceDescriptorIndexingFeatures>().descriptorBindingPartiallyBound = VK_TRUE;
 	createInfo.get<vk::PhysicalDeviceDescriptorIndexingFeatures>().descriptorBindingUpdateUnusedWhilePending = VK_TRUE;
+	createInfo.get<vk::PhysicalDeviceDescriptorIndexingFeatures>().shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
 	mDevice = mPhysicalDevice.createDevice(createInfo.get<vk::DeviceCreateInfo>());
 #else
 	mDevice = mPhysicalDevice.createDevice(deviceCreateInfo);
