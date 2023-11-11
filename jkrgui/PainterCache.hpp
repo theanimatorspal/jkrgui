@@ -33,8 +33,8 @@ namespace Jkr {
 		PainterCache& Load(const std::string& fileName);
 
 #ifdef JKR_USE_VARIABLE_DES_INDEXING
-		PainterCache& __var_des_index_Store_EXT(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader);
-		PainterCache& __var_des_index_Load_EXT(const std::string& fileName);
+		PainterCache& __var_des_index_Store_EXT(const std::string& filename, const std::string& invertexshader, const std::string& infragmentshader, const std::string& incomputeshader, uint32_t inVarableDescriptorCount = 1000);
+		PainterCache& __var_des_index_Load_EXT ( const std::string& fileName, uint32_t inVarableDescriptorCount  = 1000);
 #endif
 		/*
 			The Store And Load functions take the same paramter for consistency.

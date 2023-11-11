@@ -60,7 +60,7 @@ Jkr::PainterCache& Jkr::PainterCache::Store(const std::string& fileName, const s
 
 
 #ifdef JKR_USE_VARIABLE_DES_INDEXING
-Jkr::PainterCache& Jkr::PainterCache::__var_des_index_Load_EXT(const std::string& fileName)
+Jkr::PainterCache& Jkr::PainterCache::__var_des_index_Load_EXT(const std::string& fileName, uint32_t inVariableDescirptorCount)
 {
 	time.reset();
 	LoadSPIRVsFromFile(fileName);
@@ -69,20 +69,19 @@ Jkr::PainterCache& Jkr::PainterCache::__var_des_index_Load_EXT(const std::string
 	time.elapsed("Shader Compilation Load Cached");
 
 	time.reset();
-	mPtrVertexFragmentDescriptorSetLayout = MakeUp<VulkanDescriptorSetLayout<2, ShaderModuleContext::Vertex, ShaderModuleContext::Fragment>>(mInstance.GetDevice(), mShaderModulesPtr->GetShaderModulesArray(), 1000);
+	mPtrVertexFragmentDescriptorSetLayout = MakeUp<VulkanDescriptorSetLayout<2, ShaderModuleContext::Vertex, ShaderModuleContext::Fragment>>(mInstance.GetDevice(), mShaderModulesPtr->GetShaderModulesArray(), inVariableDescirptorCount);
 	mPtrVertexFragmentPipelineLayout = MakeUp<VulkanPipelineLayout<2>>(mInstance.GetDevice(), *mPtrVertexFragmentDescriptorSetLayout, mShaderModulesPtr->GetShaderModulesArray());
 	mPtrPipelineCache = MakeUp<VulkanPipelineCache>(mInstance.GetDevice(), fileName);
 
-	mPtrComputeDescriptorSetLayout = MakeUp<VulkanDescriptorSetLayout<1, ShaderModuleContext::Compute>>(mInstance.GetDevice(), mShaderModulesPtr->GetComputeShaderModuleArray(), 1000);
+	mPtrComputeDescriptorSetLayout = MakeUp<VulkanDescriptorSetLayout<1, ShaderModuleContext::Compute>>(mInstance.GetDevice(), mShaderModulesPtr->GetComputeShaderModuleArray(), inVariableDescirptorCount);
 	mPtrComputePipelineLayout = MakeUp<VulkanPipelineLayout<1>>(mInstance.GetDevice(), *mPtrComputeDescriptorSetLayout, mShaderModulesPtr->GetComputeShaderModuleArray());
 	time.elapsed("Shader Descriptor + Pipeline Reflection");
 
 	return *this;
 }
 
-Jkr::PainterCache& Jkr::PainterCache::__var_des_index_Store_EXT(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader)
+Jkr::PainterCache& Jkr::PainterCache::__var_des_index_Store_EXT(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader, uint32_t inVariableDescriptorCount)
 {
-
 	time.reset();
 	ShaderCompiler Compiler(inVertexShader, inFragmentShader, mVertexFragmentShaderSPIRV[0], mVertexFragmentShaderSPIRV[1]);
 	ShaderCompiler ComputeCompiler(inComputeShader, mComputeShaderSPIRV[0]);
@@ -90,11 +89,11 @@ Jkr::PainterCache& Jkr::PainterCache::__var_des_index_Store_EXT(const std::strin
 	time.elapsed("Shader Compilation");
 
 	time.reset();
-	mPtrVertexFragmentDescriptorSetLayout = MakeUp<VulkanDescriptorSetLayout<2, ShaderModuleContext::Vertex, ShaderModuleContext::Fragment>>(mInstance.GetDevice(), mShaderModulesPtr->GetShaderModulesArray(), 1000);
+	mPtrVertexFragmentDescriptorSetLayout = MakeUp<VulkanDescriptorSetLayout<2, ShaderModuleContext::Vertex, ShaderModuleContext::Fragment>>(mInstance.GetDevice(), mShaderModulesPtr->GetShaderModulesArray(), inVariableDescriptorCount);
 	mPtrVertexFragmentPipelineLayout = MakeUp<VulkanPipelineLayout<2>>(mInstance.GetDevice(), *mPtrVertexFragmentDescriptorSetLayout, mShaderModulesPtr->GetShaderModulesArray());
 	mPtrPipelineCache = MakeUp<VulkanPipelineCache>(mInstance.GetDevice(), fileName);
 
-	mPtrComputeDescriptorSetLayout = MakeUp<VulkanDescriptorSetLayout<1, ShaderModuleContext::Compute>>(mInstance.GetDevice(), mShaderModulesPtr->GetComputeShaderModuleArray(), 1000);
+	mPtrComputeDescriptorSetLayout = MakeUp<VulkanDescriptorSetLayout<1, ShaderModuleContext::Compute>>(mInstance.GetDevice(), mShaderModulesPtr->GetComputeShaderModuleArray(), inVariableDescriptorCount);
 	mPtrComputePipelineLayout = MakeUp<VulkanPipelineLayout<1>>(mInstance.GetDevice(), *mPtrComputeDescriptorSetLayout, mShaderModulesPtr->GetComputeShaderModuleArray());
 	time.elapsed("Shader Descriptor + Pipeline Reflection");
 

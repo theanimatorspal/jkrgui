@@ -12,7 +12,6 @@ Jkr::Renderer::BestText::BestText ( const Instance& inInstance, const Window& in
 		bb::CharCountToIndexBytes ( mTotalNoOfCharsRendererCanHold )
 	);
 #endif
-
 	mPrimitive = MakeUp<Primitive> (
 		inInstance,
 		bb::CharCountToVertexBytes ( mTotalNoOfCharsRendererCanHold ),
@@ -20,11 +19,13 @@ Jkr::Renderer::BestText::BestText ( const Instance& inInstance, const Window& in
 	);
 }
 
-Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText::AddText ( const std::string_view inText, uint32_t inX, uint32_t inY, uint32_t inDepthValue, uint32_t& outId )
+Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText::AddText ( const std::string_view inText, uint32_t inX, uint32_t inY, uint32_t inDepthValue, uint32_t& outId, uint32_t& outLength )
 {
 	std::vector<uint32_t> CodePoints;
-	uint32_t len;
-	auto TextDimension = bb::AddText ( inText, mCurrentFontFaceId, inDepthValue, CodePoints, outId );
+	auto TextDimension = bb::AddText ( inX, inY, inText, mCurrentFontFaceId, inDepthValue, CodePoints, outId );
+	uint32_t len = CodePoints.size ( );
+	outLength = len;
+	CheckAndResize ( len );
 
 	uint32_t VertexStartingIndex = outId;
 	for (int i = 0; i < CodePoints.size ( ); i++)
@@ -34,15 +35,26 @@ Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText::AddText ( 
 		{
 			id = mCodepointKeyTextureMap[CodePoints[i]];
 		}
-		else {
+		else
+		{
 			Up<ImageType> Image = MakeUp<ImageType> ( mInstance );
 			uint32_t width, height, channel_count;
 			uint8_t* ImageData = bb::GetGlyphTextureData ( mCurrentFontFaceId, CodePoints[i], width, height, channel_count );
 			mCodepointKeyTextureMap[CodePoints[i]] = mGlyphImages.size ( );
 			id = mGlyphImages.size ( );
-			mPainter->RegisterPainterParameter ( *Image, 0, 1, mGlyphImages.size ( ) );
-			Image->Setup ( reinterpret_cast<void**>(&ImageData), width, height, channel_count );
+			if (width == 0 || height == 0)
+			{
+				std::vector<uint8_t> NullImage;
+				NullImage.resize ( 4 * 1 * 1, 0 );
+				uint8_t* data = NullImage.data ( );
+				Image->Setup ( reinterpret_cast<void**>(&data), 1, 1, channel_count );
+			}
+			else
+			{
+				Image->Setup ( reinterpret_cast<void**>(&ImageData), width, height, channel_count );
+			}
 			mGlyphImages.push_back ( std::move ( Image ) );
+			mPainter->RegisterPainterParameter ( *mGlyphImages[id], 0, 0, mGlyphImages.size ( ) - 1 );
 		}
 		bb::FillTextureIndexDataInVertexBufferAt ( id, VertexStartingIndex++ );
 		bb::FillTextureIndexDataInVertexBufferAt ( id, VertexStartingIndex++ );
@@ -85,8 +97,8 @@ Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText::UpdateText
 {
 	std::vector<uint32_t> CodePoints;
 	CodePoints.reserve ( rb::InitialRendererElementArraySize * 10 );
-	uint32_t len;
 	auto TextDimension = bb::UpdateText ( inId, inText, mCurrentFontFaceId, inDepthValue, CodePoints );
+	uint32_t len = CodePoints.size ( );
 
 	uint32_t VertexStartingIndex = inId;
 	for (int i = 0; i < CodePoints.size ( ); i++)
@@ -102,9 +114,20 @@ Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText::UpdateText
 			uint8_t* ImageData = bb::GetGlyphTextureData ( mCurrentFontFaceId, CodePoints[i], width, height, channel_count );
 			mCodepointKeyTextureMap[CodePoints[i]] = mGlyphImages.size ( );
 			id = mGlyphImages.size ( );
-			mPainter->RegisterPainterParameter ( *Image, 0, 1, mGlyphImages.size ( ) );
-			Image->Setup ( reinterpret_cast<void**>(&ImageData), width, height, channel_count );
+			if (width == 0 || height == 0)
+			{
+				std::vector<uint8_t> NullImage;
+				NullImage.resize ( 4 * 1 * 1, 0 );
+				uint8_t* data = NullImage.data ( );
+				Image->Setup ( reinterpret_cast<void**>(&data), 1, 1, channel_count );
+			}
+			else
+			{
+				Image->Setup ( reinterpret_cast<void**>(&ImageData), width, height, channel_count );
+			}
 			mGlyphImages.push_back ( std::move ( Image ) );
+			mPainter->RegisterPainterParameter ( *mGlyphImages[id], 0, 0, mGlyphImages.size ( ) - 1 );
+
 		}
 		bb::FillTextureIndexDataInVertexBufferAt ( id, VertexStartingIndex++ );
 		bb::FillTextureIndexDataInVertexBufferAt ( id, VertexStartingIndex++ );
@@ -197,13 +220,13 @@ void Jkr::Renderer::BestText::Draw ( Window& inWindow, glm::vec4 inColor, uint32
 }
 
 
-void Jkr::Renderer::BestText::CheckAndResize(size_t inNewSize)
+void Jkr::Renderer::BestText::CheckAndResize ( size_t inNewSize )
 {
 
 	bool ResizeRequired = false;
 	while (true)
 	{
-		bool ResizeRequiredi = (inNewSize + GetCurrentCharOffsetAbsolute() >= mTotalNoOfCharsRendererCanHold)
+		bool ResizeRequiredi = (inNewSize + GetCurrentCharOffsetAbsolute ( ) >= mTotalNoOfCharsRendererCanHold)
 			|| inNewSize >= mTotalNoOfCharsRendererCanHold;
 		if (ResizeRequiredi)
 		{
@@ -218,42 +241,42 @@ void Jkr::Renderer::BestText::CheckAndResize(size_t inNewSize)
 	if (ResizeRequired)
 	{
 		mTotalNoOfCharsRendererCanHold *= rb::RendererCapacityResizeFactor;
-		bb::Resize(mTotalNoOfCharsRendererCanHold);
-		mPrimitive.reset();
-		mPrimitive = MakeUp<Primitive>(
+		bb::Resize ( mTotalNoOfCharsRendererCanHold );
+		mPrimitive.reset ( );
+		mPrimitive = MakeUp<Primitive> (
 			mInstance,
-			bb::CharCountToVertexBytes(mTotalNoOfCharsRendererCanHold),
-			bb::CharCountToIndexBytes(mTotalNoOfCharsRendererCanHold)
+			bb::CharCountToVertexBytes ( mTotalNoOfCharsRendererCanHold ),
+			bb::CharCountToIndexBytes ( mTotalNoOfCharsRendererCanHold )
 		);
 #ifndef JKR_NO_STAGING_BUFFERS
-		rb::ResizeStagingBuffer(
+		rb::ResizeStagingBuffer (
 			mInstance,
-			bb::CharCountToVertexBytes(mTotalNoOfCharsRendererCanHold),
-			bb::CharCountToIndexBytes(mTotalNoOfCharsRendererCanHold)
+			bb::CharCountToVertexBytes ( mTotalNoOfCharsRendererCanHold ),
+			bb::CharCountToIndexBytes ( mTotalNoOfCharsRendererCanHold )
 		);
-		rb::CopyToStagingBuffers(
-			bb::GetVertexBufferData(),
-			bb::GetIndexBufferData(),
-			bb::CharCountToVertexBytes(0),
-			bb::CharCountToIndexBytes(0),
-			bb::CharCountToVertexBytes(mTotalNoOfCharsRendererCanHold),
-			bb::CharCountToIndexBytes(mTotalNoOfCharsRendererCanHold)
+		rb::CopyToStagingBuffers (
+			bb::GetVertexBufferData ( ),
+			bb::GetIndexBufferData ( ),
+			bb::CharCountToVertexBytes ( 0 ),
+			bb::CharCountToIndexBytes ( 0 ),
+			bb::CharCountToVertexBytes ( mTotalNoOfCharsRendererCanHold ),
+			bb::CharCountToIndexBytes ( mTotalNoOfCharsRendererCanHold )
 		);
-		rb::RegisterBufferCopyRegionToPrimitiveFromStaging(
-			bb::CharCountToVertexBytes(0),
-			bb::CharCountToIndexBytes(0),
-			bb::CharCountToVertexBytes(mTotalNoOfCharsRendererCanHold),
-			bb::CharCountToIndexBytes(mTotalNoOfCharsRendererCanHold)
+		rb::RegisterBufferCopyRegionToPrimitiveFromStaging (
+			bb::CharCountToVertexBytes ( 0 ),
+			bb::CharCountToIndexBytes ( 0 ),
+			bb::CharCountToVertexBytes ( mTotalNoOfCharsRendererCanHold ),
+			bb::CharCountToIndexBytes ( mTotalNoOfCharsRendererCanHold )
 		);
 #else
-		rb::CopyToPrimitive(*mPrimitive,
-			bb::GetVertexBufferData(),
-			bb::GetIndexBufferData(),
-			bb::CharCountToVertexBytes(0),
-			bb::CharCountToIndexBytes(0),
-			bb::CharCountToVertexBytes(mTotalNoOfCharsRendererCanHold),
-			bb::CharCountToIndexBytes(mTotalNoOfCharsRendererCanHold)
+		rb::CopyToPrimitive ( *mPrimitive,
+									 bb::GetVertexBufferData ( ),
+									 bb::GetIndexBufferData ( ),
+									 bb::CharCountToVertexBytes ( 0 ),
+									 bb::CharCountToIndexBytes ( 0 ),
+									 bb::CharCountToVertexBytes ( mTotalNoOfCharsRendererCanHold ),
+									 bb::CharCountToIndexBytes ( mTotalNoOfCharsRendererCanHold )
 		);
 #endif
-}
+	}
 }

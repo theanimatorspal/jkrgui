@@ -22,7 +22,7 @@ namespace Jkr
 		void ProcessEvents() {
 			while (SDL_PollEvent(&mEvent))
 			{
-				mEventCallBack(nullptr);
+				//mEventCallBack(nullptr);
 				switch (mEvent.type)
 				{
 				case SDL_QUIT:

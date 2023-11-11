@@ -35,7 +35,7 @@ namespace Jkr::Renderer
 		void AddFontFace ( const std::string_view inFontFilePathName, size_t inFontSize, uint32_t& outFontId );
 		TextDimensions GetTextDimensions ( const std::string_view inString, uint32_t inFontShapeId, hb_glyph_info_t* info, hb_glyph_position_t* pos, uint32_t len );
 	protected:
-		TextDimensions AddText ( const std::string_view inString, uint32_t inFontShapeId, uint32_t inDepthValue, std::vector<uint32_t>& outCodePoints, uint32_t& outIdt );
+		TextDimensions AddText (uint32_t inX, uint32_t inY, const std::string_view inString, uint32_t inFontShapeId, uint32_t inDepthValue, std::vector<uint32_t>& outCodePoints, uint32_t& outIdt );
 		TextDimensions UpdateText (uint32_t inId, const std::string_view inString, uint32_t inFontShapeId, uint32_t inDepthValue, std::vector<uint32_t>& outCodePoints );
 		constexpr void FillTextureIndexDataInVertexBufferAt ( uint32_t inTextureId, uint32_t inAtIndex )
 		{

@@ -10,8 +10,6 @@ auto BestText_base_utest ( ) -> int
 {
 	BestText_base base;
 	uint32_t fid;
-	base.AddFontFace ( "font.ttf", 16, fid );
-	base.AddText ( "दर्शन", fid, 0 );
 	return 0;
 }
 
@@ -223,11 +221,5 @@ auto Text ( )
 	// Destroy FreeType
 	FT_Done_FreeType ( library );
 
-	return 0;
-}
-
-auto main ( ) -> int
-{
-	BestText_base_utest ( );
 	return 0;
 }

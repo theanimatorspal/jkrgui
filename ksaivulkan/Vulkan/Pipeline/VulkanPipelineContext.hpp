@@ -37,7 +37,7 @@ namespace ksai {
 			{
 				mTopology = vk::PrimitiveTopology::eTriangleList;
 				mPolygonMode = vk::PolygonMode::eFill;
-				mCullMode = vk::CullModeFlagBits::eFront;
+				mCullMode = vk::CullModeFlagBits::eNone;
 				mFrontFace = vk::FrontFace::eCounterClockwise;
 			}
 			if (inContext == PipelinePropertiesContext::Line)

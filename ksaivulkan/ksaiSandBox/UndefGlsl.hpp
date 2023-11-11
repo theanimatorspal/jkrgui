@@ -26,3 +26,19 @@
 #undef GlslMain
 #undef GlslCodeStart
 #undef GlslCodeFinish
+
+#undef buffer
+#undef image2D
+#undef texture2D
+#undef debugPrintfEXT
+#undef imageStore
+#undef imageLoad
+#undef sampler2D
+#undef texture
+#undef imageSize
+#undef readonly
+#undef writeonly
+#undef smoothstep
+#undef ShaderRawAdd
+#undef sampler
+#undef flat

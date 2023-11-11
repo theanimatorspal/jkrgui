@@ -14,7 +14,7 @@ namespace Jkr::Renderer
 		using rb = Renderer_base;
 	public:
 		BestText ( const Instance& inInstance, const Window& inCompatibleWindow, const PainterCache& inCache );
-		bb::TextDimensions AddText ( const std::string_view inText, uint32_t inX, uint32_t inY, uint32_t inDepthValue, uint32_t& outId );
+		bb::TextDimensions AddText ( const std::string_view inText, uint32_t inX, uint32_t inY, uint32_t inDepthValue, uint32_t& outId, uint32_t& outLength );
 		bb::TextDimensions UpdateText ( uint32_t inId, const std::string_view inText, uint32_t inX, uint32_t inY, uint32_t inDepthValue );
 		void SetCurrentFontFace ( uint32_t inFontFaceId );
 		void Dispatch ( Window& inWindow );

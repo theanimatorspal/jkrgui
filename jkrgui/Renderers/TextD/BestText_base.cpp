@@ -37,7 +37,7 @@ void Jkr::Renderer::BestText_base::AddFontFace ( const std::string_view inFontFi
 	outFontId = FaceIndex;
 }
 
-Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText_base::AddText ( const std::string_view inString, uint32_t inFontShapeId, uint32_t inDepthValue, std::vector<uint32_t>& outCodePoints, uint32_t& outId )
+Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText_base::AddText ( uint32_t inX, uint32_t inY, const std::string_view inString, uint32_t inFontShapeId, uint32_t inDepthValue, std::vector<uint32_t>& outCodePoints, uint32_t& outId )
 {
 	hb_buffer_t* hbBuffer = hb_buffer_create ( );
 	hb_buffer_add_utf8 ( hbBuffer, reinterpret_cast<const char*>(inString.data ( )), -1, 0, -1 );
@@ -54,7 +54,7 @@ Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText_base::AddTe
 	/*
 		In Accordance with TextProperty modify this TODO
 	*/
-	AddRespectiveVerticesAndIndicesAt ( len, mCharQuadGlyphCount, inDepthValue, inFontShapeId, info, 0, 0 );
+	AddRespectiveVerticesAndIndicesAt ( len, mCharQuadGlyphCount, inDepthValue, inFontShapeId, info, inX, inY );
 	outId = mCharQuadGlyphCount;
 	mCharQuadGlyphCount += len;
 	hb_buffer_destroy ( hbBuffer );
@@ -142,8 +142,8 @@ void Jkr::Renderer::BestText_base::AddRespectiveVerticesAndIndicesAt ( unsigned 
 		int offsetY = ToPixels ( pos.y_offset + metrics.horiBearingY );
 		int glyphMinX = originX + offsetX;
 		int glyphMaxX = originX + bitmap_width + offsetX;
-		int glyphMinY = originY - bitmap_rows + offsetY;
-		int glyphMaxY = originY + offsetY;
+		int glyphMinY = originY + (bitmap_rows - offsetY);
+		int glyphMaxY = originY - offsetY;
 
 		int drawX = originX + ToPixels ( pos.x_offset + metrics.horiBearingX );
 		int drawY = originY + ToPixels ( pos.y_offset + metrics.horiBearingY );
@@ -166,25 +166,25 @@ void Jkr::Renderer::BestText_base::AddRespectiveVerticesAndIndicesAt ( unsigned 
 
 			mVertices[v_index + 0] = kstd::VertexEXT{
 				.mPosition = { glyphMinX,  glyphMaxY, inDepthValue },
-				.mTextureCoordinates = { 0, 1 },
+				.mTextureCoordinates = { 0, 0 },
 				.mIvec3 = {0, 0, 0}
 			};
 
 			mVertices[v_index + 1] = kstd::VertexEXT{
 				.mPosition = { glyphMinX,  glyphMinY, inDepthValue },
-				.mTextureCoordinates = { 0, 0 },
+				.mTextureCoordinates = { 0, 1 },
 				.mIvec3 = {0, 0, 0}
 			};
 
 			mVertices[v_index + 2] = kstd::VertexEXT{
 				.mPosition = { glyphMaxX,  glyphMinY, inDepthValue },
-				.mTextureCoordinates = { 1, 0 },
+				.mTextureCoordinates = { 1, 1 },
 				.mIvec3 = {0, 0, 0}
 			};
 
 			mVertices[v_index + 3] = kstd::VertexEXT{
 				.mPosition = { glyphMaxX, glyphMaxY, inDepthValue},
-				.mTextureCoordinates = { 1, 1 },
+				.mTextureCoordinates = { 1, 0 },
 				.mIvec3 = {0, 0, 0}
 			};
 
