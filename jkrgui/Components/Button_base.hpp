@@ -20,7 +20,7 @@ namespace Jkr::Component {
 		{
 			Jkr::BoundRect2D Rect{ .mXy = ab::GetPosition(), .mWh = ab::GetDimension() };
 			e.UpdateBoundRect(ab::GetDepthValue(), mBoundedRectId, Rect);
-			if (e.IsMouseWithin(mBoundedRectId, ab::GetDepthValue()))
+			if (e.IsMouseWithinAtTopOfStack(mBoundedRectId, ab::GetDepthValue()))
 			{
 				isBeingHovered = true;
 				mCurrentColor = mButtonHoveredColor;

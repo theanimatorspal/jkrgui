@@ -55,7 +55,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL KsaiDebugMessengerCallback(VkDebugUtilsMessageSev
 	if (isError)
 	{
 		MessageBoxA ( NULL, message.str ( ).c_str ( ), "Error", MB_ICONERROR );
-		__debugbreak();
 	}
 	else if (isWarning && !(isPerformance))
 	{
@@ -91,7 +90,9 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDebugUtilsMessengerEXT(VkInstance instance, 
 
 VulkanMessenger::VulkanMessenger(const VulkanInstance& inInstance) : mInstance(inInstance.GetInstanceHandle())
 {
+
 	const auto& Instance = inInstance.GetInstanceHandle();
+#if defined(_DEBUG)
 	pfnVkCreateDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(Instance.getProcAddr("vkCreateDebugUtilsMessengerEXT"));
 	if (!pfnVkCreateDebugUtilsMessengerEXT)
 	{
@@ -104,6 +105,7 @@ VulkanMessenger::VulkanMessenger(const VulkanInstance& inInstance) : mInstance(i
 		std::cout << "GetInstanceProcAddr: Unable to find pfnVkDestroyDebugUtilsMessengerEXT function." << std::endl;
 		exit(1);
 	}
+#endif
 
 	vk::DebugUtilsMessageSeverityFlagsEXT severityFlags(
 		vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |

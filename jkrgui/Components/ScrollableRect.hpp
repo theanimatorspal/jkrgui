@@ -1,6 +1,9 @@
 #pragma once
 #include "Scrollable_base.hpp"
 #include "ButtonRect_base.hpp"
+#ifdef max
+#undef max
+#endif
 
 namespace Jkr::Component
 {
@@ -12,6 +15,7 @@ namespace Jkr::Component
 		void Load()
 		{
 			sb::Load();
+			this->SetDefaultBoundedRectangle();
 			mScrollBarHeight = sb::GetVerticalScrollBarHeigthRatio() * sb::GetDimension().x;
 			e.MoveDepthValueTowardsTheCamera();
 
@@ -26,11 +30,11 @@ namespace Jkr::Component
 			);
 			mVerticalScrollBarButton->SetDepthValue(e.GetDepthValue());
 			mVerticalScrollBarButton->Load();
-
 		}
 		void Update(Window* inWindow, uint32_t inW, uint32_t inH)
 		{
 			Area_base::Update();
+			this->UpdateDefaultBoundedRectangle();
 			mVerticalScrollBarButton->SetPosition(
 				this->FromComponent(
 					glm::vec2(sb::GetDimension().x - mScrollBarWidth,
@@ -43,7 +47,7 @@ namespace Jkr::Component
 		{
 			for (auto u : this->GetLines())
 			{
-				r.ln.Draw(*mWindow, glm::vec4(1.0f, 1.0f, 1.0f, 0.1f), sb::GetWindowWidth(), sb::GetWindowHeight(), this->GetLines()[0].x, this->GetLines()[0].y, this->GetTranslationMatrix());
+				r.ln.Draw(*mWindow, mOutLineColor, sb::GetWindowWidth(), sb::GetWindowHeight(), this->GetLines()[0].x, this->GetLines()[0].y, this->GetTranslationMatrix());
 			}
 		}
 		void DrawFillShapes()
@@ -59,10 +63,11 @@ namespace Jkr::Component
 			int numKeys;
 			auto keystate = SDL_GetKeyboardState(&numKeys);
 
-			bool isLeftButtonPressed = (SDL_BUTTON(SDL_BUTTON_LEFT) & e.GetMouseButtonValue()) != 0;
+			bool isLeftButtonPressed = (SDL_BUTTON(SDL_BUTTON_LEFT) bitand e.GetMouseButtonValue()) != 0;
 			bool isVerticalButtonPushed = mVerticalScrollBarButton->IsBeingPushed();
+			bool isMouseOver = this->IsMouseWithin();
 
-			bool shouldVScroll = isLeftButtonPressed && isVerticalButtonPushed;
+			bool shouldVScroll = isLeftButtonPressed and isVerticalButtonPushed;
 
 			if (shouldVScroll) mVerticalScrollBarBeingScrolled = true;
 			if (!isLeftButtonPressed) mVerticalScrollBarBeingScrolled = false;
@@ -74,10 +79,28 @@ namespace Jkr::Component
 				auto cbPos = sb::GetPosition();
 				auto cbDim = sb::GetDimension();
 				vButtonPos.y += e.GetRelativeMousePos().y;
-#undef max
 				vButtonPos.y = std::max(cbPos.y, std::min(vButtonPos.y, cbPos.y + cbDim.y - vButtonDim.y));
 				mVerticalScrollBarButton->SetPosition(glm::vec2(mVerticalScrollBarButton->GetPosition().x, vButtonPos.y));
 				this->SetNormalizedValue((vButtonPos.y - cbPos.y) / (cbDim.y - vButtonDim.y));
+			}
+
+			if (isLeftButtonPressed and isMouseOver and !this->IsFocused())  this->ToggleFocus(); 
+			if (this->IsFocused() and !isMouseOver and isLeftButtonPressed) this->ToggleFocus();
+
+
+			if (this->IsFocused()) { mOutLineColor = mOutLineColorFocused; }
+			else {mOutLineColor = mOutLineColorUnFocused; } 
+
+			if (e.GetEventHandle().type == SDL_MOUSEWHEEL and this->IsFocused())
+			{
+				if (e.GetEventHandle().wheel.y > 0)
+				{
+					this->SetNormalizedValue(this->GetNormalizedValue() - 0.01);
+				}
+				else if (e.GetEventHandle().wheel.y < 0)
+				{
+					this->SetNormalizedValue(this->GetNormalizedValue() + 0.01);
+				}
 			}
 		}
 		GETTER GetScissor()
@@ -87,11 +110,29 @@ namespace Jkr::Component
 				vk::Extent2D(this->GetDimension().x - mVerticalScrollBarButton->GetDimension().x, this->GetDimension().y)
 			);
 		}
+		constexpr void SetScissor()
+		{
+			mWindow->SetScissor(GetScissor());
+		}
+		constexpr void ResetScissor()
+		{
+			mWindow->ResetScissor();
+		}
+		SETTER SetOutlineColorFocused(glm::vec4 inColor) { mOutLineColorFocused = inColor; }
+		SETTER SetOutlineColorUnFocused(glm::vec4 inColor) { mOutLineColorUnFocused = inColor; }
+		GETTER GetScrollOffsetPosition()
+		{
+			return glm::vec2(0.0f, -mVerticalScrollBarButton->GetPosition().y + this->GetPosition().y);
+		}
 	private:
 		glm::vec4 mBackGroundColor = glm::vec4(color_SMOKEYTOPAZ, 1.0);
 		bool mVerticalScrollBarBeingScrolled = false;
 		Up<ButtonRect_base> mVerticalScrollBarButton;
 		uint32_t mScrollBarWidth = 10;
 		uint32_t mScrollBarHeight = 10;
+		bool mIsFocused = false;
+		glm::vec4 mOutLineColorFocused = glm::vec4(1.0f, 1.0f, 1.0f, 0.8f);
+		glm::vec4 mOutLineColorUnFocused = glm::vec4(1.0f, 1.0f, 1.0f, 0.1f);
+		glm::vec4 mOutLineColor = mOutLineColorUnFocused;
 	};
 }

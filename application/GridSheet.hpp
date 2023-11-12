@@ -98,7 +98,7 @@ namespace App
 			bool isAltKeyPressed = keystate[SDL_SCANCODE_LALT];
 			bool isLeftButtonPressed = (SDL_BUTTON(SDL_BUTTON_LEFT) & e.GetMouseButtonValue()) != 0;
 
-			if (isLeftButtonPressed && isAltKeyPressed && e.IsMouseWithin(mBoundedRectId, ab::GetDepthValue()))
+			if (isLeftButtonPressed && isAltKeyPressed && e.IsMouseWithinAtTopOfStack(mBoundedRectId, ab::GetDepthValue()))
 			{
 				glm::vec2 Offset2D(delxy.x, delxy.y);
 				mLinesTranslation = glm::translate(mLinesTranslation, glm::vec3(Offset2D, 0.0f));

@@ -14,7 +14,12 @@ namespace Jkr::Component
 		}
 		GETTER GetNormalizedValue() { return mValueNormalized; }
 		GETTER GetVerticalScrollBarHeigthRatio() { return mVerticalScrollBarHeightRatio; }
-		SETTER SetNormalizedValue(float inValue) { mValueNormalized = inValue; }
+		SETTER SetNormalizedValue(float inValue) { 
+			if (inValue < 1.0f && inValue > 0.0f)
+			{
+				mValueNormalized = inValue;
+			}
+		}
 		SETTER SetVerticalScrollBarHeigthRatio(float inValue) { mVerticalScrollBarHeightRatio = inValue; }
 	private:
 		float mValueNormalized = 0.0f;

@@ -8,7 +8,7 @@ namespace ksai {
 		VulkanSampler(const VulkanDevice& inDevice)
 			: mDevice(inDevice.GetDeviceHandle())
 		{
-			auto VulkanSamplerCreateInfo = vk::SamplerCreateInfo();
+			auto VulkanSamplerCreateInfo = vk::SamplerCreateInfo() ;
 			mSampler = mDevice.createSampler(VulkanSamplerCreateInfo);
 		}
 		~VulkanSampler()

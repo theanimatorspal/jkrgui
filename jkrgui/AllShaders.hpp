@@ -100,10 +100,14 @@ namespace BestText
 				vec4 Color;
 			} push;
 
+			const float smoothing = 1.0 / 32.0;
+
 			void GlslMain()
 			{
 				vec4 color = texture(u_image[nonuniformEXT(inTextureIndices[0])], inTextCoord);
-				outColor = vec4 ( color.r * push.Color.x, color.r * push.Color.y, color.r * push.Color.z, color.r * push.Color.w);
+				float distance = color.a;
+				float alpha = distance;
+				outColor = vec4(push.Color.x, push.Color.y, push.Color.z, alpha * push.Color.w);
 			}
 
 			GlslCodeFinish();

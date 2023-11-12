@@ -16,6 +16,7 @@ int main()
 	RendererResources.Load(Instance);
 	auto TwoD = Jkr::Renderer::_2d(Instance, Window, RendererResources);
 
+
 	auto DrawArea = App::DrawArea(TwoD, EventManager, &Window, w, h);
 
 	auto Event = [&](void*)
@@ -40,6 +41,7 @@ int main()
 			TwoD.ft.Dispatch(Window);
 			TwoD.ln.Dispatch(Window);
 			TwoD.sh.Dispatch(Window);
+			TwoD.bt.Dispatch(Window);
 		};
 	Window.SetComputeDispatchCallBack(Dispatch);
 
@@ -48,6 +50,4 @@ int main()
 		EventManager.ProcessEvents();
 		Window.Draw(0.1f, 0.1f, 0.1f, 1.0f);
 	}
-
-
 }

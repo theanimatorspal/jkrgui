@@ -28,7 +28,7 @@ void Jkr::Renderer::BestText_base::AddFontFace ( const std::string_view inFontFi
 	{
 		std::cout << "Font Face Load Failed" << '\n';
 	}
-	if (FT_Set_Char_Size ( mFaces[FaceIndex], ToFontUnits ( inFontSize ), ToFontUnits ( inFontSize ), 0, 0 ))
+	if (FT_Set_Char_Size ( mFaces[FaceIndex], ToFontUnits ( inFontSize ), ToFontUnits ( inFontSize ), 300, 300 ))
 	{
 		std::cout << "Font Char Size Set Failed" << '\n';
 	}
@@ -51,17 +51,45 @@ Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText_base::AddTe
 	auto TextDims = GetTextDimensions ( inString, inFontShapeId, info, pos, len );
 
 	for (int i = 0; i < len; i++) outCodePoints.push_back ( info[i].codepoint );
+
+	uint32_t x, y;
+	switch (mCurrentTextProp.H)
+	{
+	case AlignH::Left:
+		x = inX;
+		break;
+	case AlignH::Right:
+		x = inX - TextDims.mWidth;
+		break;
+	case AlignH::Center:
+		x = inX - TextDims.mWidth / 2.0f;
+		break;
+	}
+
+	switch (mCurrentTextProp.V)
+	{
+	case AlignV::Bottom:
+		y = inY;
+		break;
+	case AlignV::Top:
+		y = inY + TextDims.mHeight;
+		break;
+	case AlignV::Center:
+		y = inY + TextDims.mHeight / 2.0f;
+		break;
+	}
+
 	/*
 		In Accordance with TextProperty modify this TODO
 	*/
-	AddRespectiveVerticesAndIndicesAt ( len, mCharQuadGlyphCount, inDepthValue, inFontShapeId, info, inX, inY );
+	AddRespectiveVerticesAndIndicesAt ( len, mCharQuadGlyphCount, inDepthValue, inFontShapeId, info, x, y );
 	outId = mCharQuadGlyphCount;
 	mCharQuadGlyphCount += len;
 	hb_buffer_destroy ( hbBuffer );
 	return TextDims;
 }
 
-Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText_base::UpdateText ( uint32_t inId, const std::string_view inString, uint32_t inFontShapeId, uint32_t inDepthValue, std::vector<uint32_t>& outCodePoints )
+Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText_base::UpdateText (uint32_t inX, uint32_t inY, uint32_t inId, const std::string_view inString, uint32_t inFontShapeId, uint32_t inDepthValue, std::vector<uint32_t>& outCodePoints )
 {
 	hb_buffer_t* hbBuffer = hb_buffer_create ( );
 	hb_buffer_add_utf8 ( hbBuffer, reinterpret_cast<const char*>(inString.data ( )), -1, 0, -1 );
@@ -75,10 +103,37 @@ Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText_base::Updat
 	auto TextDims = GetTextDimensions ( inString, inFontShapeId, info, pos, len );
 
 	for (int i = 0; i < len; i++) outCodePoints.push_back ( info[i].codepoint );
+
+	uint32_t x, y;
+	switch (mCurrentTextProp.H)
+	{
+	case AlignH::Left:
+		x = inX;
+		break;
+	case AlignH::Right:
+		x = inX - TextDims.mWidth;
+		break;
+	case AlignH::Center:
+		x = inX - TextDims.mWidth / 2.0f;
+		break;
+	}
+
+	switch (mCurrentTextProp.V)
+	{
+	case AlignV::Bottom:
+		y = inY + TextDims.mHeight;
+		break;
+	case AlignV::Top:
+		y = inY;
+		break;
+	case AlignV::Center:
+		y = inY + TextDims.mHeight / 2.0f;
+		break;
+	}
 	/*
 		In Accordance with TextProperty modify this TODO
 	*/
-	AddRespectiveVerticesAndIndicesAt ( len, inId, inDepthValue, inFontShapeId, info, 0, 0 );
+	AddRespectiveVerticesAndIndicesAt ( len, inId, inDepthValue, inFontShapeId, info, x, y );
 
 	hb_buffer_destroy ( hbBuffer );
 	return TextDims;

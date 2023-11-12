@@ -1,10 +1,11 @@
-#pragma once
+﻿#pragma once
 #include <Components/Area_base.hpp>
 #include <Components/ButtonRect_base.hpp>
 #include <Components/Colors.hpp>
 #include <Components/ScrollableRect.hpp>
 #include <Components/HLayout.hpp>
 #include <Components/VLayout.hpp>
+#include <Components/BTextButtonRect.hpp>
 #include "GridSheet.hpp"
 
 namespace App
@@ -40,7 +41,7 @@ namespace App
 
 			mBottomScrollArea = MakeSH<Component::ScrollableRect>(r, e);
 			mBottomHorizontalLayout->AddComponent(mBottomScrollArea);
-			mBottomHorizontalLayout->ResetPositionsAndDimensions({1.0f});
+			mBottomHorizontalLayout->ResetPositionsAndDimensions({ 1.0f });
 
 
 			e.MoveDepthValueTowardsTheCamera();
@@ -72,6 +73,15 @@ namespace App
 			mBottomHorizontalLayout->SetVPadding(0);
 			mBottomHorizontalLayout->SetHPadding(5);
 
+			r.bt.AddFontFace("font.ttf", 4, mFontFaceId);
+			r.bt.SetCurrentFontFace(mFontFaceId);
+			mTextButton = MakeUp<Component::BTextButtonRect>(r, e);
+			mTextButton->SetText("प्रथमोऽध्यायः");
+			mTextButton->SetPosition(mScrollArea->FromComponent(glm::vec2(100, 100)));
+			mTextButtonScrollTestPosition = mScrollArea->FromComponent(glm::vec2(100, 100));
+			mTextButton->SetWindow(this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
+			mTextButton->SetDepthValue(e.GetDepthValue());
+			mTextButton->Load();
 		}
 	private:
 		Sp<Component::ScrollableRect> mScrollArea;
@@ -80,6 +90,8 @@ namespace App
 		Sp<Component::HorizontalLayout<1>> mBottomHorizontalLayout;
 		Sp<Component::ScrollableRect> mBottomScrollArea;
 		Up<Component::VerticalLayout<2>> mVerticalLayout;
+		Up<Component::BTextButtonRect> mTextButton;
+		uint32_t mFontFaceId;
 
 
 	public:
@@ -98,21 +110,29 @@ namespace App
 			mVerticalLayout->SetDimension(glm::vec2(this->GetWindowWidth(), this->GetWindowHeight()));
 			mVerticalLayout->ResetPositionsAndDimensions({ 0.8, 0.2 });
 
-			//mLayout->SetPosition(glm::vec2(0, 0));
-			//mLayout->SetDimension(glm::vec2(this->GetWindowWidth(), this->GetWindowHeight()));
 
 			mBottomHorizontalLayout->ResetPositionsAndDimensions({ 1.0f });
 			mLayout->ResetPositionsAndDimensions({ 0.2, 0.8 });
 			mScrollArea->Update(inWindow, this->GetWindowWidth(), this->GetWindowHeight());
 			mBottomScrollArea->Update(inWindow, this->GetWindowWidth(), this->GetWindowHeight());
 			mGridSheet->Update(inWindow, this->GetWindowWidth(), this->GetWindowHeight());
-		}
 
+
+
+			//mTextButton->SetPosition(mScrollArea->FromComponent(glm::vec2(100, 100)));
+			mTextButton->SetPosition(mScrollArea->GetScrollOffsetPosition() + mTextButtonScrollTestPosition);
+			mTextButton->SetWindow(this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
+		}
+	private:
+		glm::vec2 mTextButtonScrollTestPosition;
+
+	public:
 		void Event()
 		{
 			mScrollArea->Event();
 			mGridSheet->Event();
 			mBottomScrollArea->Event();
+			mTextButton->Event();
 		}
 
 		void Draw()
@@ -135,6 +155,13 @@ namespace App
 			r.sh.BindFillMode(Jkr::Renderer::FillType::Fill, *mWindow);
 			mScrollArea->DrawFillShapes();
 			mBottomScrollArea->DrawFillShapes();
+
+			mScrollArea->SetScissor();
+			mTextButton->DrawShapes();
+
+			r.bt.Bind(*this->GetWindow());
+			mTextButton->DrawBestTexts();
+			mScrollArea->ResetScissor();
 		}
 
 	};

@@ -27,7 +27,7 @@ Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText::AddText ( 
 	outLength = len;
 	CheckAndResize ( len );
 
-	uint32_t VertexStartingIndex = outId;
+	uint32_t VertexStartingIndex = outId * 4;
 	for (int i = 0; i < CodePoints.size ( ); i++)
 	{
 		uint32_t id;
@@ -96,8 +96,7 @@ Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText::AddText ( 
 Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText::UpdateText ( uint32_t inId, const std::string_view inText, uint32_t inX, uint32_t inY, uint32_t inDepthValue )
 {
 	std::vector<uint32_t> CodePoints;
-	CodePoints.reserve ( rb::InitialRendererElementArraySize * 10 );
-	auto TextDimension = bb::UpdateText ( inId, inText, mCurrentFontFaceId, inDepthValue, CodePoints );
+	auto TextDimension = bb::UpdateText (inX, inY, inId, inText, mCurrentFontFaceId, inDepthValue, CodePoints );
 	uint32_t len = CodePoints.size ( );
 
 	uint32_t VertexStartingIndex = inId;

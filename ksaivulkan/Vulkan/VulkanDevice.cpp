@@ -27,14 +27,16 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice, const V
 
 #ifdef USE_VARIABLE_DESCRIPTOR_INDEXING_FEATURE
 	vk::PhysicalDeviceDescriptorIndexingFeatures DescriptorIndexingFeatures;
+	DescriptorIndexingFeatures.runtimeDescriptorArray = VK_TRUE;
+	DescriptorIndexingFeatures.descriptorBindingVariableDescriptorCount = VK_TRUE;
+	DescriptorIndexingFeatures.descriptorBindingPartiallyBound = VK_TRUE;
+	DescriptorIndexingFeatures.descriptorBindingUpdateUnusedWhilePending = VK_TRUE;
+	DescriptorIndexingFeatures.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
+
 	vk::StructureChain< vk::DeviceCreateInfo, vk::PhysicalDeviceDescriptorIndexingFeatures> createInfo(
 		deviceCreateInfo, DescriptorIndexingFeatures
 	);
-	createInfo.get<vk::PhysicalDeviceDescriptorIndexingFeatures>().runtimeDescriptorArray = VK_TRUE;
-	createInfo.get<vk::PhysicalDeviceDescriptorIndexingFeatures>().descriptorBindingVariableDescriptorCount = VK_TRUE;
-	createInfo.get<vk::PhysicalDeviceDescriptorIndexingFeatures>().descriptorBindingPartiallyBound = VK_TRUE;
-	createInfo.get<vk::PhysicalDeviceDescriptorIndexingFeatures>().descriptorBindingUpdateUnusedWhilePending = VK_TRUE;
-	createInfo.get<vk::PhysicalDeviceDescriptorIndexingFeatures>().shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
+
 	mDevice = mPhysicalDevice.createDevice(createInfo.get<vk::DeviceCreateInfo>());
 #else
 	mDevice = mPhysicalDevice.createDevice(deviceCreateInfo);

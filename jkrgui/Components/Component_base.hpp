@@ -26,6 +26,11 @@ namespace Jkr::Component
 		std::vector<glm::uvec2> mShapes;
 	public:
 		Component_base(_2d& inR, EventManager& inE) : r(inR), e(inE) {}
+		void SetDefaultBoundedRectangle() { mBoundedRectangleId = e.SetBoundedRect(mPosition, mDimension, mDepthValue); }
+		void UpdateDefaultBoundedRectangle() {
+			Jkr::BoundRect2D Rect{ .mXy = mPosition, .mWh = mDimension };
+			e.UpdateBoundRect(mDepthValue, mBoundedRectangleId, Rect);
+		}
 		GETTER GetDimension() { return mDimension; }
 		GETTER GetPosition() { return mPosition; }
 		SETTER SetDimension(glm::vec2 inVec) { mDimension = inVec; }
@@ -36,6 +41,11 @@ namespace Jkr::Component
 		}
 		SETTER SetDepthValue(uint32_t inDepthValue) { mDepthValue = inDepthValue; }
 		GETTER& GetDepthValue() { return mDepthValue; }
+		GETTER IsFocused() { return isFocused; }
+		GETTER IsMouseOnTop() { return e.IsMouseWithinAtTopOfStack(mBoundedRectangleId, mDepthValue); }
+		GETTER IsMouseWithin() { return e.IsMouseWithin(mBoundedRectangleId, mDepthValue); }
+		SETTER ToggleFocus() { isFocused = !isFocused; }
+		SETTER SetFocus(bool inFocus) { isFocused = inFocus; }
 		GETTER GetTranslationMatrix() {
 			return mTransformMatrix;
 		}
@@ -68,11 +78,16 @@ namespace Jkr::Component
 		GETTER GetWindowHeight() {
 			return mWh;
 		}
+		GETTER& GetWindow() {
+			return mWindow;
+		}
 	private:
 		glm::vec2 mDimension;
 		glm::vec2 mPosition;
 		glm::mat4 mTransformMatrix = glm::identity<glm::mat4>();
 		uint32_t mDepthValue;
+		uint32_t mBoundedRectangleId;
+		bool isFocused = false;
 	};
 }
 

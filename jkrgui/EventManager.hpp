@@ -22,7 +22,7 @@ namespace Jkr
 		void ProcessEvents() {
 			while (SDL_PollEvent(&mEvent))
 			{
-				//mEventCallBack(nullptr);
+				mEventCallBack(nullptr);
 				switch (mEvent.type)
 				{
 				case SDL_QUIT:
@@ -43,7 +43,7 @@ namespace Jkr
 		GETTER GetMousePos() const { return mMousePos; }
 		GETTER GetRelativeMousePos() const { return mRelativePos; }
 		GETTER GetMouseButtonValue() const { return mCurrentPushedMouseButton; }
-		bool IsMouseWithin(uint32_t inId, uint32_t inDepthValue)
+		bool IsMouseWithinAtTopOfStack(uint32_t inId, uint32_t inDepthValue)
 		{
 			for (auto &mapElement : mBoundRect2Ds)
 			{
@@ -56,6 +56,11 @@ namespace Jkr
 				}
 			}
 			return (mBoundRect2Ds.contains(inDepthValue)) && mBoundRect2Ds[inDepthValue][inId].IsPointWithin(mMousePos);
+		}
+
+		bool IsMouseWithin(uint32_t inId, uint32_t inDepthValue)
+		{
+			return mBoundRect2Ds[inDepthValue][inId].IsPointWithin(mMousePos);
 		}
 		[[nodiscard]] uint32_t SetBoundedRect(glm::uvec2 inXy, glm::uvec2 inWh, uint32_t inDepthValue) {
 			if (!mBoundRect2Ds.contains(inDepthValue))
@@ -71,6 +76,12 @@ namespace Jkr
 		void UpdateBoundRect(uint32_t inDepthValue, uint32_t inId, BoundRect2D& inBoundRect) {
 			mBoundRect2Ds[inDepthValue][inId] = inBoundRect;
 		}
+
+		void UpdateBoundRect(uint32_t inId, glm::uvec2 inXy, glm::uvec2 inWh, uint32_t inDepthValue) {
+			auto br = BoundRect2D{ .mXy = inXy, .mWh = inWh };
+			mBoundRect2Ds[inDepthValue][inId] = br;
+		}
+
 		void SetEventCallBack(const std::function<void(void*)>& inEventCallBack)
 		{
 			mEventCallBack = inEventCallBack;
