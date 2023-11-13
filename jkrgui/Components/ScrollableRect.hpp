@@ -1,17 +1,21 @@
 #pragma once
 #include "Scrollable_base.hpp"
 #include "ButtonRect_base.hpp"
+#include "FocusProxy.hpp"
 #ifdef max
 #undef max
 #endif
 
 namespace Jkr::Component
 {
-	class ScrollableRect : public Scrollable_base
+	class ScrollableRect : public Scrollable_base, public FocusProxy
 	{
 		using sb = Scrollable_base;
 	public:
-		ScrollableRect(_2d& inR, EventManager& inE) : Scrollable_base(inR, inE) { }
+		ScrollableRect(_2d& inR, EventManager& inE) : Scrollable_base(inR, inE)
+		{ 
+			FocusProxy::SetFocusOnHover(true);
+		}
 		void Load()
 		{
 			sb::Load();
@@ -47,7 +51,7 @@ namespace Jkr::Component
 		{
 			for (auto u : this->GetLines())
 			{
-				r.ln.Draw(*mWindow, mOutLineColor, sb::GetWindowWidth(), sb::GetWindowHeight(), this->GetLines()[0].x, this->GetLines()[0].y, this->GetTranslationMatrix());
+				r.ln.Draw(*mWindow, FocusProxy::GetFocusColor(), sb::GetWindowWidth(), sb::GetWindowHeight(), this->GetLines()[0].x, this->GetLines()[0].y, this->GetTranslationMatrix());
 			}
 		}
 		void DrawFillShapes()
@@ -66,6 +70,7 @@ namespace Jkr::Component
 			bool isLeftButtonPressed = (SDL_BUTTON(SDL_BUTTON_LEFT) bitand e.GetMouseButtonValue()) != 0;
 			bool isVerticalButtonPushed = mVerticalScrollBarButton->IsBeingPushed();
 			bool isMouseOver = this->IsMouseWithin();
+			bool isMouseOnTop = this->IsMouseOnTop();
 
 			bool shouldVScroll = isLeftButtonPressed and isVerticalButtonPushed;
 
@@ -84,12 +89,8 @@ namespace Jkr::Component
 				this->SetNormalizedValue((vButtonPos.y - cbPos.y) / (cbDim.y - vButtonDim.y));
 			}
 
-			if (isLeftButtonPressed and isMouseOver and !this->IsFocused())  this->ToggleFocus(); 
-			if (this->IsFocused() and !isMouseOver and isLeftButtonPressed) this->ToggleFocus();
 
-
-			if (this->IsFocused()) { mOutLineColor = mOutLineColorFocused; }
-			else {mOutLineColor = mOutLineColorUnFocused; } 
+			FocusProxy::FocusEvent(*this, isLeftButtonPressed, isMouseOver, isMouseOnTop);
 
 			if (e.GetEventHandle().type == SDL_MOUSEWHEEL and this->IsFocused())
 			{
@@ -118,8 +119,6 @@ namespace Jkr::Component
 		{
 			mWindow->ResetScissor();
 		}
-		SETTER SetOutlineColorFocused(glm::vec4 inColor) { mOutLineColorFocused = inColor; }
-		SETTER SetOutlineColorUnFocused(glm::vec4 inColor) { mOutLineColorUnFocused = inColor; }
 		GETTER GetScrollOffsetPosition()
 		{
 			return glm::vec2(0.0f, -mVerticalScrollBarButton->GetPosition().y + this->GetPosition().y);
@@ -130,9 +129,5 @@ namespace Jkr::Component
 		Up<ButtonRect_base> mVerticalScrollBarButton;
 		uint32_t mScrollBarWidth = 10;
 		uint32_t mScrollBarHeight = 10;
-		bool mIsFocused = false;
-		glm::vec4 mOutLineColorFocused = glm::vec4(1.0f, 1.0f, 1.0f, 0.8f);
-		glm::vec4 mOutLineColorUnFocused = glm::vec4(1.0f, 1.0f, 1.0f, 0.1f);
-		glm::vec4 mOutLineColor = mOutLineColorUnFocused;
 	};
 }

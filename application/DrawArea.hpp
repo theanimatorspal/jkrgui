@@ -6,7 +6,9 @@
 #include <Components/HLayout.hpp>
 #include <Components/VLayout.hpp>
 #include <Components/BTextButtonRect.hpp>
+#include <Components/TextLineEdit.hpp>
 #include "GridSheet.hpp"
+
 
 namespace App
 {
@@ -75,8 +77,8 @@ namespace App
 
 			r.bt.AddFontFace("font.ttf", 4, mFontFaceId);
 			r.bt.SetCurrentFontFace(mFontFaceId);
-			mTextButton = MakeUp<Component::BTextButtonRect>(r, e);
-			mTextButton->SetText("प्रथमोऽध्यायः");
+			mTextButton = MakeUp<Component::TextLineEdit>(r, e);
+			//mTextButton->SetText("प्रथमोऽध्यायः");
 			mTextButton->SetPosition(mScrollArea->FromComponent(glm::vec2(100, 100)));
 			mTextButtonScrollTestPosition = mScrollArea->FromComponent(glm::vec2(100, 100));
 			mTextButton->SetWindow(this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
@@ -90,12 +92,10 @@ namespace App
 		Sp<Component::HorizontalLayout<1>> mBottomHorizontalLayout;
 		Sp<Component::ScrollableRect> mBottomScrollArea;
 		Up<Component::VerticalLayout<2>> mVerticalLayout;
-		Up<Component::BTextButtonRect> mTextButton;
+		Up<Component::TextLineEdit> mTextButton;
 		uint32_t mFontFaceId;
 
-
 	public:
-
 		void Update(Window* inWindow, uint32_t inW, uint32_t inH)
 		{
 			this->SetWindow(inWindow, inW, inH);
@@ -122,6 +122,7 @@ namespace App
 			//mTextButton->SetPosition(mScrollArea->FromComponent(glm::vec2(100, 100)));
 			mTextButton->SetPosition(mScrollArea->GetScrollOffsetPosition() + mTextButtonScrollTestPosition);
 			mTextButton->SetWindow(this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
+			mTextButton->Update();
 		}
 	private:
 		glm::vec2 mTextButtonScrollTestPosition;
@@ -140,14 +141,13 @@ namespace App
 			r.ln.Bind(*mWindow);
 			mScrollArea->DrawOutlines();
 			mBottomScrollArea->DrawOutlines();
+			mTextButton->DrawOutlines();
 
 			/* GRIDSHEET */
 			{
 				mGridSheet->DrawOutline();
 				mGridSheet->SetScissor();
 				mGridSheet->DrawLines();
-
-
 				mGridSheet->ResetScissor();
 			}
 
@@ -157,7 +157,7 @@ namespace App
 			mBottomScrollArea->DrawFillShapes();
 
 			mScrollArea->SetScissor();
-			mTextButton->DrawShapes();
+//			mTextButton->DrawShapes();
 
 			r.bt.Bind(*this->GetWindow());
 			mTextButton->DrawBestTexts();

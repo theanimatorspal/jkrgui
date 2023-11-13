@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>
 #include "Config.hpp"
 #define GETTER inline auto
+#define SETTER inline void
 /*
 CONFIGURATION
 */

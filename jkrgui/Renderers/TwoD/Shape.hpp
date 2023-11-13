@@ -21,13 +21,11 @@ namespace Jkr::Renderer
 		void BindShapes(Window& inWindow);
 		void Draw(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inStartShapeId, uint32_t inEndShapeId, glm::mat4 inMatrix);
 	private:
-
 		struct PushConstant {
 			glm::mat4 mMatrix;
 			glm::vec4 mColor;
 			glm::vec4 mParams;
 		};
-
 		/*
 		Here Primitive Elements is a factor
 		*/

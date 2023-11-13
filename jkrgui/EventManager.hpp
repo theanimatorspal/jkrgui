@@ -43,6 +43,14 @@ namespace Jkr
 		GETTER GetMousePos() const { return mMousePos; }
 		GETTER GetRelativeMousePos() const { return mRelativePos; }
 		GETTER GetMouseButtonValue() const { return mCurrentPushedMouseButton; }
+		void StartTextInput()
+		{
+			SDL_StartTextInput();
+		}
+		void StopTextInput()
+		{
+			SDL_StopTextInput();
+		}
 		bool IsMouseWithinAtTopOfStack(uint32_t inId, uint32_t inDepthValue)
 		{
 			for (auto &mapElement : mBoundRect2Ds)

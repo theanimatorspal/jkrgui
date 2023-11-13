@@ -20,6 +20,7 @@ add_library(jkrgui ${app_SRC}
 "Components/BTextButtonRect.hpp"
 "Components/ContextMenuList.hpp"
 "Components/TextLineEdit.hpp"
+"Components/FocusProxy.hpp"
 "Renderers/TextD/BestText_base.cpp"
 "Renderers/TextD/BestText_base.hpp"
 "Renderers/TextD/BestText.cpp"
