@@ -85,8 +85,9 @@ Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText_base::AddTe
 
 Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText_base::UpdateText(uint32_t inX, uint32_t inY, uint32_t inId, const std::string_view inString, uint32_t inFontShapeId, uint32_t inDepthValue, std::vector<uint32_t>& outCodePoints)
 {
+
     hb_buffer_t* hbBuffer = hb_buffer_create();
-    hb_buffer_add_utf8(hbBuffer, reinterpret_cast<const char*>(inString.data()), -1, 0, -1);
+    hb_buffer_add_utf8(hbBuffer, inString.data(), -1, 0, -1);
     hb_buffer_guess_segment_properties(hbBuffer);
     hb_shape(mHbFonts[inFontShapeId], hbBuffer, 0, 0);
     unsigned int len = hb_buffer_get_length(hbBuffer);

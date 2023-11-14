@@ -18,7 +18,7 @@ namespace Jkr::Component
 		void ResetPositionsAndDimensions(const std::array<float, NoOfComponents> inComponentProportion)
 		{
 			float ComponentCount = mComponents.size();
-			float CurrentHSizePointer = 0;
+			float CurrentHSizePointer = this->GetPosition().x;
 
 			for (int i = 0; i < mComponents.size(); ++i)
 			{

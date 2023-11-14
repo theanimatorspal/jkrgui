@@ -9,7 +9,7 @@ link_directories(${VULKAN_LIBRARY_PATH})
 
 add_executable(application ${app_SRC} "application.cpp" "DrawArea.hpp" "DrawArea.cpp" "GridSheet.cpp")
 
-include("../CMakeCommon.txt")
+include("../CMakeCommon.cmake")
 
 configure_target(application)
 
