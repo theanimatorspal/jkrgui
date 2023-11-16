@@ -2,6 +2,7 @@
 
 void Jkr::Component::TextLineEdit::Load()
 {
+    ZoneScoped;
     auto TextDimensions = r.bt.AddText(mCurrentString, 0, 0, ab::GetDepthValue(), mStringViewOutId, mStringViewLength);
     this->SetDefaultBoundedRectangle();
     r.bt.UpdateText(mStringViewOutId, mCurrentString, mHPadding, mVPadding, ab::GetDepthValue() - 1);
@@ -15,6 +16,7 @@ void Jkr::Component::TextLineEdit::Load()
 
 void Jkr::Component::TextLineEdit::Event()
 {
+    ZoneScoped;
     auto ev = e.GetEventHandle();
     bool IsLeftButtonPressed = (SDL_BUTTON(SDL_BUTTON_LEFT) bitand e.GetMouseButtonValue()) != 0;
     auto IsMouseOn = this->IsMouseOnTop();

@@ -2,6 +2,7 @@
 #include "Area_base.hpp"
 #include "BTextButtonRect.hpp"
 #include "FocusProxy.hpp"
+#include <Vendor/Tracy/tracy/Tracy.hpp>
 
 namespace Jkr::Component {
 class TextLineEdit : public Area_base, public FocusProxy {

@@ -1,4 +1,6 @@
 #pragma once
+#define TRACY_ENABLE
+
 #include <Vulkan/Config.hpp>
 
 //#define JKR_NO_STAGING_BUFFERS
