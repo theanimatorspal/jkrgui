@@ -25,28 +25,26 @@ public:
         mTextLineEdit = MakeSH<TextLineEdit>(r, e);
 
         mHLayout->SetPosition(this->GetPosition());
-        mHLayout->SetHPadding(0);
-        mHLayout->SetVPadding(0);
+        mHLayout->SetDimension(this->GetDimension());
+        mHLayout->SetHPadding(5);
+        mHLayout->SetVPadding(5);
         mHLayout->AddComponent(mImageButton);
         mHLayout->AddComponent(mTextLineEdit);
         mHLayout->ResetPositionsAndDimensions({ 0.2f, 0.8f });
 
-        mTextLineEdit->SetDimension({140, 48});
+        mTextLineEdit->SetDimension({140, 32});
         mTextLineEdit->SetDepthValue(this->GetDepthValue());
         mTextLineEdit->SetWindow(this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
         mTextLineEdit->Load();
 
-        mImageButton->SetDimension({ 50, 50 });
+        mImageButton->SetDimension({ 50, 10 });
         mImageButton->SetDepthValue(this->GetDepthValue());
         mImageButton->SetWindow(this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
         mImageButton->SetFilePath("C:\\Users\\sansk\\OneDrive\\Desktop\\Project\\jkrengine\\Resources\\Icons\\search.png");
 
         mHLayout->SetDimension(mTextLineEdit->GetDimension() + glm::vec2(50, 0));
         mHLayout->ResetPositionsAndDimensions({ 0.2f, 0.8f });
-
-
         mImageButton->Load();
-
         ab::Load();
     }
 
@@ -57,6 +55,9 @@ public:
 
     void Update ( )
     {
+        mHLayout->SetPosition(this->GetPosition());
+        mHLayout->ResetPositionsAndDimensions({ 0.2f, 0.8f });
+        mImageButton->Update();
         mTextLineEdit->Update();
     }
 

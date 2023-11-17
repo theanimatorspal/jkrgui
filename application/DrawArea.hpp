@@ -47,7 +47,7 @@ public:
         mBottomScrollArea->Update(inWindow, this->GetWindowWidth(), this->GetWindowHeight());
         mGridSheet->Update(inWindow, this->GetWindowWidth(), this->GetWindowHeight());
 
-        mTextButton->SetPosition(mScrollArea->GetScrollOffsetPosition() + mTextButtonScrollTestPosition);
+		mTextButton->SetPosition(mGridSheet->FromComponent(glm::vec2(100, 100)));
         mTextButton->SetWindow(this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
         mTextButton->Update();
     }

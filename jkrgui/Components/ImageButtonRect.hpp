@@ -29,6 +29,11 @@ public:
         r.sh.Draw(inWindow, glm::vec4(), inW, inH, mShapeId, mShapeId, this->GetTranslationMatrix());
     }
 
+    void Update()
+    {
+        bb::Update();
+    }
+
     SETTER SetFilePath(std::string_view inFilePath) { mFilePath = inFilePath; }
 
 private:

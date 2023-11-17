@@ -16,9 +16,6 @@ public:
     {
     }
 
-    /*
-    @brief Expects Depth and Positions and Dimensions to be Set.
-    */
     void Load();
     void Event();
     void DrawBestTexts()
@@ -36,7 +33,6 @@ public:
     {
         assert(inString.length() > mMinimumInitialLengthOfString && "This String is also used for calculating the maximum width, so put some spaces \n or longer word");
         mCurrentString = inString;
-        mInitialString = inString;
     }
 
 private:
@@ -55,19 +51,17 @@ private:
         }
         void Update()
         {
-            r.ln.UpdateLine(mCursorLineId, glm::vec2(0, 0), this->GetDimension(), this->GetDepthValue());
+            r.ln.UpdateLine(mCursorLineId, glm::vec2(0, 0), { 0, this->GetDimension().y }, this->GetDepthValue());
         }
 
     private:
         uint32_t mCursorLineId;
     };
     Cursor mTextCursor;
-    void UpdateCursorPosition();
 
 private:
-    uint32_t mMaxLength;
-    std::string mCurrentString = "टङ्क्यतामत्र कृपया...     ";
-    std::string mInitialString = mCurrentString;
+    uint32_t mMaxNoOfGlyphs = 15;
+    std::string mCurrentString = "                              ";
     uint32_t mStringViewLength;
     uint32_t mStringViewOutId;
     uint32_t mRightEditingPosition = 0;
@@ -75,6 +69,7 @@ private:
     bool mHasEditingStarted = false;
     bool mShouldUpdateText = false;
     bool mShouldResetString = true;
+    bool mShouldIncreaseLeftEditingPosition = false;
 
 private:
     uint32_t mVPadding = 5;

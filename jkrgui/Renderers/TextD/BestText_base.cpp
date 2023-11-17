@@ -115,7 +115,7 @@ Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText_base::Updat
 
     switch (mCurrentTextProp.V) {
     case AlignV::Bottom:
-        y = inY + TextDims.mHeight;
+        y = inY - TextDims.mHeight;
         break;
     case AlignV::Top:
         y = inY;
@@ -164,7 +164,14 @@ Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText_base::GetTe
             minY = glyphMinY;
         if (glyphMaxY > maxY)
             maxY = glyphMaxY;
+
+
         originX += ToPixels(pos.x_advance);
+
+        if (i == len - 1)
+        {
+            maxX = originX;
+        }
     }
 
     originX = -minX;

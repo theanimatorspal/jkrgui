@@ -34,6 +34,8 @@ namespace Jkr::Renderer
 		~BestText_base ( );
 		void AddFontFace ( const std::string_view inFontFilePathName, size_t inFontSize, uint32_t& outFontId );
 		TextDimensions GetTextDimensions(const std::string_view inString, uint32_t inFontShapeId);
+		void SetTextProperty(TextProperty inProp) { mCurrentTextProp = inProp; };
+		GETTER GetTextProperty() const { return mCurrentTextProp; };
 	protected:
 		TextDimensions GetTextDimensions ( const std::string_view inString, uint32_t inFontShapeId, hb_glyph_info_t* info, hb_glyph_position_t* pos, uint32_t len );
 		TextDimensions AddText (uint32_t inX, uint32_t inY, const std::string_view inString, uint32_t inFontShapeId, uint32_t inDepthValue, std::vector<uint32_t>& outCodePoints, uint32_t& outIdt );
@@ -47,8 +49,6 @@ namespace Jkr::Renderer
 		GETTER GetCurrentCharOffsetAbsolute ( ) const { return mCharQuadGlyphCount; }
 		GETTER GetVertexBufferData ( ) { return reinterpret_cast<void*>(mVertices.data ( )); }
 		GETTER GetIndexBufferData ( ) { return  reinterpret_cast<void*>(mIndices.data ( )); }
-		void SetTextProperty ( TextProperty inProp ) { mCurrentTextProp = inProp; };
-		GETTER GetTextProperty ( ) const { return mCurrentTextProp; };
 		void Resize ( uint32_t inNewSize ) {
 			mVertices.reserve ( CharCountToVertexBytes ( inNewSize ) );
 			mIndices.reserve ( CharCountToIndexBytes ( inNewSize ) );

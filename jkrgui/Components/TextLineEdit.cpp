@@ -2,21 +2,31 @@
 
 void Jkr::Component::TextLineEdit::Load()
 {
+    mMaxNoOfGlyphs = 18;
     ZoneScoped;
-    auto TextDimensions = r.bt.AddText(mCurrentString, 0, 0, ab::GetDepthValue(), mStringViewOutId, mStringViewLength);
+
+    r.bt.SetTextProperty(Jkr::Renderer::BestText_base::TextProperty { .H = Jkr::Renderer::BestText_base::AlignH::Left, .V = Jkr::Renderer::BestText_base::AlignV::Top });
+    auto TextDimensions = r.bt.AddText(mCurrentString, 0, this->GetDimension().y - mVPadding, ab::GetDepthValue(), mStringViewOutId, mStringViewLength);
     this->SetDefaultBoundedRectangle();
-    r.bt.UpdateText(mStringViewOutId, mCurrentString, mHPadding, mVPadding, ab::GetDepthValue() - 1);
+    r.bt.UpdateText(mStringViewOutId, mCurrentString, mHPadding, this->GetDimension().y - mVPadding, ab::GetDepthValue() - 1);
     ab::Load();
-    mTextCursor.SetDimension(glm::vec2(0, TextDimensions.mHeight + 2 * mVPadding));
+    mTextCursor.SetDimension(glm::vec2(0, this->GetDimension().y));
+    mTextCursor.SetPosition(
+        glm::vec2(this->GetPosition().x,
+            this->GetPosition().y));
     mTextCursor.SetDepthValue(ab::GetDepthValue() - 1);
     mTextCursor.Load();
+    mTextCursor.Update();
     e.StopTextInput();
     mShouldUpdateText = true;
+    mRightEditingPosition = 0;
+    mLeftEditingPosition = 0;
 }
 
 void Jkr::Component::TextLineEdit::Event()
 {
     ZoneScoped;
+    r.bt.SetTextProperty(Jkr::Renderer::BestText_base::TextProperty { .H = Jkr::Renderer::BestText_base::AlignH::Left, .V = Jkr::Renderer::BestText_base::AlignV::Top });
     auto ev = e.GetEventHandle();
     bool IsLeftButtonPressed = (SDL_BUTTON(SDL_BUTTON_LEFT) bitand e.GetMouseButtonValue()) != 0;
     auto IsMouseOn = this->IsMouseOnTop();
@@ -26,15 +36,15 @@ void Jkr::Component::TextLineEdit::Event()
     if (!mHasEditingStarted and this->IsFocused()) {
         if (mShouldResetString)
             std::fill(mCurrentString.begin(), mCurrentString.end(), ' ');
-        r.bt.UpdateText(mStringViewOutId, mCurrentString, mHPadding, mVPadding, ab::GetDepthValue() - 1);
+        mShouldUpdateText = true;
         e.StartTextInput();
         mHasEditingStarted = true;
     } else if (mHasEditingStarted and !this->IsFocused()) {
         if (mShouldResetString) {
-            mCurrentString = mInitialString;
+            std::fill(mCurrentString.begin(), mCurrentString.end(), ' ');
             mRightEditingPosition = 0;
         }
-        r.bt.UpdateText(mStringViewOutId, mCurrentString, mHPadding, mVPadding, ab::GetDepthValue() - 1);
+        mShouldUpdateText = true;
         e.StopTextInput();
         mHasEditingStarted = false;
     }
@@ -42,7 +52,7 @@ void Jkr::Component::TextLineEdit::Event()
     if (ev.type == SDL_KEYDOWN) {
         if (ev.key.keysym.sym == SDLK_BACKSPACE and mCurrentString.length() > 0) {
             if (mRightEditingPosition > 0) {
-                // std::fill(mCurrentString.begin() + mRightEditingPosition - 1, mCurrentString.end(), ' ');
+                std::fill(mCurrentString.begin() + mRightEditingPosition, mCurrentString.end(), ' ');
                 mCurrentString[mRightEditingPosition - 1] = ' ';
                 mRightEditingPosition--;
             }
@@ -68,45 +78,49 @@ void Jkr::Component::TextLineEdit::Event()
             if (mRightEditingPosition == 0) {
                 mCurrentString = "";
             }
+            mCurrentString.resize(mRightEditingPosition);
             mShouldUpdateText = true;
             mCurrentString.append(ev.text.text);
             mRightEditingPosition++;
             mShouldUpdateText = true;
+            mShouldIncreaseLeftEditingPosition = true;
         }
     }
 }
 
 void Jkr::Component::TextLineEdit::Update()
 {
+    r.bt.SetTextProperty(Jkr::Renderer::BestText_base::TextProperty { .H = Jkr::Renderer::BestText_base::AlignH::Left, .V = Jkr::Renderer::BestText_base::AlignV::Top });
     ab::Update();
     ab::UpdateDefaultBoundedRectangle();
+    auto StringView = std::string_view { mCurrentString.begin() + mLeftEditingPosition, mCurrentString.begin() + mRightEditingPosition };
+
     if (mShouldUpdateText) {
-        auto NewString = std::string_view { mCurrentString.begin() + mLeftEditingPosition, mCurrentString.begin() + mRightEditingPosition };
         if (mRightEditingPosition == 0) {
-            NewString = " ";
+            StringView = " ";
         }
 
-        auto TextDimensions = r.bt.UpdateText(mStringViewOutId, NewString, mHPadding, mVPadding, ab::GetDepthValue() - 1);
-        if (TextDimensions.mWidth + 2 * mHPadding >= this->GetDimension().x) {
+        auto TextDimensions = r.bt.UpdateText(mStringViewOutId, StringView, mHPadding, this->GetDimension().y - mVPadding, ab::GetDepthValue() - 1);
+
+        bool TextWidthGreaterThanWidth = TextDimensions.mWidth + 2 * mHPadding >= this->GetDimension().x;
+        bool IsGreaterThanMaxNoOfGlyphs = (mRightEditingPosition - mLeftEditingPosition) >= mMaxNoOfGlyphs;
+
+        if (IsGreaterThanMaxNoOfGlyphs and mShouldIncreaseLeftEditingPosition) {
             mLeftEditingPosition++;
+            mShouldIncreaseLeftEditingPosition = false;
         }
-        // auto Dimesiony = TextDimensions.mHeight + 2 * mVPadding;
-        // ab::SetDimension(glm::vec2(ab::GetDimension().x, TextDimensions.mHeight == 0 ? ab::GetDimension().y : Dimesiony));
 
         if (mLeftEditingPosition <= mRightEditingPosition) {
-			auto NewStringStr = std::string { mCurrentString.begin() + mLeftEditingPosition, mCurrentString.begin() + mRightEditingPosition };
+            auto NewStringStr = std::string { mCurrentString.begin() + mLeftEditingPosition, mCurrentString.begin() + mRightEditingPosition};
             auto Tdims = r.bt.GetTextDimensions(NewStringStr, r.bt.GetCurrentFontFace());
             mTextCursor.SetPosition(
                 glm::vec2(this->GetPosition().x + Tdims.mWidth + mHPadding,
                     this->GetPosition().y));
             mTextCursor.SetDimension(glm::vec2(0, this->GetDimension().y));
             mTextCursor.Update();
-            this->UpdateCursorPosition();
+        } else {
+            __debugbreak();
         }
         mShouldUpdateText = false;
     }
-}
-
-void Jkr::Component::TextLineEdit::UpdateCursorPosition()
-{
 }

@@ -22,9 +22,9 @@ namespace Jkr::Component
 
 			for (int i = 0; i < mComponents.size(); ++i)
 			{
-				float VSizeOfEachElementWithPadding = static_cast<float>(this->GetDimension().y) * inComponentProportion[i];
+				float VSizeOfEachElementWithPadding = this->GetDimension().y * inComponentProportion[i];
 				float VSizeOfEachElementWithoutPadding = (VSizeOfEachElementWithPadding - VPadding * 2);
-				float HSizeOfEachElementWithPadding = static_cast<float>(this->GetDimension().x);
+				float HSizeOfEachElementWithPadding = this->GetDimension().x;
 				float HSizeOfEachElementWithoutPadding = HSizeOfEachElementWithPadding - HPadding * 2;
 
 				CurrentVSizePointer += VPadding;
