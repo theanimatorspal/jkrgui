@@ -26,6 +26,7 @@ namespace Jkr::Component
 			mVerticalScrollBarButton = MakeUp<ButtonRect_base>(r, e);
 			mVerticalScrollBarButton->SetDimension(glm::uvec2(mScrollBarWidth, mScrollBarHeight));
 			mVerticalScrollBarButton->SetDepthValue(sb::GetDepthValue());
+			mVerticalScrollBarButton->SetWindow(this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
 			mVerticalScrollBarButton->SetPosition(
 				this->FromComponent(
 					glm::vec2(sb::GetDimension().x - mScrollBarWidth,

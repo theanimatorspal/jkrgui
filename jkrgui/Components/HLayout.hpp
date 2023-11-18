@@ -35,6 +35,26 @@ namespace Jkr::Component
 			}
 		}
 
+		void ResetPositionsAndDimensions()
+		{
+			float ComponentCount = mComponents.size();
+			float CurrentHSizePointer = this->GetPosition().x;
+
+			for (int i = 0; i < mComponents.size(); ++i)
+			{
+				float HSizeOfEachElementWithPadding = this->GetDimension().x * (1.0f / static_cast<float>(NoOfComponents);
+				float HSizeOfEachElementWithoutPadding = (HSizeOfEachElementWithPadding - HPadding * 2);
+				float VSizeOfEachElementWithPadding = this->GetDimension().y;
+				float VSizeOfEachElementWithoutPadding = VSizeOfEachElementWithPadding - VPadding * 2;
+
+				CurrentHSizePointer += HPadding;
+				mComponents[i]->SetDimension(glm::vec2(HSizeOfEachElementWithoutPadding, VSizeOfEachElementWithoutPadding));
+				mComponents[i]->SetPosition(glm::vec2(CurrentHSizePointer, VPadding + this->GetPosition().y));
+				CurrentHSizePointer += mComponents[i]->GetDimension().x;
+				CurrentHSizePointer += HPadding;
+			}
+		}
+
 		SETTER SetHPadding(uint32_t inPadding) { HPadding = inPadding; }
 		SETTER SetVPadding(uint32_t inPadding) { VPadding = inPadding; }
 	private:

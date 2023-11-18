@@ -35,6 +35,11 @@ public:
         mCurrentString = inString;
     }
 
+    GETTER GetCurrentStringView ( )
+    {
+        return std::string_view(mCurrentString.begin(), mCurrentString.end() + mRightEditingPosition);
+    }
+
 private:
     struct Cursor : Component_base {
         Cursor(_2d& inR, EventManager& inE)

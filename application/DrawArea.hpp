@@ -82,12 +82,12 @@ public:
 
         r.sh.BindShapes(*mWindow);
         r.sh.BindFillMode(Jkr::Renderer::FillType::Fill, *this->GetWindow());
+        mTextButton->DrawShapes();
         mScrollArea->DrawFillShapes();
         mBottomScrollArea->DrawFillShapes();
+
         r.sh.BindFillMode(Jkr::Renderer::FillType::Image, *this->GetWindow());
         mTextButton->DrawImages(*this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
-
-
         r.bt.Bind(*this->GetWindow());
         mTextButton->DrawBestTexts();
 

@@ -18,11 +18,30 @@ namespace Jkr::Component
 		void ResetPositionsAndDimensions(const std::array<float, NoOfComponents> inComponentProportion)
 		{
 			float ComponentCount = mComponents.size();
-			float CurrentVSizePointer = 0;
+			float CurrentVSizePointer = this->GetPosition().y;
 
 			for (int i = 0; i < mComponents.size(); ++i)
 			{
 				float VSizeOfEachElementWithPadding = this->GetDimension().y * inComponentProportion[i];
+				float VSizeOfEachElementWithoutPadding = (VSizeOfEachElementWithPadding - VPadding * 2);
+				float HSizeOfEachElementWithPadding = this->GetDimension().x;
+				float HSizeOfEachElementWithoutPadding = HSizeOfEachElementWithPadding - HPadding * 2;
+
+				CurrentVSizePointer += VPadding;
+				mComponents[i]->SetDimension(glm::vec2(HSizeOfEachElementWithoutPadding, VSizeOfEachElementWithoutPadding));
+				mComponents[i]->SetPosition(glm::vec2(HPadding + this->GetPosition().x, CurrentVSizePointer));
+				CurrentVSizePointer += mComponents[i]->GetDimension().y;
+				CurrentVSizePointer += VPadding;
+			}
+		}
+		void ResetPositionsAndDimensions()
+		{
+			float ComponentCount = mComponents.size();
+			float CurrentVSizePointer = this->GetPosition().y;
+
+			for (int i = 0; i < mComponents.size(); ++i)
+			{
+				float VSizeOfEachElementWithPadding = this->GetDimension().y * (1.0f / static_cast<float>(NoOfComponents));
 				float VSizeOfEachElementWithoutPadding = (VSizeOfEachElementWithPadding - VPadding * 2);
 				float HSizeOfEachElementWithPadding = this->GetDimension().x;
 				float HSizeOfEachElementWithoutPadding = HSizeOfEachElementWithPadding - HPadding * 2;

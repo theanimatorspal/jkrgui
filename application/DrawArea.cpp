@@ -56,13 +56,30 @@ App::DrawArea::DrawArea(_2d& inR, EventManager& inE, Window* inWindow, uint32_t 
     mBottomHorizontalLayout->SetVPadding(0);
     mBottomHorizontalLayout->SetHPadding(5);
 
+    std::vector<std::string_view> ContextMenuItems = {
+        "HelloZ",
+        "Hello1",
+        "Hello2",
+        "Hello3",
+        "Hello4",
+        "Hello5",
+        "Hello6",
+        "Hello7",
+        "Hello8",
+        "Hello9",
+        "Hello0"
+    };
+
     r.bt.AddFontFace("font.ttf", 4, mFontFaceId);
     r.bt.SetCurrentFontFace(mFontFaceId);
     mTextButton = MakeUp<Component::ContextMenuList>(r, e);
+
+    mTextButton->SetMenuItemStrings(ContextMenuItems);
     mTextButton->SetPosition(mGridSheet->FromComponent(glm::vec2(100, 100)));
     mTextButtonScrollTestPosition = mScrollArea->FromComponent(glm::vec2(100, 100));
     mTextButton->SetWindow(this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
     mTextButton->SetDepthValue(e.GetDepthValue());
     mTextButton->SetDimension({ 500, 500 });
     mTextButton->Load();
+
 }

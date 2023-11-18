@@ -33,6 +33,9 @@ public:
         mPosition = { INT_MAX, INT_MAX };
         mDimension = { INT_MAX, INT_MAX };
         mDepthValue = INT_MAX;
+        mWindow = nullptr;
+        mWh = INT_MAX;
+        mWw = INT_MAX;
     }
     void CheckExpectations()
     {
@@ -41,6 +44,9 @@ public:
         assert(mDimension.x != INT_MAX);
         assert(mDimension.y != INT_MAX);
         assert(mDepthValue != INT_MAX);
+        assert(mWh != INT_MAX);
+        assert(mWw != INT_MAX);
+        assert(mWindow != nullptr);
     }
     void SetDefaultBoundedRectangle() { mBoundedRectangleId = e.SetBoundedRect(mPosition, mDimension, mDepthValue); }
     void UpdateDefaultBoundedRectangle()

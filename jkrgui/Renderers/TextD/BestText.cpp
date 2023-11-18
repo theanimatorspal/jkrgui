@@ -103,7 +103,7 @@ Jkr::Renderer::BestText::UpdateText(uint32_t inId,
         inX, inY, inId, inText, mCurrentFontFaceId, inDepthValue, CodePoints);
     uint32_t len = CodePoints.size();
 
-    uint32_t VertexStartingIndex = inId;
+    uint32_t VertexStartingIndex = inId * 4;
     for (int i = 0; i < CodePoints.size(); i++) {
         uint32_t id;
         if (mCodepointKeyTextureMap.contains(CodePoints[i])) {

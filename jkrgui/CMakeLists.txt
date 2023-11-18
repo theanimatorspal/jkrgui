@@ -19,6 +19,7 @@ add_library(jkrgui ${app_SRC}
 "Components/FTextButtonRect.hpp"
 "Components/BTextButtonRect.hpp"
 "Components/ContextMenuList.hpp"
+"Components/ContextMenuList.cpp"
 "Components/TextLineEdit.hpp"
 "Components/ImageButtonRect.hpp"
 "Components/FocusProxy.hpp"
@@ -26,5 +27,6 @@ add_library(jkrgui ${app_SRC}
 "Renderers/TextD/BestText_base.hpp"
 "Renderers/TextD/BestText.cpp"
 "Renderers/TextD/BestText.hpp"
- "Components/TextLineEdit.cpp")
+"Components/TextLineEdit.cpp" 
+)
 

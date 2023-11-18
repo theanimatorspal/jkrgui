@@ -63,10 +63,10 @@ Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText_base::AddTe
 
     switch (mCurrentTextProp.V) {
     case AlignV::Bottom:
-        y = inY;
+        y = inY + TextDims.mHeight;
         break;
     case AlignV::Top:
-        y = inY + TextDims.mHeight;
+        y = inY;
         break;
     case AlignV::Center:
         y = inY + TextDims.mHeight / 2.0f;
@@ -115,7 +115,7 @@ Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText_base::Updat
 
     switch (mCurrentTextProp.V) {
     case AlignV::Bottom:
-        y = inY - TextDims.mHeight;
+        y = inY + TextDims.mHeight;
         break;
     case AlignV::Top:
         y = inY;
@@ -165,11 +165,9 @@ Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText_base::GetTe
         if (glyphMaxY > maxY)
             maxY = glyphMaxY;
 
-
         originX += ToPixels(pos.x_advance);
 
-        if (i == len - 1)
-        {
+        if (i == len - 1) {
             maxX = originX;
         }
     }
@@ -220,29 +218,21 @@ void Jkr::Renderer::BestText_base::AddRespectiveVerticesAndIndicesAt(unsigned in
 
             const auto v_index = i * 4 + inStartIndex * 4;
 
-            mVertices[v_index + 0] = kstd::VertexEXT {
-                .mPosition = { glyphMinX, glyphMaxY, inDepthValue },
-                .mTextureCoordinates = { 0, 0 },
-                .mIvec3 = { 0, 0, 0 }
-            };
+            mVertices[v_index + 0].mPosition = { glyphMinX, glyphMaxY, inDepthValue };
+            mVertices[v_index + 0].mTextureCoordinates = { 0, 0 };
+    //        mVertices[v_index + 0].mIvec3 = { 0, 0, 0 };
 
-            mVertices[v_index + 1] = kstd::VertexEXT {
-                .mPosition = { glyphMinX, glyphMinY, inDepthValue },
-                .mTextureCoordinates = { 0, 1 },
-                .mIvec3 = { 0, 0, 0 }
-            };
+            mVertices[v_index + 1].mPosition = { glyphMinX, glyphMinY, inDepthValue };
+            mVertices[v_index + 1].mTextureCoordinates = { 0, 1 };
+   //         mVertices[v_index + 1].mIvec3 = { 0, 0, 0 };
 
-            mVertices[v_index + 2] = kstd::VertexEXT {
-                .mPosition = { glyphMaxX, glyphMinY, inDepthValue },
-                .mTextureCoordinates = { 1, 1 },
-                .mIvec3 = { 0, 0, 0 }
-            };
+            mVertices[v_index + 2].mPosition = { glyphMaxX, glyphMinY, inDepthValue };
+            mVertices[v_index + 2].mTextureCoordinates = { 1, 1 };
+  //          mVertices[v_index + 2].mIvec3 = { 0, 0, 0 };
 
-            mVertices[v_index + 3] = kstd::VertexEXT {
-                .mPosition = { glyphMaxX, glyphMaxY, inDepthValue },
-                .mTextureCoordinates = { 1, 0 },
-                .mIvec3 = { 0, 0, 0 }
-            };
+            mVertices[v_index + 3].mPosition = { glyphMaxX, glyphMaxY, inDepthValue };
+            mVertices[v_index + 3].mTextureCoordinates = { 1, 0 };
+ //           mVertices[v_index + 3].mIvec3 = { 0, 0, 0 };
 
             const auto i_index = i * 6 + inStartIndex * 6;
 
