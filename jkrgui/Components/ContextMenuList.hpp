@@ -31,11 +31,26 @@ public:
     void Update()
     {
         mHLayout->SetPosition(this->GetPosition());
-        mHLayout->ResetPositionsAndDimensions({ 0.2f, 0.8f });
+        mHLayout->SetDimension(this->GetDimension());
+        mHLayout->ResetPositionsAndDimensions(mMenuItemLayoutSizeFactor);
+        mTextLineEdit->SetDimension({ mWidthOfMenu, mHeightOfMenuItem });
+        mTextLineEdit->SetWindow(this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
+        mImageButton->SetDimension({ 50, 10 });
+        mImageButton->SetWindow(this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
+        mHLayout->SetDimension(mTextLineEdit->GetDimension() + glm::vec2(50, 0));
+        mHLayout->ResetPositionsAndDimensions(mMenuItemLayoutSizeFactor);
+        auto PositionOfItemList = mHLayout->GetPosition() + glm::vec2(0, mHLayout->GetDimension().y);
+        mItemsVerticalLayout->SetPosition(PositionOfItemList);
+        mItemsVerticalLayout->SetDimension({ mWidthOfMenu + 50, mHeightOfMenuItem * mMaxNumberOfMenuItems });
+        mItemsVerticalLayout->ResetPositionsAndDimensions();
+        for (int i = 0; i < mNumVisibleItems; i++) {
+            auto& layout = mMenuItemsHorizontalLayout[i];
+			auto& button = mMenuItemsTextButtons[i];
+            layout->ResetPositionsAndDimensions(mMenuItemLayoutSizeFactor);
+			button->SetWindow(this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
+        } 
 
-        mImageButton->Update();
         mTextLineEdit->Update();
-
         if (mSelectedMenuItem.has_value()) {
             for (auto& u : mMenuItemsTextButtons) {
                 u->SetNormalColor(glm::vec4(0.2f, 0.2f, 0.2f, 0.5f));
@@ -49,6 +64,16 @@ public:
         for (auto& u : mMenuItemsTextButtons)
             u->DrawBestTexts();
         mTextLineEdit->DrawBestTexts();
+    }
+
+    void Focus()
+    {
+        mTextLineEdit->SetFocus(true);
+    }
+
+    void UnFocus()
+    {
+        mTextLineEdit->SetFocus(false);
     }
 
     void Event()

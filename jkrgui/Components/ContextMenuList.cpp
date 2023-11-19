@@ -30,10 +30,10 @@ void ContextMenuList::Load()
     mHLayout->ResetPositionsAndDimensions(mMenuItemLayoutSizeFactor);
     mImageButton->Load();
 
-    auto PositionOfItemList = mHLayout->GetPosition() + glm::vec2(-5, mHLayout->GetDimension().y - 10);
+    auto PositionOfItemList = mHLayout->GetPosition() + glm::vec2(0, mHLayout->GetDimension().y);
     mItemsVerticalLayout = MakeUp<VerticalLayoutType>(r, e);
     mItemsVerticalLayout->SetPosition(PositionOfItemList);
-    mItemsVerticalLayout->SetDimension({ mWidthOfMenu + 50 - 10, mHeightOfMenuItem * mMaxNumberOfMenuItems });
+    mItemsVerticalLayout->SetDimension({ mWidthOfMenu + 50, mHeightOfMenuItem * mMaxNumberOfMenuItems });
     mItemsVerticalLayout->SetVPadding(0);
     mItemsVerticalLayout->SetHPadding(0);
 
@@ -50,7 +50,6 @@ void ContextMenuList::Load()
 
     assert(mStrings.size() > mNumVisibleItems);
     /* Here is an assumption that mStrings is actually big enough TODO */
-
     e.MoveDepthValueTowardsTheCamera();
 
     for (int i = 0; i < mNumVisibleItems; i++) {

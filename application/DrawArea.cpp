@@ -57,8 +57,8 @@ App::DrawArea::DrawArea(_2d& inR, EventManager& inE, Window* inWindow, uint32_t 
     mBottomHorizontalLayout->SetHPadding(5);
 
     std::vector<std::string_view> ContextMenuItems = {
-        "HelloZ",
-        "Hello1",
+        "HLayout",
+        "VLayout",
         "Hello2",
         "Hello3",
         "Hello4",
@@ -72,14 +72,14 @@ App::DrawArea::DrawArea(_2d& inR, EventManager& inE, Window* inWindow, uint32_t 
 
     r.bt.AddFontFace("font.ttf", 4, mFontFaceId);
     r.bt.SetCurrentFontFace(mFontFaceId);
-    mTextButton = MakeUp<Component::ContextMenuList>(r, e);
+    mContextMenu = MakeUp<Component::ContextMenuList>(r, e);
 
-    mTextButton->SetMenuItemStrings(ContextMenuItems);
-    mTextButton->SetPosition(mGridSheet->FromComponent(glm::vec2(100, 100)));
+    mContextMenu->SetMenuItemStrings(ContextMenuItems);
+    mContextMenu->SetPosition(mGridSheet->FromComponent(glm::vec2(100, 100)));
     mTextButtonScrollTestPosition = mScrollArea->FromComponent(glm::vec2(100, 100));
-    mTextButton->SetWindow(this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
-    mTextButton->SetDepthValue(e.GetDepthValue());
-    mTextButton->SetDimension({ 500, 500 });
-    mTextButton->Load();
+    mContextMenu->SetWindow(this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
+    mContextMenu->SetDepthValue(e.GetDepthValue());
+    mContextMenu->SetDimension({ 500, 500 });
+    mContextMenu->Load();
 
 }

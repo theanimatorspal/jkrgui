@@ -8,7 +8,7 @@
 #include <Window.hpp>
 #include <sol/sol.hpp>
 
-int main()
+int ldsajf()
 {
     auto Instance = Jkr::Instance();
     auto Window = Jkr::Window(Instance, "Heell", 1080 / 2, 1920 / 2);
@@ -30,8 +30,6 @@ int main()
     bst.AddFontFace("font.ttf", 8, Font_id);
     bst.AddText("Wow", 100, 300, 5, BestText_id, BestText_length);
     bst.AddText("don", 500, 300, 5, BestText_id1, BestText_length1);
-    bst.UpdateText(BestText_id, "mo", 100, 300, 5);
-    bst.UpdateText(BestText_id1, "od", 500, 300, 5);
 
     std::array<glm::uvec2, 4> Pts;
     Pts[0] = glm::uvec2(300, 150);
@@ -99,7 +97,8 @@ int main()
     auto Update = [&](void* data) {
         // lr.AddLine(glm::vec2(10 * 20, i), glm::vec2(100, 100), 5, id);
         // ftx.AddText("Fucko", 500, 300, 5, id);
-        i++;
+		bst.UpdateText(BestText_id, "mo", 100, 300, 5);
+		bst.UpdateText(BestText_id1, "od", 500, 300, 5);
     };
 
     Window.SetUpdateCallBack(Update);

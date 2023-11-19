@@ -25,7 +25,7 @@ private:
     Sp<Component::HorizontalLayout<1>> mBottomHorizontalLayout;
     Sp<Component::ScrollableRect> mBottomScrollArea;
     Up<Component::VerticalLayout<2>> mVerticalLayout;
-    Up<Component::ContextMenuList> mTextButton;
+    Up<Component::ContextMenuList> mContextMenu;
     uint32_t mFontFaceId;
 
 public:
@@ -47,13 +47,16 @@ public:
         mBottomScrollArea->Update(inWindow, this->GetWindowWidth(), this->GetWindowHeight());
         mGridSheet->Update(inWindow, this->GetWindowWidth(), this->GetWindowHeight());
 
-		mTextButton->SetPosition(mGridSheet->FromComponent(glm::vec2(100, 100)));
-        mTextButton->SetWindow(this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
-        mTextButton->Update();
+        if (mIsContextMenuVisible) {
+            mContextMenu->SetPosition(mGridSheet->FromComponent(glm::vec2(100, 100)));
+            mContextMenu->SetWindow(this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
+            mContextMenu->Update();
+        }
     }
 
 private:
     glm::vec2 mTextButtonScrollTestPosition;
+    bool mIsContextMenuVisible = false;
 
 public:
     void Event()
@@ -61,7 +64,18 @@ public:
         mScrollArea->Event();
         mGridSheet->Event();
         mBottomScrollArea->Event();
-        mTextButton->Event();
+        mContextMenu->Event();
+
+        auto ev = e.GetEventHandle();
+        if (ev.type == SDL_KEYDOWN) {
+            if (ev.key.keysym.sym == SDLK_RETURN or ev.key.keysym.sym == SDLK_ESCAPE) {
+                mIsContextMenuVisible = false;
+                mContextMenu->UnFocus();
+            } else if (ev.key.keysym.sym == SDLK_SPACE ) {
+                mIsContextMenuVisible = true;
+                mContextMenu->Focus();
+            }
+        }
     }
 
     void Draw()
@@ -70,7 +84,9 @@ public:
         mScrollArea->DrawOutlines();
         mBottomScrollArea->DrawOutlines();
 
-        mTextButton->DrawOutlines();
+        if (mIsContextMenuVisible) {
+            mContextMenu->DrawOutlines();
+        }
 
         /* GRIDSHEET */
         {
@@ -82,15 +98,19 @@ public:
 
         r.sh.BindShapes(*mWindow);
         r.sh.BindFillMode(Jkr::Renderer::FillType::Fill, *this->GetWindow());
-        mTextButton->DrawShapes();
+        if (mIsContextMenuVisible) {
+            mContextMenu->DrawShapes();
+        }
         mScrollArea->DrawFillShapes();
         mBottomScrollArea->DrawFillShapes();
 
         r.sh.BindFillMode(Jkr::Renderer::FillType::Image, *this->GetWindow());
-        mTextButton->DrawImages(*this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
-        r.bt.Bind(*this->GetWindow());
-        mTextButton->DrawBestTexts();
+        if (mIsContextMenuVisible)
+            mContextMenu->DrawImages(*this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
 
+        r.bt.Bind(*this->GetWindow());
+        if (mIsContextMenuVisible)
+            mContextMenu->DrawBestTexts();
     }
 };
 }
