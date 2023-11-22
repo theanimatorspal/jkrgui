@@ -1,145 +1,142 @@
 #pragma once
+#include "NodeView.hpp"
 #include <Components/Area_base.hpp>
+#include <numeric>
 
-namespace App
-{
-	using namespace Jkr::Component;
-	class GridSheet : public Area_base
-	{
-		using ab = Area_base;
-	public:
-		GridSheet(_2d& inR, EventManager& inE) : Area_base(inR, inE) { }
-		void Load()
-		{
-			ab::Load();
-			e.SetBoundedRect(this->GetPosition(), this->GetDimension(), this->GetDepthValue());
-			auto mDepthValue = this->GetDepthValue();
-			e.MoveDepthValueTowardsTheCamera();
-			mBoundedRectId = e.SetBoundedRect(glm::uvec2(0, 0), glm::uvec2(100, 100), mDepthValue);
-			const glm::uvec2 origin = { 0, 0 };
-			mGridStartId = r.ln.GetCurrentNewLineId();
+namespace App {
+using namespace Jkr::Component;
+class GridSheet : public Area_base {
+    using ab = Area_base;
+    std::vector<Up<NodeView>> mNodeViews;
 
-			int gW = 500 * mNumLineFactor;
-			int gH = 500 * mNumLineFactor;
+    glm::vec2 mOffset2D = { 0.0f, 0.0f };
 
+public:
+    GridSheet(_2d& inR, EventManager& inE)
+        : Area_base(inR, inE)
+    {
+    }
 
-			for (int i = -gW; i <= gW; i += mGridSpacing) {
-				r.ln.AddLine(
-					glm::vec2(i, -gH),
-					glm::vec2(i, gH),
-					mDepthValue,
-					mGridEndId
-				);
-			}
+    void AddNodeView(Node& inNode, glm::vec2 inPos, std::string_view inName)
+    {
+        mNodeViews.push_back(MakeUp<NodeView>(r, e, inNode, inName, inPos, this->GetDepthValue()));
+    }
 
-			for (int i = -gH; i <= gH; i += mGridSpacing) {
-				r.ln.AddLine(
-					glm::vec2(-gW, i),
-					glm::vec2(gW, i),
-					mDepthValue,
-					mGridEndId
-				);
-			}
+    void Load();
 
-			r.ln.AddLine(
-				glm::vec2(0, -gH),
-				glm::vec2(0, gH),
-				mDepthValue,
-				mGridMainLinesId
-			);
+    void AddConnection(uint32_t inInputNodeId, uint32_t inNodeId, uint32_t inSlot)
+    {
+        auto line = NodeView::GetConnection(mNodeViews[inInputNodeId].get(), mNodeViews[inNodeId].get(), inSlot);
+        uint32_t id;
+        r.ln.AddLine(line.x, line.y, this->GetDepthValue(), id);
+        Connection connection = { .mInput = mNodeViews[inInputNodeId].get(), .mNode = mNodeViews[inNodeId].get(), .mSlot = inSlot, .mLineId = id };
+        mConnections.push_back(connection);
+        Node::ConnectNode(mNodeViews[inInputNodeId].get(), mNodeViews[inNodeId].get(), inSlot);
+    }
 
-			uint32_t id;
-			r.ln.AddLine(
-				glm::vec2(-gW, 0),
-				glm::vec2(gW, 0),
-				mDepthValue, id);
+    void UpdateConnections()
+    {
+        for (auto& u : mConnections) {
+            auto line = NodeView::GetConnection(u.mInput, u.mNode, u.mSlot);
+            r.ln.UpdateLine(u.mLineId, line.x, line.y, this->GetDepthValue());
+        }
+    }
 
-			Jkr::Generator Rect(Jkr::Shapes::Rectangle, glm::uvec2(5, 5));
-			auto xy = (glm::vec2(0, 0));
-			r.sh.Add(Rect, xy.x, xy.y, mDepthValue, mCenterIndicatorId);
-			e.MoveDepthValueTowardsTheCamera();
-			mLinesTranslation = glm::identity<glm::mat4>();
-			mLinesTranslation = glm::translate(mLinesTranslation, glm::vec3(ab::GetPosition() + ab::GetDimension()/2.0f, 0.0f));
-		}
+private:
+    std::optional<glm::uvec2> mSelectedInputSlot;
+    std::optional<uint32_t> mSelectedOutputSlot;
+    struct Connection {
+        NodeView* mInput;
+        NodeView* mNode;
+        uint32_t mSlot;
+        uint32_t mLineId;
+    };
+    std::vector<Connection> mConnections;
 
-		constexpr void DrawOutline() {
-			r.ln.Draw(*mWindow, glm::vec4(1.0f, 1.0f, 1.0f, 0.04f), ab::GetWindowWidth(), ab::GetWindowHeight(), this->GetLines()[0].x, this->GetLines()[0].y, ab::GetTranslationMatrix());
-		}
-		constexpr void SetScissor()
-		{
-			mWindow->SetScissor(this->GetScissor());
-		}
-		constexpr void DrawLines()
-		{
-			r.ln.Draw(*mWindow, glm::vec4(1.0f, 1.0f, 1.0f, 0.04f), ab::GetWindowWidth(), ab::GetWindowHeight(), mGridStartId, mGridEndId, mLinesTranslation);
-			r.ln.Draw(*mWindow, glm::vec4(1.0f, 1.0f, 1.0f, 0.2f), ab::GetWindowWidth(), ab::GetWindowHeight(), mGridMainLinesId, mGridMainLinesId + 1, mLinesTranslation);
-		}
-		constexpr void ResetScissor()
-		{
-			mWindow->ResetScissor();
-		}
-		void Update(Window* inWindow, uint32_t inW, uint32_t inH)
-		{
-			ab::Update();
-			this->SetWindow(inWindow, inW, inH);
-		}
+public:
+    void DrawOutline()
+    {
+        r.ln.Draw(*this->GetWindow(), glm::vec4(1.0f, 1.0f, 1.0f, 0.04f), ab::GetWindowWidth(), ab::GetWindowHeight(), this->GetLines()[0].x, this->GetLines()[0].y, ab::GetTranslationMatrix());
+    }
 
-		void Event()
-		{
-			Jkr::BoundRect2D Rect{ .mXy = ab::GetPosition(), .mWh = ab::GetDimension() };
-			e.UpdateBoundRect(ab::GetDepthValue(), mBoundedRectId, Rect);
-			int numKeys;
-			auto keystate = SDL_GetKeyboardState(&numKeys);
+    void DrawShapes()
+    {
+        if (not mNodeViews.empty()) {
+            auto shapes_start = mNodeViews.front()->GetShapeId();
+            auto shapes_end = mNodeViews.back()->GetShapeId();
+            r.sh.Draw(*this->GetWindow(), glm::vec4(0.3f, 0.3f, 0.3f, 1.0f), ab::GetWindowWidth(), ab::GetWindowHeight(), shapes_start.x, shapes_end.y, mLinesTranslation);
+        }
+    }
 
-			int delx, dely;
-			// auto mousestate = SDL_GetRelativeMouseState(&delx, &dely);
-			auto delxy = e.GetRelativeMousePos();
+    void DrawBestTexts()
+    {
+        if (not mNodeViews.empty()) {
+            auto texts_start = mNodeViews.front()->GetTextId().x;
+            auto texts_end = mNodeViews.back()->GetTextId().y + mNodeViews.back()->GetTextId().x - mNodeViews.front()->GetTextId().x;
+            r.bt.Draw(*this->GetWindow(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), ab::GetWindowWidth(), ab::GetWindowHeight(), texts_start, texts_end, mLinesTranslation);
+        }
+    }
 
-			bool isAltKeyPressed = keystate[SDL_SCANCODE_LALT];
-			bool isLeftButtonPressed = (SDL_BUTTON(SDL_BUTTON_LEFT) & e.GetMouseButtonValue()) != 0;
+    void SetScissor() { mWindow->SetScissor(this->GetScissor()); }
+    void DrawLines()
+    {
+        r.ln.Draw(*mWindow, glm::vec4(1.0f, 1.0f, 1.0f, 0.04f), ab::GetWindowWidth(), ab::GetWindowHeight(), mGridStartId, mGridEndId, mLinesTranslation);
+        r.ln.Draw(*mWindow, glm::vec4(1.0f, 1.0f, 1.0f, 0.2f), ab::GetWindowWidth(), ab::GetWindowHeight(), mGridMainLinesId, mGridMainLinesId + 1, mLinesTranslation);
+        if (not mConnections.empty())
+            r.ln.Draw(*this->GetWindow(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), ab::GetWindowWidth(), ab::GetWindowHeight(), mConnections.front().mLineId, mConnections.back().mLineId, mLinesTranslation);
+    }
+    void ResetScissor() { mWindow->ResetScissor(); }
+    void Update(Window* inWindow, uint32_t inW, uint32_t inH)
+    {
+        ab::Update();
+        this->SetWindow(inWindow, inW, inH);
+    }
 
-			if (isLeftButtonPressed && isAltKeyPressed && e.IsMouseWithinAtTopOfStack(mBoundedRectId, ab::GetDepthValue()))
-			{
-				glm::vec2 Offset2D(delxy.x, delxy.y);
-				mLinesTranslation = glm::translate(mLinesTranslation, glm::vec3(Offset2D, 0.0f));
-			}
+    void Event();
 
-			if (e.GetEventHandle().type == SDL_WINDOWEVENT_RESIZED || e.GetEventHandle().type == SDL_WINDOWEVENT_MAXIMIZED || e.GetEventHandle().type == SDL_WINDOWEVENT_MINIMIZED)
-			{
-				mLinesTranslation = glm::identity<glm::mat4>();
-				//mLinesTranslation = glm::translate(mLinesTranslation, glm::vec3(ab::GetDimension() / 2.0f, 0.0f));
-			}
-		}
+private:
+    glm::uvec2 mId;
 
-	private:
-		uint32_t mGridSpacing = 10;
-		uint32_t mNumLineFactor = 1;
-		uint32_t mGridStartId;
-		uint32_t mGridEndId;
-		uint32_t mGridMainLinesId;
-		uint32_t mCenterIndicatorId;
-		uint32_t mBoundedRectId;
-		glm::mat4 mLinesTranslation = glm::identity<glm::mat4>();
-	protected:
-		class ToWc
-		{
-		public:
-			constexpr ToWc(uint32_t inW, uint32_t inH) : mW(inW), mH(inH) {}
-			constexpr glm::vec2 operator()(glm::vec2 inC) {
-				return inC + glm::vec2(mW / 2.f, mH / 2.f);
-			}
-		private:
-			uint32_t mW, mH;
-		};
-		class TogWc
-		{
-		public:
-			constexpr TogWc(uint32_t inW, uint32_t inH) : mW(inW), mH(inH) {}
-			constexpr glm::vec2 operator()(glm::vec2 inC) {
-				return inC - glm::vec2(mW / 2.f, mH / 2.f);
-			}
-		private:
-			uint32_t mW, mH;
-		};
-	};
+private:
+    uint32_t mGridSpacing = 10;
+    uint32_t mNumLineFactor = 1;
+    uint32_t mGridStartId;
+    uint32_t mGridEndId;
+    uint32_t mGridMainLinesId;
+    uint32_t mCenterIndicatorId;
+    uint32_t mBoundedRectId;
+    glm::mat4 mLinesTranslation = glm::identity<glm::mat4>();
+
+protected:
+    class ToWc {
+    public:
+        ToWc(uint32_t inW, uint32_t inH)
+            : mW(inW)
+            , mH(inH)
+        {
+        }
+        glm::vec2 operator()(glm::vec2 inC)
+        {
+            return inC + glm::vec2(mW / 2.f, mH / 2.f);
+        }
+
+    private:
+        uint32_t mW, mH;
+    };
+    class TogWc {
+    public:
+        TogWc(uint32_t inW, uint32_t inH)
+            : mW(inW)
+            , mH(inH)
+        {
+        }
+        glm::vec2 operator()(glm::vec2 inC)
+        {
+            return inC - glm::vec2(mW / 2.f, mH / 2.f);
+        }
+
+    private:
+        uint32_t mW, mH;
+    };
+};
 }

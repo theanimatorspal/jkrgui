@@ -23,7 +23,7 @@ Jkr::Renderer::Shape::Shape(const Instance& inInstance, Window& inCompatibleWind
 	mPrimitive = MakeUp<Primitive>(inInstance, sb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold), sb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
 }
 
-void Jkr::Renderer::Shape::Add(Jkr::Generator& inShape, uint32_t inX, uint32_t inY, uint32_t inZ, uint32_t& outId)
+void Jkr::Renderer::Shape::Add(Jkr::Generator& inShape, int inX, int inY, uint32_t inZ, uint32_t& outId)
 {
 	CheckAndResize(inShape);
 	sb::Add(inShape, inX, inY, inZ, outId);
@@ -79,7 +79,7 @@ void Jkr::Renderer::Shape::AddImage(const std::string_view inFileName, uint32_t&
 #endif
 }
 
-void Jkr::Renderer::Shape::Update(uint32_t inId, Jkr::Generator& inShape, uint32_t inX, uint32_t inY, uint32_t inZ)
+void Jkr::Renderer::Shape::Update(uint32_t inId, Jkr::Generator& inShape, int inX, int inY, uint32_t inZ)
 {
 	auto OffsetId = inId;
 	sb::Update(inShape, inId, inX, inY, inZ);

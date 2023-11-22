@@ -1,5 +1,4 @@
 #pragma once
-#define TRACY_ENABLE
 
 #include <Vulkan/Config.hpp>
 

@@ -32,7 +32,7 @@ public:
         mCooked = true;
     }
 
-    explicit Node (Node &inNode)
+    explicit Node(Node& inNode)
         : mCookFunction(inNode.mCookFunction)
     {
         mPrevious.resize(inNode.mPrevious.size(), nullptr);
@@ -87,6 +87,16 @@ public:
     static auto GetOutput(Node* inNode)
     {
         return inNode->mOutputData;
+    }
+
+    auto GetInputCount()
+    {
+        return mPrevious.size();
+    }
+
+    void SetOutputValue(DataType inData)
+    {
+        mOutputData = inData;
     }
 
 private:

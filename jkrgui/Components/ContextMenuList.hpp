@@ -45,10 +45,10 @@ public:
         mItemsVerticalLayout->ResetPositionsAndDimensions();
         for (int i = 0; i < mNumVisibleItems; i++) {
             auto& layout = mMenuItemsHorizontalLayout[i];
-			auto& button = mMenuItemsTextButtons[i];
+            auto& button = mMenuItemsTextButtons[i];
             layout->ResetPositionsAndDimensions(mMenuItemLayoutSizeFactor);
-			button->SetWindow(this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
-        } 
+            button->SetWindow(this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
+        }
 
         mTextLineEdit->Update();
         if (mSelectedMenuItem.has_value()) {
@@ -105,6 +105,12 @@ public:
                     MoveCurrentItemViewPositionUp();
                 }
                 break;
+            case SDLK_RETURN:
+                if (mSelectedMenuItem.has_value()) {
+                    mChosenItem = mSelectedMenuItem.value() + mCurrentItemViewPosition.r;
+                }
+                mSelectedMenuItem = 0;
+                break;
             }
         }
     }
@@ -119,18 +125,13 @@ public:
         mStrings = std::move(inString);
     }
 
-    SETTER ResetSelection()
+    GETTER GetSelectedItem()
     {
-        if (mSelectedMenuItem.has_value()) {
-            mSelectedMenuItem.reset();
-        }
+        return mChosenItem;
     }
 
 private:
-    SETTER SetSelection(uint32_t inSelection)
-    {
-        mSelectedMenuItem = inSelection;
-    }
+    std::optional<uint32_t> mChosenItem;
     static constexpr uint32_t mNumVisibleItems = 5;
     uint32_t mPadding = 5;
     uint32_t mWidthOfMenu = 142;
@@ -141,7 +142,7 @@ private:
 private:
     void MoveCurrentItemViewPositionDown()
     {
-        if (mCurrentItemViewPosition.r < mCurrentItemViewPosition.g and mCurrentItemViewPosition.g < mStrings.size()) {
+        if (mCurrentItemViewPosition.r < mCurrentItemViewPosition.g and mCurrentItemViewPosition.g < mStrings.size() - 1) {
             mCurrentItemViewPosition.r++;
             mCurrentItemViewPosition.g++;
 
@@ -154,6 +155,7 @@ private:
             }
         }
     }
+
     void MoveCurrentItemViewPositionUp()
     {
         if (mCurrentItemViewPosition.r < mCurrentItemViewPosition.g and mCurrentItemViewPosition.g >= mMaxNumberOfMenuItems) {

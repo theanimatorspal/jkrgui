@@ -2,6 +2,13 @@
 
 App::DrawArea::DrawArea(_2d& inR, EventManager& inE, Window* inWindow, uint32_t inW, uint32_t inH)
     : Component::Area_base(inR, inE)
+    , mNode__iAdd([](std::vector<DataType> in) { return std::get<int>(in[0]) + std::get<int>(in[1]); }, 2)
+    , mNode__iSub([](std::vector<DataType> in) { return std::get<int>(in[0]) + std::get<int>(in[1]); }, 2)
+    , mNode__iMul([](std::vector<DataType> in) { return std::get<int>(in[0]) + std::get<int>(in[1]); }, 2)
+    , mNode__iDiv([](std::vector<DataType> in) { return std::get<int>(in[0]) + std::get<int>(in[1]); }, 2)
+    , mNode__Int(0)
+    , mNode__Float(0.0f)
+
 {
     this->SetWindow(inWindow, inW, inH);
     this->SetDimension(glm::uvec2(100, 100));
@@ -11,6 +18,9 @@ App::DrawArea::DrawArea(_2d& inR, EventManager& inE, Window* inWindow, uint32_t 
             this->GetWindowHeight() - this->GetDimension().y - 10));
     this->SetDepthValue(e.GetDepthValue());
     this->Load();
+
+    r.bt.AddFontFace("font.ttf", 4, mFontFaceId);
+    r.bt.SetCurrentFontFace(mFontFaceId);
 
     /*1. Setup Layouts*/
     mVerticalLayout = MakeUp<Component::VerticalLayout<2>>(r, e);
@@ -56,22 +66,7 @@ App::DrawArea::DrawArea(_2d& inR, EventManager& inE, Window* inWindow, uint32_t 
     mBottomHorizontalLayout->SetVPadding(0);
     mBottomHorizontalLayout->SetHPadding(5);
 
-    std::vector<std::string_view> ContextMenuItems = {
-        "HLayout",
-        "VLayout",
-        "Hello2",
-        "Hello3",
-        "Hello4",
-        "Hello5",
-        "Hello6",
-        "Hello7",
-        "Hello8",
-        "Hello9",
-        "Hello0"
-    };
 
-    r.bt.AddFontFace("font.ttf", 4, mFontFaceId);
-    r.bt.SetCurrentFontFace(mFontFaceId);
     mContextMenu = MakeUp<Component::ContextMenuList>(r, e);
 
     mContextMenu->SetMenuItemStrings(ContextMenuItems);
@@ -81,5 +76,4 @@ App::DrawArea::DrawArea(_2d& inR, EventManager& inE, Window* inWindow, uint32_t 
     mContextMenu->SetDepthValue(e.GetDepthValue());
     mContextMenu->SetDimension({ 500, 500 });
     mContextMenu->Load();
-
 }

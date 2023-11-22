@@ -21,8 +21,8 @@ namespace Jkr
 			uint32_t
 		>;
 		Generator(Shapes inShape, Arguments inArgs);
-		void operator()(uint32_t inX,
-			uint32_t inY,
+		void operator()(int inX,
+			int inY,
 			uint32_t inZ,
 			uint32_t inStartVertexIndex,
 			uint32_t inStartIndexIndex,
@@ -50,8 +50,8 @@ namespace Jkr::Renderer
 	class Shape_base
 	{
 	protected:
-		void Add(Jkr::Generator& inShape, uint32_t inX, uint32_t inY, uint32_t inZ, uint32_t& outId);
-		void Update(Jkr::Generator& inShape, uint32_t inId, uint32_t inX, uint32_t inY, uint32_t inZ);
+		void Add(Jkr::Generator& inShape, int inX, int inY, uint32_t inZ, uint32_t& outId);
+		void Update(Jkr::Generator& inShape, uint32_t inId, int inX, int inY, uint32_t inZ);
 		GETTER GetVertexBufferData() { return reinterpret_cast<void*>(mVertices.data()); }
 		GETTER GetIndexBufferData() { return  reinterpret_cast<void*>(mIndices.data()); }
 		GETTER VertexCountToBytes(uint32_t inVertexCount) { return sizeof(kstd::Vertex) * inVertexCount; }

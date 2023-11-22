@@ -1,5 +1,5 @@
 #pragma once
-#include </Global/Standards.hpp>
+#include <Global/Standards.hpp>
 #include "Window.hpp"
 #include "Painter.hpp"
 #include "PainterParameter.hpp"

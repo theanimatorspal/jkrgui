@@ -54,8 +54,8 @@ public:
         Jkr::BoundRect2D Rect { .mXy = mPosition, .mWh = mDimension };
         e.UpdateBoundRect(mDepthValue, mBoundedRectangleId, Rect);
     }
-    GETTER GetDimension() { return mDimension; }
-    GETTER GetPosition() { return mPosition; }
+    GETTER GetDimension() const { return mDimension; }
+    GETTER GetPosition() const { return mPosition; }
     SETTER SetDimension(glm::vec2 inVec) { mDimension = inVec; }
     SETTER SetPosition(glm::vec2 inVec)
     {
@@ -65,12 +65,12 @@ public:
     }
     SETTER SetDepthValue(uint32_t inDepthValue) { mDepthValue = inDepthValue; }
     GETTER& GetDepthValue() { return mDepthValue; }
-    GETTER IsFocused() { return isFocused; }
-    GETTER IsMouseOnTop() { return e.IsMouseWithinAtTopOfStack(mBoundedRectangleId, mDepthValue); }
-    GETTER IsMouseWithin() { return e.IsMouseWithin(mBoundedRectangleId, mDepthValue); }
+    GETTER IsFocused() const { return isFocused; }
+    GETTER IsMouseOnTop() const { return e.IsMouseWithinAtTopOfStack(mBoundedRectangleId, mDepthValue); }
+    GETTER IsMouseWithin() const { return e.IsMouseWithin(mBoundedRectangleId, mDepthValue); }
     SETTER ToggleFocus() { isFocused = !isFocused; }
     SETTER SetFocus(bool inFocus) { isFocused = inFocus; }
-    GETTER GetTranslationMatrix()
+    GETTER GetTranslationMatrix() const
     {
         return mTransformMatrix;
     }
@@ -99,11 +99,11 @@ public:
         mWw = inW;
         mWh = inH;
     }
-    GETTER GetWindowWidth()
+    GETTER GetWindowWidth() const
     {
         return mWw;
     }
-    GETTER GetWindowHeight()
+    GETTER GetWindowHeight() const
     {
         return mWh;
     }

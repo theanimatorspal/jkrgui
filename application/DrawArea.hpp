@@ -14,6 +14,12 @@ namespace App {
 using namespace Jkr::Renderer;
 class DrawArea : public Component::Area_base {
     using ab = Component::Area_base;
+    Node mNode__iAdd;
+    Node mNode__iSub;
+    Node mNode__iMul;
+    Node mNode__iDiv;
+    Node mNode__Int;
+    Node mNode__Float;
 
 public:
     DrawArea(_2d& inR, EventManager& inE, Window* inWindow, uint32_t inW, uint32_t inH);
@@ -59,6 +65,27 @@ private:
     bool mIsContextMenuVisible = false;
 
 public:
+    std::vector<Node*> mNodesList = {
+        &mNode__iAdd,
+        &mNode__iSub,
+        &mNode__iMul,
+        &mNode__iDiv,
+        &mNode__Int,
+        &mNode__Float
+    };
+    std::vector<std::string_view> ContextMenuItems = {
+        "mAdd",
+        "mSub",
+        "mMul",
+        "mDiv",
+        "tInt",
+        "tFloat"
+    };
+
+    void AddNodeViewByIndex(uint32_t inIndex, glm::vec2 inPos, std::string_view inName)
+    {
+        mGridSheet->AddNodeView(*mNodesList[inIndex], inPos, inName);
+    }
     void Event()
     {
         mScrollArea->Event();
@@ -71,9 +98,15 @@ public:
             if (ev.key.keysym.sym == SDLK_RETURN or ev.key.keysym.sym == SDLK_ESCAPE) {
                 mIsContextMenuVisible = false;
                 mContextMenu->UnFocus();
-            } else if (ev.key.keysym.sym == SDLK_SPACE ) {
+            } else if (ev.key.keysym.sym == SDLK_SPACE) {
                 mIsContextMenuVisible = true;
                 mContextMenu->Focus();
+            }
+            if (ev.key.keysym.sym == SDLK_RETURN) {
+                auto s = mContextMenu->GetSelectedItem();
+                if (s.has_value()) {
+                    AddNodeViewByIndex(s.value(), glm::vec2(0, 0), ContextMenuItems[s.value()]);
+                }
             }
         }
     }
@@ -96,11 +129,12 @@ public:
             mGridSheet->ResetScissor();
         }
 
-        r.sh.BindShapes(*mWindow);
+        r.sh.BindShapes(*this->GetWindow());
         r.sh.BindFillMode(Jkr::Renderer::FillType::Fill, *this->GetWindow());
         if (mIsContextMenuVisible) {
             mContextMenu->DrawShapes();
         }
+        mGridSheet->DrawShapes();
         mScrollArea->DrawFillShapes();
         mBottomScrollArea->DrawFillShapes();
 
@@ -111,6 +145,7 @@ public:
         r.bt.Bind(*this->GetWindow());
         if (mIsContextMenuVisible)
             mContextMenu->DrawBestTexts();
+        mGridSheet->DrawBestTexts();
     }
 };
 }

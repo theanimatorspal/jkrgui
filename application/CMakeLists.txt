@@ -7,7 +7,7 @@ file(GLOB app_SRC CONFIGURE_DEPENDS
 
 link_directories(${VULKAN_LIBRARY_PATH})
 
-add_executable(application ${app_SRC} "application.cpp" "DrawArea.hpp" "DrawArea.cpp" "GridSheet.cpp")
+add_executable(application ${app_SRC} "application.cpp" "DrawArea.hpp" "DrawArea.cpp" "GridSheet.cpp" "NodeView.hpp")
 
 include("../CMakeCommon.cmake")
 
