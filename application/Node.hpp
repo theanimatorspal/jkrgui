@@ -70,10 +70,10 @@ public:
     }
 
 public:
-    static void ConnectNode(Node* inInputNode, Node* inOutputNode, uint32_t inSlot)
+    static void ConnectNode(Node* inMaleNode, Node* inFemaleNode, uint32_t inSlot)
     {
-        inInputNode->mNext.push_back(inOutputNode);
-        inOutputNode->mPrevious[inSlot] = inInputNode;
+        inMaleNode->mNext.push_back(inFemaleNode);
+        inFemaleNode->mPrevious[inSlot] = inMaleNode;
     }
 
     static void DisconnectNode(Node* inInputNode, Node* inOutputNode)

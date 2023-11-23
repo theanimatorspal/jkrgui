@@ -20,7 +20,7 @@ namespace Jkr::Component
 		{
 			sb::Load();
 			this->SetDefaultBoundedRectangle();
-			mScrollBarHeight = sb::GetVerticalScrollBarHeigthRatio() * sb::GetDimension().x;
+			mScrollBarHeight = sb::GetVerticalScrollBarHeigthRatio() * sb::GetDimension().y;
 			e.MoveDepthValueTowardsTheCamera();
 
 			mVerticalScrollBarButton = MakeUp<ButtonRect_base>(r, e);

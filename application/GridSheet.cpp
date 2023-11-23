@@ -99,4 +99,20 @@ void App::GridSheet::Event()
         mSelectedOutputSlot.reset();
     }
     UpdateConnections();
+
+    for (auto i = mNodeViews.begin(); i < mNodeViews.end(); i++) {
+        for (auto j = mNodeViews.begin(); j < mNodeViews.end(); j++) {
+
+            auto& I = *(*i);
+            auto& J = *(*j);
+            using namespace glm;
+            bool withinX = IsWithinRange<float>(I.GetPosition().x - J.GetPosition().x, -30, 30);
+            bool withinY = IsWithinRange<float>(I.GetPosition().y - J.GetPosition().y, -30, 10);
+            bool within = withinX and withinY;
+
+            if (within and i != j) {
+                (*i)->SetPosition((*i)->GetPosition() + glm::vec2(50, 50));
+            }
+        }
+    }
 }

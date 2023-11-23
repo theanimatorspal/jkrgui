@@ -9,6 +9,7 @@
 #include <Components/ScrollableRect.hpp>
 #include <Components/TextLineEdit.hpp>
 #include <Components/VLayout.hpp>
+#include "PropertySheet.hpp"
 
 namespace App {
 using namespace Jkr::Renderer;
@@ -29,7 +30,7 @@ private:
     Sp<App::GridSheet> mGridSheet;
     Sp<Component::HorizontalLayout<2>> mLayout;
     Sp<Component::HorizontalLayout<1>> mBottomHorizontalLayout;
-    Sp<Component::ScrollableRect> mBottomScrollArea;
+    Sp<App::PropertySheet> mBottomScrollArea;
     Up<Component::VerticalLayout<2>> mVerticalLayout;
     Up<Component::ContextMenuList> mContextMenu;
     uint32_t mFontFaceId;
@@ -92,6 +93,7 @@ public:
         mGridSheet->Event();
         mBottomScrollArea->Event();
         mContextMenu->Event();
+        bool isRightButtonPressed = (SDL_BUTTON(SDL_BUTTON_RIGHT) & e.GetMouseButtonValue()) != 0;
 
         auto ev = e.GetEventHandle();
         if (ev.type == SDL_KEYDOWN) {
@@ -109,6 +111,12 @@ public:
                 }
             }
         }
+
+        if (isRightButtonPressed and not mGridSheet->IsSelectionEmpty())
+        {
+            mBottomScrollArea->SetCurrentNodeView((*mGridSheet->GetSelection()).get());
+        }
+
     }
 
     void Draw()
@@ -134,18 +142,24 @@ public:
         if (mIsContextMenuVisible) {
             mContextMenu->DrawShapes();
         }
+        mGridSheet->SetScissor();
         mGridSheet->DrawShapes();
+        mGridSheet->ResetScissor();
         mScrollArea->DrawFillShapes();
         mBottomScrollArea->DrawFillShapes();
 
         r.sh.BindFillMode(Jkr::Renderer::FillType::Image, *this->GetWindow());
+        mGridSheet->SetScissor();
         if (mIsContextMenuVisible)
             mContextMenu->DrawImages(*this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
 
         r.bt.Bind(*this->GetWindow());
         if (mIsContextMenuVisible)
             mContextMenu->DrawBestTexts();
+        mGridSheet->SetScissor();
         mGridSheet->DrawBestTexts();
+        mBottomScrollArea->SetScissor();
+        mBottomScrollArea->DrawBestTexts();
     }
 };
 }

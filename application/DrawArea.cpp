@@ -33,7 +33,7 @@ App::DrawArea::DrawArea(_2d& inR, EventManager& inE, Window* inWindow, uint32_t 
     mVerticalLayout->AddComponent(mBottomHorizontalLayout);
     mVerticalLayout->ResetPositionsAndDimensions({ 0.8f, 0.2f });
 
-    mBottomScrollArea = MakeSH<Component::ScrollableRect>(r, e);
+    mBottomScrollArea = MakeSH<App::PropertySheet>(r, e);
     mBottomHorizontalLayout->AddComponent(mBottomScrollArea);
     mBottomHorizontalLayout->ResetPositionsAndDimensions({ 1.0f });
 
@@ -52,7 +52,7 @@ App::DrawArea::DrawArea(_2d& inR, EventManager& inE, Window* inWindow, uint32_t 
     mScrollArea->SetVerticalScrollBarHeigthRatio(0.1f);
     mBottomScrollArea->SetDepthValue(e.GetDepthValue());
     mBottomScrollArea->SetWindow(mWindow, this->GetWindowWidth(), this->GetWindowHeight());
-    mBottomScrollArea->SetVerticalScrollBarHeigthRatio(0.01f);
+	mBottomScrollArea->SetVerticalScrollBarHeigthRatio(0.5f);
 
     /*3. Load the Components*/
     mGridSheet->Load();
@@ -65,7 +65,6 @@ App::DrawArea::DrawArea(_2d& inR, EventManager& inE, Window* inWindow, uint32_t 
     mVerticalLayout->SetHPadding(0);
     mBottomHorizontalLayout->SetVPadding(0);
     mBottomHorizontalLayout->SetHPadding(5);
-
 
     mContextMenu = MakeUp<Component::ContextMenuList>(r, e);
 

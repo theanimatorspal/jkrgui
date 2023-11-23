@@ -17,6 +17,20 @@ public:
     {
     }
 
+    GETTER GetSelection()
+    {
+        return std::find_if(mNodeViews.begin(), mNodeViews.end(), [&](Up<NodeView>& n) { return n->IsHardSelected(); });
+    }
+
+    bool IsSelectionEmpty()
+    {
+        auto isHardSelected = [](Up<NodeView>& n) { return n->IsHardSelected(); };
+        if (std::any_of(mNodeViews.begin(), mNodeViews.end(), isHardSelected)) {
+            return false;
+        }
+        return true;
+    }
+
     void AddNodeView(Node& inNode, glm::vec2 inPos, std::string_view inName)
     {
         mNodeViews.push_back(MakeUp<NodeView>(r, e, inNode, inName, inPos, this->GetDepthValue()));
@@ -24,20 +38,20 @@ public:
 
     void Load();
 
-    void AddConnection(uint32_t inInputNodeId, uint32_t inNodeId, uint32_t inSlot)
+    void AddConnection(uint32_t inNodeFemaleId, uint32_t inMaleNodeId, uint32_t inSlot)
     {
-        auto line = NodeView::GetConnection(mNodeViews[inInputNodeId].get(), mNodeViews[inNodeId].get(), inSlot);
+        auto line = NodeView::GetConnection(mNodeViews[inNodeFemaleId].get(), mNodeViews[inMaleNodeId].get(), inSlot);
         uint32_t id;
         r.ln.AddLine(line.x, line.y, this->GetDepthValue(), id);
-        Connection connection = { .mInput = mNodeViews[inInputNodeId].get(), .mNode = mNodeViews[inNodeId].get(), .mSlot = inSlot, .mLineId = id };
+        Connection connection = { .mNodeFemale = mNodeViews[inNodeFemaleId].get(), .mNodeMale = mNodeViews[inMaleNodeId].get(), .mSlot = inSlot, .mLineId = id };
         mConnections.push_back(connection);
-        Node::ConnectNode(mNodeViews[inInputNodeId].get(), mNodeViews[inNodeId].get(), inSlot);
+        Node::ConnectNode(mNodeViews[inMaleNodeId].get(), mNodeViews[inNodeFemaleId].get(), inSlot);
     }
 
     void UpdateConnections()
     {
         for (auto& u : mConnections) {
-            auto line = NodeView::GetConnection(u.mInput, u.mNode, u.mSlot);
+            auto line = NodeView::GetConnection(u.mNodeFemale, u.mNodeMale, u.mSlot);
             r.ln.UpdateLine(u.mLineId, line.x, line.y, this->GetDepthValue());
         }
     }
@@ -46,8 +60,8 @@ private:
     std::optional<glm::uvec2> mSelectedInputSlot;
     std::optional<uint32_t> mSelectedOutputSlot;
     struct Connection {
-        NodeView* mInput;
-        NodeView* mNode;
+        NodeView* mNodeFemale;
+        NodeView* mNodeMale;
         uint32_t mSlot;
         uint32_t mLineId;
     };

@@ -1,3 +1,4 @@
+#pragma once
 #include "GridSheet.hpp"
 #include "Node.hpp"
 #include <Components/Area_base.hpp>
@@ -13,7 +14,7 @@ constexpr glm::uvec2 NodeSmallRectDimension(10, 10);
 constexpr uint32_t Gap = 5;
 constexpr glm::uvec2 NodeMainRectPosition(0, NodeSmallRectDimension.y + Gap);
 
-class NodeView : public Node, Area_base {
+class NodeView : public Node, public Area_base {
     using cb = Area_base;
 
 public:
@@ -65,6 +66,7 @@ public:
         e.UpdateBoundRect(mBoundedRectId, inOffsetXy + p + glm::vec2(0, Gap) + glm::vec2(NodeSmallRectDimension), NodeMainRectDimension, this->GetDepthValue());
 
         bool isLeftButtonPressed = (SDL_BUTTON(SDL_BUTTON_LEFT) & e.GetMouseButtonValue()) != 0;
+        bool isRightButtonPressed = (SDL_BUTTON(SDL_BUTTON_RIGHT) & e.GetMouseButtonValue()) != 0;
         bool isMouseWithinAtTopOfStack = e.IsMouseWithinAtTopOfStack(mBoundedRectId, this->GetDepthValue());
         auto delxy = e.GetRelativeMousePos();
 
@@ -72,6 +74,15 @@ public:
             isSelected = true;
         } else if (not isMouseWithinAtTopOfStack and not isLeftButtonPressed) {
             isSelected = false;
+        }
+
+        if (isRightButtonPressed and isMouseWithinAtTopOfStack)
+        {
+            isHardSelected = true;
+        }
+        else if (not isMouseWithinAtTopOfStack and isRightButtonPressed)
+        {
+            isHardSelected = false;
         }
 
         if (isSelected and isLeftButtonPressed) {
@@ -146,8 +157,13 @@ public:
         return glm::vec<2, glm::vec2>(inInputNode->GetInputNodeSlotPosition(inSlot), inNode->GetOutputNodeSlotPosition());
     }
 
+    GETTER IsHardSelected() { return isHardSelected; }
+
 private:
     bool isSelected = false;
+
+private:
+    bool isHardSelected = false;
 
 private:
     uint32_t mHPadding = 5;
