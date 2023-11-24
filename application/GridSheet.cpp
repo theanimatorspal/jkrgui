@@ -1,58 +1,18 @@
 #include "GridSheet.hpp"
 
-void App::GridSheet::Load()
+void App::NodeSheet::Load()
 {
     ab::Load();
-    auto GridSheetValue = e.SetBoundedRect(this->GetPosition(), this->GetDimension(), this->GetDepthValue());
-    auto mDepthValue = this->GetDepthValue();
-    e.MoveDepthValueTowardsTheCamera();
-    mBoundedRectId = e.SetBoundedRect(glm::uvec2(0, 0), glm::uvec2(100, 100), mDepthValue);
-    const glm::uvec2 origin = { 0, 0 };
-    mGridStartId = r.ln.GetCurrentNewLineId();
-
-    int gW = 500 * mNumLineFactor;
-    int gH = 500 * mNumLineFactor;
-
-    for (int i = -gW; i <= gW; i += mGridSpacing) {
-        r.ln.AddLine(
-            glm::vec2(i, -gH),
-            glm::vec2(i, gH),
-            mDepthValue,
-            mGridEndId);
-    }
-
-    for (int i = -gH; i <= gH; i += mGridSpacing) {
-        r.ln.AddLine(
-            glm::vec2(-gW, i),
-            glm::vec2(gW, i),
-            mDepthValue,
-            mGridEndId);
-    }
-
-    r.ln.AddLine(
-        glm::vec2(0, -gH),
-        glm::vec2(0, gH),
-        mDepthValue,
-        mGridMainLinesId);
-
-    uint32_t id;
-    r.ln.AddLine(
-        glm::vec2(-gW, 0),
-        glm::vec2(gW, 0),
-        mDepthValue, id);
-
-    Jkr::Generator Rect(Jkr::Shapes::Rectangle, glm::uvec2(5, 5));
-    auto xy = (glm::vec2(0, 0));
-    r.sh.Add(Rect, xy.x, xy.y, mDepthValue, mCenterIndicatorId);
-    e.MoveDepthValueTowardsTheCamera();
-    mLinesTranslation = glm::identity<glm::mat4>();
-    mLinesTranslation = glm::translate(mLinesTranslation, glm::vec3(ab::GetPosition() + ab::GetDimension() / 2.0f, 0.0f));
+    ab::SetDefaultBoundedRectangle();
+    mNodeWorldTranslationMatrix = glm::identity<glm::mat4>();
+    mNodeWorldTranslationMatrix = glm::translate(mNodeWorldTranslationMatrix, glm::vec3(ab::GetPosition() + ab::GetDimension() / 2.0f, 0.0f));
+    mNodeWorldInitialDimenion = ab::GetDimension();
+    mNodeWorldInitialPosition = ab::GetPosition();
 }
 
-void App::GridSheet::Event()
+void App::NodeSheet::Event()
 {
-    Jkr::BoundRect2D Rect { .mXy = ab::GetPosition(), .mWh = ab::GetDimension() };
-    e.UpdateBoundRect(ab::GetDepthValue(), mBoundedRectId, Rect);
+    ab::UpdateDefaultBoundedRectangle();
     int numKeys;
     auto keystate = SDL_GetKeyboardState(&numKeys);
 
@@ -62,21 +22,17 @@ void App::GridSheet::Event()
     bool isLeftButtonPressed = (SDL_BUTTON(SDL_BUTTON_LEFT) & e.GetMouseButtonValue()) != 0;
 
     glm::vec2 Offset2D(delxy.x, delxy.y);
-    if (isLeftButtonPressed && isAltKeyPressed && e.IsMouseWithinAtTopOfStack(mBoundedRectId, ab::GetDepthValue())) {
-        mLinesTranslation = glm::translate(mLinesTranslation, glm::vec3(Offset2D, 0.0f));
+    if (isLeftButtonPressed && isAltKeyPressed && ab::IsMouseOnTop()) {
+        mNodeWorldTranslationMatrix = glm::translate(mNodeWorldTranslationMatrix, glm::vec3(Offset2D, 0.0f));
         mOffset2D += Offset2D;
-    }
-
-    if (e.GetEventHandle().type == SDL_WINDOWEVENT_RESIZED || e.GetEventHandle().type == SDL_WINDOWEVENT_MAXIMIZED || e.GetEventHandle().type == SDL_WINDOWEVENT_MINIMIZED) {
-        mLinesTranslation = glm::identity<glm::mat4>();
     }
 
     auto mousexy = e.GetMousePos();
 
     uint32_t j = 0;
     for (auto& u : mNodeViews) {
-        u->Event(mOffset2D + glm::vec2(ab::GetPosition() + ab::GetDimension() / 2.0f));
-        auto Offset = mOffset2D + glm::vec2(ab::GetPosition() + ab::GetDimension() / 2.0f);
+        u->Event(mOffset2D + glm::vec2(mNodeWorldInitialPosition + mNodeWorldInitialDimenion / 2.0f));
+        auto Offset = mOffset2D + glm::vec2(mNodeWorldInitialPosition + mNodeWorldInitialDimenion / 2.0f);
 
         for (int i = 0; i < u->GetInputCount(); i++) {
             bool isMouseWithinSlot = u->GetInputNodeSlotBoundedRect(Offset, i).IsPointWithin(mousexy);

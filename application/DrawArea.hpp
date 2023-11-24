@@ -27,7 +27,7 @@ public:
 
 private:
     Sp<Component::ScrollableRect> mScrollArea;
-    Sp<App::GridSheet> mGridSheet;
+    Sp<App::NodeSheet> mGridSheet;
     Sp<Component::HorizontalLayout<2>> mLayout;
     Sp<Component::HorizontalLayout<1>> mBottomHorizontalLayout;
     Sp<App::PropertySheet> mBottomScrollArea;

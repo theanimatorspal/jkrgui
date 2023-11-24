@@ -29,6 +29,14 @@ App::DrawArea::DrawArea(_2d& inR, EventManager& inE, Window* inWindow, uint32_t 
 
     mLayout = MakeSH<Component::HorizontalLayout<2>>(r, e);
     mBottomHorizontalLayout = MakeSH<Component::HorizontalLayout<1>>(r, e);
+    mLayout->SetVPadding(0);
+    mLayout->SetHPadding(5);
+    mVerticalLayout->SetVPadding(5);
+    mVerticalLayout->SetHPadding(0);
+    mBottomHorizontalLayout->SetVPadding(0);
+    mBottomHorizontalLayout->SetHPadding(5);
+
+
     mVerticalLayout->AddComponent(mLayout);
     mVerticalLayout->AddComponent(mBottomHorizontalLayout);
     mVerticalLayout->ResetPositionsAndDimensions({ 0.8f, 0.2f });
@@ -38,7 +46,7 @@ App::DrawArea::DrawArea(_2d& inR, EventManager& inE, Window* inWindow, uint32_t 
     mBottomHorizontalLayout->ResetPositionsAndDimensions({ 1.0f });
 
     e.MoveDepthValueTowardsTheCamera();
-    mGridSheet = MakeSH<App::GridSheet>(r, e);
+    mGridSheet = MakeSH<App::NodeSheet>(r, e);
     mScrollArea = MakeSH<Component::ScrollableRect>(r, e);
     mLayout->AddComponent(mScrollArea);
     mLayout->AddComponent(mGridSheet);
@@ -59,12 +67,6 @@ App::DrawArea::DrawArea(_2d& inR, EventManager& inE, Window* inWindow, uint32_t 
     mScrollArea->Load();
     mBottomScrollArea->Load();
     e.MoveDepthValueAwayFromTheCamera();
-    mLayout->SetVPadding(0);
-    mLayout->SetHPadding(5);
-    mVerticalLayout->SetVPadding(5);
-    mVerticalLayout->SetHPadding(0);
-    mBottomHorizontalLayout->SetVPadding(0);
-    mBottomHorizontalLayout->SetHPadding(5);
 
     mContextMenu = MakeUp<Component::ContextMenuList>(r, e);
 

@@ -63,7 +63,7 @@ public:
     void Event(glm::vec2 inOffsetXy)
     {
         auto p = this->GetPosition();
-        e.UpdateBoundRect(mBoundedRectId, inOffsetXy + p + glm::vec2(0, Gap) + glm::vec2(NodeSmallRectDimension), NodeMainRectDimension, this->GetDepthValue());
+        e.UpdateBoundRect(mBoundedRectId, inOffsetXy + p + glm::vec2(0, Gap) + glm::vec2(0, NodeSmallRectDimension.y), NodeMainRectDimension, this->GetDepthValue());
 
         bool isLeftButtonPressed = (SDL_BUTTON(SDL_BUTTON_LEFT) & e.GetMouseButtonValue()) != 0;
         bool isRightButtonPressed = (SDL_BUTTON(SDL_BUTTON_RIGHT) & e.GetMouseButtonValue()) != 0;

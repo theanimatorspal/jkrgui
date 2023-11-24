@@ -5,14 +5,15 @@
 
 namespace App {
 using namespace Jkr::Component;
-class GridSheet : public Area_base {
+class NodeSheet : public Area_base {
     using ab = Area_base;
     std::vector<Up<NodeView>> mNodeViews;
-
     glm::vec2 mOffset2D = { 0.0f, 0.0f };
+    glm::vec2 mNodeWorldInitialDimenion;
+    glm::vec2 mNodeWorldInitialPosition;
 
 public:
-    GridSheet(_2d& inR, EventManager& inE)
+    NodeSheet(_2d& inR, EventManager& inE)
         : Area_base(inR, inE)
     {
     }
@@ -78,7 +79,7 @@ public:
         if (not mNodeViews.empty()) {
             auto shapes_start = mNodeViews.front()->GetShapeId();
             auto shapes_end = mNodeViews.back()->GetShapeId();
-            r.sh.Draw(*this->GetWindow(), glm::vec4(0.3f, 0.3f, 0.3f, 1.0f), ab::GetWindowWidth(), ab::GetWindowHeight(), shapes_start.x, shapes_end.y, mLinesTranslation);
+            r.sh.Draw(*this->GetWindow(), glm::vec4(0.3f, 0.3f, 0.3f, 1.0f), ab::GetWindowWidth(), ab::GetWindowHeight(), shapes_start.x, shapes_end.y, mNodeWorldTranslationMatrix);
         }
     }
 
@@ -87,17 +88,15 @@ public:
         if (not mNodeViews.empty()) {
             auto texts_start = mNodeViews.front()->GetTextId().x;
             auto texts_end = mNodeViews.back()->GetTextId().y + mNodeViews.back()->GetTextId().x - mNodeViews.front()->GetTextId().x;
-            r.bt.Draw(*this->GetWindow(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), ab::GetWindowWidth(), ab::GetWindowHeight(), texts_start, texts_end, mLinesTranslation);
+            r.bt.Draw(*this->GetWindow(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), ab::GetWindowWidth(), ab::GetWindowHeight(), texts_start, texts_end, mNodeWorldTranslationMatrix);
         }
     }
 
     void SetScissor() { mWindow->SetScissor(this->GetScissor()); }
     void DrawLines()
     {
-        r.ln.Draw(*mWindow, glm::vec4(1.0f, 1.0f, 1.0f, 0.04f), ab::GetWindowWidth(), ab::GetWindowHeight(), mGridStartId, mGridEndId, mLinesTranslation);
-        r.ln.Draw(*mWindow, glm::vec4(1.0f, 1.0f, 1.0f, 0.2f), ab::GetWindowWidth(), ab::GetWindowHeight(), mGridMainLinesId, mGridMainLinesId + 1, mLinesTranslation);
         if (not mConnections.empty())
-            r.ln.Draw(*this->GetWindow(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), ab::GetWindowWidth(), ab::GetWindowHeight(), mConnections.front().mLineId, mConnections.back().mLineId, mLinesTranslation);
+            r.ln.Draw(*this->GetWindow(), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), ab::GetWindowWidth(), ab::GetWindowHeight(), mConnections.front().mLineId, mConnections.back().mLineId, mNodeWorldTranslationMatrix);
     }
     void ResetScissor() { mWindow->ResetScissor(); }
     void Update(Window* inWindow, uint32_t inW, uint32_t inH)
@@ -119,7 +118,7 @@ private:
     uint32_t mGridMainLinesId;
     uint32_t mCenterIndicatorId;
     uint32_t mBoundedRectId;
-    glm::mat4 mLinesTranslation = glm::identity<glm::mat4>();
+    glm::mat4 mNodeWorldTranslationMatrix = glm::identity<glm::mat4>();
 
 protected:
     class ToWc {
