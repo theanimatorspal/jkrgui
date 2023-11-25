@@ -71,5 +71,9 @@ void ContextMenuList::Load()
         u->SetNormalColor(glm::vec4(0.2f, 0.2f, 0.2f, 0.5f));
     }
 
+    this->SetDimension(mHLayout->GetDimension() + mItemsVerticalLayout->GetDimension());
+    this->SetDefaultBoundedRectangle();
+
+    this->SetFocusOnHover(true);
     ab::Load();
 }

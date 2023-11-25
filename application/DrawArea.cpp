@@ -3,9 +3,9 @@
 App::DrawArea::DrawArea(_2d& inR, EventManager& inE, Window* inWindow, uint32_t inW, uint32_t inH)
     : Component::Area_base(inR, inE)
     , mNode__iAdd([](std::vector<DataType> in) { return std::get<int>(in[0]) + std::get<int>(in[1]); }, 2)
-    , mNode__iSub([](std::vector<DataType> in) { return std::get<int>(in[0]) + std::get<int>(in[1]); }, 2)
-    , mNode__iMul([](std::vector<DataType> in) { return std::get<int>(in[0]) + std::get<int>(in[1]); }, 2)
-    , mNode__iDiv([](std::vector<DataType> in) { return std::get<int>(in[0]) + std::get<int>(in[1]); }, 2)
+    , mNode__iSub([](std::vector<DataType> in) { return std::get<int>(in[0]) - std::get<int>(in[1]); }, 2)
+    , mNode__iMul([](std::vector<DataType> in) { return std::get<int>(in[0]) * std::get<int>(in[1]); }, 2)
+    , mNode__iDiv([](std::vector<DataType> in) { return std::get<int>(in[0]) / std::get<int>(in[1]); }, 2)
     , mNode__Int(0)
     , mNode__Float(0.0f)
 
@@ -46,15 +46,15 @@ App::DrawArea::DrawArea(_2d& inR, EventManager& inE, Window* inWindow, uint32_t 
     mBottomHorizontalLayout->ResetPositionsAndDimensions({ 1.0f });
 
     e.MoveDepthValueTowardsTheCamera();
-    mGridSheet = MakeSH<App::NodeSheet>(r, e);
+    mNodeSheet = MakeSH<App::NodeSheet>(r, e);
     mScrollArea = MakeSH<Component::ScrollableRect>(r, e);
     mLayout->AddComponent(mScrollArea);
-    mLayout->AddComponent(mGridSheet);
+    mLayout->AddComponent(mNodeSheet);
     mLayout->ResetPositionsAndDimensions({ 0.2f, 0.8f });
 
     /*2. Specify Settings For Components*/
-    mGridSheet->SetDepthValue(e.GetDepthValue());
-    mGridSheet->SetWindow(mWindow, this->GetWindowWidth(), this->GetWindowHeight());
+    mNodeSheet->SetDepthValue(e.GetDepthValue());
+    mNodeSheet->SetWindow(mWindow, this->GetWindowWidth(), this->GetWindowHeight());
     mScrollArea->SetDepthValue(e.GetDepthValue());
     mScrollArea->SetWindow(mWindow, this->GetWindowWidth(), this->GetWindowHeight());
     mScrollArea->SetVerticalScrollBarHeigthRatio(0.1f);
@@ -63,7 +63,7 @@ App::DrawArea::DrawArea(_2d& inR, EventManager& inE, Window* inWindow, uint32_t 
 	mBottomScrollArea->SetVerticalScrollBarHeigthRatio(0.5f);
 
     /*3. Load the Components*/
-    mGridSheet->Load();
+    mNodeSheet->Load();
     mScrollArea->Load();
     mBottomScrollArea->Load();
     e.MoveDepthValueAwayFromTheCamera();
@@ -71,7 +71,7 @@ App::DrawArea::DrawArea(_2d& inR, EventManager& inE, Window* inWindow, uint32_t 
     mContextMenu = MakeUp<Component::ContextMenuList>(r, e);
 
     mContextMenu->SetMenuItemStrings(ContextMenuItems);
-    mContextMenu->SetPosition(mGridSheet->FromComponent(glm::vec2(100, 100)));
+    mContextMenu->SetPosition(mNodeSheet->FromComponent(glm::vec2(100, 100)));
     mTextButtonScrollTestPosition = mScrollArea->FromComponent(glm::vec2(100, 100));
     mContextMenu->SetWindow(this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
     mContextMenu->SetDepthValue(e.GetDepthValue());

@@ -40,6 +40,8 @@ public:
     GETTER GetMousePos() const { return mMousePos; }
     GETTER GetRelativeMousePos() const { return mRelativePos; }
     GETTER GetMouseButtonValue() const { return mCurrentPushedMouseButton; }
+    GETTER IsLeftButtonPressed() const { return (SDL_BUTTON(SDL_BUTTON_LEFT) bitand this->GetMouseButtonValue()) != 0; }
+    GETTER IsRightButtonPressed() const { return (SDL_BUTTON(SDL_BUTTON_RIGHT) & this->GetMouseButtonValue()) != 0; }
     void StartTextInput()
     {
         SDL_StartTextInput();

@@ -3,10 +3,11 @@
 #include "ImageButtonRect.hpp"
 #include "TextLineEdit.hpp"
 #include "VLayout.hpp"
+#include "FocusProxy.hpp"
 
 namespace Jkr::Component {
 
-class ContextMenuList : public Area_base {
+class ContextMenuList : public Area_base, FocusProxy {
     using ab = Area_base;
 
 public:
@@ -14,22 +15,19 @@ public:
         : ab(inR, inE)
     {
     }
-
     void Load();
-
     void DrawOutlines()
     {
         mTextLineEdit->DrawOutlines();
     }
-
     void DrawShapes()
     {
         for (auto& u : mMenuItemsTextButtons)
             u->DrawShapes();
     }
-
     void Update()
     {
+        UpdateDefaultBoundedRectangle();
         mHLayout->SetPosition(this->GetPosition());
         mHLayout->SetDimension(this->GetDimension());
         mHLayout->ResetPositionsAndDimensions(mMenuItemLayoutSizeFactor);
@@ -58,29 +56,31 @@ public:
             mMenuItemsTextButtons[mSelectedMenuItem.value()]->SetNormalColor(glm::vec4(0.4f, 0.4f, 0.4f, 0.5f));
         }
     }
-
     void DrawBestTexts()
     {
         for (auto& u : mMenuItemsTextButtons)
             u->DrawBestTexts();
         mTextLineEdit->DrawBestTexts();
     }
-
     void Focus()
     {
         mTextLineEdit->SetFocus(true);
     }
-
     void UnFocus()
     {
         mTextLineEdit->SetFocus(false);
     }
-
     void Event()
     {
+        using namespace std;
+        FocusEvent(*this, this->IsMouseWithin(), this->IsMouseOnTop());
         mTextLineEdit->Event();
-        for (auto& u : mMenuItemsTextButtons) {
+        optional<int> SelectedButtonIndex = nullopt;
+        for (int i = 0; i < mMenuItemsTextButtons.size(); i++) {
+            auto& u = mMenuItemsTextButtons[i];
             u->Event();
+            if (u->IsBeingPushed())
+                SelectedButtonIndex = i;
         }
 
         auto ev = e.GetEventHandle();
@@ -113,22 +113,33 @@ public:
                 break;
             }
         }
-    }
 
+        if (e.GetEventHandle().type == SDL_MOUSEWHEEL and this->IsFocused()) {
+            bool down = e.GetEventHandle().wheel.y > 0;
+            bool up = e.GetEventHandle().wheel.y < 0;
+            if (up) {
+                MoveCurrentItemViewPositionDown();
+            } else if (down) {
+                MoveCurrentItemViewPositionUp();
+            }
+        }
+
+        if (e.IsLeftButtonPressed() and SelectedButtonIndex.has_value()) {
+            mChosenItem = SelectedButtonIndex.value() + mCurrentItemViewPosition.r;
+        }
+    }
     void DrawImages(Window& inWindow, uint32_t inX, uint32_t inY)
     {
         mImageButton->DrawImages(inWindow, inX, inY);
     }
 
+public:
     SETTER SetMenuItemStrings(const std::vector<std::string_view>& inString)
     {
         mStrings = std::move(inString);
     }
-
-    GETTER GetSelectedItem()
-    {
-        return mChosenItem;
-    }
+    GETTER GetSelectedItem() { return mChosenItem; }
+    GETTER ResetSelectedItem() { mChosenItem.reset(); }
 
 private:
     std::optional<uint32_t> mChosenItem;

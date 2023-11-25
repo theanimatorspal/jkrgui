@@ -45,45 +45,47 @@ void Jkr::Component::TextLineEdit::Event()
             mRightEditingPosition = 0;
         }
         mShouldUpdateText = true;
-        e.StopTextInput();
+       // e.StopTextInput();
         mHasEditingStarted = false;
     }
 
-    if (ev.type == SDL_KEYDOWN) {
-        if (ev.key.keysym.sym == SDLK_BACKSPACE and mCurrentString.length() > 0) {
-            if (mRightEditingPosition > 0) {
-                std::fill(mCurrentString.begin() + mRightEditingPosition, mCurrentString.end(), ' ');
-                mCurrentString[mRightEditingPosition - 1] = ' ';
-                mRightEditingPosition--;
+    if (this->IsFocused()) {
+        if (ev.type == SDL_KEYDOWN) {
+            if (ev.key.keysym.sym == SDLK_BACKSPACE and mCurrentString.length() > 0) {
+                if (mRightEditingPosition > 0) {
+                    std::fill(mCurrentString.begin() + mRightEditingPosition, mCurrentString.end(), ' ');
+                    mCurrentString[mRightEditingPosition - 1] = ' ';
+                    mRightEditingPosition--;
+                }
+                if (mLeftEditingPosition > 0) {
+                    mLeftEditingPosition--;
+                }
+                mShouldUpdateText = true;
+            } else if (ev.key.keysym.sym == SDLK_c and SDL_GetModState() bitand KMOD_CTRL) {
+                SDL_SetClipboardText(mCurrentString.c_str());
+                mShouldUpdateText = true;
+            } else if (ev.key.keysym.sym == SDLK_v and SDL_GetModState() bitand KMOD_CTRL) {
+                mCurrentString = SDL_GetClipboardText();
+                mShouldUpdateText = true;
+            } else if (ev.key.keysym.sym == SDLK_RETURN) {
+                this->SetFocus(false);
+                e.StopTextInput();
+                mShouldResetString = false;
             }
-            if (mLeftEditingPosition > 0) {
-                mLeftEditingPosition--;
-            }
-            mShouldUpdateText = true;
-        } else if (ev.key.keysym.sym == SDLK_c and SDL_GetModState() bitand KMOD_CTRL) {
-            SDL_SetClipboardText(mCurrentString.c_str());
-            mShouldUpdateText = true;
-        } else if (ev.key.keysym.sym == SDLK_v and SDL_GetModState() bitand KMOD_CTRL) {
-            mCurrentString = SDL_GetClipboardText();
-            mShouldUpdateText = true;
-        } else if (ev.key.keysym.sym == SDLK_RETURN) {
-            this->SetFocus(false);
-            e.StopTextInput();
-            mShouldResetString = false;
-        }
-    } else if (ev.type == SDL_TEXTINPUT) {
-        bool NotCopyAndPasteKeys = not(SDL_GetModState() bitand KMOD_ALT and (ev.text.text[0] == 'C' || ev.text.text[0] == 'c' || ev.text.text[0] == 'v' || ev.text.text[0] == 'V'));
+        } else if (ev.type == SDL_TEXTINPUT) {
+            bool NotCopyAndPasteKeys = not(SDL_GetModState() bitand KMOD_ALT and (ev.text.text[0] == 'C' || ev.text.text[0] == 'c' || ev.text.text[0] == 'v' || ev.text.text[0] == 'V'));
 
-        if (NotCopyAndPasteKeys) {
-            if (mRightEditingPosition == 0) {
-                mCurrentString = "";
+            if (NotCopyAndPasteKeys) {
+                if (mRightEditingPosition == 0) {
+                    mCurrentString = "";
+                }
+                mCurrentString.resize(mRightEditingPosition);
+                mShouldUpdateText = true;
+                mCurrentString.append(ev.text.text);
+                mRightEditingPosition++;
+                mShouldUpdateText = true;
+                mShouldIncreaseLeftEditingPosition = true;
             }
-            mCurrentString.resize(mRightEditingPosition);
-            mShouldUpdateText = true;
-            mCurrentString.append(ev.text.text);
-            mRightEditingPosition++;
-            mShouldUpdateText = true;
-            mShouldIncreaseLeftEditingPosition = true;
         }
     }
 }

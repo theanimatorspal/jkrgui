@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "GridSheet.hpp"
+#include "PropertySheet.hpp"
 #include <Components/Area_base.hpp>
 #include <Components/BTextButtonRect.hpp>
 #include <Components/ButtonRect_base.hpp>
@@ -9,7 +10,6 @@
 #include <Components/ScrollableRect.hpp>
 #include <Components/TextLineEdit.hpp>
 #include <Components/VLayout.hpp>
-#include "PropertySheet.hpp"
 
 namespace App {
 using namespace Jkr::Renderer;
@@ -27,7 +27,7 @@ public:
 
 private:
     Sp<Component::ScrollableRect> mScrollArea;
-    Sp<App::NodeSheet> mGridSheet;
+    Sp<App::NodeSheet> mNodeSheet;
     Sp<Component::HorizontalLayout<2>> mLayout;
     Sp<Component::HorizontalLayout<1>> mBottomHorizontalLayout;
     Sp<App::PropertySheet> mBottomScrollArea;
@@ -52,10 +52,10 @@ public:
         mLayout->ResetPositionsAndDimensions({ 0.2, 0.8 });
         mScrollArea->Update(inWindow, this->GetWindowWidth(), this->GetWindowHeight());
         mBottomScrollArea->Update(inWindow, this->GetWindowWidth(), this->GetWindowHeight());
-        mGridSheet->Update(inWindow, this->GetWindowWidth(), this->GetWindowHeight());
+        mNodeSheet->Update(inWindow, this->GetWindowWidth(), this->GetWindowHeight());
 
         if (mIsContextMenuVisible) {
-            mContextMenu->SetPosition(mGridSheet->FromComponent(glm::vec2(100, 100)));
+            mContextMenu->SetPosition(mNodeSheet->FromComponent(glm::vec2(100, 100)));
             mContextMenu->SetWindow(this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
             mContextMenu->Update();
         }
@@ -85,18 +85,38 @@ public:
 
     void AddNodeViewByIndex(uint32_t inIndex, glm::vec2 inPos, std::string_view inName)
     {
-        mGridSheet->AddNodeView(*mNodesList[inIndex], inPos, inName);
+        mNodeSheet->AddNodeView(*mNodesList[inIndex], inPos, inName);
     }
     void Event()
     {
         mScrollArea->Event();
-        mGridSheet->Event();
+        mNodeSheet->Event();
         mBottomScrollArea->Event();
         mContextMenu->Event();
-        bool isRightButtonPressed = (SDL_BUTTON(SDL_BUTTON_RIGHT) & e.GetMouseButtonValue()) != 0;
+        bool isRightButtonPressed = e.IsRightButtonPressed();
+        bool isLeftButtonPressed = e.IsLeftButtonPressed();
+
+        auto selected = mContextMenu->GetSelectedItem();
+        if (isLeftButtonPressed and selected.has_value()) {
+			AddNodeViewByIndex(selected.value(), glm::vec2(0, 0), ContextMenuItems[selected.value()]);
+            mContextMenu->ResetSelectedItem();
+			mIsContextMenuVisible = false;
+        }
 
         auto ev = e.GetEventHandle();
         if (ev.type == SDL_KEYDOWN) {
+            if (ev.key.keysym.sym == SDLK_RETURN) {
+                auto s = mContextMenu->GetSelectedItem();
+                if (s.has_value() and mIsContextMenuVisible) {
+                    AddNodeViewByIndex(s.value(), glm::vec2(0, 0), ContextMenuItems[s.value()]);
+                    mContextMenu->ResetSelectedItem();
+                }
+            } else if (ev.key.keysym.sym == SDLK_F5) {
+                mNodeSheet->CookAllNodes();
+            } else if (ev.key.keysym.sym == SDLK_F6) {
+                mNodeSheet->UnCookAllNodes();
+            }
+
             if (ev.key.keysym.sym == SDLK_RETURN or ev.key.keysym.sym == SDLK_ESCAPE) {
                 mIsContextMenuVisible = false;
                 mContextMenu->UnFocus();
@@ -104,19 +124,11 @@ public:
                 mIsContextMenuVisible = true;
                 mContextMenu->Focus();
             }
-            if (ev.key.keysym.sym == SDLK_RETURN) {
-                auto s = mContextMenu->GetSelectedItem();
-                if (s.has_value()) {
-                    AddNodeViewByIndex(s.value(), glm::vec2(0, 0), ContextMenuItems[s.value()]);
-                }
-            }
         }
 
-        if (isRightButtonPressed and not mGridSheet->IsSelectionEmpty())
-        {
-            mBottomScrollArea->SetCurrentNodeView((*mGridSheet->GetSelection()).get());
+        if (isRightButtonPressed and not mNodeSheet->IsSelectionEmpty()) {
+            mBottomScrollArea->SetCurrentNodeView((*mNodeSheet->GetSelection()).get());
         }
-
     }
 
     void Draw()
@@ -131,10 +143,10 @@ public:
 
         /* GRIDSHEET */
         {
-            mGridSheet->DrawOutline();
-            mGridSheet->SetScissor();
-            mGridSheet->DrawLines();
-            mGridSheet->ResetScissor();
+            mNodeSheet->DrawOutline();
+            mNodeSheet->SetScissor();
+            mNodeSheet->DrawLines();
+            mNodeSheet->ResetScissor();
         }
 
         r.sh.BindShapes(*this->GetWindow());
@@ -142,22 +154,22 @@ public:
         if (mIsContextMenuVisible) {
             mContextMenu->DrawShapes();
         }
-        mGridSheet->SetScissor();
-        mGridSheet->DrawShapes();
-        mGridSheet->ResetScissor();
+        mNodeSheet->SetScissor();
+        mNodeSheet->DrawShapes();
+        mNodeSheet->ResetScissor();
         mScrollArea->DrawFillShapes();
         mBottomScrollArea->DrawFillShapes();
 
         r.sh.BindFillMode(Jkr::Renderer::FillType::Image, *this->GetWindow());
-        mGridSheet->SetScissor();
+        mNodeSheet->SetScissor();
         if (mIsContextMenuVisible)
             mContextMenu->DrawImages(*this->GetWindow(), this->GetWindowWidth(), this->GetWindowHeight());
 
         r.bt.Bind(*this->GetWindow());
         if (mIsContextMenuVisible)
             mContextMenu->DrawBestTexts();
-        mGridSheet->SetScissor();
-        mGridSheet->DrawBestTexts();
+        mNodeSheet->SetScissor();
+        mNodeSheet->DrawBestTexts();
         mBottomScrollArea->SetScissor();
         mBottomScrollArea->DrawBestTexts();
     }

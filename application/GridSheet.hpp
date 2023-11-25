@@ -2,6 +2,7 @@
 #include "NodeView.hpp"
 #include <Components/Area_base.hpp>
 #include <numeric>
+#include <ranges>
 
 namespace App {
 using namespace Jkr::Component;
@@ -17,12 +18,10 @@ public:
         : Area_base(inR, inE)
     {
     }
-
     GETTER GetSelection()
     {
         return std::find_if(mNodeViews.begin(), mNodeViews.end(), [&](Up<NodeView>& n) { return n->IsHardSelected(); });
     }
-
     bool IsSelectionEmpty()
     {
         auto isHardSelected = [](Up<NodeView>& n) { return n->IsHardSelected(); };
@@ -31,14 +30,11 @@ public:
         }
         return true;
     }
-
     void AddNodeView(Node& inNode, glm::vec2 inPos, std::string_view inName)
     {
         mNodeViews.push_back(MakeUp<NodeView>(r, e, inNode, inName, inPos, this->GetDepthValue()));
     }
-
     void Load();
-
     void AddConnection(uint32_t inNodeFemaleId, uint32_t inMaleNodeId, uint32_t inSlot)
     {
         auto line = NodeView::GetConnection(mNodeViews[inNodeFemaleId].get(), mNodeViews[inMaleNodeId].get(), inSlot);
@@ -48,12 +44,27 @@ public:
         mConnections.push_back(connection);
         Node::ConnectNode(mNodeViews[inMaleNodeId].get(), mNodeViews[inNodeFemaleId].get(), inSlot);
     }
-
     void UpdateConnections()
     {
         for (auto& u : mConnections) {
             auto line = NodeView::GetConnection(u.mNodeFemale, u.mNodeMale, u.mSlot);
             r.ln.UpdateLine(u.mLineId, line.x, line.y, this->GetDepthValue());
+        }
+    }
+    void CookAllNodes()
+    {
+        using namespace std::ranges;
+        auto IsCooked = [](Up<NodeView>& inNode) { return inNode->HasCooked(); };
+        while (not all_of(mNodeViews, IsCooked)) {
+            for (auto& u : mNodeViews) {
+                u->Cook();
+            }
+        }
+    }
+    void UnCookAllNodes()
+    {
+        for (auto& u : mNodeViews) {
+            u->Uncook();
         }
     }
 

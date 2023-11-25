@@ -35,9 +35,13 @@ public:
         mCurrentString = inString;
     }
 
-    GETTER GetCurrentStringView ( )
+    GETTER GetCurrentString()
     {
-        return std::string_view(mCurrentString.begin(), mCurrentString.end() + mRightEditingPosition);
+        if (mCurrentString.size() == 1) {
+            return std::string(mCurrentString);
+        } else {
+            return std::string(mCurrentString.begin(), mCurrentString.end() + mRightEditingPosition - 1);
+        }
     }
 
 private:

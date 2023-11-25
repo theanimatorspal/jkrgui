@@ -25,19 +25,27 @@ public:
     {
         mPrevious.resize(mNoOfInputs, nullptr);
     }
-
     explicit Node(DataType inData)
     {
         mOutputData = inData;
         mCooked = true;
     }
-
     explicit Node(Node& inNode)
         : mCookFunction(inNode.mCookFunction)
     {
+        mOutputData = inNode.mOutputData;
         mPrevious.resize(inNode.mPrevious.size(), nullptr);
+        if (mPrevious.size() == 0)
+            mCooked = true;
     }
 
+public:
+    auto Uncook()
+    {
+        if (mPrevious.size() != 0) {
+            mCooked = false;
+        }
+    }
     auto Cook() -> DataType
     {
         if (not mCooked) {
@@ -75,7 +83,6 @@ public:
         inMaleNode->mNext.push_back(inFemaleNode);
         inFemaleNode->mPrevious[inSlot] = inMaleNode;
     }
-
     static void DisconnectNode(Node* inInputNode, Node* inOutputNode)
     {
         auto I = std::find(inInputNode->mPrevious.begin(), inInputNode->mPrevious.end(), inOutputNode);
@@ -83,21 +90,11 @@ public:
         auto Remove = std::remove(inOutputNode->mNext.begin(), inOutputNode->mNext.end(), inInputNode);
         inOutputNode->mNext.erase(Remove);
     }
-
-    static auto GetOutput(Node* inNode)
-    {
-        return inNode->mOutputData;
-    }
-
-    auto GetInputCount()
-    {
-        return mPrevious.size();
-    }
-
-    void SetOutputValue(DataType inData)
-    {
-        mOutputData = inData;
-    }
+    static auto GetOutput(Node* inNode) { return inNode->mOutputData; }
+    auto GetOutput() { return this->mOutputData; }
+    auto GetInputCount() { return mPrevious.size(); }
+    void SetOutputValue(DataType inData) { mOutputData = inData; }
+    auto HasCooked() { return mCooked; }
 
 private:
     std::vector<Node*> mPrevious;
