@@ -79,6 +79,33 @@ void Jkr::Renderer::Shape::AddImage(const std::string_view inFileName, uint32_t&
 #endif
 }
 
+void Jkr::Renderer::Shape::AddImage(uint32_t inWidth, uint32_t inHeight, uint32_t &outIndex)
+{
+#ifndef JKR_USE_VARIABLE_DES_INDEXING
+    Up<VulkanDescriptorSet> Desset = MakeUp<VulkanDescriptorSet>(
+        mInstance.GetDevice(),
+        mInstance.GetDescriptorPool(),
+        mPainterCaches[FillType::Image]->GetVertexFragmentDescriptorSetLayout());
+    Up<ImageType> Image = MakeUp<ImageType>(mInstance);
+    std::vector<uint8_t> image;
+    image.resize(inWidth * inHeight * 4);
+    Image->Setup(reinterpret_cast<void **>(image.data()), inWidth, inHeight, 4);
+    Image->Register(0, 0, 0, *Desset);
+    outIndex = mImages.size();
+    mImages.push_back(std::move(Image));
+    mVulkanPerImageDescriptorSets.push_back(std::move(Desset));
+#else
+    Up<ImageType> Image = MakeUp<ImageType>(mInstance);
+    std::vector<uint8_t> image;
+    image.resize(inWidth * inHeight * 4);
+    Image->Setup(reinterpret_cast<void **>(image.data()), inWidth, inHeight, 4);
+    uint32_t CurrentIndex = mImages.size();
+    Image->Register(0, 0, CurrentIndex, *mVarDesVulkanDescriptorSet);
+    outIndex = mImages.size();
+    mImages.push_back(std::move(Image));
+#endif
+}
+
 void Jkr::Renderer::Shape::Update(uint32_t inId, Jkr::Generator& inShape, int inX, int inY, uint32_t inZ)
 {
 	auto OffsetId = inId;

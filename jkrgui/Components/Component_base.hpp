@@ -50,7 +50,6 @@ public:
     }
     void SetDefaultBoundedRectangle()
     {
-        std::cout << "Set Bounded Rect 2d \n" << std::endl;
         mBoundedRectangleId = e.SetBoundedRect(mPosition, mDimension, mDepthValue);
     }
     void UpdateDefaultBoundedRectangle()

@@ -14,9 +14,10 @@ namespace Jkr::Renderer
 		Shape(const Instance& inInstance, Window& inCompatibleWindow, std::unordered_map<FillType, Up<PainterCache>>& inPainterCaches);
 		void Add(Jkr::Generator& inShape, int inX, int inY, uint32_t inZ, uint32_t& outId);
 		void AddImage(const std::string_view inFileName, uint32_t& outIndex);
-		void Update(uint32_t inId, Jkr::Generator& inShape, int inX, int inY, uint32_t inZ);
-		void Dispatch(Window& inWindow);
-		void BindFillMode(FillType inType, Window& inWindow);
+        void AddImage(uint32_t inWidth, uint32_t inHeight, uint32_t &outIndex);
+        void Update(uint32_t inId, Jkr::Generator &inShape, int inX, int inY, uint32_t inZ);
+        void Dispatch(Window &inWindow);
+        void BindFillMode(FillType inType, Window& inWindow);
 		void BindImage(Window& inWindow, uint32_t inImageId);
 		void BindShapes(Window& inWindow);
 		void Draw(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inStartShapeId, uint32_t inEndShapeId, glm::mat4 inMatrix);

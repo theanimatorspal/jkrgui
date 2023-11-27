@@ -1,20 +1,27 @@
 #pragma once
 #include "AllShaders.hpp"
+#include "Painter.hpp"
 #include "PainterCache.hpp"
 
 const std::string_view gbefore_xyz = R"""(
 			
 #version 450
-layout(set = 0, binding = 0, rgba8) uniform image2D storageImage[];
+layout(set = 0, binding = 0, rgba8) uniform image2D storageImage;
                                    
+)""";
+
+const std::string_view gmain_function_null = R"""(
+void GlslMain()
+{
+
+}
 )""";
 
 const std::string_view gafter_xyz = R"""(
 void GlslMain()
 {
-	uint idx = push.mTextureCoordinateIndex;
 	uvec3 gID = gl_GlobalInvocationID;
-	ivec2 image_size = ivec2(imageSize(storageImage[idx]));
+	ivec2 image_size = ivec2(imageSize(storageImage));
 	ivec2 to_draw_at = ivec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y);
 	
 	float x_cart = (float(gl_GlobalInvocationID.x) - float(image_size.x) / float(2)) / (float((image_size.x) / float(2)));
@@ -33,26 +40,80 @@ namespace Jkr::Renderer {
 
 class CustomImagePainter
 {
+    using Image = PainterParameter<Jkr::PainterParameterContext::StorageImage>;
+
 public:
-    CustomImagePainter(std::string_view inName,
+    CustomImagePainter(const Instance &inInstance,
+                       std::string_view inName,
                        std::string_view inComputeShaderFunction,
+                       std::string_view inPushConstantSignature,
                        uint32_t inX,
                        uint32_t inY,
                        uint32_t inZ)
-        : mCustomPainterFileName(std::string(inName))
+        : mInstance(inInstance)
+        , mCustomPainterFileName(std::string(inName))
     {
-        mStringStream << gbefore_xyz;
-        mStringStream << "layout(local_size_x =" << 16 << ", local_size_y =" << 16 << ","
-                      << " local_size_z =" << 1 << ") in";
-        mStringStream << gafter_xyz;
-        mStringStream << inComputeShaderFunction;
-        mStringStream << gend;
+        mComputeStream << gbefore_xyz;
+        mComputeStream << "layout(local_size_x = " << 16 << ", local_size_y = " << 16 << ","
+                       << " local_size_z = " << 1 << ") in;";
+        mComputeStream << inPushConstantSignature;
+        mComputeStream << gafter_xyz;
+        mComputeStream << inComputeShaderFunction;
+        mComputeStream << gend;
+
+        mVertexStream << gbefore_xyz;
+        mVertexStream << inPushConstantSignature;
+        mVertexStream << gmain_function_null;
+
+        mFragmentStream << gbefore_xyz;
+        mFragmentStream << inPushConstantSignature;
+        mFragmentStream << gmain_function_null;
+
+        mCustomPainterCache = MakeUp<PainterCache>(inInstance);
+    }
+
+    void Load(Window &inWindow)
+    {
+        Make();
+        mCustomPainterCache->Load(mCustomPainterFileName);
+        mPainter = MakeUp<Painter>(mInstance, inWindow, *mCustomPainterCache);
+    }
+
+    void Store(Window &inWindow)
+    {
+        Make();
+        std::cout << mComputeStream.str() << std::endl;
+        mCustomPainterCache->Store(mCustomPainterFileName,
+                                   mVertexStream.str(),
+                                   mFragmentStream.str(),
+                                   mComputeStream.str());
+        mPainter = MakeUp<Painter>(mInstance, inWindow, *mCustomPainterCache);
+    }
+
+    void RegisterImageToBeDrawnTo(Window &inWindow, uint32_t inWidth, uint32_t inHeight)
+    {
+        mPainterParam = MakeUp<Image>(mInstance);
+        mPainterParam->Setup(inWidth, inHeight);
+        mPainter->RegisterPainterParameter(*mPainterParam, 0, 0, 0);
+        mPainter->OptimizeParameter(*mPainterParam, inWindow);
+    }
+
+    template<class T>
+    void Draw(Window &inWindow, T inPushConstant, uint32_t inX, uint32_t inY, uint32_t inZ)
+    {
+        mPainter->Dispatch<T>(inPushConstant, inX, inY, inZ);
     }
 
 private:
+    void Make() { mCustomPainterCache = MakeUp<PainterCache>(mInstance); }
+    const Instance &mInstance;
     std::string mCustomPainterFileName = "customPainter.bin";
-    std::ostringstream mStringStream;
-    Up<Jkr::PainterCache> mCustomPainterCache;
+    std::ostringstream mComputeStream;
+    std::ostringstream mVertexStream;
+    std::ostringstream mFragmentStream;
+    Up<PainterCache> mCustomPainterCache;
+    Up<Painter> mPainter;
+    Up<Image> mPainterParam;
 };
 
 enum class FillType {

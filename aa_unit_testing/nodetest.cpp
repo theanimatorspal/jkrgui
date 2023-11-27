@@ -49,7 +49,7 @@
 //    Node Add1(Add);
 //
 //    Node Sub2(Sub);
-//       
+//
 //    Node::ConnectNode(&Number5, &Add1, 0);
 //    Node::ConnectNode(&Number6, &Add1, 1);
 //
@@ -68,7 +68,3 @@
 //
 //    std::cout << std::get<int>(Sub2.Cook());
 //}
-int main ( )
-{
-
-}

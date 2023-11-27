@@ -6,15 +6,13 @@
 #include <Renderers/TwoD/Line.hpp>
 #include <Renderers/TwoD/Shape.hpp>
 #include <Window.hpp>
-#include <sol/sol.hpp>
 
-int ldsajf()
+int main()
 {
     auto Instance = Jkr::Instance();
     auto Window = Jkr::Window(Instance, "Heell", 1080 / 2, 1920 / 2);
     auto EventManager = Jkr::EventManager();
     auto RendererResources = Jkr::Renderer::ResourceManager();
-    auto lua = sol::state();
     RendererResources.Load(Instance);
     auto lr = Jkr::Renderer::Line(Instance, Window, RendererResources.GetLineRendererCache());
     auto ftx = Jkr::Renderer::FastText(Instance, Window, RendererResources.GetFastTextRendererCache());
@@ -26,6 +24,40 @@ int ldsajf()
     sr.Add(Rectangle, 0, 0, 5, sid2);
     uint32_t Font_id, BestText_id, BestText_length;
     uint32_t BestText_id1, BestText_length1;
+
+    Jkr::Renderer::CustomImagePainter ImagePainter(Instance,
+                                                   "file.bin",
+
+                                                   R"""(
+
+imageStore(storageImage, to_draw_at, vec4(push.mColor.x, push.mColor.y, push.mColor.z, 1));
+
+)""",
+                                                   R"""(
+
+layout(push_constant, std430) uniform pc {
+	vec4 mPosDimen;
+	vec4 mColor;
+	vec4 mParam;
+} push;
+
+ )""",
+                                                   16,
+                                                   16,
+                                                   1);
+
+    using namespace glm;
+    struct pc
+    {
+        vec4 mPosDimen;
+        vec4 mColor;
+        vec4 mParam;
+    };
+    pc push_constant = {.mPosDimen = vec4(0, 0, 1, 1),
+                        .mColor = vec4(1, 1, 0, 1),
+                        .mParam = vec4(0)};
+    ImagePainter.Store(Window);
+    ImagePainter.RegisterImageToBeDrawnTo(Window, 100, 100);
 
     bst.AddFontFace("font.ttf", 8, Font_id);
     bst.AddText("Wow", 100, 300, 5, BestText_id, BestText_length);
@@ -66,6 +98,7 @@ int ldsajf()
         ftx.Dispatch(Window);
         sr.Dispatch(Window);
         bst.Dispatch(Window);
+        ImagePainter.Draw<pc>(Window, push_constant, 16, 16, 1);
     };
 
     static int i = 0;
