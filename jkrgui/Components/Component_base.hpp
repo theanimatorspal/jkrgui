@@ -39,16 +39,20 @@ public:
     }
     void CheckExpectations()
     {
-        assert(mPosition.x != INT_MAX);
-        assert(mPosition.y != INT_MAX);
-        assert(mDimension.x != INT_MAX);
-        assert(mDimension.y != INT_MAX);
-        assert(mDepthValue != INT_MAX);
+        assert(mPosition.x != static_cast<float>(INT_MAX));
+        assert(mPosition.y != static_cast<float>(INT_MAX));
+        assert(mDimension.x != static_cast<float>(INT_MAX));
+        assert(mDimension.y != static_cast<float>(INT_MAX));
+        assert(mDepthValue != static_cast<float>(INT_MAX));
         assert(mWh != INT_MAX);
         assert(mWw != INT_MAX);
         assert(mWindow != nullptr);
     }
-    void SetDefaultBoundedRectangle() { mBoundedRectangleId = e.SetBoundedRect(mPosition, mDimension, mDepthValue); }
+    void SetDefaultBoundedRectangle()
+    {
+        std::cout << "Set Bounded Rect 2d \n" << std::endl;
+        mBoundedRectangleId = e.SetBoundedRect(mPosition, mDimension, mDepthValue);
+    }
     void UpdateDefaultBoundedRectangle()
     {
         Jkr::BoundRect2D Rect { .mXy = mPosition, .mWh = mDimension };
@@ -64,7 +68,7 @@ public:
         mTransformMatrix = glm::translate(mTransformMatrix, glm::vec3(mPosition.x, mPosition.y, 0));
     }
     SETTER SetDepthValue(uint32_t inDepthValue) { mDepthValue = inDepthValue; }
-    GETTER& GetDepthValue() { return mDepthValue; }
+    GETTER GetDepthValue() { return mDepthValue; }
     GETTER IsFocused() const { return isFocused; }
     GETTER IsMouseOnTop() const { return e.IsMouseWithinAtTopOfStack(mBoundedRectangleId, mDepthValue); }
     GETTER IsMouseWithin() const { return e.IsMouseWithin(mBoundedRectangleId, mDepthValue); }
@@ -96,6 +100,11 @@ public:
     SETTER SetWindow(Window* inWindow, uint32_t inW, uint32_t inH)
     {
         mWindow = inWindow;
+        mWw = inW;
+        mWh = inH;
+    }
+    SETTER SetWindowDimensions(float inW, float inH)
+    {
         mWw = inW;
         mWh = inH;
     }

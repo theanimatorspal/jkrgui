@@ -66,8 +66,8 @@ void Jkr::SDLWindow::SetWindowBorderless()
 	SDL_SetWindowHitTest(mSDLWindowPtr, HitTestCallback, 0);
 }
 
-Jkr::SDLWindow::SDLWindow(std::string inName, int inHeight, int inWidth)
-	: mName(std::move(inName)),
+Jkr::SDLWindow::SDLWindow(std::string_view inName, int inHeight, int inWidth)
+	: mName(inName),
 	mHeight(inHeight),
 	mWidth(inWidth)
 {
@@ -124,8 +124,8 @@ void Jkr::SDLWindow::Minimize()
 }
 
 
-Jkr::Window::Window(const Instance& inInstance, std::string inTitle, int inHeight, int inWidth)
-	: SDLWindow(std::move(inTitle), inHeight, inWidth),
+Jkr::Window::Window(const Instance& inInstance, std::string_view inTitle, int inHeight, int inWidth)
+	: SDLWindow(inTitle, inHeight, inWidth),
 	mInstance(inInstance),
 	mSurface(mInstance.GetVulkanInstance(), mSDLWindowPtr),
 	mSwapChain(mInstance.GetDevice(),

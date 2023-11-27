@@ -12,12 +12,10 @@ namespace Jkr::Renderer
 		_2d(const Instance& inInstance, Window& inCompatibleWindow, ResourceManager& inResMan)
 			: ln(inInstance, inCompatibleWindow, inResMan.GetLineRendererCache()),
 			sh(inInstance, inCompatibleWindow, inResMan.GetShapePainterCaches()),
-			ft(inInstance, inCompatibleWindow, inResMan.GetFastTextRendererCache()),
 			bt(inInstance, inCompatibleWindow, inResMan.GetBestTextRendererCache()) { }
 
 		Line ln;
 		Shape sh;
-		FastText ft;
 		BestText bt;
 	};
 }

@@ -124,7 +124,7 @@ public:
             }
         }
 
-        if (e.IsLeftButtonPressed() and SelectedButtonIndex.has_value()) {
+        if (e.IsLeftButtonPressed() and SelectedButtonIndex.has_value() and this->IsFocused()) {
             mChosenItem = SelectedButtonIndex.value() + mCurrentItemViewPosition.r;
         }
     }

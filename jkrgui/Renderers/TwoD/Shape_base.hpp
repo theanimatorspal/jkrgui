@@ -15,22 +15,19 @@ namespace Jkr
 	class Generator
 	{
 	public:
-		using Arguments = std::variant<
-			glm::uvec2,
-			std::span<glm::uvec2>,
-			uint32_t
-		>;
-		Generator(Shapes inShape, Arguments inArgs);
-		void operator()(int inX,
-			int inY,
-			uint32_t inZ,
-			uint32_t inStartVertexIndex,
-			uint32_t inStartIndexIndex,
-			std::vector<kstd::Vertex>& modVertices,
-			std::vector<uint32_t>& modIndices
-			);
-		Shapes GetShape() const { return mShape; }
-		uint32_t GetVertexCount() const { return mVertexCount; }
+        using Arguments
+            = std::variant<glm::uvec2, std::span<glm::uvec2>, std::span<glm::vec2>, uint32_t>;
+        Generator() = default;
+        Generator(Shapes inShape, Arguments inArgs);
+        void operator()(int inX,
+                        int inY,
+                        uint32_t inZ,
+                        uint32_t inStartVertexIndex,
+                        uint32_t inStartIndexIndex,
+                        std::vector<kstd::Vertex> &modVertices,
+                        std::vector<uint32_t> &modIndices);
+        Shapes GetShape() const { return mShape; }
+        uint32_t GetVertexCount() const { return mVertexCount; }
 		uint32_t GetIndexCount() const { return mIndexCount; }
 	private:
 		Arguments mArgs;

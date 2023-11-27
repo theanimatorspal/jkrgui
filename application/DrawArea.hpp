@@ -97,10 +97,14 @@ public:
         bool isLeftButtonPressed = e.IsLeftButtonPressed();
 
         auto selected = mContextMenu->GetSelectedItem();
-        if (isLeftButtonPressed and selected.has_value()) {
-			AddNodeViewByIndex(selected.value(), glm::vec2(0, 0), ContextMenuItems[selected.value()]);
+        if (isLeftButtonPressed and selected.has_value() and mContextMenu->IsFocused()
+            and mIsContextMenuVisible) {
+            AddNodeViewByIndex(selected.value(),
+                               glm::vec2(0, 0),
+                               ContextMenuItems[selected.value()]);
             mContextMenu->ResetSelectedItem();
-			mIsContextMenuVisible = false;
+            mContextMenu->SetFocus(false);
+            mIsContextMenuVisible = false;
         }
 
         auto ev = e.GetEventHandle();

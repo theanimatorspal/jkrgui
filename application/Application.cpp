@@ -35,7 +35,6 @@ int main()
     Window.SetUpdateCallBack(Update);
 
     auto Dispatch = [&](void* data) {
-        TwoD.ft.Dispatch(Window);
         TwoD.ln.Dispatch(Window);
         TwoD.sh.Dispatch(Window);
         TwoD.bt.Dispatch(Window);

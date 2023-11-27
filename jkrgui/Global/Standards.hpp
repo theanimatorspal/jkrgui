@@ -1,32 +1,35 @@
 #pragma once
-#include <glm/glm.hpp>
 #include "Config.hpp"
+#include <glm/glm.hpp>
 #define GETTER inline auto
 #define SETTER inline void
 /*
 CONFIGURATION
 */
 
-namespace ksai::kstd
-{
-	struct Vertex
-	{
-		glm::vec3 mPosition = { 0, 0, 0 };
-		glm::vec2 mTextureCoordinates = { 0, 0 };
-	};
+namespace ksai::kstd {
+struct Vertex {
+    glm::vec3 mPosition = { 0, 0, 0 };
+    glm::vec2 mTextureCoordinates = { 0, 0 };
+};
 
-	struct VertexEXT
-	{
-		glm::vec3 mPosition = { 0, 0, 0 };
-		glm::vec2 mTextureCoordinates = { 0, 0 };
-		glm::ivec3 mIvec3 = {0, 0, 0};
-	};
+struct VertexEXT {
+    glm::vec3 mPosition = { 0, 0, 0 };
+    glm::vec2 mTextureCoordinates = { 0, 0 };
+    glm::ivec3 mIvec3 = { 0, 0, 0 };
+};
 
-	struct LineVertex
-	{
-		glm::vec3 mPosition = { 0, 0, 0 };
-	};
+struct LineVertex {
+    glm::vec3 mPosition = { 0, 0, 0 };
+};
 
-	using ui32 = uint32_t;
-	using f32 = float_t;
+struct Vertex3D {
+    glm::vec3 mPosition;
+    glm::vec3 mNormal;
+    glm::vec2 mUV;
+    glm::vec3 mColor;
+};
+
+using ui32 = uint32_t;
+using f32 = float_t;
 }

@@ -7,7 +7,7 @@
 namespace Jkr {
 	class SDLWindow {
 	public:
-		SDLWindow(std::string inName, int inHeight, int inWidth);
+		SDLWindow(std::string_view inName, int inHeight, int inWidth);
 		~SDLWindow();
 		void SetSize(int inWidth, int inHeight);
 		void SetTitle(std::string inString) const;
@@ -35,7 +35,7 @@ namespace Jkr {
 	class Window : public SDLWindow
 	{
 	public:
-		Window(const Instance& inInstance, std::string inTitle, int inHeight, int inWidth);
+		Window(const Instance& inInstance, std::string_view inTitle, int inHeight, int inWidth);
 		~Window() { mInstance.GetDevice().Wait(); }
 		void SetDrawCallBack(const std::function<void(void*)>& inFunction) { mDrawFunction = inFunction; }
 		void SetUpdateCallBack(const std::function<void(void*)>& inFunction) { mUpdateFunction = inFunction; }

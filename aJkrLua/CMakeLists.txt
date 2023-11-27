@@ -9,8 +9,6 @@ file(GLOB app_SRC CONFIGURE_DEPENDS
 
 link_directories(${VULKAN_LIBRARY_PATH})
 
-
-add_executable(aJkrLua ${app_SRC} "testmain.cpp")
-
+add_executable(aJkrLua ${app_SRC} "EntryPoint.cpp")
 
 configure_target(aJkrLua)

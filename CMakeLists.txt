@@ -10,6 +10,7 @@ set(VULKAN_PATH "${VULKAN_SDK}/${VULKAN_VERSION}")
 set(VULKAN_INCLUDE_PATH "${VULKAN_SDK}/${VULKAN_VERSION}/Include/")
 set(VULKAN_LIBRARY_PATH "${VULKAN_SDK}/${VULKAN_VERSION}/Lib/")
 set(CMAKE_BUILD_PARALLEL_LEVEL 8)
+
 #set(CMAKE_CXX_FLAGS "/Od")
 #set(CMAKE_BUILD_TYPE Debug)
 #set(_ITERATOR_DEBUG_LEVEL 0)
@@ -74,6 +75,7 @@ add_subdirectory(aa_unit_testing)
 add_subdirectory(application)
 add_subdirectory(jkrgui)
 add_subdirectory(ksaivulkan)
+add_subdirectory(aJkrLua)
 
 
 
