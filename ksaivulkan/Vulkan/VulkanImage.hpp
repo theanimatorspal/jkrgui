@@ -134,7 +134,7 @@ namespace ksai {
 		{
             mImageProperties.mImageUsage = vk::ImageUsageFlagBits::eStorage
                                            | vk::ImageUsageFlagBits::eTransferSrc;
-            mImageProperties.mImageFormat = vk::Format::eR8G8B8A8Snorm;
+            mImageProperties.mImageFormat = vk::Format::eR8G8B8A8Unorm;
         } else if constexpr (inImageContext == ImageContext::Default) {
             mImageProperties.mImageUsage = vk::ImageUsageFlagBits::eSampled
                                            | vk::ImageUsageFlagBits::eTransferDst;

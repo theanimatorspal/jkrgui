@@ -51,6 +51,33 @@ public:
                        uint32_t inY,
                        uint32_t inZ);
 
+    explicit CustomImagePainter(CustomImagePainter &inPainter,
+                                std::string_view inName,
+                                std::string_view inComputeShaderFunction,
+                                std::string_view inPushConstantSignature)
+        : mInstance(inPainter.mInstance)
+        , mCustomPainterFileName(std::string(inName))
+        , mThreads(inPainter.mThreads)
+    {
+        mComputeStream << gbefore_xyz;
+        mComputeStream << "layout(local_size_x = " << 16 << ", local_size_y = " << 16 << ","
+                       << " local_size_z = " << 1 << ") in;";
+        mComputeStream << inPushConstantSignature;
+        mComputeStream << gafter_xyz;
+        mComputeStream << inComputeShaderFunction;
+        mComputeStream << gend;
+
+        mVertexStream << gbefore_xyz;
+        mVertexStream << inPushConstantSignature;
+        mVertexStream << gmain_function_null;
+
+        mFragmentStream << gbefore_xyz;
+        mFragmentStream << inPushConstantSignature;
+        mFragmentStream << gmain_function_null;
+
+        mCustomPainterCache = MakeUp<PainterCache>(mInstance);
+    }
+
     void Load(Window &inWindow);
 
     void Store(Window &inWindow);
@@ -63,6 +90,12 @@ public:
         mPainter->Dispatch<T>(inPushConstant, inX, inY, inZ);
     }
 
+    template<class T>
+    void Draw(Window &inWindow, T inPushConstant)
+    {
+        Draw<T>(inWindow, inPushConstant, mThreads.x, mThreads.y, mThreads.z);
+    }
+
     GETTER &GetImage() { return mPainterParam->GetStorageImage(); }
     GETTER GetImagePtr() { return mPainterParam->GetStorageImagePtr(); }
 
@@ -73,6 +106,7 @@ private:
     std::ostringstream mComputeStream;
     std::ostringstream mVertexStream;
     std::ostringstream mFragmentStream;
+    glm::vec3 mThreads;
     Up<PainterCache> mCustomPainterCache;
     Up<Painter> mPainter;
     Up<Image> mPainterParam;
@@ -179,6 +213,7 @@ inline CustomImagePainter::CustomImagePainter(const Instance &inInstance,
                                               uint32_t inZ)
     : mInstance(inInstance)
     , mCustomPainterFileName(std::string(inName))
+    , mThreads(inX, inY, inZ)
 {
     mComputeStream << gbefore_xyz;
     mComputeStream << "layout(local_size_x = " << 16 << ", local_size_y = " << 16 << ","

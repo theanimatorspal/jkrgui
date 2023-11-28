@@ -5,7 +5,7 @@
 #include <Renderers/TwoD/2d.hpp>
 #include <Vendor/Tracy/tracy/Tracy.hpp>
 
-// #define SOL_ALL_SAFETIES_ON 1
+//#define SOL_ALL_SAFETIES_ON 1
 
 #include <Vendor/sol/sol.hpp>
 #include <Window.hpp>
@@ -431,7 +431,10 @@ void BindMathFunctions(sol::state& lua)
     lua.set_function("scale", sol::overload([](glm::mat4 inmatrix, glm::vec3 invector) -> glm::mat4 {
                          return glm::translate(inmatrix, invector);
                      }));
-    lua.set_function("identity_matrix", []() -> glm::mat4 { return glm::identity<glm::mat4>(); });
+    lua.set_function("get_identity_matrix", []() -> glm::mat4 {
+        {};
+        return glm::identity<glm::mat4>();
+    });
 }
 
 using namespace std;
@@ -497,6 +500,12 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
     CreateGLMBindings(l);
     BindMathFunctions(l);
     CreateSDLEventBindings(l);
+
+    l.set_function("get_window_dimensions", [&]() -> vec2 {
+        auto d = w.GetWindowSize();
+        return vec2(d.first, d.second);
+    });
+
     l.new_usertype<_2d>("renderer", "get", [&]() -> _2d & {
         std::cout << "return renderer" << std::endl;
         return td;
@@ -539,15 +548,15 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
 
     );
 
-    l.new_usertype<Jkr::BoundRect2D>("bound_rect2d",
-                                     "is_mouse_within",
-                                     &Jkr::BoundRect2D::IsPointWithin,
-                                     "new",
-                                     [](vec2 xy, vec2 wh) {
-                                         std::cout << "new  bound rect" << std::endl;
-                                         return Jkr::BoundRect2D{.mXy = xy, .mWh = wh};
-                                     }
-    );
+    l.new_usertype<Jkr::BoundRect2D>(
+        "bound_rect2d",
+        sol::call_constructor,
+        [](vec2 xy, vec2 wh) {
+            std::cout << "new  bound rect" << std::endl;
+            return Jkr::BoundRect2D{.mXy = xy, .mWh = wh};
+        },
+        "is_mouse_within",
+        &Jkr::BoundRect2D::IsPointWithin);
 
     l.set_function("print_bound_rect2d",
                    [](Jkr::BoundRect2D inb) { std::cout << "vec(" << inb.mXy.x << std::endl; });
@@ -560,20 +569,18 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
                                       Jkr::Shapes::Circle);
 
     l.new_usertype<Jkr::Generator>("generator",
-                                   "new",
-                                   sol::overload([](Jkr::Shapes shape, glm::vec2 wh) {
-                                       std::cout << "gene" << '\n';
+                                   sol::call_constructor,
+                                   sol::factories([](Jkr::Shapes shape, glm::vec2 wh) {
+                                       cout << "generator" << endl;
                                        return Jkr::Generator(shape, glm::uvec2(wh));
-                                   })
-
-    );
+                                   }));
 
     /* Renderers */
     {
         auto r = l["r"].get_or_create<sol::table>();
 
         r.new_usertype<Line>(
-            "l",
+            "ln",
 
             "add",
             [&](vec2 p1, vec2 p2, float inDepth) -> int {
@@ -650,15 +657,94 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
                 return id;
             },
 
+            "add_image",
+            [&](int Width, int Height) -> int {
+                uint32_t id;
+                td.sh.AddImage(Width, Height, id);
+                return id;
+            },
+
+            "copy_image",
+            [&](int id, CustomImagePainter &inPainter) { td.sh.CopyToImage(id, inPainter); },
+
             "bind_fill_mode",
-            [&](FillType fill) { td.sh.BindFillMode(fill, w); },
+            [&](FillType fill) {
+                {};
+                td.sh.BindFillMode(fill, w);
+            },
 
             "bind",
-            [&]() { td.sh.BindShapes(w); },
+            [&]() {
+                {};
+                td.sh.BindShapes(w);
+            },
 
             "draw",
             [&](vec4 color, int ww, int wh, int sid, int eid, glm::mat4 matrix) {
                 td.sh.Draw(w, color, ww, wh, sid, eid, matrix);
+            },
+
+            "bind_image",
+            [&](int id) {
+                {};
+                td.sh.BindImage(w, id);
+            });
+
+        struct push_constant
+        {
+            vec4 mPosDimen;
+            vec4 mColor;
+            vec4 mParam;
+        };
+
+        auto pc = R"""(
+
+layout(push_constant, std430) uniform pc {
+	vec4 mPosDimen;
+	vec4 mColor;
+	vec4 mParam;
+} push;
+
+)""";
+        r.new_usertype<CustomImagePainter>(
+            "image_painter",
+            sol::call_constructor,
+            sol::factories([&](std::string fileName, std::string inShaderCode, vec3 in_threads) {
+                return CustomImagePainter(i,
+                                          fileName,
+                                          inShaderCode,
+                                          pc,
+                                          in_threads.x,
+                                          in_threads.y,
+                                          in_threads.z);
+            }),
+
+            "make_from",
+            [&](CustomImagePainter &inP, std::string fileName, std::string inShaderCode) {
+                return CustomImagePainter(inP, fileName, inShaderCode, pc);
+            },
+
+            "load",
+            [&](CustomImagePainter &inP) {
+                cout << "Load CustomImagePainter" << endl;
+                inP.Load(w);
+            },
+
+            "store",
+            [&](CustomImagePainter &inP) {
+                cout << "Store CustomImagePainter" << endl;
+                inP.Store(w);
+            },
+
+            "paint",
+            [&](CustomImagePainter &inP, vec4 inPosDimen, vec4 inColor, vec4 inParam) {
+                push_constant push{.mPosDimen = inPosDimen, .mColor = inColor, .mParam = inParam};
+                inP.Draw<push_constant>(w, push);
+            },
+
+            "register_image",
+            [&](CustomImagePainter &inP, int inHeight, int inWidth) {
+                inP.RegisterImageToBeDrawnTo(w, inHeight, inWidth);
             }
 
         );
@@ -720,6 +806,8 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
     sol::function draw_callback = l["Draw"];
     sol::function load_callback = l["Load"];
     sol::function event_callback = l["Event"];
+    sol::function disptach_callback = l["Dispatch"];
+    sol::function update_callback = l["Update"];
 
     auto Event = [&](void *) { event_callback(); };
     em.SetEventCallBack(Event);
@@ -727,9 +815,11 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
         draw_callback();
     };
     w.SetDrawCallBack(Draw);
-    auto Update = [&](void* data) {};
+    auto Update = [&](void *data) { update_callback(); };
     w.SetUpdateCallBack(Update);
-    auto Dispatch = [&](void* data) {
+    auto Dispatch = [&](void *data) {
+        disptach_callback();
+
         td.ln.Dispatch(w);
         td.sh.Dispatch(w);
         td.bt.Dispatch(w);

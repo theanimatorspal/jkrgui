@@ -29,8 +29,8 @@ int main()
                                                    "file.bin",
 
                                                    R"""(
-
-imageStore(storageImage, to_draw_at, vec4(push.mColor.x, push.mColor.y, push.mColor.z, 1));
+float color =  distance(xy, vec2(0, 0)) - 0.5;
+imageStore(storageImage, to_draw_at, vec4(push.mColor.x * color, push.mColor.y * color, push.mColor.z * color, 1 * color));
 
 )""",
                                                    R"""(
@@ -119,9 +119,9 @@ layout(push_constant, std430) uniform pc {
 
         sr.BindFillMode(Jkr::Renderer::FillType::Image, Window);
         sr.BindImage(Window, image_to_draw_id);
-        sr.Draw(Window, glm::vec4(1.0f, 0.3f, 0.5f, 1.0f), ws.first, ws.second, sid1, sid1, matrixF);
+        sr.Draw(Window, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), ws.first, ws.second, sid1, sid1, matrixF);
         matrixF = glm::translate(matrixF, glm::vec3(-5.0f * i, 0.0f, 0.0f));
-        sr.Draw(Window, glm::vec4(1.0f, 0.3f, 0.5f, 1.0f), ws.first, ws.second, sid1, sid1, matrixF);
+        sr.Draw(Window, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), ws.first, ws.second, sid1, sid1, matrixF);
         sr.BindFillMode(Jkr::Renderer::FillType::ContinousLine, Window);
         sr.Draw(Window, glm::vec4(1.0f, 0.3f, 0.5f, 1.0f), ws.first, ws.second, bez_id, bez_id, glm::identity<glm::mat4>());
         bst.Bind(Window);
