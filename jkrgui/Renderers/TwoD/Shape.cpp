@@ -1,4 +1,7 @@
 #include "Shape.hpp"
+#include "VulkanImage.hpp"
+#include "vulkan/vulkan_core.h"
+#include "vulkan/vulkan_enums.hpp"
 #include <glm/ext/matrix_clip_space.hpp>
 
 Jkr::Renderer::Shape::Shape(const Instance& inInstance, Window& inCompatibleWindow, std::unordered_map<FillType, Up<PainterCache>>& inPainterCaches) : mInstance(inInstance), mPainterCaches(inPainterCaches)
@@ -89,7 +92,7 @@ void Jkr::Renderer::Shape::AddImage(uint32_t inWidth, uint32_t inHeight, uint32_
     Up<ImageType> Image = MakeUp<ImageType>(mInstance);
     std::vector<uint8_t> image;
     image.resize(inWidth * inHeight * 4);
-    Image->Setup(reinterpret_cast<void **>(image.data()), inWidth, inHeight, 4);
+    Image->Setup(reinterpret_cast<void **>(&image.data()), inWidth, inHeight, 4);
     Image->Register(0, 0, 0, *Desset);
     outIndex = mImages.size();
     mImages.push_back(std::move(Image));
@@ -98,11 +101,113 @@ void Jkr::Renderer::Shape::AddImage(uint32_t inWidth, uint32_t inHeight, uint32_
     Up<ImageType> Image = MakeUp<ImageType>(mInstance);
     std::vector<uint8_t> image;
     image.resize(inWidth * inHeight * 4);
-    Image->Setup(reinterpret_cast<void **>(image.data()), inWidth, inHeight, 4);
+    void *data = image.data();
+    Image->Setup(&data, inWidth, inHeight, 4);
     uint32_t CurrentIndex = mImages.size();
     Image->Register(0, 0, CurrentIndex, *mVarDesVulkanDescriptorSet);
     outIndex = mImages.size();
     mImages.push_back(std::move(Image));
+#endif
+}
+
+void Jkr::Renderer::Shape::CopyToImage(uint32_t inId,
+                                       uint32_t inWidth,
+                                       uint32_t inHeight,
+                                       Jkr::Renderer::CustomImagePainter &inPainter)
+{
+    mImagesToBeCopiedIds.push_back(inId);
+    mImagesToBeCopiedFrom.push_back(inPainter.GetImagePtr());
+
+#ifdef JKR_USE_VARIABLE_DES_INDEXING
+    mImageCopyCommands.push_back([&](const ksai::VulkanCommandBuffer &inCmd,
+                                     ksai::VulkanImageBase &inSrcImage,
+                                     ksai::VulkanImageBase &inDstImage) {
+        auto srcImgProp = inSrcImage.GetImageProperty();
+        auto dstImgProp = inDstImage.GetImageProperty();
+        vk::ImageSubresourceLayers SrcSubresource(srcImgProp.mImageAspect,
+                                                  0,
+                                                  0,
+                                                  srcImgProp.mArrayLayers);
+        vk::ImageSubresourceLayers DstSubresource(dstImgProp.mImageAspect,
+                                                  0,
+                                                  0,
+                                                  dstImgProp.mArrayLayers);
+        vk::ImageCopy ImageCopy(SrcSubresource,
+                                vk::Offset3D(0, 0, 0),
+                                DstSubresource,
+                                vk::Offset3D(0, 0, 0),
+                                vk::Extent3D(srcImgProp.mExtent, 1));
+
+        vk::ImageSubresourceRange src_SubRange(SrcSubresource.aspectMask,
+                                               0,
+                                               srcImgProp.mMipLevels,
+                                               0,
+                                               srcImgProp.mArrayLayers);
+
+        /* Source Image From General To Src Optimal  */
+        vk::ImageMemoryBarrier src_Barrier(vk::AccessFlagBits::eMemoryWrite,
+                                           vk::AccessFlagBits::eMemoryRead,
+                                           vk::ImageLayout::eGeneral,
+                                           vk::ImageLayout::eTransferSrcOptimal,
+                                           VK_QUEUE_FAMILY_IGNORED,
+                                           VK_QUEUE_FAMILY_IGNORED,
+                                           inSrcImage.GetImageHandle(),
+                                           src_SubRange);
+        inCmd.GetCommandBufferHandle().pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader,
+                                                       vk::PipelineStageFlagBits::eTransfer,
+                                                       vk::DependencyFlagBits::eByRegion,
+                                                       {},
+                                                       {},
+                                                       src_Barrier);
+
+        /* Destination Image From General To Dst Optimal  */
+        inDstImage.CmdTransitionImageLayout(inCmd,
+                                            vk::ImageLayout::eGeneral,
+                                            vk::ImageLayout::eTransferDstOptimal,
+                                            vk::PipelineStageFlagBits::eTransfer,
+                                            vk::PipelineStageFlagBits::eTransfer,
+                                            vk::AccessFlagBits::eNone,
+                                            vk::AccessFlagBits::eMemoryWrite);
+
+        inCmd.GetCommandBufferHandle().copyImage(inSrcImage.GetImageHandle(),
+                                                 vk::ImageLayout::eTransferSrcOptimal,
+                                                 inDstImage.GetImageHandle(),
+                                                 vk::ImageLayout::eTransferDstOptimal,
+                                                 ImageCopy);
+
+        /* Destination Image From Dst Optimal To General  */
+        vk::ImageSubresourceRange dst_SubRange(DstSubresource.aspectMask,
+                                               0,
+                                               dstImgProp.mMipLevels,
+                                               0,
+                                               dstImgProp.mArrayLayers);
+        vk::ImageMemoryBarrier dst_Barrier(vk::AccessFlagBits::eMemoryWrite,
+                                           vk::AccessFlagBits::eMemoryRead,
+                                           vk::ImageLayout::eTransferDstOptimal,
+                                           vk::ImageLayout::eGeneral,
+                                           VK_QUEUE_FAMILY_IGNORED,
+                                           VK_QUEUE_FAMILY_IGNORED,
+                                           inDstImage.GetImageHandle(),
+                                           dst_SubRange);
+        inCmd.GetCommandBufferHandle().pipelineBarrier(vk::PipelineStageFlagBits::eTransfer,
+                                                       vk::PipelineStageFlagBits::eFragmentShader,
+                                                       vk::DependencyFlagBits::eByRegion,
+                                                       {},
+                                                       {},
+                                                       dst_Barrier);
+
+        /* Source Image From Src Optimal To General  */
+        inSrcImage.CmdTransitionImageLayout(inCmd,
+                                            vk::ImageLayout::eTransferSrcOptimal,
+                                            vk::ImageLayout::eGeneral,
+                                            vk::PipelineStageFlagBits::eTransfer,
+                                            vk::PipelineStageFlagBits::eTransfer,
+                                            vk::AccessFlagBits::eMemoryRead,
+                                            vk::AccessFlagBits::eNone);
+    });
+
+#else
+/*TODO: Yet To implement */
 #endif
 }
 
@@ -150,9 +255,22 @@ void Jkr::Renderer::Shape::Dispatch(Window& inWindow)
 			sb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold)
 		);
 	}
-#else
-
 #endif
+
+    for (uint32_t i = 0; i < mImagesToBeCopiedIds.size(); i++) {
+        auto &func = mImageCopyCommands[i];
+        auto id = mImagesToBeCopiedIds[i];
+        auto &srcImage = mImagesToBeCopiedFrom[i];
+
+        const ksai::VulkanCommandBuffer &cmd = mInstance
+                                                   .GetCommandBuffers()[inWindow.GetCurrentFrame()];
+        func(cmd, *srcImage, mImages[id]->GetUniformImage());
+    }
+    if (mImagesToBeCopiedIds.size() != 0) {
+        mImagesToBeCopiedFrom.clear();
+        mImageCopyCommands.clear();
+        mImagesToBeCopiedIds.clear();
+    }
 }
 
 void Jkr::Renderer::Shape::BindFillMode(FillType inFillType, Window& inWindow)

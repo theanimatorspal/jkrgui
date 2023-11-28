@@ -47,6 +47,7 @@ layout(push_constant, std430) uniform pc {
                                                    1);
 
     using namespace glm;
+
     struct pc
     {
         vec4 mPosDimen;
@@ -56,8 +57,11 @@ layout(push_constant, std430) uniform pc {
     pc push_constant = {.mPosDimen = vec4(0, 0, 1, 1),
                         .mColor = vec4(1, 1, 0, 1),
                         .mParam = vec4(0)};
+    uint32_t image_to_draw_id;
+    sr.AddImage(100, 100, image_to_draw_id);
     ImagePainter.Store(Window);
     ImagePainter.RegisterImageToBeDrawnTo(Window, 100, 100);
+    sr.CopyToImage(image_to_draw_id, ImagePainter);
 
     bst.AddFontFace("font.ttf", 8, Font_id);
     bst.AddText("Wow", 100, 300, 5, BestText_id, BestText_length);
@@ -93,12 +97,12 @@ layout(push_constant, std430) uniform pc {
     ftx.AddText("Fucko", 500, 300, 5, id);
     ftx.UpdateText(id, "Hello", 500, 300, 5);
 
-    auto Dispatch = [&](void* data) {
+    auto Dispatch = [&](void *data) {
+        ImagePainter.Draw<pc>(Window, push_constant, 16, 16, 1);
         lr.Dispatch(Window);
         ftx.Dispatch(Window);
         sr.Dispatch(Window);
         bst.Dispatch(Window);
-        ImagePainter.Draw<pc>(Window, push_constant, 16, 16, 1);
     };
 
     static int i = 0;
@@ -114,7 +118,7 @@ layout(push_constant, std430) uniform pc {
         matrixF = glm::translate(matrixF, glm::vec3(1.0f * i, 0.0f, 0.0f));
 
         sr.BindFillMode(Jkr::Renderer::FillType::Image, Window);
-        sr.BindImage(Window, imageId);
+        sr.BindImage(Window, image_to_draw_id);
         sr.Draw(Window, glm::vec4(1.0f, 0.3f, 0.5f, 1.0f), ws.first, ws.second, sid1, sid1, matrixF);
         matrixF = glm::translate(matrixF, glm::vec3(-5.0f * i, 0.0f, 0.0f));
         sr.Draw(Window, glm::vec4(1.0f, 0.3f, 0.5f, 1.0f), ws.first, ws.second, sid1, sid1, matrixF);

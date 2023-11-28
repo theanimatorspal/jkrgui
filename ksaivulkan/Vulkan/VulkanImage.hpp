@@ -51,7 +51,9 @@ namespace ksai {
 		GETTER& GetImageExtent() const { return mImageProperties.mExtent; }
 		GETTER GetInitialImageLayout() const { return mImageProperties.mInitialImageLayout; }
 		GETTER GetAspect() const { return mImageProperties.mImageAspect; }
-	public:
+        GETTER GetImageProperty() const { return mImageProperties; }
+
+    public:
 		template<ImageContext inImageContext>
 		void FillImageProperties();
 		void GetMemoryTypeIndex(vk::MemoryPropertyFlagBits inFlag, vk::Image inImage, vk::DeviceSize& outSize, uint32_t& outIndex);
@@ -130,14 +132,15 @@ namespace ksai {
 		}
 		else if constexpr (inImageContext == ImageContext::Storage)
 		{
-			mImageProperties.mImageUsage = vk::ImageUsageFlagBits::eStorage;
-		}
-		else if constexpr (inImageContext == ImageContext::Default)
-		{
-			mImageProperties.mImageUsage = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst;
-			mImageProperties.mImageFormat = vk::Format::eR8G8B8A8Srgb;
-		}
-	}
+            mImageProperties.mImageUsage = vk::ImageUsageFlagBits::eStorage
+                                           | vk::ImageUsageFlagBits::eTransferSrc;
+            mImageProperties.mImageFormat = vk::Format::eR8G8B8A8Snorm;
+        } else if constexpr (inImageContext == ImageContext::Default) {
+            mImageProperties.mImageUsage = vk::ImageUsageFlagBits::eSampled
+                                           | vk::ImageUsageFlagBits::eTransferDst;
+            mImageProperties.mImageFormat = vk::Format::eR8G8B8A8Srgb;
+        }
+    }
 }
 
 namespace ksai {

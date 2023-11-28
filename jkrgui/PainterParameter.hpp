@@ -73,8 +73,9 @@ namespace Jkr
 		{
 			PainterParameterBase::Setup(mSampler, mStorageImagePtr, inWidth, inHeight);
 		}
-		GETTER& GetStorageImage() const { return *mStorageImagePtr; }
-		GETTER& GetStorageImageSampler() const { return *mSampler; }
+        GETTER GetStorageImagePtr() const { return mStorageImagePtr.get(); }
+        GETTER &GetStorageImage() const { return *mStorageImagePtr; }
+        GETTER& GetStorageImageSampler() const { return *mSampler; }
 	private:
 		Up<StorageImageType> mStorageImagePtr;
 		Up<VulkanSampler> mSampler;
