@@ -1,0 +1,176 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2,
+						3,
+						4,
+						5
+					],
+					"jsonFile" : "directory-.-RelWithDebInfo-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"projectIndex" : 0,
+					"source" : "."
+				},
+				{
+					"build" : "aa_unit_testing",
+					"jsonFile" : "directory-aa_unit_testing-RelWithDebInfo-daf7b1913ea911f7c40b.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "aa_unit_testing",
+					"targetIndexes" : 
+					[
+						1
+					]
+				},
+				{
+					"build" : "application",
+					"jsonFile" : "directory-application-RelWithDebInfo-42f45a6354a6cfac8278.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "application",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"build" : "jkrgui",
+					"jsonFile" : "directory-jkrgui-RelWithDebInfo-1790877846041b92e341.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "jkrgui",
+					"targetIndexes" : 
+					[
+						3
+					]
+				},
+				{
+					"build" : "ksaivulkan",
+					"jsonFile" : "directory-ksaivulkan-RelWithDebInfo-2fe019b427ee0fa34f26.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "ksaivulkan",
+					"targetIndexes" : 
+					[
+						4
+					]
+				},
+				{
+					"build" : "aJkrLua",
+					"jsonFile" : "directory-aJkrLua-RelWithDebInfo-405f519357c5577a804e.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "aJkrLua",
+					"targetIndexes" : 
+					[
+						0
+					]
+				}
+			],
+			"name" : "RelWithDebInfo",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					],
+					"name" : "jkrengine",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 5,
+					"id" : "aJkrLua::@7ab2c1573dc07b256b10",
+					"jsonFile" : "target-aJkrLua-RelWithDebInfo-3df30bfbc4d3575f9470.json",
+					"name" : "aJkrLua",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "aa_unit_testing::@3edf9a65e1cb61279143",
+					"jsonFile" : "target-aa_unit_testing-RelWithDebInfo-d655a630f4306bcd639a.json",
+					"name" : "aa_unit_testing",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "application::@8badf0d542dc2e21c899",
+					"jsonFile" : "target-application-RelWithDebInfo-31b93b5e888e23d19db5.json",
+					"name" : "application",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "jkrgui::@bdf1634a9c421c1b76ea",
+					"jsonFile" : "target-jkrgui-RelWithDebInfo-2c9a10650d101fe8c0b5.json",
+					"name" : "jkrgui",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "ksaivulkan::@469bd9ebbf23ce0bed3a",
+					"jsonFile" : "target-ksaivulkan-RelWithDebInfo-57668bdc77396f7d2e11.json",
+					"name" : "ksaivulkan",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release with debug",
+		"source" : "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 5
+	}
+}

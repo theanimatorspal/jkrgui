@@ -1,0 +1,151 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2,
+						3,
+						4
+					],
+					"jsonFile" : "directory-.-Release-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"projectIndex" : 0,
+					"source" : "."
+				},
+				{
+					"build" : "aa_unit_testing",
+					"jsonFile" : "directory-aa_unit_testing-Release-daf7b1913ea911f7c40b.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "aa_unit_testing",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "application",
+					"jsonFile" : "directory-application-Release-42f45a6354a6cfac8278.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "application",
+					"targetIndexes" : 
+					[
+						1
+					]
+				},
+				{
+					"build" : "jkrgui",
+					"jsonFile" : "directory-jkrgui-Release-1790877846041b92e341.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "jkrgui",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"build" : "ksaivulkan",
+					"jsonFile" : "directory-ksaivulkan-Release-2fe019b427ee0fa34f26.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "ksaivulkan",
+					"targetIndexes" : 
+					[
+						3
+					]
+				}
+			],
+			"name" : "Release",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4
+					],
+					"name" : "jkrengine",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 1,
+					"id" : "aa_unit_testing::@3edf9a65e1cb61279143",
+					"jsonFile" : "target-aa_unit_testing-Release-ec7f122499ddaa0214d0.json",
+					"name" : "aa_unit_testing",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "application::@8badf0d542dc2e21c899",
+					"jsonFile" : "target-application-Release-8280b30fe0729abff473.json",
+					"name" : "application",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "jkrgui::@bdf1634a9c421c1b76ea",
+					"jsonFile" : "target-jkrgui-Release-2c3517671a9366510f9d.json",
+					"name" : "jkrgui",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "ksaivulkan::@469bd9ebbf23ce0bed3a",
+					"jsonFile" : "target-ksaivulkan-Release-aac1a7ed8e332d8c78f8.json",
+					"name" : "ksaivulkan",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release",
+		"source" : "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 5
+	}
+}

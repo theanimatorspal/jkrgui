@@ -1,0 +1,760 @@
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineSystem.cmake:204 (message)"
+      - "CMakeLists.txt:18 (project)"
+    message: |
+      The system is: Windows - 10.0.22621 - AMD64
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCCompiler.cmake:123 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:18 (project)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+      Compiler: C:/Program Files/LLVM/bin/clang-cl.exe 
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CMakeCCompilerId.exe"
+      
+      The C compiler identification is Clang, found in:
+        C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/3.26.4-msvc4/CompilerIdC/CMakeCCompilerId.exe
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompilerId.cmake:1153 (message)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompilerId.cmake:221 (CMAKE_DETERMINE_MSVC_SHOWINCLUDES_PREFIX)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCCompiler.cmake:123 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:18 (project)"
+    message: |
+      Detecting C compiler /showIncludes prefix:
+        Note: including file: ./foo.h
+        
+      Found prefix "Note: including file: "
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:18 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+      Compiler: C:/Program Files/LLVM/bin/clang-cl.exe 
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CMakeCXXCompilerId.exe"
+      
+      The CXX compiler identification is Clang, found in:
+        C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/3.26.4-msvc4/CompilerIdCXX/CMakeCXXCompilerId.exe
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompilerId.cmake:1153 (message)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompilerId.cmake:221 (CMAKE_DETERMINE_MSVC_SHOWINCLUDES_PREFIX)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:18 (project)"
+    message: |
+      Detecting CXX compiler /showIncludes prefix:
+        Note: including file: ./foo.h
+        
+      Found prefix "Note: including file: "
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompilerABI.cmake:57 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:18 (project)"
+    checks:
+      - "Detecting C compiler ABI info"
+    directories:
+      source: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-x93rsf"
+      binary: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-x93rsf"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_C_FLAGS_DEBUG: "/MDd /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+      CMAKE_MSVC_DEBUG_INFORMATION_FORMAT: "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>"
+    buildResult:
+      variable: "CMAKE_C_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-x93rsf
+        
+        Run Build Command(s):C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe -v cmTC_458cf && [1/2] C:\\PROGRA~1\\LLVM\\bin\\clang-cl.exe  /nologo   /DWIN32 /D_WINDOWS /W3  /MDd /Ob0 /Od /RTC1 -Zi /showIncludes /FoCMakeFiles\\cmTC_458cf.dir\\CMakeCCompilerABI.c.obj /FdCMakeFiles\\cmTC_458cf.dir\\ -c -- "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\share\\cmake-3.26\\Modules\\CMakeCCompilerABI.c"
+        [2/2] cmd.exe /C "cd . && "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\\cmTC_458cf.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\LLVM\\bin\\lld-link.exe /nologo CMakeFiles\\cmTC_458cf.dir\\CMakeCCompilerABI.c.obj  /out:cmTC_458cf.exe /implib:cmTC_458cf.lib /pdb:cmTC_458cf.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console   && cd ."
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompilerABI.cmake:57 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:18 (project)"
+    checks:
+      - "Detecting CXX compiler ABI info"
+    directories:
+      source: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-8o4jg3"
+      binary: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-8o4jg3"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/MDd /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+      CMAKE_MSVC_DEBUG_INFORMATION_FORMAT: "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>"
+    buildResult:
+      variable: "CMAKE_CXX_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-8o4jg3
+        
+        Run Build Command(s):C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe -v cmTC_0985a && [1/2] C:\\PROGRA~1\\LLVM\\bin\\clang-cl.exe  /nologo -TP   /DWIN32 /D_WINDOWS /W3 /GR /EHsc  /MDd /Ob0 /Od /RTC1 -std:c++20 -Zi /showIncludes /FoCMakeFiles\\cmTC_0985a.dir\\CMakeCXXCompilerABI.cpp.obj /FdCMakeFiles\\cmTC_0985a.dir\\ -c -- "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\share\\cmake-3.26\\Modules\\CMakeCXXCompilerABI.cpp"
+        [2/2] cmd.exe /C "cd . && "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\\cmTC_0985a.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\LLVM\\bin\\lld-link.exe /nologo CMakeFiles\\cmTC_0985a.dir\\CMakeCXXCompilerABI.cpp.obj  /out:cmTC_0985a.exe /implib:cmTC_0985a.lib /pdb:cmTC_0985a.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console   && cd ."
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/Internal/FeatureTesting.cmake:34 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/Internal/FeatureTesting.cmake:83 (_record_compiler_features)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/Compiler/CMakeCommonCompilerMacros.cmake:121 (_record_compiler_features_cxx)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompileFeatures.cmake:70 (cmake_record_cxx_compile_features)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeTestCXXCompiler.cmake:70 (CMAKE_DETERMINE_COMPILE_FEATURES)"
+      - "CMakeLists.txt:18 (project)"
+    checks:
+      - "Detecting CXX compile features"
+    directories:
+      source: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-g0xt5k"
+      binary: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-g0xt5k"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/MDd /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+      CMAKE_MSVC_DEBUG_INFORMATION_FORMAT: "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>"
+    buildResult:
+      variable: "CMAKE_CXX_FEATURE_TEST"
+      cached: true
+      stdout: |
+        Change Dir: C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-g0xt5k
+        
+        Run Build Command(s):C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe -v cmTC_d4a0a && [1/2] C:\\PROGRA~1\\LLVM\\bin\\clang-cl.exe  /nologo -TP   /DWIN32 /D_WINDOWS /W3 /GR /EHsc  /MDd /Ob0 /Od /RTC1 -std:c++20 -Zi   -std:c++14 /showIncludes /FoCMakeFiles\\cmTC_d4a0a.dir\\feature_tests.cxx.obj /FdCMakeFiles\\cmTC_d4a0a.dir\\ -c -- C:\\Users\\sansk\\OneDrive\\Desktop\\Project\\jkrengine\\out\\build\\x64-debug\\CMakeFiles\\CMakeScratch\\TryCompile-g0xt5k\\feature_tests.cxx
+        [2/2] cmd.exe /C "cd . && "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\\cmTC_d4a0a.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\LLVM\\bin\\lld-link.exe /nologo CMakeFiles\\cmTC_d4a0a.dir\\feature_tests.cxx.obj  /out:cmTC_d4a0a.exe /implib:cmTC_d4a0a.lib /pdb:cmTC_d4a0a.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/Internal/FeatureTesting.cmake:34 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/Internal/FeatureTesting.cmake:83 (_record_compiler_features)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/Compiler/CMakeCommonCompilerMacros.cmake:129 (_record_compiler_features_cxx)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompileFeatures.cmake:70 (cmake_record_cxx_compile_features)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeTestCXXCompiler.cmake:70 (CMAKE_DETERMINE_COMPILE_FEATURES)"
+      - "CMakeLists.txt:18 (project)"
+    checks:
+      - "Detecting CXX compile features"
+    directories:
+      source: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-tm02pm"
+      binary: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-tm02pm"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/MDd /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+      CMAKE_MSVC_DEBUG_INFORMATION_FORMAT: "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>"
+    buildResult:
+      variable: "CMAKE_CXX_FEATURE_TEST"
+      cached: true
+      stdout: |
+        Change Dir: C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-tm02pm
+        
+        Run Build Command(s):C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe -v cmTC_59d5f && [1/2] C:\\PROGRA~1\\LLVM\\bin\\clang-cl.exe  /nologo -TP   /DWIN32 /D_WINDOWS /W3 /GR /EHsc  /MDd /Ob0 /Od /RTC1 -std:c++20 -Zi /showIncludes /FoCMakeFiles\\cmTC_59d5f.dir\\feature_tests.cxx.obj /FdCMakeFiles\\cmTC_59d5f.dir\\ -c -- C:\\Users\\sansk\\OneDrive\\Desktop\\Project\\jkrengine\\out\\build\\x64-debug\\CMakeFiles\\CMakeScratch\\TryCompile-tm02pm\\feature_tests.cxx
+        [2/2] cmd.exe /C "cd . && "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\\cmTC_59d5f.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\LLVM\\bin\\lld-link.exe /nologo CMakeFiles\\cmTC_59d5f.dir\\feature_tests.cxx.obj  /out:cmTC_59d5f.exe /implib:cmTC_59d5f.lib /pdb:cmTC_59d5f.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
+        
+      exitCode: 0
+...
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineSystem.cmake:204 (message)"
+      - "CMakeLists.txt:22 (project)"
+    message: |
+      The system is: Windows - 10.0.22621 - AMD64
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCCompiler.cmake:123 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:22 (project)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+      Compiler: C:/Program Files/LLVM/bin/clang-cl.exe 
+      Build flags: /DWIN32;/D_WINDOWS;/W3
+      Id flags:  
+      
+      The output was:
+      0
+      
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CMakeCCompilerId.exe"
+      
+      The C compiler identification is Clang, found in:
+        C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/3.26.4-msvc4/CompilerIdC/CMakeCCompilerId.exe
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompilerId.cmake:1153 (message)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompilerId.cmake:221 (CMAKE_DETERMINE_MSVC_SHOWINCLUDES_PREFIX)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCCompiler.cmake:123 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:22 (project)"
+    message: |
+      Detecting C compiler /showIncludes prefix:
+        Note: including file: ./foo.h
+        
+      Found prefix "Note: including file: "
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:22 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+      Compiler: C:/Program Files/LLVM/bin/clang-cl.exe 
+      Build flags: /DWIN32;/D_WINDOWS;/W3;/GR;/EHsc
+      Id flags:  
+      
+      The output was:
+      0
+      
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CMakeCXXCompilerId.exe"
+      
+      The CXX compiler identification is Clang, found in:
+        C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/3.26.4-msvc4/CompilerIdCXX/CMakeCXXCompilerId.exe
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompilerId.cmake:1153 (message)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompilerId.cmake:221 (CMAKE_DETERMINE_MSVC_SHOWINCLUDES_PREFIX)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:22 (project)"
+    message: |
+      Detecting CXX compiler /showIncludes prefix:
+        Note: including file: ./foo.h
+        
+      Found prefix "Note: including file: "
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompilerABI.cmake:57 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:22 (project)"
+    checks:
+      - "Detecting C compiler ABI info"
+    directories:
+      source: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-4sfcbo"
+      binary: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-4sfcbo"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_C_FLAGS_DEBUG: "/MDd /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+      CMAKE_MSVC_DEBUG_INFORMATION_FORMAT: "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>"
+    buildResult:
+      variable: "CMAKE_C_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-4sfcbo
+        
+        Run Build Command(s):C:/PROGRA~1/MICROS~1/2022/COMMUN~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe -v cmTC_f046f && [1/2] C:\\PROGRA~1\\LLVM\\bin\\clang-cl.exe  /nologo   /DWIN32 /D_WINDOWS /W3  /MDd /Ob0 /Od /RTC1 -Zi /showIncludes /FoCMakeFiles\\cmTC_f046f.dir\\CMakeCCompilerABI.c.obj /FdCMakeFiles\\cmTC_f046f.dir\\ -c -- "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\share\\cmake-3.26\\Modules\\CMakeCCompilerABI.c"
+        [2/2] cmd.exe /C "cd . && "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\\cmTC_f046f.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\LLVM\\bin\\lld-link.exe /nologo CMakeFiles\\cmTC_f046f.dir\\CMakeCCompilerABI.c.obj  /out:cmTC_f046f.exe /implib:cmTC_f046f.lib /pdb:cmTC_f046f.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console   && cd ."
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompilerABI.cmake:57 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:22 (project)"
+    checks:
+      - "Detecting CXX compiler ABI info"
+    directories:
+      source: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-v3olub"
+      binary: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-v3olub"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/MDd /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+      CMAKE_MSVC_DEBUG_INFORMATION_FORMAT: "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>"
+    buildResult:
+      variable: "CMAKE_CXX_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-v3olub
+        
+        Run Build Command(s):C:/PROGRA~1/MICROS~1/2022/COMMUN~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe -v cmTC_cd571 && [1/2] C:\\PROGRA~1\\LLVM\\bin\\clang-cl.exe  /nologo -TP   /DWIN32 /D_WINDOWS /W3 /GR /EHsc  /MDd /Ob0 /Od /RTC1 -std:c++20 -Zi /showIncludes /FoCMakeFiles\\cmTC_cd571.dir\\CMakeCXXCompilerABI.cpp.obj /FdCMakeFiles\\cmTC_cd571.dir\\ -c -- "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\share\\cmake-3.26\\Modules\\CMakeCXXCompilerABI.cpp"
+        [2/2] cmd.exe /C "cd . && "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\\cmTC_cd571.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\LLVM\\bin\\lld-link.exe /nologo CMakeFiles\\cmTC_cd571.dir\\CMakeCXXCompilerABI.cpp.obj  /out:cmTC_cd571.exe /implib:cmTC_cd571.lib /pdb:cmTC_cd571.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console   && cd ."
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/Internal/FeatureTesting.cmake:34 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/Internal/FeatureTesting.cmake:83 (_record_compiler_features)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/Compiler/CMakeCommonCompilerMacros.cmake:121 (_record_compiler_features_cxx)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompileFeatures.cmake:70 (cmake_record_cxx_compile_features)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeTestCXXCompiler.cmake:70 (CMAKE_DETERMINE_COMPILE_FEATURES)"
+      - "CMakeLists.txt:22 (project)"
+    checks:
+      - "Detecting CXX compile features"
+    directories:
+      source: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-1ldapo"
+      binary: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-1ldapo"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/MDd /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+      CMAKE_MSVC_DEBUG_INFORMATION_FORMAT: "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>"
+    buildResult:
+      variable: "CMAKE_CXX_FEATURE_TEST"
+      cached: true
+      stdout: |
+        Change Dir: C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-1ldapo
+        
+        Run Build Command(s):C:/PROGRA~1/MICROS~1/2022/COMMUN~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe -v cmTC_fae24 && [1/2] C:\\PROGRA~1\\LLVM\\bin\\clang-cl.exe  /nologo -TP   /DWIN32 /D_WINDOWS /W3 /GR /EHsc  /MDd /Ob0 /Od /RTC1 -std:c++20 -Zi   -std:c++14 /showIncludes /FoCMakeFiles\\cmTC_fae24.dir\\feature_tests.cxx.obj /FdCMakeFiles\\cmTC_fae24.dir\\ -c -- C:\\Users\\sansk\\OneDrive\\Desktop\\Project\\jkrengine\\out\\build\\x64-debug\\CMakeFiles\\CMakeScratch\\TryCompile-1ldapo\\feature_tests.cxx
+        [2/2] cmd.exe /C "cd . && "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\\cmTC_fae24.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\LLVM\\bin\\lld-link.exe /nologo CMakeFiles\\cmTC_fae24.dir\\feature_tests.cxx.obj  /out:cmTC_fae24.exe /implib:cmTC_fae24.lib /pdb:cmTC_fae24.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/Internal/FeatureTesting.cmake:34 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/Internal/FeatureTesting.cmake:83 (_record_compiler_features)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/Compiler/CMakeCommonCompilerMacros.cmake:129 (_record_compiler_features_cxx)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeDetermineCompileFeatures.cmake:70 (cmake_record_cxx_compile_features)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeTestCXXCompiler.cmake:70 (CMAKE_DETERMINE_COMPILE_FEATURES)"
+      - "CMakeLists.txt:22 (project)"
+    checks:
+      - "Detecting CXX compile features"
+    directories:
+      source: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-m73qi3"
+      binary: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-m73qi3"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/MDd /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+      CMAKE_MSVC_DEBUG_INFORMATION_FORMAT: "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>"
+    buildResult:
+      variable: "CMAKE_CXX_FEATURE_TEST"
+      cached: true
+      stdout: |
+        Change Dir: C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-m73qi3
+        
+        Run Build Command(s):C:/PROGRA~1/MICROS~1/2022/COMMUN~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe -v cmTC_4a334 && [1/2] C:\\PROGRA~1\\LLVM\\bin\\clang-cl.exe  /nologo -TP   /DWIN32 /D_WINDOWS /W3 /GR /EHsc  /MDd /Ob0 /Od /RTC1 -std:c++20 -Zi /showIncludes /FoCMakeFiles\\cmTC_4a334.dir\\feature_tests.cxx.obj /FdCMakeFiles\\cmTC_4a334.dir\\ -c -- C:\\Users\\sansk\\OneDrive\\Desktop\\Project\\jkrengine\\out\\build\\x64-debug\\CMakeFiles\\CMakeScratch\\TryCompile-m73qi3\\feature_tests.cxx
+        [2/2] cmd.exe /C "cd . && "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\\cmTC_4a334.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\LLVM\\bin\\lld-link.exe /nologo CMakeFiles\\cmTC_4a334.dir\\feature_tests.cxx.obj  /out:cmTC_4a334.exe /implib:cmTC_4a334.lib /pdb:cmTC_4a334.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
+        
+      exitCode: 0
+...
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineSystem.cmake:211 (message)"
+      - "CMakeLists.txt:36 (project)"
+    message: |
+      The system is: Windows - 10.0.22621 - AMD64
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCCompiler.cmake:123 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:36 (project)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+      Compiler: C:/Program Files/LLVM/bin/clang-cl.exe 
+      Build flags: /DWIN32;/D_WINDOWS;/W3
+      Id flags:  
+      
+      The output was:
+      0
+      
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CMakeCCompilerId.exe"
+      
+      The C compiler identification is Clang, found in:
+        C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/3.27.3/CompilerIdC/CMakeCCompilerId.exe
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:1158 (message)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:221 (CMAKE_DETERMINE_MSVC_SHOWINCLUDES_PREFIX)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCCompiler.cmake:123 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:36 (project)"
+    message: |
+      Detecting C compiler /showIncludes prefix:
+        Note: including file: ./foo.h
+        
+      Found prefix "Note: including file: "
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:36 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+      Compiler: C:/Program Files/LLVM/bin/clang-cl.exe 
+      Build flags: /DWIN32;/D_WINDOWS;/W3;/GR;/EHsc
+      Id flags:  
+      
+      The output was:
+      0
+      
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CMakeCXXCompilerId.exe"
+      
+      The CXX compiler identification is Clang, found in:
+        C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/3.27.3/CompilerIdCXX/CMakeCXXCompilerId.exe
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:1158 (message)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:221 (CMAKE_DETERMINE_MSVC_SHOWINCLUDES_PREFIX)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:36 (project)"
+    message: |
+      Detecting CXX compiler /showIncludes prefix:
+        Note: including file: ./foo.h
+        
+      Found prefix "Note: including file: "
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerABI.cmake:57 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:36 (project)"
+    checks:
+      - "Detecting C compiler ABI info"
+    directories:
+      source: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-4bk7i8"
+      binary: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-4bk7i8"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_C_FLAGS_DEBUG: "/MDd /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "CMAKE_C_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-4bk7i8'
+        
+        Run Build Command(s): C:/PROGRA~1/MICROS~1/2022/COMMUN~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe -v cmTC_cf2aa
+        [1/2] C:\\PROGRA~1\\LLVM\\bin\\clang-cl.exe  /nologo   /DWIN32 /D_WINDOWS /W3  /MDd /Ob0 /Od /RTC1 /showIncludes /FoCMakeFiles\\cmTC_cf2aa.dir\\CMakeCCompilerABI.c.obj /FdCMakeFiles\\cmTC_cf2aa.dir\\ -c -- "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCCompilerABI.c"
+        [2/2] cmd.exe /C "cd . && "C:\\Program Files\\CMake\\bin\\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\\cmTC_cf2aa.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\LLVM\\bin\\lld-link.exe /nologo CMakeFiles\\cmTC_cf2aa.dir\\CMakeCCompilerABI.c.obj  /out:cmTC_cf2aa.exe /implib:cmTC_cf2aa.lib /pdb:cmTC_cf2aa.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console   && cd ."
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerABI.cmake:57 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:36 (project)"
+    checks:
+      - "Detecting CXX compiler ABI info"
+    directories:
+      source: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-648q31"
+      binary: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-648q31"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/MDd /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "CMAKE_CXX_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-648q31'
+        
+        Run Build Command(s): C:/PROGRA~1/MICROS~1/2022/COMMUN~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe -v cmTC_c8ce9
+        [1/2] C:\\PROGRA~1\\LLVM\\bin\\clang-cl.exe  /nologo -TP   /DWIN32 /D_WINDOWS /W3 /GR /EHsc  /MDd /Ob0 /Od /RTC1 -std:c++20 /showIncludes /FoCMakeFiles\\cmTC_c8ce9.dir\\CMakeCXXCompilerABI.cpp.obj /FdCMakeFiles\\cmTC_c8ce9.dir\\ -c -- "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCXXCompilerABI.cpp"
+        [2/2] cmd.exe /C "cd . && "C:\\Program Files\\CMake\\bin\\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\\cmTC_c8ce9.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\LLVM\\bin\\lld-link.exe /nologo CMakeFiles\\cmTC_c8ce9.dir\\CMakeCXXCompilerABI.cpp.obj  /out:cmTC_c8ce9.exe /implib:cmTC_c8ce9.lib /pdb:cmTC_c8ce9.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console   && cd ."
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/Internal/FeatureTesting.cmake:34 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/Internal/FeatureTesting.cmake:83 (_record_compiler_features)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/Compiler/CMakeCommonCompilerMacros.cmake:121 (_record_compiler_features_cxx)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompileFeatures.cmake:70 (cmake_record_cxx_compile_features)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeTestCXXCompiler.cmake:70 (CMAKE_DETERMINE_COMPILE_FEATURES)"
+      - "CMakeLists.txt:36 (project)"
+    checks:
+      - "Detecting CXX compile features"
+    directories:
+      source: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-6v5jtf"
+      binary: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-6v5jtf"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/MDd /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "CMAKE_CXX_FEATURE_TEST"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-6v5jtf'
+        
+        Run Build Command(s): C:/PROGRA~1/MICROS~1/2022/COMMUN~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe -v cmTC_3a590
+        [1/2] C:\\PROGRA~1\\LLVM\\bin\\clang-cl.exe  /nologo -TP   /DWIN32 /D_WINDOWS /W3 /GR /EHsc  /MDd /Ob0 /Od /RTC1 -std:c++20   -std:c++14 /showIncludes /FoCMakeFiles\\cmTC_3a590.dir\\feature_tests.cxx.obj /FdCMakeFiles\\cmTC_3a590.dir\\ -c -- C:\\Users\\sansk\\OneDrive\\Desktop\\Project\\jkrengine\\out\\build\\x64-debug\\CMakeFiles\\CMakeScratch\\TryCompile-6v5jtf\\feature_tests.cxx
+        [2/2] cmd.exe /C "cd . && "C:\\Program Files\\CMake\\bin\\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\\cmTC_3a590.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\LLVM\\bin\\lld-link.exe /nologo CMakeFiles\\cmTC_3a590.dir\\feature_tests.cxx.obj  /out:cmTC_3a590.exe /implib:cmTC_3a590.lib /pdb:cmTC_3a590.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/Internal/FeatureTesting.cmake:34 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/Internal/FeatureTesting.cmake:83 (_record_compiler_features)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/Compiler/CMakeCommonCompilerMacros.cmake:129 (_record_compiler_features_cxx)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompileFeatures.cmake:70 (cmake_record_cxx_compile_features)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeTestCXXCompiler.cmake:70 (CMAKE_DETERMINE_COMPILE_FEATURES)"
+      - "CMakeLists.txt:36 (project)"
+    checks:
+      - "Detecting CXX compile features"
+    directories:
+      source: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-iggkv6"
+      binary: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-iggkv6"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/MDd /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "CMAKE_CXX_FEATURE_TEST"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-iggkv6'
+        
+        Run Build Command(s): C:/PROGRA~1/MICROS~1/2022/COMMUN~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe -v cmTC_ef3ee
+        [1/2] C:\\PROGRA~1\\LLVM\\bin\\clang-cl.exe  /nologo -TP   /DWIN32 /D_WINDOWS /W3 /GR /EHsc  /MDd /Ob0 /Od /RTC1 -std:c++20 /showIncludes /FoCMakeFiles\\cmTC_ef3ee.dir\\feature_tests.cxx.obj /FdCMakeFiles\\cmTC_ef3ee.dir\\ -c -- C:\\Users\\sansk\\OneDrive\\Desktop\\Project\\jkrengine\\out\\build\\x64-debug\\CMakeFiles\\CMakeScratch\\TryCompile-iggkv6\\feature_tests.cxx
+        [2/2] cmd.exe /C "cd . && "C:\\Program Files\\CMake\\bin\\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\\cmTC_ef3ee.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\LLVM\\bin\\lld-link.exe /nologo CMakeFiles\\cmTC_ef3ee.dir\\feature_tests.cxx.obj  /out:cmTC_ef3ee.exe /implib:cmTC_ef3ee.lib /pdb:cmTC_ef3ee.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
+        
+      exitCode: 0
+...
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeDetermineSystem.cmake:211 (message)"
+      - "CMakeLists.txt:46 (project)"
+    message: |
+      The system is: Windows - 10.0.22631 - AMD64
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeDetermineCCompiler.cmake:123 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:46 (project)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+      Compiler: C:/Program Files/LLVM/bin/clang-cl.exe 
+      Build flags: /DWIN32;/D_WINDOWS;/W3
+      Id flags:  
+      
+      The output was:
+      0
+      
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CMakeCCompilerId.exe"
+      
+      The C compiler identification is Clang, found in:
+        C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/3.27.7/CompilerIdC/CMakeCCompilerId.exe
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:1155 (message)"
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:221 (CMAKE_DETERMINE_MSVC_SHOWINCLUDES_PREFIX)"
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeDetermineCCompiler.cmake:123 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:46 (project)"
+    message: |
+      Detecting C compiler /showIncludes prefix:
+        Note: including file: ./foo.h
+        
+      Found prefix "Note: including file: "
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:46 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+      Compiler: C:/Program Files/LLVM/bin/clang-cl.exe 
+      Build flags: /DWIN32;/D_WINDOWS;/W3;/GR;/EHsc
+      Id flags:  
+      
+      The output was:
+      0
+      
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CMakeCXXCompilerId.exe"
+      
+      The CXX compiler identification is Clang, found in:
+        C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/3.27.7/CompilerIdCXX/CMakeCXXCompilerId.exe
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:1155 (message)"
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:221 (CMAKE_DETERMINE_MSVC_SHOWINCLUDES_PREFIX)"
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:46 (project)"
+    message: |
+      Detecting CXX compiler /showIncludes prefix:
+        Note: including file: ./foo.h
+        
+      Found prefix "Note: including file: "
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeDetermineCompilerABI.cmake:57 (try_compile)"
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:46 (project)"
+    checks:
+      - "Detecting C compiler ABI info"
+    directories:
+      source: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-8d6ko6"
+      binary: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-8d6ko6"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_C_FLAGS_DEBUG: "/MDd /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+      CMAKE_MSVC_DEBUG_INFORMATION_FORMAT: "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>"
+    buildResult:
+      variable: "CMAKE_C_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-8d6ko6'
+        
+        Run Build Command(s): C:/PROGRA~1/MICROS~1/2022/COMMUN~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe -v cmTC_c4629
+        [1/2] C:\\PROGRA~1\\LLVM\\bin\\clang-cl.exe  /nologo   /DWIN32 /D_WINDOWS /W3  /MDd /Ob0 /Od /RTC1 -Zi /showIncludes /FoCMakeFiles\\cmTC_c4629.dir\\CMakeCCompilerABI.c.obj /FdCMakeFiles\\cmTC_c4629.dir\\ -c -- C:\\Qt\\Tools\\CMake_64\\share\\cmake-3.27\\Modules\\CMakeCCompilerABI.c
+        [2/2] cmd.exe /C "cd . && C:\\Qt\\Tools\\CMake_64\\bin\\cmake.exe -E vs_link_exe --intdir=CMakeFiles\\cmTC_c4629.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\LLVM\\bin\\lld-link.exe /nologo CMakeFiles\\cmTC_c4629.dir\\CMakeCCompilerABI.c.obj  /out:cmTC_c4629.exe /implib:cmTC_c4629.lib /pdb:cmTC_c4629.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console   && cd ."
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeDetermineCompilerABI.cmake:57 (try_compile)"
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:46 (project)"
+    checks:
+      - "Detecting CXX compiler ABI info"
+    directories:
+      source: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-tdt9v3"
+      binary: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-tdt9v3"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/MDd /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+      CMAKE_MSVC_DEBUG_INFORMATION_FORMAT: "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>"
+    buildResult:
+      variable: "CMAKE_CXX_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-tdt9v3'
+        
+        Run Build Command(s): C:/PROGRA~1/MICROS~1/2022/COMMUN~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe -v cmTC_8cece
+        [1/2] C:\\PROGRA~1\\LLVM\\bin\\clang-cl.exe  /nologo -TP   /DWIN32 /D_WINDOWS /W3 /GR /EHsc  /MDd /Ob0 /Od /RTC1 -std:c++20 -Zi /showIncludes /FoCMakeFiles\\cmTC_8cece.dir\\CMakeCXXCompilerABI.cpp.obj /FdCMakeFiles\\cmTC_8cece.dir\\ -c -- C:\\Qt\\Tools\\CMake_64\\share\\cmake-3.27\\Modules\\CMakeCXXCompilerABI.cpp
+        [2/2] cmd.exe /C "cd . && C:\\Qt\\Tools\\CMake_64\\bin\\cmake.exe -E vs_link_exe --intdir=CMakeFiles\\cmTC_8cece.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\LLVM\\bin\\lld-link.exe /nologo CMakeFiles\\cmTC_8cece.dir\\CMakeCXXCompilerABI.cpp.obj  /out:cmTC_8cece.exe /implib:cmTC_8cece.lib /pdb:cmTC_8cece.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console   && cd ."
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/Internal/FeatureTesting.cmake:34 (try_compile)"
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/Internal/FeatureTesting.cmake:83 (_record_compiler_features)"
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/Compiler/CMakeCommonCompilerMacros.cmake:121 (_record_compiler_features_cxx)"
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeDetermineCompileFeatures.cmake:70 (cmake_record_cxx_compile_features)"
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeTestCXXCompiler.cmake:70 (CMAKE_DETERMINE_COMPILE_FEATURES)"
+      - "CMakeLists.txt:46 (project)"
+    checks:
+      - "Detecting CXX compile features"
+    directories:
+      source: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-awvo9p"
+      binary: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-awvo9p"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/MDd /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+      CMAKE_MSVC_DEBUG_INFORMATION_FORMAT: "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>"
+    buildResult:
+      variable: "CMAKE_CXX_FEATURE_TEST"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-awvo9p'
+        
+        Run Build Command(s): C:/PROGRA~1/MICROS~1/2022/COMMUN~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe -v cmTC_d170d
+        [1/2] C:\\PROGRA~1\\LLVM\\bin\\clang-cl.exe  /nologo -TP   /DWIN32 /D_WINDOWS /W3 /GR /EHsc  /MDd /Ob0 /Od /RTC1 -std:c++20 -Zi   -std:c++14 /showIncludes /FoCMakeFiles\\cmTC_d170d.dir\\feature_tests.cxx.obj /FdCMakeFiles\\cmTC_d170d.dir\\ -c -- C:\\Users\\sansk\\OneDrive\\Desktop\\Project\\jkrengine\\out\\build\\x64-debug\\CMakeFiles\\CMakeScratch\\TryCompile-awvo9p\\feature_tests.cxx
+        [2/2] cmd.exe /C "cd . && C:\\Qt\\Tools\\CMake_64\\bin\\cmake.exe -E vs_link_exe --intdir=CMakeFiles\\cmTC_d170d.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\LLVM\\bin\\lld-link.exe /nologo CMakeFiles\\cmTC_d170d.dir\\feature_tests.cxx.obj  /out:cmTC_d170d.exe /implib:cmTC_d170d.lib /pdb:cmTC_d170d.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/Internal/FeatureTesting.cmake:34 (try_compile)"
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/Internal/FeatureTesting.cmake:83 (_record_compiler_features)"
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/Compiler/CMakeCommonCompilerMacros.cmake:129 (_record_compiler_features_cxx)"
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeDetermineCompileFeatures.cmake:70 (cmake_record_cxx_compile_features)"
+      - "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeTestCXXCompiler.cmake:70 (CMAKE_DETERMINE_COMPILE_FEATURES)"
+      - "CMakeLists.txt:46 (project)"
+    checks:
+      - "Detecting CXX compile features"
+    directories:
+      source: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-53d3n1"
+      binary: "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-53d3n1"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/MDd /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+      CMAKE_MSVC_DEBUG_INFORMATION_FORMAT: "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>"
+    buildResult:
+      variable: "CMAKE_CXX_FEATURE_TEST"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/CMakeScratch/TryCompile-53d3n1'
+        
+        Run Build Command(s): C:/PROGRA~1/MICROS~1/2022/COMMUN~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe -v cmTC_5f6cc
+        [1/2] C:\\PROGRA~1\\LLVM\\bin\\clang-cl.exe  /nologo -TP   /DWIN32 /D_WINDOWS /W3 /GR /EHsc  /MDd /Ob0 /Od /RTC1 -std:c++20 -Zi /showIncludes /FoCMakeFiles\\cmTC_5f6cc.dir\\feature_tests.cxx.obj /FdCMakeFiles\\cmTC_5f6cc.dir\\ -c -- C:\\Users\\sansk\\OneDrive\\Desktop\\Project\\jkrengine\\out\\build\\x64-debug\\CMakeFiles\\CMakeScratch\\TryCompile-53d3n1\\feature_tests.cxx
+        [2/2] cmd.exe /C "cd . && C:\\Qt\\Tools\\CMake_64\\bin\\cmake.exe -E vs_link_exe --intdir=CMakeFiles\\cmTC_5f6cc.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100226~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\LLVM\\bin\\lld-link.exe /nologo CMakeFiles\\cmTC_5f6cc.dir\\feature_tests.cxx.obj  /out:cmTC_5f6cc.exe /implib:cmTC_5f6cc.lib /pdb:cmTC_5f6cc.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
+        
+      exitCode: 0
+...

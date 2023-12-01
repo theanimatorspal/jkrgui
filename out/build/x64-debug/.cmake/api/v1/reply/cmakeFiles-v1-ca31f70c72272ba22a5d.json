@@ -1,0 +1,194 @@
+{
+	"inputs" : 
+	[
+		{
+			"path" : "CMakeLists.txt"
+		},
+		{
+			"isGenerated" : true,
+			"path" : "out/build/x64-debug/CMakeFiles/3.27.7/CMakeSystem.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeSystemSpecificInitialize.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/Platform/Windows-Initialize.cmake"
+		},
+		{
+			"isGenerated" : true,
+			"path" : "out/build/x64-debug/CMakeFiles/3.27.7/CMakeCCompiler.cmake"
+		},
+		{
+			"isGenerated" : true,
+			"path" : "out/build/x64-debug/CMakeFiles/3.27.7/CMakeCXXCompiler.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeSystemSpecificInformation.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeGenericSystem.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeInitializeConfigs.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/Platform/Windows.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/Platform/WindowsPaths.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeCInformation.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeLanguageInformation.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/Compiler/Clang-C.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/Compiler/Clang.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/Compiler/CMakeCommonCompilerMacros.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/Platform/Windows-Clang-C.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/Platform/Windows-Clang.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/Platform/Windows-MSVC.cmake"
+		},
+		{
+			"isGenerated" : true,
+			"path" : "out/build/x64-debug/CMakeFiles/3.27.7/CMakeRCCompiler.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeRCInformation.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeCommonLanguageInclude.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeCXXInformation.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeLanguageInformation.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/Compiler/Clang-CXX.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/Compiler/Clang.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/Platform/Windows-Clang-CXX.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/Platform/Windows-Clang.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/CMakeCommonLanguageInclude.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/FindVulkan.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/FindPackageHandleStandardArgs.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/Qt/Tools/CMake_64/share/cmake-3.27/Modules/FindPackageMessage.cmake"
+		},
+		{
+			"path" : "aa_unit_testing/CMakeLists.txt"
+		},
+		{
+			"path" : "CMakeCommon.cmake"
+		},
+		{
+			"path" : "application/CMakeLists.txt"
+		},
+		{
+			"path" : "CMakeCommon.cmake"
+		},
+		{
+			"path" : "jkrgui/CMakeLists.txt"
+		},
+		{
+			"path" : "ksaivulkan/CMakeLists.txt"
+		},
+		{
+			"path" : "aJkrLua/CMakeLists.txt"
+		},
+		{
+			"path" : "CMakeCommon.cmake"
+		}
+	],
+	"kind" : "cmakeFiles",
+	"paths" : 
+	{
+		"build" : "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug",
+		"source" : "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine"
+	},
+	"version" : 
+	{
+		"major" : 1,
+		"minor" : 0
+	}
+}

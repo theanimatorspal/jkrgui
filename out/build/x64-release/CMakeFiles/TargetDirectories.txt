@@ -1,0 +1,14 @@
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release/CMakeFiles/edit_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release/CMakeFiles/rebuild_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release/aa_unit_testing/CMakeFiles/aa_unit_testing.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release/aa_unit_testing/CMakeFiles/edit_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release/aa_unit_testing/CMakeFiles/rebuild_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release/application/CMakeFiles/application.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release/application/CMakeFiles/edit_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release/application/CMakeFiles/rebuild_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release/jkrgui/CMakeFiles/jkrgui.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release/jkrgui/CMakeFiles/edit_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release/jkrgui/CMakeFiles/rebuild_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release/ksaivulkan/CMakeFiles/ksaivulkan.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release/ksaivulkan/CMakeFiles/edit_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release/ksaivulkan/CMakeFiles/rebuild_cache.dir
