@@ -1,83 +1,19 @@
 require "jkrgui"
+require "CompTable"
 
-local ComTable = {}
-local com_i = 0
-local NewComponent = function()
-        com_i = com_i + 1
-end
-local AllComponent_Events = function()
-        for _, com in ipairs(ComTable) do
-                com:Event()
-        end
-end
-local AllComponent_Draws = function()
-        for _, com in ipairs(ComTable) do
-                com:Draw()
-        end
-end
-
-AreaObject = {
-        mIds = vec2(0, 0),
-        mPosition_3f = vec3(0, 0, 0),
-        mDimension_3f = vec3(0, 0, 0),
-        New = function(self, inPosition_3f, inDimension_3f)
-                Obj = {}
-                setmetatable(Obj, self)
-                self.__index = self
-                local ShadowPos = vec3(inPosition_3f.x + 3, inPosition_3f.y + 3, inPosition_3f.z)
-                local OutlinePos = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z - 1)
-                local AreaPos = vec3(inPosition_3f.x + 1, inPosition_3f.y + 1, inPosition_3f.z - 2)
-                local AreaDimen = vec3(inDimension_3f.x - 2, inDimension_3f.y - 2, inDimension_3f.z)
-
-                Obj.mPosition_3f = inPosition_3f
-                Obj.mDimension_3f = inDimension_3f
-                NewComponent()
-                ComTable[com_i] = Jkr.Components.Static.ButtonObject:New(ShadowPos, inDimension_3f, nil, nil)
-                ComTable[com_i].mFillColor = Theme.Colors.Shadow
-                Obj.mIds.x = com_i
-
-                NewComponent()
-                ComTable[com_i] = Jkr.Components.Static.ButtonObject:New(OutlinePos, inDimension_3f, nil, nil)
-
-                NewComponent()
-                ComTable[com_i] = Jkr.Components.Static.ButtonObject:New(AreaPos, AreaDimen, nil, nil)
-                ComTable[com_i].mFillColor = vec4(1, 1, 1, 1)
-                Obj.mIds.y = com_i
-                return Obj
-        end,
-        Update = function(self, inPosition_3f, inDimension_3f)
-                self.mPosition_3f = inPosition_3f
-                self.mDimension_3f = inDimension_3f
-                local i = self.mIds.x
-                local ShadowPos = vec3(inPosition_3f.x + 3, inPosition_3f.y + 3, inPosition_3f.z)
-                local OutlinePos = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z - 1)
-                local AreaPos = vec3(inPosition_3f.x + 1, inPosition_3f.y + 1, inPosition_3f.z - 2)
-                local AreaDimen = vec3(inDimension_3f.x - 2, inDimension_3f.y - 2, inDimension_3f.z)
-                ComTable[i]:Update(ShadowPos, inDimension_3f)
-                ComTable[i + 1]:Update(OutlinePos, inDimension_3f)
-                ComTable[i + 2]:Update(AreaPos, AreaDimen)
-        end,
-        Event = function(self)
-                local i = self.mIds.x
-                local mousePos = E.get_relative_mouse_pos()
-                local isFocused = ComTable[i].mComponentObject.isFocused
-                if isFocused then
-                        local new_pos = vec3(self.mPosition_3f.x + mousePos.x, self.mPosition_3f.y + mousePos.y, self.mPosition_3f.z + mousePos.z)
-                         
-                        self:Update(vec3(200, 100, 5), self.mDimension_3f)
-                end
-        end
-}
-
-
+local __Depth = Depth + 10 -- Farthest (This meant to be used when the ComObject adds Over sth)
 
 Load = function()
-        MovableArea = AreaObject:New(vec3(100, 100, 5), vec3(200, 200, 1))
+        Font = Jkr.FontObject:New("C:\\Users\\sansk\\OneDrive\\Desktop\\Project\\jkrengine\\out\\build\\x64-release with debug\\application\\font.ttf", 4)
+        MovableArea = Com.AreaObject:New(vec3(100, 100, __Depth), vec3(200, 200, 1))
+        SampleText = Com.TextLabelObject:New("Hello", vec3(100, 105, Depth), Font)
+        print("TextLabelObject Created")
+        SampleText:SetParent(MovableArea)
 end
 
 Event = function()
-        AllComponent_Events()
-        MovableArea:Event()
+        Com.Events()
+        -- MovableArea:Event()
 end
 
 Update = function()
@@ -88,7 +24,7 @@ Dispatch = function()
 end
 
 Draw = function()
-        AllComponent_Draws()
+        Com.Draws()
 end
 
 UnLoad = function()

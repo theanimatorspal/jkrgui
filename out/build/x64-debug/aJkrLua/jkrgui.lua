@@ -55,7 +55,7 @@ vec4 = vec4
 
 require "Config"
 
-Depth = 5
+Depth = 75
 Time = 0 -- Increments each frame
 WindowDimension = GetWindowDimensions()
 
@@ -67,7 +67,7 @@ end
 
 
 
-FontObject = {
+Jkr.FontObject = {
         mPath = " ",
         mId = 0,
         mSize = 0,
@@ -87,14 +87,14 @@ FontObject = {
 
 }
 
-TextObject = {
+local TextObject = {
         mString = "",
         mPosition = vec2(0, 20),
         mId = uvec2(0, 0),
         mDimension = vec2(0, 0),
         mColor = vec4(0, 0, 0, 1),
         mFont = nil,
-        New = function(self, inText, inFontObject)
+        New = function(self, inText, inFontObject, inPosition_3f)
                 local Object = {}
                 setmetatable(Object, self)
                 self.__index = self
@@ -153,29 +153,26 @@ Jkr.ComponentObject = {
                 local pos = uvec2(Obj.mPosition_3f.x, Obj.mPosition_3f.y)
                 local dim = uvec2(Obj.mDimension_3f.x, Obj.mDimension_3f.y)
                 Obj.mBoundedRectId_i = E.set_bounded_rect(pos, dim, Int(Obj.mPosition_3f.z))
-                print("Bounded Rect :: " .. Obj.mBoundedRectId_i)
                 return Obj
         end,
 
         Update = function(self, inPosition_3f, inDimension_3f)
                 self.mPosition_3f = inPosition_3f
                 self.mDimension_3f = inDimension_3f
+                local pos = uvec2(self.mPosition_3f.x, self.mPosition_3f.y)
+                local dim = uvec2(self.mDimension_3f.x, self.mDimension_3f.y)
+                E.update_bounded_rect(Int(self.mBoundedRectId_i), pos, dim, Int(self.mPosition_3f.z))
         end,
 
         Event = function(self)
                 if self.mFocusOnHover_b or E.is_left_button_pressed() then
-                        local should_focus = false
                         if self.mTransparentToMouse_b then
-                                should_focus = E.is_mouse_within(Int(self.mBoundedRectId_i), Int(self.mPosition_3f.z))
+                                self.mFocus_b = E.is_mouse_within(Int(self.mBoundedRectId_i), Int(self.mPosition_3f.z))
                         else
-                                should_focus = E.is_mouse_on_top(Int(self.mBoundedRectId_i), Int(self.mPosition_3f.z))
+                                self.mFocus_b = E.is_mouse_on_top(Int(self.mBoundedRectId_i), Int(self.mPosition_3f.z))
                         end
-
-                        if should_focus then
-                                self.mFocus_b = true
-                        else
-                                self.mFocus_b = false
-                        end
+                else
+                        self.mFocus_b = false
                 end
         end,
 
@@ -189,7 +186,7 @@ Jkr.ComponentObject = {
 Jkr.Components = {}
 Jkr.Components.Static = {}
 
-Jkr.Components.Static.ButtonObject = {
+Jkr.Components.Static.ShapeObject = {
         mComponentObject = nil,
         mShapeId = nil,
         mImageId = nil,
@@ -220,6 +217,7 @@ Jkr.Components.Static.ButtonObject = {
                local Dimension = vec2(inDimension_3f.x, inDimension_3f.y)
                local rect_gen = Generator(Shapes.rectangle, Dimension)
                S.Update(Int(self.mShapeId), rect_gen, inPosition_3f) 
+               self.mComponentObject:Update(inPosition_3f, inDimension_3f)
 
                if inImagePainter and inImageSize_2f then
                 -- Yet to do
@@ -241,13 +239,49 @@ Jkr.Components.Static.ButtonObject = {
         CopyFromPainter = function (self)
                 S.CopyImage(Int(self.mImageId), self.mImagePainter)
         end
+}
 
+Jkr.Components.Static.TextObject = {
+        mScissorPosition_2f = nil,
+        mScissorDimension_2f = nil,
+        mString = nil,
+        mFont = nil, -- Font Object
+        mId = nil,  
+        mDimension_2f = nil,
+        mPosition_3f = nil,
+        mColor = Theme.Colors.Text.Normal,
+        New = function (self, inText, inPosition_3f, inFontObject)
+                Obj = {}
+                setmetatable(Obj, self)
+                self.__index = self
+
+                Obj.mString = inText
+                Obj.mPosition_3f = inPosition_3f
+                T.SetCurrentFace(inFontObject.mId)
+                T.SetTextProperty(TextH.left, TextV.top)
+                print("Here")
+                Obj.mId = T.Add(Obj.mString, vec3(Obj.mPosition_3f.x, Obj.mPosition_3f.y, Depth))
+                Obj.mDimension = inFontObject:GetDimension(Obj.mString)
+                Obj.mFont = inFontObject
+                return Obj
+        end,
+        Event = function (self) end,
+        Draw = function (self)
+                T.Bind()
+                T.Draw(self.mColor, Int(WindowDimension.x), Int(WindowDimension.y), Int(self.mId.x), Int(self.mId.y), GetIdentityMatrix())
+        end,
+        SetScissor = function (self)
+                if self.mScissorPosition_2f and self.mScissorDimension_2f then
+                        Jkr.set_scissor(self.mScissorPosition_2f, self.mScissorDimension_2f)
+                end
+        end
 }
 
 
 
 Jkr.ImagePainters = {
 }
+
 Jkr.ImagePainters.Create = function (inImageSize_2f, inStore_b, inGLSL)
                 local Obj =  {}
                 Obj.mPainter = Jkr.image_painter("RoundedRectangleCache.bin", inGLSL, vec3(16, 16, 1))

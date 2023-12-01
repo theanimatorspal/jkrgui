@@ -537,10 +537,10 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
         [&]() { return em.ShouldQuit(); },
 
         "get_mouse_pos",
-        [&]() { return em.GetMousePos(); },
+        [&]() -> vec2 { return em.GetMousePos(); },
 
         "get_relative_mouse_pos",
-        [&]() { return em.GetRelativeMousePos(); },
+        [&]() -> vec2 { return em.GetRelativeMousePos(); },
 
         "is_left_button_pressed",
         [&]() -> bool {
@@ -587,6 +587,18 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
         "set_bounded_rect",
         [&](glm::uvec2 xy, glm::uvec2 wh, int depth) -> int {
             return em.SetBoundedRect(xy, wh, depth);
+        },
+
+        "update_bounded_rect",
+        [&](int id, glm::uvec2 xy, glm::uvec2 wh, int depth) {
+            cout << "Update Bound : " << endl;
+            cout << "XY:" << xy.x << ", " << xy.y << endl;
+            cout << "WH:" << wh.x << ", " << wh.y << endl;
+            cout << "ID:" << id << '\n';
+            Jkr::BoundRect2D Rec;
+            Rec.mXy = xy;
+            Rec.mWh = wh;
+            em.UpdateBoundRect(depth, id, Rec);
         }
 
     );
