@@ -1,3 +1,7 @@
+#include "BestText.hpp"
+#include "SDL2/SDL_clipboard.h"
+#include "SDL2/SDL_events.h"
+#include "Shape_base.hpp"
 #include <Components/Component_base.hpp>
 #include <EventManager.hpp>
 #include <Instance.hpp>
@@ -396,7 +400,8 @@ void CreateGLMBindings(sol::state& lua)
     lua.new_usertype<glm::uvec2>("uvec2",
                                  sol::call_constructor,
                                  sol::constructors<glm::uvec2(uint32_t),
-                                                   glm::uvec2(uint32_t, uint32_t)>(),
+                                                   glm::uvec2(uint32_t, uint32_t),
+                                                   glm::uvec2(float, float)>(),
                                  "x",
                                  &glm::uvec2::x,
                                  "y",
@@ -538,13 +543,51 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
         [&]() { return em.GetRelativeMousePos(); },
 
         "is_left_button_pressed",
-        [&]() { return em.IsLeftButtonPressed(); },
+        [&]() -> bool {
+            {};
+            return em.IsLeftButtonPressed();
+        },
 
         "is_right_button_pressed",
         [&]() { return em.IsRightButtonPressed(); },
 
         "is_key_pressed",
-        [&](SDL_Keycode key) { return em.GetEventHandle().key.keysym.sym == key; }
+        [&](SDL_Keycode key) {
+            {};
+            return em.GetEventHandle().key.keysym.sym == key;
+        },
+
+        "is_keypress_event",
+        [&]() -> bool { return em.GetEventHandle().type == SDL_KEYDOWN; },
+
+        "is_mod_ctrl_pressed",
+        [&]() -> bool { return SDL_GetModState() bitand KMOD_CTRL; },
+
+        "get_clipboard_text",
+        [&]() -> string { return string(SDL_GetClipboardText()); },
+
+        "start_text_input",
+        [&]() -> void { em.StartTextInput(); },
+
+        "stop_text_input",
+        [&]() -> void { em.StopTextInput(); },
+
+        "is_text_being_input",
+        [&]() -> bool { return em.GetEventHandle().type == SDL_TEXTINPUT; },
+
+        "get_input_text",
+        [&]() -> string { return string(em.GetEventHandle().text.text); },
+
+        "is_mouse_within",
+        [&](int id, int depth) -> bool { return em.IsMouseWithin(id, depth); },
+
+        "is_mouse_on_top",
+        [&](int id, int depth) -> bool { return em.IsMouseWithinAtTopOfStack(id, depth); },
+
+        "set_bounded_rect",
+        [&](glm::uvec2 xy, glm::uvec2 wh, int depth) -> int {
+            return em.SetBoundedRect(xy, wh, depth);
+        }
 
     );
 
@@ -571,7 +614,6 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
     l.new_usertype<Jkr::Generator>("generator",
                                    sol::call_constructor,
                                    sol::factories([](Jkr::Shapes shape, glm::vec2 wh) {
-                                       cout << "generator" << endl;
                                        return Jkr::Generator(shape, glm::uvec2(wh));
                                    }));
 
@@ -608,6 +650,19 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
             [&]() { td.ln.Bind(w); }
 
         );
+        l["text_horizontal"] = l.create_table_with("left",
+                                                   Jkr::Renderer::BestText::AlignH::Left,
+                                                   "right",
+                                                   Jkr::Renderer::BestText::AlignH::Right,
+                                                   "center",
+                                                   Jkr::Renderer::BestText::AlignH::Center);
+
+        l["text_vertical"] = l.create_table_with("top",
+                                                 Jkr::Renderer::BestText::AlignV::Top,
+                                                 "bottom",
+                                                 Jkr::Renderer::BestText::AlignV::Bottom,
+                                                 "center",
+                                                 Jkr::Renderer::BestText::AlignV::Center);
 
         r.new_usertype<Renderer::BestText>(
             "bt",
@@ -625,6 +680,20 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
                 td.bt.SetCurrentFontFace(font_face);
             },
 
+            "get_text_dimension",
+            [&](std::string inString, int id) -> vec2 {
+                auto d = td.bt.GetTextDimensions(inString, id);
+                return vec2(d.mWidth, d.mHeight);
+            },
+
+            "set_text_property",
+            [&](Jkr::Renderer::BestText::AlignH inH, Jkr::Renderer::BestText::AlignV inV) {
+                Jkr::Renderer::BestText::TextProperty Prop;
+                Prop.H = inH;
+                Prop.V = inV;
+                td.bt.SetTextProperty(Prop);
+            },
+
             "add",
             [&](string text, vec3 pos) -> vec2 {
                 uvec2 id_and_length;
@@ -632,8 +701,17 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
                 return id_and_length;
             },
 
+            "update",
+            [&](int id, string inString, vec3 inpos) -> void {
+                {};
+                td.bt.UpdateText(id, inString, inpos.x, inpos.y, inpos.y);
+            },
+
             "bind",
-            [&]() -> void { td.bt.Bind(w); },
+            [&]() -> void {
+                {};
+                td.bt.Bind(w);
+            },
 
             "draw",
             [&](vec4 color, int ww, int wh, int id, int len, glm::mat4 inMatrix) -> void {
@@ -655,6 +733,11 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
                 uint32_t id;
                 td.sh.Add(shape, vec.x, vec.y, vec.z, id);
                 return id;
+            },
+
+            "update",
+            [&](int id, Jkr::Generator shape, vec3 vec) -> void {
+                td.sh.Update(id, shape, vec.x, vec.y, vec.z);
             },
 
             "add_image",
@@ -689,6 +772,17 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
                 {};
                 td.sh.BindImage(w, id);
             });
+
+        r.set_function("set_scissor", [&](vec2 offset, vec2 extent) {
+            vk::Rect2D rect;
+            rect.setExtent(vk::Extent2D(extent.x, extent.y));
+            rect.setOffset(vk::Offset2D(offset.x, offset.y));
+            w.SetScissor(rect);
+        });
+
+        r.set_function("reset_scissor", [&] { w.ResetScissor(); }
+
+        );
 
         struct push_constant
         {

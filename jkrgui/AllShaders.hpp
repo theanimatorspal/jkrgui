@@ -43,107 +43,106 @@ float sdf_line(in vec2 p, in vec2 a, in vec2 b) {
 #define sdf_line(vec2_xy, vec2_a, vec2_b)
 
 #ifdef JKR_USE_VARIABLE_DES_INDEXING
-namespace BestText
-{
-	using namespace glm;
-	const auto VertexShader = [](ksai::Shader& inShader) {
-		GlslShaderStart(vertex);
+namespace BestText_shader {
+using namespace glm;
+const auto VertexShader = [](ksai::Shader &inShader) {
+    GlslShaderStart(vertex);
 
-		GlslVersion(450);
-		GlslShader(vertex);
-		GlslExtension(GL_EXT_debug_printf);
+    GlslVersion(450);
+    GlslShader(vertex);
+    GlslExtension(GL_EXT_debug_printf);
 
-		GlslCodeStart();
+    GlslCodeStart();
 
-		layout(location = 0) in vec3 inPosition;
-		layout(location = 1) in vec2 inTexCoord;
-		layout(location = 2) in ivec3 inTextureIndices;
+    layout(location = 0) in vec3 inPosition;
+    layout(location = 1) in vec2 inTexCoord;
+    layout(location = 2) in ivec3 inTextureIndices;
 
-		layout(location = 0) out vec2 outTexCoord;
-		layout(location = 1) out ivec3 outTextureIndices;
+    layout(location = 0) out vec2 outTexCoord;
+    layout(location = 1) out ivec3 outTextureIndices;
 
-		layout(push_constant, std430) uniform pc {
-			mat4 Matrix;
-			vec4 Window;
-		} push;
+    layout(push_constant, std430) uniform pc
+    {
+        mat4 Matrix;
+        vec4 Window;
+    }
+    push;
 
+    void GlslMain()
+    {
+        vec4 dx = vec4(inPosition.x, inPosition.y, inPosition.z, 1.0);
+        gl_Position = push.Matrix * dx;
+        outTexCoord = inTexCoord;
+        outTextureIndices = inTextureIndices;
+    }
 
-		void GlslMain() {
-			vec4 dx = vec4(inPosition.x, inPosition.y, inPosition.z, 1.0);
-			gl_Position = push.Matrix * dx;
-			outTexCoord = inTexCoord;
-			outTextureIndices = inTextureIndices;
-		}
+    GlslCodeFinish();
+};
 
-		GlslCodeFinish();
+const auto FragmentShader = [](ksai::Shader &inShader) {
+    GlslShaderStart(fragment);
 
-		};
+    GlslVersion(450);
+    GlslExtension(GL_EXT_debug_printf);
+    GlslExtension(GL_EXT_nonuniform_qualifier);
 
-	const auto FragmentShader = [](ksai::Shader& inShader)
-		{
-			GlslShaderStart(fragment);
+    GlslBindOut(vec4, 0, outColor);
 
-			GlslVersion(450);
-			GlslExtension(GL_EXT_debug_printf);
-			GlslExtension(GL_EXT_nonuniform_qualifier);
+    ShaderRawAdd("layout(set = 0, binding = 0) uniform sampler2D u_image[];");
 
-			GlslBindOut(vec4, 0, outColor);
+    GlslCodeStart();
+    layout(location = 0) in vec2 inTextCoord;
+    layout(location = 1) flat in ivec3 inTextureIndices;
 
-			ShaderRawAdd("layout(set = 0, binding = 0) uniform sampler2D u_image[];");
+    layout(push_constant, std430) uniform pc
+    {
+        mat4 Matrix;
+        vec4 Color;
+    }
+    push;
 
-			GlslCodeStart();
-			layout(location = 0) in vec2 inTextCoord;
-			layout(location = 1) flat in ivec3 inTextureIndices;
+    const float smoothing = 1.0 / 32.0;
 
-			layout(push_constant, std430) uniform pc {
-				mat4 Matrix;
-				vec4 Color;
-			} push;
+    void GlslMain()
+    {
+        vec4 color = texture(u_image[nonuniformEXT(inTextureIndices[0])], inTextCoord);
+        float distance = color.a;
+        float alpha = distance;
+        outColor = vec4(push.Color.x, push.Color.y, push.Color.z, alpha * push.Color.w);
+    }
 
-			const float smoothing = 1.0 / 32.0;
+    GlslCodeFinish();
+};
 
-			void GlslMain()
-			{
-				vec4 color = texture(u_image[nonuniformEXT(inTextureIndices[0])], inTextCoord);
-				float distance = color.a;
-				float alpha = distance;
-				outColor = vec4(push.Color.x, push.Color.y, push.Color.z, alpha * push.Color.w);
-			}
+/* Not Used */
+const auto ComputeShader = [](ksai::Shader &inShader) {
+    GlslShaderStart(compute);
 
-			GlslCodeFinish();
-		};
+    GlslVersion(450);
 
-	/* Not Used */
-	const auto ComputeShader = [](ksai::Shader& inShader)
-		{
-			GlslShaderStart(compute);
+    GlslExtension(GL_EXT_debug_printf);
+    GlslExtension(GL_EXT_nonuniform_qualifier);
 
-			GlslVersion(450);
+    ShaderRawAdd(ShaderGlobals);
+    ShaderRawAdd("layout(set = 0, binding = 0) uniform sampler2D storageImage[];");
 
-			GlslExtension(GL_EXT_debug_printf);
-			GlslExtension(GL_EXT_nonuniform_qualifier);
+    GlslCodeStart();
 
-			ShaderRawAdd(ShaderGlobals);
-			ShaderRawAdd("layout(set = 0, binding = 0) uniform sampler2D storageImage[];");
+    layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 
-			GlslCodeStart();
+    layout(push_constant, std430) uniform pc
+    {
+        mat4 Matrix;
+        vec4 Window;
+    }
+    push;
 
-			layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+    void GlslMain() {}
 
-			layout(push_constant, std430) uniform pc {
-				mat4 Matrix;
-				vec4 Window;
-			} push;
+    GlslCodeFinish();
+};
 
-			void GlslMain()
-			{
-			}
-
-			GlslCodeFinish();
-
-		};
-
-}
+} // namespace BestText_shader
 
 #endif
 

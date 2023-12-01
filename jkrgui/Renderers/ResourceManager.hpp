@@ -171,8 +171,8 @@ public:
         ksai::Shader FastTextCompute(8, FontShader::ComputeShader);
         ksai::Shader Shape_Fill(ShapeRenderers_Fill::VertexShader, ShapeRenderers_Fill::FragmentShader);
         ksai::Shader Shape_FillCompute(8, ShapeRenderers_Fill::ComputeShader);
-        ksai::Shader BestTextS(BestText::VertexShader, BestText::FragmentShader);
-        ksai::Shader BestText_Compute(8, BestText::ComputeShader);
+        ksai::Shader BestTextS(BestText_shader::VertexShader, BestText_shader::FragmentShader);
+        ksai::Shader BestText_Compute(8, BestText_shader::ComputeShader);
 
         mLineRendererCache->Store(LineRendererCacheFileName, Line.GetVertexShader().str(), Line.GetFragmentShader().str(), LineCompute.GetComputeShader().str());
         mFastTextRendererCache->Store(FastTextRendererCacheFileName, FastText.GetVertexShader().str(), FastText.GetFragmentShader().str(), FastTextCompute.GetComputeShader().str());
