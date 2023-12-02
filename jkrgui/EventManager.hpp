@@ -3,9 +3,9 @@
 
 namespace Jkr {
 struct BoundRect2D {
-    glm::uvec2 mXy;
-    glm::uvec2 mWh;
-    constexpr bool IsPointWithin(glm::uvec2 inXy)
+    glm::vec2 mXy;
+    glm::vec2 mWh;
+    constexpr bool IsPointWithin(glm::vec2 inXy)
     {
         return ((mXy.x < inXy.x) && (inXy.x < mXy.x + mWh.x))
             && ((mXy.y < inXy.y) && (inXy.y < mXy.y + mWh.y));
@@ -73,7 +73,7 @@ public:
     {
         return mBoundRect2Ds[inDepthValue][inId].IsPointWithin(mMousePos);
     }
-    [[nodiscard]] uint32_t SetBoundedRect(glm::uvec2 inXy, glm::uvec2 inWh, uint32_t inDepthValue)
+    [[nodiscard]] uint32_t SetBoundedRect(glm::vec2 inXy, glm::vec2 inWh, uint32_t inDepthValue)
     {
         if (!mBoundRect2Ds.contains(inDepthValue)) {
             mBoundRect2Ds[inDepthValue] = std::vector<BoundRect2D>();

@@ -6,13 +6,14 @@ local __Depth = Depth + 10 -- Farthest (This meant to be used when the ComObject
 Load = function()
         Font = Jkr.FontObject:New("C:\\Users\\sansk\\OneDrive\\Desktop\\Project\\jkrengine\\out\\build\\x64-release with debug\\application\\font.ttf", 4)
         MovableArea = Com.AreaObject:New(vec3(100, 100, __Depth), vec3(200, 200, 1))
-        SampleText = Com.TextLabelObject:New("Hello", vec3(100, 105, Depth), Font)
+        SampleText = Com.TextLabelObject:New("Hello", vec3(100, 110, Depth), Font)
         print("TextLabelObject Created")
         SampleText:SetParent(MovableArea)
 end
 
 Event = function()
         Com.Events()
+        MovableArea:Event()
         -- MovableArea:Event()
 end
 

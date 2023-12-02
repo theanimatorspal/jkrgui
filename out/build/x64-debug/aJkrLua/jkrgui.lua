@@ -150,8 +150,8 @@ Jkr.ComponentObject = {
                 Obj.mFocus_b = false
                 Obj.mFocusOnHover_b = true
                 Obj.mTransparentToMouse_b = false
-                local pos = uvec2(Obj.mPosition_3f.x, Obj.mPosition_3f.y)
-                local dim = uvec2(Obj.mDimension_3f.x, Obj.mDimension_3f.y)
+                local pos = vec2(Obj.mPosition_3f.x, Obj.mPosition_3f.y)
+                local dim = vec2(Obj.mDimension_3f.x, Obj.mDimension_3f.y)
                 Obj.mBoundedRectId_i = E.set_bounded_rect(pos, dim, Int(Obj.mPosition_3f.z))
                 return Obj
         end,
@@ -159,8 +159,8 @@ Jkr.ComponentObject = {
         Update = function(self, inPosition_3f, inDimension_3f)
                 self.mPosition_3f = inPosition_3f
                 self.mDimension_3f = inDimension_3f
-                local pos = uvec2(self.mPosition_3f.x, self.mPosition_3f.y)
-                local dim = uvec2(self.mDimension_3f.x, self.mDimension_3f.y)
+                local pos = vec2(self.mPosition_3f.x, self.mPosition_3f.y)
+                local dim = vec2(self.mDimension_3f.x, self.mDimension_3f.y)
                 E.update_bounded_rect(Int(self.mBoundedRectId_i), pos, dim, Int(self.mPosition_3f.z))
         end,
 
@@ -248,10 +248,10 @@ Jkr.Components.Static.TextObject = {
         mFont = nil, -- Font Object
         mId = nil,  
         mDimension_2f = nil,
-        mPosition_3f = nil,
         mColor = Theme.Colors.Text.Normal,
         New = function (self, inText, inPosition_3f, inFontObject)
-                Obj = {}
+                local Obj = Jkr.ComponentObject:New(inPosition_3f, vec3(0, 0, 0))
+
                 setmetatable(Obj, self)
                 self.__index = self
 
@@ -274,6 +274,10 @@ Jkr.Components.Static.TextObject = {
                 if self.mScissorPosition_2f and self.mScissorDimension_2f then
                         Jkr.set_scissor(self.mScissorPosition_2f, self.mScissorDimension_2f)
                 end
+        end, 
+        Update = function (self, inPosition_3f)
+                self.mPosition_3f = inPosition_3f
+                T.Update(Int(self.mId.x), self.mString, self.mPosition_3f)
         end
 }
 
