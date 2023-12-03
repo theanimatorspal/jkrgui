@@ -153,7 +153,6 @@ Jkr.ComponentObject = {
                 local pos = vec2(Obj.mPosition_3f.x, Obj.mPosition_3f.y)
                 local dim = vec2(Obj.mDimension_3f.x, Obj.mDimension_3f.y)
                 Obj.mBoundedRectId_i = E.set_bounded_rect(pos, dim, Int(Obj.mPosition_3f.z))
-                print("Component Construction Finished")
                 return Obj
         end,
 
@@ -188,23 +187,13 @@ Jkr.Components = {}
 Jkr.Components.Static = {}
 
 Jkr.Components.Static.ShapeObject = {
-        mScissorPosition_2f = nil,
-        mScissorDimension_2f = nil,
         mComponentObject = nil,
         mShapeId = nil,
         mImageId = nil,
         mImagePainter = nil,
         mFillColor = vec4(0, 0, 0, 1),
         New = function(self, inPosition_3f, inDimension_3f, inImagePainter, inImageSize_2f)
-                local Obj = {
-                        mScissorPosition_2f = nil,
-                        mScissorDimension_2f = nil,
-                        mComponentObject = nil,
-                        mShapeId = nil,
-                        mImageId = nil,
-                        mImagePainter = nil,
-                        mFillColor = vec4(0, 0, 0, 1)
-                }
+                local Obj = {}
                 setmetatable(Obj, self)
                 self.__index = self
 
@@ -212,12 +201,14 @@ Jkr.Components.Static.ShapeObject = {
                 local Dimension = vec2(Obj.mComponentObject.mDimension_3f.x, Obj.mComponentObject.mDimension_3f.y)
                 local rect_gen = Generator(Shapes.rectangle, Dimension)
                 Obj.mShapeId =  S.Add(rect_gen, Obj.mComponentObject.mPosition_3f)
+                print("ImageButton Build RECT GEN")
 
                 Obj.mImagePainter = false or inImagePainter
                 if Obj.mImagePainter then
                         Obj.mImageId = S.AddImage(Int(inImageSize_2f.x), Int(inImageSize_2f.y))
                         S.CopyImage(Obj.mImageId, Obj.mImagePainter)
                 end
+                print("Image Painter Registered")
                 return Obj
         end,
         Update = function (self, inPosition_3f, inDimension_3f, inImagePainter, inImageSize_2f)
@@ -245,7 +236,7 @@ Jkr.Components.Static.ShapeObject = {
         end,
         CopyFromPainter = function (self)
                 S.CopyImage(Int(self.mImageId), self.mImagePainter)
-        end,
+        end
 }
 
 Jkr.Components.Static.TextObject = {
@@ -257,15 +248,7 @@ Jkr.Components.Static.TextObject = {
         mDimension_2f = nil,
         mColor = Theme.Colors.Text.Normal,
         New = function (self, inText, inPosition_3f, inFontObject)
-                local Obj = {
-                        mScissorPosition_2f = nil,
-                        mScissorDimension_2f = nil,
-                        mString = nil,
-                        mFont = nil, -- Font Object
-                        mId = nil,  
-                        mDimension_2f = nil,
-                        mColor = Theme.Colors.Text.Normal
-                }
+                local Obj = {}
 
                 setmetatable(Obj, self)
                 self.__index = self
@@ -274,26 +257,26 @@ Jkr.Components.Static.TextObject = {
                 Obj.mPosition_3f = inPosition_3f
                 T.SetCurrentFace(inFontObject.mId)
                 T.SetTextProperty(TextH.left, TextV.top)
+                print("Here")
                 Obj.mId = T.Add(Obj.mString, vec3(Obj.mPosition_3f.x, Obj.mPosition_3f.y, Depth))
                 Obj.mDimension = inFontObject:GetDimension(Obj.mString)
                 Obj.mFont = inFontObject
                 return Obj
         end,
-        Event = function (self)
-        end,
+        Event = function (self) end,
         Draw = function (self)
                 T.Bind()
                 T.Draw(self.mColor, Int(WindowDimension.x), Int(WindowDimension.y), Int(self.mId.x), Int(self.mId.y), GetIdentityMatrix())
-        end,
-        Update = function (self, inPosition_3f)
-                self.mPosition_3f = inPosition_3f
-                T.Update(Int(self.mId.x), self.mString, self.mPosition_3f)
         end,
         SetScissor = function (self)
                 if self.mScissorPosition_2f and self.mScissorDimension_2f then
                         Jkr.set_scissor(self.mScissorPosition_2f, self.mScissorDimension_2f)
                 end
-        end 
+        end, 
+        Update = function (self, inPosition_3f)
+                self.mPosition_3f = inPosition_3f
+                T.Update(Int(self.mId.x), self.mString, self.mPosition_3f)
+        end
 }
 
 
@@ -310,6 +293,7 @@ Jkr.ImagePainters.Create = function (inImageSize_2f, inStore_b, inGLSL)
                 else
                         Obj.mPainter:load()
                 end
+                print("Created")
                 Obj.mPainter:register_image(Int(inImageSize_2f.x), Int(inImageSize_2f.y))
                 return Obj
         end
