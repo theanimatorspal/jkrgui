@@ -23,7 +23,7 @@ public:
         bb::Load();
     }
 
-    constexpr void DrawImages(Window& inWindow, uint32_t inW, uint32_t inH)
+    void DrawImages(Window &inWindow, uint32_t inW, uint32_t inH)
     {
         r.sh.BindImage(*this->GetWindow(), mImageId);
         r.sh.Draw(inWindow, glm::vec4(), inW, inH, mShapeId, mShapeId, this->GetTranslationMatrix());

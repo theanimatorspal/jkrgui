@@ -1,5 +1,4 @@
 #pragma once
-#include <iostream>
 #include <vulkan/vulkan.hpp>
 #include "VulkanDevice.hpp"
 #include "VulkanSurface.hpp"
@@ -89,13 +88,17 @@ namespace ksai {
 		VulkanImage(const VulkanDevice& inDevice);
 		VulkanImage(const VulkanDevice& inDevice, uint32_t inWidth, uint32_t inHeight);
 		VulkanImage(const VulkanDevice& inDevice, const VulkanSurface& inSurface);
-		VulkanImage(const VulkanDevice& inDevice, const VulkanSurface& inSurface, const vk::Image& inImage, vk::ImageView& inImageView)
-			requires (inImageContext == ImageContext::Unknown);
-	private:
-		void ExplicitDestroy();
-	private:
-		vk::DeviceMemory mDeviceMemory;
-	};
+        VulkanImage(const VulkanDevice &inDevice,
+                    const VulkanSurface &inSurface,
+                    const vk::Image &inImage,
+                    vk::ImageView &inImageView);
+
+    private:
+        void ExplicitDestroy();
+
+    private:
+        vk::DeviceMemory mDeviceMemory;
+    };
 }
 
 namespace ksai {
@@ -160,20 +163,21 @@ namespace ksai {
 	{
 	}
 
-	template<ImageContext inImageContext>
-	inline VulkanImage<inImageContext>::VulkanImage(const VulkanDevice& inDevice)
-		: mPhysicalDevice(inDevice.GetPhysicalDeviceHandle()), mDevice(inDevice.GetDeviceHandle()), VulkanImageBase(inDevice)
-	{
-
-		FillImageProperties<inImageContext>();
-		CreateImageAndBindMemory(mImage, mDeviceMemory);
+    template<ImageContext inImageContext>
+    inline VulkanImage<inImageContext>::VulkanImage(const VulkanDevice &inDevice)
+        : VulkanImageBase(inDevice)
+    {
+        FillImageProperties<inImageContext>();
+        CreateImageAndBindMemory(mImage, mDeviceMemory);
 		CreateImageView(mImage);
-	}
+    }
 
-	template<ImageContext inImageContext>
-	inline VulkanImage<inImageContext>::VulkanImage(const VulkanDevice& inDevice, uint32_t inWidth, uint32_t inHeight)
-		: VulkanImageBase(inDevice)
-	{
+    template<ImageContext inImageContext>
+    inline VulkanImage<inImageContext>::VulkanImage(const VulkanDevice &inDevice,
+                                                    uint32_t inWidth,
+                                                    uint32_t inHeight)
+        : VulkanImageBase(inDevice)
+    {
 		FillImageProperties<inImageContext>();
 		mImageProperties.mExtent.width = inWidth;
 		mImageProperties.mExtent.height = inHeight;
@@ -191,11 +195,13 @@ namespace ksai {
 		CreateImageView(mImage);
 	}
 
-	template<ImageContext inImageContext>
-	inline VulkanImage<inImageContext>::VulkanImage(const VulkanDevice& inDevice, const VulkanSurface& inSurface, const vk::Image& inImage, vk::ImageView& inImageView)
-		requires (inImageContext == ImageContext::Unknown)
-	: mDevice(inDevice.GetDeviceHandle()), mPhysicalDevice(inDevice.GetPhysicalDeviceHandle()), VulkanImageBase(inDevice)
-	{
+    template<ImageContext inImageContext>
+    inline VulkanImage<inImageContext>::VulkanImage(const VulkanDevice &inDevice,
+                                                    const VulkanSurface &inSurface,
+                                                    const vk::Image &inImage,
+                                                    vk::ImageView &inImageView)
+        : VulkanImageBase(inDevice)
+    {
 		mImageProperties.mExtent = inSurface.GetExtent();
 		mImage = inImage;
 		mImageView = inImageView;

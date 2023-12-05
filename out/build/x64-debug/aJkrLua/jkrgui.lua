@@ -2,25 +2,108 @@
 JkrGUI lua
 ]]
 
+-- this is for utf8 strings (the string that supports कखग), ignore it
+
 function utf8.sub(s, i, j)
         i = utf8.offset(s, i)
         j = utf8.offset(s, j + 1) - 1
         return string.sub(s, i, j)
 end
 
+-- These are aliases (Same name for an identifier), the Lua Bindings that is generated has snake case (snake_cast), trying to convert into
+-- CamelCase (words separated by Capital letters).
+
+
+--[[
+returns vec2 that gives window's width and height, local dimen = GetWindowDimensions()
+dimen.x ani dimen.y garna milxa
+]]
 GetWindowDimensions = get_window_dimensions
+
+
+--[[
+        returns identity matrix mat4 = {
+                1, 0, 0, 0
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+        }
+]]
 GetIdentityMatrix = get_identity_matrix
+
+--[[
+        This is a Usertype, It represents Shapes OR generates shapes
+]]
 Generator = generator
+
+--[[
+        ENUM VANEKO K HO VANNE KURO
+        enum class state = {
+                running, 
+                stopped,
+                started
+        };
+        auto variable = state::running;
+        if(variable == state::stopped)
+        {
+                stop_program();
+        }
+
+
+       THIS is an enum that stores type of shape object
+       shapes.rectangle, shapes.bezier2_8, shapes.circle
+]]
+
 Shapes = shapes
+
+--[[
+        This is the function that translates a matrix by vec3
+        local translated_matrix = translate(get_identity_matrix(), vec3(5, 5, 10))
+]]
 Translate = translate
+
+--[[
+        This is also an enum
+        fill_type.image
+        fill_type.fill
+        fill_type.continous_line
+]]
 FillType = fill_type
 
+--[[
+        lua has only number as types of number, not int, float, double, nothing like that
+
+        to convert float to int, we should do math.floor(number)
+        local x = 5.0
+        x = math.floor(x)
+        If a function expects an integer, we should do math.floor(number)
+        After this alias, we can do Int(x)
+]]
+
 Int = math.floor
+
+--[[
+        Jkr is basically a namespace "Renderer" namespace to be precise
+]]
 Jkr = r;
 
+--[[
+       This is the entity that can give information about mouse keyboard etc,
+       E.is_left_button_pressed() -- return bool
+       E.is_right_button_pressed() -- return bool
+]]
 E = event_manager -- EventManager
 
+
+
+--[[
+        This is the shape renderer, we can do S.something
+]]
+
 S = Jkr.sh        -- Shape Renderer
+--[[
+        We can add shapes with S.Add()
+]]
 S.Add = S.add
 S.AddImage = S.add_image
 S.CopyImage = S.copy_image
@@ -30,11 +113,14 @@ S.Draw = S.draw
 S.BindImage = S.bind_image
 S.Update = S.update
 
-
+--[[
+        This is the line renderer
+]]
 L = Jkr.ln -- Line Renderer
 
-
-
+--[[
+        This is shape renderer
+]]
 T = Jkr.bt -- Text Renderer
 T.SetCurrentFace = T.set_current_face
 T.Add = T.add
@@ -44,21 +130,31 @@ T.Draw = T.draw
 T.SetTextProperty = T.set_text_property
 T.GetTextDimension = T.get_text_dimension
 T.Update = T.update
-
 TextH = text_horizontal
 TextV = text_vertical
+
+-- Suggesstions aaos vanera lekheko ho yo chae
 vec2 = vec2
 uvec2 = uvec2
 vec3 = vec3
 vec4 = vec4
 
 
-require "Config"
+Key = key
 
+require "Config" -- #include "Config" vane jastai C ma
+
+--[[
+        Depth value ranges from 0 to 100, 
+        0 means nearest to the camera
+        100 means farthest from the camera
+        Depth is basically a  reference taken.
+]]
 Depth = 75
 Time = 0 -- Increments each frame
-WindowDimension = GetWindowDimensions()
+WindowDimension = GetWindowDimensions() -- Can get Window dimensions just by doing WindowDimension.x, WindowDimension.y
 
+-- To be called at Update Callback
 function FrameUpdate()
         Time = Time + 1
         WindowDimension = GetWindowDimensions()
@@ -87,50 +183,6 @@ Jkr.FontObject = {
 
 }
 
-local TextObject = {
-        mString = "",
-        mPosition = vec2(0, 20),
-        mId = uvec2(0, 0),
-        mDimension = vec2(0, 0),
-        mColor = vec4(0, 0, 0, 1),
-        mFont = nil,
-        New = function(self, inText, inFontObject, inPosition_3f)
-                local Object = {}
-                setmetatable(Object, self)
-                self.__index = self
-
-                Object.mString = inText
-                T.SetCurrentFace(inFontObject.mId)
-                T.SetTextProperty(TextH.left, TextV.top)
-                Object.mId = T.Add(Object.mString, vec3(Object.mPosition.x, Object.mPosition.y, Depth))
-                Object.mDimension = inFontObject:GetDimension(Object.mString)
-                Object.mFont = inFontObject
-                return Object
-        end,
-
-        Update = function(self, inText, inPos)
-                local newL = utf8.len(inText)
-                local oldL = utf8.len(self.mString)
-                local Pos = vec3(inPos.x, inPos.y, Depth)
-
-                if newL > oldL then
-                        local id = T.Add(string.rep(" ", newL - oldL), vec3(math.huge, math.huge, Depth))
-                        self.mId.y = self.mId.y + id.y
-                else
-                        T.Update(Int(self.mId.x), string.rep(" ", oldL), Pos) -- Clear String
-                end
-
-                T.Update(Int(self.mId.x), inText, Pos)
-                self.mString = inText
-                self.mDimension = self.mFont:GetDimension(self.mString)
-        end,
-
-        Draw = function(self)
-                T.Bind()
-                T.Draw(self.mColor, Int(WindowDimension.x), Int(WindowDimension.y), Int(self.mId.x), Int(self.mId.y),
-                        GetIdentityMatrix())
-        end
-}
 
 Jkr.ComponentObject = {
         mPosition_3f = vec3(0, 0, 0),
@@ -275,9 +327,12 @@ Jkr.Components.Static.TextObject = {
                 T.SetCurrentFace(inFontObject.mId)
                 T.SetTextProperty(TextH.left, TextV.top)
                 Obj.mId = T.Add(Obj.mString, vec3(Obj.mPosition_3f.x, Obj.mPosition_3f.y, Depth))
-                Obj.mDimension = inFontObject:GetDimension(Obj.mString)
+                Obj.mDimension_2f = inFontObject:GetDimension(Obj.mString)
                 Obj.mFont = inFontObject
                 return Obj
+        end,
+        GetLength = function(self)
+                return self.mId.y
         end,
         Event = function (self)
         end,

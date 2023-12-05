@@ -224,3 +224,30 @@
 80361	81857	7228865813669430	aa_unit_testing/aa_unit_testing.exe	4f0e8574ab04152b
 62208	171598	7228866713388282	aJkrLua/CMakeFiles/aJkrLua.dir/EntryPoint.cpp.obj	1e3f74f6a9f8e9c1
 171599	172516	7228866718829341	aJkrLua/aJkrLua.exe	ed6e2a25bd60d663
+272	1683	0	C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release with debug/CMakeFiles/cmake.verify_globs	cfdaa261c89b8325
+1905	13615	7231900992213068	aa_unit_testing/CMakeFiles/aa_unit_testing.dir/testmain.cpp.obj	6914d1a2cb0af1b0
+2730	31000	7231901166953408	jkrgui/CMakeFiles/jkrgui.dir/PainterCache.cpp.obj	c59ef481516805e9
+2673	33896	7231901195891077	jkrgui/CMakeFiles/jkrgui.dir/Components/ContextMenuList.cpp.obj	7a86b60ef2bfe00b
+1927	34401	7231901201132545	application/CMakeFiles/application.dir/GridSheet.cpp.obj	5aea10c860b89c03
+2702	36561	7231901222819163	jkrgui/CMakeFiles/jkrgui.dir/Instance.cpp.obj	5ce7573f809bb681
+2716	41140	7231901268277976	jkrgui/CMakeFiles/jkrgui.dir/Painter.cpp.obj	736ecb10e038fdb3
+36562	43977	7231901296853479	jkrgui/CMakeFiles/jkrgui.dir/Renderers/TextD/BestText_base.cpp.obj	a1bb6aae20d16f9f
+2687	44724	7231901304302740	jkrgui/CMakeFiles/jkrgui.dir/Components/TextLineEdit.cpp.obj	28fa69f9b4d13cc1
+1916	48655	7231901343468137	application/CMakeFiles/application.dir/DrawArea.cpp.obj	41a8bc83468fbe37
+34402	53294	7231901390069004	jkrgui/CMakeFiles/jkrgui.dir/Renderers/TextD/BestText.cpp.obj	7f46c86c0c4d997e
+1709	53831	7231901395201359	aa_unit_testing/CMakeFiles/aa_unit_testing.dir/notapplication.cpp.obj	7ab6403fdf25fb6b
+13617	54346	7231901400463112	jkrgui/CMakeFiles/jkrgui.dir/PainterParameter.cpp.obj	f5f9c83450d459b2
+31000	54674	7231901404005632	jkrgui/CMakeFiles/jkrgui.dir/Primitive.cpp.obj	3faec5a8b3aed35d
+33897	56614	7231901423448753	jkrgui/CMakeFiles/jkrgui.dir/Renderers/Renderer_base.cpp.obj	59b9dad45f830e17
+2660	58918	7231901446265392	application/CMakeFiles/application.dir/application.cpp.obj	d0af454037d2cb4d
+41141	59246	7231901449654552	jkrgui/CMakeFiles/jkrgui.dir/Renderers/TextD/FastText.cpp.obj	16552b10ec60df47
+44724	61818	7231901475531272	jkrgui/CMakeFiles/jkrgui.dir/Renderers/TwoD/Line_base.cpp.obj	8c32850bc503678c
+43978	62856	7231901485794112	jkrgui/CMakeFiles/jkrgui.dir/Renderers/TwoD/Line.cpp.obj	c369e44b7431d87b
+48655	68906	7231901546361638	jkrgui/CMakeFiles/jkrgui.dir/Renderers/TwoD/Shape.cpp.obj	6fb9e6230acd897
+53295	74804	7231901605348044	jkrgui/CMakeFiles/jkrgui.dir/Window.cpp.obj	dbf69aa2a052ca7f
+74804	75177	7231901609330291	jkrgui/jkrgui.lib	ce1c78589d5486ec
+75190	76843	7231901621863004	application/application.exe	b3100b491d81993f
+75178	76852	7231901621863004	aa_unit_testing/aa_unit_testing.exe	4f0e8574ab04152b
+53831	173756	7231902593816303	aJkrLua/CMakeFiles/aJkrLua.dir/EntryPoint.cpp.obj	1e3f74f6a9f8e9c1
+173757	174730	7231902599292021	aJkrLua/aJkrLua.exe	ed6e2a25bd60d663
+42	108	0	C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release with debug/CMakeFiles/cmake.verify_globs	cfdaa261c89b8325

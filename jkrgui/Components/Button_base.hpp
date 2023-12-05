@@ -11,12 +11,12 @@ public:
         : Area_base(inR, inE)
     {
     }
-    constexpr void Load()
+    inline void Load()
     {
         ab::Load();
         mBoundedRectId = e.SetBoundedRect(ab::GetPosition(), ab::GetDimension(), ab::GetDepthValue());
     }
-    constexpr void Event()
+    inline void Event()
     {
         Jkr::BoundRect2D Rect { .mXy = ab::GetPosition(), .mWh = ab::GetDimension() };
         e.UpdateBoundRect(ab::GetDepthValue(), mBoundedRectId, Rect);

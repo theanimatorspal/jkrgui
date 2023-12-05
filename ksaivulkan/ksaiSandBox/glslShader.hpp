@@ -41,8 +41,9 @@ namespace ksai
 		{
 			computeShader(*this);
 		}
-		void constexpr AddStringToShader(std::string inString) {
-			switch (mCurrentOperatingShader)
+        void AddStringToShader(std::string inString)
+        {
+            switch (mCurrentOperatingShader)
 			{
 			case Current::VertexShader:
 				mVertexShader << inString;
@@ -61,11 +62,9 @@ namespace ksai
 				mFragmentShader << inString;
 				break;
 			}
-		}
-		inline void constexpr SetCurrentShader(Current inShader) {
-			mCurrentOperatingShader = inShader;
-		}
-		inline void Print()
+        }
+        inline void SetCurrentShader(Current inShader) { mCurrentOperatingShader = inShader; }
+        inline void Print()
 		{
 			std::cout << mVertexShader.str();
 			std::cout << mFragmentShader.str();
@@ -91,15 +90,15 @@ namespace ksai
 			}
 			file.close();
 		}
-		inline void constexpr SetStartLine(uint32_t inLine) { mStartLine = inLine; }
-		inline void constexpr SetEndLine(uint32_t inLine) { mEndLine = inLine; }
+        inline void SetStartLine(uint32_t inLine) { mStartLine = inLine; }
+        inline void SetEndLine(uint32_t inLine) { mEndLine = inLine; }
 
-		inline constexpr const std::ostringstream& GetVertexShader() const { return mVertexShader; }
-		inline constexpr const std::ostringstream& GetFragmentShader() const { return mFragmentShader; }
-		inline constexpr const std::ostringstream& GetGeometryShader() const { return mGeometryShader; }
-		inline constexpr const std::ostringstream& GetComputeShader() const { return mComputeShader; }
+        inline const std::ostringstream &GetVertexShader() const { return mVertexShader; }
+        inline const std::ostringstream &GetFragmentShader() const { return mFragmentShader; }
+        inline const std::ostringstream &GetGeometryShader() const { return mGeometryShader; }
+        inline const std::ostringstream &GetComputeShader() const { return mComputeShader; }
 
-	private:
+    private:
 		Current mCurrentOperatingShader = Current::NoneShader;
 		std::ostringstream mVertexShader;
 		std::ostringstream mFragmentShader;

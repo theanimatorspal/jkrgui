@@ -9,7 +9,7 @@
 #include <Renderers/TwoD/2d.hpp>
 #include <Vendor/Tracy/tracy/Tracy.hpp>
 
-//#define SOL_ALL_SAFETIES_ON 1
+#define SOL_ALL_SAFETIES_ON 1
 
 #include <Vendor/sol/sol.hpp>
 #include <Window.hpp>
@@ -456,7 +456,7 @@ constexpr bool toBool(string_view inString)
         return false;
 }
 
-constexpr float toFloat(string_view inString)
+float toFloat(string_view inString)
 {
     return std::stof(string(inString));
 }
@@ -712,7 +712,7 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
             "update",
             [&](int id, string inString, vec3 inpos) -> void {
                 {};
-                td.bt.UpdateText(id, inString, inpos.x, inpos.y, inpos.y);
+                td.bt.UpdateText(id, inString, inpos.x, inpos.y, inpos.z);
             },
 
             "bind",
@@ -788,7 +788,11 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
             w.SetScissor(rect);
         });
 
-        r.set_function("reset_scissor", [&] { w.ResetScissor(); }
+        r.set_function("reset_scissor",
+                       [&] {
+                           {};
+                           w.ResetScissor();
+                       }
 
         );
 
@@ -903,7 +907,13 @@ layout(push_constant, std430) uniform pc {
         );
     }
 
-    l.script_file(string(cf["-main_file"]));
+    sol::protected_function_result result = l.script_file(string(cf["-main_file"]),
+                                                          &sol::script_pass_on_error);
+    if (not result.valid()) {
+        sol::error error = result;
+        cout << error.what() << endl;
+        exit(-1);
+    }
 
     sol::function draw_callback = l["Draw"];
     sol::function load_callback = l["Load"];

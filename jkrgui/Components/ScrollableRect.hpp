@@ -112,15 +112,9 @@ namespace Jkr::Component
 				vk::Extent2D(this->GetDimension().x - mVerticalScrollBarButton->GetDimension().x, this->GetDimension().y)
 			);
 		}
-		constexpr void SetScissor()
-		{
-			mWindow->SetScissor(GetScissor());
-		}
-		constexpr void ResetScissor()
-		{
-			mWindow->ResetScissor();
-		}
-		GETTER GetScrollOffsetPosition()
+        void SetScissor() { mWindow->SetScissor(GetScissor()); }
+        void ResetScissor() { mWindow->ResetScissor(); }
+        GETTER GetScrollOffsetPosition()
 		{
 			return glm::vec2(0.0f, -mVerticalScrollBarButton->GetPosition().y + this->GetPosition().y);
 		}

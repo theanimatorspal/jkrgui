@@ -1,22 +1,39 @@
+
+--[[
+        Yo chae User le lekhne Code ho
+]]
+
 require "jkrgui"
 require "CompTable"
 
 local __Depth = Depth + 10 -- Farthest (This meant to be used when the ComObject adds Over sth)
+local GPS  = {
+        mPosition = vec3(0, 0, 0),
+        New = function (self)
+
+        end
+}
 
 Load = function()
         Font = Jkr.FontObject:New("C:\\Users\\sansk\\OneDrive\\Desktop\\Project\\jkrengine\\out\\build\\x64-release with debug\\application\\font.ttf", 4)
         MovableArea = Com.AreaObject:New(vec3(100, 100, __Depth), vec3(200, 200, 1))
+        MovableArea.mIsMovable = true
         SampleText = Com.TextLabelObject:New("अत्र लिख्यताम् : ", vec3(10, 20, Depth - 1), Font)
         TextButton = Com.TextButtonObject:New("अस्तु", Font, vec3(140, 170, Depth - 1), vec3(50, 20, 1))
+
+        TextLineEditor = Com.TextLineEditObject:New(vec3(20, 40, Depth - 1), vec3(100, 20, 1), 5, Font, 20, MovableArea)
+
         SampleText:SetParent(MovableArea)
         TextButton:SetParent(MovableArea)
 end
 
 Event = function()
-        Com.Events()
-        MovableArea:Event()
         SampleText:SetParent(MovableArea)
         TextButton:SetParent(MovableArea)
+        Com.Events()
+        MovableArea:Event()
+        TextButton:Event()
+        TextLineEditor:Event()
 end
 
 Update = function()
