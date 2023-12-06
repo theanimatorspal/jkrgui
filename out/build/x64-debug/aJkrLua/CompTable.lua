@@ -387,8 +387,8 @@ Com.TextMultiLineEditObject = {
             local TextPosition = vec3(inPosition_3f.x, inPosition_3f.y + inCursorHeight * i, inPosition_3f.z)
             local StartString = string.rep(" ", inMaxStringLength)
             ComTable[com_i] = Jkr.Components.Static.TextObject:New(StartString, TextPosition, inFontObject)
-            Obj.mTextObjectIds[#Obj.mTextObjectIds+1] = com_i
-            Obj.mLineTexts[#Obj.mLineTexts+1] = ""
+            Obj.mTextObjectIds[#Obj.mTextObjectIds + 1] = com_i
+            Obj.mLineTexts[#Obj.mLineTexts + 1] = ""
         end
 
 
@@ -409,6 +409,7 @@ Com.TextMultiLineEditObject = {
         end
 
         local eid = self.mCurrentLine
+        local string_length = utf8.len(self.mLineTexts[eid])
         if self.mShouldInputText then
             local is_backspace = E.is_key_pressed(Key.SDLK_BACKSPACE)
             local is_enter = E.is_key_pressed(Key.SDLK_RETURN)
@@ -416,14 +417,14 @@ Com.TextMultiLineEditObject = {
                 self.mLineTexts[eid] = self.mLineTexts[eid] .. E.get_input_text()
                 self.mShouldUpdate = true
             end
-            if E.is_keypress_event() then
-                if is_backspace and utf8.len(self.mLineTexts[eid]) >= 0 then
+            if E.is_keypress_event()  then
+                if is_backspace and string_length > 0 then
                     self.mShouldUpdate = true
                     self.mLineTexts[eid] = utf8.sub(self.mLineTexts[eid], 1, -2)
-                elseif is_enter then
+                elseif is_backspace and string_length == 0 and eid ~= 1 then
+                    self.mCurrentLine = self.mCurrentLine - 1
+                elseif is_enter or string_length >= self.mMaxStringLength then
                     self.mCurrentLine = self.mCurrentLine + 1
-                    print("Enter Pressed", self.mCurrentLine)
-                    -- ComTable[self.mTextCursorObject.mShapeId].mFillColor = Theme.Colors.Text.Cursor.Normal
                 end
             end
         end
@@ -432,7 +433,7 @@ Com.TextMultiLineEditObject = {
 
         if self.mShouldUpdate then
             local t_obj = self.mTextObjectIds[eid]
-            
+
             ComTable[t_obj].mString = string.rep(" ", self.mMaxStringLength)
             ComTable[t_obj]:Update(self.mPosition_3f)
 
@@ -445,11 +446,12 @@ Com.TextMultiLineEditObject = {
 
 
 
-            local TextPosition = vec3(self.mPosition_3f.x, self.mPosition_3f.y + self.mTextCursorObject.mHeight * eid, self.mPosition_3f.z - 3)
+            local TextPosition = vec3(self.mPosition_3f.x, self.mPosition_3f.y + self.mTextCursorObject.mHeight * eid,
+                self.mPosition_3f.z - 3)
             ComTable[t_obj]:Update(TextPosition)
             local CursorPosByTypedText = ComTable[t_obj].mFont:GetDimension(self.mLineTexts[eid])
             local CursorObjectPosition = vec3(
-                CursorPosByTypedText.x + self.mPosition_3f.x + self.mTextCursorObject.mWidth,
+                CursorPosByTypedText.x + self.mPosition_3f.x,
                 self.mPosition_3f.y + (self.mTextCursorObject.mHeight) * (eid - 1),
                 self.mPosition_3f.z - 3)
             local CursorObjectDimension = vec3(self.mTextCursorObject.mWidth, self.mTextCursorObject.mHeight,
@@ -457,9 +459,20 @@ Com.TextMultiLineEditObject = {
             self.mTextCursorObject:Update(CursorObjectPosition, CursorObjectDimension)
             self.mShouldUpdate = false
 
-            print("key", t_obj)
-            print("----------------------------------")
+            print(string.format(
+                [[
+                    EID: %d
+                    LINETEXT: %s
+                    POS: vec3(%f, %f, %f)
+                    STRLEN: %d
+                    ]],
+                eid,
+                self.mLineTexts[eid],
+                TextPosition.x,
+                TextPosition.y,
+                TextPosition.z,
+                string_length
+            ))
         end
-
     end
 }
