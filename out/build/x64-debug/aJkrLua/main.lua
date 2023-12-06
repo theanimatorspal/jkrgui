@@ -6,25 +6,48 @@ require "jkrgui"
 require "CompTable"
 
 local __Depth = Depth + 10 -- Farthest (This meant to be used when the ComObject adds Over sth)
-local GPS     = {
-        mPosition = vec3(0, 0, 0),
-}
 
 
 Load = function()
         Font = Jkr.FontObject:New(
         "C:\\Users\\sansk\\OneDrive\\Desktop\\Project\\jkrengine\\out\\build\\x64-release with debug\\application\\font.ttf",
                 4)
-        MovableArea = Com.AreaObject:New(vec3(10, 10, __Depth), vec3(200, 200, 1))
-        -- MovableArea.mIsMovable = true
-        SampleText = Com.TextLabelObject:New("अत्र लिख्यताम् : ", vec3(10, 20, Depth - 1), Font)
-        TextButton = Com.TextButtonObject:New("अस्तु", Font, vec3(140, 170, Depth - 1), vec3(50, 20, 1))
-        TextLineEditor = Com.TextLineEditObject:New(vec3(20, 40, Depth - 1), vec3(100, 20, 1), 5, Font, 20, MovableArea)
-        TextLineEditorSecond = Com.TextLineEditObject:New(vec3(20, 80, Depth - 1), vec3(100, 20, 1), 5, Font, 20,
+
+        local GridGPS = Com.GPS:New(__Depth, Depth)
+        GridGPS:SetDimension(vec3(200, 200, 1))
+        print("GRID GPS")
+        GridGPS:PrintCurrent()
+
+        MovableArea = Com.AreaObject:New(GridGPS.mPosition_3f, GridGPS.mDimension_3f)
+        local MovableAreaGPS = Com.GPS:New(Depth, Depth - 2)
+        GridGPS:SetDimension(vec3(10, 20, 1))
+        MovableAreaGPS:MoveDown()
+        SampleText = Com.TextLabelObject:New("अत्र लिख्यताम् : ", MovableAreaGPS.mPosition_3f, Font)
+        MovableAreaGPS:MoveDown()
+        MovableAreaGPS:SetDimension(vec3(100, 20, 1))
+        TextLineEditor = Com.TextLineEditObject:New(MovableAreaGPS.mPosition_3f, MovableAreaGPS.mDimension_3f, 5, Font, 20, MovableArea)
+        MovableAreaGPS:MoveDown() 
+        TextLineEditorSecond = Com.TextLineEditObject:New(MovableAreaGPS.mPosition_3f, MovableAreaGPS.mDimension_3f, 5, Font, 20,
                 MovableArea)
+        MovableAreaGPS:MoveDown()
+        TextButton = Com.TextButtonObject:New("अस्तु", Font, MovableAreaGPS.mPosition_3f, MovableAreaGPS.mDimension_3f)
+
+        GridGPS:SetDimension(vec3(200, 200, 1)) -- TODO, fix this bug, this shouldn't be required
+        GridGPS:MoveRight()
         TextMultiLineEditor = Com.TextMultiLineEditObject:New(
-                vec3(220, 10, __Depth), -- position
-                vec3(300, 200, 1), -- dimension
+                GridGPS.mPosition_3f, -- position
+                GridGPS.mDimension_3f, -- dimension
+                5, -- cursor width
+                20, -- cursor height
+                Font, -- font
+                5, -- max no of lines
+                40, -- max string length
+                nil)
+
+        GridGPS:MoveRight()
+        TerminalEmulator = Com.TextMultiLineEditObject:New(
+                GridGPS.mPosition_3f, -- position
+                GridGPS.mDimension_3f, -- dimension
                 5, -- cursor width
                 20, -- cursor height
                 Font, -- font
@@ -50,6 +73,7 @@ Event = function()
         TextLineEditor:Event()
         TextLineEditorSecond:Event()
         TextMultiLineEditor:Event()
+        TerminalEmulator:Event()
 end
 
 Update = function()

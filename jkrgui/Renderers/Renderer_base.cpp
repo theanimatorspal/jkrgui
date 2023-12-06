@@ -37,34 +37,35 @@ void Jkr::Renderer::Renderer_base::ResizeStagingBuffer(const Instance& inInstanc
 
 void Jkr::Renderer::Renderer_base::CmdCopyToPrimitiveFromStagingBuffer(const Instance& inInstance, Primitive& inPrimitive, Window& inWindow, size_t inVertexMemorySizeToBeBarriered, size_t inIndexMemorySizeToBeBarriered)
 {
-    inInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()].GetCommandBufferHandle().copyBuffer(
-        mStagingVertexBuffer->GetBufferHandle(),
-        inPrimitive.GetVertexBufferPtr()->GetBufferHandle(),
-        mVertexCopyRegionsToBeSubmitted);
+    inWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()]
+        .GetCommandBufferHandle()
+        .copyBuffer(mStagingVertexBuffer->GetBufferHandle(),
+                    inPrimitive.GetVertexBufferPtr()->GetBufferHandle(),
+                    mVertexCopyRegionsToBeSubmitted);
 
-    inPrimitive.GetVertexBufferPtr()->SetBarrier(
-        inInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()],
-        0,
-        inVertexMemorySizeToBeBarriered,
-        vk::AccessFlagBits::eMemoryWrite,
-        vk::AccessFlagBits::eMemoryRead,
-        vk::PipelineStageFlagBits::eTransfer,
-        vk::PipelineStageFlagBits::eVertexInput
-    );
+    inPrimitive.GetVertexBufferPtr()
+        ->SetBarrier(inWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()],
+                     0,
+                     inVertexMemorySizeToBeBarriered,
+                     vk::AccessFlagBits::eMemoryWrite,
+                     vk::AccessFlagBits::eMemoryRead,
+                     vk::PipelineStageFlagBits::eTransfer,
+                     vk::PipelineStageFlagBits::eVertexInput);
 
-    inInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()].GetCommandBufferHandle().copyBuffer(
-        mStagingIndexBuffer->GetBufferHandle(),
-        inPrimitive.GetIndexBufferPtr()->GetBufferHandle(),
-        mIndexCopyRegionsToBeSubmitted);
+    inWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()]
+        .GetCommandBufferHandle()
+        .copyBuffer(mStagingIndexBuffer->GetBufferHandle(),
+                    inPrimitive.GetIndexBufferPtr()->GetBufferHandle(),
+                    mIndexCopyRegionsToBeSubmitted);
 
-    inPrimitive.GetIndexBufferPtr()->SetBarrier(
-        inInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()],
-        0,
-        inIndexMemorySizeToBeBarriered,
-        vk::AccessFlagBits::eMemoryWrite,
-        vk::AccessFlagBits::eMemoryRead,
-        vk::PipelineStageFlagBits::eTransfer,
-        vk::PipelineStageFlagBits::eVertexInput);
+    inPrimitive.GetIndexBufferPtr()
+        ->SetBarrier(inWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()],
+                     0,
+                     inIndexMemorySizeToBeBarriered,
+                     vk::AccessFlagBits::eMemoryWrite,
+                     vk::AccessFlagBits::eMemoryRead,
+                     vk::PipelineStageFlagBits::eTransfer,
+                     vk::PipelineStageFlagBits::eVertexInput);
     mVertexCopyRegionsToBeSubmitted.clear();
     mIndexCopyRegionsToBeSubmitted.clear();
 }

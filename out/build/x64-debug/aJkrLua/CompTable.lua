@@ -20,6 +20,99 @@ Com.Draws = function()
     end
 end
 
+Com.GPS = {
+        mPadding = 10,
+        mPosition_3f = vec3(0, 0, 0),
+        mDimension_3f = vec3(0, 0, 0),
+        mBackDepthValue = 0,
+        mFrontDepthValue = 0,
+        New = function (self, inBackDepthValueAbsolute, inFrontDepthValueAbsolute)
+            local Obj = {
+                mPadding = 10,
+                mPosition_3f = vec3(0, 0, 0),
+                mDimension_3f = vec3(0, 0, 0),
+                mBackDepthValue = inBackDepthValueAbsolute,
+                mFrontDepthValue = inFrontDepthValueAbsolute
+            } 
+            Obj.mPosition_3f = vec3(Obj.mPadding, Obj.mPadding, inBackDepthValueAbsolute)
+            setmetatable(Obj, self)
+            self.__index = self
+            return Obj
+        end,
+        PrintCurrent = function (self)
+           print(
+            string.format(
+                [[
+                    POS: vec3(%f, %f, %f)
+                    DIMEN: vec3(%f, %f, %f)
+                ]],
+                self.mPosition_3f.x,
+                self.mPosition_3f.y,
+                self.mPosition_3f.z,
+                self.mDimension_3f.x,
+                self.mDimension_3f.y,
+                self.mDimension_3f.z
+            )
+           ) 
+        end,
+        SetDimension = function (self, inDimension_3f)
+                self.mDimension_3f = inDimension_3f
+        end,
+        Start = function (self)
+                self.mPosition_3f = vec3(self.mPadding, self.mPadding, self.mPadding)
+        end,
+        MoveDown = function (self)
+                self.mPosition_3f = vec3(
+                        self.mPosition_3f.x,
+                        self.mPosition_3f.y + self.mDimension_3f.y + self.mPadding,
+                        self.mPosition_3f.z
+                )
+                self:PrintCurrent()
+        end,
+        MoveRight = function (self)
+                self.mPosition_3f = vec3(
+                        self.mPosition_3f.x + self.mDimension_3f.x + self.mPadding,
+                        self.mPosition_3f.y,
+                        self.mPosition_3f.z
+                )
+                self:PrintCurrent()
+        end,
+        MoveUp = function (self)
+                self.mPosition_3f = vec3(
+                        self.mPosition_3f.x,
+                        self.mPosition_3f.y - (self.mDimension_3f.y + self.mPadding),
+                        self.mPosition_3f.z
+                )
+                self:PrintCurrent()
+        end,
+        MoveLeft = function (self)
+                self.mPosition_3f = vec3(
+                        self.mPosition_3f.x - (self.mDimension_3f.x + self.mPadding),
+                        self.mPosition_3f.y,
+                        self.mPosition_3f.z
+                )
+                self:PrintCurrent()
+        end,
+        MoveBackAbsolute = function (self)
+            self.mPosition_3f = vec3(
+                self.mPosition_3f.x,
+                self.mPosition_3f.y,
+                self.mBackDepthValue
+            )
+            self:PrintCurrent()
+        end,
+        MoveFrontAbsolute = function(self)
+            self.mPosition_3f = vec3(
+                self.mPosition_3f.x,
+                self.mPosition_3f.y,
+                self.mFrontDepthValue
+            )
+            self:PrintCurrent()
+        end
+}
+
+
+
 Com.AreaObject = {
     mIds = vec2(0, 0),
     mPosition_3f = vec3(0, 0, 0),

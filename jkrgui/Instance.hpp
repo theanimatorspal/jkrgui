@@ -38,10 +38,10 @@ namespace Jkr {
 		GETTER& GetDevice() const { return mDevice; }
 
 		GETTER& GetGraphicsQueue() const { return mGraphicsQueue; }
-		GETTER& GetCommandPool() const { return mCommandPool; }
-		GETTER& GetCommandBuffers() const { return mCommandBuffers; }
-		GETTER& GetUtilCommandBuffer() const { return mUtilCommandBuffer; }
-		GETTER& GetDescriptorPool() const { return mDescriptorPool; }
+        GETTER &GetCommandPool() const { return mCommandPool; }
+        // GETTER& GetCommandBuffers() const { return mCommandBuffers; }
+        GETTER &GetUtilCommandBuffer() const { return mUtilCommandBuffer; }
+        GETTER& GetDescriptorPool() const { return mDescriptorPool; }
 
 		GETTER& GetVMA() const { return mVmaAllocator; }
 	private:
@@ -55,10 +55,10 @@ namespace Jkr {
 		const VulkanQueueContext mQueueContext;
 		const VulkanDevice mDevice;
 		const VulkanQueue<QueueContext::Graphics> mGraphicsQueue;
-		const VulkanCommandPool mCommandPool;
-		const std::array<VulkanCommandBuffer, mMaxFramesInFlight> mCommandBuffers;
-		const VulkanCommandBuffer mUtilCommandBuffer;
-		const VulkanDescriptorPool<DescriptorPoolSize> mDescriptorPool;
+        const VulkanCommandPool mCommandPool;
+        // const std::array<VulkanCommandBuffer, mMaxFramesInFlight> mCommandBuffers;
+        const VulkanCommandBuffer mUtilCommandBuffer;
+        const VulkanDescriptorPool<DescriptorPoolSize> mDescriptorPool;
 		const VulkanVMA mVmaAllocator;
 	};
 }

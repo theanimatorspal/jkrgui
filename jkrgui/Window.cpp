@@ -123,31 +123,34 @@ void Jkr::SDLWindow::Minimize()
 	mWindowIsFullScreen = false;
 }
 
-
-Jkr::Window::Window(const Instance& inInstance, std::string_view inTitle, int inHeight, int inWidth)
-	: SDLWindow(inTitle, inHeight, inWidth),
-	mInstance(inInstance),
-	mSurface(mInstance.GetVulkanInstance(), mSDLWindowPtr),
-	mSwapChain(mInstance.GetDevice(),
-		mInstance.GetQueueContext(),
-		mSurface.ProcessCurrentSurfaceConditions(mInstance.GetPhysicalDevice())
-		.ProcessCurrentSurfaceExtents(mInstance.GetPhysicalDevice())
-	),
-	mDepthImage(mInstance.GetDevice(), mSurface),
-	mRenderPass(mInstance.GetDevice(), mSurface, mDepthImage),
-	mSwapChainImages{
-		mSwapChain.GetVulkanImages(mInstance.GetDevice(),
-		mSurface)
-	},
-	mFrameBuffers{
-		FrameBufferType(mInstance.GetDevice(), mRenderPass, mSwapChainImages[0], mDepthImage),
-		FrameBufferType(mInstance.GetDevice(), mRenderPass, mSwapChainImages[1], mDepthImage)
-	},
-	mImageAvailableSemaphores{ VulkanSemaphore(mInstance.GetDevice()), VulkanSemaphore(mInstance.GetDevice()) },
-	mRenderFinishedSemaphores{ VulkanSemaphore(mInstance.GetDevice()), VulkanSemaphore(mInstance.GetDevice()) },
-	mFences{ VulkanFence(mInstance.GetDevice()), VulkanFence(mInstance.GetDevice()) }
-{
-}
+Jkr::Window::Window(const Instance &inInstance, std::string_view inTitle, int inHeight, int inWidth)
+    : SDLWindow(inTitle, inHeight, inWidth)
+    , mInstance(inInstance)
+    , mSurface(mInstance.GetVulkanInstance(), mSDLWindowPtr)
+    , mSwapChain(mInstance.GetDevice(),
+                 mInstance.GetQueueContext(),
+                 mSurface.ProcessCurrentSurfaceConditions(mInstance.GetPhysicalDevice())
+                     .ProcessCurrentSurfaceExtents(mInstance.GetPhysicalDevice()))
+    , mDepthImage(mInstance.GetDevice(), mSurface)
+    , mRenderPass(mInstance.GetDevice(), mSurface, mDepthImage)
+    , mSwapChainImages{mSwapChain.GetVulkanImages(mInstance.GetDevice(), mSurface)}
+    , mFrameBuffers{FrameBufferType(mInstance.GetDevice(),
+                                    mRenderPass,
+                                    mSwapChainImages[0],
+                                    mDepthImage),
+                    FrameBufferType(mInstance.GetDevice(),
+                                    mRenderPass,
+                                    mSwapChainImages[1],
+                                    mDepthImage)}
+    , mImageAvailableSemaphores{VulkanSemaphore(mInstance.GetDevice()),
+                                VulkanSemaphore(mInstance.GetDevice())}
+    , mRenderFinishedSemaphores{VulkanSemaphore(mInstance.GetDevice()),
+                                VulkanSemaphore(mInstance.GetDevice())}
+    , mFences{VulkanFence(mInstance.GetDevice()), VulkanFence(mInstance.GetDevice())}
+    , mCommandPool(inInstance.GetDevice(), inInstance.GetQueueContext())
+    , mCommandBuffers{VulkanCommandBuffer(inInstance.GetDevice(), mCommandPool),
+                      VulkanCommandBuffer(inInstance.GetDevice(), mCommandPool)}
+{}
 
 void Jkr::Window::Draw(float r, float g, float b, float a, float d)
 {
@@ -157,8 +160,8 @@ void Jkr::Window::Draw(float r, float g, float b, float a, float d)
 	std::pair<uint32_t, uint32_t> SwapChainResult = mSwapChain.AcquireNextImage(mImageAvailableSemaphores[mCurrentFrame]);
 	mFences[mCurrentFrame].Wait();
 	mFences[mCurrentFrame].Reset();
-	auto& CommandBuffers = mInstance.GetCommandBuffers();
-	if (!mSwapChain.ImageIsNotOptimal(SwapChainResult))
+    auto &CommandBuffers = this->GetCommandBuffers();
+    if (!mSwapChain.ImageIsNotOptimal(SwapChainResult))
 	{
 		mAcquiredImageIndex = SwapChainResult.second;
 		CommandBuffers[mCurrentFrame].Reset();

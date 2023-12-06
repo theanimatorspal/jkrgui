@@ -10,19 +10,16 @@
 using namespace ksai::kstd;
 namespace tg = tinygltf;
 
-namespace Jkr::Renderer::glTF {
+namespace Jkr::Renderer::_3D {
 
-class glTF_Model_base
+class glTF_base
 {
     using ImageType = Jkr::PainterParameter<PainterParameterContext::UniformImage>;
-
-private:
-    const Instance &mInstance;
     std::vector<uint32_t> mIndexBuffer;
     std::vector<Vertex3D> mVertexBuffer;
 
 public:
-    glTF_Model_base(const Instance &inInstance, const std::string_view inFilePath)
+    glTF_base(const Instance &inInstance, const std::string_view inFilePath)
         : mInstance(inInstance)
     {
         tinygltf::Model glTFInput;
@@ -33,7 +30,7 @@ public:
                                                          &warning,
                                                          std::string(inFilePath));
         if (file_loaded) {
-            // TODO: this->LoadImages()
+            this->LoadImages(glTFInput);
             this->LoadMaterials(glTFInput);
             this->LoadTextures(glTFInput);
             const tinygltf::Scene &scene = glTFInput.scenes[0];
@@ -76,12 +73,6 @@ protected:
         int32_t mImageIndex;
     };
 
-    struct Image
-    {
-        Up<ImageType> mTextureImage;
-    };
-    
-    std::vector<Image> mImages;
     std::vector<Texture> mTextures;
     std::vector<Material> mMaterials;
     std::vector<Up<Node>> mNodes;
@@ -91,11 +82,19 @@ protected:
     void LoadMaterials(tinygltf::Model &input);
     void LoadNode(const tinygltf::Node &inputNode,
                   const tinygltf::Model &input,
-                  glTF_Model_base::Node *inParent,
+                  glTF_base::Node *inParent,
                   std::vector<uint32_t> &indexBuffer,
                   std::vector<Vertex3D> &vertexBuffer);
     void DrawNode(VulkanCommandBuffer &inCommandBuffer,
                   VulkanPipelineLayoutBase &inPipelineLayout,
-                  glTF_Model_base::Node *inNode);
+                  glTF_base::Node *inNode);
+
+private:
+    const Instance &mInstance;
+    struct Image
+    {
+        Up<ImageType> mTextureImage;
+    };
+    std::vector<Image> mImages;
 };
-} // namespace Jkr::Renderer::glTF
+} // namespace Jkr::Renderer::_3D

@@ -24,85 +24,102 @@ namespace Jkr {
 		template<class PushType>
 		inline void Draw(const Primitive& inPrimitive, const vk::ArrayProxy<PushType>  inPushConstants, const Window& inWindow)
 		{
-			auto& Cmd = mInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()];
-			inPrimitive.GetVertexBufferPtr()->Bind<BufferContext::Vertex>(Cmd);
-			inPrimitive.GetIndexBufferPtr()->Bind<BufferContext::Index>(Cmd);
-			Cmd.GetCommandBufferHandle().bindDescriptorSets(
-				vk::PipelineBindPoint::eGraphics,
-				mGUIPainterCache.GetVertexFragmentPipelineLayout().GetPipelineLayoutHandle(),
-				0,
-				mVertexFragmentDescriptorSet.GetDescriptorSetHandle(),
-				{});
-			Cmd.PushConstants<PushType>(mGUIPainterCache.GetVertexFragmentPipelineLayout(), inPushConstants);
-			mVulkanPipeline.Bind<PipelineContext::Default>(Cmd);
-			mVulkanPipeline.DrawIndexed(Cmd, inPrimitive.GetIndexCount(), 1, 0, 0, 0);
-		}
-		template<class PushType>
-		inline void Draw(const Primitive& inPrimitive, const vk::ArrayProxy<PushType>  inPushConstants)
-		{
-			Draw(inPrimitive, inPushConstants, mWindow);
-		}
+            auto &Cmd = mWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()];
+            inPrimitive.GetVertexBufferPtr()->Bind<BufferContext::Vertex>(Cmd);
+            inPrimitive.GetIndexBufferPtr()->Bind<BufferContext::Index>(Cmd);
+            Cmd.GetCommandBufferHandle().bindDescriptorSets(
+                vk::PipelineBindPoint::eGraphics,
+                mGUIPainterCache.GetVertexFragmentPipelineLayout().GetPipelineLayoutHandle(),
+                0,
+                mVertexFragmentDescriptorSet.GetDescriptorSetHandle(),
+                {});
+            Cmd.PushConstants<PushType>(mGUIPainterCache.GetVertexFragmentPipelineLayout(),
+                                        inPushConstants);
+            mVulkanPipeline.Bind<PipelineContext::Default>(Cmd);
+            mVulkanPipeline.DrawIndexed(Cmd, inPrimitive.GetIndexCount(), 1, 0, 0, 0);
+        }
+        template<class PushType>
+        inline void Draw(const Primitive &inPrimitive,
+                         const vk::ArrayProxy<PushType> inPushConstants)
+        {
+            Draw(inPrimitive, inPushConstants, mWindow);
+        }
 
-		template<class PushType>
-		inline void BindDrawParamters_EXT(const Primitive& inPrimitive, const Window& inWindow)
-		{
-			auto& Cmd = mInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()];
-			inPrimitive.GetVertexBufferPtr()->Bind<BufferContext::Vertex>(Cmd);
-			inPrimitive.GetIndexBufferPtr()->Bind<BufferContext::Index>(Cmd);
-			Cmd.GetCommandBufferHandle().bindDescriptorSets(
-				vk::PipelineBindPoint::eGraphics,
-				mGUIPainterCache.GetVertexFragmentPipelineLayout().GetPipelineLayoutHandle(),
-				0,
-				mVertexFragmentDescriptorSet.GetDescriptorSetHandle(),
-				{});
-			mVulkanPipeline.Bind<PipelineContext::Default>(Cmd);
-		}
+        template<class PushType>
+        inline void BindDrawParamters_EXT(const Primitive &inPrimitive, const Window &inWindow)
+        {
+            auto &Cmd = mWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()];
+            inPrimitive.GetVertexBufferPtr()->Bind<BufferContext::Vertex>(Cmd);
+            inPrimitive.GetIndexBufferPtr()->Bind<BufferContext::Index>(Cmd);
+            Cmd.GetCommandBufferHandle().bindDescriptorSets(
+                vk::PipelineBindPoint::eGraphics,
+                mGUIPainterCache.GetVertexFragmentPipelineLayout().GetPipelineLayoutHandle(),
+                0,
+                mVertexFragmentDescriptorSet.GetDescriptorSetHandle(),
+                {});
+            mVulkanPipeline.Bind<PipelineContext::Default>(Cmd);
+        }
 
-		template<class PushType>
-		inline void BindDrawParamtersDescriptorsOnly_EXT(const Primitive& inPrimitive, const Window& inWindow)
-		{
-			auto& Cmd = mInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()];
-			Cmd.GetCommandBufferHandle().bindDescriptorSets(
-				vk::PipelineBindPoint::eGraphics,
-				mGUIPainterCache.GetVertexFragmentPipelineLayout().GetPipelineLayoutHandle(),
-				0,
-				mVertexFragmentDescriptorSet.GetDescriptorSetHandle(),
-				{});
-		}
+        template<class PushType>
+        inline void BindDrawParamtersDescriptorsOnly_EXT(const Primitive &inPrimitive,
+                                                         const Window &inWindow)
+        {
+            auto &Cmd = mWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()];
+            Cmd.GetCommandBufferHandle().bindDescriptorSets(
+                vk::PipelineBindPoint::eGraphics,
+                mGUIPainterCache.GetVertexFragmentPipelineLayout().GetPipelineLayoutHandle(),
+                0,
+                mVertexFragmentDescriptorSet.GetDescriptorSetHandle(),
+                {});
+        }
 
-		template<class PushType>
-		static inline void BindDrawParamtersVertexAndIndexBuffersOnly_EXT(const Instance& inInstance, const Primitive& inPrimitive, const Window& inWindow)
-		{
-			auto& Cmd = inInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()];
-			inPrimitive.GetVertexBufferPtr()->Bind<BufferContext::Vertex>(Cmd);
-			inPrimitive.GetIndexBufferPtr()->Bind<BufferContext::Index>(Cmd);
-		}
+        template<class PushType>
+        static inline void BindDrawParamtersVertexAndIndexBuffersOnly_EXT(
+            const Instance &inInstance, const Primitive &inPrimitive, const Window &inWindow)
+        {
+            auto &Cmd = inWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()];
+            inPrimitive.GetVertexBufferPtr()->Bind<BufferContext::Vertex>(Cmd);
+            inPrimitive.GetIndexBufferPtr()->Bind<BufferContext::Index>(Cmd);
+        }
 
-		template<class PushType>
-		inline void BindDrawParamtersPipelineOnly_EXT(const Primitive& inPrimitive, const Window& inWindow)
-		{
-			auto index = inWindow.GetCurrentFrame();
-			auto& Cmd = mInstance.GetCommandBuffers()[index];
-			mVulkanPipeline.Bind<PipelineContext::Default>(Cmd);
-		}
+        template<class PushType>
+        inline void BindDrawParamtersPipelineOnly_EXT(const Primitive &inPrimitive,
+                                                      const Window &inWindow)
+        {
+            auto index = inWindow.GetCurrentFrame();
+            auto &Cmd = inWindow.GetCommandBuffers()[index];
+            mVulkanPipeline.Bind<PipelineContext::Default>(Cmd);
+        }
 
+        template<class PushType>
+        inline void BindDrawParamters_EXT(const Primitive &inPrimitive)
+        {
+            BindDrawParamters_EXT<PushType>(inPrimitive, mWindow);
+        }
 
-		template<class PushType>
-		inline void BindDrawParamters_EXT(const Primitive& inPrimitive)
-		{
-			BindDrawParamters_EXT<PushType>(inPrimitive, mWindow);
-		}
-
-		template<class PushType>
-		inline void Draw_EXT(const Primitive& inPrimitive, const vk::ArrayProxy<PushType> inPushConstants, const Window& inWindow, uint32_t inIndexCount, uint32_t inInstanceCount, uint32_t inFirstIndex, uint32_t inFirstInstance)
-		{
-			auto& Cmd = mInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()];
-			Cmd.PushConstants<PushType>(mGUIPainterCache.GetVertexFragmentPipelineLayout(), inPushConstants);
-			mVulkanPipeline.DrawIndexed(Cmd, inIndexCount, inInstanceCount, inFirstIndex, 0, inFirstInstance);
-		}
-		template<class PushType>
-		inline void Draw_EXT(const Primitive& inPrimitive, const vk::ArrayProxy<PushType> inPushConstants, uint32_t inIndexCount, uint32_t inInstanceCount, uint32_t inFirstIndex, uint32_t inFirstInstance)
-		{
+        template<class PushType>
+        inline void Draw_EXT(const Primitive &inPrimitive,
+                             const vk::ArrayProxy<PushType> inPushConstants,
+                             const Window &inWindow,
+                             uint32_t inIndexCount,
+                             uint32_t inInstanceCount,
+                             uint32_t inFirstIndex,
+                             uint32_t inFirstInstance)
+        {
+            auto &Cmd = inWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()];
+            Cmd.PushConstants<PushType>(mGUIPainterCache.GetVertexFragmentPipelineLayout(),
+                                        inPushConstants);
+            mVulkanPipeline
+                .DrawIndexed(Cmd, inIndexCount, inInstanceCount, inFirstIndex, 0, inFirstInstance);
+        }
+        template<class PushType>
+        inline void Draw_EXT(const Primitive &inPrimitive,
+                             const vk::ArrayProxy<PushType> inPushConstants,
+                             uint32_t inIndexCount,
+                             uint32_t inInstanceCount,
+                             uint32_t inFirstIndex,
+                             uint32_t inFirstInstance)
+        {
 			Draw_EXT(inPrimitive, inPushConstants, mWindow, inIndexCount, inInstanceCount, inFirstIndex, inFirstInstance);
 		}
 
@@ -112,7 +129,7 @@ namespace Jkr {
                              uint32_t inCountY,
                              uint32_t inCountZ)
         {
-            auto &Cmd = mInstance.GetCommandBuffers()[mWindow.GetCurrentFrame()];
+            auto &Cmd = mWindow.GetCommandBuffers()[mWindow.GetCurrentFrame()];
             Cmd.GetCommandBufferHandle().bindDescriptorSets(
 				vk::PipelineBindPoint::eCompute,
 				mGUIPainterCache.GetComputePipelineLayout().GetPipelineLayoutHandle(),
@@ -127,7 +144,7 @@ namespace Jkr {
         template<class PushType>
         inline void BindDispatchParameters_EXT(const Window &inWindow)
         {
-            auto &Cmd = mInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()];
+            auto &Cmd = inWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()];
             Cmd.GetCommandBufferHandle().bindDescriptorSets(
 				vk::PipelineBindPoint::eCompute,
 				mGUIPainterCache.GetComputePipelineLayout().GetPipelineLayoutHandle(),
@@ -149,7 +166,7 @@ namespace Jkr {
                                  uint32_t inCountY,
                                  uint32_t inCountZ)
         {
-            auto &Cmd = mInstance.GetCommandBuffers()[mWindow.GetCurrentFrame()];
+            auto &Cmd = mWindow.GetCommandBuffers()[mWindow.GetCurrentFrame()];
             Cmd.PushConstants<PushType>(mGUIPainterCache.GetVertexFragmentPipelineLayout(), inPushConstants);
 			Cmd.GetCommandBufferHandle().dispatch(inCountX, inCountY, inCountZ);
         }

@@ -262,7 +262,7 @@ void Jkr::Renderer::Shape::Dispatch(Window& inWindow)
         auto id = mImagesToBeCopiedIds[i];
         auto &srcImage = mImagesToBeCopiedFrom[i];
 
-        const ksai::VulkanCommandBuffer &cmd = mInstance
+        const ksai::VulkanCommandBuffer &cmd = inWindow
                                                    .GetCommandBuffers()[inWindow.GetCurrentFrame()];
         func(cmd, *srcImage, mImages[id]->GetUniformImage());
     }
@@ -276,8 +276,8 @@ void Jkr::Renderer::Shape::Dispatch(Window& inWindow)
 void Jkr::Renderer::Shape::BindFillMode(FillType inFillType, Window& inWindow)
 {
 #ifdef JKR_USE_VARIABLE_DES_INDEXING
-	auto& Cmd = mInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()];
-	Cmd.GetCommandBufferHandle().bindDescriptorSets(
+    auto &Cmd = inWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()];
+    Cmd.GetCommandBufferHandle().bindDescriptorSets(
 		vk::PipelineBindPoint::eGraphics,
 		mPainterCaches[FillType::Image]->GetVertexFragmentPipelineLayout().GetPipelineLayoutHandle(),
 		0,

@@ -35,9 +35,12 @@ namespace Jkr {
 	class Window : public SDLWindow
 	{
 	public:
-		Window(const Instance& inInstance, std::string_view inTitle, int inHeight, int inWidth);
-		~Window() { mInstance.GetDevice().Wait(); }
-		void SetDrawCallBack(const std::function<void(void*)>& inFunction) { mDrawFunction = inFunction; }
+        GETTER &GetCommandPool() const { return mCommandPool; }
+        GETTER &GetCommandBuffers() const { return mCommandBuffers; }
+
+        Window(const Instance &inInstance, std::string_view inTitle, int inHeight, int inWidth);
+        ~Window() { mInstance.GetDevice().Wait(); }
+        void SetDrawCallBack(const std::function<void(void*)>& inFunction) { mDrawFunction = inFunction; }
 		void SetUpdateCallBack(const std::function<void(void*)>& inFunction) { mUpdateFunction = inFunction; }
 		void SetComputeDispatchCallBack(const std::function<void(void*)>& inFunction) { mComputeDispatchFunction = inFunction; }
 		void SetContextData(void* inData) { mData = inData; }
@@ -45,21 +48,24 @@ namespace Jkr {
 		void Draw(float r = 0.1f, float g = 0.1f, float b = 0.1f, float a = 0.1f, float d =  1.0f);
 		void SetScissor(const vk::ArrayProxy<vk::Rect2D>& inScissor)
 		{
-			mInstance.GetCommandBuffers()[mCurrentFrame].GetCommandBufferHandle().setScissor(0, inScissor);
-		}
-		void ResetScissor()
-		{
+            this->GetCommandBuffers()[mCurrentFrame].GetCommandBufferHandle().setScissor(0,
+                                                                                         inScissor);
+        }
+        void ResetScissor()
+        {
 			vk::Rect2D Rect(vk::Offset2D(0), mDepthImage.GetImageExtent());
-			mInstance.GetCommandBuffers()[mCurrentFrame].GetCommandBufferHandle().setScissor(0, Rect);
-		}
+            this->GetCommandBuffers()[mCurrentFrame].GetCommandBufferHandle().setScissor(0, Rect);
+        }
 		GETTER& GetCurrentFrame() const { return mCurrentFrame; }
 		GETTER& GetInstance() const { return mInstance; }
 		GETTER& GetRenderPass() const { return mRenderPass; }
-	private:
-		std::function<void(void*)> mDrawFunction = [](void*) {};
-		std::function<void(void*)> mUpdateFunction = [](void*) {};
-		std::function<void(void*)> mComputeDispatchFunction = [](void*) {};
-	private:
+
+    private:
+        std::function<void(void *)> mDrawFunction = [](void *) {};
+        std::function<void(void *)> mUpdateFunction = [](void *) {};
+        std::function<void(void *)> mComputeDispatchFunction = [](void *) {};
+
+    private:
 		static const int mMaxFramesInFlight = 2;
 		using SwapChainVulkanImages = std::vector<VulkanImage<ImageContext::ExternalHandled>>;
 		using FrameBufferType = VulkanFrameBuffer <
@@ -80,6 +86,10 @@ namespace Jkr {
 		std::array<VulkanFence, mMaxFramesInFlight> mFences;
 		uint32_t mCurrentFrame = 0;
 		uint32_t mAcquiredImageIndex = 0;
-	};
+
+    private:
+        const VulkanCommandPool mCommandPool;
+        const std::array<VulkanCommandBuffer, mMaxFramesInFlight> mCommandBuffers;
+    };
 }
 
