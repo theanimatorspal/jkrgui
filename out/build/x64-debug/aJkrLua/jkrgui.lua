@@ -10,7 +10,7 @@ function utf8.sub(s, i, j)
         return string.sub(s, i, j)
 end
 
--- These are aliases (Same name for an identifier), the Lua Bindings that is generated has snake case (snake_cast), trying to convert into
+-- These are aliases (Same name for an identifier), the Lua Bindings that is generated has snake case (snake_case), trying to convert into
 -- CamelCase (words separated by Capital letters).
 
 
@@ -162,15 +162,22 @@ end
 
 
 
+--[[
+        This is a fontObject, which holds a certain font of certain size
+]]
 
 Jkr.FontObject = {
         mPath = " ",
         mId = 0,
         mSize = 0,
         New = function(self, inPath, inSize)
-                local Object = {}
+                local Object = {
+                        mPath = " ",
+                        mId = 0,
+                        mSize = 0
+                }
                 setmetatable(Object, self)
-                self.__index = self
+                self.__index = self                     -- Elle garne k ho vane Returned object bata Obj.GetDimension etc garna milxa
                 Object.mPath = inPath
                 Object.mSize = inSize
                 Object.mId = T.AddFontFace(Object.mPath, Object.mSize)
@@ -180,9 +187,12 @@ Jkr.FontObject = {
         GetDimension = function(self, inString)
                 return T.GetTextDimension(inString, Int(self.mId))
         end
-
 }
 
+--[[
+        As everything is Widgets in flutter, it is similar here, everything is a ComponentObject,
+        It has position, dimension, focus and stuff like those
+]]
 
 Jkr.ComponentObject = {
         mPosition_3f = vec3(0, 0, 0),
@@ -209,6 +219,7 @@ Jkr.ComponentObject = {
                 return Obj
         end,
 
+        -- This is function that has to run each frame, OR on demand
         Update = function(self, inPosition_3f, inDimension_3f)
                 self.mPosition_3f = inPosition_3f
                 self.mDimension_3f = inDimension_3f
@@ -217,6 +228,8 @@ Jkr.ComponentObject = {
                 E.update_bounded_rect(Int(self.mBoundedRectId_i), pos, dim, Int(self.mPosition_3f.z))
         end,
 
+        -- Mouse le maathi gayo vane focus hune nahune
+        -- Jastai, mTransparentToMouse_b = true vayo vane, kunai element ko muntira vae pani focus hunxa
         Event = function(self)
                 if self.mFocusOnHover_b or E.is_left_button_pressed() then
                         if self.mTransparentToMouse_b then

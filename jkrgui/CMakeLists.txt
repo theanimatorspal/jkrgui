@@ -27,6 +27,8 @@ add_library(jkrgui STATIC ${app_SRC}
 "Renderers/TextD/BestText_base.hpp"
 "Renderers/TextD/BestText.cpp"
 "Renderers/TextD/BestText.hpp"
-"Components/TextLineEdit.cpp" 
+"Components/TextLineEdit.cpp"
+"Renderers/ThreeD/gltf_model.hpp"
+"Renderers/ThreeD/gltf_model.cpp"
 )
 

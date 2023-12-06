@@ -212,6 +212,7 @@ Com.TextButtonObject = {
 
 Com.TextCursorObject = {
     mWidth = 0,
+    mHeight = 0,
     mShapeId = 0,
     New = function(self, inPosition_3f, inDimension_3f, inColor_4f)
         print("TextCursorObject Construction")
@@ -221,10 +222,10 @@ Com.TextCursorObject = {
         Com.NewComponent()
         ComTable[com_i] = Jkr.Components.Static.ShapeObject:New(inPosition_3f, inDimension_3f, nil, nil)
         ComTable[com_i].mFillColor = inColor_4f
-        print("-----------------------")
         print("TextCursorObject Construction Finished")
         Obj.mWidth = inDimension_3f.x
         Obj.mShapeId = com_i
+        Obj.mHeight = inDimension_3f.y
         return Obj
     end,
     Update = function(self, inPosition_3f, inDimension_3f)
@@ -250,16 +251,15 @@ Com.TextLineEditObject = {
         setmetatable(self, Com.AreaObject) -- Inherits Com.AreaObject
         setmetatable(Obj, self)
         self.__index = self
-        Obj.Update = Com.TextLineEditObject.Update
 
-        Obj.mPositionToParent_3f = vec3(0, 0, 0)
+        Obj.mPositionToParent_3f = inPosition_3f
         Obj.mPadding = 5
         Obj.mPressed = false
         Obj.mStartString = string.rep(" ", inMaxStringLength)
         Obj.mCurrentString = ""
-        local CursorObjectPosition = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z - 3)
+        local CursorObjectPosition = vec3(inPosition_3f.x + inCursorWidth, inPosition_3f.y, inPosition_3f.z - 3)
         Obj.mTextCursorObject = Com.TextCursorObject:New(CursorObjectPosition,
-            vec3(inCursorWidth, inDimension_3f.y, inDimension_3f.z - 1), vec4(0, 0, 0, 1))
+            vec3(inCursorWidth, inDimension_3f.y, inDimension_3f.z - 1), Theme.Colors.Text.Cursor.Normal)
         Obj.mShouldUpdate = false
         Obj.mShouldInputText = false
 
@@ -274,18 +274,31 @@ Com.TextLineEditObject = {
         return Obj
     end,
     Event = function(self)
-        local is_backspace = E.is_key_pressed(Key.SDLK_BACKSPACE)
-        local is_enter = E.is_key_pressed(Key.SDLK_RETURN)
-        if E.is_text_being_input() and not is_backspace then
-            self.mCurrentString = self.mCurrentString .. E.get_input_text()
-            self.mShouldUpdate = true
+        local isClickedOn = ComTable[self.mAreaId].mComponentObject.mFocus_b
+
+        if isClickedOn then
+            self.mShouldInputText = not self.mShouldInputText
+            ComTable[self.mTextCursorObject.mShapeId].mFillColor = Theme.Colors.Text.Cursor.Active
+        elseif not isClickedOn and E.is_left_button_pressed() then
+            self.mShouldInputText = false
+            ComTable[self.mTextCursorObject.mShapeId].mFillColor = Theme.Colors.Text.Cursor.Normal
         end
-        if E.is_keypress_event() then
-            if is_backspace and utf8.len(self.mCurrentString) >= 0 then
+
+        if self.mShouldInputText then
+            local is_backspace = E.is_key_pressed(Key.SDLK_BACKSPACE)
+            local is_enter = E.is_key_pressed(Key.SDLK_RETURN)
+            if E.is_text_being_input() and not is_backspace then
+                self.mCurrentString = self.mCurrentString .. E.get_input_text()
                 self.mShouldUpdate = true
-                self.mCurrentString = utf8.sub(self.mCurrentString, 1, -2)
-            elseif is_enter then
-                -- should_submit = true
+            end
+            if E.is_keypress_event() then
+                if is_backspace and utf8.len(self.mCurrentString) >= 0 then
+                    self.mShouldUpdate = true
+                    self.mCurrentString = utf8.sub(self.mCurrentString, 1, -2)
+                elseif is_enter then
+                    self.mShouldInputText = false
+                    ComTable[self.mTextCursorObject.mShapeId].mFillColor = Theme.Colors.Text.Cursor.Normal
+                end
             end
         end
 
@@ -303,7 +316,8 @@ Com.TextLineEditObject = {
                 self.mPosition_3f.y + self.mDimension_3f.y - self.mPadding, self.mPosition_3f.z - 3)
             ComTable[self.mTextObjectId]:Update(TextPosition)
             local CursorPosByTypedText = ComTable[self.mTextObjectId].mFont:GetDimension(self.mCurrentString)
-            local CursorObjectPosition = vec3(CursorPosByTypedText.x + self.mPosition_3f.x, self.mPosition_3f.y,
+            local CursorObjectPosition = vec3(
+                CursorPosByTypedText.x + self.mPosition_3f.x + self.mTextCursorObject.mWidth, self.mPosition_3f.y,
                 self.mPosition_3f.z - 3)
             local CursorObjectDimension = vec3(self.mTextCursorObject.mWidth, self.mDimension_3f.y,
                 self.mDimension_3f.z - 1)
@@ -311,10 +325,141 @@ Com.TextLineEditObject = {
             self.mShouldUpdate = false
         end
     end,
-    Update = function(self, inObject)
-    end,
     SetParent = function(self, inObject)
         local pos = vec3(inObject.mPosition_3f.x + self.mPositionToParent_3f.x,
             inObject.mPosition_3f.y + self.mPositionToParent_3f.y, self.mPosition_3f.z)
+        self:Update(pos, self.mDimension_3f)
+
+        if self.mCurrentString == "" then
+            local CursorObjectPosition = vec3(pos.x + self.mTextCursorObject.mWidth, pos.y,
+                self.mPosition_3f.z - 3)
+            local CursorObjectDimension = vec3(self.mTextCursorObject.mWidth, self.mDimension_3f.y,
+                self.mDimension_3f.z - 1)
+            self.mTextCursorObject:Update(CursorObjectPosition, CursorObjectDimension)
+        end
+        if inObject.mPosition_3f.x > 0 and inObject.mPosition_3f.y > 0 then
+            ComTable[self.mTextObjectId].mScissorPosition_2f = vec2(inObject.mPosition_3f.x, inObject.mPosition_3f.y)
+            ComTable[self.mTextObjectId].mScissorDimension_2f = vec2(inObject.mDimension_3f.x, inObject.mDimension_3f.y)
+        end
+        self.mShouldUpdate = true
+    end,
+}
+
+
+Com.TextMultiLineEditObject = {
+    mPositionToParent_3f = vec3(0, 0, 0),
+    mPadding = 5,
+    mTextObject = nil,
+    mFunction = nil,
+    mPressed = false,
+    mTextCursorObject = nil,
+    mShouldUpdate = false,
+    mShouldInputText = false,
+    mCurrentLine = 1,
+    mTextObjectIds = {},
+    mLineTexts = {},
+    mMaxNoOfLines = nil,
+    mMaxStringLength = nil,
+    New = function(self, inPosition_3f, inDimension_3f, inCursorWidth, inCursorHeight, inFontObject, inMaxNoOfLines,
+                   inMaxStringLength, inParent)
+        print("TextMultiLineEditObject Construction")
+        local Obj = Com.AreaObject:New(inPosition_3f, inDimension_3f)
+        setmetatable(self, Com.AreaObject) -- Inherits Com.AreaObject
+        setmetatable(Obj, self)
+        self.__index = self
+
+        Obj.mPositionToParent_3f = inPosition_3f
+        Obj.mPadding = 5
+        Obj.mPressed = false
+        local CursorObjectPosition = vec3(inPosition_3f.x + inCursorWidth, inPosition_3f.y, inPosition_3f.z - 3)
+        Obj.mTextCursorObject = Com.TextCursorObject:New(CursorObjectPosition,
+            vec3(inCursorWidth, inCursorHeight, inDimension_3f.z - 1), Theme.Colors.Text.Cursor.Normal)
+        Obj.mShouldUpdate = false
+        Obj.mShouldInputText = false
+        Obj.mTextObjectIds = {}
+        Obj.mLineTexts = {}
+        Obj.mCurrentLine = 1
+        Obj.mMaxNoOfLines = inMaxNoOfLines
+        Obj.mMaxStringLength = inMaxStringLength
+
+        for i = 1, inMaxNoOfLines, 1 do
+            Com.NewComponent()
+            local TextPosition = vec3(inPosition_3f.x, inPosition_3f.y + inCursorHeight * i, inPosition_3f.z)
+            local StartString = string.rep(" ", inMaxStringLength)
+            ComTable[com_i] = Jkr.Components.Static.TextObject:New(StartString, TextPosition, inFontObject)
+            Obj.mTextObjectIds[#Obj.mTextObjectIds+1] = com_i
+            Obj.mLineTexts[#Obj.mLineTexts+1] = ""
+        end
+
+
+        if inParent then
+            Obj:SetParent(inParent)
+        end
+        print("TextMultiLineEditObject Construction Finished")
+        return Obj
+    end,
+    Event = function(self)
+        local isClickedOn = ComTable[self.mAreaId].mComponentObject.mFocus_b
+        if isClickedOn then
+            self.mShouldInputText = not self.mShouldInputText
+            ComTable[self.mTextCursorObject.mShapeId].mFillColor = Theme.Colors.Text.Cursor.Active
+        elseif not isClickedOn and E.is_left_button_pressed() then
+            self.mShouldInputText = false
+            ComTable[self.mTextCursorObject.mShapeId].mFillColor = Theme.Colors.Text.Cursor.Normal
+        end
+
+        local eid = self.mCurrentLine
+        if self.mShouldInputText then
+            local is_backspace = E.is_key_pressed(Key.SDLK_BACKSPACE)
+            local is_enter = E.is_key_pressed(Key.SDLK_RETURN)
+            if E.is_text_being_input() and not is_backspace then
+                self.mLineTexts[eid] = self.mLineTexts[eid] .. E.get_input_text()
+                self.mShouldUpdate = true
+            end
+            if E.is_keypress_event() then
+                if is_backspace and utf8.len(self.mLineTexts[eid]) >= 0 then
+                    self.mShouldUpdate = true
+                    self.mLineTexts[eid] = utf8.sub(self.mLineTexts[eid], 1, -2)
+                elseif is_enter then
+                    self.mCurrentLine = self.mCurrentLine + 1
+                    print("Enter Pressed", self.mCurrentLine)
+                    -- ComTable[self.mTextCursorObject.mShapeId].mFillColor = Theme.Colors.Text.Cursor.Normal
+                end
+            end
+        end
+
+        local eid = self.mCurrentLine
+
+        if self.mShouldUpdate then
+            local t_obj = self.mTextObjectIds[eid]
+            
+            ComTable[t_obj].mString = string.rep(" ", self.mMaxStringLength)
+            ComTable[t_obj]:Update(self.mPosition_3f)
+
+
+            if self.mLineTexts[eid] == "" then
+                ComTable[t_obj].mString = " "
+            else
+                ComTable[t_obj].mString = self.mLineTexts[eid]
+            end
+
+
+
+            local TextPosition = vec3(self.mPosition_3f.x, self.mPosition_3f.y + self.mTextCursorObject.mHeight * eid, self.mPosition_3f.z - 3)
+            ComTable[t_obj]:Update(TextPosition)
+            local CursorPosByTypedText = ComTable[t_obj].mFont:GetDimension(self.mLineTexts[eid])
+            local CursorObjectPosition = vec3(
+                CursorPosByTypedText.x + self.mPosition_3f.x + self.mTextCursorObject.mWidth,
+                self.mPosition_3f.y + (self.mTextCursorObject.mHeight) * (eid - 1),
+                self.mPosition_3f.z - 3)
+            local CursorObjectDimension = vec3(self.mTextCursorObject.mWidth, self.mTextCursorObject.mHeight,
+                self.mDimension_3f.z - 1)
+            self.mTextCursorObject:Update(CursorObjectPosition, CursorObjectDimension)
+            self.mShouldUpdate = false
+
+            print("key", t_obj)
+            print("----------------------------------")
+        end
+
     end
 }
