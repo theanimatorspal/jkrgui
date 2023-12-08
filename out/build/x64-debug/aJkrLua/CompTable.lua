@@ -21,26 +21,26 @@ Com.Draws = function()
 end
 
 Com.GPS = {
-        mPadding = 10,
-        mPosition_3f = vec3(0, 0, 0),
-        mDimension_3f = vec3(0, 0, 0),
-        mBackDepthValue = 0,
-        mFrontDepthValue = 0,
-        New = function (self, inBackDepthValueAbsolute, inFrontDepthValueAbsolute)
-            local Obj = {
-                mPadding = 10,
-                mPosition_3f = vec3(0, 0, 0),
-                mDimension_3f = vec3(0, 0, 0),
-                mBackDepthValue = inBackDepthValueAbsolute,
-                mFrontDepthValue = inFrontDepthValueAbsolute
-            } 
-            Obj.mPosition_3f = vec3(Obj.mPadding, Obj.mPadding, inBackDepthValueAbsolute)
-            setmetatable(Obj, self)
-            self.__index = self
-            return Obj
-        end,
-        PrintCurrent = function (self)
-           print(
+    mPadding = 10,
+    mPosition_3f = vec3(0, 0, 0),
+    mDimension_3f = vec3(0, 0, 0),
+    mBackDepthValue = 0,
+    mFrontDepthValue = 0,
+    New = function(self, inBackDepthValueAbsolute, inFrontDepthValueAbsolute)
+        local Obj = {
+            mPadding = 10,
+            mPosition_3f = vec3(0, 0, 0),
+            mDimension_3f = vec3(0, 0, 0),
+            mBackDepthValue = inBackDepthValueAbsolute,
+            mFrontDepthValue = inFrontDepthValueAbsolute
+        }
+        Obj.mPosition_3f = vec3(Obj.mPadding, Obj.mPadding, inBackDepthValueAbsolute)
+        setmetatable(Obj, self)
+        self.__index = self
+        return Obj
+    end,
+    PrintCurrent = function(self)
+        print(
             string.format(
                 [[
                     POS: vec3(%f, %f, %f)
@@ -53,62 +53,62 @@ Com.GPS = {
                 self.mDimension_3f.y,
                 self.mDimension_3f.z
             )
-           ) 
-        end,
-        SetDimension = function (self, inDimension_3f)
-                self.mDimension_3f = inDimension_3f
-        end,
-        Start = function (self)
-                self.mPosition_3f = vec3(self.mPadding, self.mPadding, self.mPadding)
-        end,
-        MoveDown = function (self)
-                self.mPosition_3f = vec3(
-                        self.mPosition_3f.x,
-                        self.mPosition_3f.y + self.mDimension_3f.y + self.mPadding,
-                        self.mPosition_3f.z
-                )
-                self:PrintCurrent()
-        end,
-        MoveRight = function (self)
-                self.mPosition_3f = vec3(
-                        self.mPosition_3f.x + self.mDimension_3f.x + self.mPadding,
-                        self.mPosition_3f.y,
-                        self.mPosition_3f.z
-                )
-                self:PrintCurrent()
-        end,
-        MoveUp = function (self)
-                self.mPosition_3f = vec3(
-                        self.mPosition_3f.x,
-                        self.mPosition_3f.y - (self.mDimension_3f.y + self.mPadding),
-                        self.mPosition_3f.z
-                )
-                self:PrintCurrent()
-        end,
-        MoveLeft = function (self)
-                self.mPosition_3f = vec3(
-                        self.mPosition_3f.x - (self.mDimension_3f.x + self.mPadding),
-                        self.mPosition_3f.y,
-                        self.mPosition_3f.z
-                )
-                self:PrintCurrent()
-        end,
-        MoveBackAbsolute = function (self)
-            self.mPosition_3f = vec3(
-                self.mPosition_3f.x,
-                self.mPosition_3f.y,
-                self.mBackDepthValue
-            )
-            self:PrintCurrent()
-        end,
-        MoveFrontAbsolute = function(self)
-            self.mPosition_3f = vec3(
-                self.mPosition_3f.x,
-                self.mPosition_3f.y,
-                self.mFrontDepthValue
-            )
-            self:PrintCurrent()
-        end
+        )
+    end,
+    SetDimension = function(self, inDimension_3f)
+        self.mDimension_3f = inDimension_3f
+    end,
+    Start = function(self)
+        self.mPosition_3f = vec3(self.mPadding, self.mPadding, self.mPadding)
+    end,
+    MoveDown = function(self)
+        self.mPosition_3f = vec3(
+            self.mPosition_3f.x,
+            self.mPosition_3f.y + self.mDimension_3f.y + self.mPadding,
+            self.mPosition_3f.z
+        )
+        self:PrintCurrent()
+    end,
+    MoveRight = function(self)
+        self.mPosition_3f = vec3(
+            self.mPosition_3f.x + self.mDimension_3f.x + self.mPadding,
+            self.mPosition_3f.y,
+            self.mPosition_3f.z
+        )
+        self:PrintCurrent()
+    end,
+    MoveUp = function(self)
+        self.mPosition_3f = vec3(
+            self.mPosition_3f.x,
+            self.mPosition_3f.y - (self.mDimension_3f.y + self.mPadding),
+            self.mPosition_3f.z
+        )
+        self:PrintCurrent()
+    end,
+    MoveLeft = function(self)
+        self.mPosition_3f = vec3(
+            self.mPosition_3f.x - (self.mDimension_3f.x + self.mPadding),
+            self.mPosition_3f.y,
+            self.mPosition_3f.z
+        )
+        self:PrintCurrent()
+    end,
+    MoveBackAbsolute = function(self)
+        self.mPosition_3f = vec3(
+            self.mPosition_3f.x,
+            self.mPosition_3f.y,
+            self.mBackDepthValue
+        )
+        self:PrintCurrent()
+    end,
+    MoveFrontAbsolute = function(self)
+        self.mPosition_3f = vec3(
+            self.mPosition_3f.x,
+            self.mPosition_3f.y,
+            self.mFrontDepthValue
+        )
+        self:PrintCurrent()
+    end
 }
 
 
@@ -453,6 +453,8 @@ Com.TextMultiLineEditObject = {
     mLineTexts = {},
     mMaxNoOfLines = nil,
     mMaxStringLength = nil,
+    mString = "",
+    mStringCurrentLine = 1,
     New = function(self, inPosition_3f, inDimension_3f, inCursorWidth, inCursorHeight, inFontObject, inMaxNoOfLines,
                    inMaxStringLength, inParent)
         print("TextMultiLineEditObject Construction")
@@ -474,10 +476,13 @@ Com.TextMultiLineEditObject = {
         Obj.mCurrentLine = 1
         Obj.mMaxNoOfLines = inMaxNoOfLines
         Obj.mMaxStringLength = inMaxStringLength
+        Obj.mString = ""
+        Obj.mStringCurrentLine = 1
 
         for i = 1, inMaxNoOfLines, 1 do
             Com.NewComponent()
-            local TextPosition = vec3(inPosition_3f.x, inPosition_3f.y + inCursorHeight * i, inPosition_3f.z)
+            local TextPosition = vec3(inPosition_3f.x + Obj.mPadding, inPosition_3f.y + inCursorHeight * i,
+                inPosition_3f.z)
             local StartString = string.rep(" ", inMaxStringLength)
             ComTable[com_i] = Jkr.Components.Static.TextObject:New(StartString, TextPosition, inFontObject)
             Obj.mTextObjectIds[#Obj.mTextObjectIds + 1] = com_i
@@ -491,6 +496,71 @@ Com.TextMultiLineEditObject = {
         print("TextMultiLineEditObject Construction Finished")
         return Obj
     end,
+    SetVisualTextByString = function(self, inStartLine, inEndline)
+        local i__ = 1
+        local j__ = 1
+        local end__ = inEndline or self.mMaxNoOfLines
+        print(self.mString)
+        for Line in self.mString:gmatch("(.-)\n") do
+            local function debugprint(inS)
+                print(inS)
+                print(
+                    string.format(
+                        [[
+                            i__  : %d,
+                            j__ : %d,
+                            inStartLine : %d,
+                            inEndline : %d,
+                            self.mMaxNoOfLines : %d
+                            Line : %s,
+                            self.mLineTexts[i__] : %s
+                        ]], i__, j__, inStartLine, inEndline, self.mMaxNoOfLines, Line, self.mLineTexts[i__]
+                    )
+                )
+            end
+
+            if i__ <= self.mMaxNoOfLines and j__ >= inStartLine then
+                debugprint("Inside i <= self.maxlines and j >= inStartLine")
+                if i__ <= inEndline then
+                    self.mLineTexts[i__] = Line
+                end
+                i__ = i__ + 1
+            end
+            j__ = j__ + 1
+        end
+
+        for i = i__, self.mMaxNoOfLines, 1 do
+            self.mLineTexts[i] = ""
+        end
+
+        for i = 1, i__, 1 do
+            local t_obj = self.mTextObjectIds[i]
+            ComTable[t_obj].mString = string.rep(" ", self.mMaxStringLength)
+            ComTable[t_obj]:Update(self.mPosition_3f)
+
+            if self.mLineTexts[i] == "" then
+                ComTable[t_obj].mString = " "
+            else
+                ComTable[t_obj].mString = self.mLineTexts[i]
+            end
+
+            local TextPosition = vec3(self.mPosition_3f.x + self.mPadding,
+                self.mPosition_3f.y + self.mTextCursorObject.mHeight * i,
+                self.mPosition_3f.z - 3)
+            ComTable[t_obj]:Update(TextPosition)
+
+            local CursorPosByTypedText = ComTable[t_obj].mFont:GetDimension(self.mLineTexts[i])
+            local CursorObjectPosition = vec3(
+                CursorPosByTypedText.x + self.mPosition_3f.x,
+                self.mPosition_3f.y + (self.mTextCursorObject.mHeight) * (i - 1),
+                self.mPosition_3f.z - 3)
+            local CursorObjectDimension = vec3(self.mTextCursorObject.mWidth, self.mTextCursorObject.mHeight,
+                self.mDimension_3f.z - 1)
+            self.mTextCursorObject:Update(CursorObjectPosition, CursorObjectDimension)
+            self.mCurrentLine = i
+        end
+        self.mShouldUpdate = true
+    end,
     Event = function(self)
         local isClickedOn = ComTable[self.mAreaId].mComponentObject.mFocus_b
         if isClickedOn then
@@ -503,21 +573,52 @@ Com.TextMultiLineEditObject = {
 
         local eid = self.mCurrentLine
         local string_length = utf8.len(self.mLineTexts[eid])
+        local CurrentTextObjectId = self.mTextObjectIds[eid]
+        local CurrentTextDimension = ComTable[CurrentTextObjectId].mFont:GetDimension(self.mLineTexts[eid])
         if self.mShouldInputText then
             local is_backspace = E.is_key_pressed(Key.SDLK_BACKSPACE)
             local is_enter = E.is_key_pressed(Key.SDLK_RETURN)
             if E.is_text_being_input() and not is_backspace then
                 self.mLineTexts[eid] = self.mLineTexts[eid] .. E.get_input_text()
+                self.mString = self.mString .. E.get_input_text()
                 self.mShouldUpdate = true
             end
-            if E.is_keypress_event()  then
+            function debugprint(inS)
+                print(inS)
+                print(self.mString)
+                -- print("StringCurrentLine:", self.mStringCurrentLine)
+                -- print("CurrentLine:", self.mCurrentLine)
+                -- print("MaxNoOfLines:", self.mCurrentLine)
+                -- print("self.mCurrentLine <= self.mMaxNoOfLines :", self.mCurrentLine <= self.mMaxNoOfLines)
+                -- print("self.mStringCurrentLine - self.mCurrentLine + 1 :", self.mStringCurrentLine - self.mCurrentLine + 1)
+            end
+
+            if E.is_keypress_event() then
+                self.mShouldUpdate = true
                 if is_backspace and string_length > 0 then
-                    self.mShouldUpdate = true
                     self.mLineTexts[eid] = utf8.sub(self.mLineTexts[eid], 1, -2)
+                    if self.mString:sub(-1) == "\n" then
+                        self.mString = utf8.sub(self.mString, 1, -2)
+                    end
+                    self.mString = utf8.sub(self.mString, 1, -2)
                 elseif is_backspace and string_length == 0 and eid ~= 1 then
-                    self.mCurrentLine = self.mCurrentLine - 1
-                elseif is_enter or string_length >= self.mMaxStringLength then
-                    self.mCurrentLine = self.mCurrentLine + 1
+                    if self.mStringCurrentLine <= self.mCurrentLine then
+                        self.mCurrentLine = self.mCurrentLine - 1
+                        self.mStringCurrentLine = self.mStringCurrentLine - 1
+                    else
+                        self.mStringCurrentLine = self.mStringCurrentLine - 1
+                        self:SetVisualTextByString(self.mStringCurrentLine - self.mCurrentLine + 1, self.mMaxNoOfLines)
+                    end
+                elseif is_enter or string_length >= self.mMaxStringLength or CurrentTextDimension.x >= self.mDimension_3f.x - self.mPadding * 4 then
+                    self.mStringCurrentLine = self.mStringCurrentLine + 1
+                    self.mString = self.mString .. "\n"
+
+                    if self.mStringCurrentLine <= self.mMaxNoOfLines then
+                        self.mCurrentLine = self.mCurrentLine + 1
+                    else
+                        self:SetVisualTextByString(self.mStringCurrentLine - self.mCurrentLine + 1,
+                            self.mMaxNoOfLines - 1)
+                    end
                 end
             end
         end
@@ -537,9 +638,8 @@ Com.TextMultiLineEditObject = {
                 ComTable[t_obj].mString = self.mLineTexts[eid]
             end
 
-
-
-            local TextPosition = vec3(self.mPosition_3f.x, self.mPosition_3f.y + self.mTextCursorObject.mHeight * eid,
+            local TextPosition = vec3(self.mPosition_3f.x + self.mPadding,
+                self.mPosition_3f.y + self.mTextCursorObject.mHeight * eid,
                 self.mPosition_3f.z - 3)
             ComTable[t_obj]:Update(TextPosition)
             local CursorPosByTypedText = ComTable[t_obj].mFont:GetDimension(self.mLineTexts[eid])
@@ -551,21 +651,20 @@ Com.TextMultiLineEditObject = {
                 self.mDimension_3f.z - 1)
             self.mTextCursorObject:Update(CursorObjectPosition, CursorObjectDimension)
             self.mShouldUpdate = false
-
-            print(string.format(
-                [[
-                    EID: %d
-                    LINETEXT: %s
-                    POS: vec3(%f, %f, %f)
-                    STRLEN: %d
-                    ]],
-                eid,
-                self.mLineTexts[eid],
-                TextPosition.x,
-                TextPosition.y,
-                TextPosition.z,
-                string_length
-            ))
+            -- print(string.format(
+            --     [[
+            --         EID: %d
+            --         LINETEXT: %s
+            --         POS: vec3(%f, %f, %f)
+            --         STRLEN: %d
+            --         ]],
+            --     eid,
+            --     self.mLineTexts[eid],
+            --     TextPosition.x,
+            --     TextPosition.y,
+            --     TextPosition.z,
+            --     string_length
+            -- ))
         end
     end
 }

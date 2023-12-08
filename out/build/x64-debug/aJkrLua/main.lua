@@ -9,6 +9,7 @@ local __Depth = Depth + 10 -- Farthest (This meant to be used when the ComObject
 
 
 Load = function()
+        LineId = L.add(vec2(100, 100), vec2(700, 700), 55)
         Font = Jkr.FontObject:New(
         "C:\\Users\\sansk\\OneDrive\\Desktop\\Project\\jkrengine\\out\\build\\x64-release with debug\\application\\font.ttf",
                 4)
@@ -40,7 +41,7 @@ Load = function()
                 5, -- cursor width
                 20, -- cursor height
                 Font, -- font
-                5, -- max no of lines
+                9, -- max no of lines
                 40, -- max string length
                 nil)
 
@@ -51,9 +52,12 @@ Load = function()
                 5, -- cursor width
                 20, -- cursor height
                 Font, -- font
-                5, -- max no of lines
+                9, -- max no of lines
                 40, -- max string length
                 nil)
+
+        -- TerminalEmulator.mString = "Hello Everyone\nI Love  You\n\nWhat are you doing\nWhat you do\nWhy do you do\nFuck You\n"
+        -- TerminalEmulator:SetVisualTextByString(1, 5)
 
         SampleText:SetParent(MovableArea)
         TextButton:SetParent(MovableArea)

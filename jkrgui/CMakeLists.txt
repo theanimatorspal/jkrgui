@@ -30,5 +30,7 @@ add_library(jkrgui STATIC ${app_SRC}
 "Components/TextLineEdit.cpp"
 "Renderers/ThreeD/glTF.hpp"
 "Renderers/ThreeD/glTF.cpp"
+"Renderers/ThreeD/glTF_base.hpp"
+"Renderers/ThreeD/glTF_base.cpp"
 )
 

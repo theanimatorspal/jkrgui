@@ -12,14 +12,14 @@ namespace tg = tinygltf;
 
 namespace Jkr::Renderer::_3D {
 
-class glTF_base
+class glTF_Model
 {
     using ImageType = Jkr::PainterParameter<PainterParameterContext::UniformImage>;
     std::vector<uint32_t> mIndexBuffer;
     std::vector<Vertex3D> mVertexBuffer;
 
 public:
-    glTF_base(const Instance &inInstance, const std::string_view inFilePath)
+    glTF_Model(const Instance &inInstance, const std::string_view inFilePath)
         : mInstance(inInstance)
     {
         tinygltf::Model glTFInput;
@@ -82,12 +82,12 @@ protected:
     void LoadMaterials(tinygltf::Model &input);
     void LoadNode(const tinygltf::Node &inputNode,
                   const tinygltf::Model &input,
-                  glTF_base::Node *inParent,
+                  glTF_Model::Node *inParent,
                   std::vector<uint32_t> &indexBuffer,
                   std::vector<Vertex3D> &vertexBuffer);
     void DrawNode(VulkanCommandBuffer &inCommandBuffer,
                   VulkanPipelineLayoutBase &inPipelineLayout,
-                  glTF_base::Node *inNode);
+                  glTF_Model::Node *inNode);
 
 private:
     const Instance &mInstance;

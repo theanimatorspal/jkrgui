@@ -1,5 +1,5 @@
-#include "glTF_base.hpp"
-#include <Renderers/ThreeD/glTF_base.hpp>
+#include "glTF_Model.hpp"
+#include <Renderers/ThreeD/glTF_Model.hpp>
 
 int main()
 {

@@ -117,6 +117,10 @@ S.Update = S.update
         This is the line renderer
 ]]
 L = Jkr.ln -- Line Renderer
+L.Add = L.add
+L.Update = L.update
+L.Draw = L.draw
+L.Bind = L.bind
 
 --[[
         This is shape renderer
@@ -183,7 +187,7 @@ Jkr.FontObject = {
                 Object.mId = T.AddFontFace(Object.mPath, Object.mSize)
                 return Object
         end,
-
+        -- returns vec2
         GetDimension = function(self, inString)
                 return T.GetTextDimension(inString, Int(self.mId))
         end

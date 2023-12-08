@@ -150,6 +150,7 @@ set(OLD_GLOB
   "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/jkrgui/Renderers/TextD/FastText.cpp"
   "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/jkrgui/Renderers/TextD/FastText_base.cpp"
   "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/jkrgui/Renderers/ThreeD/glTF.cpp"
+  "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/jkrgui/Renderers/ThreeD/glTF_Model.cpp"
   "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/jkrgui/Renderers/ThreeD/glTF_base.cpp"
   "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/jkrgui/Renderers/TwoD/2d.cpp"
   "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/jkrgui/Renderers/TwoD/Line.cpp"
@@ -210,6 +211,7 @@ set(OLD_GLOB
   "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/jkrgui/Renderers/TextD/FastText.hpp"
   "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/jkrgui/Renderers/TextD/FastText_base.hpp"
   "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/jkrgui/Renderers/ThreeD/glTF.hpp"
+  "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/jkrgui/Renderers/ThreeD/glTF_Model.hpp"
   "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/jkrgui/Renderers/ThreeD/glTF_base.hpp"
   "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/jkrgui/Renderers/TwoD/2d.hpp"
   "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/jkrgui/Renderers/TwoD/Line.hpp"
@@ -224,7 +226,7 @@ if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   file(TOUCH_NOCREATE "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/cmake.verify_globs")
 endif()
 
-# app_SRC at ksaivulkan/CMakeLists.txt:1 (file)
+# app_SRC at ksaivulkan/CMakeLists.txt:28 (file)
 file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/ksaivulkan/*.c")
 set(OLD_GLOB
   "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/ksaivulkan/Vendor/stbi/stbi.c"
@@ -234,7 +236,7 @@ if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   file(TOUCH_NOCREATE "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/cmake.verify_globs")
 endif()
 
-# app_SRC at ksaivulkan/CMakeLists.txt:1 (file)
+# app_SRC at ksaivulkan/CMakeLists.txt:28 (file)
 file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/ksaivulkan/*.cpp")
 set(OLD_GLOB
   "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/ksaivulkan/Vendor/TinyGLTF/tiny_gltf.cpp"
@@ -291,7 +293,7 @@ if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   file(TOUCH_NOCREATE "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/cmake.verify_globs")
 endif()
 
-# app_SRC at ksaivulkan/CMakeLists.txt:1 (file)
+# app_SRC at ksaivulkan/CMakeLists.txt:28 (file)
 file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/ksaivulkan/*.h")
 set(OLD_GLOB
   "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/ksaivulkan/Vendor/Tracy/client/TracyCallstack.h"
@@ -459,7 +461,7 @@ if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   file(TOUCH_NOCREATE "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-debug/CMakeFiles/cmake.verify_globs")
 endif()
 
-# app_SRC at ksaivulkan/CMakeLists.txt:1 (file)
+# app_SRC at ksaivulkan/CMakeLists.txt:28 (file)
 file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/ksaivulkan/*.hpp")
 set(OLD_GLOB
   "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/ksaivulkan/Vendor/TinyGLTF/json.hpp"
