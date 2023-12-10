@@ -9,7 +9,7 @@ file(GLOB_RECURSE app_Precompile_SRC CONFIGURE_DEPENDS
 "*.hpp"
 )
 
-add_library(jkrgui STATIC ${app_SRC} 
+add_library(jkrgui STATIC ${app_SRC}
 "Components/Button_base.cpp"
 "Components/ButtonRect_base.hpp"
 "Components/Scrollable_base.hpp"

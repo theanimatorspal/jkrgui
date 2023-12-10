@@ -77,8 +77,17 @@ build rebuild_cache: phony CMakeFiles\rebuild_cache.util
 
 build cmake_object_order_depends_target_aa_unit_testing: phony || cmake_object_order_depends_target_jkrgui cmake_object_order_depends_target_ksaivulkan
 
+build aa_unit_testing\CMakeFiles\aa_unit_testing.dir\nodetest.cpp.obj: CXX_COMPILER__aa_unit_testing_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\aa_unit_testing\nodetest.cpp || cmake_object_order_depends_target_aa_unit_testing
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
+  INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
+  OBJECT_DIR = aa_unit_testing\CMakeFiles\aa_unit_testing.dir
+  OBJECT_FILE_DIR = aa_unit_testing\CMakeFiles\aa_unit_testing.dir
+  TARGET_COMPILE_PDB = aa_unit_testing\CMakeFiles\aa_unit_testing.dir\
+  TARGET_PDB = aa_unit_testing\aa_unit_testing.pdb
+
 build aa_unit_testing\CMakeFiles\aa_unit_testing.dir\notapplication.cpp.obj: CXX_COMPILER__aa_unit_testing_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\aa_unit_testing\notapplication.cpp || cmake_object_order_depends_target_aa_unit_testing
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = aa_unit_testing\CMakeFiles\aa_unit_testing.dir
@@ -87,7 +96,7 @@ build aa_unit_testing\CMakeFiles\aa_unit_testing.dir\notapplication.cpp.obj: CXX
   TARGET_PDB = aa_unit_testing\aa_unit_testing.pdb
 
 build aa_unit_testing\CMakeFiles\aa_unit_testing.dir\testmain.cpp.obj: CXX_COMPILER__aa_unit_testing_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\aa_unit_testing\testmain.cpp || cmake_object_order_depends_target_aa_unit_testing
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = aa_unit_testing\CMakeFiles\aa_unit_testing.dir
@@ -103,7 +112,7 @@ build aa_unit_testing\CMakeFiles\aa_unit_testing.dir\testmain.cpp.obj: CXX_COMPI
 #############################################
 # Link the executable aa_unit_testing\aa_unit_testing.exe
 
-build aa_unit_testing\aa_unit_testing.exe: CXX_EXECUTABLE_LINKER__aa_unit_testing_Release aa_unit_testing\CMakeFiles\aa_unit_testing.dir\notapplication.cpp.obj aa_unit_testing\CMakeFiles\aa_unit_testing.dir\testmain.cpp.obj | C$:\VulkanSDK\1.3.250.1\Lib\vulkan-1.lib ksaivulkan\ksaivulkan.lib jkrgui\jkrgui.lib || jkrgui\jkrgui.lib ksaivulkan\ksaivulkan.lib
+build aa_unit_testing\aa_unit_testing.exe: CXX_EXECUTABLE_LINKER__aa_unit_testing_Release aa_unit_testing\CMakeFiles\aa_unit_testing.dir\nodetest.cpp.obj aa_unit_testing\CMakeFiles\aa_unit_testing.dir\notapplication.cpp.obj aa_unit_testing\CMakeFiles\aa_unit_testing.dir\testmain.cpp.obj | C$:\VulkanSDK\1.3.250.1\Lib\vulkan-1.lib ksaivulkan\ksaivulkan.lib jkrgui\jkrgui.lib || jkrgui\jkrgui.lib ksaivulkan\ksaivulkan.lib
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG
   LINK_FLAGS = /machine:x64 /INCREMENTAL:NO /subsystem:console
   LINK_LIBRARIES = C:\VulkanSDK\1.3.250.1\Lib\vulkan-1.lib  ksaivulkan\ksaivulkan.lib  jkrgui\jkrgui.lib  SDL2.lib  SPIRV.lib  MachineIndependent.lib  SPIRV-Tools.lib  SPIRV-Tools-diff.lib  SPIRV-Tools-link.lib  SPIRV-Tools-lint.lib  SPIRV-Tools-opt.lib  SPIRV-Tools-reduce.lib  SPIRV-Tools-shared.lib  OSDependent.lib  GenericCodeGen.lib  OGLCompiler.lib  HLSL.lib  glslang-default-resource-limits.lib  spirv-cross-c-shared.lib  spirv-cross-c.lib  spirv-cross-core.lib  spirv-cross-cpp.lib  spirv-cross-glsl.lib  spirv-cross-hlsl.lib  spirv-cross-msl.lib  spirv-cross-reflect.lib  lua54.lib  freetype.lib  harfbuzz.lib  harfbuzz-subset.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
@@ -154,7 +163,7 @@ build aa_unit_testing\rebuild_cache: phony aa_unit_testing\CMakeFiles\rebuild_ca
 build cmake_object_order_depends_target_application: phony || cmake_object_order_depends_target_jkrgui cmake_object_order_depends_target_ksaivulkan
 
 build application\CMakeFiles\application.dir\DrawArea.cpp.obj: CXX_COMPILER__application_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application\DrawArea.cpp || cmake_object_order_depends_target_application
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = application\CMakeFiles\application.dir
@@ -163,7 +172,7 @@ build application\CMakeFiles\application.dir\DrawArea.cpp.obj: CXX_COMPILER__app
   TARGET_PDB = application\application.pdb
 
 build application\CMakeFiles\application.dir\GridSheet.cpp.obj: CXX_COMPILER__application_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application\GridSheet.cpp || cmake_object_order_depends_target_application
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = application\CMakeFiles\application.dir
@@ -172,7 +181,7 @@ build application\CMakeFiles\application.dir\GridSheet.cpp.obj: CXX_COMPILER__ap
   TARGET_PDB = application\application.pdb
 
 build application\CMakeFiles\application.dir\application.cpp.obj: CXX_COMPILER__application_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application\application.cpp || cmake_object_order_depends_target_application
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = application\CMakeFiles\application.dir
@@ -239,7 +248,7 @@ build application\rebuild_cache: phony application\CMakeFiles\rebuild_cache.util
 build cmake_object_order_depends_target_jkrgui: phony || jkrgui\CMakeFiles\jkrgui.dir
 
 build jkrgui\CMakeFiles\jkrgui.dir\Components\Area_base.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Components\Area_base.cpp || cmake_object_order_depends_target_jkrgui
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
@@ -248,7 +257,7 @@ build jkrgui\CMakeFiles\jkrgui.dir\Components\Area_base.cpp.obj: CXX_COMPILER__j
   TARGET_PDB = jkrgui\jkrgui.pdb
 
 build jkrgui\CMakeFiles\jkrgui.dir\Components\Button_base.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Components\Button_base.cpp || cmake_object_order_depends_target_jkrgui
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
@@ -257,7 +266,16 @@ build jkrgui\CMakeFiles\jkrgui.dir\Components\Button_base.cpp.obj: CXX_COMPILER_
   TARGET_PDB = jkrgui\jkrgui.pdb
 
 build jkrgui\CMakeFiles\jkrgui.dir\Components\Component_base.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Components\Component_base.cpp || cmake_object_order_depends_target_jkrgui
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
+  INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
+  OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
+  OBJECT_FILE_DIR = jkrgui\CMakeFiles\jkrgui.dir\Components
+  TARGET_COMPILE_PDB = jkrgui\CMakeFiles\jkrgui.dir\jkrgui.pdb
+  TARGET_PDB = jkrgui\jkrgui.pdb
+
+build jkrgui\CMakeFiles\jkrgui.dir\Components\ContextMenuList.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Components\ContextMenuList.cpp || cmake_object_order_depends_target_jkrgui
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
@@ -266,7 +284,7 @@ build jkrgui\CMakeFiles\jkrgui.dir\Components\Component_base.cpp.obj: CXX_COMPIL
   TARGET_PDB = jkrgui\jkrgui.pdb
 
 build jkrgui\CMakeFiles\jkrgui.dir\Components\TextLineEdit.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Components\TextLineEdit.cpp || cmake_object_order_depends_target_jkrgui
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
@@ -275,7 +293,7 @@ build jkrgui\CMakeFiles\jkrgui.dir\Components\TextLineEdit.cpp.obj: CXX_COMPILER
   TARGET_PDB = jkrgui\jkrgui.pdb
 
 build jkrgui\CMakeFiles\jkrgui.dir\Instance.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Instance.cpp || cmake_object_order_depends_target_jkrgui
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
@@ -284,7 +302,7 @@ build jkrgui\CMakeFiles\jkrgui.dir\Instance.cpp.obj: CXX_COMPILER__jkrgui_unscan
   TARGET_PDB = jkrgui\jkrgui.pdb
 
 build jkrgui\CMakeFiles\jkrgui.dir\Painter.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Painter.cpp || cmake_object_order_depends_target_jkrgui
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
@@ -293,7 +311,7 @@ build jkrgui\CMakeFiles\jkrgui.dir\Painter.cpp.obj: CXX_COMPILER__jkrgui_unscann
   TARGET_PDB = jkrgui\jkrgui.pdb
 
 build jkrgui\CMakeFiles\jkrgui.dir\PainterCache.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\PainterCache.cpp || cmake_object_order_depends_target_jkrgui
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
@@ -302,7 +320,7 @@ build jkrgui\CMakeFiles\jkrgui.dir\PainterCache.cpp.obj: CXX_COMPILER__jkrgui_un
   TARGET_PDB = jkrgui\jkrgui.pdb
 
 build jkrgui\CMakeFiles\jkrgui.dir\PainterParameter.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\PainterParameter.cpp || cmake_object_order_depends_target_jkrgui
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
@@ -311,7 +329,7 @@ build jkrgui\CMakeFiles\jkrgui.dir\PainterParameter.cpp.obj: CXX_COMPILER__jkrgu
   TARGET_PDB = jkrgui\jkrgui.pdb
 
 build jkrgui\CMakeFiles\jkrgui.dir\Primitive.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Primitive.cpp || cmake_object_order_depends_target_jkrgui
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
@@ -320,7 +338,7 @@ build jkrgui\CMakeFiles\jkrgui.dir\Primitive.cpp.obj: CXX_COMPILER__jkrgui_unsca
   TARGET_PDB = jkrgui\jkrgui.pdb
 
 build jkrgui\CMakeFiles\jkrgui.dir\Renderers\Renderer_base.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\Renderer_base.cpp || cmake_object_order_depends_target_jkrgui
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
@@ -329,7 +347,7 @@ build jkrgui\CMakeFiles\jkrgui.dir\Renderers\Renderer_base.cpp.obj: CXX_COMPILER
   TARGET_PDB = jkrgui\jkrgui.pdb
 
 build jkrgui\CMakeFiles\jkrgui.dir\Renderers\TextD\BestText.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD\BestText.cpp || cmake_object_order_depends_target_jkrgui
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
@@ -338,7 +356,7 @@ build jkrgui\CMakeFiles\jkrgui.dir\Renderers\TextD\BestText.cpp.obj: CXX_COMPILE
   TARGET_PDB = jkrgui\jkrgui.pdb
 
 build jkrgui\CMakeFiles\jkrgui.dir\Renderers\TextD\BestText_base.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD\BestText_base.cpp || cmake_object_order_depends_target_jkrgui
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
@@ -347,7 +365,7 @@ build jkrgui\CMakeFiles\jkrgui.dir\Renderers\TextD\BestText_base.cpp.obj: CXX_CO
   TARGET_PDB = jkrgui\jkrgui.pdb
 
 build jkrgui\CMakeFiles\jkrgui.dir\Renderers\TextD\FastText.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD\FastText.cpp || cmake_object_order_depends_target_jkrgui
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
@@ -356,7 +374,7 @@ build jkrgui\CMakeFiles\jkrgui.dir\Renderers\TextD\FastText.cpp.obj: CXX_COMPILE
   TARGET_PDB = jkrgui\jkrgui.pdb
 
 build jkrgui\CMakeFiles\jkrgui.dir\Renderers\TextD\FastText_base.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD\FastText_base.cpp || cmake_object_order_depends_target_jkrgui
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
@@ -364,8 +382,35 @@ build jkrgui\CMakeFiles\jkrgui.dir\Renderers\TextD\FastText_base.cpp.obj: CXX_CO
   TARGET_COMPILE_PDB = jkrgui\CMakeFiles\jkrgui.dir\jkrgui.pdb
   TARGET_PDB = jkrgui\jkrgui.pdb
 
+build jkrgui\CMakeFiles\jkrgui.dir\Renderers\ThreeD\glTF.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD\glTF.cpp || cmake_object_order_depends_target_jkrgui
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
+  INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
+  OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
+  OBJECT_FILE_DIR = jkrgui\CMakeFiles\jkrgui.dir\Renderers\ThreeD
+  TARGET_COMPILE_PDB = jkrgui\CMakeFiles\jkrgui.dir\jkrgui.pdb
+  TARGET_PDB = jkrgui\jkrgui.pdb
+
+build jkrgui\CMakeFiles\jkrgui.dir\Renderers\ThreeD\glTF_Model.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD\glTF_Model.cpp || cmake_object_order_depends_target_jkrgui
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
+  INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
+  OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
+  OBJECT_FILE_DIR = jkrgui\CMakeFiles\jkrgui.dir\Renderers\ThreeD
+  TARGET_COMPILE_PDB = jkrgui\CMakeFiles\jkrgui.dir\jkrgui.pdb
+  TARGET_PDB = jkrgui\jkrgui.pdb
+
+build jkrgui\CMakeFiles\jkrgui.dir\Renderers\ThreeD\glTF_base.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD\glTF_base.cpp || cmake_object_order_depends_target_jkrgui
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
+  INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
+  OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
+  OBJECT_FILE_DIR = jkrgui\CMakeFiles\jkrgui.dir\Renderers\ThreeD
+  TARGET_COMPILE_PDB = jkrgui\CMakeFiles\jkrgui.dir\jkrgui.pdb
+  TARGET_PDB = jkrgui\jkrgui.pdb
+
 build jkrgui\CMakeFiles\jkrgui.dir\Renderers\TwoD\2d.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD\2d.cpp || cmake_object_order_depends_target_jkrgui
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
@@ -374,7 +419,7 @@ build jkrgui\CMakeFiles\jkrgui.dir\Renderers\TwoD\2d.cpp.obj: CXX_COMPILER__jkrg
   TARGET_PDB = jkrgui\jkrgui.pdb
 
 build jkrgui\CMakeFiles\jkrgui.dir\Renderers\TwoD\Line.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD\Line.cpp || cmake_object_order_depends_target_jkrgui
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
@@ -383,7 +428,7 @@ build jkrgui\CMakeFiles\jkrgui.dir\Renderers\TwoD\Line.cpp.obj: CXX_COMPILER__jk
   TARGET_PDB = jkrgui\jkrgui.pdb
 
 build jkrgui\CMakeFiles\jkrgui.dir\Renderers\TwoD\Line_base.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD\Line_base.cpp || cmake_object_order_depends_target_jkrgui
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
@@ -392,7 +437,7 @@ build jkrgui\CMakeFiles\jkrgui.dir\Renderers\TwoD\Line_base.cpp.obj: CXX_COMPILE
   TARGET_PDB = jkrgui\jkrgui.pdb
 
 build jkrgui\CMakeFiles\jkrgui.dir\Renderers\TwoD\Shape.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD\Shape.cpp || cmake_object_order_depends_target_jkrgui
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
@@ -401,7 +446,7 @@ build jkrgui\CMakeFiles\jkrgui.dir\Renderers\TwoD\Shape.cpp.obj: CXX_COMPILER__j
   TARGET_PDB = jkrgui\jkrgui.pdb
 
 build jkrgui\CMakeFiles\jkrgui.dir\Renderers\TwoD\Shape_base.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD\Shape_base.cpp || cmake_object_order_depends_target_jkrgui
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
@@ -410,7 +455,7 @@ build jkrgui\CMakeFiles\jkrgui.dir\Renderers\TwoD\Shape_base.cpp.obj: CXX_COMPIL
   TARGET_PDB = jkrgui\jkrgui.pdb
 
 build jkrgui\CMakeFiles\jkrgui.dir\Window.cpp.obj: CXX_COMPILER__jkrgui_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Window.cpp || cmake_object_order_depends_target_jkrgui
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
@@ -426,7 +471,7 @@ build jkrgui\CMakeFiles\jkrgui.dir\Window.cpp.obj: CXX_COMPILER__jkrgui_unscanne
 #############################################
 # Link the static library jkrgui\jkrgui.lib
 
-build jkrgui\jkrgui.lib: CXX_STATIC_LIBRARY_LINKER__jkrgui_Release jkrgui\CMakeFiles\jkrgui.dir\Components\Area_base.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Components\Button_base.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Components\Component_base.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Components\TextLineEdit.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Instance.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Painter.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\PainterCache.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\PainterParameter.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Primitive.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Renderers\Renderer_base.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Renderers\TextD\BestText.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Renderers\TextD\BestText_base.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Renderers\TextD\FastText.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Renderers\TextD\FastText_base.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Renderers\TwoD\2d.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Renderers\TwoD\Line.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Renderers\TwoD\Line_base.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Renderers\TwoD\Shape.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Renderers\TwoD\Shape_base.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Window.cpp.obj
+build jkrgui\jkrgui.lib: CXX_STATIC_LIBRARY_LINKER__jkrgui_Release jkrgui\CMakeFiles\jkrgui.dir\Components\Area_base.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Components\Button_base.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Components\Component_base.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Components\ContextMenuList.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Components\TextLineEdit.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Instance.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Painter.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\PainterCache.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\PainterParameter.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Primitive.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Renderers\Renderer_base.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Renderers\TextD\BestText.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Renderers\TextD\BestText_base.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Renderers\TextD\FastText.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Renderers\TextD\FastText_base.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Renderers\ThreeD\glTF.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Renderers\ThreeD\glTF_Model.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Renderers\ThreeD\glTF_base.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Renderers\TwoD\2d.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Renderers\TwoD\Line.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Renderers\TwoD\Line_base.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Renderers\TwoD\Shape.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Renderers\TwoD\Shape_base.cpp.obj jkrgui\CMakeFiles\jkrgui.dir\Window.cpp.obj
   LANGUAGE_COMPILE_FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG
   LINK_FLAGS = /machine:x64
   OBJECT_DIR = jkrgui\CMakeFiles\jkrgui.dir
@@ -474,7 +519,7 @@ build jkrgui\rebuild_cache: phony jkrgui\CMakeFiles\rebuild_cache.util
 build cmake_object_order_depends_target_ksaivulkan: phony || ksaivulkan\CMakeFiles\ksaivulkan.dir
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\TinyGLTF\tiny_gltf.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\TinyGLTF\tiny_gltf.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -482,8 +527,143 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\TinyGLTF\tiny_gltf.cpp.obj: CX
   TARGET_COMPILE_PDB = ksaivulkan\CMakeFiles\ksaivulkan.dir\ksaivulkan.pdb
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
+build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\TracyClient.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\Tracy\TracyClient.cpp || cmake_object_order_depends_target_ksaivulkan
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
+  INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
+  OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
+  OBJECT_FILE_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy
+  TARGET_COMPILE_PDB = ksaivulkan\CMakeFiles\ksaivulkan.dir\ksaivulkan.pdb
+  TARGET_PDB = ksaivulkan\ksaivulkan.pdb
+
+build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client\TracyAlloc.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\Tracy\client\TracyAlloc.cpp || cmake_object_order_depends_target_ksaivulkan
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
+  INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
+  OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
+  OBJECT_FILE_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client
+  TARGET_COMPILE_PDB = ksaivulkan\CMakeFiles\ksaivulkan.dir\ksaivulkan.pdb
+  TARGET_PDB = ksaivulkan\ksaivulkan.pdb
+
+build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client\TracyCallstack.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\Tracy\client\TracyCallstack.cpp || cmake_object_order_depends_target_ksaivulkan
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
+  INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
+  OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
+  OBJECT_FILE_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client
+  TARGET_COMPILE_PDB = ksaivulkan\CMakeFiles\ksaivulkan.dir\ksaivulkan.pdb
+  TARGET_PDB = ksaivulkan\ksaivulkan.pdb
+
+build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client\TracyDxt1.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\Tracy\client\TracyDxt1.cpp || cmake_object_order_depends_target_ksaivulkan
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
+  INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
+  OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
+  OBJECT_FILE_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client
+  TARGET_COMPILE_PDB = ksaivulkan\CMakeFiles\ksaivulkan.dir\ksaivulkan.pdb
+  TARGET_PDB = ksaivulkan\ksaivulkan.pdb
+
+build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client\TracyOverride.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\Tracy\client\TracyOverride.cpp || cmake_object_order_depends_target_ksaivulkan
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
+  INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
+  OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
+  OBJECT_FILE_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client
+  TARGET_COMPILE_PDB = ksaivulkan\CMakeFiles\ksaivulkan.dir\ksaivulkan.pdb
+  TARGET_PDB = ksaivulkan\ksaivulkan.pdb
+
+build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client\TracyProfiler.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\Tracy\client\TracyProfiler.cpp || cmake_object_order_depends_target_ksaivulkan
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
+  INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
+  OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
+  OBJECT_FILE_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client
+  TARGET_COMPILE_PDB = ksaivulkan\CMakeFiles\ksaivulkan.dir\ksaivulkan.pdb
+  TARGET_PDB = ksaivulkan\ksaivulkan.pdb
+
+build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client\TracySysPower.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\Tracy\client\TracySysPower.cpp || cmake_object_order_depends_target_ksaivulkan
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
+  INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
+  OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
+  OBJECT_FILE_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client
+  TARGET_COMPILE_PDB = ksaivulkan\CMakeFiles\ksaivulkan.dir\ksaivulkan.pdb
+  TARGET_PDB = ksaivulkan\ksaivulkan.pdb
+
+build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client\TracySysTime.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\Tracy\client\TracySysTime.cpp || cmake_object_order_depends_target_ksaivulkan
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
+  INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
+  OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
+  OBJECT_FILE_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client
+  TARGET_COMPILE_PDB = ksaivulkan\CMakeFiles\ksaivulkan.dir\ksaivulkan.pdb
+  TARGET_PDB = ksaivulkan\ksaivulkan.pdb
+
+build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client\TracySysTrace.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\Tracy\client\TracySysTrace.cpp || cmake_object_order_depends_target_ksaivulkan
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
+  INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
+  OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
+  OBJECT_FILE_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client
+  TARGET_COMPILE_PDB = ksaivulkan\CMakeFiles\ksaivulkan.dir\ksaivulkan.pdb
+  TARGET_PDB = ksaivulkan\ksaivulkan.pdb
+
+build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client\tracy_rpmalloc.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\Tracy\client\tracy_rpmalloc.cpp || cmake_object_order_depends_target_ksaivulkan
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
+  INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
+  OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
+  OBJECT_FILE_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client
+  TARGET_COMPILE_PDB = ksaivulkan\CMakeFiles\ksaivulkan.dir\ksaivulkan.pdb
+  TARGET_PDB = ksaivulkan\ksaivulkan.pdb
+
+build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\common\TracySocket.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\Tracy\common\TracySocket.cpp || cmake_object_order_depends_target_ksaivulkan
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
+  INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
+  OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
+  OBJECT_FILE_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\common
+  TARGET_COMPILE_PDB = ksaivulkan\CMakeFiles\ksaivulkan.dir\ksaivulkan.pdb
+  TARGET_PDB = ksaivulkan\ksaivulkan.pdb
+
+build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\common\TracyStackFrames.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\Tracy\common\TracyStackFrames.cpp || cmake_object_order_depends_target_ksaivulkan
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
+  INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
+  OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
+  OBJECT_FILE_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\common
+  TARGET_COMPILE_PDB = ksaivulkan\CMakeFiles\ksaivulkan.dir\ksaivulkan.pdb
+  TARGET_PDB = ksaivulkan\ksaivulkan.pdb
+
+build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\common\TracySystem.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\Tracy\common\TracySystem.cpp || cmake_object_order_depends_target_ksaivulkan
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
+  INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
+  OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
+  OBJECT_FILE_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\common
+  TARGET_COMPILE_PDB = ksaivulkan\CMakeFiles\ksaivulkan.dir\ksaivulkan.pdb
+  TARGET_PDB = ksaivulkan\ksaivulkan.pdb
+
+build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\common\tracy_lz4.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\Tracy\common\tracy_lz4.cpp || cmake_object_order_depends_target_ksaivulkan
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
+  INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
+  OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
+  OBJECT_FILE_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\common
+  TARGET_COMPILE_PDB = ksaivulkan\CMakeFiles\ksaivulkan.dir\ksaivulkan.pdb
+  TARGET_PDB = ksaivulkan\ksaivulkan.pdb
+
+build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\common\tracy_lz4hc.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\Tracy\common\tracy_lz4hc.cpp || cmake_object_order_depends_target_ksaivulkan
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
+  INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
+  OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
+  OBJECT_FILE_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\common
+  TARGET_COMPILE_PDB = ksaivulkan\CMakeFiles\ksaivulkan.dir\ksaivulkan.pdb
+  TARGET_PDB = ksaivulkan\ksaivulkan.pdb
+
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\VulkanMemoryAllocator\vma.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\VulkanMemoryAllocator\vma.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -492,7 +672,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\VulkanMemoryAllocator\vma.cpp.
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\stbi\stb_rect_pack.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi\stb_rect_pack.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -501,7 +681,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\stbi\stb_rect_pack.cpp.obj: CX
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\stbi\stbi.c.obj: C_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi\stbi.c || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /MD /O2 /Ob2 /DNDEBUG
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -510,7 +690,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\stbi\stbi.c.obj: C_COMPILER__k
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanDescriptorPool.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\Pipeline\VulkanDescriptorPool.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -519,7 +699,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanDescriptorPool.
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanDescriptorPoolContext.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\Pipeline\VulkanDescriptorPoolContext.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -528,7 +708,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanDescriptorPoolC
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanDescriptorSet.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\Pipeline\VulkanDescriptorSet.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -537,7 +717,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanDescriptorSet.c
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanDescriptorSetLayout.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\Pipeline\VulkanDescriptorSetLayout.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -546,7 +726,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanDescriptorSetLa
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanDescriptorUpdateHandler.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\Pipeline\VulkanDescriptorUpdateHandler.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -555,7 +735,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanDescriptorUpdat
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanPipeline.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\Pipeline\VulkanPipeline.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -564,7 +744,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanPipeline.cpp.ob
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanPipelineCache.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\Pipeline\VulkanPipelineCache.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -573,7 +753,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanPipelineCache.c
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanPipelineContext.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\Pipeline\VulkanPipelineContext.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -582,7 +762,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanPipelineContext
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanPipelineLayout.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\Pipeline\VulkanPipelineLayout.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -591,7 +771,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanPipelineLayout.
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanShaderModule.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\Pipeline\VulkanShaderModule.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -600,7 +780,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanShaderModule.cp
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanBuffer.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\VulkanBuffer.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -609,7 +789,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanBuffer.cpp.obj: CXX_COMP
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanBufferVMA.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\VulkanBufferVMA.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -618,7 +798,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanBufferVMA.cpp.obj: CXX_C
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanCommandBuffer.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\VulkanCommandBuffer.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -627,7 +807,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanCommandBuffer.cpp.obj: C
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanCommandPool.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\VulkanCommandPool.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -636,7 +816,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanCommandPool.cpp.obj: CXX
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanDevice.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\VulkanDevice.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -645,7 +825,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanDevice.cpp.obj: CXX_COMP
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanFence.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\VulkanFence.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -654,7 +834,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanFence.cpp.obj: CXX_COMPI
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanFrameBuffer.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\VulkanFrameBuffer.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -663,7 +843,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanFrameBuffer.cpp.obj: CXX
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanImage.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\VulkanImage.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -672,7 +852,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanImage.cpp.obj: CXX_COMPI
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanImageVMA.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\VulkanImageVMA.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -681,7 +861,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanImageVMA.cpp.obj: CXX_CO
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanInstance.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\VulkanInstance.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -690,7 +870,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanInstance.cpp.obj: CXX_CO
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanMessenger.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\VulkanMessenger.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -699,7 +879,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanMessenger.cpp.obj: CXX_C
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanPhysicalDevice.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\VulkanPhysicalDevice.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -708,7 +888,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanPhysicalDevice.cpp.obj: 
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanQueue.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\VulkanQueue.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -717,7 +897,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanQueue.cpp.obj: CXX_COMPI
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanQueueContext.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\VulkanQueueContext.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -726,7 +906,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanQueueContext.cpp.obj: CX
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanRenderPass.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\VulkanRenderPass.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -735,7 +915,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanRenderPass.cpp.obj: CXX_
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanSampler.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\VulkanSampler.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -744,7 +924,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanSampler.cpp.obj: CXX_COM
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanSemaphore.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\VulkanSemaphore.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -753,7 +933,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanSemaphore.cpp.obj: CXX_C
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanSurface.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\VulkanSurface.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -762,7 +942,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanSurface.cpp.obj: CXX_COM
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanSwapChain.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\VulkanSwapChain.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -771,7 +951,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanSwapChain.cpp.obj: CXX_C
   TARGET_PDB = ksaivulkan\ksaivulkan.pdb
 
 build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanVMA.cpp.obj: CXX_COMPILER__ksaivulkan_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan\VulkanVMA.cpp || cmake_object_order_depends_target_ksaivulkan
-  DEFINES = -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
   INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -787,7 +967,7 @@ build ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanVMA.cpp.obj: CXX_COMPILE
 #############################################
 # Link the static library ksaivulkan\ksaivulkan.lib
 
-build ksaivulkan\ksaivulkan.lib: CXX_STATIC_LIBRARY_LINKER__ksaivulkan_Release ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\TinyGLTF\tiny_gltf.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\VulkanMemoryAllocator\vma.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\stbi\stb_rect_pack.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\stbi\stbi.c.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanDescriptorPool.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanDescriptorPoolContext.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanDescriptorSet.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanDescriptorSetLayout.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanDescriptorUpdateHandler.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanPipeline.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanPipelineCache.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanPipelineContext.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanPipelineLayout.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanShaderModule.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanBuffer.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanBufferVMA.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanCommandBuffer.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanCommandPool.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanDevice.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanFence.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanFrameBuffer.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanImage.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanImageVMA.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanInstance.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanMessenger.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanPhysicalDevice.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanQueue.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanQueueContext.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanRenderPass.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanSampler.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanSemaphore.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanSurface.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanSwapChain.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanVMA.cpp.obj
+build ksaivulkan\ksaivulkan.lib: CXX_STATIC_LIBRARY_LINKER__ksaivulkan_Release ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\TinyGLTF\tiny_gltf.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\TracyClient.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client\TracyAlloc.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client\TracyCallstack.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client\TracyDxt1.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client\TracyOverride.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client\TracyProfiler.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client\TracySysPower.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client\TracySysTime.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client\TracySysTrace.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\client\tracy_rpmalloc.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\common\TracySocket.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\common\TracyStackFrames.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\common\TracySystem.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\common\tracy_lz4.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\Tracy\common\tracy_lz4hc.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\VulkanMemoryAllocator\vma.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\stbi\stb_rect_pack.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vendor\stbi\stbi.c.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanDescriptorPool.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanDescriptorPoolContext.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanDescriptorSet.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanDescriptorSetLayout.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanDescriptorUpdateHandler.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanPipeline.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanPipelineCache.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanPipelineContext.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanPipelineLayout.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\Pipeline\VulkanShaderModule.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanBuffer.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanBufferVMA.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanCommandBuffer.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanCommandPool.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanDevice.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanFence.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanFrameBuffer.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanImage.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanImageVMA.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanInstance.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanMessenger.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanPhysicalDevice.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanQueue.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanQueueContext.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanRenderPass.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanSampler.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanSemaphore.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanSurface.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanSwapChain.cpp.obj ksaivulkan\CMakeFiles\ksaivulkan.dir\Vulkan\VulkanVMA.cpp.obj
   LANGUAGE_COMPILE_FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG
   LINK_FLAGS = /machine:x64
   OBJECT_DIR = ksaivulkan\CMakeFiles\ksaivulkan.dir
@@ -821,7 +1001,78 @@ build ksaivulkan\CMakeFiles\rebuild_cache.util: CUSTOM_COMMAND
 build ksaivulkan\rebuild_cache: phony ksaivulkan\CMakeFiles\rebuild_cache.util
 
 # =============================================================================
+# Write statements declared in CMakeLists.txt:
+# C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/CMakeLists.txt
+# =============================================================================
+
+# =============================================================================
+# Object build statements for EXECUTABLE target aJkrLua
+
+
+#############################################
+# Order-only phony target for aJkrLua
+
+build cmake_object_order_depends_target_aJkrLua: phony || cmake_object_order_depends_target_jkrgui cmake_object_order_depends_target_ksaivulkan
+
+build aJkrLua\CMakeFiles\aJkrLua.dir\EntryPoint.cpp.obj: CXX_COMPILER__aJkrLua_unscanned_Release C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\aJkrLua\EntryPoint.cpp || cmake_object_order_depends_target_aJkrLua
+  DEFINES = -DTRACY_ENABLE -DVK_USE_PLATFORM_WIN32_KHR -D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
+  INCLUDES = -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\ThreeD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TwoD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\Renderers\TextD -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vulkan -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\stbi -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\Vendor\lua -IC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs -IC:\VulkanSDK\1.3.250.1\Include
+  OBJECT_DIR = aJkrLua\CMakeFiles\aJkrLua.dir
+  OBJECT_FILE_DIR = aJkrLua\CMakeFiles\aJkrLua.dir
+  TARGET_COMPILE_PDB = aJkrLua\CMakeFiles\aJkrLua.dir\
+  TARGET_PDB = aJkrLua\aJkrLua.pdb
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target aJkrLua
+
+
+#############################################
+# Link the executable aJkrLua\aJkrLua.exe
+
+build aJkrLua\aJkrLua.exe: CXX_EXECUTABLE_LINKER__aJkrLua_Release aJkrLua\CMakeFiles\aJkrLua.dir\EntryPoint.cpp.obj | C$:\VulkanSDK\1.3.250.1\Lib\vulkan-1.lib ksaivulkan\ksaivulkan.lib jkrgui\jkrgui.lib || jkrgui\jkrgui.lib ksaivulkan\ksaivulkan.lib
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG
+  LINK_FLAGS = /machine:x64 /INCREMENTAL:NO /subsystem:console
+  LINK_LIBRARIES = C:\VulkanSDK\1.3.250.1\Lib\vulkan-1.lib  ksaivulkan\ksaivulkan.lib  jkrgui\jkrgui.lib  SDL2.lib  SPIRV.lib  MachineIndependent.lib  SPIRV-Tools.lib  SPIRV-Tools-diff.lib  SPIRV-Tools-link.lib  SPIRV-Tools-lint.lib  SPIRV-Tools-opt.lib  SPIRV-Tools-reduce.lib  SPIRV-Tools-shared.lib  OSDependent.lib  GenericCodeGen.lib  OGLCompiler.lib  HLSL.lib  glslang-default-resource-limits.lib  spirv-cross-c-shared.lib  spirv-cross-c.lib  spirv-cross-core.lib  spirv-cross-cpp.lib  spirv-cross-glsl.lib  spirv-cross-hlsl.lib  spirv-cross-msl.lib  spirv-cross-reflect.lib  lua54.lib  freetype.lib  harfbuzz.lib  harfbuzz-subset.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
+  LINK_PATH = -LIBPATH:C:\VulkanSDK\1.3.250.1\Lib   -LIBPATH:C:\Users\sansk\OneDrive\Desktop\Project\jkrengine\libs
+  OBJECT_DIR = aJkrLua\CMakeFiles\aJkrLua.dir
+  POST_BUILD = cd .
+  PRE_LINK = cd .
+  TARGET_COMPILE_PDB = aJkrLua\CMakeFiles\aJkrLua.dir\
+  TARGET_FILE = aJkrLua\aJkrLua.exe
+  TARGET_IMPLIB = aJkrLua\aJkrLua.lib
+  TARGET_PDB = aJkrLua\aJkrLua.pdb
+
+
+#############################################
+# Utility command for edit_cache
+
+build aJkrLua\CMakeFiles\edit_cache.util: CUSTOM_COMMAND
+  COMMAND = cmd.exe /C "cd /D C:\Users\sansk\OneDrive\Desktop\Project\jkrengine\out\build\x64-release\aJkrLua && "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E echo "No interactive CMake dialog available.""
+  DESC = No interactive CMake dialog available...
+  restat = 1
+
+build aJkrLua\edit_cache: phony aJkrLua\CMakeFiles\edit_cache.util
+
+
+#############################################
+# Utility command for rebuild_cache
+
+build aJkrLua\CMakeFiles\rebuild_cache.util: CUSTOM_COMMAND
+  COMMAND = cmd.exe /C "cd /D C:\Users\sansk\OneDrive\Desktop\Project\jkrengine\out\build\x64-release\aJkrLua && "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" --regenerate-during-build -SC:\Users\sansk\OneDrive\Desktop\Project\jkrengine -BC:\Users\sansk\OneDrive\Desktop\Project\jkrengine\out\build\x64-release"
+  DESC = Running CMake to regenerate build system...
+  pool = console
+  restat = 1
+
+build aJkrLua\rebuild_cache: phony aJkrLua\CMakeFiles\rebuild_cache.util
+
+# =============================================================================
 # Target aliases.
+
+build aJkrLua: phony aJkrLua\aJkrLua.exe
+
+build aJkrLua.exe: phony aJkrLua\aJkrLua.exe
 
 build aa_unit_testing: phony aa_unit_testing\aa_unit_testing.exe
 
@@ -847,7 +1098,14 @@ build ksaivulkan.lib: phony ksaivulkan\ksaivulkan.lib
 #############################################
 # Folder: C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release
 
-build all: phony aa_unit_testing\all application\all jkrgui\all ksaivulkan\all
+build all: phony aa_unit_testing\all application\all jkrgui\all ksaivulkan\all aJkrLua\all
+
+# =============================================================================
+
+#############################################
+# Folder: C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release/aJkrLua
+
+build aJkrLua\all: phony aJkrLua\aJkrLua.exe
 
 # =============================================================================
 
@@ -898,14 +1156,14 @@ build C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\out\build\x64-release\C
 #############################################
 # Re-run CMake if any of its inputs changed.
 
-build build.ninja: RERUN_CMAKE C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\out\build\x64-release\CMakeFiles\cmake.verify_globs | C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\out\build\x64-release\CMakeFiles\VerifyGlobs.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeCInformation.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeCXXInformation.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeCommonLanguageInclude.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeGenericSystem.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeInitializeConfigs.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeLanguageInformation.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeRCInformation.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeSystemSpecificInformation.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeSystemSpecificInitialize.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Compiler\CMakeCommonCompilerMacros.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Compiler\Clang-C.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Compiler\Clang-CXX.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Compiler\Clang.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\FindPackageHandleStandardArgs.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\FindPackageMessage.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\FindVulkan.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\Windows-Clang-C.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\Windows-Clang-CXX.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\Windows-Clang.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\Windows-MSVC.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\Windows.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\WindowsPaths.cmake C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\CMakeCommon.cmake C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\CMakeLists.txt C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\aa_unit_testing\CMakeLists.txt C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application\CMakeLists.txt C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\CMakeLists.txt C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\CMakeLists.txt CMakeCache.txt CMakeFiles\3.26.4-msvc4\CMakeCCompiler.cmake CMakeFiles\3.26.4-msvc4\CMakeCXXCompiler.cmake CMakeFiles\3.26.4-msvc4\CMakeRCCompiler.cmake CMakeFiles\3.26.4-msvc4\CMakeSystem.cmake
+build build.ninja: RERUN_CMAKE C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\out\build\x64-release\CMakeFiles\cmake.verify_globs | C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\out\build\x64-release\CMakeFiles\VerifyGlobs.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeCInformation.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeCXXInformation.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeCommonLanguageInclude.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeGenericSystem.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeInitializeConfigs.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeLanguageInformation.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeRCInformation.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeSystemSpecificInformation.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeSystemSpecificInitialize.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Compiler\CMakeCommonCompilerMacros.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Compiler\Clang-C.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Compiler\Clang-CXX.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Compiler\Clang.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\FindPackageHandleStandardArgs.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\FindPackageMessage.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\FindVulkan.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\Windows-Clang-C.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\Windows-Clang-CXX.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\Windows-Clang.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\Windows-MSVC.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\Windows.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\WindowsPaths.cmake C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\CMakeCommon.cmake C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\CMakeLists.txt C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\aJkrLua\CMakeLists.txt C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\aa_unit_testing\CMakeLists.txt C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application\CMakeLists.txt C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\CMakeLists.txt C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\CMakeLists.txt CMakeCache.txt CMakeFiles\3.26.4-msvc4\CMakeCCompiler.cmake CMakeFiles\3.26.4-msvc4\CMakeCXXCompiler.cmake CMakeFiles\3.26.4-msvc4\CMakeRCCompiler.cmake CMakeFiles\3.26.4-msvc4\CMakeSystem.cmake
   pool = console
 
 
 #############################################
 # A missing CMake input file is not an error.
 
-build C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\out\build\x64-release\CMakeFiles\VerifyGlobs.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeCInformation.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeCXXInformation.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeCommonLanguageInclude.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeGenericSystem.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeInitializeConfigs.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeLanguageInformation.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeRCInformation.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeSystemSpecificInformation.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeSystemSpecificInitialize.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Compiler\CMakeCommonCompilerMacros.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Compiler\Clang-C.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Compiler\Clang-CXX.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Compiler\Clang.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\FindPackageHandleStandardArgs.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\FindPackageMessage.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\FindVulkan.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\Windows-Clang-C.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\Windows-Clang-CXX.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\Windows-Clang.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\Windows-MSVC.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\Windows.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\WindowsPaths.cmake C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\CMakeCommon.cmake C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\CMakeLists.txt C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\aa_unit_testing\CMakeLists.txt C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application\CMakeLists.txt C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\CMakeLists.txt C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\CMakeLists.txt CMakeCache.txt CMakeFiles\3.26.4-msvc4\CMakeCCompiler.cmake CMakeFiles\3.26.4-msvc4\CMakeCXXCompiler.cmake CMakeFiles\3.26.4-msvc4\CMakeRCCompiler.cmake CMakeFiles\3.26.4-msvc4\CMakeSystem.cmake: phony
+build C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\out\build\x64-release\CMakeFiles\VerifyGlobs.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeCInformation.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeCXXInformation.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeCommonLanguageInclude.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeGenericSystem.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeInitializeConfigs.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeLanguageInformation.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeRCInformation.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeSystemSpecificInformation.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\CMakeSystemSpecificInitialize.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Compiler\CMakeCommonCompilerMacros.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Compiler\Clang-C.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Compiler\Clang-CXX.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Compiler\Clang.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\FindPackageHandleStandardArgs.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\FindPackageMessage.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\FindVulkan.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\Windows-Clang-C.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\Windows-Clang-CXX.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\Windows-Clang.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\Windows-MSVC.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\Windows.cmake C$:\Program$ Files\Microsoft$ Visual$ Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.26\Modules\Platform\WindowsPaths.cmake C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\CMakeCommon.cmake C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\CMakeLists.txt C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\aJkrLua\CMakeLists.txt C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\aa_unit_testing\CMakeLists.txt C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\application\CMakeLists.txt C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\jkrgui\CMakeLists.txt C$:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ksaivulkan\CMakeLists.txt CMakeCache.txt CMakeFiles\3.26.4-msvc4\CMakeCCompiler.cmake CMakeFiles\3.26.4-msvc4\CMakeCXXCompiler.cmake CMakeFiles\3.26.4-msvc4\CMakeRCCompiler.cmake CMakeFiles\3.26.4-msvc4\CMakeSystem.cmake: phony
 
 
 #############################################

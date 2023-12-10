@@ -12,9 +12,12 @@ namespace Jkr::Renderer
 		using sb = Shape_base;
 		using rb = Renderer_base;
 	public:
-		Shape(const Instance& inInstance, Window& inCompatibleWindow, std::unordered_map<FillType, Up<PainterCache>>& inPainterCaches);
-		void Add(Jkr::Generator& inShape, int inX, int inY, uint32_t inZ, uint32_t& outId);
-		void AddImage(const std::string_view inFileName, uint32_t& outIndex);
+        Shape(const Instance &inInstance,
+              Window &inCompatibleWindow,
+              std::unordered_map<FillType, Up<PainterCache>> &inPainterCaches,
+              uint32_t inVarDesCount = 5000);
+        void Add(Jkr::Generator &inShape, int inX, int inY, uint32_t inZ, uint32_t &outId);
+        void AddImage(const std::string_view inFileName, uint32_t& outIndex);
         void AddImage(uint32_t inWidth, uint32_t inHeight, uint32_t &outIndex);
         void CopyToImage(uint32_t inId,
                          uint32_t inWidth,

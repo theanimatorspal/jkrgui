@@ -31,8 +31,8 @@ namespace Jkr {
 	class Instance
 	{
 	public:
-		Instance();
-		GETTER& GetVulkanInstance() const { return mInstance; }
+        Instance(uint32_t inNoOfDescriptors = 20);
+        GETTER& GetVulkanInstance() const { return mInstance; }
 		GETTER& GetPhysicalDevice() const { return mPhysicalDevice; }
 		GETTER& GetQueueContext() const { return mQueueContext; }
 		GETTER& GetDevice() const { return mDevice; }

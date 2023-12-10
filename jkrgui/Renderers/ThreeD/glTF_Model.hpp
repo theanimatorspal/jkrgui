@@ -18,6 +18,14 @@ class glTF_Model
     std::vector<uint32_t> mIndexBuffer;
     std::vector<Vertex3D> mVertexBuffer;
 
+    void EraseVerticesAndIndices()
+    {
+        mIndexBuffer.clear();
+        mIndexBuffer.shrink_to_fit();
+        mVertexBuffer.clear();
+        mVertexBuffer.shrink_to_fit();
+    }
+
 public:
     glTF_Model(const Instance &inInstance, const std::string_view inFilePath)
         : mInstance(inInstance)

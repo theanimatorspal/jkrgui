@@ -1,4 +1,5 @@
 #include "Shape_base.hpp"
+#include <numbers>
 
 using namespace Jkr;
 using namespace Jkr::Renderer;
@@ -8,6 +9,10 @@ Generator::Generator(Shapes inShape, Arguments inArgs)
     , mShape(inShape)
 {
     switch (inShape) {
+    case Shapes::Circle:
+        mVertexCount = std::get<glm::uvec2>(mArgs).y;
+        mIndexCount = std::get<glm::uvec2>(mArgs).y + 1;
+        break;
     case Shapes::Rectangle:
         mVertexCount = 4;
         mIndexCount = 6;
@@ -21,6 +26,33 @@ Generator::Generator(Shapes inShape, Arguments inArgs)
 void Jkr::Generator::operator()(int inX, int inY, uint32_t inZ, uint32_t inStartVertexIndex, uint32_t inStartIndexIndex, std::vector<kstd::Vertex>& modVertices, std::vector<uint32_t>& modIndices)
 {
     switch (mShape) {
+    case Shapes::Circle: {
+        float x = inX;
+        float y = inY;
+        float R = std::get<glm::uvec2>(mArgs).x;
+        modVertices.resize(mVertexCount + modVertices.size());
+        modIndices.resize(mIndexCount + modIndices.size());
+        float TH = 0;
+        float dTH = 2 * std::numbers::pi / mVertexCount;
+
+        {
+            int i = 0;
+            for (i = 0; i < mVertexCount; i++) {
+                const float ix = R * cos(TH);
+                const float iy = R * sin(TH);
+                modVertices[inStartVertexIndex + i] = kstd::Vertex{.mPosition = {ix + y,
+                                                                                 iy + x,
+                                                                                 inZ},
+                                                                   .mTextureCoordinates = {ix, iy}
+
+                };
+                modIndices[inStartIndexIndex + i] = inStartVertexIndex + i;
+                TH += dTH;
+            }
+            modIndices[inStartIndexIndex + i] = inStartVertexIndex;
+        }
+        break;
+    }
     case Shapes::Rectangle: {
         int x = inX;
         int dx = std::get<glm::uvec2>(mArgs).x;

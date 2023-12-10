@@ -1,4 +1,6 @@
-﻿#include <EventManager.hpp>
+﻿#include "Shape_base.hpp"
+#include "glm/ext/matrix_transform.hpp"
+#include <EventManager.hpp>
 #include <Instance.hpp>
 #include <Renderers/ResourceManager.hpp>
 #include <Renderers/TextD/BestText.hpp>
@@ -7,7 +9,7 @@
 #include <Renderers/TwoD/Shape.hpp>
 #include <Window.hpp>
 
-int not_main()
+int main()
 {
     auto Instance = Jkr::Instance();
     auto Window = Jkr::Window(Instance, "Heell", 1080 / 2, 1920 / 2);
@@ -67,6 +69,10 @@ layout(push_constant, std430) uniform pc {
     bst.AddText("Wow", 100, 300, 5, BestText_id, BestText_length);
     bst.AddText("don", 500, 300, 5, BestText_id1, BestText_length1);
 
+    Jkr::Generator CircleGen(Jkr::Shapes::Circle, glm::uvec2(50, 16));
+    uint32_t circle_id;
+    sr.Add(CircleGen, 100, 100, 20, circle_id);
+
     std::array<glm::uvec2, 4> Pts;
     Pts[0] = glm::uvec2(300, 150);
     Pts[1] = glm::uvec2(500, 100);
@@ -123,12 +129,20 @@ layout(push_constant, std430) uniform pc {
         matrixF = glm::translate(matrixF, glm::vec3(-5.0f * i, 0.0f, 0.0f));
         sr.Draw(Window, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), ws.first, ws.second, sid1, sid1, matrixF);
         sr.BindFillMode(Jkr::Renderer::FillType::ContinousLine, Window);
+        sr.Draw(Window,
+                glm::vec4(1.0, 0, 0, 1.0f),
+                ws.first,
+                ws.second,
+                circle_id,
+                circle_id,
+                glm::identity<glm::mat4>());
         sr.Draw(Window, glm::vec4(1.0f, 0.3f, 0.5f, 1.0f), ws.first, ws.second, bez_id, bez_id, glm::identity<glm::mat4>());
         bst.Bind(Window);
 
         matrixF = glm::identity<glm::mat4>();
         bst.Draw(Window, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), ws.first, ws.second, BestText_id, BestText_length, matrixF);
         bst.Draw(Window, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), ws.first, ws.second, BestText_id1, BestText_length1, matrixF);
+        
     };
 
     auto Update = [&](void* data) {

@@ -9,6 +9,10 @@
 #include <Renderers/TwoD/2d.hpp>
 #include <Vendor/Tracy/tracy/Tracy.hpp>
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
+
 #define SOL_ALL_SAFETIES_ON 1
 
 #include <Vendor/sol/sol.hpp>
@@ -471,6 +475,7 @@ unordered_map<string_view, string_view> gConfiguration{{"-title", "JkrGUI"},
                                                        {"-bgg", "1.0"},
                                                        {"-bgb", "1.0"},
                                                        {"-bga", "1.0"},
+                                                       {"-var_des_size", "5000"},
                                                        {"-main_file", "main.lua"}};
 
 auto FillConfig(const vector<string_view>& inArguments)
@@ -492,13 +497,14 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
     auto w = Window(i, cf["-title"], stoi(string(cf["-height"])), stoi(string(cf["-width"])));
     auto em = EventManager();
     auto rr = ResourceManager();
+    auto VarDesCount = stoi(string(cf["-var_des_size"]));
     if (toBool(cf["-store"])) {
-        rr.Load(i);
+        rr.Load(i, VarDesCount);
         // rr.Store(i);
     } else {
-        rr.Load(i);
+        rr.Load(i, VarDesCount);
     }
-    auto td = _2d(i, w, rr);
+    auto td = _2d(i, w, rr, VarDesCount);
 
     sol::state l;
     l.open_libraries();
@@ -684,7 +690,6 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
 
             "set_current_face",
             [&](int font_face) -> void {
-                cout << "Set Current Face" << '\n';
                 td.bt.SetCurrentFontFace(font_face);
             },
 

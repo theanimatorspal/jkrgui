@@ -1,23 +1,22 @@
 #pragma once
 #include "Instance.hpp"
-#include "Window.hpp"
-namespace Jkr
-{
-	enum class PainterParameterContext
-	{
-		StorageBuffer,
-		UniformBuffer,
-		StorageImage,
-		UniformImage,
-		UniformSampler
-	};
-	using StorageBufferType = VulkanBufferVMA<BufferContext::Storage, MemoryType::DeviceLocal>;
-	using UniformBufferType = VulkanBufferVMA<BufferContext::Uniform, MemoryType::HostVisibleAndCoherenet>;
-	using StorageImageType = VulkanImageVMA<ImageContext::Storage>;
-	using UniformImageType = VulkanImageVMA<ImageContext::Default>;
-	using StorageBufferType = VulkanBufferVMA<BufferContext::Storage, MemoryType::DeviceLocal>;
-	using UniformSamplerType = VulkanSampler;
-}
+
+namespace Jkr {
+enum class PainterParameterContext {
+    StorageBuffer,
+    UniformBuffer,
+    StorageImage,
+    UniformImage,
+    UniformSampler
+};
+using StorageBufferType = VulkanBufferVMA<BufferContext::Storage, MemoryType::DeviceLocal>;
+using UniformBufferType
+    = VulkanBufferVMA<BufferContext::Uniform, MemoryType::HostVisibleAndCoherenet>;
+using StorageImageType = VulkanImageVMA<ImageContext::Storage>;
+using UniformImageType = VulkanImageVMA<ImageContext::Default>;
+using StorageBufferType = VulkanBufferVMA<BufferContext::Storage, MemoryType::DeviceLocal>;
+using UniformSamplerType = VulkanSampler;
+} // namespace Jkr
 
 namespace Jkr
 {

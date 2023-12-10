@@ -2,39 +2,38 @@
 #include <glm/glm.hpp>
 #include <stdint.h>
 #include <vector>
-#include <string>
 #include <variant>
 #include <Global/Standards.hpp>
 #include <span>
 
 namespace Jkr
 {
-	enum class Shapes { Circle, Rectangle, Bezier2_8 };
-	using namespace Jkr;
-	using namespace ksai;
-	class Generator
-	{
-	public:
-        using Arguments
-            = std::variant<glm::uvec2, std::span<glm::uvec2>, std::span<glm::vec2>, uint32_t>;
-        Generator() = default;
-        Generator(Shapes inShape, Arguments inArgs);
-        void operator()(int inX,
-                        int inY,
-                        uint32_t inZ,
-                        uint32_t inStartVertexIndex,
-                        uint32_t inStartIndexIndex,
-                        std::vector<kstd::Vertex> &modVertices,
-                        std::vector<uint32_t> &modIndices);
-        Shapes GetShape() const { return mShape; }
-        uint32_t GetVertexCount() const { return mVertexCount; }
-		uint32_t GetIndexCount() const { return mIndexCount; }
-	private:
-		Arguments mArgs;
-		Shapes mShape;
-		uint32_t mVertexCount = 0;
-		uint32_t mIndexCount = 0;
-	};
+enum class Shapes { Circle, Rectangle, Bezier2_8 };
+using namespace Jkr;
+using namespace ksai;
+class Generator
+{
+public:
+    using Arguments = std::variant<glm::uvec2, std::span<glm::uvec2>, std::span<glm::vec2>, uint32_t>;
+    Generator() = default;
+    Generator(Shapes inShape, Arguments inArgs);
+    void operator()(int inX,
+                    int inY,
+                    uint32_t inZ,
+                    uint32_t inStartVertexIndex,
+                    uint32_t inStartIndexIndex,
+                    std::vector<kstd::Vertex> &modVertices,
+                    std::vector<uint32_t> &modIndices);
+    Shapes GetShape() const { return mShape; }
+    uint32_t GetVertexCount() const { return mVertexCount; }
+    uint32_t GetIndexCount() const { return mIndexCount; }
+
+private:
+    Arguments mArgs;
+    Shapes mShape;
+    uint32_t mVertexCount = 0;
+    uint32_t mIndexCount = 0;
+};
 }
 
 

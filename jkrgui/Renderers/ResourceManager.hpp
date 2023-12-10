@@ -144,7 +144,7 @@ private:
     }
 
 public:
-    ResourceManager& Load(const Jkr::Instance& inInstance)
+    ResourceManager &Load(const Jkr::Instance &inInstance, uint32_t inVarDesCount = 5000)
     {
         Make(inInstance);
         mLineRendererCache->Load(LineRendererCacheFileName);
@@ -155,14 +155,15 @@ public:
         mShapePainterCaches[FillType::Image]->Load(ShapeRendererCacheFileName_Image);
 #else
         mShapePainterCaches[FillType::Image]->__var_des_index_Load_EXT(ShapeRendererCacheFileName_Image);
-        mBestTextRendererCache->__var_des_index_Load_EXT(BestTextRendererCacheFilename, 5000);
+        mBestTextRendererCache->__var_des_index_Load_EXT(BestTextRendererCacheFilename,
+                                                         inVarDesCount);
 #endif
 
         mShapePainterCaches[FillType::ContinousLine]->Load(ShapeRendererCacheFileName_ContinousLine);
         return *this;
     }
 
-    ResourceManager& Store(const Jkr::Instance& inInstance)
+    ResourceManager &Store(const Jkr::Instance &inInstance, uint32_t inVarDesCount = 5000)
     {
         Make(inInstance);
         ksai::Shader Line(LineRendererShaders::VertexShader, LineRendererShaders::FragmentShader);
@@ -184,7 +185,11 @@ public:
         mShapePainterCaches[FillType::Image]->Store(ShapeRendererCacheFileName_Image, Shape_Image.GetVertexShader().str(), Shape_Image.GetFragmentShader().str(), Shape_ImageCompute.GetComputeShader().str());
 #else
         mShapePainterCaches[FillType::Image]->__var_des_index_Store_EXT(ShapeRendererCacheFileName_Image, Shape_Image.GetVertexShader().str(), Shape_Image.GetFragmentShader().str(), Shape_ImageCompute.GetComputeShader().str());
-        mBestTextRendererCache->__var_des_index_Store_EXT(BestTextRendererCacheFilename, BestTextS.GetVertexShader().str(), BestTextS.GetFragmentShader().str(), BestText_Compute.GetComputeShader().str(), 5000);
+        mBestTextRendererCache->__var_des_index_Store_EXT(BestTextRendererCacheFilename,
+                                                          BestTextS.GetVertexShader().str(),
+                                                          BestTextS.GetFragmentShader().str(),
+                                                          BestText_Compute.GetComputeShader().str(),
+                                                          inVarDesCount);
 #endif
 
         mShapePainterCaches[FillType::ContinousLine]->Store(ShapeRendererCacheFileName_ContinousLine, Shape_Fill.GetVertexShader().str(), Shape_Fill.GetFragmentShader().str(), Shape_FillCompute.GetComputeShader().str());

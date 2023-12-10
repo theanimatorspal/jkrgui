@@ -4,15 +4,29 @@
 #include "vulkan/vulkan_enums.hpp"
 #include <glm/ext/matrix_clip_space.hpp>
 
-Jkr::Renderer::Shape::Shape(const Instance& inInstance, Window& inCompatibleWindow, std::unordered_map<FillType, Up<PainterCache>>& inPainterCaches) : mInstance(inInstance), mPainterCaches(inPainterCaches)
+Jkr::Renderer::Shape::Shape(const Instance &inInstance,
+                            Window &inCompatibleWindow,
+                            std::unordered_map<FillType, Up<PainterCache>> &inPainterCaches,
+                            uint32_t inVarDesCount)
+    : mInstance(inInstance)
+    , mPainterCaches(inPainterCaches)
 {
-	mPainters[FillType::Fill] = MakeUp<Painter>(inInstance, inCompatibleWindow, *inPainterCaches[FillType::Fill]);
+    mPainters[FillType::Fill] = MakeUp<Painter>(inInstance,
+                                                inCompatibleWindow,
+                                                *inPainterCaches[FillType::Fill]);
 
 #ifndef JKR_USE_VARIABLE_DES_INDEXING
 	mPainters[FillType::Image] = MakeUp<Painter>(inInstance, inCompatibleWindow, *inPainterCaches[FillType::Image]);
 #else
-	mPainters[FillType::Image] = MakeUp<Painter>(inInstance, inCompatibleWindow, *inPainterCaches[FillType::Image], JKR_VAR_DES_2D_IMG_COUNT);
-	mVarDesVulkanDescriptorSet = MakeUp<VulkanDescriptorSet>(mInstance.GetDevice(), mInstance.GetDescriptorPool(), mPainterCaches[FillType::Image]->GetVertexFragmentDescriptorSetLayout(), JKR_VAR_DES_2D_IMG_COUNT);
+    mPainters[FillType::Image] = MakeUp<Painter>(inInstance,
+                                                 inCompatibleWindow,
+                                                 *inPainterCaches[FillType::Image],
+                                                 inVarDesCount);
+    mVarDesVulkanDescriptorSet = MakeUp<VulkanDescriptorSet>(
+        mInstance.GetDevice(),
+        mInstance.GetDescriptorPool(),
+        mPainterCaches[FillType::Image]->GetVertexFragmentDescriptorSetLayout(),
+        inVarDesCount);
 #endif
 
 	mPainters[FillType::ContinousLine] = MakeUp<Painter>(inInstance, inCompatibleWindow, *inPainterCaches[FillType::ContinousLine]);

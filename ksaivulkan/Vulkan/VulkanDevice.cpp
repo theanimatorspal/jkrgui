@@ -1,5 +1,5 @@
 #include "VulkanDevice.hpp"
-#include <iostream>
+#include "vulkan/vulkan_handles.hpp"
 
 using namespace ksai;
 
@@ -26,20 +26,34 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice, const V
 	);
 
 #ifdef USE_VARIABLE_DESCRIPTOR_INDEXING_FEATURE
-	vk::PhysicalDeviceDescriptorIndexingFeatures DescriptorIndexingFeatures;
-	DescriptorIndexingFeatures.runtimeDescriptorArray = VK_TRUE;
-	DescriptorIndexingFeatures.descriptorBindingVariableDescriptorCount = VK_TRUE;
-	DescriptorIndexingFeatures.descriptorBindingPartiallyBound = VK_TRUE;
-	DescriptorIndexingFeatures.descriptorBindingUpdateUnusedWhilePending = VK_TRUE;
-	DescriptorIndexingFeatures.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
+#ifdef __APPLE__
+    vk::PhysicalDeviceDescriptorIndexingFeaturesEXT DescriptorIndexingFeatures;
+    DescriptorIndexingFeatures.runtimeDescriptorArray = VK_TRUE;
+    DescriptorIndexingFeatures.descriptorBindingVariableDescriptorCount = VK_TRUE;
+    DescriptorIndexingFeatures.descriptorBindingPartiallyBound = VK_TRUE;
+    DescriptorIndexingFeatures.descriptorBindingUpdateUnusedWhilePending = VK_TRUE;
+    DescriptorIndexingFeatures.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
+
+    vk::StructureChain<vk::DeviceCreateInfo, vk::PhysicalDeviceDescriptorIndexingFeaturesEXT>
+        createInfo(deviceCreateInfo, DescriptorIndexingFeatures);
+
+    mDevice = mPhysicalDevice.createDevice(createInfo.get<vk::DeviceCreateInfo>());
+#else
+    vk::PhysicalDeviceDescriptorIndexingFeatures DescriptorIndexingFeatures;
+    DescriptorIndexingFeatures.runtimeDescriptorArray = VK_TRUE;
+    DescriptorIndexingFeatures.descriptorBindingVariableDescriptorCount = VK_TRUE;
+    DescriptorIndexingFeatures.descriptorBindingPartiallyBound = VK_TRUE;
+    DescriptorIndexingFeatures.descriptorBindingUpdateUnusedWhilePending = VK_TRUE;
+    DescriptorIndexingFeatures.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
 
 	vk::StructureChain< vk::DeviceCreateInfo, vk::PhysicalDeviceDescriptorIndexingFeatures> createInfo(
 		deviceCreateInfo, DescriptorIndexingFeatures
 	);
 
 	mDevice = mPhysicalDevice.createDevice(createInfo.get<vk::DeviceCreateInfo>());
+#endif
 #else
-	mDevice = mPhysicalDevice.createDevice(deviceCreateInfo);
+    mDevice = mPhysicalDevice.createDevice(deviceCreateInfo);
 #endif
 }
 

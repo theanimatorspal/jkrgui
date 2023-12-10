@@ -13,8 +13,10 @@ class BestText : public BestText_base, Renderer_base {
     using rb = Renderer_base;
 
 public:
-    BestText(const Instance& inInstance, const Window& inCompatibleWindow,
-        const PainterCache& inCache);
+    BestText(const Instance &inInstance,
+             const Window &inCompatibleWindow,
+             const PainterCache &inCache,
+             uint32_t inVarDesCount = 5000);
     bb::TextDimensions AddText(const std::string_view inText, uint32_t inX,
         uint32_t inY, uint32_t inDepthValue,
         uint32_t& outId, uint32_t& outLength);

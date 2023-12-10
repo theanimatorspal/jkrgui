@@ -72,9 +72,9 @@ namespace Jkr::Renderer
 		[[nodiscard]] constexpr size_t ToFontUnits ( size_t inSize ) { return inSize << 6; }
 		FT_Library mFtLibrary;
 	private:
-		std::array<FT_Face, 10> mFaces;
-		std::array<hb_font_t*, 10> mHbFonts;
-		int mFontFaceCount = 0;
+        std::vector<FT_Face> mFaces;
+        std::vector<hb_font_t *> mHbFonts;
+        int mFontFaceCount = 0;
 		uint32_t mCharQuadGlyphCount = 0;
 	private:
 		struct CharacterInfo

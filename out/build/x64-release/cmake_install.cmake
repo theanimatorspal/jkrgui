@@ -38,6 +38,7 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   include("C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release/application/cmake_install.cmake")
   include("C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release/jkrgui/cmake_install.cmake")
   include("C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release/ksaivulkan/cmake_install.cmake")
+  include("C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release/aJkrLua/cmake_install.cmake")
 
 endif()
 

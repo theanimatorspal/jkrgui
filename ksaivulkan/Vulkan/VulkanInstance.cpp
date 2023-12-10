@@ -4,7 +4,6 @@
 #include <SDL2/SDL_vulkan.h>
 #include <Windows.h>
 #include <iostream>
-#include <sstream>
 
 using namespace ksai;
 
@@ -44,6 +43,10 @@ VulkanInstance::VulkanInstance()
 	auto instanceLayerProperties = vk::enumerateInstanceLayerProperties();
 #if defined(_DEBUG)
 	mInstanceLayerNames.push_back("VK_LAYER_KHRONOS_validation");
+#endif
+
+#ifdef __APPLE__
+    mInstanceExtensionNames.push_back(VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME);
 #endif
 
     if (!hasLayers(mInstanceLayerNames, instanceLayerProperties)) {
@@ -101,8 +104,12 @@ VulkanInstance::VulkanInstance()
 		.setEnabledValidationFeatures(EnabledFeaturesValidaiton);
 	vk::StructureChain<vk::InstanceCreateInfo, vk::ValidationFeaturesEXT> InstanceCreateInfo_WithValidationFeatures(InstanceCreateInfo, ValidationFeaturesInfo);
 	mInstance = vk::createInstance(InstanceCreateInfo_WithValidationFeatures.get<vk::InstanceCreateInfo>());
-#endif
 #else
+    mInstance = vk::createInstance(InstanceCreateInfo);
+#endif
+
+#else
+
     mInstance = vk::createInstance(InstanceCreateInfo);
 #endif
 

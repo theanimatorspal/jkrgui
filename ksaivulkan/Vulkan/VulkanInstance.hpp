@@ -1,9 +1,6 @@
 #pragma once
 #include "Config.hpp"
 #include <vulkan/vulkan.hpp>
-#ifndef GETTER
-#define GETTER inline auto
-#endif
 #define CONSTANT constexpr auto
 namespace ksai {
 

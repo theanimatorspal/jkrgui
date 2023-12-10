@@ -26,7 +26,7 @@ Com.GPS = {
     mDimension_3f = vec3(0, 0, 0),
     mBackDepthValue = 0,
     mFrontDepthValue = 0,
-    New = function(self, inBackDepthValueAbsolute, inFrontDepthValueAbsolute)
+    New = function(self, inBackDepthValueAbsolute, inFrontDepthValueAbsolute, inPosition_3f)
         local Obj = {
             mPadding = 10,
             mPosition_3f = vec3(0, 0, 0),
@@ -34,10 +34,18 @@ Com.GPS = {
             mBackDepthValue = inBackDepthValueAbsolute,
             mFrontDepthValue = inFrontDepthValueAbsolute
         }
-        Obj.mPosition_3f = vec3(Obj.mPadding, Obj.mPadding, inBackDepthValueAbsolute)
+        if not inPosition_3f then
+            Obj.mPosition_3f = vec3(Obj.mPadding, Obj.mPadding, inBackDepthValueAbsolute)
+        else
+            Obj.mPosition_3f = vec3(inPosition_3f.x + Obj.mPadding, inPosition_3f.y + Obj.mPadding,
+                inBackDepthValueAbsolute)
+        end
         setmetatable(Obj, self)
         self.__index = self
         return Obj
+    end,
+    StartOver = function(self)
+        self.mPosition_3f = vec3(self.mPadding, self.mPadding, self.mPosition_3f.z)
     end,
     PrintCurrent = function(self)
         print(
@@ -249,6 +257,142 @@ Com.TextLabelObject = {
     end
 }
 
+Com.NumberSliderObject = {
+    mPositionToParent_3f = vec3(0, 0, 0),
+    mPosition = vec3(0, 0, 0),
+    mRodId = 0,
+    mKnobId = 0,
+    mValueRange = vec2(0, 0),
+    mDimension_3f = vec3(0, 0, 0),
+    mFactor = 0.0,
+    mShouldSlide = false,
+    New = function(self, inValue, inValueRangle_2f, inPosition_3f, inDimension_3f)
+        print("NumberSliderObject Construction")
+        local Obj = {
+            mRodId = 0,
+            mKnobId = 0,
+            mValueRange = inValueRangle_2f,
+            mPosition_3f = inPosition_3f,
+            mDimension_3f = inDimension_3f,
+            mPositionToParent_3f = inPosition_3f,
+            mFactor = 0.0
+        }
+        setmetatable(Obj, self)
+        self.__index = self
+        local p = inPosition_3f
+        local d = inDimension_3f
+        local RodHeight = 10
+        local RodPosition = vec3(p.x, p.y + d.y / 2 - RodHeight / 2, p.z)
+        local RodDimension = vec3(d.x, RodHeight, 1)
+
+        local Factor = inValue / (Obj.mValueRange.y - Obj.mValueRange.x)
+        local KnobWidth = 20
+        local KnobPosition = vec3(p.x + d.x * Factor - KnobWidth / 2, p.y, p.z - 3)
+        local KnobDimension = vec3(KnobWidth, d.y, d.z)
+        Obj.mFactor = Factor
+        Obj.mShouldSlide = false
+        print(string.format(
+            [[
+                inPosition : vec3(%f, %f, %f),
+                inDimension : vec3(%f, %f, %f),
+                RodHeight : %f,
+                RodPosition : vec3(%f, %f, %f),
+                RodDimension : vec3(%f, %f, %f),
+                Factor : %f,
+                KnobWidth : %f,
+                KnobPosition : vec3(%f, %f, %f),
+                KnobDimension : vec3(%f, %f, %f)
+            ]]
+            , p.x, p.y, p.z,
+            d.x, d.y, d.z, RodHeight, RodPosition.x, RodPosition.y, RodPosition.z, RodDimension.x,
+            RodDimension.y, RodDimension.z, Factor, KnobWidth, KnobPosition.x, KnobPosition.y, KnobPosition.z,
+            KnobDimension.x, KnobDimension.y, KnobDimension.z
+        )
+        )
+
+        Obj.mRodId = Com.AreaObject:New(RodPosition, RodDimension)
+        Obj.mKnobId = Com.AreaObject:New(RodPosition, RodDimension)
+        print("NumberSLiderObject Construction Finished")
+        return Obj
+    end,
+    Event = function(self)
+        self.mKnobId:Event()
+        local RelativeMousePos = E.get_relative_mouse_pos()
+
+        local p = self.mKnobId.mPosition_3f
+        local d = self.mKnobId.mDimension_3f
+        local up = vec3(p.x, p.y, p.z)
+        local Factor = (p.x - d.x) / self.mDimension_3f.x
+
+        if ComTable[self.mKnobId.mAreaId].mComponentObject.mFocus_b or ComTable[self.mRodId.mAreaId].mComponentObject.mFocus_b then
+            self.mShouldSlide = true
+        end
+
+        if self.mShouldSlide then
+            up = vec3(p.x + RelativeMousePos.x, p.y, p.z)
+            self.mKnobId:Update(up, d)
+            if not E.is_left_button_pressed() then
+                self.mShouldSlide = false
+            end
+        end
+
+        local rodx = self.mRodId.mPosition_3f.x
+        local rodw = self.mRodId.mDimension_3f.x
+        if up.x < rodx  then
+            up = vec3(rodx, p.y, p.z)
+            self.mKnobId:Update(up, d)
+        elseif up.x > rodx + rodw - d.x then
+            up = vec3(rodx + rodw - d.x, p.y, p.z)
+            self.mKnobId:Update(up, d)
+        else
+        end
+
+        self.mFactor = Factor
+        print(Factor)
+    end,
+    SetParent = function(self, inObject)
+        local pos = vec3(inObject.mPosition_3f.x + self.mPositionToParent_3f.x,
+            inObject.mPosition_3f.y + self.mPositionToParent_3f.y, self.mPosition_3f.z)
+        local p = pos
+        local d = self.mDimension_3f
+        local RodHeight = 10
+        local RodPosition = vec3(p.x, p.y + d.y / 2 - RodHeight / 2, p.z)
+        local RodDimension = vec3(d.x, RodHeight, d.z)
+
+        local Factor = self.mFactor
+        local KnobWidth = 20
+        local KnobPosition = vec3(p.x + d.x * Factor - KnobWidth / 2, p.y, p.z)
+        local KnobDimension = vec3(KnobWidth, d.y, d.z)
+
+        print(string.format(
+            [[
+                inPosition : vec3(%f, %f, %f),
+                inDimension : vec3(%f, %f, %f),
+                RodHeight : %f,
+                RodPosition : vec3(%f, %f, %f),
+                RodDimension : vec3(%f, %f, %f),
+                Factor : %f,
+                KnobWidth : %f,
+                KnobPosition : vec3(%f, %f, %f),
+                KnobDimension : vec3(%f, %f, %f)
+            ]]
+            , p.x, p.y, p.z,
+            d.x, d.y, d.z, RodHeight, RodPosition.x, RodPosition.y, RodPosition.z, RodDimension.x,
+            RodDimension.y, RodDimension.z, Factor, KnobWidth, KnobPosition.x, KnobPosition.y, KnobPosition.z,
+            KnobDimension.x, KnobDimension.y, KnobDimension.z
+        )
+        )
+        self.mRodId:Update(RodPosition, RodDimension)
+        self.mKnobId:Update(KnobPosition, KnobDimension)
+
+        -- if inObject.mPosition_3f.x > 0 and inObject.mPosition_3f.y > 0 then
+        --     ComTable[self.mRodId].mScissorPosition_2f = vec2(inObject.mPosition_3f.x, inObject.mPosition_3f.y)
+        --     ComTable[self.mRodId].mScissorDimension_2f = vec2(inObject.mDimension_3f.x, inObject.mDimension_3f.y)
+        -- end
+        -- TODO
+    end
+}
+
 
 
 Com.TextButtonObject = {
@@ -455,6 +599,8 @@ Com.TextMultiLineEditObject = {
     mMaxStringLength = nil,
     mString = "",
     mStringCurrentLine = 1,
+    mShouldAddCharacter = false,
+    mAddCharacter = "",
     New = function(self, inPosition_3f, inDimension_3f, inCursorWidth, inCursorHeight, inFontObject, inMaxNoOfLines,
                    inMaxStringLength, inParent)
         print("TextMultiLineEditObject Construction")
@@ -478,7 +624,6 @@ Com.TextMultiLineEditObject = {
         Obj.mMaxStringLength = inMaxStringLength
         Obj.mString = ""
         Obj.mStringCurrentLine = 1
-
         for i = 1, inMaxNoOfLines, 1 do
             Com.NewComponent()
             local TextPosition = vec3(inPosition_3f.x + Obj.mPadding, inPosition_3f.y + inCursorHeight * i,
@@ -501,12 +646,34 @@ Com.TextMultiLineEditObject = {
         local j__ = 1
         local end__ = inEndline or self.mMaxNoOfLines
         print(self.mString)
+
+        print("-------------")
+        print("-------------")
+        local index = 0
         for Line in self.mString:gmatch("(.-)\n") do
-            local function debugprint(inS)
-                print(inS)
-                print(
-                    string.format(
-                        [[
+            index = index + string.len(Line)
+            print(Line)
+        end
+        local remaining_str = string.sub(self.mString, index)
+        if remaining_str ~= "" then
+            print(remaining_str)
+        end
+        print("-------------")
+        print("-------------")
+
+
+        for Line in self.mString:gmatch("(.-)\n") do
+            if i__ <= self.mMaxNoOfLines and j__ >= inStartLine then
+                if i__ <= inEndline then
+                    self.mLineTexts[i__] = Line
+                end
+                i__ = i__ + 1
+            end
+            j__ = j__ + 1
+            print(self.mString)
+            print(
+                string.format(
+                    [[
                             i__  : %d,
                             j__ : %d,
                             inStartLine : %d,
@@ -515,29 +682,27 @@ Com.TextMultiLineEditObject = {
                             Line : %s,
                             self.mLineTexts[i__] : %s
                         ]], i__, j__, inStartLine, inEndline, self.mMaxNoOfLines, Line, self.mLineTexts[i__]
-                    )
                 )
-            end
-
-            if i__ <= self.mMaxNoOfLines and j__ >= inStartLine then
-                debugprint("Inside i <= self.maxlines and j >= inStartLine")
-                if i__ <= inEndline then
-                    self.mLineTexts[i__] = Line
-                end
-                i__ = i__ + 1
-            end
-            j__ = j__ + 1
+            )
         end
 
+        print(i__)
         for i = i__, self.mMaxNoOfLines, 1 do
             self.mLineTexts[i] = ""
         end
+
+        -- This is when there is only one line in mString
+        if i__ == 1 and inStartLine < inEndline then
+            print("i__ == 1 and inStartLine < inEndline", i__ == 1 and inStartLine < inEndline)
+            print(self.mString)
+            self.mLineTexts[i__] = self.mString
+        end
+
 
         for i = 1, i__, 1 do
             local t_obj = self.mTextObjectIds[i]
             ComTable[t_obj].mString = string.rep(" ", self.mMaxStringLength)
             ComTable[t_obj]:Update(self.mPosition_3f)
-
             if self.mLineTexts[i] == "" then
                 ComTable[t_obj].mString = " "
             else
@@ -561,39 +726,36 @@ Com.TextMultiLineEditObject = {
         end
         self.mShouldUpdate = true
     end,
-    Event = function(self)
-        local isClickedOn = ComTable[self.mAreaId].mComponentObject.mFocus_b
-        if isClickedOn then
-            self.mShouldInputText = not self.mShouldInputText
-            ComTable[self.mTextCursorObject.mShapeId].mFillColor = Theme.Colors.Text.Cursor.Active
-        elseif not isClickedOn and E.is_left_button_pressed() then
-            self.mShouldInputText = false
-            ComTable[self.mTextCursorObject.mShapeId].mFillColor = Theme.Colors.Text.Cursor.Normal
-        end
-
+    AddCharacter = function(self, inShouldAddAuto, inS, inBackspace, inEnter)
         local eid = self.mCurrentLine
         local string_length = utf8.len(self.mLineTexts[eid])
         local CurrentTextObjectId = self.mTextObjectIds[eid]
         local CurrentTextDimension = ComTable[CurrentTextObjectId].mFont:GetDimension(self.mLineTexts[eid])
-        if self.mShouldInputText then
-            local is_backspace = E.is_key_pressed(Key.SDLK_BACKSPACE)
-            local is_enter = E.is_key_pressed(Key.SDLK_RETURN)
-            if E.is_text_being_input() and not is_backspace then
-                self.mLineTexts[eid] = self.mLineTexts[eid] .. E.get_input_text()
-                self.mString = self.mString .. E.get_input_text()
-                self.mShouldUpdate = true
-            end
-            function debugprint(inS)
-                print(inS)
-                print(self.mString)
-                -- print("StringCurrentLine:", self.mStringCurrentLine)
-                -- print("CurrentLine:", self.mCurrentLine)
-                -- print("MaxNoOfLines:", self.mCurrentLine)
-                -- print("self.mCurrentLine <= self.mMaxNoOfLines :", self.mCurrentLine <= self.mMaxNoOfLines)
-                -- print("self.mStringCurrentLine - self.mCurrentLine + 1 :", self.mStringCurrentLine - self.mCurrentLine + 1)
+
+
+        if self.mShouldInputText or inShouldAddAuto then
+            local is_backspace = E.is_key_pressed(Key.SDLK_BACKSPACE) or inBackspace
+            local is_enter = E.is_key_pressed(Key.SDLK_RETURN) or inEnter
+            local function dbg()
+                if inShouldAddAuto then
+                    print("Called Auto")
+                    print(inS)
+                    print("is_enter:", is_enter)
+                end
             end
 
-            if E.is_keypress_event() then
+            if (E.is_text_being_input() or inShouldAddAuto) and not is_backspace then
+                if inShouldAddAuto then
+                    self.mLineTexts[eid] = self.mLineTexts[eid] .. inS
+                    self.mString = self.mString .. inS
+                else
+                    self.mLineTexts[eid] = self.mLineTexts[eid] .. E.get_input_text()
+                    self.mString = self.mString .. E.get_input_text()
+                end
+                self.mShouldUpdate = true
+            end
+
+            if E.is_keypress_event() or inShouldAddAuto then
                 self.mShouldUpdate = true
                 if is_backspace and string_length > 0 then
                     self.mLineTexts[eid] = utf8.sub(self.mLineTexts[eid], 1, -2)
@@ -665,6 +827,41 @@ Com.TextMultiLineEditObject = {
             --     TextPosition.z,
             --     string_length
             -- ))
+        end
+    end,
+    Event = function(self)
+        local isClickedOn = ComTable[self.mAreaId].mComponentObject.mFocus_b
+        if isClickedOn then
+            self.mShouldInputText = not self.mShouldInputText
+            ComTable[self.mTextCursorObject.mShapeId].mFillColor = Theme.Colors.Text.Cursor.Active
+        elseif not isClickedOn and E.is_left_button_pressed() then
+            self.mShouldInputText = false
+            ComTable[self.mTextCursorObject.mShapeId].mFillColor = Theme.Colors.Text.Cursor.Normal
+        end
+        self:AddCharacter(false)
+    end
+
+}
+
+Com.TerminalEmulator = {
+    New = function(self, inPosition_3f, inDimension_3f, inFontObject)
+        local Obj = Com.TextMultiLineEditObject:New(inPosition_3f, inDimension_3f, 5, 20, inFontObject,
+            Int(inDimension_3f.y / (20 + 1)), 200, nil)
+        setmetatable(self, Com.TextMultiLineEditObject)
+        setmetatable(Obj, self)
+        self.__index = self
+        Obj:AddCharacter(true, ">>")
+        return Obj
+    end,
+    Event = function(self)
+        Com.TextMultiLineEditObject.Event(self)
+        if E.is_keypress_event() and E.is_key_pressed(Key.SDLK_RETURN) then
+            local cmd = self.mLineTexts[self.mCurrentLine - 1]
+            cmd = string.sub(cmd, 3, #cmd)
+            local result = io.popen(cmd):read("a")
+            self:AddCharacter(true, "What the fuck")
+            print(result)
+            -- self:AddCharacter(true, "", false, true)
         end
     end
 }

@@ -1,5 +1,7 @@
 #include "Painter.hpp"
 
+using namespace Jkr;
+
 Jkr::Painter::Painter(const Instance& inInstance, const Window& inWindow, const PainterCache& inCache) :
     mInstance(inInstance),
     mWindow(inWindow),
@@ -49,20 +51,27 @@ Jkr::Painter::Painter(const Instance& inInstance, const Window& inWindow, const 
 	mComputeDescriptorSet(inInstance.GetDevice(), inInstance.GetDescriptorPool(), inCache.GetComputePipelineDescriptorSetLayout(), inNoOfVariableDescriptorCount),
 	mVertexFragmentDescriptorSet(inInstance.GetDevice(), inInstance.GetDescriptorPool(), inCache.GetVertexFragmentDescriptorSetLayout(), inNoOfVariableDescriptorCount),
 	mDescriptorUpdateHandler(mInstance.GetDevice())
+{}
+
+void Painter::OptimizeParameter(
+    const PainterParameter<PainterParameterContext::StorageImage> &inImage, const Window &inWindow)
 {
+    auto &Cmd = mInstance.GetUtilCommandBuffer().GetCommandBufferHandle();
+    Cmd.begin(vk::CommandBufferBeginInfo());
+    OptimizeImageParameter(mInstance.GetUtilCommandBuffer(), inImage, inWindow);
+    Cmd.end();
+    mInstance.GetGraphicsQueue().Submit<SubmitContext::SingleTime>(mInstance.GetUtilCommandBuffer());
 }
 
 void Jkr::Painter::OptimizeImageParameter(const VulkanCommandBuffer& inBuffer, const PainterParameter<PainterParameterContext::StorageImage>& inImage, const Window& inWindow)
 {
-	inImage.GetStorageImage().CmdTransitionImageLayout(
-		inBuffer,
-		vk::ImageLayout::eUndefined,
-		vk::ImageLayout::eGeneral,
-		vk::PipelineStageFlagBits::eVertexShader,
-		vk::PipelineStageFlagBits::eFragmentShader,
-		vk::AccessFlagBits::eNone,
-		vk::AccessFlagBits::eNone
-	);
+    inImage.GetStorageImage().CmdTransitionImageLayout(inBuffer,
+                                                       vk::ImageLayout::eUndefined,
+                                                       vk::ImageLayout::eGeneral,
+                                                       vk::PipelineStageFlagBits::eVertexShader,
+                                                       vk::PipelineStageFlagBits::eFragmentShader,
+                                                       vk::AccessFlagBits::eNone,
+                                                       vk::AccessFlagBits::eNone);
 }
 
 using namespace Jkr;

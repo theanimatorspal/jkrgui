@@ -1,7 +1,6 @@
-#include "glTF_Model.hpp"
 #include <Renderers/ThreeD/glTF_Model.hpp>
 
-int main()
+int not_main()
 {
     Jkr::Instance Instance;
     // Jkr::Renderer::::glTF_base mModel(Instance,

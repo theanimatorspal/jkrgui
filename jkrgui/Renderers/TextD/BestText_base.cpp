@@ -21,6 +21,8 @@ Jkr::Renderer::BestText_base::~BestText_base()
 void Jkr::Renderer::BestText_base::AddFontFace(const std::string_view inFontFilePathName, size_t inFontSize, uint32_t& outFontId)
 {
     uint32_t FaceIndex = mFontFaceCount++;
+    mFaces.resize(mFontFaceCount);
+    mHbFonts.resize(mFontFaceCount);
     if (FT_New_Face(mFtLibrary, inFontFilePathName.data(), 0, &mFaces[FaceIndex])) {
         std::cout << "Font Face Load Failed" << '\n';
     }

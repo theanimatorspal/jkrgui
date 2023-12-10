@@ -1,11 +1,12 @@
 #include "BestText.hpp"
 
-Jkr::Renderer::BestText::BestText(const Instance& inInstance,
-    const Window& inCompatibleWindow,
-    const PainterCache& inCache)
+Jkr::Renderer::BestText::BestText(const Instance &inInstance,
+                                  const Window &inCompatibleWindow,
+                                  const PainterCache &inCache,
+                                  uint32_t inVarDesCount)
     : mInstance(inInstance)
 {
-    mPainter = MakeUp<Painter>(inInstance, inCompatibleWindow, inCache, 5000);
+    mPainter = MakeUp<Painter>(inInstance, inCompatibleWindow, inCache, inVarDesCount);
 
 #ifndef JKR_NO_STAGING_BUFFERS
     rb::CreateStagingBuffers(
