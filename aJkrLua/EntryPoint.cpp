@@ -476,6 +476,7 @@ unordered_map<string_view, string_view> gConfiguration{{"-title", "JkrGUI"},
                                                        {"-bgb", "1.0"},
                                                        {"-bga", "1.0"},
                                                        {"-var_des_size", "5000"},
+                                                       {"-cache_folder", "cache/"},
                                                        {"-main_file", "main.lua"}};
 
 auto FillConfig(const vector<string_view>& inArguments)
@@ -496,11 +497,11 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
     auto i = Instance();
     auto w = Window(i, cf["-title"], stoi(string(cf["-height"])), stoi(string(cf["-width"])));
     auto em = EventManager();
-    auto rr = ResourceManager();
+    auto rr = ResourceManager(cf["-cache_folder"]);
     auto VarDesCount = stoi(string(cf["-var_des_size"]));
     if (toBool(cf["-store"])) {
         rr.Load(i, VarDesCount);
-        // rr.Store(i);
+        //rr.Store(i);
     } else {
         rr.Load(i, VarDesCount);
     }

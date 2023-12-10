@@ -2,6 +2,7 @@
 #include "AllShaders.hpp"
 #include "Painter.hpp"
 #include "PainterCache.hpp"
+#include <filesystem>
 
 const std::string_view gbefore_xyz = R"""(
 			
@@ -117,6 +118,7 @@ enum class FillType {
     Image,
     ContinousLine
 };
+
 class ResourceManager {
 public:
 
@@ -143,7 +145,28 @@ private:
         mBestTextRendererCache = MakeUp<Jkr::PainterCache>(inInstance);
     }
 
+    void Folderize(const std::string_view inFolderPath)
+    {
+        if (inFolderPath != "" and not std::filesystem::exists(inFolderPath))
+            std::filesystem::create_directories(inFolderPath);
+
+        auto Path = std::string(inFolderPath);
+        LineRendererCacheFileName = Path + "LineRendererCache.bin";
+        FastTextRendererCacheFileName = Path + "FastTextRendererCache.bin";
+        ShapeRendererCacheFileName_Fill = Path + "ShapeRendererCache_Fill.bin";
+
+#ifndef JKR_USE_VARIABLE_DES_INDEXING
+        ShapeRendererCacheFileName_Image = "ShapeRendererCache_Image.bin";
+#else
+        ShapeRendererCacheFileName_Image = Path + "ShapeRendererCache_ImageVarDes.bin";
+        BestTextRendererCacheFilename = Path + "BestTextRendererCache.bin";
+#endif
+        ShapeRendererCacheFileName_ContinousLine = Path + "ShapeRendererCache_ContinousLine.bin";
+    }
+
 public:
+    ResourceManager() { Folderize(""); };
+    ResourceManager(const std::string_view inFolderPath) { Folderize(inFolderPath); }
     ResourceManager &Load(const Jkr::Instance &inInstance, uint32_t inVarDesCount = 5000)
     {
         Make(inInstance);
@@ -158,7 +181,6 @@ public:
         mBestTextRendererCache->__var_des_index_Load_EXT(BestTextRendererCacheFilename,
                                                          inVarDesCount);
 #endif
-
         mShapePainterCaches[FillType::ContinousLine]->Load(ShapeRendererCacheFileName_ContinousLine);
         return *this;
     }

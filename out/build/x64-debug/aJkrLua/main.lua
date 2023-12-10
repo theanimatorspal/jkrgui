@@ -4,6 +4,7 @@
 
 require "jkrgui"
 require "CompTable"
+require "Extra"
 
 local __Depth = Depth + 10 -- Farthest (This meant to be used when the ComObject adds Over sth)
 
