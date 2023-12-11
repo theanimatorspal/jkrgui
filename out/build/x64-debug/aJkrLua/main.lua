@@ -3,8 +3,8 @@
 ]]
 
 require "jkrgui"
-require "CompTable"
-require "Extra"
+require "PrimitiveComponents"
+require "TextEditorComponents"
 
 local __Depth = Depth + 10 -- Farthest (This meant to be used when the ComObject adds Over sth)
 
@@ -70,6 +70,9 @@ Load = function()
         SecondRewAreaGPS:MoveFrontAbsolute()
         SecondRewAreaGPS:SetDimension(vec3(160, 20, 1))
         NumberSlider = Com.NumberSliderObject:New(50, vec2(0, 100), SecondRewAreaGPS.mPosition_3f, SecondRewAreaGPS.mDimension_3f)
+        SecondRewAreaGPS:MoveDown()
+        local List = {"one", "two", "three", "four", "five"}
+        ListSelector = Com.ListSelectorObject:New(List, SecondRewAreaGPS.mPosition_3f, SecondRewAreaGPS.mDimension_3f, 30, Font, SecondRowArea)
 
 
 
@@ -78,6 +81,7 @@ Load = function()
         TextLineEditor:SetParent(MovableArea)
         TextLineEditorSecond:SetParent(MovableArea)
         NumberSlider:SetParent(SecondRowArea)
+        ListSelector:SetParent(SecondRowArea)
 end
 
 Event = function()
@@ -94,6 +98,7 @@ Event = function()
         TextMultiLineEditor:Event()
         TerminalEmulator:Event()
         NumberSlider:Event()
+        ListSelector:Event()
 end
 
 Update = function()

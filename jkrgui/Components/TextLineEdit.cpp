@@ -1,4 +1,5 @@
 #include "TextLineEdit.hpp"
+#include <cassert>
 
 void Jkr::Component::TextLineEdit::Load()
 {
@@ -121,7 +122,7 @@ void Jkr::Component::TextLineEdit::Update()
             mTextCursor.SetDimension(glm::vec2(0, this->GetDimension().y));
             mTextCursor.Update();
         } else {
-            __debugbreak();
+            assert("Error" && false);
         }
         mShouldUpdateText = false;
     }

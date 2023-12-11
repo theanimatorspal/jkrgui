@@ -47,7 +47,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL KsaiDebugMessengerCallback(VkDebugUtilsMessageSev
 
     if (isError) {
         MessageBoxA(NULL, message.str().c_str(), "Error", MB_ICONERROR);
-        __debugbreak();
+        assert("Erro" && false);
     } else if (isWarning && !(isPerformance)) {
         MessageBoxA(NULL, message.str().c_str(), "Warning", MB_ICONWARNING);
     } else if (isInfo) {
@@ -78,10 +78,10 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDebugUtilsMessengerEXT(VkInstance instance, 
 VulkanMessenger::VulkanMessenger(const VulkanInstance& inInstance)
     : mInstance(inInstance.GetInstanceHandle())
 {
-
-    const auto& Instance = inInstance.GetInstanceHandle();
 #if defined(_DEBUG)
-    pfnVkCreateDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(Instance.getProcAddr("vkCreateDebugUtilsMessengerEXT"));
+    const auto &Instance = inInstance.GetInstanceHandle();
+    pfnVkCreateDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
+        Instance.getProcAddr("vkCreateDebugUtilsMessengerEXT"));
     if (!pfnVkCreateDebugUtilsMessengerEXT) {
         std::cout << "GetInstanceProcAddr: Unable to find pfnVkCreateDebugUtilsMessengerEXT function." << std::endl;
     }
@@ -91,14 +91,12 @@ VulkanMessenger::VulkanMessenger(const VulkanInstance& inInstance)
         std::cout << "GetInstanceProcAddr: Unable to find pfnVkDestroyDebugUtilsMessengerEXT function." << std::endl;
         exit(1);
     }
-#endif
 
     vk::DebugUtilsMessageSeverityFlagsEXT severityFlags(
         vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError | vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo);
     vk::DebugUtilsMessageTypeFlagsEXT messageTypeFlags(
         vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation | vk::DebugUtilsMessageTypeFlagBitsEXT::eDeviceAddressBinding);
 
-#if defined(_DEBUG)
     auto DebugUtilsMessengerCreateInfo = vk::DebugUtilsMessengerCreateInfoEXT({}, severityFlags, messageTypeFlags, &KsaiDebugMessengerCallback);
     mMessenger = Instance.createDebugUtilsMessengerEXT(DebugUtilsMessengerCreateInfo);
 #endif

@@ -40,10 +40,10 @@ public:
         SpirvHelper::Init();
         bool success = SpirvHelper::GLSLtoSPV(vk::ShaderStageFlagBits::eVertex, inVertexShaderString.c_str(), outVertexShaderModule);
         if (!success)
-            __debugbreak();
+            assert("VertexShader Failed" && false);
         success = SpirvHelper::GLSLtoSPV(vk::ShaderStageFlagBits::eFragment, inFragmentShaderString.c_str(), outFragmentShaderModule);
         if (!success)
-            __debugbreak();
+            assert("FragmentSHader failed && false");
         SpirvHelper::Finalize();
     }
     ShaderCompiler(
