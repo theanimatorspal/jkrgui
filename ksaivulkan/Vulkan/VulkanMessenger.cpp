@@ -1,5 +1,8 @@
 #include "VulkanMessenger.hpp"
+#ifdef WIN32
 #include <Windows.h>
+#endif
+
 #include <iostream>
 #include <sstream>
 #include <vulkan/vulkan_raii.hpp>

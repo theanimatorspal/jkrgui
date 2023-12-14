@@ -4,7 +4,6 @@
 void Jkr::Component::TextLineEdit::Load()
 {
     mMaxNoOfGlyphs = 18;
-    ZoneScoped;
 
     r.bt.SetTextProperty(Jkr::Renderer::BestText_base::TextProperty { .H = Jkr::Renderer::BestText_base::AlignH::Left, .V = Jkr::Renderer::BestText_base::AlignV::Top });
     auto TextDimensions = r.bt.AddText(mCurrentString, 0, this->GetDimension().y - mVPadding, ab::GetDepthValue(), mStringViewOutId, mStringViewLength);
@@ -26,7 +25,6 @@ void Jkr::Component::TextLineEdit::Load()
 
 void Jkr::Component::TextLineEdit::Event()
 {
-    ZoneScoped;
     r.bt.SetTextProperty(Jkr::Renderer::BestText_base::TextProperty { .H = Jkr::Renderer::BestText_base::AlignH::Left, .V = Jkr::Renderer::BestText_base::AlignV::Top });
     auto ev = e.GetEventHandle();
     bool IsLeftButtonPressed = (SDL_BUTTON(SDL_BUTTON_LEFT) bitand e.GetMouseButtonValue()) != 0;

@@ -1,12 +1,12 @@
 #include "VulkanPipelineCache.hpp"
 #include <iostream>
 
-ksai::VulkanPipelineCache::VulkanPipelineCache(const VulkanDevice& inDevice, std::string inFileName)
-	: mDevice(inDevice.GetDeviceHandle()), mName(inFileName)
+ksai::VulkanPipelineCache::VulkanPipelineCache(const VulkanDevice &inDevice, std::string inFileName)
+    : mName(inFileName)
+    , mDevice(inDevice.GetDeviceHandle())
 {
-	FILE* PtrReadFile;
-	fopen_s(&PtrReadFile, inFileName.c_str(), "rb");
-	mPipelineCacheSize = GetFileSizeUtil(PtrReadFile);
+    FILE *PtrReadFile = fopen(inFileName.c_str(), "rb");
+    mPipelineCacheSize = GetFileSizeUtil(PtrReadFile);
 	mPipelineCacheData = (char*)malloc(sizeof(char) * mPipelineCacheSize);
 	if (mPipelineCacheData == nullptr)
 	{

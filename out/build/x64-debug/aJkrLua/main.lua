@@ -72,7 +72,7 @@ Load = function()
         NumberSlider = Com.NumberSliderObject:New(50, vec2(0, 100), SecondRewAreaGPS.mPosition_3f, SecondRewAreaGPS.mDimension_3f)
         SecondRewAreaGPS:MoveDown()
         local List = {"one", "two", "three", "four", "five"}
-        ListSelector = Com.ListSelectorObject:New(List, SecondRewAreaGPS.mPosition_3f, SecondRewAreaGPS.mDimension_3f, 30, Font, SecondRowArea)
+        ListSelector = Com.ListSelectorObject:New(List, SecondRewAreaGPS.mPosition_3f, SecondRewAreaGPS.mDimension_3f, 30, Font, 10, SecondRowArea)
 
 
 
@@ -85,11 +85,6 @@ Load = function()
 end
 
 Event = function()
-        SampleText:SetParent(MovableArea)
-        TextButton:SetParent(MovableArea)
-        TextLineEditor:SetParent(MovableArea)
-        TextLineEditorSecond:SetParent(MovableArea)
-
         Com.Events()
         MovableArea:Event()
         TextButton:Event()
@@ -102,6 +97,12 @@ Event = function()
 end
 
 Update = function()
+        SampleText:SetParent(MovableArea)
+        TextButton:SetParent(MovableArea)
+        TextLineEditor:SetParent(MovableArea)
+        TextLineEditorSecond:SetParent(MovableArea)
+        ListSelector:SetParent(SecondRowArea)
+        TerminalEmulator:Update()
         FrameUpdate()
 end
 

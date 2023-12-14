@@ -69,3 +69,6 @@ function(configure_target TARGET_NAME)
     endif()
 endfunction()
 
+function(configure_llvm TARGET_NAME)
+        target_link_libraries(${TARGET_NAME} libclang liblldb libomp LLVM-C LTO Remarks)
+endfunction()

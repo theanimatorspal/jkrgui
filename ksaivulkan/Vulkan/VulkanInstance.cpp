@@ -1,8 +1,11 @@
 #include "VulkanInstance.hpp"
 #include "vulkan/vulkan_core.h"
+#include "Vulkan/vulkan_beta.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_vulkan.h>
+#ifdef WIN32
 #include <Windows.h>
+#endif
 #include <iostream>
 
 using namespace ksai;
@@ -47,6 +50,8 @@ VulkanInstance::VulkanInstance()
 
 #ifdef __APPLE__
     mInstanceExtensionNames.push_back(VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME);
+    mInstanceExtensionNames.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+    mInstanceExtensionNames.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
 #endif
 
     if (!hasLayers(mInstanceLayerNames, instanceLayerProperties)) {
@@ -90,10 +95,18 @@ VulkanInstance::VulkanInstance()
         std::cout << "Something Went Very Wrong : Extension not found" << std::endl;
     }
 
+#ifdef __APPLE__
+    auto InstanceCreateInfo
+        = vk::InstanceCreateInfo(vk::InstanceCreateFlagBits::eEnumeratePortabilityKHR,
+                                 &ApplicationInfo,
+                                 mInstanceLayerNames,
+                                 mInstanceExtensionNames);
+#else
     auto InstanceCreateInfo = vk::InstanceCreateInfo({},
                                                      &ApplicationInfo,
                                                      mInstanceLayerNames,
                                                      mInstanceExtensionNames);
+#endif
 #ifdef USE_VULKAN_1_3 
 
 #if defined(_DEBUG)

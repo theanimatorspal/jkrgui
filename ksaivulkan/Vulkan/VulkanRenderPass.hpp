@@ -105,9 +105,10 @@ namespace ksai {
 		);
 	}
 
-	template<RenderPassContext inRenderPassContext>
-	inline VulkanRenderPass<inRenderPassContext>::VulkanRenderPass ( const VulkanDevice& inDevice ) : mDevice ( inDevice )
-	{
+    template<RenderPassContext inRenderPassContext>
+    inline VulkanRenderPass<inRenderPassContext>::VulkanRenderPass(const VulkanDevice &inDevice)
+        : mDevice(inDevice.GetDeviceHandle())
+    {
 	}
 
 	template<RenderPassContext inRenderPassContext>

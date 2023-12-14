@@ -9,7 +9,13 @@
 int main()
 {
     std::stringstream Stream;
-    Stream << "function foo(x,y)  x + foo(y, 4.0);";
+    Stream << R"""(
+
+function foo(x y)  x + foo(y, 4.0);
+function foo(x y) x+y y;
+function foo(x y) x + y );
+external sin(a);
+)""";
     Parser parser(Stream);
     parser.MainLoop();
 }

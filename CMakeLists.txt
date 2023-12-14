@@ -3,6 +3,7 @@
 #
 
 cmake_minimum_required (VERSION 3.8)
+set(LLVM_PATH "C:/Program Files/LLVM")
 
 set(VULKAN_SDK "C:/VulkanSDK")
 set(VULKAN_VERSION "1.3.250.1")
@@ -53,13 +54,13 @@ include_directories(jkrgui/Renderers/ThreeD)
 include_directories(jkrgui/Renderers/TwoD)
 include_directories(jkrgui/Renderers/TextD)
 
-
 include_directories(ksaivulkan)
 include_directories(ksaivulkan/Vulkan)
 include_directories(ksaivulkan/Vendor)
 include_directories(ksaivulkan/Vendor/stbi)
 include_directories(ksaivulkan/Vendor/lua)
 include_directories("${CMAKE_SOURCE_DIR}/libs/")
+include_directories("${LLVM_PATH}/include")
 
 
 message(STATUS "Using module to find Vulkan")
@@ -72,13 +73,11 @@ include_directories(${VULKAN_INCLUDE_PATH})
 
 link_directories(${VULKAN_LIBRARY_PATH})
 link_directories("${CMAKE_SOURCE_DIR}/libs/")
+link_directories("${LLVM_PATH}/lib")
 
 add_subdirectory(aa_unit_testing)
 add_subdirectory(application)
 add_subdirectory(jkrgui)
 add_subdirectory(ksaivulkan)
 add_subdirectory(aJkrLua)
-
-
-
-
+add_subdirectory(jit)

@@ -115,8 +115,8 @@ int Jkr::Renderer::FastText_base::GetNthPair(int inN, char* inString)
 				}
 				dummy[x] = '\0';
 				int out;
-				sscanf_s(dummy, "%d", &out);
-				return out;
+                sscanf(dummy, "%d", &out);
+                return out;
 			}
 		}
 	}

@@ -48,6 +48,6 @@ protected:
 private:
     s mTokenizedIdentifier;
     double mTokenizedNumber;
-    char mLastCharacter;
+    char mLastCharacter = ' ';
     inline bool IsEndOrNewLine(char inC) { return inC == EOF or inC == '\r' or inC == '\n'; };
 };

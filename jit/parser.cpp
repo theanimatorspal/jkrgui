@@ -3,10 +3,12 @@
 
 void Parser::MainLoop()
 {
-    while (true) {
-        std::cout << "Ready :: \n";
+    bool run = true;
+	std::cout << "Ready :: \n";
+    while (run) {
         switch (mCurrentToken) {
         case Token::Eof:
+            run = false;
             break;
         case ';':
             GetNextToken();
@@ -88,6 +90,7 @@ std::unique_ptr<Parser::Expression> Parser::ParseIdentifierExpression()
             if (mCurrentToken
                 != ',') // Comma aayo vane pani true vairakhxa, matlab ) naaaunjel samma true nai hunxa
                 return LogError("Expected ')' or ',' in argument list ");
+            GetNextToken();
         }
     }
     // Aba chae last wala ) lai pani khana paro
@@ -150,7 +153,7 @@ std::unique_ptr<Parser::Prototype> Parser::ParsePrototype()
 
     s FunctionName = GetTokenizedIdentifier();
     GetNextToken();
-    if (mCurrentToken != 'C')
+    if (mCurrentToken != '(')
         return LogErrorPrototype("Expected '(' in Prototype");
 
     v<s> ArgNames;

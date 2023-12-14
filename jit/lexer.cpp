@@ -2,7 +2,6 @@
 
 int Lexer::GetToken()
 {
-    mLastCharacter = ' ';
     while (std::isspace(mLastCharacter)) {
         mLastCharacter = mCodeStream.get();
     }

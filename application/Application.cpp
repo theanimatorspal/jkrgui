@@ -3,7 +3,6 @@
 #include <Instance.hpp>
 #include <Renderers/ResourceManager.hpp>
 #include <Renderers/TwoD/2d.hpp>
-#include <Vendor/Tracy/tracy/Tracy.hpp>
 #include <Window.hpp>
 
 int main()
@@ -44,6 +43,5 @@ int main()
     while (!EventManager.ShouldQuit()) {
         EventManager.ProcessEvents();
         Window.Draw(0.1f, 0.1f, 0.1f, 1.0f);
-        FrameMark;
     }
 }

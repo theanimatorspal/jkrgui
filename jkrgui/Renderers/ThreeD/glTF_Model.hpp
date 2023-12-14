@@ -49,6 +49,9 @@ public:
         }
     }
 
+    GETTER &GetVerticesRef() { return mVertexBuffer; }
+    GETTER &GetIndicesRef() { return mIndexBuffer; }
+
 protected:
     struct Primitive {
         uint32_t mFirstIndex;

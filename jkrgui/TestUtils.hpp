@@ -43,7 +43,7 @@ public:
             assert("VertexShader Failed" && false);
         success = SpirvHelper::GLSLtoSPV(vk::ShaderStageFlagBits::eFragment, inFragmentShaderString.c_str(), outFragmentShaderModule);
         if (!success)
-            assert("FragmentSHader failed && false");
+            assert("FragmentSHader failed" && false);
         SpirvHelper::Finalize();
     }
     ShaderCompiler(
@@ -53,7 +53,7 @@ public:
         SpirvHelper::Init();
         bool success = SpirvHelper::GLSLtoSPV(vk::ShaderStageFlagBits::eCompute, inComputeShaderString.c_str(), outComputeShaderModule);
         if (!success)
-            __debugbreak();
+            assert("ComputeSHader failed" && false);
         SpirvHelper::Finalize();
     }
 };
