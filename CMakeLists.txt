@@ -3,7 +3,7 @@
 #
 
 cmake_minimum_required (VERSION 3.8)
-set(LLVM_PATH "C:/Program Files/LLVM")
+set(LLVM_PATH "C:/Users/sansk/OneDrive/Documents/llvm-project-llvmorg-17.0.6/llvm-project-llvmorg-17.0.6/llvm")
 
 set(VULKAN_SDK "C:/VulkanSDK")
 set(VULKAN_VERSION "1.3.250.1")
@@ -72,7 +72,7 @@ message(STATUS "Vulkan Library Directory ${Vulkan_LIBRARIES}")
 include_directories(${VULKAN_INCLUDE_PATH})
 
 link_directories(${VULKAN_LIBRARY_PATH})
-link_directories("${CMAKE_SOURCE_DIR}/libs/")
+link_directories("${CMAKE_SOURCE_DIR}/lib/")
 link_directories("${LLVM_PATH}/lib")
 
 add_subdirectory(aa_unit_testing)

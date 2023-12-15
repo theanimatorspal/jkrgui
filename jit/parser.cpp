@@ -1,6 +1,7 @@
 #include "parser.hpp"
 #include "lexer.hpp"
 
+using namespace Expr;
 void Parser::MainLoop()
 {
     bool run = true;
@@ -26,21 +27,21 @@ void Parser::MainLoop()
     }
 }
 
-std::unique_ptr<Parser::Expression> Parser::LogError(const sv inString)
+std::unique_ptr<Expression> Parser::LogError(const sv inString)
 {
     std::cout << "Error : " << inString << '\n';
     return nullptr;
 }
 
-std::unique_ptr<Parser::Prototype> Parser::LogErrorPrototype(const sv inString)
+std::unique_ptr<Prototype> Parser::LogErrorPrototype(const sv inString)
 {
     LogError(inString);
     return nullptr;
 }
 
-std::unique_ptr<Parser::Expression> Parser::ParseNumberExpression()
+std::unique_ptr<Expression> Parser::ParseNumberExpression()
 {
-    auto Result = mu<Number>(
+    auto Result = mu<Expr::Number>(
         Lexer::GetTokenizedNumber()); // GetNextToken garnu vanda agaadi garnu parxa kinaki,
     //tei number vetera nai aako hunxa yo function ma chae
     GetNextToken();
@@ -48,7 +49,7 @@ std::unique_ptr<Parser::Expression> Parser::ParseNumberExpression()
 }
 
 // expression ::= primary binoperation
-std::unique_ptr<Parser::Expression> Parser::ParseExpression()
+std::unique_ptr<Expression> Parser::ParseExpression()
 {
     auto LHS = ParsePrimary();
     if (not LHS)
@@ -56,7 +57,7 @@ std::unique_ptr<Parser::Expression> Parser::ParseExpression()
     return ParseBinaryOperationRHS(0, std::move(LHS));
 }
 
-std::unique_ptr<Parser::Expression> Parser::ParseParentExpression()
+std::unique_ptr<Expression> Parser::ParseParentExpression()
 {
     GetNextToken(); // '(' vetera yaa aako hunxa, so tellai khanu paro
     auto V = ParseExpression();
@@ -69,7 +70,7 @@ std::unique_ptr<Parser::Expression> Parser::ParseParentExpression()
     return V;
 }
 
-std::unique_ptr<Parser::Expression> Parser::ParseIdentifierExpression()
+std::unique_ptr<Expression> Parser::ParseIdentifierExpression()
 {
     std::string IdName = Lexer::GetTokenizedIdentifier();
     GetNextToken(); // Identifier lai vetera nai yaa aako hunxa, so tellai khanu paro (xodnu paro)
@@ -98,7 +99,7 @@ std::unique_ptr<Parser::Expression> Parser::ParseIdentifierExpression()
     return mu<Call>(IdName, mv(Args));
 }
 
-std::unique_ptr<Parser::Expression> Parser::ParsePrimary()
+std::unique_ptr<Expression> Parser::ParsePrimary()
 {
     switch (mCurrentToken) {
     default:
@@ -115,8 +116,8 @@ std::unique_ptr<Parser::Expression> Parser::ParsePrimary()
     }
 }
 
-std::unique_ptr<Parser::Expression> Parser::ParseBinaryOperationRHS(
-    int inExpressionPrecedence, std::unique_ptr<Expression> inLHS)
+std::unique_ptr<Expression> Parser::ParseBinaryOperationRHS(int inExpressionPrecedence,
+                                                            std::unique_ptr<Expression> inLHS)
 {
     while (true) {
         int TokenPrecedence = GetTokenPrecedence();
@@ -146,7 +147,7 @@ std::unique_ptr<Parser::Expression> Parser::ParseBinaryOperationRHS(
     }
 }
 
-std::unique_ptr<Parser::Prototype> Parser::ParsePrototype()
+std::unique_ptr<Prototype> Parser::ParsePrototype()
 {
     if (mCurrentToken != Token::Identifier)
         return LogErrorPrototype("Expected Function name in Prototype");
@@ -166,7 +167,7 @@ std::unique_ptr<Parser::Prototype> Parser::ParsePrototype()
     return mu<Prototype>(FunctionName, mv(ArgNames));
 }
 
-std::unique_ptr<Parser::Function> Parser::ParseDefinition()
+std::unique_ptr<Expr::Function> Parser::ParseDefinition()
 {
     GetNextToken(); // "function" keyword lai khane
     auto Proto = ParsePrototype();
@@ -174,21 +175,21 @@ std::unique_ptr<Parser::Function> Parser::ParseDefinition()
         return nullptr;
 
     if (auto Body = ParseExpression())
-        return mu<Function>(mv(Proto), mv(Body));
+        return mu<Expr::Function>(mv(Proto), mv(Body));
     return nullptr;
 }
 
-std::unique_ptr<Parser::Function> Parser::ParseTopLevelExpression()
+std::unique_ptr<Expr::Function> Parser::ParseTopLevelExpression()
 {
     if (auto E = ParseExpression()) {
         // aba euta anonymouse prototype banaidine
         auto Proto = mu<Prototype>("__anon_expression__", v<s>()); // kunai argument navako
-        return mu<Function>(mv(Proto), mv(E));
+        return mu<Expr::Function>(mv(Proto), mv(E));
     }
     return nullptr;
 }
 
-std::unique_ptr<Parser::Prototype> Parser::ParseExtern()
+std::unique_ptr<Prototype> Parser::ParseExtern()
 {
     GetNextToken(); // external keyword lai khaidine
     return ParsePrototype();

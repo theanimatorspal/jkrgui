@@ -24,6 +24,8 @@ static bool hasLayers(std::span<char const *> const &layers,
 		});
 }
 
+
+// Yelle kaam garya xaina hai, beware
 static bool hasExtensions(std::span<char const *> const &instanceExtensionNames,
                           std::span<vk::ExtensionProperties> ExtensionProperties)
 {
@@ -51,7 +53,6 @@ VulkanInstance::VulkanInstance()
 #ifdef __APPLE__
     mInstanceExtensionNames.push_back(VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME);
     mInstanceExtensionNames.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
-    mInstanceExtensionNames.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
 #endif
 
     if (!hasLayers(mInstanceLayerNames, instanceLayerProperties)) {

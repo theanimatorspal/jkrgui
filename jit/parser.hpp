@@ -1,6 +1,18 @@
 #pragma once
-#include "lexer.hpp"
 #include "expressions.hpp"
+#include "lexer.hpp"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Value.h"
+#include <iostream>
+#include <map>
+#ifdef WIN32
+#include <Windows.h>
+#ifdef max
+#undef max
+#endif
+#endif
 
 class Parser : public Lexer
 {
@@ -12,13 +24,16 @@ public:
         mBinaryOperatorPrecedence['+'] = 20;
         mBinaryOperatorPrecedence['-'] = 20;
         mBinaryOperatorPrecedence['*'] = 40;
+        mBinaryOperatorPrecedence['/'] = 40;
         GetNextToken();
     }
     void MainLoop();
 
+    inline int GetNextToken() { return mCurrentToken = Lexer::GetToken(); }
+    GETTER GetCurretToken() const { return mCurrentToken; }
+
 private:
     int mCurrentToken;
-    inline int GetNextToken() { return mCurrentToken = Lexer::GetToken(); }
 
 private:
     std::map<char, int> mBinaryOperatorPrecedence;
@@ -35,18 +50,19 @@ private:
     }
 
 protected:
-    up<Expression> LogError(const sv inString);
-    up<Prototype> LogErrorPrototype(const sv inString);
-    up<Expression> ParseNumberExpression();
-    up<Expression> ParseExpression();
-    up<Expression> ParseParentExpression();
-    up<Expression> ParseIdentifierExpression();
-    up<Expression> ParsePrimary();
-    up<Expression> ParseBinaryOperationRHS(int inExpressionPrecedence, up<Expression> inLHS);
-    up<Prototype> ParsePrototype();
-    up<Function> ParseDefinition();
-    up<Function> ParseTopLevelExpression();
-    up<Prototype> ParseExtern();
+    up<Expr::Expression> LogError(const sv inString);
+    up<Expr::Prototype> LogErrorPrototype(const sv inString);
+    up<Expr::Expression> ParseNumberExpression();
+    up<Expr::Expression> ParseExpression();
+    up<Expr::Expression> ParseParentExpression();
+    up<Expr::Expression> ParseIdentifierExpression();
+    up<Expr::Expression> ParsePrimary();
+    up<Expr::Expression> ParseBinaryOperationRHS(int inExpressionPrecedence,
+                                                 up<Expr::Expression> inLHS);
+    up<Expr::Prototype> ParsePrototype();
+    up<Expr::Function> ParseDefinition();
+    up<Expr::Function> ParseTopLevelExpression();
+    up<Expr::Prototype> ParseExtern();
     /* Top Level Parsing */
     void HandleDefinition();
     void HandleExtern();

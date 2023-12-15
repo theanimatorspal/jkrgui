@@ -13,6 +13,9 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice, const V
 	std::vector<char const*> deviceLayerNames;
 	std::vector<char const*> deviceExtensionNames;
 	deviceExtensionNames.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+#ifdef __APPLE__
+	mInstanceExtensionNames.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
+#endif
 
 	vk::PhysicalDeviceFeatures Features;
 	Features.fillModeNonSolid = VK_TRUE;

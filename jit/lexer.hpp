@@ -1,13 +1,21 @@
 #pragma once
-#include <iostream>
-#include <istream>
-#include <map>
-#include <string>
-#include <vector>
+#include <llvm/ADT/APFloat.h>
+#include <llvm/ADT/STLExtras.h>
+#include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/Constants.h>
+#include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/Function.h>
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
+#include <llvm/IR/Type.h>
+#include <llvm/IR/Verifier.h>
+
 #define GETTER inline auto
 #define mu std::make_unique
 #define up std::unique_ptr
 #define mv std::move
+
 template<typename T>
 using v = std::vector<T>;
 using s = std::string;

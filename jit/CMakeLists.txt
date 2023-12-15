@@ -9,6 +9,10 @@ file(GLOB_RECURSE app_SRC CONFIGURE_DEPENDS
 
 add_executable(jit ${app_SRC} main.cpp
     lexer.hpp lexer.cpp
-    parser.hpp parser.cpp)
+    parser.hpp parser.cpp
+    irgenerator.hpp irgenerator.cpp
+    expressions.cpp
+    expressions.hpp
+)
 
 CONFIGURE_LLVM(jit)
