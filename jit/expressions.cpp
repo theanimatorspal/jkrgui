@@ -1,7 +1,8 @@
 #include "expressions.hpp"
 #include "irgenerator.hpp"
-#include "llvm/ADT/APFloat.h"
-#include "llvm/IR/Constants.h"
+#include "llvm/IR/Function.h"
+#include <llvm/ADT/APFloat.h>
+#include <llvm/IR/Constants.h>
 
 llvm::Value *Expr::Number::CodeGen(IrGenerator &inG)
 {
@@ -50,7 +51,9 @@ llvm::Value* Expr::Call::CodeGen(IrGenerator& inG)
 {
     // Function call ko lagi suru ma module vitra function lai khojne
     //  LLVM module is the container that holds function that we are JITing
-    llvm::Function* CalleeF = inG.GetModule().getFunction(mCallee);
+    //    llvm::Function* CalleeF = inG.GetModule().getFunction(mCallee);
+    // looking the name in the global module table
+    llvm::Function *CalleeF = inG.GetFunction(mCallee);
     if (not CalleeF)
         return inG.LogErrorV("Unknown Function Referenced\n");
 
@@ -87,16 +90,23 @@ llvm::Function* Expr::Prototype::CodeGen(IrGenerator& inG)
 
 llvm::Function* Expr::Function::CodeGen(IrGenerator& inG)
 {
+    bool IsFunctionAlreadyPresent = inG.GetFunctionPrototypeMap().find(mPrototype->GetName())
+                                    == inG.GetFunctionPrototypeMap().end();
+    if (not IsFunctionAlreadyPresent)
+        return (llvm::Function *) inG.LogErrorV("Redefinition of function is illegal");
+
     // Kunai external declaration bata existing function herne xa ki xaina "external use garera
-    llvm::Function* TheFunction = inG.GetModule().getFunction(mPrototype->GetName());
-    if (not TheFunction)
-        TheFunction = mPrototype->CodeGen(inG);
+    auto &P = *mPrototype;
+    inG.GetFunctionPrototypeMap()[mPrototype->GetName()] = mv(
+        mPrototype); // Save garne prototype map ma
+    llvm::Function *TheFunction = inG.GetFunction(P.GetName());
     if (not TheFunction)
         return nullptr;
-    if (not TheFunction->empty())
-        return (llvm::Function*)inG.LogErrorV("Function Cannot be redefined");
-    if (not inG.GetModule().getFunction(mPrototype->GetName()))
-        return (llvm::Function*)inG.LogErrorV("External Function Already Exist");
+
+    // if (not TheFunction->empty())
+    //     return (llvm::Function*)inG.LogErrorV("Function Cannot be redefined");
+    // if (not inG.GetModule().getFunction(mPrototype->GetName()))
+    //     return (llvm::Function*)inG.LogErrorV("External Function Already Exist");
 
     // aba funciton vitra body chirauna parne vayo
     llvm::BasicBlock* BB = llvm::BasicBlock::Create(inG.GetContext(), "entry", TheFunction);
@@ -113,7 +123,10 @@ llvm::Function* Expr::Function::CodeGen(IrGenerator& inG)
         inG.GetIRBuilder().CreateRet(RetVal);
         // ani llvm "ret" function banaune
         llvm::verifyFunction(*TheFunction);
-		return TheFunction;
+
+        inG.GetFunctionPassManager().run(*TheFunction, inG.GetFunctionAnalysisManager());
+        /* Now Optimization of the function is to be done */
+        return TheFunction;
     }
 
     // body bata vaena

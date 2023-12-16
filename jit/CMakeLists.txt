@@ -13,6 +13,7 @@ add_executable(jit ${app_SRC} main.cpp
     irgenerator.hpp irgenerator.cpp
     expressions.cpp
     expressions.hpp
-)
+         jit.cpp )
 
 CONFIGURE_LLVM(jit)
+configure_target(jit)

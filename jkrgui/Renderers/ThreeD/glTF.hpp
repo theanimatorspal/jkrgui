@@ -3,6 +3,7 @@
 #include "glTF_Model.hpp"
 #include "glTF_base.hpp"
 #include <Renderers/Renderer_base.hpp>
+#include <string>
 
 namespace Jkr::Renderer::_3D {
 
@@ -21,15 +22,16 @@ class glTF : public Renderer_base, public glTF_base
 public:
     glTF(const Instance &inInstance, Window &inCompatibleWindow, PainterCache &inPainterCache);
     void Add(const std::string_view inFileName, uint32_t &outId);
-    void AddPainter(Up<Painter> &inPainter, uint32_t &outId)
-    {
-        outId = mPainters.size();
-        mPainters.push_back(std::move(inPainter));
-    }
-
+    void AddPainter(const std::string_view inFileName,
+                    const std::string_view inVertexShader,
+                    const std::string_view inFragmentShader,
+                    const std::string_view inComputeShader,
+                    Window &inCompatibleWindow,
+                    uint32_t &outId);
     void BindPainter(uint32_t inId) {}
 
 private:
+    void AddPainter(Up<Painter> inPainter, uint32_t &outId);
     void CheckAndResize(const glTF_Model &inModel) {}
     std::vector<Up<glTF_Model>> mModels;
     std::vector<Up<Painter>> mPainters;

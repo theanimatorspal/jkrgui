@@ -1,6 +1,11 @@
 #pragma once
-#include "irgenerator.hpp"
-#include "llvm/IR/Value.h"
+#include <type_traits>
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/IR/BasicBlock.h>
@@ -11,8 +16,13 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Type.h>
+#include <llvm/IR/Value.h>
 #include <llvm/IR/Verifier.h>
-#include <map>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Target/TargetMachine.h>
+#include <llvm/Transforms/InstCombine/InstCombine.h>
+#include <llvm/Transforms/Scalar.h>
+#include <llvm/Transforms/Scalar/GVN.h>
 #include <memory>
 #include <string>
 #include <vector>
@@ -22,13 +32,18 @@
 #define mu std::make_unique
 #define up std::unique_ptr
 #define mv std::move
+
+class IrGenerator;
+
 template<typename T>
 using v = std::vector<T>;
+
 using s = std::string;
 using sv = std::string_view;
 namespace l = llvm;
 
-class IrGenerator;
+constexpr std::string_view ANONYMOUS_EXPRESSION_NAME = "__anon_expression__";
+
 namespace Expr {
 
 struct Expression

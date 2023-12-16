@@ -1,4 +1,11 @@
 #pragma once
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
+#include <iostream>
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/IR/BasicBlock.h>

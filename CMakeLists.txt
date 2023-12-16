@@ -20,6 +20,7 @@ endif()
 set(CMAKE_BUILD_PARALLEL_LEVEL 8)
 
 add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED -DTRACY_ENABLE)
+
 set(CMAKE_CXX_STANDARD 20)
 
 if (POLICY CMP0141)
@@ -72,8 +73,13 @@ message(STATUS "Vulkan Library Directory ${Vulkan_LIBRARIES}")
 include_directories(${VULKAN_INCLUDE_PATH})
 
 link_directories(${VULKAN_LIBRARY_PATH})
-link_directories("${CMAKE_SOURCE_DIR}/lib/")
-link_directories("${LLVM_PATH}/lib")
+link_directories("${CMAKE_SOURCE_DIR}/libs/")
+
+if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+        link_directories("${LLVM_PATH}/Release/lib")
+else()
+        link_directories("${LLVM_PATH}/Debug/lib")
+endif()
 
 add_subdirectory(aa_unit_testing)
 add_subdirectory(application)

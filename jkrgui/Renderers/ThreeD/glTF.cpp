@@ -1,4 +1,6 @@
 #include "glTF.hpp"
+#include "Painter.hpp"
+#include <filesystem>
 
 Jkr::Renderer::_3D::glTF::glTF(const Instance &inInstance,
                                Window &inCompatibleWindow,
@@ -44,4 +46,30 @@ void Jkr::Renderer::_3D::glTF::Add(const std::string_view inFileName, uint32_t &
                         gb::VertexCountToBytes(gb::GetVertexCount(ModelId)),
                         gb::IndexCountToBytes(gb::GetIndexCount(ModelId)));
 #endif
+}
+
+void Jkr::Renderer::_3D::glTF::AddPainter(const std::string_view inFileName,
+                                          const std::string_view inVertexShader,
+                                          const std::string_view inFragmentShader,
+                                          const std::string_view inComputeShader,
+                                          Window &inCompatibleWindow,
+                                          uint32_t &outId)
+{
+    Up<PainterCache> painterCache = MakeUp<PainterCache>(mInstance);
+    if (std::filesystem::exists(inFileName)) {
+        painterCache->Load(std::string(inFileName));
+    } else {
+        painterCache->Store(std::string(inFileName),
+                            std::string(inVertexShader),
+                            std::string(inFragmentShader),
+                            std::string(inComputeShader));
+    }
+    Up<Painter> painter = MakeUp<Painter>(mInstance, inCompatibleWindow, *painterCache);
+    AddPainter(std::move(painter), outId);
+}
+
+void Jkr::Renderer::_3D::glTF::AddPainter(Up<Painter> inPainter, uint32_t &outId)
+{
+    outId = mPainters.size();
+    mPainters.push_back(std::move(inPainter));
 }

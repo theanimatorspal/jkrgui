@@ -2,7 +2,7 @@
 #include <Windows.h>
 #undef max
 #endif
-#include "parser.hpp"
+#include "jitcompilerfromir.hpp"
 #include <sstream>
 
 /* LEXER */
@@ -10,12 +10,10 @@ int main()
 {
     std::stringstream Stream;
     Stream << R"""(
-
-function foo(x y)  x + foo(y, 4.0);
-function foo(x y) x+y y;
-function foo(x y) x + y );
-external sin(a);
+function plus1(x) x + 1;
+plus1(2);
+plus1(5);
 )""";
-    Parser parser(Stream);
-    parser.MainLoop();
+    JitCompiler Generator(Stream);
+    Generator.MainLoop();
 }

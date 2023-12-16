@@ -1,4 +1,5 @@
 #include "parser.hpp"
+#include "expressions.hpp"
 #include "lexer.hpp"
 
 using namespace Expr;
@@ -183,7 +184,7 @@ std::unique_ptr<Expr::Function> Parser::ParseTopLevelExpression()
 {
     if (auto E = ParseExpression()) {
         // aba euta anonymouse prototype banaidine
-        auto Proto = mu<Prototype>("__anon_expression__", v<s>()); // kunai argument navako
+        auto Proto = mu<Prototype>(ANONYMOUS_EXPRESSION_NAME, v<s>()); // kunai argument navako
         return mu<Expr::Function>(mv(Proto), mv(E));
     }
     return nullptr;

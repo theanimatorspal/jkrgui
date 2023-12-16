@@ -1,4 +1,5 @@
 #include "lexer.hpp"
+#include <iostream>
 
 int Lexer::GetToken()
 {

@@ -1,10 +1,12 @@
 #pragma once
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
 #include "expressions.hpp"
 #include "lexer.hpp"
-#include "llvm/IR/IRBuilder.h"
-#include "llvm/IR/LLVMContext.h"
-#include "llvm/IR/Module.h"
-#include "llvm/IR/Value.h"
 #include <iostream>
 #include <map>
 #ifdef WIN32
