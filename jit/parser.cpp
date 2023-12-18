@@ -13,6 +13,7 @@ void Parser::MainLoop()
             run = false;
             break;
         case ';':
+        case Token::End:
             GetNextToken();
             break;
         case Token::Function:
@@ -114,6 +115,12 @@ std::unique_ptr<Expression> Parser::ParsePrimary()
     case '(':
         return ParseParentExpression();
         break;
+    case Token::If:
+        return ParseIfExpression();
+        break;
+    case Token::For:
+        return ParseForExpression();
+        break;
     }
 }
 
@@ -184,7 +191,7 @@ std::unique_ptr<Expr::Function> Parser::ParseTopLevelExpression()
 {
     if (auto E = ParseExpression()) {
         // aba euta anonymouse prototype banaidine
-        auto Proto = mu<Prototype>(ANONYMOUS_EXPRESSION_NAME, v<s>()); // kunai argument navako
+        auto Proto = mu<Prototype>(mAnonymousNameGenerator.New(), v<s>()); // kunai argument navako
         return mu<Expr::Function>(mv(Proto), mv(E));
     }
     return nullptr;
@@ -194,6 +201,84 @@ std::unique_ptr<Prototype> Parser::ParseExtern()
 {
     GetNextToken(); // external keyword lai khaidine
     return ParsePrototype();
+}
+
+std::unique_ptr<Expression> Parser::ParseIfExpression()
+{
+    GetNextToken(); // suru ko if khane
+    auto Condition = Parser::ParseExpression();
+    if (mCurrentToken != Token::Then) {
+        LogError("Expected Then");
+        return nullptr;
+    }
+
+    GetNextToken(); // Then lai khane
+    auto Then = Parser::ParseExpression();
+    if (not Then)
+        return nullptr;
+    if (mCurrentToken != Token::Else) {
+        LogError("Expected Else");
+        return nullptr;
+    }
+    GetNextToken(); // Else lai khane
+    auto Else = Parser::ParseExpression();
+    if (not Else)
+        return nullptr;
+
+    return mu<Expr::If>(mv(Condition), mv(Then), mv(Else));
+}
+
+std::unique_ptr<Expression> Parser::ParseForExpression()
+{
+    GetNextToken(); // For key word lai khane
+    if (mCurrentToken != Token::Identifier) {
+        LogError("Expected Identifier after 'for' keyword");
+        return nullptr;
+    }
+    std::string IdName = GetTokenizedIdentifier();
+    GetNextToken(); // aba tyo identifier lai khane
+
+    if (mCurrentToken != '=') {
+        LogError("Expected '=' after loop variable");
+        return nullptr;
+    }
+    GetNextToken(); // eat =
+
+    auto Start = Parser::ParseExpression();
+    if (not Start)
+        return nullptr;
+    if (mCurrentToken != ',') {
+        LogError("Expected ',' after Start Value");
+        return nullptr;
+    }
+    GetNextToken();
+
+    auto End = Parser::ParseExpression();
+    if (not End)
+        return nullptr;
+    // aba yo step chae optional xa
+
+    up<Expression> Step;
+    if (mCurrentToken == ',') {
+        GetNextToken(); // comma khane
+        Step = Parser::ParseExpression();
+        if (not Step)
+            return nullptr;
+    }
+
+    if (mCurrentToken != Token::Do) {
+        LogError("Expected do after this");
+        return nullptr;
+    }
+    GetNextToken(); // do khane
+
+    auto Body = Parser::ParseExpression();
+    if (not Body) {
+        return nullptr;
+    }
+
+    return mu<Expr::For>(IdName, mv(Start), mv(End), mv(Step), mv(Body));
+
 }
 
 void Parser::HandleDefinition()

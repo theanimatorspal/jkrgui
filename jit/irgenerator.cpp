@@ -153,6 +153,7 @@ void IrGenerator::MainLoop()
             return;
             break;
         case ';':
+        case Token::End:
             IrGenerator::GetNextToken();
             break;
         case Token::Function:

@@ -53,7 +53,14 @@ protected:
         External = -4,
         /*Primary*/
         Identifier = -5,
-        Number = -6
+        Number = -6,
+        /* conditionals */
+        If = -7,
+        Then = -8,
+        Else = -9,
+        /* loop */
+        For = -10,
+        Do = -11
     };
 
 protected:

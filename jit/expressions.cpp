@@ -1,6 +1,10 @@
 #include "expressions.hpp"
 #include "irgenerator.hpp"
+#include "llvm/IR/BasicBlock.h"
 #include "llvm/IR/Function.h"
+#include "llvm/IR/Instructions.h"
+#include "llvm/IR/Type.h"
+#include "llvm/IR/Value.h"
 #include <llvm/ADT/APFloat.h>
 #include <llvm/IR/Constants.h>
 
@@ -90,10 +94,14 @@ llvm::Function* Expr::Prototype::CodeGen(IrGenerator& inG)
 
 llvm::Function* Expr::Function::CodeGen(IrGenerator& inG)
 {
-    bool IsFunctionAlreadyPresent = inG.GetFunctionPrototypeMap().find(mPrototype->GetName())
-                                    == inG.GetFunctionPrototypeMap().end();
-    if (not IsFunctionAlreadyPresent)
-        return (llvm::Function *) inG.LogErrorV("Redefinition of function is illegal");
+    auto Itrfuncpos = inG.GetFunctionPrototypeMap().find(mPrototype->GetName());
+    bool IsFunctionAlreadyPresent = Itrfuncpos != inG.GetFunctionPrototypeMap().end();
+    bool IsAnonymous = inG.Parser::mAnonymousNameGenerator.Is(mPrototype->GetName());
+
+    if (IsFunctionAlreadyPresent) {
+        if (not IsAnonymous)
+            return (llvm::Function *) inG.LogErrorV("Redefinition of function is illegal");
+    }
 
     // Kunai external declaration bata existing function herne xa ki xaina "external use garera
     auto &P = *mPrototype;
@@ -102,11 +110,6 @@ llvm::Function* Expr::Function::CodeGen(IrGenerator& inG)
     llvm::Function *TheFunction = inG.GetFunction(P.GetName());
     if (not TheFunction)
         return nullptr;
-
-    // if (not TheFunction->empty())
-    //     return (llvm::Function*)inG.LogErrorV("Function Cannot be redefined");
-    // if (not inG.GetModule().getFunction(mPrototype->GetName()))
-    //     return (llvm::Function*)inG.LogErrorV("External Function Already Exist");
 
     // aba funciton vitra body chirauna parne vayo
     llvm::BasicBlock* BB = llvm::BasicBlock::Create(inG.GetContext(), "entry", TheFunction);
@@ -133,4 +136,171 @@ llvm::Function* Expr::Function::CodeGen(IrGenerator& inG)
     // Incorrect typing vako thyo vane kaam laagxa, hatauna laai, natra symbol table ma rai rahanxa
     TheFunction->eraseFromParent();
     return nullptr;
+}
+
+/*
+
+define i32 @max(i32 %a, i32 %b) {
+entry:
+  %0 = icmp sgt i32 %a, %b
+  br i1 %0, label %btrue, label %bfalse
+
+btrue:                                      ; preds = %2
+  br label %end // yo vaneko chae if basic block
+
+bfalse:                                     ; preds = %2
+  br label %end // yo vaneko else basic block
+
+end:                                     ; preds = %btrue, %bfalse
+  %retval = phi i32 [%a, %btrue], [%b, %bfalse] // Yo vaneko chae mergebasic block
+  ret i32 %retval
+}
+
+ */
+
+llvm::Value *Expr::If::CodeGen(IrGenerator &inG)
+{
+    llvm::Value *ConditionValue = mCondition->CodeGen(inG);
+    if (not ConditionValue)
+        return nullptr;
+    // Condition nai xaina vane k kaam vanne kuro
+
+    // aba condition bata aako value double xa so tellai bool ma convert garnu paro
+    // Compare the Condition Value with Zero, to get whether it is Equal or not to 1 bit value, true OR false
+    ConditionValue = inG.GetIRBuilder().CreateFCmpONE(ConditionValue,
+                                                      llvm::ConstantFP::get(inG.GetContext(),
+                                                                            llvm::APFloat(0.0)),
+                                                      "ifcond"); // LHS == RHS return garxa
+
+    // Gets the current function object that is being built
+    // gets it by asking the builder about the current basic block
+    // and asking the block for its parent
+    llvm::Function *func = inG.GetIRBuilder().GetInsertBlock()->getParent();
+    // Now create blocks for then and else clauses. Tnserting the then block at the end of the function
+    // End of the function
+    // ConditionBr create garna create garne ho eneru
+
+    //yaa then block ma chae func vanera hamile constructor mai pass garim
+    //elle chae yo function ko taltira aafai naya block banaidinxa
+    // aru diuta blocks pani create vaisako tara yo function maa chirako xaina
+    llvm::BasicBlock *ThenBasicBlock = llvm::BasicBlock::Create(inG.GetContext(), "then", func);
+    llvm::BasicBlock *ElseBasicBlock = llvm::BasicBlock::Create(inG.GetContext(), "else");
+    llvm::BasicBlock *MergeBasicBlock = llvm::BasicBlock::Create(inG.GetContext(), "ifcont");
+
+    // aba conditional branching banaiyo duita maddhe euta choose garne wala
+    inG.GetIRBuilder().CreateCondBr(ConditionValue, ThenBasicBlock, ElseBasicBlock);
+
+    //aba condition brach insert gariyo, aba then block ma value insert garna laagim
+    inG.GetIRBuilder().SetInsertPoint(ThenBasicBlock); // Yo vaneko start mai xa vanne ho
+
+    // Thenko value
+    llvm::Value *ThenV = mThen->CodeGen(inG);
+    if (not ThenV)
+        return nullptr;
+    // Then block sakkina, uncondtional branch garnu paryo MergeBasicBlock ma
+    // kinaki LLVM requires all basic blocks to be "terminated" with a control flow instruction such as return or branch
+    // yo merge block ma chae phi node create hunxa
+    inG.GetIRBuilder().CreateBr(MergeBasicBlock);
+    // Aba Then ko code Generate Vayesi telle cchae Current block lai Change garna sakxa so, Then Block update garne
+    // Phi function ko laagi (Phi chooses the appropiate from the branches)
+    ThenBasicBlock = inG.GetIRBuilder().GetInsertBlock();
+    // Aba Else block emit garne
+    func->insert(func->end(), ElseBasicBlock);
+    // function ma else block haalne, suru ma constructor maa haleko thim, tesma then vanekai function
+    // vako thyo, tara else block insert vako thena
+    inG.GetIRBuilder().SetInsertPoint(ElseBasicBlock);
+
+    llvm::Value *ElseV = mElse->CodeGen(inG);
+    if (not ElseV)
+        return nullptr;
+
+    inG.GetIRBuilder().CreateBr(MergeBasicBlock);
+    ElseBasicBlock = inG.GetIRBuilder().GetInsertBlock();
+
+    func->insert(func->end(), MergeBasicBlock);
+    inG.GetIRBuilder().SetInsertPoint(MergeBasicBlock);
+    llvm::PHINode *PhiNode = inG.GetIRBuilder().CreatePHI(llvm::Type::getDoubleTy(inG.GetContext()),
+                                                          2,
+                                                          "iftmp");
+    PhiNode->addIncoming(ThenV, ThenBasicBlock);
+    PhiNode->addIncoming(ElseV, ElseBasicBlock);
+    return PhiNode;
+}
+
+llvm::Value *Expr::For::CodeGen(IrGenerator &inG)
+{
+    // Suru ma Start ko code "start" wala code emit garne
+    llvm::Value *StartV = mStart->CodeGen(inG);
+    if (not StartV)
+        return nullptr;
+
+    // if else ma jastai parent function line.
+    // recursive approach so that parent block chae aaos haat ma
+    llvm::Function *parentFunction = inG.GetIRBuilder().GetInsertBlock()->getParent();
+    // aba kaa haalne ho ta tyo line for ---- do wala preheader basic block ho
+    llvm::BasicBlock *PreheaderBasicBlock = inG.GetIRBuilder().GetInsertBlock();
+    llvm::BasicBlock *LoopBasicBlock = llvm::BasicBlock::Create(inG.GetContext(),
+                                                                "loop",
+                                                                parentFunction);
+    // aba euta explicit fall through insert garne Current block bata loopbasicblock ma
+    inG.GetIRBuilder().CreateBr(LoopBasicBlock);
+    inG.GetIRBuilder().SetInsertPoint(LoopBasicBlock);
+    // Yo chae I ko laagi Phi Node ho
+    llvm::PHINode *Variable = inG.GetIRBuilder().CreatePHI(llvm::Type::getDoubleTy(inG.GetContext()),
+                                                           2,
+                                                           mVariableName);
+    Variable->addIncoming(StartV, PreheaderBasicBlock);
+    // Loop vitra chae variable is defined equal to the phi node.
+    // aba existing variable lai shadow garxa vane restore garnu parxa, tei vaera save garne
+    llvm::Value *OldValue = inG.GetNamedValues()[mVariableName];
+    inG.GetNamedValues()[mVariableName] = Variable; // symbol table ma rakhne i = 1 haalda
+
+    // aba loop ko body lai emit garne. Elle chae aru expresssion jasari nai basic block lai change
+    // garna sakxa, Body le nikaleko value lai hami ignore garxam.
+    if (not mBody->CodeGen(inG))
+        return nullptr;
+
+    // Aba step value lai emit garne
+    llvm::Value *StepValue = nullptr;
+    if (mStep) {
+        StepValue = mStep->CodeGen(inG);
+        if (not StepValue)
+            return nullptr;
+    } else {
+        StepValue = llvm::ConstantFP::get(inG.GetContext(), llvm::APFloat(1.0));
+    }
+
+    // Variable vaneko phi ho
+    llvm::Value *NextVariable = inG.GetIRBuilder().CreateFAdd(Variable, StepValue, "nextvar");
+
+    // End condition Compute Garne
+    llvm::Value *EndCondition = mEnd->CodeGen(inG);
+    if (not EndCondition)
+        return nullptr;
+
+    // aba addition lai bool ma convert garne
+    // Equal xaina vane true
+    EndCondition = inG.GetIRBuilder().CreateFCmpONE(EndCondition,
+                                                    llvm::ConstantFP::get(inG.GetContext(),
+                                                                          llvm::APFloat(0.0)),
+                                                    "loopcond");
+
+    llvm::BasicBlock *LoopEndBasicBlock = inG.GetIRBuilder().GetInsertBlock();
+    llvm::BasicBlock *AfterBasicBlock = llvm::BasicBlock::Create(inG.GetContext(),
+                                                                 "afterloop",
+                                                                 parentFunction);
+
+    inG.GetIRBuilder().CreateCondBr(EndCondition, LoopBasicBlock, AfterBasicBlock);
+
+    // Specifies that the created instructions should be appended to the end of the basic block
+    inG.GetIRBuilder().SetInsertPoint(AfterBasicBlock);
+    Variable->addIncoming(NextVariable, LoopEndBasicBlock);
+
+    // restore garne tyo maathi ko shadow vako variable lai
+    if (OldValue)
+        inG.GetNamedValues()[mVariableName] = OldValue;
+    else
+        inG.GetNamedValues().erase(mVariableName);
+
+    return llvm::Constant::getNullValue(llvm::Type::getDoubleTy(inG.GetContext()));
 }

@@ -21,6 +21,7 @@ class Parser : public Lexer
 public:
     Parser(std::istream &inCodeStream)
         : Lexer(inCodeStream)
+        , mAnonymousNameGenerator()
     {
         mBinaryOperatorPrecedence['<'] = 10;
         mBinaryOperatorPrecedence['+'] = 20;
@@ -31,7 +32,14 @@ public:
     }
     void MainLoop();
 
-    inline int GetNextToken() { return mCurrentToken = Lexer::GetToken(); }
+    inline int GetNextToken() {
+        mCurrentToken = Lexer::GetToken(); 
+        while (mCurrentToken >= 0 && std::isspace (mCurrentToken))
+        {
+            mCurrentToken = Lexer::GetToken();
+        }
+        return mCurrentToken;
+    }
     GETTER GetCurretToken() const { return mCurrentToken; }
 
 private:
@@ -41,7 +49,7 @@ private:
     std::map<char, int> mBinaryOperatorPrecedence;
     int GetTokenPrecedence()
     {
-        if (not isascii(mCurrentToken)) {
+        if (mCurrentToken >= 0 and not std::isprint(mCurrentToken)) {
             return -1;
         }
 
@@ -65,10 +73,15 @@ protected:
     up<Expr::Function> ParseDefinition();
     up<Expr::Function> ParseTopLevelExpression();
     up<Expr::Prototype> ParseExtern();
+    up<Expr::Expression> ParseIfExpression();
+    up<Expr::Expression> ParseForExpression();
     /* Top Level Parsing */
     void HandleDefinition();
     void HandleExtern();
     void HandleTopLevelExpression();
+
+public:
+    AnonymousExpressionNameGenerator mAnonymousNameGenerator;
 };
 
 template<class T>

@@ -20,6 +20,16 @@ int Lexer::GetToken()
             return Token::External;
         if (mTokenizedIdentifier == "end")
             return Token::End;
+        if (mTokenizedIdentifier == "if")
+            return Token::If;
+        if (mTokenizedIdentifier == "then")
+            return Token::Then;
+        if (mTokenizedIdentifier == "else")
+            return Token::Else;
+        if (mTokenizedIdentifier == "for")
+            return Token::For;
+        if (mTokenizedIdentifier == "do")
+            return Token::Do;
 
         return Token::Identifier;
     }
@@ -35,12 +45,15 @@ int Lexer::GetToken()
     }
 
     /* -- is the comment  */
-    if (mLastCharacter == '-' and (mLastCharacter = mCodeStream.get()) == '-') {
-        do
-            mLastCharacter = mCodeStream.get();
-        while (IsEndOrNewLine(mLastCharacter));
-        if (mLastCharacter != EOF) {
-            return GetToken(); // jaba samma kei return gardaina
+    if (mLastCharacter == '-') {
+        auto NewLastCharacter = mCodeStream.peek();
+        if (NewLastCharacter == '-') {
+            do {
+                mLastCharacter = mCodeStream.get();
+            } while (not IsEndOrNewLine(mLastCharacter));
+            if (mLastCharacter != EOF) {
+                return GetToken(); // jaba samma kei return gardaina
+            }
         }
     }
 
