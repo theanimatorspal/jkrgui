@@ -30,6 +30,10 @@ int Lexer::GetToken()
             return Token::For;
         if (mTokenizedIdentifier == "do")
             return Token::Do;
+        if (mTokenizedIdentifier == "binary")
+            return Token::BinaryOP;
+        if (mTokenizedIdentifier == "unary")
+            return Token::UnaryOP;
 
         return Token::Identifier;
     }

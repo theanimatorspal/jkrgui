@@ -60,7 +60,10 @@ protected:
         Else = -9,
         /* loop */
         For = -10,
-        Do = -11
+        Do = -11,
+        /* Opertor types  */
+		BinaryOP = -12,
+		UnaryOP = -13
     };
 
 protected:

@@ -59,6 +59,11 @@ private:
         return TokenPrecedence;
     }
 
+	public:
+    GETTER& GetBinaryOperatorPrecedenceMap() {
+        return mBinaryOperatorPrecedence;
+    }
+
 protected:
     up<Expr::Expression> LogError(const sv inString);
     up<Expr::Prototype> LogErrorPrototype(const sv inString);
@@ -69,6 +74,7 @@ protected:
     up<Expr::Expression> ParsePrimary();
     up<Expr::Expression> ParseBinaryOperationRHS(int inExpressionPrecedence,
                                                  up<Expr::Expression> inLHS);
+    up<Expr::Expression> ParseUnary();
     up<Expr::Prototype> ParsePrototype();
     up<Expr::Function> ParseDefinition();
     up<Expr::Function> ParseTopLevelExpression();

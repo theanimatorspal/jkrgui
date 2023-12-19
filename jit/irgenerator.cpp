@@ -10,9 +10,11 @@
 #endif
 #include <llvm/Analysis/CGSCCPassManager.h>
 #include <llvm/Analysis/LoopAnalysisManager.h>
+#include <llvm/Analysis/TargetTransformInfo.h>
 #include <llvm/IR/PassInstrumentation.h>
 #include <llvm/IR/PassManager.h>
 #include <llvm/Passes/PassBuilder.h>
+#include <llvm/Passes/OptimizationLevel.h>
 #include <llvm/Passes/StandardInstrumentations.h>
 #include <llvm/Support/Error.h>
 #include <llvm/Target/TargetMachine.h>
@@ -21,6 +23,7 @@
 #include <llvm/Transforms/Scalar/GVN.h>
 #include <llvm/Transforms/Scalar/Reassociate.h>
 #include <llvm/Transforms/Scalar/SimplifyCFG.h>
+#include <llvm/Transforms/Scalar/Reg2Mem.h>
 
 void IrGenerator::InitializeJit()
 {
@@ -68,6 +71,9 @@ void IrGenerator::InitializeModuleAndPassManagers()
      * Elimination of Redundant  instructions
      * Instruction recombination
      * */
+
+	mFunctionPassManager->addPass(llvm::RegToMemPass());
+
     mFunctionPassManager->addPass(llvm::InstCombinePass());
 
     /* Rearranging */
@@ -79,6 +85,7 @@ void IrGenerator::InitializeModuleAndPassManagers()
      * Loop Wala
 	*/
     mFunctionPassManager->addPass(llvm::SimplifyCFGPass());
+
 
     /* Register analysis passes used in these transform passes */
     /*

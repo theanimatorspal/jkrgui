@@ -24,6 +24,7 @@
 #include <llvm/Transforms/InstCombine/InstCombine.h>
 #include <llvm/Transforms/Scalar.h>
 #include <llvm/Transforms/Scalar/GVN.h>
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -36,159 +37,153 @@
 
 class IrGenerator;
 
-template<typename T>
+template <typename T>
 using v = std::vector<T>;
 
 using s = std::string;
 using sv = std::string_view;
 namespace l = llvm;
 
-class AnonymousExpressionNameGenerator
-{
-public:
-    std::string New()
-    {
-        return std::string(ANONYMOUS_EXPRESSION_NAME).append(std::to_string(mCurrent++));
-    }
-    std::string Get()
-    {
-        return std::string(ANONYMOUS_EXPRESSION_NAME).append(std::to_string(mCurrent - 1));
-    }
-    bool Is(const std::string_view inView)
-    {
-        return inView.substr(0, ANONYMOUS_EXPRESSION_NAME.size()) == ANONYMOUS_EXPRESSION_NAME;
-    }
+class AnonymousExpressionNameGenerator {
+ public:
+  std::string New() {
+    return std::string(ANONYMOUS_EXPRESSION_NAME)
+        .append(std::to_string(mCurrent++));
+  }
+  std::string Get() {
+    return std::string(ANONYMOUS_EXPRESSION_NAME)
+        .append(std::to_string(mCurrent - 1));
+  }
+  bool Is(const std::string_view inView) {
+    return inView.substr(0, ANONYMOUS_EXPRESSION_NAME.size()) ==
+           ANONYMOUS_EXPRESSION_NAME;
+  }
 
-private:
-    static constexpr std::string_view ANONYMOUS_EXPRESSION_NAME = "__anon_expression__";
-    int mCurrent = 0;
+ private:
+  static constexpr std::string_view ANONYMOUS_EXPRESSION_NAME =
+      "__anon_expression__";
+  int mCurrent = 0;
 };
 
 namespace Expr {
 
-struct Expression
-{
-	virtual ~Expression() = default;
-    // this method says to emit IR for that AST node along with all the things it depend on, and they all return
-    // an llvm value object
-    // This is the class that is used to represent Static Single Assignment (SSA)
-    // SSA = requires each variable to be assigned exactly once and defined before using it
-    // There is no way to change a SSA value
-    virtual llvm::Value *CodeGen(IrGenerator &inG) = 0;
+struct Expression {
+  virtual ~Expression() = default;
+  // this method says to emit IR for that AST node along with all the things it
+  // depend on, and they all return an llvm value object This is the class that
+  // is used to represent Static Single Assignment (SSA) SSA = requires each
+  // variable to be assigned exactly once and defined before using it There is
+  // no way to change a SSA value
+  virtual llvm::Value *CodeGen(IrGenerator &inG) = 0;
 };
 
-struct Number : Expression
-{
-	Number(double inValue)
-		: mValue(inValue)
-	{}
+struct Number : Expression {
+  Number(double inValue) : mValue(inValue) {}
 
-	virtual llvm::Value* CodeGen(IrGenerator& inG) override;
+  virtual llvm::Value *CodeGen(IrGenerator &inG) override;
 
-private:
-    double mValue;
+ private:
+  double mValue;
 };
 
-struct Variable : Expression
-{
-	Variable(const sv inName)
-		: mName(inName)
-	{}
+struct Variable : Expression {
+  Variable(const sv inName) : mName(inName) {}
 
-	virtual llvm::Value* CodeGen(IrGenerator& inG) override;
+  virtual llvm::Value *CodeGen(IrGenerator &inG) override;
 
-private:
-    s mName;
+ private:
+  s mName;
 };
 
-struct Binary : Expression
-{
-	Binary(char inOp, up<Expression> inLHS, up<Expression> inRHS)
-		: mOp(inOp)
-		, mLHS(mv(inLHS))
-		, mRHS(mv(inRHS))
-	{}
-    virtual llvm::Value *CodeGen(IrGenerator &inG) override;
+struct Binary : Expression {
+  Binary(char inOp, up<Expression> inLHS, up<Expression> inRHS)
+      : mOp(inOp), mLHS(mv(inLHS)), mRHS(mv(inRHS)) {}
+  virtual llvm::Value *CodeGen(IrGenerator &inG) override;
 
-private:
-    char mOp;
-    up<Expression> mLHS, mRHS;
+ private:
+  char mOp;
+  up<Expression> mLHS, mRHS;
 };
 
-struct Call : Expression
-{
-	Call(const sv inCallee, v<up<Expression>> Args)
-		: mCallee(inCallee)
-		, mArgs(mv(Args))
-	{}
-    virtual llvm::Value *CodeGen(IrGenerator &inG) override;
+struct Unary : Expression {
+  Unary(char inOp, up<Expr::Expression> inOperand)
+      : mOp(inOp), mOperand(mv(inOperand)) {}
+  virtual llvm::Value *CodeGen(IrGenerator &inG) override;
 
-private:
-	s mCallee;
-	v<up<Expression>> mArgs;
+ private:
+  char mOp;
+  up<Expr::Expression> mOperand;
 };
 
-struct Prototype : Expression
-{
-	Prototype(const sv inName, v<s> inArgs)
-		: mName(inName)
-		, mArgs(mv(inArgs))
-	{}
-    GETTER GetName() const { return mName; }
-    virtual llvm::Function *CodeGen(IrGenerator &inG) override;
+struct Call : Expression {
+  Call(const sv inCallee, v<up<Expression>> Args)
+      : mCallee(inCallee), mArgs(mv(Args)) {}
+  virtual llvm::Value *CodeGen(IrGenerator &inG) override;
 
-private:
-	s mName;
-	v<s> mArgs;
+ private:
+  s mCallee;
+  v<up<Expression>> mArgs;
 };
 
-struct Function : Expression
-{
-	Function(up<Prototype> inPrototype, up<Expression> inBody)
-		: mPrototype(mv(inPrototype))
-		, mBody(mv(inBody))
-	{}
-    virtual llvm::Function *CodeGen(IrGenerator &inG) override;
+struct Prototype : Expression {
+  Prototype(const sv inName, v<s> inArgs, bool inIsOperator = false,
+            uint32_t inPrecedence = 0)
+      : mName(inName),
+        mArgs(mv(inArgs)),
+        mIsOperator(inIsOperator),
+        mPrecedence(inPrecedence) {}
+  GETTER GetName() const { return mName; }
+  virtual llvm::Function *CodeGen(IrGenerator &inG) override;
+  GETTER IsBinaryOperator() const { return mIsOperator and mArgs.size() == 2; }
+  GETTER IsUnaryOperator() const { return mIsOperator and mArgs.size() == 1; }
+  char GetOperatorName() const {
+    assert(IsUnaryOperator() or IsBinaryOperator());
+    return mName.back();
+  }
+  GETTER GetBinaryPrecedence() const { return mPrecedence; }
 
-private:
-	up<Prototype> mPrototype;
-	up<Expression> mBody;
+ private:
+  s mName;
+  v<s> mArgs;
+  bool mIsOperator = false;
+  uint32_t mPrecedence = 0;
 };
 
-struct If : Expression
-{
-public:
-    If(up<Expression> inCondition, up<Expression> inThen, up<Expression> inElse)
-        : mCondition(mv(inCondition))
-        , mThen(mv(inThen))
-        , mElse(mv(inElse))
-    {}
+struct Function : Expression {
+  Function(up<Prototype> inPrototype, up<Expression> inBody)
+      : mPrototype(mv(inPrototype)), mBody(mv(inBody)) {}
+  virtual llvm::Function *CodeGen(IrGenerator &inG) override;
 
-private:
-    up<Expression> mCondition, mThen, mElse;
-    virtual llvm::Value *CodeGen(IrGenerator &inG) override;
+ private:
+  up<Prototype> mPrototype;
+  up<Expression> mBody;
 };
 
-struct For : Expression
-{
-public:
-    For(const std::string_view inVariableName,
-        up<Expression> inStart,
-        up<Expression> inEnd,
-        up<Expression> inStep,
-        up<Expression> inBody)
-        : mVariableName(inVariableName)
-        , mStart(mv(inStart))
-        , mEnd(mv(inEnd))
-        , mStep(mv(inStep))
-        , mBody(mv(inBody))
-    {}
+struct If : Expression {
+ public:
+  If(up<Expression> inCondition, up<Expression> inThen, up<Expression> inElse)
+      : mCondition(mv(inCondition)), mThen(mv(inThen)), mElse(mv(inElse)) {}
 
-    virtual llvm::Value *CodeGen(IrGenerator &inG) override;
-
-private:
-    std::string mVariableName;
-    up<Expression> mStart, mEnd, mStep, mBody;
+ private:
+  up<Expression> mCondition, mThen, mElse;
+  virtual llvm::Value *CodeGen(IrGenerator &inG) override;
 };
 
-} // namespace Expr
+struct For : Expression {
+ public:
+  For(const std::string_view inVariableName, up<Expression> inStart,
+      up<Expression> inEnd, up<Expression> inStep, up<Expression> inBody)
+      : mVariableName(inVariableName),
+        mStart(mv(inStart)),
+        mEnd(mv(inEnd)),
+        mStep(mv(inStep)),
+        mBody(mv(inBody)) {}
+
+  virtual llvm::Value *CodeGen(IrGenerator &inG) override;
+
+ private:
+  std::string mVariableName;
+  up<Expression> mStart, mEnd, mStep, mBody;
+};
+
+}  // namespace Expr

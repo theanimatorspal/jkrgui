@@ -18,10 +18,10 @@ llvm::Value *Expr::Variable::CodeGen(IrGenerator &inG)
 {
     // look this variable up in the function
     // Assume garne ki variable pahile nai katai emit vaisako
-    llvm::Value *V = inG.GetNamedValues()[mName];
-    if (not V)
+    llvm::AllocaInst *A = inG.GetNamedValues()[mName];
+    if (not A)
         inG.LogErrorV("Unknown Variable Name");
-    return V;
+    return inG.GetIRBuilder().CreateLoad(A->getAllocatedType(), A, mName.c_str());
 }
 
 llvm::Value *Expr::Binary::CodeGen(IrGenerator &inG)
@@ -47,8 +47,15 @@ llvm::Value *Expr::Binary::CodeGen(IrGenerator &inG)
         // convert garne aba tyo one bit integer lai float ma, Create Unsigned integer to floating point
         return inG.GetIRBuilder().CreateUIToFP(L, llvm::Type::getDoubleTy(inG.GetContext()), "booltmp");
     default:
-        return inG.LogErrorV("invalid binary operator");
+		// user defined
+        break;
     }
+	
+	llvm::Function *F = inG.GetFunction(std::string("binary") + mOp);
+    assert(F and "Binary Operator not Found");
+        llvm::Value *Operators[2] = {L, R};
+    return inG.GetIRBuilder().CreateCall(F, Operators, "binop");
+
 }
 
 llvm::Value* Expr::Call::CodeGen(IrGenerator& inG)
@@ -111,14 +118,24 @@ llvm::Function* Expr::Function::CodeGen(IrGenerator& inG)
     if (not TheFunction)
         return nullptr;
 
+	// If an operator installing it
+    if (P.IsBinaryOperator())
+        inG.GetBinaryOperatorPrecedenceMap()[P.GetOperatorName()] =
+            P.GetBinaryPrecedence();
+
+
     // aba funciton vitra body chirauna parne vayo
     llvm::BasicBlock* BB = llvm::BasicBlock::Create(inG.GetContext(), "entry", TheFunction);
     inG.GetIRBuilder().SetInsertPoint(BB);
     // record the function arguments in NamedValues map
     inG.GetNamedValues().clear();
     // aba variable : Expression lai accessible hunxa, 
-    for (auto& Arg : TheFunction->args())
-        inG.GetNamedValues()[std::string(Arg.getName())] = &Arg;
+    for (auto &Arg : TheFunction->args()) {
+        llvm::AllocaInst *Alloca =
+            inG.CreateEntryBlockAlloca(TheFunction, std::string(Arg.getName()));
+		inG.GetIRBuilder().CreateStore(&Arg, Alloca);
+        inG.GetNamedValues()[std::string(Arg.getName())] = Alloca;
+    }
 
     // aba body bata code gen garne
     if (llvm::Value *RetVal = mBody->CodeGen (inG))
@@ -229,31 +246,29 @@ llvm::Value *Expr::If::CodeGen(IrGenerator &inG)
 
 llvm::Value *Expr::For::CodeGen(IrGenerator &inG)
 {
+	// Function is like the scope in llvm
+    llvm::Function *parentFunction = inG.GetIRBuilder().GetInsertBlock()->getParent();
+
+	llvm::AllocaInst *Alloca =
+        inG.CreateEntryBlockAlloca(parentFunction, mVariableName);
     // Suru ma Start ko code "start" wala code emit garne
     llvm::Value *StartV = mStart->CodeGen(inG);
-    if (not StartV)
-        return nullptr;
+    if (not StartV) return nullptr;
 
+	// Store the value into the alloca 
+	inG.GetIRBuilder().CreateStore(StartV, Alloca);
     // if else ma jastai parent function line.
     // recursive approach so that parent block chae aaos haat ma
-    llvm::Function *parentFunction = inG.GetIRBuilder().GetInsertBlock()->getParent();
     // aba kaa haalne ho ta tyo line for ---- do wala preheader basic block ho
-    llvm::BasicBlock *PreheaderBasicBlock = inG.GetIRBuilder().GetInsertBlock();
     llvm::BasicBlock *LoopBasicBlock = llvm::BasicBlock::Create(inG.GetContext(),
                                                                 "loop",
                                                                 parentFunction);
     // aba euta explicit fall through insert garne Current block bata loopbasicblock ma
     inG.GetIRBuilder().CreateBr(LoopBasicBlock);
     inG.GetIRBuilder().SetInsertPoint(LoopBasicBlock);
-    // Yo chae I ko laagi Phi Node ho
-    llvm::PHINode *Variable = inG.GetIRBuilder().CreatePHI(llvm::Type::getDoubleTy(inG.GetContext()),
-                                                           2,
-                                                           mVariableName);
-    Variable->addIncoming(StartV, PreheaderBasicBlock);
-    // Loop vitra chae variable is defined equal to the phi node.
-    // aba existing variable lai shadow garxa vane restore garnu parxa, tei vaera save garne
-    llvm::Value *OldValue = inG.GetNamedValues()[mVariableName];
-    inG.GetNamedValues()[mVariableName] = Variable; // symbol table ma rakhne i = 1 haalda
+
+	llvm::AllocaInst *OldValue = inG.GetNamedValues()[mVariableName];
+    inG.GetNamedValues()[mVariableName] = Alloca; // symbol table ma rakhne i = 1 haalda
 
     // aba loop ko body lai emit garne. Elle chae aru expresssion jasari nai basic block lai change
     // garna sakxa, Body le nikaleko value lai hami ignore garxam.
@@ -270,9 +285,6 @@ llvm::Value *Expr::For::CodeGen(IrGenerator &inG)
         StepValue = llvm::ConstantFP::get(inG.GetContext(), llvm::APFloat(1.0));
     }
 
-    // Variable vaneko phi ho
-    llvm::Value *NextVariable = inG.GetIRBuilder().CreateFAdd(Variable, StepValue, "nextvar");
-
     // End condition Compute Garne
     llvm::Value *EndCondition = mEnd->CodeGen(inG);
     if (not EndCondition)
@@ -280,12 +292,17 @@ llvm::Value *Expr::For::CodeGen(IrGenerator &inG)
 
     // aba addition lai bool ma convert garne
     // Equal xaina vane true
+    llvm::Value *CurrentVariable = inG.GetIRBuilder().CreateLoad(
+        Alloca->getAllocatedType(), Alloca, mVariableName.c_str());
+    llvm::Value *NextVar =
+        inG.GetIRBuilder().CreateFAdd(CurrentVariable, StepValue, "nextvar");
+    inG.GetIRBuilder().CreateStore(NextVar, Alloca);
+
     EndCondition = inG.GetIRBuilder().CreateFCmpONE(EndCondition,
                                                     llvm::ConstantFP::get(inG.GetContext(),
                                                                           llvm::APFloat(0.0)),
                                                     "loopcond");
 
-    llvm::BasicBlock *LoopEndBasicBlock = inG.GetIRBuilder().GetInsertBlock();
     llvm::BasicBlock *AfterBasicBlock = llvm::BasicBlock::Create(inG.GetContext(),
                                                                  "afterloop",
                                                                  parentFunction);
@@ -294,7 +311,6 @@ llvm::Value *Expr::For::CodeGen(IrGenerator &inG)
 
     // Specifies that the created instructions should be appended to the end of the basic block
     inG.GetIRBuilder().SetInsertPoint(AfterBasicBlock);
-    Variable->addIncoming(NextVariable, LoopEndBasicBlock);
 
     // restore garne tyo maathi ko shadow vako variable lai
     if (OldValue)
@@ -303,4 +319,15 @@ llvm::Value *Expr::For::CodeGen(IrGenerator &inG)
         inG.GetNamedValues().erase(mVariableName);
 
     return llvm::Constant::getNullValue(llvm::Type::getDoubleTy(inG.GetContext()));
+}
+
+llvm::Value *Expr::Unary::CodeGen(IrGenerator &inG) {
+    llvm::Value *OperandV = mOperand->CodeGen(inG);
+    if (not OperandV)
+		return nullptr; 
+
+	llvm::Function *theFunction = inG.GetFunction(std::string("unary") + mOp);
+    if (not theFunction) return inG.LogErrorV("Unknown unary operator");
+
+	return inG.GetIRBuilder().CreateCall(theFunction, OperandV, "unop");
 }

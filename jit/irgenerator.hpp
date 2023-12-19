@@ -53,7 +53,7 @@ protected:
     up<llvm::Module> mLLVMModule;
     // This map keeps track of which values are defined in current scope and what their LLVM representation is. (In other words,
     // it is a symbol table for the code).
-    std::map<std::string, llvm::Value *> mNamedValues;
+    std::map<std::string, llvm::AllocaInst *> mNamedValues;
     std::map<std::string, up<Expr::Prototype>> mFunctionPrototypes;
 
     /*
@@ -93,7 +93,7 @@ public:
     GETTER &GetContext() { return *mLLVMContext; }
     GETTER &GetIRBuilder() { return *mBuilder; }
     GETTER &GetModule() { return *mLLVMModule; }
-    std::map<std::string, llvm::Value *> &GetNamedValues() { return mNamedValues; };
+    GETTER &GetNamedValues() { return mNamedValues; };
     GETTER &GetFunctionPassManager() { return *mFunctionPassManager; }
     GETTER &GetFunctionAnalysisManager() { return *mFunctionAnalysisManager; }
     GETTER &GetFunctionPrototypeMap() { return mFunctionPrototypes; }
@@ -103,4 +103,19 @@ public:
         Parser::LogError(inString);
         return nullptr;
     }
+
+	// Create block entry alloca - create an alloca instruction in the entry of the function
+	// used for mutable variables etc
+
+	// SAPAI KURA HARU YO LANGUAGE MAA DOUBLE HO SO NO NEED TO PASS A TYPE ONTO 
+	// THIS FUNCTION, PAXI LuaBirali Banauda kheri haalnu parxa you fucking piece of shit
+	llvm::AllocaInst *CreateEntryBlockAlloca (llvm::Function *inFunction , const std::string_view inName)
+	{
+		// Creates an IR Builder object that is pointing at the first instruction (.begin()) of the entry
+		// block . It then creates an alloca with the expected name and returns it.
+        llvm::IRBuilder<> TemporaryBuilder(&inFunction->getEntryBlock(),
+                                           inFunction->getEntryBlock().begin());
+        return TemporaryBuilder.CreateAlloca(
+            llvm::Type::getDoubleTy(this->GetContext()), nullptr, inName);
+	}
 };
