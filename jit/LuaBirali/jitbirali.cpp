@@ -79,7 +79,7 @@ void Birali::Jit::HandleTopLevelExpression() {
 }
 
 void Birali::Jit::MainLoop() {
-    Parser::SetShouldIgnoreNewLines(false);
+    GetNextToken();
     while (true) {
       switch (Parser::GetCurrentToken()) {
       case Token::Eof:

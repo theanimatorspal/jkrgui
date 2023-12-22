@@ -4,7 +4,7 @@
 namespace Birali {
 class IrBirali;
 class AnonymousExpressionNameGenerator {
- public:
+public:
   std::string New() {
     return std::string(anon_name).append(std::to_string(mCurrent++));
   }
@@ -15,7 +15,7 @@ class AnonymousExpressionNameGenerator {
     return inView.substr(0, anon_name.size()) == anon_name;
   }
 
- private:
+private:
   static constexpr std::string_view anon_name = "__anon_expression__";
   int mCurrent = 0;
 };
@@ -34,6 +34,7 @@ enum class Type {
   Unknown
 };
 
+
 struct Expression {
   Expression(Type inType) : mType(inType) {}
   virtual ~Expression() = default;
@@ -46,7 +47,7 @@ struct Number : public Expression {
       : Expression(inType), mNumberValue(inValue) {}
   virtual llvm::Value *CodeGen(IrBirali &inG) override;
 
- private:
+private:
   [[maybe_unused]] double mNumberValue;
 };
 
@@ -54,7 +55,7 @@ struct StringLiteral : public Expression {
   StringLiteral(Type inType, s inValue) : Expression(inType), mValue(inValue) {}
   virtual llvm::Value *CodeGen(IrBirali &inG) override;
 
- private:
+private:
   [[maybe_unused]] s mValue;
 };
 
@@ -63,7 +64,7 @@ struct Variable : public Expression {
   sv GetName() const { return mName; }
   virtual llvm::Value *CodeGen(IrBirali &inG) override;
 
- private:
+private:
   s mName;
 };
 
@@ -73,19 +74,19 @@ struct Binary : public Expression {
 
   virtual llvm::Value *CodeGen(IrBirali &inG) override;
 
- private:
+private:
   char mOp;
   up<Expression> mLHS, mRHS;
 };
 
 struct LocalVariable : public Expression {
-  LocalVariable(Type inType, sv inVarNames, up<Expression> inValue)
-      : Expression(inType), mName(inVarNames), mValue(mv(inValue)) {}
+  LocalVariable(Type inType, v<p<s, up<Expression>>> inVarNames, up<Expression> inBody)
+      : Expression(inType), mVarNames(mv(inVarNames)), mBody(mv(inBody)) {}
   virtual llvm::Value *CodeGen(IrBirali &inG) override;
 
- private:
-  s mName;
-  up<Expression> mValue;
+private:
+  v<p<s, up<Expression>>> mVarNames;
+  up<Expression> mBody;
 };
 
 struct Call : Expression {
@@ -93,7 +94,7 @@ struct Call : Expression {
       : Expression(inType), mCallee(inCallee), mArgs(mv(Args)) {}
   virtual llvm::Value *CodeGen(IrBirali &inG) override;
 
- private:
+private:
   s mCallee;
   v<up<Expression>> mArgs;
 };
@@ -104,7 +105,7 @@ struct Prototype : Expression {
   GETTER GetName() const { return mName; }
   virtual llvm::Function *CodeGen(IrBirali &inG) override;
 
- private:
+private:
   s mName;
   v<s> mArgs;
 };
@@ -115,35 +116,32 @@ struct Return : Expression {
 
   virtual llvm::Value *CodeGen(IrBirali &inG) override;
 
- private:
+private:
   up<Expression> mValue;
 };
 
 struct Function : Expression {
   Function(Type inReturnType, up<Prototype> inPrototype, up<Expression> inBody)
-      : Expression(inReturnType),
-        mPrototype(mv(inPrototype)),
+      : Expression(inReturnType), mPrototype(mv(inPrototype)),
         mBody(mv(inBody)) {}
   virtual llvm::Function *CodeGen(IrBirali &inG) override;
 
- private:
+private:
   up<Prototype> mPrototype;
   up<Expression> mBody;
 };
 
 struct If : Expression {
- public:
+public:
   If(up<Expression> inCondition, up<Expression> inThen, up<Expression> inElse)
-      : Expression(Type::Unknown),
-        mCondition(mv(inCondition)),
-        mThen(mv(inThen)),
-        mElse(mv(inElse)) {}
+      : Expression(Type::Unknown), mCondition(mv(inCondition)),
+        mThen(mv(inThen)), mElse(mv(inElse)) {}
 
   virtual llvm::Value *CodeGen(IrBirali &inG) override;
 
- private:
+private:
   up<Expression> mCondition, mThen, mElse;
 };
 
-}  // namespace Ast
-}  // namespace Birali
+} // namespace Ast
+} // namespace Birali

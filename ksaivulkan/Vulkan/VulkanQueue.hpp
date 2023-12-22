@@ -82,9 +82,7 @@ namespace ksai {
         const VulkanSemaphore &inRenderFinishedSemaphore,
         uint32_t inImageIndex) const
     {
-        auto PresentInfoKHR = vk::PresentInfoKHR({}, inSwapChain.GetSwapChainHandle(), inImageIndex)
-                                  .setWaitSemaphoreCount(1)
-                                  .setWaitSemaphores(inRenderFinishedSemaphore.GetSemaphoreHandle());
+	    auto PresentInfoKHR = vk::PresentInfoKHR (inRenderFinishedSemaphore.GetSemaphoreHandle ( ) , inSwapChain.GetSwapChainHandle ( ) , inImageIndex);
         vk::Result Result = mQueue.presentKHR(PresentInfoKHR);
         return static_cast<uint32_t>(Result);
     }

@@ -20,7 +20,7 @@ LuaBirali/irbirali.hpp
 LuaBirali/irbirali.cpp
 LuaBirali/parserbirali.cpp
 LuaBirali/main.cpp
- "LuaBirali/jitbirali.cpp")
+LuaBirali/jitbirali.cpp)
 
 CONFIGURE_LLVM(jit)
 configure_target(jit)

@@ -30,7 +30,7 @@ class Parser : public Birali::Lexer {
   up<Ast::Expression> ParsePrimary();
   up<Ast::Expression> ParseBinaryOperationRHS(int inExpressionPrecedence,
                                               up<Ast::Expression> inLHS);
-  up<Ast::LocalVariable> ParseLocalExpression();
+  up<Ast::Expression> ParseLocalExpression();
   up<Ast::Prototype> ParsePrototype();
   up<Ast::Function> ParseFunctionDefinition();
   up<Ast::Return> ParseReturnExpression();

@@ -9,7 +9,7 @@ namespace ksai {
 	public:
 		VulkanFence(const VulkanDevice& inDevice);
 		~VulkanFence();
-		void Wait();
+		vk::Result Wait();
 		void Reset();
 		inline constexpr const auto& GetFenceHandle() const { return mFence; }
 	private:

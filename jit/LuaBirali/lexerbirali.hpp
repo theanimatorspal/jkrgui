@@ -11,26 +11,8 @@ class Lexer {
   GETTER GetTokenizedIdentifier() const { return mTokenizedIdentifier; }
   GETTER GetTokenizedStringLiteral() const { return mTokenizedStringLiteral; }
   ccode GetToken();
-  void SetShouldIgnoreNewLines(bool inBool) { mIgnoreNewLines = inBool; }
-  GETTER IsNewLinesIgnored() const { return mIgnoreNewLines; }
-
-  inline bool IsSpaceExt (ccode inC) {
-    if (mIgnoreNewLines)
-      return IsSpace(inC);
-    else {
-      bool End = IsSpaceAndNotNewLine(inC);
-      if (inC == '\n') {
-        char c = mCodeStream.peek();
-        while (mCodeStream.peek() == '\n') {
-          c = mCodeStream.get();
-        }
-      }
-      return End;
-    }
-  }
 
  private:
-  bool mIgnoreNewLines = true;
   uint32_t mLineLexed = 0;
   std::istream &mCodeStream;
   s mTokenizedIdentifier;

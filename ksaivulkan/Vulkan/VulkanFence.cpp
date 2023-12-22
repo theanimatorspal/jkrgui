@@ -4,11 +4,11 @@ using namespace ksai;
 #undef max
 #endif
 #include <limits>
+#include <iostream>
 
 VulkanFence::VulkanFence(const VulkanDevice& inDevice) : mDevice(inDevice.GetDeviceHandle())
 {
-	auto FenceCreateInfo = vk::FenceCreateInfo(vk::FenceCreateFlags())
-		.setFlags(vk::FenceCreateFlagBits::eSignaled);
+	auto FenceCreateInfo = vk::FenceCreateInfo (vk::FenceCreateFlagBits::eSignaled);
 	mFence = mDevice.createFence(FenceCreateInfo);
 }
 
@@ -17,9 +17,9 @@ VulkanFence::~VulkanFence()
 	mDevice.destroyFence(mFence);
 }
 
-void VulkanFence::Wait()
+vk::Result VulkanFence::Wait()
 {
-	vk::Result Result =  mDevice.waitForFences(mFence, true, std::numeric_limits<uint32_t>::max());
+	return mDevice.waitForFences (mFence , true , std::numeric_limits<uint32_t>::max());
 }
 
 void VulkanFence::Reset()

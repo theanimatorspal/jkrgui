@@ -26,8 +26,7 @@ void VulkanQueue<QueueContext::Graphics>::Submit<SubmitContext::ColorAttachment>
                           WaitFlags,
                           inCommandBuffer.GetCommandBufferHandle(),
                           inRenderFinishedSemaphore.GetSemaphoreHandle());
-    mQueue.submit(info);
-    mQueue.waitIdle();
+    mQueue.submit(info, inFlightFence.GetFenceHandle());
 }
 
 /* Single Time*/
