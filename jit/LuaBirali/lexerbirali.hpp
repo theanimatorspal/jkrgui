@@ -25,6 +25,7 @@ class Lexer {
     Local = INT_MIN,
     Eof,
     End,
+    SemiColon,
 
     Function,
     StringConcat,

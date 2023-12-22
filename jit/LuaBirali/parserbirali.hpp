@@ -6,42 +6,86 @@
 
 namespace Birali {
 class Parser : public Birali::Lexer {
- public:
-  Parser(std::istream &inStream);
-  ccode GetNextToken();
-  ccode GetCurrentToken() const { return mCurrentToken; }
-  int GetTokenPrecedence();
-  std::stringstream mSASTree;
-  void PrintAST() { std::cout << mSASTree.rdbuf() << "\n"; }
+public:
+    Parser(std::istream& inStream)
+        : Birali::Lexer(inStream)
+    {
+        mBinaryOperatorPrecedence['='] = 2;
+        mBinaryOperatorPrecedence['<'] = 10;
+        mBinaryOperatorPrecedence['+'] = 20;
+        mBinaryOperatorPrecedence['-'] = 20;
+        mBinaryOperatorPrecedence['*'] = 40;
+        mBinaryOperatorPrecedence['/'] = 40;
+        GetNextToken();
+    }
+    ccode GetNextToken()
+    {
+        mCurrentToken = (Token)Lexer::GetToken();
+        while (mCurrentToken >= 0 && std::isspace(mCurrentToken)) {
+            mCurrentToken = (Token)Lexer::GetToken();
+        }
+        return mCurrentToken;
+    }
+    ccode GetCurrentToken() const { return mCurrentToken; }
+    int GetTokenPrecedence();
+    std::stringstream mT;
+    void PrintAST() { std::cout << mT.rdbuf() << "\n"; }
 
- public:
-  template <typename T = Ast::Expression>
-  up<T> LogError(const sv inString) {
-    std::cout << "Error:" << inString << " at ";
-    std::cout << "Line:" << GetLineLexed() << '\n';
-    return nullptr;
-  }
+public:
+    template <typename T = Ast::Expression>
+    up<T> LogError(const sv inString)
+    {
+        std::cout << "Error:" << inString << " at ";
+        std::cout << "Line:" << GetLineLexed() << '\n';
+        return nullptr;
+    }
 
-  up<Ast::Number> ParseNumberExpression();
-  up<Ast::StringLiteral> ParseStringLiteralExpression();
-  up<Ast::Expression> ParseExpression();
-  up<Ast::Expression> ParseParentExpression();
-  up<Ast::Expression> ParseIdentifierExpression();
-  up<Ast::Expression> ParsePrimary();
-  up<Ast::Expression> ParseBinaryOperationRHS(int inExpressionPrecedence,
-                                              up<Ast::Expression> inLHS);
-  up<Ast::Expression> ParseLocalExpression();
-  up<Ast::Prototype> ParsePrototype();
-  up<Ast::Function> ParseFunctionDefinition();
-  up<Ast::Return> ParseReturnExpression();
-  up<Ast::Function> ParseTopLevelExpression();
+    /* Primary Parsers */
+    up<Ast::Expression> ParseNumberExpression();
+    up<Ast::Expression> ParseStringLiteralExpression();
+    up<Ast::Expression> ParseIdentifierExpression();
+    up<Ast::Expression> ParseParentExpression();
+    up<Ast::Expression> ParsePrimary()
+    {
+        switch (mCurrentToken) {
+        default:
+            return LogError("Unknown Item When Expecting an expression");
+        case Token::Number:
+            return ParseNumberExpression();
+        case StringLiteral:
+            return ParseStringLiteralExpression();
+        case Token::Identifier:
+            return ParseIdentifierExpression();
+        case '(':
+            return ParseParentExpression();
+        }
+    }
 
- public:
-  AnonymousExpressionNameGenerator mAnonymousNameGenerator;
+    /* Expression Parsers */
+    void NextExpression()
+    {
+        mT << "\n";
+        GetNextToken();
+    }
+    up<Ast::Expression> ParseBinaryOperationRHS(int inExpressionPrecedence,
+                                                up<Ast::Expression> inLHS);
 
- private:
-  map<char, int> mBinaryOperatorPrecedence;
-  Token mCurrentToken;
+    up<Ast::Expression> ParseExpression()
+    {
+        mT << "\nExpression:";
+        auto LHS = ParsePrimary();
+        if (not LHS) {
+            return nullptr;
+        }
+        return ParseBinaryOperationRHS(0, mv(LHS));
+    }
+
+public:
+    AnonymousExpressionNameGenerator mAnonymousNameGenerator;
+
+private:
+    map<char, int> mBinaryOperatorPrecedence;
+    Token mCurrentToken;
 };
 
-}  // namespace Birali
+} // namespace Birali
