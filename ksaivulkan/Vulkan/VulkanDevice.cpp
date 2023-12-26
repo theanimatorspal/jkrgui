@@ -1,32 +1,33 @@
 #include "VulkanDevice.hpp"
 #include "vulkan/vulkan_handles.hpp"
+#include <iostream>
 
 using namespace ksai;
 
-VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice, const VulkanQueueContext & inQueueContext) : mPhysicalDevice(inPhysicalDevice.GetPhysicalDeviceHandle())
+VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice, const VulkanQueueContext& inQueueContext)
+    : mPhysicalDevice(inPhysicalDevice.GetPhysicalDeviceHandle())
 {
-	float QueuePriority = 0.0f;
-	vk::DeviceQueueCreateInfo deviceQueueCreateInfo(vk::DeviceQueueCreateFlags(), static_cast<uint32_t>(inQueueContext.GetGraphicsQueueFamilyIndex()), 1, &QueuePriority);
+    float QueuePriority = 0.0f;
+    vk::DeviceQueueCreateInfo deviceQueueCreateInfo(vk::DeviceQueueCreateFlags(), static_cast<uint32_t>(inQueueContext.GetGraphicsQueueFamilyIndex()), 1, &QueuePriority);
 
-	std::vector<vk::ExtensionProperties> extensionsProperties = mPhysicalDevice.enumerateDeviceExtensionProperties();
-	std::vector<vk::LayerProperties> layerProperties = mPhysicalDevice.enumerateDeviceLayerProperties();
-	std::vector<char const*> deviceLayerNames;
-	std::vector<char const*> deviceExtensionNames;
-	deviceExtensionNames.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+    std::vector<vk::ExtensionProperties> extensionsProperties = mPhysicalDevice.enumerateDeviceExtensionProperties();
+    std::vector<vk::LayerProperties> layerProperties = mPhysicalDevice.enumerateDeviceLayerProperties();
+    std::vector<char const*> deviceLayerNames;
+    std::vector<char const*> deviceExtensionNames;
+    deviceExtensionNames.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 #ifdef __APPLE__
-	mInstanceExtensionNames.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
+    mInstanceExtensionNames.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
 #endif
 
-	vk::PhysicalDeviceFeatures Features;
-	Features.fillModeNonSolid = VK_TRUE;
+    vk::PhysicalDeviceFeatures Features;
+    Features.fillModeNonSolid = VK_TRUE;
 
-	auto deviceCreateInfo = vk::DeviceCreateInfo(
-		vk::DeviceCreateFlags(),
-		deviceQueueCreateInfo,
-		{},
-		deviceExtensionNames,
-		&Features
-	);
+    auto deviceCreateInfo = vk::DeviceCreateInfo(
+        vk::DeviceCreateFlags(),
+        deviceQueueCreateInfo,
+        {},
+        deviceExtensionNames,
+        &Features);
 
 #ifdef USE_VARIABLE_DESCRIPTOR_INDEXING_FEATURE
 #ifdef __APPLE__
@@ -49,11 +50,10 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice, const V
     DescriptorIndexingFeatures.descriptorBindingUpdateUnusedWhilePending = VK_TRUE;
     DescriptorIndexingFeatures.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
 
-	vk::StructureChain< vk::DeviceCreateInfo, vk::PhysicalDeviceDescriptorIndexingFeatures> createInfo(
-		deviceCreateInfo, DescriptorIndexingFeatures
-	);
+    vk::StructureChain<vk::DeviceCreateInfo, vk::PhysicalDeviceDescriptorIndexingFeatures> createInfo(
+        deviceCreateInfo, DescriptorIndexingFeatures);
 
-	mDevice = mPhysicalDevice.createDevice(createInfo.get<vk::DeviceCreateInfo>());
+    mDevice = mPhysicalDevice.createDevice(createInfo.get<vk::DeviceCreateInfo>());
 #endif
 #else
     mDevice = mPhysicalDevice.createDevice(deviceCreateInfo);
@@ -62,11 +62,10 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice, const V
 
 VulkanDevice::~VulkanDevice()
 {
-	mDevice.destroy();
+    mDevice.destroy();
 }
 
 void VulkanDevice::Wait() const
 {
-	mDevice.waitIdle();
+    mDevice.waitIdle();
 }
-

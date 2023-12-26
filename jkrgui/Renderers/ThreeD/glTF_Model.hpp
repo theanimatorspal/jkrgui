@@ -12,8 +12,7 @@ namespace tg = tinygltf;
 
 namespace Jkr::Renderer::_3D {
 
-class glTF_Model
-{
+class glTF_Model {
     using ImageType = Jkr::PainterParameter<PainterParameterContext::UniformImage>;
     std::vector<uint32_t> mIndexBuffer;
     std::vector<Vertex3D> mVertexBuffer;
@@ -27,21 +26,21 @@ class glTF_Model
     }
 
 public:
-    glTF_Model(const Instance &inInstance, const std::string_view inFilePath)
+    glTF_Model(const Instance& inInstance, const std::string_view inFilePath)
         : mInstance(inInstance)
     {
         tinygltf::Model glTFInput;
         tinygltf::TinyGLTF gltfContext;
         std::string error, warning;
         bool file_loaded = gltfContext.LoadASCIIFromFile(&glTFInput,
-                                                         &error,
-                                                         &warning,
-                                                         std::string(inFilePath));
+            &error,
+            &warning,
+            std::string(inFilePath));
         if (file_loaded) {
             this->LoadImages(glTFInput);
             this->LoadMaterials(glTFInput);
             this->LoadTextures(glTFInput);
-            const tinygltf::Scene &scene = glTFInput.scenes[0];
+            const tinygltf::Scene& scene = glTFInput.scenes[0];
             for (size_t i = 0; i < scene.nodes.size(); i++) {
                 const tinygltf::Node node = glTFInput.nodes[scene.nodes[i]];
                 this->LoadNode(node, glTFInput, nullptr, mIndexBuffer, mVertexBuffer);
@@ -49,8 +48,10 @@ public:
         }
     }
 
-    GETTER &GetVerticesRef() { return mVertexBuffer; }
-    GETTER &GetIndicesRef() { return mIndexBuffer; }
+    GETTER& GetVerticesRef() { return mVertexBuffer; }
+    GETTER& GetIndicesRef() { return mIndexBuffer; }
+    GETTER& GetVertices() const { return mVertexBuffer; }
+    GETTER& GetIndices() const { return mIndexBuffer; }
 
 protected:
     struct Primitive {
@@ -59,8 +60,7 @@ protected:
         int32_t mMaterialIndex;
     };
 
-    struct PushConstant
-    {
+    struct PushConstant {
         glm::mat4 mModelMatrix;
     };
 
@@ -88,24 +88,24 @@ protected:
     std::vector<Material> mMaterials;
     std::vector<Up<Node>> mNodes;
 
-    void LoadImages(tinygltf::Model &input);
-    void LoadTextures(tinygltf::Model &input);
-    void LoadMaterials(tinygltf::Model &input);
-    void LoadNode(const tinygltf::Node &inputNode,
-                  const tinygltf::Model &input,
-                  glTF_Model::Node *inParent,
-                  std::vector<uint32_t> &indexBuffer,
-                  std::vector<Vertex3D> &vertexBuffer);
-    void DrawNode(VulkanCommandBuffer &inCommandBuffer,
-                  VulkanPipelineLayoutBase &inPipelineLayout,
-                  glTF_Model::Node *inNode);
+    void LoadImages(tinygltf::Model& input);
+    void LoadTextures(tinygltf::Model& input);
+    void LoadMaterials(tinygltf::Model& input);
+    void LoadNode(const tinygltf::Node& inputNode,
+        const tinygltf::Model& input,
+        glTF_Model::Node* inParent,
+        std::vector<uint32_t>& indexBuffer,
+        std::vector<Vertex3D>& vertexBuffer);
+    void DrawNode(VulkanCommandBuffer& inCommandBuffer,
+        VulkanPipelineLayoutBase& inPipelineLayout,
+        glTF_Model::Node* inNode);
 
 private:
-    const Instance &mInstance;
-    struct Image
-    {
+    const Instance& mInstance;
+    struct Image {
         Up<ImageType> mTextureImage;
     };
     std::vector<Image> mImages;
 };
+
 } // namespace Jkr::Renderer::_3D

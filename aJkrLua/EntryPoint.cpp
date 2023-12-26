@@ -13,12 +13,28 @@
 #include <Windows.h>
 #endif
 
+#define SOL_PRINT_ERRORS 1
 #define SOL_ALL_SAFETIES_ON 1
 
 #include <Vendor/sol/sol.hpp>
 #include <Window.hpp>
 
-void CreateSDLEventBindings(sol::state &lua)
+int my_exception_handler(lua_State* L, sol::optional<const std::exception&> maybe_execption, sol::string_view description)
+{
+    std::cout << "An Exception has occured in the function here is what it says: ";
+    if (maybe_execption) {
+        std::cout << "(Straight from the exception) ";
+        const std::exception& ex = *maybe_execption;
+        std::cout << ex.what() << std::endl;
+    } else {
+        std::cout << "(From the Descriptor Parameter) ";
+        std::cout.write(description.data(), static_cast<std::streamsize>(description.size()));
+        std::cout << std::endl;
+    }
+    return sol::stack::push(L, description);
+}
+
+void CreateSDLEventBindings(sol::state& lua)
 {
     lua["key"] = lua.create_table_with("SDLK_UNKNOWN", SDLK_UNKNOWN);
     lua["key"]["SDLK_RETURN"] = SDLK_RETURN;
@@ -382,50 +398,49 @@ void CreateGLMBindings(sol::state& lua)
     );
 
     auto uvec2_multiply_overloads
-        = sol::overload([](const glm::uvec2 &v1, const glm::uvec2 &v2) { return v1 * v2; },
-                        [](const glm::uvec2 &v1, uint32_t value) { return v1 * value; },
-                        [](uint32_t value, const glm::uvec2 &v1) { return v1 * value; });
+        = sol::overload([](const glm::uvec2& v1, const glm::uvec2& v2) { return v1 * v2; },
+            [](const glm::uvec2& v1, uint32_t value) { return v1 * value; },
+            [](uint32_t value, const glm::uvec2& v1) { return v1 * value; });
 
     auto uvec2_divide_overloads
-        = sol::overload([](const glm::uvec2 &v1, const glm::uvec2 &v2) { return v1 / v2; },
-                        [](const glm::uvec2 &v1, uint32_t value) { return v1 / value; },
-                        [](uint32_t value, const glm::uvec2 &v1) { return v1 / value; });
+        = sol::overload([](const glm::uvec2& v1, const glm::uvec2& v2) { return v1 / v2; },
+            [](const glm::uvec2& v1, uint32_t value) { return v1 / value; },
+            [](uint32_t value, const glm::uvec2& v1) { return v1 / value; });
 
     auto uvec2_addition_overloads
-        = sol::overload([](const glm::uvec2 &v1, const glm::uvec2 &v2) { return v1 + v2; },
-                        [](const glm::uvec2 &v1, uint32_t value) { return v1 + value; },
-                        [](uint32_t value, const glm::uvec2 &v1) { return v1 + value; });
+        = sol::overload([](const glm::uvec2& v1, const glm::uvec2& v2) { return v1 + v2; },
+            [](const glm::uvec2& v1, uint32_t value) { return v1 + value; },
+            [](uint32_t value, const glm::uvec2& v1) { return v1 + value; });
 
     auto uvec2_subtraction_overloads
-        = sol::overload([](const glm::uvec2 &v1, const glm::uvec2 &v2) { return v1 - v2; },
-                        [](const glm::uvec2 &v1, uint32_t value) { return v1 - value; },
-                        [](uint32_t value, const glm::uvec2 &v1) { return v1 - value; });
+        = sol::overload([](const glm::uvec2& v1, const glm::uvec2& v2) { return v1 - v2; },
+            [](const glm::uvec2& v1, uint32_t value) { return v1 - value; },
+            [](uint32_t value, const glm::uvec2& v1) { return v1 - value; });
 
     lua.new_usertype<glm::uvec2>("uvec2",
-                                 sol::call_constructor,
-                                 sol::constructors<glm::uvec2(uint32_t),
-                                                   glm::uvec2(uint32_t, uint32_t),
-                                                   glm::uvec2(float, float)>(),
-                                 "x",
-                                 &glm::uvec2::x,
-                                 "y",
-                                 &glm::uvec2::y,
-                                 sol::meta_function::multiplication,
-                                 uvec2_multiply_overloads,
-                                 sol::meta_function::division,
-                                 uvec2_divide_overloads,
-                                 sol::meta_function::addition,
-                                 uvec2_addition_overloads,
-                                 sol::meta_function::subtraction,
-                                 uvec2_subtraction_overloads
+        sol::call_constructor,
+        sol::constructors<glm::uvec2(uint32_t),
+            glm::uvec2(uint32_t, uint32_t),
+            glm::uvec2(float, float)>(),
+        "x",
+        &glm::uvec2::x,
+        "y",
+        &glm::uvec2::y,
+        sol::meta_function::multiplication,
+        uvec2_multiply_overloads,
+        sol::meta_function::division,
+        uvec2_divide_overloads,
+        sol::meta_function::addition,
+        uvec2_addition_overloads,
+        sol::meta_function::subtraction,
+        uvec2_subtraction_overloads
 
     );
 
     lua.new_usertype<glm::mat4>(
         "mat4",
         sol::call_constructor,
-        sol::constructors<glm::mat4(float)>()
-    );
+        sol::constructors<glm::mat4(float)>());
 }
 
 void BindMathFunctions(sol::state& lua)
@@ -434,12 +449,12 @@ void BindMathFunctions(sol::state& lua)
     lua.set_function("lerp", [](float a, float b, float t) { return std::lerp(a, b, t); });
     lua.set_function("clamp", sol::overload([](float value, float min, float max) { return std::clamp(value, min, max); }, [](double value, double min, double max) { return std::clamp(value, min, max); }, [](int value, int min, int max) { return std::clamp(value, min, max); }));
     lua.set_function("translate",
-                     sol::overload([](glm::mat4 inmatrix, glm::vec3 invector) -> glm::mat4 {
-                         return glm::translate(inmatrix, invector);
-                     }));
+        sol::overload([](glm::mat4 inmatrix, glm::vec3 invector) -> glm::mat4 {
+            return glm::translate(inmatrix, invector);
+        }));
     lua.set_function("scale", sol::overload([](glm::mat4 inmatrix, glm::vec3 invector) -> glm::mat4 {
-                         return glm::translate(inmatrix, invector);
-                     }));
+        return glm::translate(inmatrix, invector);
+    }));
     lua.set_function("get_identity_matrix", []() -> glm::mat4 {
         {};
         return glm::identity<glm::mat4>();
@@ -467,17 +482,17 @@ float toFloat(string_view inString)
 
 const string gHeight = to_string(1080 / 2);
 const string gWidth = to_string(1920 / 2);
-unordered_map<string_view, string_view> gConfiguration{{"-title", "JkrGUI"},
-                                                       {"-height", gHeight},
-                                                       {"-width", gWidth},
-                                                       {"-store", "true"},
-                                                       {"-bgr", "1.0"},
-                                                       {"-bgg", "1.0"},
-                                                       {"-bgb", "1.0"},
-                                                       {"-bga", "1.0"},
-                                                       {"-var_des_size", "5000"},
-                                                       {"-cache_folder", "cache/"},
-                                                       {"-main_file", "main.lua"}};
+unordered_map<string_view, string_view> gConfiguration { { "-title", "JkrGUI" },
+    { "-height", gHeight },
+    { "-width", gWidth },
+    { "-store", "true" },
+    { "-bgr", "1.0" },
+    { "-bgg", "1.0" },
+    { "-bgb", "1.0" },
+    { "-bga", "1.0" },
+    { "-var_des_size", "5000" },
+    { "-cache_folder", "cache/" },
+    { "-main_file", "main.lua" } };
 
 auto FillConfig(const vector<string_view>& inArguments)
 {
@@ -501,7 +516,7 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
     auto VarDesCount = stoi(string(cf["-var_des_size"]));
     if (toBool(cf["-store"])) {
         rr.Load(i, VarDesCount);
-        //rr.Store(i);
+        // rr.Store(i);
     } else {
         rr.Load(i, VarDesCount);
     }
@@ -509,6 +524,7 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
 
     sol::state l;
     l.open_libraries();
+    l.set_exception_handler(&my_exception_handler);
     CreateGLMBindings(l);
     BindMathFunctions(l);
     CreateSDLEventBindings(l);
@@ -518,7 +534,7 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
         return vec2(d.first, d.second);
     });
 
-    l.new_usertype<_2d>("renderer", "get", [&]() -> _2d & {
+    l.new_usertype<_2d>("renderer", "get", [&]() -> _2d& {
         std::cout << "return renderer" << std::endl;
         return td;
     });
@@ -526,7 +542,7 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
         "event_manager",
 
         "get",
-        [&]() -> EventManager & {
+        [&]() -> EventManager& {
             std::cout << "return event manager" << std::endl;
             return em;
         },
@@ -611,26 +627,26 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
         sol::call_constructor,
         [](vec2 xy, vec2 wh) {
             std::cout << "new  bound rect" << std::endl;
-            return Jkr::BoundRect2D{.mXy = xy, .mWh = wh};
+            return Jkr::BoundRect2D { .mXy = xy, .mWh = wh };
         },
         "is_mouse_within",
         &Jkr::BoundRect2D::IsPointWithin);
 
     l.set_function("print_bound_rect2d",
-                   [](Jkr::BoundRect2D inb) { std::cout << "vec(" << inb.mXy.x << std::endl; });
+        [](Jkr::BoundRect2D inb) { std::cout << "vec(" << inb.mXy.x << std::endl; });
 
     l["shapes"] = l.create_table_with("rectangle",
-                                      Jkr::Shapes::Rectangle,
-                                      "bezier2_8",
-                                      Jkr::Shapes::Bezier2_8,
-                                      "circle",
-                                      Jkr::Shapes::Circle);
+        Jkr::Shapes::Rectangle,
+        "bezier2_8",
+        Jkr::Shapes::Bezier2_8,
+        "circle",
+        Jkr::Shapes::Circle);
 
     l.new_usertype<Jkr::Generator>("generator",
-                                   sol::call_constructor,
-                                   sol::factories([](Jkr::Shapes shape, glm::vec2 wh) {
-                                       return Jkr::Generator(shape, glm::uvec2(wh));
-                                   }));
+        sol::call_constructor,
+        sol::factories([](Jkr::Shapes shape, glm::vec2 wh) {
+            return Jkr::Generator(shape, glm::uvec2(wh));
+        }));
 
     /* Renderers */
     {
@@ -666,18 +682,18 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
 
         );
         l["text_horizontal"] = l.create_table_with("left",
-                                                   Jkr::Renderer::BestText::AlignH::Left,
-                                                   "right",
-                                                   Jkr::Renderer::BestText::AlignH::Right,
-                                                   "center",
-                                                   Jkr::Renderer::BestText::AlignH::Center);
+            Jkr::Renderer::BestText::AlignH::Left,
+            "right",
+            Jkr::Renderer::BestText::AlignH::Right,
+            "center",
+            Jkr::Renderer::BestText::AlignH::Center);
 
         l["text_vertical"] = l.create_table_with("top",
-                                                 Jkr::Renderer::BestText::AlignV::Top,
-                                                 "bottom",
-                                                 Jkr::Renderer::BestText::AlignV::Bottom,
-                                                 "center",
-                                                 Jkr::Renderer::BestText::AlignV::Center);
+            Jkr::Renderer::BestText::AlignV::Top,
+            "bottom",
+            Jkr::Renderer::BestText::AlignV::Bottom,
+            "center",
+            Jkr::Renderer::BestText::AlignV::Center);
 
         r.new_usertype<Renderer::BestText>(
             "bt",
@@ -733,11 +749,11 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
             });
 
         l["fill_type"] = l.create_table_with("fill",
-                                             FillType::Fill,
-                                             "image",
-                                             FillType::Image,
-                                             "continous_line",
-                                             FillType::ContinousLine);
+            FillType::Fill,
+            "image",
+            FillType::Image,
+            "continous_line",
+            FillType::ContinousLine);
 
         r.new_usertype<Shape>(
             "sh",
@@ -762,7 +778,7 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
             },
 
             "copy_image",
-            [&](int id, CustomImagePainter &inPainter) { td.sh.CopyToImage(id, inPainter); },
+            [&](int id, CustomImagePainter& inPainter) { td.sh.CopyToImage(id, inPainter); },
 
             "bind_fill_mode",
             [&](FillType fill) {
@@ -795,15 +811,14 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
         });
 
         r.set_function("reset_scissor",
-                       [&] {
-                           {};
-                           w.ResetScissor();
-                       }
+            [&] {
+                {};
+                w.ResetScissor();
+            }
 
         );
 
-        struct push_constant
-        {
+        struct push_constant {
             vec4 mPosDimen;
             vec4 mColor;
             vec4 mParam;
@@ -823,39 +838,39 @@ layout(push_constant, std430) uniform pc {
             sol::call_constructor,
             sol::factories([&](std::string fileName, std::string inShaderCode, vec3 in_threads) {
                 return CustomImagePainter(i,
-                                          fileName,
-                                          inShaderCode,
-                                          pc,
-                                          in_threads.x,
-                                          in_threads.y,
-                                          in_threads.z);
+                    fileName,
+                    inShaderCode,
+                    pc,
+                    in_threads.x,
+                    in_threads.y,
+                    in_threads.z);
             }),
 
             "make_from",
-            [&](CustomImagePainter &inP, std::string fileName, std::string inShaderCode) {
+            [&](CustomImagePainter& inP, std::string fileName, std::string inShaderCode) {
                 return CustomImagePainter(inP, fileName, inShaderCode, pc);
             },
 
             "load",
-            [&](CustomImagePainter &inP) {
+            [&](CustomImagePainter& inP) {
                 cout << "Load CustomImagePainter" << endl;
                 inP.Load(w);
             },
 
             "store",
-            [&](CustomImagePainter &inP) {
+            [&](CustomImagePainter& inP) {
                 cout << "Store CustomImagePainter" << endl;
                 inP.Store(w);
             },
 
             "paint",
-            [&](CustomImagePainter &inP, vec4 inPosDimen, vec4 inColor, vec4 inParam) {
-                push_constant push{.mPosDimen = inPosDimen, .mColor = inColor, .mParam = inParam};
+            [&](CustomImagePainter& inP, vec4 inPosDimen, vec4 inColor, vec4 inParam) {
+                push_constant push { .mPosDimen = inPosDimen, .mColor = inColor, .mParam = inParam };
                 inP.Draw<push_constant>(w, push);
             },
 
             "register_image",
-            [&](CustomImagePainter &inP, int inHeight, int inWidth) {
+            [&](CustomImagePainter& inP, int inHeight, int inWidth) {
                 inP.RegisterImageToBeDrawnTo(w, inHeight, inWidth);
             }
 
@@ -913,8 +928,7 @@ layout(push_constant, std430) uniform pc {
         );
     }
 
-    sol::protected_function_result result = l.script_file(string(cf["-main_file"]),
-                                                          &sol::script_pass_on_error);
+    sol::protected_function_result result = l.safe_script_file(string(cf["-main_file"]), &sol::script_pass_on_error);
     if (not result.valid()) {
         sol::error error = result;
         cout << error.what() << endl;
@@ -927,15 +941,15 @@ layout(push_constant, std430) uniform pc {
     sol::function disptach_callback = l["Dispatch"];
     sol::function update_callback = l["Update"];
 
-    auto Event = [&](void *) { event_callback(); };
+    auto Event = [&](void*) { event_callback(); };
     em.SetEventCallBack(Event);
     auto Draw = [&](void* data) {
         draw_callback();
     };
     w.SetDrawCallBack(Draw);
-    auto Update = [&](void *data) { update_callback(); };
+    auto Update = [&](void* data) { update_callback(); };
     w.SetUpdateCallBack(Update);
-    auto Dispatch = [&](void *data) {
+    auto Dispatch = [&](void* data) {
         disptach_callback();
 
         td.ln.Dispatch(w);
@@ -945,10 +959,10 @@ layout(push_constant, std430) uniform pc {
     w.SetComputeDispatchCallBack(Dispatch);
     load_callback();
 
-    array<float, 4> bg = {toFloat(cf["-bgr"]),
-                          toFloat(cf["-bgg"]),
-                          toFloat(cf["-bgb"]),
-                          toFloat(cf["-bga"])};
+    array<float, 4> bg = { toFloat(cf["-bgr"]),
+        toFloat(cf["-bgg"]),
+        toFloat(cf["-bgb"]),
+        toFloat(cf["-bga"]) };
 
     while (!em.ShouldQuit()) {
         em.ProcessEvents();

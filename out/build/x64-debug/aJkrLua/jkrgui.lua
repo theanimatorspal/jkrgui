@@ -94,7 +94,8 @@ Jkr = r;
 ]]
 E = event_manager -- EventManager
 
-
+local text_bound = false
+local line_bound = false
 
 --[[
         This is the shape renderer, we can do S.something
@@ -121,7 +122,6 @@ L.Add = L.add
 L.Update = L.update
 L.Draw = L.draw
 L.Bind = L.bind
-
 --[[
         This is shape renderer
 ]]

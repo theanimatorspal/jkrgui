@@ -1,27 +1,13 @@
-#include "parserbirali.hpp"
-#include <fstream>
-#include <sstream>
 
-int main() {
-    std::ifstream file("main.lb");
-    std::stringstream str;
-    str << file.rdbuf();
-    Birali::Parser Parser(str);
-    bool run = true;
+/*
+UNITY BUILD, lets try one, single CPP with multiple hpps
+*/
 
-    while (run) {
-        switch (Parser.GetCurrentToken()) {
-        case Birali::Parser::Token::Eof:
-            run = false;
-            break;
-        case Birali::Parser::Token::SemiColon:
-            Parser.NextExpression();
-            break;
-        default:
-            Parser.ParseExpression();
-            break;
-        }
-    }
+#include "lexer.hpp"
+#include "lua.hpp"
+#include "parser.hpp"
 
-    Parser.PrintAST();
+
+int main ( )
+{
 }

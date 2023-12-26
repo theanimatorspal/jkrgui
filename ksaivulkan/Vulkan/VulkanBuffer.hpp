@@ -131,6 +131,7 @@ namespace ksai {
 	inline VulkanBuffer<inBufferContext, inBufferStorageType>::~VulkanBuffer()
 	{
 		if constexpr (inBufferStorageType == MemoryType::HostVisibleAndCoherenet) mDevice.unmapMemory(mBufferMemory);
+		 mDevice.waitIdle();
 		mDevice.destroyBuffer(mBufferHandle);
 		mDevice.freeMemory(mBufferMemory);
 	}

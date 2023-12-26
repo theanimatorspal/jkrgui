@@ -21,7 +21,8 @@ Line = {
         end,
         Draw = function(self)
                 L.Bind()
-                L.Draw(vec4(0, 0, 0, 1), Int(WindowDimension.x), Int(WindowDimension.y), Int(self.mLine_Id), Int(self.mLine_Id),
+                L.Draw(vec4(0, 0, 0, 1), Int(WindowDimension.x), Int(WindowDimension.y), Int(self.mLine_Id),
+                        Int(self.mLine_Id),
                         GetIdentityMatrix())
         end,
 
@@ -187,9 +188,11 @@ JkrPresent.Draw = function()
         for i, value in ipairs(PresentationTextObjects) do
                 value:Draw()
         end
-        for i, value in ipairs(PresentationLineObjects) do
-               value:Draw() 
-        end
+        StartLineId = PresentationLineObjects[1].mLine_Id
+        EndLineId = PresentationLineObjects[#PresentationLineObjects].mLine_Id
+        L.Bind()
+        L.Draw(vec4(0, 0, 0, 1), Int(WindowDimension.x), Int(WindowDimension.y), Int(StartLineId), Int(EndLineId),
+                GetIdentityMatrix())
 end
 
 JkrPresent.CreateAnimText = function(inString)
@@ -205,7 +208,7 @@ JkrPresent.CreateAnimText = function(inString)
 end
 
 JkrPresent.CreateCircleText_Moving_animation = function(inId, inString, inPosition_3f, inMovingRadius,
-                                                        inMovingTheta)
+                                                        inMovingTheta, inColor)
         local noOfCharacters = #inString
         local delThita = 2 * math.pi / (noOfCharacters)
         local theta = inMovingTheta
@@ -215,9 +218,7 @@ JkrPresent.CreateCircleText_Moving_animation = function(inId, inString, inPositi
         local FunctionTobeCalledForEachCharacter = function(c) -- estaii khalko function expect garxa string:gsub vanne function le
                 local x = inMovingRadius * math.cos(theta) + inPosition_3f.x
                 local y = inMovingRadius * math.sin(theta) + inPosition_3f.y
-                -- PresentationTextObjects[i].mString = c
-                -- PresentationTextObjects[i]:Update(vec3(x, y, inPosition_3f.z))
-                keyframe[j] = vec3(x, y, inPosition_3f.z)
+                keyframe[j] = { pos = vec3(x, y, inPosition_3f.z), color = inColor }
                 j = j + 1
                 theta = theta + delThita
                 i = i + 1
@@ -227,26 +228,20 @@ JkrPresent.CreateCircleText_Moving_animation = function(inId, inString, inPositi
 end
 
 
-JkrPresent.CreateLineText_Moving_Animation = function(inId, inString, inPosition_3f, inMovingDel, inIsVertical)
+JkrPresent.CreateLineText_Moving_Animation = function(inId, inString, inPosition_3f, inMovingDel, inMovingDelY, inColor)
         local noOfCharacters = #inString
         local i = inId
         local x = inPosition_3f.x
         local y = inPosition_3f.y
         local delX = inMovingDel
+        local delY = inMovingDelY
         local keyframe = {}
         local j = 1
         local FunctionTobeCalledForEachCharacter = function(c)
-                if (inIsVertical) then
-                        -- PresentationTextObjects[i]:Update(vec3(x, y, inPosition_3f.z))
-                        y = y + delX
-                        i = i + 1
-                        keyframe[j] = vec3(x, y, inPosition_3f.z)
-                else
-                        -- PresentationTextObjects[i]:Update(vec3(x, y, inPosition_3f.z))
-                        x = x + delX
-                        i = i + 1
-                        keyframe[j] = vec3(x, y, inPosition_3f.z)
-                end
+                x = x + delX
+                y = y + delY
+                i = i + 1
+                keyframe[j] = { pos = vec3(x, y, inPosition_3f.z), color = inColor }
                 j = j + 1
         end
         inString:gsub(".", FunctionTobeCalledForEachCharacter)
@@ -256,10 +251,16 @@ end
 JkrPresent.LerpAnimationText = function(inId, inT, keyframe1, keyframe2)
         local j = inId
         for i = 1, #keyframe1, 1 do
-                local x = Lerp(inT, keyframe1[i].x, keyframe2[i].x)
-                local y = Lerp(inT, keyframe1[i].y, keyframe2[i].y)
-                local z = Lerp(inT, keyframe1[i].z, keyframe2[i].z)
+                local x = Lerp(inT, keyframe1[i].pos.x, keyframe2[i].pos.x)
+                local y = Lerp(inT, keyframe1[i].pos.y, keyframe2[i].pos.y)
+                local z = Lerp(inT, keyframe1[i].pos.z, keyframe2[i].pos.z)
                 local newposition = vec3(x, y, z)
+                local xc = Lerp(inT, keyframe1[i].color.x, keyframe2[i].color.x)
+                local yc = Lerp(inT, keyframe1[i].color.y, keyframe2[i].color.y)
+                local zc = Lerp(inT, keyframe1[i].color.z, keyframe2[i].color.z)
+                local wc = Lerp(inT, keyframe1[i].color.w, keyframe2[i].color.w)
+                local newcolor = vec4(xc, yc, zc, wc)
+                PresentationTextObjects[j].mColor = newcolor
                 PresentationTextObjects[j]:Update(newposition)
                 j = j + 1
         end
@@ -342,13 +343,14 @@ JkrPresent.CreateCircleLine_Moving_Animation = function(inId, inNoOfLines, inRad
                 PresentationLineObjects[i].mPosition2 = vec2(xNext, yNext)
                 j = j + 2
                 theta = theta + delTheta
-                PresentationLineObjects[i]:Update()
+                -- PresentationLineObjects[i]:Update()
         end
 
         return position
 end
 
-JkrPresent.CreateLineLine_Moving_Animation = function(inId, noOfLines, inPosition1, inMovingDelX, inMovingDelY, inMovingGap)
+JkrPresent.CreateLineLine_Moving_Animation = function(inId, noOfLines, inPosition1, inMovingDelX, inMovingDelY,
+                                                      inMovingGap)
         local j = 1
         local k = 1
         local position = {}
@@ -362,7 +364,7 @@ JkrPresent.CreateLineLine_Moving_Animation = function(inId, noOfLines, inPositio
                 PresentationLineObjects[i].mPosition1 = vec2(x, y)
                 position[k + 1] = vec3(xNext, yNext, 1)
                 PresentationLineObjects[i].mPosition2 = vec2(xNext, yNext)
-                PresentationLineObjects[i]:Update()
+                -- PresentationLineObjects[i]:Update()
                 j = j + 1
                 k = k + 2
         end
@@ -412,30 +414,86 @@ JkrPresent.CreateAnimatedPointText = function(inPoints, inPosition, inMovingDel)
                 lengths[#lengths + 1] = string.len(inPoints[i])
         end
 
+        local no_of_segments = 8
+        local linec = no_of_segments * #inPoints
+        local Line_id = JkrPresent.CreateAnimLines(linec)
 
         local id = JkrPresent.CreateAnimText(large_string)
 
-        local keyframes = {}
+        local text_keyframes = {}
+        local line_keyframes = {}
+        local point_arrived_color = vec4(0, 0, 0, 1)
+        local point__not_arrived_color = vec4(0, 0, 0, 1)
+        local point_not_arrived_position = vec3(1920 * 2, 1920 * 2, 5)
+
 
         for j = 1, #inPoints + 1, 1 do
-                local unjoined_keys = {}
+                local text_unjoined_keys = {}
+                local line_unjoined_keys = {}
 
                 for i = 1, #inPoints, 1 do
+                        local point_pos = vec3(inPosition.x, inPosition.y * i, 5)
+                        local point_rect_pos = vec3(point_pos.x - inMovingDel * 2, point_pos.y, point_pos.z)
                         if i < j then
-                                unjoined_keys[i] = JkrPresent.CreateLineText_Moving_Animation(id + lengths[i],
-                                        inPoints[i],
-                                        vec3(inPosition.x, inPosition.y * i, 5), inMovingDel, false)
+                                text_unjoined_keys[i] = JkrPresent.CreateLineText_Moving_Animation(id + lengths[i],
+                                        inPoints[i], point_pos, inMovingDel, 0, point_arrived_color)
+                                line_unjoined_keys[i] = JkrPresent.CreateCircleLine_Moving_Animation(
+                                Line_id + no_of_segments * (i - 1), no_of_segments, 20, 0, point_rect_pos)
                         else
-                                unjoined_keys[i] = JkrPresent.CreateCircleText_Moving_animation(id + lengths[i],
-                                        inPoints[i], vec3(500, 500, 5), WindowDimension.x, 100 * i)
+                                text_unjoined_keys[i] = JkrPresent.CreateCircleText_Moving_animation(id + lengths[i],
+                                        inPoints[i], point_not_arrived_position, WindowDimension.x, 100 * i,
+                                        point__not_arrived_color)
+                                line_unjoined_keys[i] = JkrPresent.CreateLineLine_Moving_Animation(
+                                Line_id + no_of_segments * (i - 1), no_of_segments, point_rect_pos, 200, 0, 0)
                         end
                 end
 
-                local joinedkey = {}
+                local text_joinedkey = {}
                 for i = 1, #inPoints, 1 do
-                        joinedkey = JkrPresent.JoinKeyframe(joinedkey, unjoined_keys[i])
+                        text_joinedkey = JkrPresent.JoinKeyframe(text_joinedkey, text_unjoined_keys[i])
                 end
-                keyframes[j] = joinedkey
+                text_keyframes[j] = text_joinedkey
+
+                local line_joined_key = {}
+                for i = 1, #inPoints, 1 do
+                        line_joined_key = JkrPresent.JoinKeyframe(line_joined_key, line_unjoined_keys[i])
+                end
+                line_keyframes[j] = line_joined_key
         end
-        return { text_id = id, text_key = keyframes }
+
+        line_keyframes[#line_keyframes + 1] = JkrPresent.CreateCircleLine_Moving_Animation(Line_id, linec, 500, 0,
+                vec3(WindowDimension.x / 2, WindowDimension.y / 2, 5))
+        text_keyframes[#text_keyframes + 1] = JkrPresent.CreateCircleText_Moving_animation(id, large_string,
+                vec3(WindowDimension.x / 2, WindowDimension.y / 2, 5), 500, 0, vec4(1, 0, 1, 1))
+
+        return { text_id = id, text_key = text_keyframes, text_count = large_string:len(), line_id = Line_id, line_key =
+        line_keyframes, line_count = linec }
+end
+
+
+local Keys = {}
+local ikey1 = 0
+local ikey2 = 1
+local is_left_animation = false
+
+JkrPresent.AddSlide = function(inKeys) Keys[#Keys+1] = inKeys end
+
+JkrPresent.Event = function()
+        if E.is_keypress_event() then
+                Time = 0
+
+                if E.is_key_pressed(Key.SDLK_RIGHT) and not is_left_animation then
+                        ikey1  = ikey1 + 1
+                end
+
+                if E.is_key_pressed(Key.SDLK_LEFT) and is_left_animation then
+                        ikey2  = ikey2 + 1
+                end
+        end
+end
+
+JkrPresent.Update = function(Keys)
+        for index, value in ipairs(Keys) do
+                
+        end
 end
