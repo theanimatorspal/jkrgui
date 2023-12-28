@@ -1,7 +1,9 @@
 ﻿#include "BestText_base.hpp"
 #include <Vendor/stbi/stb_image_write.h>
+using namespace Jkr::Renderer;
+using bb = BestText_base;
 
-Jkr::Renderer::BestText_base::BestText_base()
+bb::BestText_base()
 {
     if (FT_Init_FreeType(&mFtLibrary)) {
         std::cout << "Cnnot initialize freetype\n";
@@ -9,7 +11,7 @@ Jkr::Renderer::BestText_base::BestText_base()
     }
 }
 
-Jkr::Renderer::BestText_base::~BestText_base()
+bb::~BestText_base()
 {
     for (int i = 0; i < mFontFaceCount; ++i) {
         hb_font_destroy(mHbFonts[i]);
@@ -18,9 +20,9 @@ Jkr::Renderer::BestText_base::~BestText_base()
     FT_Done_FreeType(mFtLibrary);
 }
 
-void Jkr::Renderer::BestText_base::AddFontFace(const std::string_view inFontFilePathName, size_t inFontSize, uint32_t& outFontId)
+void bb::AddFontFace(const sv inFontFilePathName, size_t inFontSize, ui& outFontId)
 {
-    uint32_t FaceIndex = mFontFaceCount++;
+    ui FaceIndex = mFontFaceCount++;
     mFaces.resize(mFontFaceCount);
     mHbFonts.resize(mFontFaceCount);
     if (FT_New_Face(mFtLibrary, inFontFilePathName.data(), 0, &mFaces[FaceIndex])) {
@@ -34,7 +36,7 @@ void Jkr::Renderer::BestText_base::AddFontFace(const std::string_view inFontFile
     outFontId = FaceIndex;
 }
 
-Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText_base::AddText(uint32_t inX, uint32_t inY, const std::string_view inString, uint32_t inFontShapeId, uint32_t inDepthValue, std::vector<uint32_t>& outCodePoints, uint32_t& outId)
+bb::TextDimensions bb::AddText(ui inX, ui inY, const sv inString, ui inFontShapeId, ui inDepthValue, v<ui>& outCodePoints, ui& outId)
 {
     hb_buffer_t* hbBuffer = hb_buffer_create();
     hb_buffer_add_utf8(hbBuffer, reinterpret_cast<const char*>(inString.data()), -1, 0, -1);
@@ -50,7 +52,7 @@ Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText_base::AddTe
     for (int i = 0; i < len; i++)
         outCodePoints.push_back(info[i].codepoint);
 
-    uint32_t x, y;
+    ui x, y;
     switch (mCurrentTextProp.H) {
     case AlignH::Left:
         x = inX;
@@ -85,7 +87,110 @@ Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText_base::AddTe
     return TextDims;
 }
 
-Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText_base::UpdateText(uint32_t inX, uint32_t inY, uint32_t inId, const std::string_view inString, uint32_t inFontShapeId, uint32_t inDepthValue, std::vector<uint32_t>& outCodePoints)
+bb::TextDimensions bb::RenderTextToImage(
+    sv inString, ui inFontShapeId, v<uc>& outImage)
+{
+    hb_buffer_t* hbBuffer = hb_buffer_create();
+    hb_buffer_add_utf8(hbBuffer, reinterpret_cast<const char*>(inString.data()), -1, 0, -1);
+    hb_buffer_guess_segment_properties(hbBuffer);
+    hb_shape(mHbFonts[inFontShapeId], hbBuffer, 0, 0);
+    unsigned int len = hb_buffer_get_length(hbBuffer);
+    hb_glyph_info_t* info = hb_buffer_get_glyph_infos(hbBuffer, 0);
+    hb_glyph_position_t* pos = hb_buffer_get_glyph_positions(hbBuffer, 0);
+
+    LoadTextToKeyMap(len, inFontShapeId, info, pos);
+    auto TextDims = GetTextDimensions(inString, inFontShapeId, info, pos, len);
+
+    v<ui> codepoints;
+    for (int i = 0; i < len; i++)
+        codepoints.push_back(info[i].codepoint);
+    AddRespectiveVerticesAndIndicesAt(len, mCharQuadGlyphCount, 1, inFontShapeId, info, 0, 0);
+
+    auto* dst = outImage.data();
+    ui outbmp_h = 0;
+    ui outbmp_w = 0;
+
+    int originX = 0, originY = 0;
+    int minX = 0, minY = 0, maxX = 0, maxY = 0;
+    for (int img_index = 0; img_index < len; img_index++) {
+        CharacterKey key = { .mFontShapeId = inFontShapeId, .mGlyphCodePoint = info[img_index].codepoint };
+        const auto& CharacterInMap = mCharacterBitmapSet[key];
+        const auto& bmp = CharacterInMap.second;
+        const auto& info = CharacterInMap.first.mGlyphInfo;
+        const auto& metrics = CharacterInMap.first.mGlyphMetrics;
+        const auto& pos = CharacterInMap.first.mGlyphPos;
+        const auto bitmap_width = CharacterInMap.first.mBitmapWidth;
+        const auto bitmap_rows = CharacterInMap.first.mBitmapRows;
+        int offsetX = ToPixels(pos.x_offset + metrics.horiBearingX);
+        int offsetY = ToPixels(pos.y_offset + metrics.horiBearingY);
+        int glyphMinX = originX + offsetX;
+        int glyphMaxX = originX + bitmap_width + offsetX;
+        int glyphMinY = originY - bitmap_rows + offsetY;
+        int glyphMaxY = originY + offsetY;
+
+        int drawX = originX + ToPixels(pos.x_offset + metrics.horiBearingX);
+        int drawY = originY + ToPixels(pos.y_offset + metrics.horiBearingY);
+        size_t width = glyphMaxX - glyphMinX + 1;
+        size_t height = glyphMaxY - glyphMinY + 1;
+        if (glyphMinX < minX)
+            minX = glyphMinX;
+        if (glyphMaxX > maxX)
+            maxX = glyphMaxX;
+        if (glyphMinY < minY)
+            minY = glyphMinY;
+        if (glyphMaxY > maxY)
+            maxY = glyphMaxY;
+        originX += ToPixels(pos.x_advance);
+    }
+    originX = -minX;
+    originY = -minY;
+    outbmp_w = maxX - minX + 1;
+    outbmp_h = maxY - minY + 1;
+
+    outImage.resize(outbmp_h * outbmp_w * mImageChannelCount);
+
+    originX = -minX;
+    originY = -minY;
+    for (int img_index = 0; img_index < len; img_index++) {
+        CharacterKey key = { .mFontShapeId = inFontShapeId, .mGlyphCodePoint = info[img_index].codepoint };
+        const auto& CharacterInMap = mCharacterBitmapSet[key];
+        const auto& bmp = CharacterInMap.second;
+        const auto& info = CharacterInMap.first.mGlyphInfo;
+        const auto& metrics = CharacterInMap.first.mGlyphMetrics;
+        const auto& pos = CharacterInMap.first.mGlyphPos;
+        const auto bitmap_width = CharacterInMap.first.mBitmapWidth;
+        const auto bitmap_rows = CharacterInMap.first.mBitmapRows;
+        int offsetX = ToPixels(pos.x_offset + metrics.horiBearingX);
+        int offsetY = ToPixels(pos.y_offset + metrics.horiBearingY);
+        int glyphMinX = originX + offsetX;
+        int glyphMaxX = originX + bitmap_width + offsetX;
+        int glyphMinY = originY - bitmap_rows + offsetY;
+        int glyphMaxY = originY + offsetY;
+        int advance = CharacterInMap.first.mGlyphPos.x_advance;
+        int drawX = originX + ToPixels(pos.x_offset + metrics.horiBearingX);
+        int drawY = originY + ToPixels(pos.y_offset + metrics.horiBearingY);
+
+        for (size_t y = 0; y < bitmap_rows; ++y) {
+            for (size_t x = 0; x < bitmap_width * 4; ++x) {
+                ui maini = drawX + x + (drawY - y) * outbmp_w * 4;
+                ui biti = x + y * bitmap_width * 4;
+                outImage[maini] = bmp[biti];
+            }
+        }
+        originX += ToPixels(advance*4);
+    }
+
+    CharacterKey key = { .mFontShapeId = inFontShapeId,
+        .mGlyphCodePoint = codepoints[0] };
+    // stbi_write_bmp("out.bmp", outbmp_w, outbmp_h, 4, outImage.data());
+    // stbi_write_bmp("in.bmp", outbmp_w, outbmp_h, 4, mCharacterBitmapSet[key].second.data());
+
+    mIndices.clear();
+    mVertices.clear();
+    return TextDimensions { .mWidth = outbmp_w, .mHeight = outbmp_h };
+}
+
+bb::TextDimensions bb::UpdateText(ui inX, ui inY, ui inId, const sv inString, ui inFontShapeId, ui inDepthValue, v<ui>& outCodePoints)
 {
 
     hb_buffer_t* hbBuffer = hb_buffer_create();
@@ -102,7 +207,7 @@ Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText_base::Updat
     for (int i = 0; i < len; i++)
         outCodePoints.push_back(info[i].codepoint);
 
-    uint32_t x, y;
+    ui x, y;
     switch (mCurrentTextProp.H) {
     case AlignH::Left:
         x = inX;
@@ -135,7 +240,7 @@ Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText_base::Updat
     return TextDims;
 }
 
-Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText_base::GetTextDimensions(const std::string_view inString, uint32_t inFontShapeId, hb_glyph_info_t* info, hb_glyph_position_t* pos, uint32_t len)
+bb::TextDimensions bb::GetTextDimensions(const sv inString, ui inFontShapeId, hb_glyph_info_t* info, hb_glyph_position_t* pos, ui len)
 {
     int originX = 0, originY = 0;
     int minX = INT_MAX;
@@ -182,7 +287,7 @@ Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText_base::GetTe
     return TextDimensions { .mWidth = width, .mHeight = height };
 }
 
-void Jkr::Renderer::BestText_base::AddRespectiveVerticesAndIndicesAt(unsigned int len, uint32_t inStartIndex, uint32_t inDepthValue, const uint32_t& inFontShapeId, hb_glyph_info_t* info, int inOriginX, int inOriginY)
+void bb::AddRespectiveVerticesAndIndicesAt(unsigned int len, ui inStartIndex, ui inDepthValue, const ui& inFontShapeId, hb_glyph_info_t* info, int inOriginX, int inOriginY)
 {
 
     int originX = inOriginX, originY = inOriginY;
@@ -222,19 +327,19 @@ void Jkr::Renderer::BestText_base::AddRespectiveVerticesAndIndicesAt(unsigned in
 
             mVertices[v_index + 0].mPosition = { glyphMinX, glyphMaxY, inDepthValue };
             mVertices[v_index + 0].mTextureCoordinates = { 0, 0 };
-    //        mVertices[v_index + 0].mIvec3 = { 0, 0, 0 };
+            //        mVertices[v_index + 0].mIvec3 = { 0, 0, 0 };
 
             mVertices[v_index + 1].mPosition = { glyphMinX, glyphMinY, inDepthValue };
             mVertices[v_index + 1].mTextureCoordinates = { 0, 1 };
-   //         mVertices[v_index + 1].mIvec3 = { 0, 0, 0 };
+            //         mVertices[v_index + 1].mIvec3 = { 0, 0, 0 };
 
             mVertices[v_index + 2].mPosition = { glyphMaxX, glyphMinY, inDepthValue };
             mVertices[v_index + 2].mTextureCoordinates = { 1, 1 };
-  //          mVertices[v_index + 2].mIvec3 = { 0, 0, 0 };
+            //          mVertices[v_index + 2].mIvec3 = { 0, 0, 0 };
 
             mVertices[v_index + 3].mPosition = { glyphMaxX, glyphMaxY, inDepthValue };
             mVertices[v_index + 3].mTextureCoordinates = { 1, 0 };
- //           mVertices[v_index + 3].mIvec3 = { 0, 0, 0 };
+            //           mVertices[v_index + 3].mIvec3 = { 0, 0, 0 };
 
             const auto i_index = i * 6 + inStartIndex * 6;
 
@@ -250,7 +355,7 @@ void Jkr::Renderer::BestText_base::AddRespectiveVerticesAndIndicesAt(unsigned in
     }
 }
 
-void Jkr::Renderer::BestText_base::LoadTextToKeyMap(unsigned int len, const uint32_t& inFontShapeId, hb_glyph_info_t* info, hb_glyph_position_t* pos)
+void bb::LoadTextToKeyMap(unsigned int len, const ui& inFontShapeId, hb_glyph_info_t* info, hb_glyph_position_t* pos)
 {
     /* Load Characters To Keymap */
     {
@@ -270,7 +375,7 @@ void Jkr::Renderer::BestText_base::LoadTextToKeyMap(unsigned int len, const uint
                     .mBitmapRows = slot->bitmap.rows,
                     .mBitmapPitch = slot->bitmap.pitch
                 };
-                std::vector<uint8_t> BitmapImage;
+                v<uint8_t> BitmapImage;
                 uint8_t* ptr = slot->bitmap.buffer;
                 int originX = 0, originY = 0;
                 int offsetX = ToPixels(pos[i].x_offset + slot->metrics.horiBearingX);
@@ -285,7 +390,7 @@ void Jkr::Renderer::BestText_base::LoadTextToKeyMap(unsigned int len, const uint
                 int drawY = originY + ToPixels(pos[i].y_offset + slot->metrics.horiBearingY);
                 [[maybe_unused]] size_t width = glyphMaxX - glyphMinX + 1;
                 [[maybe_unused]] size_t height = glyphMaxY - glyphMinY + 1;
-                BitmapImage.resize(mImageChannelCount * width * height);
+                BitmapImage.resize(mImageChannelCount * character_info.mBitmapWidth * character_info.mBitmapRows);
                 auto* dst = BitmapImage.data();
 
                 // for (size_t y = 0; y < slot->bitmap.rows; ++y)
@@ -297,10 +402,9 @@ void Jkr::Renderer::BestText_base::LoadTextToKeyMap(unsigned int len, const uint
                 //	ptr += slot->bitmap.pitch;
                 // }
                 if (mImageChannelCount == 4) {
-                    uint32_t i = 0;
+                    ui i = 0;
                     for (size_t y = 0; y < slot->bitmap.rows; ++y) {
                         for (size_t x = 0; x < slot->bitmap.width; ++x) {
-
                             dst[i++] = ptr[x];
                             dst[i++] = ptr[x];
                             dst[i++] = ptr[x];
@@ -316,7 +420,7 @@ void Jkr::Renderer::BestText_base::LoadTextToKeyMap(unsigned int len, const uint
     }
 }
 
-Jkr::Renderer::BestText_base::TextDimensions Jkr::Renderer::BestText_base::GetTextDimensions(const std::string_view inString, uint32_t inFontShapeId)
+bb::TextDimensions bb::GetTextDimensions(const sv inString, ui inFontShapeId)
 {
     hb_buffer_t* hbBuffer = hb_buffer_create();
     hb_buffer_add_utf8(hbBuffer, reinterpret_cast<const char*>(inString.data()), -1, 0, -1);

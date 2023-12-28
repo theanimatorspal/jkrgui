@@ -12,8 +12,8 @@ namespace Jkr::Renderer {
 		using StorageImageType = Jkr::PainterParameter<Jkr::PainterParameterContext::StorageImage>;
 		using SamplerType = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformSampler>;
 		using UniformType = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformBuffer>;
-		const uint32_t InitialRendererElementArraySize = 2;
-		const uint32_t RendererCapacityResizeFactor = 2;
+		const ui InitialRendererElementArraySize = 2;
+		const ui RendererCapacityResizeFactor = 2;
 	public:
 		using StagingBuffer = Jkr::VulkanBufferVMA<BufferContext::Staging, MemoryType::HostVisibleAndHostCached>;
 #ifndef JKR_NO_STAGING_BUFFERS

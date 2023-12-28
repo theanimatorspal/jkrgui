@@ -10,7 +10,7 @@ file(GLOB app_SRC CONFIGURE_DEPENDS
 link_directories(${VULKAN_LIBRARY_PATH})
 
 
-add_executable(aa_unit_testing ${app_SRC} "testmain.cpp" "nodetest.cpp" "threed.cpp")
+add_executable(aa_unit_testing ${app_SRC} "testmain.cpp" "nodetest.cpp" "threed.cpp" "fontagina.cpp")
 
 
 configure_target(aa_unit_testing)

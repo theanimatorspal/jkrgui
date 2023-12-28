@@ -31,7 +31,7 @@ void GlslMain()
 }
 )""";
 
-int main()
+int unmain()
 {
     std::stringstream s;
     auto Instance = Jkr::Instance();

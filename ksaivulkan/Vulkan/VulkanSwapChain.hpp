@@ -11,11 +11,11 @@ namespace ksai {
 		~VulkanSwapChainBase();
 		void ExplicitlyDestroy();
 	public:
-		using ImageResult = std::pair<uint32_t, uint32_t>;
+		using ImageResult = p<ui, ui>;
 		ImageResult AcquireNextImage(const VulkanSemaphore& inSemapore);
-		static bool ImageIsNotOk(ImageResult inResult) { return (inResult.first != static_cast<uint32_t>(vk::Result::eSuccess)) and (inResult.first != static_cast<uint32_t>(vk::Result::eSuboptimalKHR)); }
-		static bool ImageIsNotOptimal(ImageResult inResult) { return (inResult.second == static_cast<uint32_t>(vk::Result::eErrorOutOfDateKHR)) or (inResult.second == static_cast<uint32_t>(vk::Result::eSuboptimalKHR)); }
-		static bool ImageIsNotOptimal(uint32_t inResult) { return (inResult == static_cast<uint32_t>(vk::Result::eErrorOutOfDateKHR)) or (inResult == static_cast<uint32_t>(vk::Result::eSuboptimalKHR)); }
+		static bool ImageIsNotOk(ImageResult inResult) { return (inResult.first != static_cast<ui>(vk::Result::eSuccess)) and (inResult.first != static_cast<ui>(vk::Result::eSuboptimalKHR)); }
+		static bool ImageIsNotOptimal(ImageResult inResult) { return (inResult.second == static_cast<ui>(vk::Result::eErrorOutOfDateKHR)) or (inResult.second == static_cast<ui>(vk::Result::eSuboptimalKHR)); }
+		static bool ImageIsNotOptimal(ui inResult) { return (inResult == static_cast<ui>(vk::Result::eErrorOutOfDateKHR)) or (inResult == static_cast<ui>(vk::Result::eSuboptimalKHR)); }
 	protected:
 		const vk::Device& mDevice;
 		vk::SwapchainKHR mSwapChain;
@@ -68,7 +68,7 @@ namespace ksai {
 		auto swapChainCreateInfo = vk::SwapchainCreateInfoKHR()
 			.setFlags(vk::SwapchainCreateFlagsKHR())
 			.setSurface(inSurface.GetSurfaceHandle())
-			.setMinImageCount(std::clamp(static_cast<uint32_t>(inMaxFramesInFlight), inSurface.GetSurfaceCapabilities().minImageCount, inSurface.GetSurfaceCapabilities().maxImageCount))
+			.setMinImageCount(std::clamp(static_cast<ui>(inMaxFramesInFlight), inSurface.GetSurfaceCapabilities().minImageCount, inSurface.GetSurfaceCapabilities().maxImageCount))
 			.setImageFormat(inSurface.GetSurfaceImageFormat())
 			.setImageExtent(inSurface.GetExtent())
 			.setImageUsage(vk::ImageUsageFlagBits::eColorAttachment)
@@ -79,7 +79,7 @@ namespace ksai {
 			.setClipped(true)
 			.setImageArrayLayers(1);
 
-		uint32_t queueFamilyIndices[2] = { inQueueContext.GetGraphicsQueueFamilyIndex(), inQueueContext.GetPresentQueueFamilyIndex() };
+		ui queueFamilyIndices[2] = { inQueueContext.GetGraphicsQueueFamilyIndex(), inQueueContext.GetPresentQueueFamilyIndex() };
 		if (queueFamilyIndices[0] != queueFamilyIndices[1])
 		{
 			swapChainCreateInfo.imageSharingMode = vk::SharingMode::eConcurrent;

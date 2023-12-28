@@ -4,6 +4,7 @@ constexpr float FontSizeInverseFactor = 2.0f;
 
 using namespace ksai;
 using namespace Jkr::Renderer;
+
 FastText_base::TextDimensions Jkr::Renderer::FastText_base::GenerateQuadsAt(const std::string_view inString, std::vector<kstd::Vertex>& outVertices, std::vector<kstd::ui32>& outIndices, kstd::ui32 inX, kstd::ui32 inY, kstd::f32 inFontSize, kstd::ui32 inStartIndex, kstd::ui32 inDepthValue)
 {
 	auto inTextSize = inString.size();
