@@ -9,7 +9,6 @@ file(GLOB_RECURSE app_SRC CONFIGURE_DEPENDS
 
 add_executable(jit ${app_SRC} LuaBirali/lexer.hpp
 "LuaBirali/main.cpp" 
-"LuaBirali/parser.hpp"
 "LuaBirali/include.hpp"
 "LuaBirali/lua.hpp"
 "LuaBirali/ir.hpp") 

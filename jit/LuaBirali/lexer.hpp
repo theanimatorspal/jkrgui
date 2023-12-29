@@ -3,6 +3,7 @@
 #include "lua.hpp"
 
 class Lexer {
+public:
     Lexer(std::istream& inCodeStream)
         : mC(inCodeStream)
     {
@@ -17,7 +18,14 @@ class Lexer {
             ls.mlookahead = Token::Eos;
         } else {
             ls.mt = ls.Lex(ls.mlookahead.s);
-	   }
+        }
+    }
+
+    int LookAhead()
+    {
+        assert(ls.mlookahead.token == Token::Eos);
+        ls.mlookahead = ls.Lex(ls.mlookahead.s);
+        return ls.mlookahead.token;
     }
 
 protected:

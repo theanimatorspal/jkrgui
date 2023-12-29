@@ -123,12 +123,6 @@ private:
 static gse SyntaxError("SyntaxError:");
 static gse LexError("LexError:");
 
-struct BlockState {
-};
-
-struct FunctionState {
-};
-
 struct LexerState {
     int mcurrent;
     int mlinenumber;
@@ -136,7 +130,6 @@ struct LexerState {
     TokenSematic mt;
     TokenSematic mlookahead;
     s mbuff;
-    std::istream* mz;
 
     void next() { mcurrent = mz->get(); }
     void save(int c) { mbuff.push_back(c); }
@@ -630,29 +623,71 @@ struct LexerState {
         }
     }
 
-    void collectnext ( )
-    {
-        mlastline = mlinenumber;
-	   if (mlookahead != Token::Eos)
-	   {
-            mt = mlookahead;
-            mlookahead = Token::Eos;
-	   }
-	   else {
-            mt = Lex(mt.s);
-	   }
-    }
-
-    int lookahead ( )
-    {
-           assert(mlookahead.token == Token::Eos);
-           mlookahead = Lex(mlookahead.s);
-           return mlookahead.token;
-    }
-
 };
 
-struct ParserState {
-    v<s> localvars;
-    FunctionState* fs;
+
+/* kinds of variables/expressions */
+enum ExpKind {
+    vvoid, /* when 'expdesc' describes the last expression of a list,
+              this kind means an empty list (so, no expression) */
+    vnil, /* constant nil */
+    vtrue, /* constant true */
+    vfalse, /* constant false */
+    vk, /* constant in 'k'; info = index of constant in 'k' */
+    vkflt, /* floating constant; nval = numerical float value */
+    vkint, /* integer constant; ival = numerical integer value */
+    vkstr, /* string constant; strval = tstring address;
+              (string is fixed by the lexer) */
+    vnonreloc, /* expression has its value in a fixed register;
+                  info = result register */
+    vlocal, /* local variable; var.ridx = register index;
+               var.vidx = relative index in 'actvar.arr'  */
+    vupval, /* upvalue variable; info = index of upvalue in 'upvalues' */
+    vconst, /* compile-time <const> variable;
+               info = absolute index in 'actvar.arr'  */
+    vindexed, /* indexed variable;
+                 ind.t = table register;
+                 ind.idx = key's r index */
+    vindexup, /* indexed upvalue;
+                 ind.t = table upvalue;
+                 ind.idx = key's k index */
+    vindexi, /* indexed variable with constant integer;
+                  ind.t = table register;
+                  ind.idx = key's value */
+    vindexstr, /* indexed variable with literal string;
+                  ind.t = table register;
+                  ind.idx = key's k index */
+    vjmp, /* expression is a test/comparison;
+             info = pc of corresponding jump instruction */
+    vreloc, /* expression can put result in any register;
+               info = instruction pc */
+    vcall, /* expression is a function call; info = instruction pc */
+    vvararg /* vararg expression; info = instruction pc */
 };
+
+struct ExpDesc
+{
+    ExpKind kind;
+    SemanticInfo u;
+};
+
+enum VarKind {
+	regular,
+	constant,
+	toclose,
+	ctimeconstant
+};
+
+struct VarDesc
+{
+    VarKind kind;
+    s name;
+};
+
+struct Dyndata {
+    struct {
+        v<VarDesc> arr;
+        int inuse;
+    } localvars;
+};
+

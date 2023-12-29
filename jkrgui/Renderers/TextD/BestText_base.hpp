@@ -50,6 +50,16 @@ protected:
     TextDimensions GetTextDimensions(const std::string_view inString, uint32_t inFontShapeId, hb_glyph_info_t* info, hb_glyph_position_t* pos, uint32_t len);
     TextDimensions AddText(uint32_t inX, uint32_t inY, const std::string_view inString, uint32_t inFontShapeId, uint32_t inDepthValue, std::vector<uint32_t>& outCodePoints, uint32_t& outIdt);
     TextDimensions RenderTextToImage(std::string_view inString, uint32_t inFontShapeId, std::vector<uc>& outImage);
+
+public:
+    [[nodiscard]] v<uc> RenderTextToImage(ui inFontShapeId, sv inStringView, TextDimensions& outDimens)
+    {
+        v<uc> img;
+        outDimens = RenderTextToImage(inStringView, inFontShapeId, img);
+        return img;
+    }
+
+protected:
     TextDimensions UpdateText(uint32_t inX, uint32_t inY, uint32_t inId, const std::string_view inString, uint32_t inFontShapeId, uint32_t inDepthValue, std::vector<uint32_t>& outCodePoints);
     void FillTextureIndexDataInVertexBufferAt(uint32_t inTextureId, uint32_t inAtIndex)
     {

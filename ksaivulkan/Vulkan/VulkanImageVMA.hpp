@@ -38,6 +38,7 @@ namespace ksai {
 		}
 		~VulkanImageVMA()
 		{
+		    mDevice.waitIdle();
 			vmaDestroyImage(mVMA.GetVMAHandle(), mImage, mAllocation);
 		}
 	private:

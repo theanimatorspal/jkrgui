@@ -263,7 +263,7 @@ Jkr.Components.Static.ShapeObject = {
         mShapeId = nil,
         mImageId = nil,
         mImagePainter = nil,
-        mFillColor = vec4(0, 0, 0, 1),
+        mFillColor = nil,
         New = function(self, inPosition_3f, inDimension_3f, inImagePainter, inImageSize_2f)
                 local Obj = {
                         mScissorPosition_2f = nil,
@@ -272,8 +272,9 @@ Jkr.Components.Static.ShapeObject = {
                         mShapeId = nil,
                         mImageId = nil,
                         mImagePainter = nil,
-                        mFillColor = vec4(0, 0, 0, 1)
+                        mFillColor = nil
                 }
+
                 setmetatable(Obj, self)
                 self.__index = self
 
@@ -287,6 +288,7 @@ Jkr.Components.Static.ShapeObject = {
                         Obj.mImageId = S.AddImage(Int(inImageSize_2f.x), Int(inImageSize_2f.y))
                         S.CopyImage(Obj.mImageId, Obj.mImagePainter)
                 end
+                Obj.mFillColor = nil
                 return Obj
         end,
         Update = function (self, inPosition_3f, inDimension_3f, inImagePainter, inImageSize_2f)

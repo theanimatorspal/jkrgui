@@ -156,19 +156,23 @@ Com.AreaObject = {
         ComTable[com_i] = Jkr.Components.Static.ShapeObject:New(ShadowPos, inDimension_3f, nil, nil)
         ComTable[com_i].mFillColor = Theme.Colors.Shadow
         ComTable[com_i].mComponentObject.mFocusOnHover_b = false
+        print(com_i)
         Obj.mIds.x = com_i
         Obj.mShadowId = com_i
 
         Com.NewComponent()
         ComTable[com_i] = Jkr.Components.Static.ShapeObject:New(OutlinePos, inDimension_3f, nil, nil)
         ComTable[com_i].mComponentObject.mFocusOnHover_b = false
+        ComTable[com_i].mFillColor = Theme.Colors.Area.Border
+        print(com_i)
         Obj.mIds.x = com_i
         Obj.mOutlineId = com_i
 
         Com.NewComponent()
         ComTable[com_i] = Jkr.Components.Static.ShapeObject:New(AreaPos, AreaDimen, nil, nil)
-        ComTable[com_i].mFillColor = vec4(1, 1, 1, 1)
+        ComTable[com_i].mFillColor = Theme.Colors.Area.Normal
         ComTable[com_i].mComponentObject.mFocusOnHover_b = false
+        print(com_i)
         Obj.mIds.y = com_i
         Obj.mAreaId = com_i
         print("No Of Components", com_i)

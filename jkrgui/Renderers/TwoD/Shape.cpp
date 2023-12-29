@@ -118,6 +118,54 @@ void Jkr::Renderer::Shape::AddImage(uint32_t inWidth, uint32_t inHeight, uint32_
 #endif
 }
 
+void Jkr::Renderer::Shape::AddImage(v<uc> inImage, ui inWidth, ui inHeight, ui& outIndex)
+{
+#ifndef JKR_USE_VARIABLE_DES_INDEXING
+    Up<VulkanDescriptorSet> Desset = MakeUp<VulkanDescriptorSet>(
+        mInstance.GetDevice(),
+        mInstance.GetDescriptorPool(),
+        mPainterCaches[FillType::Image]->GetVertexFragmentDescriptorSetLayout());
+    Up<ImageType> Image = MakeUp<ImageType>(mInstance);
+    void* data = inImage.data();
+    Image->Setup(reinterpret_cast<void**>(&data), inWidth, inHeight, 4);
+    Image->Register(0, 0, 0, *Desset);
+    outIndex = mImages.size();
+    mImages.push_back(std::move(Image));
+    mVulkanPerImageDescriptorSets.push_back(std::move(Desset));
+#else
+    Up<ImageType> Image = MakeUp<ImageType>(mInstance);
+    void* data = inImage.data();
+    Image->Setup(&data, inWidth, inHeight, 4);
+    uint32_t CurrentIndex = mImages.size();
+    Image->Register(0, 0, CurrentIndex, *mVarDesVulkanDescriptorSet);
+    outIndex = mImages.size();
+    mImages.push_back(std::move(Image));
+#endif
+}
+
+void Jkr::Renderer::Shape::UpdateImage(ui inId, v<uc> inImage, ui inWidth, ui inHeight)
+{
+#ifndef JKR_USE_VARIABLE_DES_INDEXING
+    Up<VulkanDescriptorSet> Desset = MakeUp<VulkanDescriptorSet>(
+        mInstance.GetDevice(),
+        mInstance.GetDescriptorPool(),
+        mPainterCaches[FillType::Image]->GetVertexFragmentDescriptorSetLayout());
+    Up<ImageType> Image = MakeUp<ImageType>(mInstance);
+    void* data = inImage.data();
+    Image->Setup(reinterpret_cast<void**>(&data), inWidth, inHeight, 4);
+    Image->Register(0, 0, 0, *Desset);
+    mImages[inId] = std::move(Image);
+    mVulkanPerImageDescriptorSets[inId] = std::move(Desset);
+#else
+    Up<ImageType> Image = MakeUp<ImageType>(mInstance);
+    void* data = inImage.data();
+    Image->Setup(&data, inWidth, inHeight, 4);
+    Image->Register(0, 0, inId, *mVarDesVulkanDescriptorSet);
+    mImages[inId] = std::move(Image);
+#endif
+
+}
+
 void Jkr::Renderer::Shape::CopyToImage(uint32_t inId,
     uint32_t inWidth,
     uint32_t inHeight,

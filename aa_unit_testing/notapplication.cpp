@@ -9,7 +9,7 @@
 #include <Renderers/TwoD/Shape.hpp>
 #include <Window.hpp>
 
-int asldfjasklfj()
+int main()
 {
     auto Instance = Jkr::Instance();
     auto Window = Jkr::Window(Instance, "Heell", 1080 / 2, 1920 / 2);
@@ -17,7 +17,7 @@ int asldfjasklfj()
     auto RendererResources = Jkr::Renderer::ResourceManager();
     RendererResources.Load(Instance);
     auto lr = Jkr::Renderer::Line(Instance, Window, RendererResources.GetLineRendererCache());
-    auto ftx = Jkr::Renderer::FastText(Instance, Window, RendererResources.GetFastTextRendererCache());
+    // auto ftx = Jkr::Renderer::FastText(Instance, Window, RendererResources.GetFastTextRendererCache());
     auto sr = Jkr::Renderer::Shape(Instance, Window, RendererResources.GetShapePainterCaches());
     auto bst = Jkr::Renderer::BestText(Instance, Window, RendererResources.GetBestTextRendererCache());
     uint32_t sid1, sid2;
@@ -28,14 +28,14 @@ int asldfjasklfj()
     uint32_t BestText_id1, BestText_length1;
 
     Jkr::Renderer::CustomImagePainter ImagePainter(Instance,
-                                                   "file.bin",
+        "file.bin",
 
-                                                   R"""(
+        R"""(
 float color =  distance(xy, vec2(0, 0)) - 0.5;
 imageStore(storageImage, to_draw_at, vec4(push.mColor.x * color, push.mColor.y * color, push.mColor.z * color, 1 * color));
 
 )""",
-                                                   R"""(
+        R"""(
 
 layout(push_constant, std430) uniform pc {
 	vec4 mPosDimen;
@@ -44,21 +44,20 @@ layout(push_constant, std430) uniform pc {
 } push;
 
  )""",
-                                                   16,
-                                                   16,
-                                                   1);
+        16,
+        16,
+        1);
 
     using namespace glm;
 
-    struct pc
-    {
+    struct pc {
         vec4 mPosDimen;
         vec4 mColor;
         vec4 mParam;
     };
-    pc push_constant = {.mPosDimen = vec4(0, 0, 1, 1),
-                        .mColor = vec4(1, 1, 0, 1),
-                        .mParam = vec4(0)};
+    pc push_constant = { .mPosDimen = vec4(0, 0, 1, 1),
+        .mColor = vec4(1, 1, 0, 1),
+        .mParam = vec4(0) };
     uint32_t image_to_draw_id;
     sr.AddImage(100, 100, image_to_draw_id);
     ImagePainter.Store(Window);
@@ -68,6 +67,21 @@ layout(push_constant, std430) uniform pc {
     bst.AddFontFace("font.ttf", 8, Font_id);
     bst.AddText("Wow", 100, 300, 5, BestText_id, BestText_length);
     bst.AddText("don", 500, 300, 5, BestText_id1, BestText_length1);
+    Jkr::Renderer::BestText_base::TextDimensions dimens;
+    v<uc> img = bst.RenderTextToImage(Font_id, "Hello", dimens);
+    Jkr::Generator FontRectGen(Jkr::Shapes::Rectangle, glm::uvec2(dimens.mWidth, dimens.mHeight));
+
+    ui font_image;
+    sr.AddImage(img, dimens.mWidth, dimens.mHeight, font_image);
+    ui font_rect_id;
+    sr.Add(FontRectGen, 100, 100, 5, font_rect_id);
+
+    auto RenderFontImage = [&]() {
+        sr.BindShapes(Window);
+        sr.BindFillMode(Jkr::Renderer::FillType::Image, Window);
+        sr.BindImage(Window, font_image);
+        sr.Draw(Window, glm::vec4(1, 1, 1, 1), 1920 / 2, 1080 / 2, font_rect_id, font_rect_id, glm::identity<glm::mat4>());
+    };
 
     Jkr::Generator CircleGen(Jkr::Shapes::Circle, glm::uvec2(50, 16));
     uint32_t circle_id;
@@ -84,13 +98,8 @@ layout(push_constant, std430) uniform pc {
     uint32_t bez_id;
     sr.Add(Bezier, 100, 100, 6, bez_id);
 
-    uint32_t imageId;
-    sr.AddImage("image.png", imageId);
-    uint32_t imageId2;
-    sr.AddImage("image.png", imageId2);
-
     uint32_t sidn;
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; i++){
         uint32_t id;
         lr.AddLine(glm::vec2(i * 20, 0), glm::vec2(100, 100), 5, id);
         sr.Add(Rectangle, i * 20, 300, 5, sidn);
@@ -98,58 +107,20 @@ layout(push_constant, std430) uniform pc {
     uint32_t xxx;
     uint32_t id;
     uint32_t idx;
-    ftx.AddText("Hello", 300, 300, 5, xxx);
-    ftx.AddText("World", 400, 300, 5, idx);
-    ftx.AddText("Fucko", 500, 300, 5, id);
-    ftx.UpdateText(id, "Hello", 500, 300, 5);
 
-    auto Dispatch = [&](void *data) {
+    auto Dispatch = [&](void* data) {
         ImagePainter.Draw<pc>(Window, push_constant, 16, 16, 1);
         lr.Dispatch(Window);
-        ftx.Dispatch(Window);
         sr.Dispatch(Window);
         bst.Dispatch(Window);
     };
 
     static int i = 0;
     auto Draw = [&](void* data) {
-        glm::mat4 matrixF = glm::identity<glm::mat4>();
-        auto ws = Window.GetWindowSize();
-        lr.Bind(Window);
-        lr.DrawAll(Window, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), ws.first, ws.second, matrixF);
-        ftx.Bind(Window);
-        ftx.DrawAll(Window, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), ws.first, ws.second, matrixF);
-
-        sr.BindShapes(Window);
-        matrixF = glm::translate(matrixF, glm::vec3(1.0f * i, 0.0f, 0.0f));
-
-        sr.BindFillMode(Jkr::Renderer::FillType::Image, Window);
-        sr.BindImage(Window, image_to_draw_id);
-        sr.Draw(Window, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), ws.first, ws.second, sid1, sid1, matrixF);
-        matrixF = glm::translate(matrixF, glm::vec3(-5.0f * i, 0.0f, 0.0f));
-        sr.Draw(Window, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), ws.first, ws.second, sid1, sid1, matrixF);
-        sr.BindFillMode(Jkr::Renderer::FillType::ContinousLine, Window);
-        sr.Draw(Window,
-                glm::vec4(1.0, 0, 0, 1.0f),
-                ws.first,
-                ws.second,
-                circle_id,
-                circle_id,
-                glm::identity<glm::mat4>());
-        sr.Draw(Window, glm::vec4(1.0f, 0.3f, 0.5f, 1.0f), ws.first, ws.second, bez_id, bez_id, glm::identity<glm::mat4>());
-        bst.Bind(Window);
-
-        matrixF = glm::identity<glm::mat4>();
-        bst.Draw(Window, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), ws.first, ws.second, BestText_id, BestText_length, matrixF);
-        bst.Draw(Window, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), ws.first, ws.second, BestText_id1, BestText_length1, matrixF);
-        
+        RenderFontImage();
     };
 
     auto Update = [&](void* data) {
-        // lr.AddLine(glm::vec2(10 * 20, i), glm::vec2(100, 100), 5, id);
-        // ftx.AddText("Fucko", 500, 300, 5, id);
-		bst.UpdateText(BestText_id, "mo", 100, 300, 5);
-		bst.UpdateText(BestText_id1, "od", 500, 300, 5);
     };
 
     Window.SetUpdateCallBack(Update);
