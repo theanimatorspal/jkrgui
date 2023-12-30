@@ -53,10 +53,10 @@ void Jkr::Renderer::_3D::glTF::AddPainter(const std::string_view inFileName,
     const std::string_view inFragmentShader,
     const std::string_view inComputeShader,
     Window& inCompatibleWindow,
-    uint32_t& outId)
+    uint32_t& outId, bool inForceStore)
 {
     Up<PainterCache> painterCache = MakeUp<PainterCache>(mInstance);
-    if (std::filesystem::exists(inFileName)) {
+    if (std::filesystem::exists(inFileName) and not inForceStore) {
         painterCache->Load(std::string(inFileName));
     } else {
         painterCache->Store(std::string(inFileName),

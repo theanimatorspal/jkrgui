@@ -169,7 +169,7 @@ void Jkr::Window::Draw (float r , float g , float b , float a , float d)
 
 		mComputeDispatchFunction (mData);
 
-		CommandBuffers [ mCurrentFrame ].BeginRenderPass<RenderPassContext::Default , FrameBufferType> (
+		CommandBuffers [ mCurrentFrame ].BeginRenderPass (
 			mRenderPass ,
 			mSurface ,
 			mFrameBuffers [ mAcquiredImageIndex ] , // यो स्थानमा जहिल्यै झुक्किन्छ । फ्रेम बफर एउटा हुने हो ।  "Acquired Image Index" अनुसार । 

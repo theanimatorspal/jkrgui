@@ -9,7 +9,7 @@
 #include <Renderers/TwoD/Shape.hpp>
 #include <Window.hpp>
 
-int main()
+int notldksjaf()
 {
     auto Instance = Jkr::Instance();
     auto Window = Jkr::Window(Instance, "Heell", 1080 / 2, 1920 / 2);

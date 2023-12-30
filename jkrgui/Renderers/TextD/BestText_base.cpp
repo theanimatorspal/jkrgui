@@ -1,5 +1,6 @@
 ﻿#include "BestText_base.hpp"
 #include <Vendor/stbi/stb_image_write.h>
+#include <ksai_image.hpp>
 using namespace Jkr::Renderer;
 using bb = BestText_base;
 
@@ -85,20 +86,6 @@ bb::TextDimensions bb::AddText(ui inX, ui inY, const sv inString, ui inFontShape
     mCharQuadGlyphCount += len;
     hb_buffer_destroy(hbBuffer);
     return TextDims;
-}
-
-static void FlipVertically(v<uc>& outImage, ui inWidth, ui inHeight, ui inChannelCount)
-{
-    //v<uc> reversed;
-    //reversed.resize(outImage.size());
-    //for (si y = 0; y < inHeight; ++y) {
-    //    for (si x = 0; x < inWidth * 4; ++x) {
-    //        ui i = x + y * inWidth * 4;
-    //        ui ri = x + (inHeight - y - 1) * inWidth * 4;
-    //        reversed[ri] = outImage[i];
-    //    }
-
-    //}
 }
 
 bb::TextDimensions bb::RenderTextToImage(
@@ -194,11 +181,8 @@ bb::TextDimensions bb::RenderTextToImage(
         originX += ToPixels(advance * mImageChannelCount);
     }
 
-    CharacterKey key = { .mFontShapeId = inFontShapeId,
-        .mGlyphCodePoint = codepoints[0] };
-
-    stbi_write_bmp("Fuck.bmp", outbmp_w, outbmp_h, 4, outImage.data());
-    //FlipVertically(outImage, outbmp_w, outbmp_h, mImageChannelCount);
+    using it = v<uc>;
+    ksai::image::process(outbmp_w, outbmp_h, mImageChannelCount, outImage, ksai::image::flipvertically<it>);
     mIndices.clear(); // TODO Don't Clear Vertices and Indices
     mVertices.clear();
     return TextDimensions { .mWidth = outbmp_w, .mHeight = outbmp_h };

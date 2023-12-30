@@ -36,6 +36,5 @@ using Number = double;
 using Integer = int;
 
 #define mu std::make_unique
-
 #define mv std::move
 

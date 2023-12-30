@@ -25,7 +25,7 @@ public:
         const std::string_view inFragmentShader,
         const std::string_view inComputeShader,
         Window& inCompatibleWindow,
-        uint32_t& outId);
+        uint32_t& outId, bool inForceStore = false);
 
     void Bind(Window& inWindow)
     {

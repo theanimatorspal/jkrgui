@@ -31,7 +31,7 @@ void GlslMain()
 }
 )""";
 
-int unmain()
+int main()
 {
     std::stringstream s;
     auto Instance = Jkr::Instance();
@@ -52,7 +52,7 @@ int unmain()
     s.str(std::string());
 
     uint32_t pid;
-    r.AddPainter("Cache/simpleshader.bin", vs, fs, cs, Window, pid);
+    r.AddPainter("Cache/simpleshader.bin", vs, fs, cs, Window, pid, true);
     uint32_t objid;
     r.Add("Box.gltf", objid);
 
@@ -61,7 +61,7 @@ int unmain()
     } push;
 
     glm::mat4 model = glm::identity<glm::mat4>();
-    glm::mat4 view = glm::lookAt(glm::vec3(50, 50, 50), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+    glm::mat4 view = glm::lookAt(glm::vec3(20, 20, 20), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
     glm::mat4 proj = glm::perspective(glm::radians(90.0f), 16.0f / 9.0f, 0.1f, 100.0f);
 
     push.mat = proj * view * model;

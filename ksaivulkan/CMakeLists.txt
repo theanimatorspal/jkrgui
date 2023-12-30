@@ -31,6 +31,6 @@ else()
         "*.h"
         "*.c"
         )
-        add_library(ksaivulkan ${app_SRC})
+        add_library(ksaivulkan ${app_SRC} "ksai_image.hpp")
 endif()
 
