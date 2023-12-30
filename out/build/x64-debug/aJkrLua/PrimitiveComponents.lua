@@ -48,20 +48,6 @@ Com.GPS = {
         self.mPosition_3f = vec3(self.mPadding, self.mPadding, self.mPosition_3f.z)
     end,
     PrintCurrent = function(self)
-        print(
-            string.format(
-                [[
-                    POS: vec3(%f, %f, %f)
-                    DIMEN: vec3(%f, %f, %f)
-                ]],
-                self.mPosition_3f.x,
-                self.mPosition_3f.y,
-                self.mPosition_3f.z,
-                self.mDimension_3f.x,
-                self.mDimension_3f.y,
-                self.mDimension_3f.z
-            )
-        )
     end,
     SetDimension = function(self, inDimension_3f)
         self.mDimension_3f = inDimension_3f
@@ -125,9 +111,9 @@ Com.AreaObject = {
     mIds = vec2(0, 0),
     mPosition_3f = vec3(0, 0, 0),
     mDimension_3f = vec3(0, 0, 0),
-    mAreaId = 0,
-    mOutlineId = 0,
-    mShadowId = 0,
+    mAreaId = nil,
+    mOutlineId = nil,
+    mShadowId = nil,
     mIsResizable = false,
     mIsMovable = false,
     New = function(self, inPosition_3f, inDimension_3f)
@@ -141,7 +127,7 @@ Com.AreaObject = {
             mIsResizable = false,
             mIsMovable = false,
         }
-        print("AreaObject Construction")
+        -- "AreaObject Construction")
         setmetatable(Obj, self)
         self.__index = self
         Obj.mPosition_3f = inPosition_3f
@@ -154,30 +140,36 @@ Com.AreaObject = {
 
         Com.NewComponent()
         ComTable[com_i] = Jkr.Components.Static.ShapeObject:New(ShadowPos, inDimension_3f, nil, nil)
-        ComTable[com_i].mFillColor = Theme.Colors.Shadow
+        local sc = Theme.Colors.Shadow
+        ComTable[com_i].mFillColor = vec4(sc.x, sc.y, sc.z, sc.w)
         ComTable[com_i].mComponentObject.mFocusOnHover_b = false
-        print(com_i)
+        -- com_i)
         Obj.mIds.x = com_i
         Obj.mShadowId = com_i
 
         Com.NewComponent()
         ComTable[com_i] = Jkr.Components.Static.ShapeObject:New(OutlinePos, inDimension_3f, nil, nil)
         ComTable[com_i].mComponentObject.mFocusOnHover_b = false
-        ComTable[com_i].mFillColor = Theme.Colors.Area.Border
-        print(com_i)
+        local bc = Theme.Colors.Area.Border
+        ComTable[com_i].mFillColor = vec4(bc.x, bc.y, bc.z, bc.w)
+        -- com_i)
         Obj.mIds.x = com_i
         Obj.mOutlineId = com_i
 
         Com.NewComponent()
         ComTable[com_i] = Jkr.Components.Static.ShapeObject:New(AreaPos, AreaDimen, nil, nil)
-        ComTable[com_i].mFillColor = Theme.Colors.Area.Normal
+        local nc = Theme.Colors.Area.Normal
+        ComTable[com_i].mFillColor = vec4(nc.x, nc.y, nc.z, nc.w)
         ComTable[com_i].mComponentObject.mFocusOnHover_b = false
-        print(com_i)
+        -- com_i)
         Obj.mIds.y = com_i
         Obj.mAreaId = com_i
-        print("No Of Components", com_i)
-        print("AreaObject Construction Finished")
+        -- "No Of Components", com_i)
+        -- "AreaObject Construction Finished")
         return Obj
+    end,
+    TurnOffShadow = function(self)
+        ComTable[self.mShadowId].mFillColor.w = 0
     end,
     Update = function(self, inPosition_3f, inDimension_3f)
         self.mPosition_3f = inPosition_3f
@@ -226,7 +218,7 @@ Com.TextLabelObject = {
     mPosition_3f = vec3(0, 0, 0),
     mDimension_3f = vec3(0, 0, 0),
     New = function(self, inText, inPosition_3f, inFontObject, inParent)
-        print("TextLabelObject Construction")
+        -- "TextLabelObject Construction")
         local Obj = {
             mIds = vec2(0, 0),
             mPosition_3f = vec3(0, 0, 0),
@@ -243,7 +235,7 @@ Com.TextLabelObject = {
             Obj.SetParent(inParent)
         end
         ComTable[com_i] = Jkr.Components.Static.TextObject:New(inText, inPosition_3f, inFontObject)
-        print("TextLabelObject Construction Finished")
+        -- "TextLabelObject Construction Finished")
         return Obj
     end,
     SetParent = function(self, inObject)
@@ -274,7 +266,7 @@ Com.NumberSliderObject = {
     mFactor = 0.0,
     mShouldSlide = false,
     New = function(self, inValue, inValueRangle_2f, inPosition_3f, inDimension_3f)
-        print("NumberSliderObject Construction")
+        -- "NumberSliderObject Construction")
         local Obj = {
             mRodId = 0,
             mKnobId = 0,
@@ -298,28 +290,10 @@ Com.NumberSliderObject = {
         local KnobDimension = vec3(KnobWidth, d.y, d.z)
         Obj.mFactor = Factor
         Obj.mShouldSlide = false
-        print(string.format(
-            [[
-                inPosition : vec3(%f, %f, %f),
-                inDimension : vec3(%f, %f, %f),
-                RodHeight : %f,
-                RodPosition : vec3(%f, %f, %f),
-                RodDimension : vec3(%f, %f, %f),
-                Factor : %f,
-                KnobWidth : %f,
-                KnobPosition : vec3(%f, %f, %f),
-                KnobDimension : vec3(%f, %f, %f)
-            ]]
-            , p.x, p.y, p.z,
-            d.x, d.y, d.z, RodHeight, RodPosition.x, RodPosition.y, RodPosition.z, RodDimension.x,
-            RodDimension.y, RodDimension.z, Factor, KnobWidth, KnobPosition.x, KnobPosition.y, KnobPosition.z,
-            KnobDimension.x, KnobDimension.y, KnobDimension.z
-        )
-        )
-
+        -- string.format(
         Obj.mRodId = Com.AreaObject:New(RodPosition, RodDimension)
         Obj.mKnobId = Com.AreaObject:New(RodPosition, RodDimension)
-        print("NumberSLiderObject Construction Finished")
+        -- "NumberSLiderObject Construction Finished")
         return Obj
     end,
     Event = function(self)
@@ -370,24 +344,6 @@ Com.NumberSliderObject = {
         local KnobPosition = vec3(p.x + d.x * Factor - KnobWidth / 2, p.y, p.z)
         local KnobDimension = vec3(KnobWidth, d.y, d.z)
 
-        print(string.format(
-            [[
-                inPosition : vec3(%f, %f, %f),
-                inDimension : vec3(%f, %f, %f),
-                RodHeight : %f,
-                RodPosition : vec3(%f, %f, %f),
-                RodDimension : vec3(%f, %f, %f),
-                Factor : %f,
-                KnobWidth : %f,
-                KnobPosition : vec3(%f, %f, %f),
-                KnobDimension : vec3(%f, %f, %f)
-            ]]
-            , p.x, p.y, p.z,
-            d.x, d.y, d.z, RodHeight, RodPosition.x, RodPosition.y, RodPosition.z, RodDimension.x,
-            RodDimension.y, RodDimension.z, Factor, KnobWidth, KnobPosition.x, KnobPosition.y, KnobPosition.z,
-            KnobDimension.x, KnobDimension.y, KnobDimension.z
-        )
-        )
         self.mRodId:Update(RodPosition, RodDimension)
         self.mKnobId:Update(KnobPosition, KnobDimension)
 
@@ -408,7 +364,7 @@ Com.TextButtonObject = {
     mFunction = nil,
     mPressed = false,
     New = function(self, inText, inFontObject, inPosition_3f, inDimension_3f, inParent)
-        print("TextButtonObject")
+        -- "TextButtonObject")
         local Obj = Com.AreaObject:New(inPosition_3f, inDimension_3f)
         setmetatable(self, Com.AreaObject) -- Inherits Com.AreaObject
         setmetatable(Obj, self)
@@ -428,7 +384,7 @@ Com.TextButtonObject = {
         if inParent then
             Obj:SetParent(inParent)
         end
-        print("TextButtonObject Construction Finished")
+        -- "TextButtonObject Construction Finished")
         return Obj
     end,
     Update = function(self, inPosition_3f, inDimension_3f, inString)
@@ -450,7 +406,8 @@ Com.TextButtonObject = {
         end
     end,
     SetParent = function(self, inObject)
-        local pos = vec3(inObject.mPosition_3f.x + self.mPositionToParent_3f.x, inObject.mPosition_3f.y + self.mPositionToParent_3f.y, self.mPosition_3f.z)
+        local pos = vec3(inObject.mPosition_3f.x + self.mPositionToParent_3f.x,
+            inObject.mPosition_3f.y + self.mPositionToParent_3f.y, self.mPosition_3f.z)
         self:Update(pos, self.mDimension_3f)
         self.mTextObject:SetParent(inObject)
     end,
@@ -471,7 +428,7 @@ Com.ListSelectorObject = {
     mCurrentSelection = 1,
     mButtonWidth = 0,
     New = function(self, inList, inPosition_3f, inDimension_3f, inButtonWidth, inFontObject, inMaxChars, inParent)
-        print("List Selector Construction")
+        -- "List Selector Construction")
         local p = inPosition_3f
         local d = inDimension_3f
         local lb_p = vec3(p.x, p.y, p.z)
@@ -480,7 +437,7 @@ Com.ListSelectorObject = {
         local txt_d = vec3(d.x - 2 * inButtonWidth, d.y, d.z)
         local rb_p = vec3(p.x + txt_d.x + inButtonWidth, p.y, p.z)
         local rb_d = vec3(inButtonWidth, d.y, d.z)
-        print(inList[1])
+        -- inList[1])
         local Obj = {}
         Obj.mList = inList
         Obj.mCurrentSelection = 1
@@ -497,10 +454,10 @@ Com.ListSelectorObject = {
 
         setmetatable(Obj, self)
         self.__index = self
-        print("List Selector Construction Finished")
+        -- "List Selector Construction Finished")
         return Obj
     end,
-    Event = function (self)
+    Event = function(self)
         self.mLeftbutton:Event()
         self.mRightButton:Event()
         local p = self.mPosition_3f
@@ -523,12 +480,45 @@ Com.ListSelectorObject = {
             end
             self.mTextArea:Update(txt_p, txt_d, string.rep(" ", self.mMaxChars))
             self.mTextArea:Update(txt_p, txt_d, self.mList[self.mCurrentSelection])
-            print("Pressed")
+            -- "Pressed")
         end
     end,
-    SetParent = function (self, inObject)
+    SetParent = function(self, inObject)
         Com.TextButtonObject.SetParent(self.mLeftbutton, inObject)
         Com.TextButtonObject.SetParent(self.mRightButton, inObject)
         Com.TextButtonObject.SetParent(self.mTextArea, inObject)
+    end
+}
+
+
+Com.FileMenuBarObject = {
+    mMainArea = nil,
+    mDepth = nil,
+    mHeight = nil,
+    New = function(self, inFileMenu, inHeight, inDepth, inFontObject)
+        local Obj = {}
+        setmetatable(Obj, self)
+        self.__index = self
+        local mainareapos = vec3(0, 0, inDepth)
+        local mainareadimen = vec3(WindowDimension.x, inHeight, 1)
+        Obj.mMainArea = Com.AreaObject:New(mainareapos, mainareadimen)
+        Obj.mMainArea:TurnOffShadow()
+        Obj.mDepth = inDepth
+        Obj.mHeight = inHeight
+        Obj.mButtons = {}
+        local i = 0
+        for index, value in ipairs(inFileMenu) do
+            local pos = vec3(50 * i, 0, inDepth - 3)
+            local dimen = vec3(50, inHeight, 1)
+            Obj.mButtons[#Obj.mButtons+1] = Com.TextButtonObject:New(inFileMenu[1].name, inFontObject, pos, dimen)
+            Com.AreaObject.TurnOffShadow(Obj.mButtons[#Obj.mButtons])
+            i = i + 1
+        end
+        return Obj
+    end,
+    Event = function(self)
+        local mainareapos = vec3(0, 0, self.mDepth)
+        local mainareadimen = vec3(WindowDimension.x, self.mHeight, 1)
+        self.mMainArea:Update(mainareapos, mainareadimen)
     end
 }

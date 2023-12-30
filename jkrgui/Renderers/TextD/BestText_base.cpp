@@ -87,6 +87,20 @@ bb::TextDimensions bb::AddText(ui inX, ui inY, const sv inString, ui inFontShape
     return TextDims;
 }
 
+static void FlipVertically(v<uc>& outImage, ui inWidth, ui inHeight, ui inChannelCount)
+{
+    //v<uc> reversed;
+    //reversed.resize(outImage.size());
+    //for (si y = 0; y < inHeight; ++y) {
+    //    for (si x = 0; x < inWidth * 4; ++x) {
+    //        ui i = x + y * inWidth * 4;
+    //        ui ri = x + (inHeight - y - 1) * inWidth * 4;
+    //        reversed[ri] = outImage[i];
+    //    }
+
+    //}
+}
+
 bb::TextDimensions bb::RenderTextToImage(
     sv inString, ui inFontShapeId, v<uc>& outImage)
 {
@@ -172,8 +186,8 @@ bb::TextDimensions bb::RenderTextToImage(
 
         for (size_t y = 0; y < bitmap_rows; ++y) {
             for (size_t x = 0; x < bitmap_width * mImageChannelCount; ++x) {
-                ui maini = drawX + x + y * outbmp_w * mImageChannelCount;
-                ui biti = x + (bitmap_rows - (drawY - y)) * bitmap_width * mImageChannelCount;
+                ui maini = drawX + x + (drawY - y) * outbmp_w * 4;
+                ui biti = x + y * bitmap_width * 4;
                 outImage[maini] = bmp[biti];
             }
         }
@@ -183,6 +197,8 @@ bb::TextDimensions bb::RenderTextToImage(
     CharacterKey key = { .mFontShapeId = inFontShapeId,
         .mGlyphCodePoint = codepoints[0] };
 
+    stbi_write_bmp("Fuck.bmp", outbmp_w, outbmp_h, 4, outImage.data());
+    //FlipVertically(outImage, outbmp_w, outbmp_h, mImageChannelCount);
     mIndices.clear(); // TODO Don't Clear Vertices and Indices
     mVertices.clear();
     return TextDimensions { .mWidth = outbmp_w, .mHeight = outbmp_h };

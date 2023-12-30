@@ -11,6 +11,7 @@ add_executable(jit ${app_SRC} LuaBirali/lexer.hpp
 "LuaBirali/main.cpp" 
 "LuaBirali/include.hpp"
 "LuaBirali/lua.hpp"
+"LuaBirali/jit.hpp"
 "LuaBirali/ir.hpp") 
 
 CONFIGURE_LLVM(jit)

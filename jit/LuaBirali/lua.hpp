@@ -72,7 +72,7 @@ struct TokenSematic {
     }
 };
 
-static sv const TokenStrings[] = {
+static const std::vector<sv> TokenStrings = {
     "and", "break", "do", "else", "elseif", "end", "false", "for", "function", "goto",
     "if", "in", "local", "nil", "not", "or", "repeat", "return", "then", "true", "until", "while",
     "//", "..", "...", "==", ">=", "<=", "~=", "<<", ">>", "::", "<eof>", "<number>", "<integer>", "<name>", "<string>"
@@ -130,6 +130,7 @@ struct LexerState {
     TokenSematic mt;
     TokenSematic mlookahead;
     s mbuff;
+    std::istream *mz;
 
     void next() { mcurrent = mz->get(); }
     void save(int c) { mbuff.push_back(c); }
@@ -350,7 +351,7 @@ struct LexerState {
         char buff[UTF8BUFFZ];
         int n = utf8esc(buff, readutf8esc());
         for (; n > 0; n--) {
-            save(buff[UTF8BUFFZ] - n);
+            save(buff[UTF8BUFFZ - n]);
         }
     }
 
@@ -465,7 +466,7 @@ struct LexerState {
 
     auto isreserved(sv inStr)
     {
-        return std::find(TokenStrings->begin(), TokenStrings->end(), inStr);
+        return std::find(TokenStrings.begin(), TokenStrings.end(), inStr);
     }
 
     int Lex(SemanticInfo& inS)
@@ -608,8 +609,8 @@ struct LexerState {
                     ts = s(mbuff.begin(), mbuff.end());
                     inS = ts;
                     auto itr = isreserved(ts);
-                    if (itr != TokenStrings->end()) { // Vanesi yo reserved token ho
-                        return std::distance(TokenStrings->begin(), itr); // Get iterator distance
+                    if (itr != TokenStrings.end()) { // Vanesi yo reserved token ho
+                        return std::distance(TokenStrings.begin(), itr); // Get iterator distance
                     } else {
                         return Token::Name;
                     }
@@ -669,6 +670,7 @@ struct ExpDesc
 {
     ExpKind kind;
     SemanticInfo u;
+    int info;
 };
 
 enum VarKind {

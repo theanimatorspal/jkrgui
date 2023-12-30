@@ -1,3 +1,4 @@
+﻿#include "jit.hpp"
 #include "lexer.hpp"
 #include "lua.hpp"
 
@@ -138,6 +139,70 @@ class Ir : public Lexer {
     {
     }
 
+    bool testnext(int c)
+    {
+        if (ls.mt.token == c) {
+            Lexer::Next();
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    void check(int c)
+    {
+        if (ls.mt.token != c)
+            (SyntaxError << "Error Expected " << TokenToString(c) << " here " << ls.mlinenumber)++;
+    }
+
+    void checkmatch(int what, int who, int where)
+    {
+        if (not testnext(what)) {
+            if (where == ls.mlinenumber)
+                (SyntaxError << "Expected " << TokenToString(what) << "<>")++;
+        } else {
+            (SyntaxError << "Expected " << TokenToString(what) << " to close " << TokenToString(who) << "at line " << where)++;
+        }
+    }
+
+    s strcheckname()
+    {
+        s str;
+        check(Token::Name);
+        str = get<s>(ls.mt.s);
+        Next();
+        return str;
+    }
+
+    void singlevar(ExpDesc* var)
+    {
+        s varname = strcheckname();
+        // Find a variable with given name
+        if (var->kind == ExpKind::vvoid) { /* global name */
+            ExpDesc key;
+            // TODO Generate Code for The Variable
+            // TODO Code String
+            // TODO Generate code for indexed variable
+        }
+    }
+
+    void initexpression(ExpDesc* e, ExpKind k, int i)
+    {
+        e->kind = k;
+        e->info = i;
+    }
+
+    void codestring(ExpDesc* e, sv ins)
+    {
+        e->kind = ExpKind::vkstr;
+        e->u = s(ins);
+    }
+
+    void codename(ExpDesc* e)
+    {
+        codestring(e, strcheckname());
+    }
+
     // kita simple expression kita unop subexpression yaa binop subexpr
     BinOpr subexpression(ExpDesc* v, int limit)
     {
@@ -160,46 +225,138 @@ class Ir : public Lexer {
             BinOpr nextOp;
             int line = ls.mlinenumber;
             Next();
-		  //TODO: Generate Code for infix
+            // TODO: Generate Code for infix
             nextOp = subexpression(&v2, priority[binopr].right);
-		  // Generated Code for postfix
+            // Generated Code for postfix
             binopr = nextOp;
         }
 
-	   return binopr;
+        return binopr;
     }
 
-    void primaryexpression()
+    void primaryexpression(ExpDesc* v)
     {
         /* Either a name or '(' wala parent expression */
         switch (ls.mt.token) {
         case '(':
             int line = ls.mlinenumber;
             Lexer::Next();
-            // TODO: expression
-            // TODO: check_match
+            expression(v);
+            checkmatch(')', '(', line);
             return;
         case Token::Name: {
-            // TODO: Single Variable
+            singlevar(v);
             return;
         }
         default:
             (SyntaxError << "Unexpected Symbol")++;
         }
     }
-    void expression (ExpDesc* v)
+
+    void expression(ExpDesc* v)
     {
-        subexpression(v, 0);	
+        subexpression(v, 0);
     }
 
-    void expressionstatement(ExpDesc* v)
+    void suffixedexp(ExpDesc* v)
+    {
+        primaryexpression(v);
+        while (true) {
+            switch (ls.mt.token) {
+            case '.': {
+                // TODO: fieldselwtf
+                break;
+            }
+            case '[': {
+                ExpDesc key;
+                // TODO: GEnerate Indexing Code
+                // TODO: yindex
+                // GENERATE indexing code
+                break;
+            }
+            case ':': {
+                ExpDesc key;
+                Next();
+                // TODO COdename
+                // Generate Self Code
+                // Funcargs
+                break;
+            }
+            case '(':
+            case Token::String:
+            case '{': {
+                // TODO Func Args
+                break;
+            }
+            default:
+                return;
+            }
+        }
+    }
+
+    void simpleexpression(ExpDesc* v)
+    {
+        switch (ls.mt.token) {
+        case Token::Flt: {
+            initexpression(v, ExpKind::vkflt, 0);
+            v->u = get<Number>(ls.mt.s);
+            break;
+        }
+        case Token::Int: {
+            initexpression(v, ExpKind::vkint, 0);
+            v->u = get<Integer>(ls.mt.s);
+            break;
+        }
+        case Token::String: {
+            codestring(v, get<s>(ls.mt.s));
+            break;
+        }
+        case Token::Nil: {
+            initexpression(v, ExpKind::vnil, 0);
+            break;
+        }
+        case Token::True: {
+            initexpression(v, ExpKind::vtrue, 0);
+            break;
+        }
+        case Token::False: {
+            initexpression(v, ExpKind::vfalse, 0);
+            break;
+        }
+        case Token::Dots: {
+            // TODO FunctionState
+            // Check Condition
+            // init Expression
+            break;
+        }
+        case '{': {
+            // TODO Constructor
+            break;
+        }
+        case Token::Function: {
+            Lexer::Next();
+            // body
+            break;
+        }
+        default:
+            suffixedexp(v);
+            return;
+        }
+        Lexer::Next();
+    }
+
+    void expressionstatement()
     {
         LHS_assign v;
-	   // TODO Suffixed Expression
-	   if (ls.mt.token == '=' or ls.mt.token == ',') // is assignment
-	   {
-
-	   }
+        // TODO Suffixed Expression
+        if (ls.mt.token == '=' or ls.mt.token == ',') // is assignment
+        {
+            v.previous = nullptr;
+            // TODO: Rest Assign
+        } else {
+            // TODO: FunctionCall
+            // Check Condition v.v.k == VCall kind
+        }
     }
 
     void statement()
@@ -248,5 +405,59 @@ class Ir : public Lexer {
     }
 
 private:
+    up<llvm::LLVMContext> mirc;
+    up<llvm::IRBuilder<>> mb;
+    up<llvm::Module> mmod;
+    std::map<std::string, llvm::AllocaInst*> mNamedValues;
+    // std::map<std::string, up<Expr::Prototype>> mFunctionPrototypes;
+
+    llvm::ExitOnError mExitOnError;
+    up<Jit> mJit;
+    up<llvm::FunctionPassManager> mFunctionPassManager;
+    up<llvm::LoopAnalysisManager> mLoopAnalysisManager;
+    up<llvm::FunctionAnalysisManager> mFunctionAnalysisManager;
+    up<llvm::CGSCCAnalysisManager> mCGSCCAnalysisManager;
+    up<llvm::ModuleAnalysisManager> mModuleAnalysisManager;
+    up<llvm::PassInstrumentationCallbacks> mPassInstrumentationCallbacks;
+    up<llvm::StandardInstrumentations> mStandardInstrumentations;
+
+private:
+    void InitializeJit()
+    {
+        llvm::InitializeNativeTarget();
+        llvm::InitializeNativeTargetAsmPrinter();
+        llvm::InitializeNativeTargetAsmParser();
+        mJit = mExitOnError(Jit::Create());
+    }
+    void InitializeModulePassAndMessengers ( )
+    {
+        mirc = mu<llvm::LLVMContext>();
+        mmod = mu<llvm::Module>("LuaBiraliJit", *mirc);
+        mmod->setDataLayout(mJit->GetDataLayout());
+        mb = mu<llvm::IRBuilder<>>(*mirc);
+        mFunctionPassManager = mu<llvm::FunctionPassManager>();
+        mLoopAnalysisManager = mu<llvm::LoopAnalysisManager>();
+        mFunctionAnalysisManager = mu<llvm::FunctionAnalysisManager>();
+        mCGSCCAnalysisManager = mu<llvm::CGSCCAnalysisManager>();
+        mModuleAnalysisManager = mu<llvm::ModuleAnalysisManager>();
+        mPassInstrumentationCallbacks = mu<llvm::PassInstrumentationCallbacks>();
+        mStandardInstrumentations = mu<llvm::StandardInstrumentations>(*mirc,
+            /* debug logging */
+            true);
+        mStandardInstrumentations->registerCallbacks(*mPassInstrumentationCallbacks,
+            mModuleAnalysisManager.get());
+        mFunctionPassManager->addPass(llvm::RegToMemPass());
+        mFunctionPassManager->addPass(llvm::InstCombinePass());
+        mFunctionPassManager->addPass(llvm::ReassociatePass());
+        mFunctionPassManager->addPass(llvm::GVNPass());
+        mFunctionPassManager->addPass(llvm::SimplifyCFGPass());
+        llvm::PassBuilder pb;
+        pb.registerModuleAnalyses(*mModuleAnalysisManager);
+        pb.registerFunctionAnalyses(*mFunctionAnalysisManager);
+        pb.crossRegisterProxies(*mLoopAnalysisManager,
+            *mFunctionAnalysisManager,
+            *mCGSCCAnalysisManager,
+            *mModuleAnalysisManager);
+    }
     Dyndata mData;
 };
