@@ -9,11 +9,11 @@ namespace ksai {
 	public:
 		VulkanInstance();
 		~VulkanInstance();
-		inline constexpr const auto& GetInstanceHandle() const { return mInstance; }
+		GETTER& GetInstanceHandle() const { return mInstance; }
 	private:
 		vk::Instance mInstance;
-		std::vector <char const*> mInstanceLayerNames;
-		std::vector <char const*> mInstanceExtensionNames;
+		v <char const*> mInstanceLayerNames;
+		v <char const*> mInstanceExtensionNames;
 	};
 
 }

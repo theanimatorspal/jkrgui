@@ -24,8 +24,8 @@ namespace ksai {
 		vk::ImageType mImageType = vk::ImageType::e2D;
 		vk::ImageUsageFlags mImageUsage = vk::ImageUsageFlagBits::eSampled;
 		vk::SampleCountFlagBits mSampleCountFlagBits = vk::SampleCountFlagBits::e1;
-		uint32_t mMipLevels = 1;
-		uint32_t mArrayLayers = 1;
+		ui mMipLevels = 1;
+		ui mArrayLayers = 1;
 		vk::ImageTiling mTiling = vk::ImageTiling::eOptimal;
 		vk::ImageAspectFlagBits mImageAspect = vk::ImageAspectFlagBits::eColor;
 		vk::MemoryPropertyFlagBits mMemoryProperty = vk::MemoryPropertyFlagBits::eDeviceLocal;
@@ -55,7 +55,7 @@ namespace ksai {
     public:
 		template<ImageContext inImageContext>
 		void FillImageProperties();
-		void GetMemoryTypeIndex(vk::MemoryPropertyFlagBits inFlag, vk::Image inImage, vk::DeviceSize& outSize, uint32_t& outIndex);
+		void GetMemoryTypeIndex(vk::MemoryPropertyFlagBits inFlag, vk::Image inImage, vk::DeviceSize& outSize, ui& outIndex);
 		void GetImageTiling(vk::Format inFormat, vk::FormatFeatureFlagBits inFormatFeature, vk::ImageTiling& outTiling);
 	protected:
 		void CreateImageAndBindMemory(vk::Image& inImage, vk::DeviceMemory& inDeviceMemory);
@@ -86,7 +86,7 @@ namespace ksai {
 			ExplicitDestroy();
 		}
 		VulkanImage(const VulkanDevice& inDevice);
-		VulkanImage(const VulkanDevice& inDevice, uint32_t inWidth, uint32_t inHeight);
+		VulkanImage(const VulkanDevice& inDevice, ui inWidth, ui inHeight);
 		VulkanImage(const VulkanDevice& inDevice, const VulkanSurface& inSurface);
         VulkanImage(const VulkanDevice &inDevice,
                     const VulkanSurface &inSurface,
@@ -174,8 +174,8 @@ namespace ksai {
 
     template<ImageContext inImageContext>
     inline VulkanImage<inImageContext>::VulkanImage(const VulkanDevice &inDevice,
-                                                    uint32_t inWidth,
-                                                    uint32_t inHeight)
+                                                    ui inWidth,
+                                                    ui inHeight)
         : VulkanImageBase(inDevice)
     {
 		FillImageProperties<inImageContext>();

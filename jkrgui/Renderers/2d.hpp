@@ -1,8 +1,7 @@
 #pragma once
-#include "Line.hpp"
-#include "Shape.hpp"
-#include "BestText.hpp"
-#include "../ResourceManager.hpp"
+#include <Renderers/TwoD/Line.hpp>
+#include <Renderers/TwoD/Shape.hpp>
+#include <Renderers/TextD/BestText.hpp>
 
 namespace Jkr::Renderer
 {

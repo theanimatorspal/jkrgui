@@ -12,11 +12,19 @@ local __Depth = Depth + 10 -- Farthest (This meant to be used when the ComObject
 Load = function()
         LineId = L.add(vec2(100, 100), vec2(700, 700), 55)
         Font = Jkr.FontObject:New("font.ttf", 4)
-        FileMenu = {
+        ContextMenu = {
+                [1] = {
+                        name = "New",
+                        action = function(inPosition_3f)
+                        end
+                },
+        
+        }
+        FileMenux = {
                 [1] = {
                         name = "File",
                         action = function (inPosition_3f)
-                                
+                            print("jhjh")    
                         end
                 },
                 [2] = {
@@ -38,7 +46,32 @@ Load = function()
                         end
                 }
         }
-        FileMenu = Com.FileMenuBarObject:New(FileMenu, 25, 80, Font)
+        FileMenu = Com.FileMenuBarObject:New(FileMenux, 25, 80, Font)
+        ContextMenu = Com.ContextMenu:New(vec3(100,100,80),vec3(80,20,1),Font,10, 10)
+        print("along")
+
+        ContextMenuEntries = {
+                [1]= {
+                        name = "Dipesh",
+                        action = function (inPosition_3f)
+                                
+                        end 
+                },
+                [2] = {
+                        name = "Raja",
+                        action = function (inPosition_3f)
+                                
+                        end
+                },
+                [3] = {
+                        name = "Ram",
+                        action = function (inPosition_3f)
+                                
+                        end
+                }
+        }
+       ContextMenu:Update(ContextMenuEntries,vec3(400,300,80), vec3(80,20,1))
+       print("j vaye ni mc")
 end
 
 Event = function()

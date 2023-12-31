@@ -2,7 +2,7 @@
 #include <EventManager.hpp>
 #include <Instance.hpp>
 #include <Renderers/ResourceManager.hpp>
-#include <Renderers/TwoD/2d.hpp>
+#include <Renderers/2d.hpp>
 #include <Window.hpp>
 
 int main()

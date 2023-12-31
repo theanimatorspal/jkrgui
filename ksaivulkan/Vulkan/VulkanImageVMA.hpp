@@ -7,7 +7,7 @@ namespace ksai {
 	class VulkanImageVMA : public VulkanImageBase
 	{
 	public:
-		VulkanImageVMA(const VulkanVMA& inVMA, const VulkanDevice& inDevice, uint32_t inWidth, uint32_t inHeight, uint32_t inChannel = 4)
+		VulkanImageVMA(const VulkanVMA& inVMA, const VulkanDevice& inDevice, ui inWidth, ui inHeight, ui inChannel = 4)
 			: VulkanImageBase(inDevice), mVMA(inVMA)
 		{
 			FillImageProperties<inImageContext>();

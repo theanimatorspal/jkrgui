@@ -1,6 +1,8 @@
 #include "glTF_Model.hpp"
 
-void Jkr::Renderer::_3D::glTF_Model::LoadImages(tinygltf::Model& input)
+using namespace Jkr::Renderer::_3D;
+
+void glTF_Model::LoadImages(tinygltf::Model& input)
 {
     // Images can be stored inside the glTF (which is the case for the sample model), so instead of directly
     // loading them from disk, we fetch them from the glTF loader and upload the buffers
@@ -8,13 +10,14 @@ void Jkr::Renderer::_3D::glTF_Model::LoadImages(tinygltf::Model& input)
     for (size_t i = 0; i < input.images.size(); i++) {
         tinygltf::Image& glTFImage = input.images[i];
         // Get the image data from the glTF loader
-        unsigned char* buffer = nullptr;
+        v<uc> buffvec;
+        uc* buffer = nullptr;
         VkDeviceSize bufferSize = 0;
-        bool deleteBuffer = false;
         // We convert RGB-only images to RGBA, as most devices don't support RGB-formats in Vulkan
         if (glTFImage.component == 3) {
             bufferSize = glTFImage.width * glTFImage.height * 4;
-            buffer = new unsigned char[bufferSize];
+            buffvec.resize(bufferSize);
+            buffer = buffvec.data();
             unsigned char* rgba = buffer;
             unsigned char* rgb = &glTFImage.image[0];
             for (size_t i = 0; i < glTFImage.width * glTFImage.height; ++i) {
@@ -22,7 +25,6 @@ void Jkr::Renderer::_3D::glTF_Model::LoadImages(tinygltf::Model& input)
                 rgba += 4;
                 rgb += 3;
             }
-            deleteBuffer = true;
         } else {
             buffer = &glTFImage.image[0];
             // bufferSize = glTFImage.image.size();
@@ -35,13 +37,10 @@ void Jkr::Renderer::_3D::glTF_Model::LoadImages(tinygltf::Model& input)
             glTFImage.height,
             4);
         mImages.push_back(std::move(an_image));
-        if (deleteBuffer) {
-            delete[] buffer;
-        }
     }
 }
 
-void Jkr::Renderer::_3D::glTF_Model::LoadTextures(tinygltf::Model& input)
+void glTF_Model::LoadTextures(tinygltf::Model& input)
 {
     mTextures.resize(input.textures.size());
     for (size_t i = 0; i < input.textures.size(); i++) {
@@ -49,7 +48,7 @@ void Jkr::Renderer::_3D::glTF_Model::LoadTextures(tinygltf::Model& input)
     }
 }
 
-void Jkr::Renderer::_3D::glTF_Model::LoadMaterials(tinygltf::Model& input)
+void glTF_Model::LoadMaterials(tinygltf::Model& input)
 {
     mMaterials.resize(input.materials.size());
     for (size_t i = 0; i < input.materials.size(); i++) {
@@ -68,7 +67,7 @@ void Jkr::Renderer::_3D::glTF_Model::LoadMaterials(tinygltf::Model& input)
     }
 }
 
-void Jkr::Renderer::_3D::glTF_Model::LoadNode(const tinygltf::Node& inputNode,
+void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
     const tinygltf::Model& input,
     Node* inParent,
     std::vector<uint32_t>& indexBuffer,
@@ -215,7 +214,7 @@ void Jkr::Renderer::_3D::glTF_Model::LoadNode(const tinygltf::Node& inputNode,
     }
 }
 
-void Jkr::Renderer::_3D::glTF_Model::DrawNode(VulkanCommandBuffer& inCommandBuffer,
+void glTF_Model::DrawNode(VulkanCommandBuffer& inCommandBuffer,
     VulkanPipelineLayoutBase& inPipelineLayout,
     Node* inNode)
 {

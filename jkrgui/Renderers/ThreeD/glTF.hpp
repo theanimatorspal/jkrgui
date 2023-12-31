@@ -19,42 +19,37 @@ class glTF : public Renderer_base, public glTF_base {
 
 public:
     glTF(const Instance& inInstance, Window& inCompatibleWindow);
-    void Add(const std::string_view inFileName, uint32_t& outId);
-    void AddPainter(const std::string_view inFileName,
-        const std::string_view inVertexShader,
-        const std::string_view inFragmentShader,
-        const std::string_view inComputeShader,
+    void Add(const sv inFileName, ui& outId);
+    void AddPainter(const sv inFileName,
+        const sv inVertexShader,
+        const sv inFragmentShader,
+        const sv inComputeShader,
         Window& inCompatibleWindow,
-        uint32_t& outId, bool inForceStore = false);
+        ui& outId, bool inForceStore = false);
 
     void Bind(Window& inWindow)
     {
         Painter::BindDrawParamtersVertexAndIndexBuffersOnly_EXT(mInstance, *mPrimitive, inWindow);
     }
-
-    void PainterBindDraw(uint32_t inPainterId, Window& inWindow)
+    void PainterBindDraw(ui inPainterId, Window& inWindow)
     {
         mPainters[inPainterId]->BindDrawParamtersPipelineOnly_EXT(*mPrimitive, inWindow);
     }
-
-    void PainterBindDispatch(uint32_t inId)
+    void PainterBindDispatch(ui inId)
     {
     }
-
     template <typename T>
-    void PainterDraw(uint32_t inId, T inPush, Window& inWindow)
+    void PainterDraw(ui inId, T inPush, Window& inWindow)
     {
         mPainters[mBoundPainterVF]->Draw_EXT<T>(*mPrimitive, inPush, inWindow, gb::GetIndexCount(inId), 1, 0, 0);
     }
-
-    void PainterDispatch(uint32_t inId)
+    void PainterDispatch(ui inId)
     {
     }
-
     void Dispatch(Window& inWindow);
 
 private:
-    void AddPainter(Up<Painter> inPainter, Up<PainterCache> inPainterCaches, uint32_t& outId);
+    void AddPainter(Up<Painter> inPainter, Up<PainterCache> inPainterCaches, ui& outId);
     void CheckAndResize(const glTF_Model& inModel)
     {
         bool ResizeRequired = false;
@@ -107,16 +102,16 @@ private:
 #endif
         }
     }
-    std::vector<Up<glTF_Model>> mModels;
-    std::vector<Up<Painter>> mPainters;
-    std::vector<Up<PainterCache>> mPainterCaches;
-    uint32_t mBoundPainterVF = 0;
-    uint32_t mBoundPainterC = 0; // Compute
+    v<Up<glTF_Model>> mModels;
+    v<Up<Painter>> mPainters;
+    v<Up<PainterCache>> mPainterCaches;
+    ui mBoundPainterVF = 0;
+    ui mBoundPainterC = 0; // Compute
     Up<Primitive> mPrimitive;
     const Instance& mInstance;
 
 private:
-    uint32_t mTotalNoOfVerticesRendererCanHold = rb::InitialRendererElementArraySize;
-    uint32_t mTotalNoOfIndicesRendererCanHold = rb::InitialRendererElementArraySize;
+    ui mTotalNoOfVerticesRendererCanHold = rb::InitialRendererElementArraySize;
+    ui mTotalNoOfIndicesRendererCanHold = rb::InitialRendererElementArraySize;
 };
 } // namespace Jkr::Renderer::_3D

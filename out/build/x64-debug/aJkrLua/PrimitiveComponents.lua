@@ -495,6 +495,7 @@ Com.FileMenuBarObject = {
     mMainArea = nil,
     mDepth = nil,
     mHeight = nil,
+    mFileMenu = nil,
     New = function(self, inFileMenu, inHeight, inDepth, inFontObject)
         local Obj = {}
         setmetatable(Obj, self)
@@ -506,11 +507,12 @@ Com.FileMenuBarObject = {
         Obj.mDepth = inDepth
         Obj.mHeight = inHeight
         Obj.mButtons = {}
-        local i = 0
+        Obj.mFileMenu = inFileMenu
+        local i = 1
         for index, value in ipairs(inFileMenu) do
-            local pos = vec3(50 * i, 0, inDepth - 3)
+            local pos = vec3(50 * (i - 1), 0, inDepth - 3)
             local dimen = vec3(50, inHeight, 1)
-            Obj.mButtons[#Obj.mButtons+1] = Com.TextButtonObject:New(inFileMenu[1].name, inFontObject, pos, dimen)
+            Obj.mButtons[#Obj.mButtons + 1] = Com.TextButtonObject:New(inFileMenu[i].name, inFontObject, pos, dimen)
             Com.AreaObject.TurnOffShadow(Obj.mButtons[#Obj.mButtons])
             i = i + 1
         end
@@ -520,5 +522,50 @@ Com.FileMenuBarObject = {
         local mainareapos = vec3(0, 0, self.mDepth)
         local mainareadimen = vec3(WindowDimension.x, self.mHeight, 1)
         self.mMainArea:Update(mainareapos, mainareadimen)
+        for index, value in ipairs(self.mFileMenu) do
+            self.mButtons[index]:Event()
+            local pos = vec3(50 * (index - 1), self.mHeight, self.mDepth - 3)
+            if self.mButtons[index].mPressed then
+                self.mFileMenu[index].action(pos)
+            end
+        end
+    end
+}
+
+
+Com.ContextMenu = {
+    mMainArea = nil,
+    mCellDimension_3f = vec3(0, 0, 0),
+    mPosition_3f = nil,
+    mFileMenu = nil,
+    mButtons = nil,
+    New = function(self, inPosition_3f, inCellDimension_3f, inFontObject, inNoOfEntries, inMaxStringLength)
+        local Obj = {
+            mPosition_3f = inPosition_3f,
+            mCellDimension_3f = inCellDimension_3f,
+            mButtons = {},
+        }
+        setmetatable(Obj, self)
+        self.__index = self
+        local MainAreaDimen = vec3(inCellDimension_3f.x, inCellDimension_3f.y * inNoOfEntries, 1)
+        Obj.mMainArea = Com.AreaObject:New(inPosition_3f, MainAreaDimen)
+        for i = 1, inNoOfEntries, 1 do
+            local pos = vec3(inPosition_3f.x, inPosition_3f.y + inCellDimension_3f.y * (i - 1), inPosition_3f.z - 3)
+            Obj.mButtons[i] = Com.TextButtonObject:New(string.rep(" ", inMaxStringLength), inFontObject, pos,
+                inCellDimension_3f)
+            Obj.mButtons[i]:TurnOffShadow()
+
+            i = i + 1
+        end
+        return Obj
+    end,
+    Update = function(self, inContextMenuTable, inPosition_3f, inCellDimension_3f)
+        local inNoOfEntries = #inContextMenuTable
+        local MainAreaDimension = vec3(inCellDimension_3f.x, inCellDimension_3f.y * inNoOfEntries, 1)
+        self.mMainArea:Update(inPosition_3f, MainAreaDimension)
+        for i = 1, inNoOfEntries, 1 do
+            local pos = vec3(inPosition_3f.x, inPosition_3f.y + inCellDimension_3f.y * (i - 1), inPosition_3f.z - 3)
+            self.mButtons[i]:Update(pos, inCellDimension_3f, inContextMenuTable[i].name)
+        end
     end
 }

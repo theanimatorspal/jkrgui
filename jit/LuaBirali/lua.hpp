@@ -47,7 +47,7 @@ enum Token : int8_t {
 using SemanticInfo = var<Number, Integer, s>;
 
 struct TokenSematic {
-    int token;
+    Token token;
     SemanticInfo s;
     std::strong_ordering operator<=>(int inToken)
     {
@@ -63,7 +63,7 @@ struct TokenSematic {
     }
     void operator=(int inToken)
     {
-        token = inToken;
+        token = (Token)inToken;
     }
     template <typename T>
     T Get()
@@ -124,7 +124,7 @@ static gse SyntaxError("SyntaxError:");
 static gse LexError("LexError:");
 
 struct LexerState {
-    int mcurrent;
+    Token mcurrent;
     int mlinenumber;
     int mlastline;
     TokenSematic mt;
@@ -132,7 +132,7 @@ struct LexerState {
     s mbuff;
     std::istream *mz;
 
-    void next() { mcurrent = mz->get(); }
+    void next() { mcurrent = (Token) mz->get(); }
     void save(int c) { mbuff.push_back(c); }
     void save_and_next()
     {
@@ -164,7 +164,7 @@ struct LexerState {
 
     int check_next(sv set)
     {
-        assert(set[2] == '\0');
+        assert(set.size() == 2);
         if (mcurrent == set[0] or mcurrent == set[1]) {
             next();
             return 1;
@@ -469,7 +469,7 @@ struct LexerState {
         return std::find(TokenStrings.begin(), TokenStrings.end(), inStr);
     }
 
-    int Lex(SemanticInfo& inS)
+    char32_t Lex(SemanticInfo& inS)
     {
         mbuff.clear();
         while (true) {

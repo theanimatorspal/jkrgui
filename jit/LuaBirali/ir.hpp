@@ -134,11 +134,13 @@ struct LHS_assign {
 };
 
 class Ir : public Lexer {
+public:
     Ir(std::istream& inS)
         : Lexer(inS)
     {
+        InitializeJit();
+        InitializeModulePassAndMessengers();
     }
-
     bool testnext(int c)
     {
         if (ls.mt.token == c) {
@@ -148,13 +150,11 @@ class Ir : public Lexer {
             return 0;
         }
     }
-
     void check(int c)
     {
         if (ls.mt.token != c)
             (SyntaxError << "Error Expected " << TokenToString(c) << " here " << ls.mlinenumber)++;
     }
-
     void checkmatch(int what, int who, int where)
     {
         if (not testnext(what)) {
@@ -165,6 +165,9 @@ class Ir : public Lexer {
         }
     }
 
+    /*
+                THESE ARE EXPRESSIONS RELATED
+    */
     s strcheckname()
     {
         s str;
@@ -173,7 +176,6 @@ class Ir : public Lexer {
         Next();
         return str;
     }
-
     void singlevar(ExpDesc* var)
     {
         s varname = strcheckname();
@@ -185,25 +187,20 @@ class Ir : public Lexer {
             // TODO Generate code for indexed variable
         }
     }
-
     void initexpression(ExpDesc* e, ExpKind k, int i)
     {
         e->kind = k;
         e->info = i;
     }
-
     void codestring(ExpDesc* e, sv ins)
     {
         e->kind = ExpKind::vkstr;
         e->u = s(ins);
     }
-
     void codename(ExpDesc* e)
     {
         codestring(e, strcheckname());
     }
-
-    // kita simple expression kita unop subexpression yaa binop subexpr
     BinOpr subexpression(ExpDesc* v, int limit)
     {
         BinOpr binopr;
@@ -233,17 +230,17 @@ class Ir : public Lexer {
 
         return binopr;
     }
-
     void primaryexpression(ExpDesc* v)
     {
         /* Either a name or '(' wala parent expression */
         switch (ls.mt.token) {
-        case '(':
+        case '(': {
             int line = ls.mlinenumber;
             Lexer::Next();
             expression(v);
             checkmatch(')', '(', line);
             return;
+        }
         case Token::Name: {
             singlevar(v);
             return;
@@ -252,12 +249,10 @@ class Ir : public Lexer {
             (SyntaxError << "Unexpected Symbol")++;
         }
     }
-
     void expression(ExpDesc* v)
     {
         subexpression(v, 0);
     }
-
     void suffixedexp(ExpDesc* v)
     {
         primaryexpression(v);
@@ -293,7 +288,6 @@ class Ir : public Lexer {
             }
         }
     }
-
     void simpleexpression(ExpDesc* v)
     {
         switch (ls.mt.token) {
@@ -345,10 +339,16 @@ class Ir : public Lexer {
         Lexer::Next();
     }
 
+    /*
+        THESE ARE STATEMENT RELATED
+    */
+    void restassign (LHS_assign *lh , int nvars) {
+		
+    }
     void expressionstatement()
     {
         LHS_assign v;
-        // TODO Suffixed Expression
+        suffixedexp(&v.v);
         if (ls.mt.token == '=' or ls.mt.token == ',') // is assignment
         {
             v.previous = nullptr;
@@ -358,7 +358,6 @@ class Ir : public Lexer {
             // Check Condition v.v.k == VCall kind
         }
     }
-
     void statement()
     {
         switch (ls.mt.token) {
@@ -399,11 +398,38 @@ class Ir : public Lexer {
             break;
         }
         default: {
+            expressionstatement();
             break;
         }
         }
     }
 
+    /* MAINS */
+    int block_follow(int withuntil)
+    {
+        switch (ls.mt.token) {
+        case Token::Else:
+        case Token::Elseif:
+        case Token::End:
+        case Token::Eos:
+            return 1;
+        case Token::Until:
+            return withuntil;
+        default:
+            return 0;
+        }
+    }
+    void statementlist()
+    {
+        while (not block_follow(1)) {
+            if (ls.mt.token != Token::Return) {
+                statement();
+                return;
+            }
+        }
+    }
+
+    /* LLVM */
 private:
     up<llvm::LLVMContext> mirc;
     up<llvm::IRBuilder<>> mb;
@@ -421,7 +447,6 @@ private:
     up<llvm::PassInstrumentationCallbacks> mPassInstrumentationCallbacks;
     up<llvm::StandardInstrumentations> mStandardInstrumentations;
 
-private:
     void InitializeJit()
     {
         llvm::InitializeNativeTarget();
@@ -429,7 +454,7 @@ private:
         llvm::InitializeNativeTargetAsmParser();
         mJit = mExitOnError(Jit::Create());
     }
-    void InitializeModulePassAndMessengers ( )
+    void InitializeModulePassAndMessengers()
     {
         mirc = mu<llvm::LLVMContext>();
         mmod = mu<llvm::Module>("LuaBiraliJit", *mirc);
@@ -459,5 +484,8 @@ private:
             *mCGSCCAnalysisManager,
             *mModuleAnalysisManager);
     }
+
+    /* Parser */
+private:
     Dyndata mData;
 };

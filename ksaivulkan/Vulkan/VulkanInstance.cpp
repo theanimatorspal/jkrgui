@@ -10,8 +10,8 @@
 
 using namespace ksai;
 
-static std::string AppName = "JkrEngine";
-static std::string EngineName = "JkrVulkanEngine";
+static s AppName = "JkrEngine";
+static s EngineName = "JkrVulkanEngine";
 static bool hasLayers(std::span<char const *> const &layers,
                       std::span<vk::LayerProperties> const &properties)
 {
@@ -63,10 +63,10 @@ VulkanInstance::VulkanInstance()
 
     SDL_Window *Window = SDL_CreateWindow("Test", 0, 0, 1, 1, SDL_WINDOW_HIDDEN | SDL_WINDOW_VULKAN);
     auto ExtensionProperties = vk::enumerateInstanceExtensionProperties();
-    uint32_t pCount = 0;
+    ui pCount = 0;
     const char** extensions;
 	SDL_Vulkan_GetInstanceExtensions(Window, &pCount, NULL);
-	std::vector<const char*> extVec(pCount);
+	v<const char*> extVec(pCount);
 	extensions = extVec.data();
 	SDL_Vulkan_GetInstanceExtensions(Window, &pCount, extensions);
 	SDL_DestroyWindow(Window);
@@ -111,7 +111,7 @@ VulkanInstance::VulkanInstance()
 #ifdef USE_VULKAN_1_3 
 
 #if defined(_DEBUG)
-	std::vector<vk::ValidationFeatureEnableEXT> EnabledFeaturesValidaiton = {
+	v<vk::ValidationFeatureEnableEXT> EnabledFeaturesValidaiton = {
 		vk::ValidationFeatureEnableEXT::eSynchronizationValidation
 	};
 	auto ValidationFeaturesInfo = vk::ValidationFeaturesEXT()

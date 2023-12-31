@@ -19,14 +19,14 @@ namespace ksai {
 	protected:
 		const vk::Device& mDevice;
 		vk::SwapchainKHR mSwapChain;
-		std::vector<vk::Image> mSwapChainImages;
-		std::vector<vk::ImageView> mSwapChainImageViews;
+		v<vk::Image> mSwapChainImages;
+		v<vk::ImageView> mSwapChainImageViews;
 	};
 }
 
 namespace ksai {
 	using VulkanImages = VulkanImage<ImageContext::ExternalHandled>;
-	template<size_t inMaxFramesInFlight>
+	template<sz inMaxFramesInFlight>
 	class VulkanSwapChain : public VulkanSwapChainBase
 	{
 	public:
@@ -44,15 +44,15 @@ namespace ksai {
 		}
 		GETTER& GetSwapChainImageViews() { return mSwapChainImageViews; }
 		GETTER& GetSwapChainHandle() const { return mSwapChain; }
-		std::vector<VulkanImages> GetVulkanImages(const VulkanDevice& inDevice, const VulkanSurface& inSurface);
+		v<VulkanImages> GetVulkanImages(const VulkanDevice& inDevice, const VulkanSurface& inSurface);
 	};
 }
 
 namespace ksai {
-	template<size_t inMaxFramesInFlight>
-	inline std::vector<VulkanImages> VulkanSwapChain<inMaxFramesInFlight>::GetVulkanImages(const VulkanDevice& inDevice, const VulkanSurface& inSurface)
+	template<sz inMaxFramesInFlight>
+	inline v<VulkanImages> VulkanSwapChain<inMaxFramesInFlight>::GetVulkanImages(const VulkanDevice& inDevice, const VulkanSurface& inSurface)
 	{
-		std::vector<VulkanImages> Vectors;
+		v<VulkanImages> Vectors;
 		for (int i = 0; i < inMaxFramesInFlight; i++)
 		{
 			auto Image = VulkanImage<ImageContext::ExternalHandled>(inDevice, inSurface, nullptr, mSwapChainImageViews[i]);
@@ -61,7 +61,7 @@ namespace ksai {
 		return Vectors;
 	}
 
-	template<size_t inMaxFramesInFlight>
+	template<sz inMaxFramesInFlight>
 	VulkanSwapChain<inMaxFramesInFlight>::VulkanSwapChain(const VulkanDevice& inDevice, const VulkanQueueContext& inQueueContext, const VulkanSurface& inSurface) 
 		: VulkanSwapChainBase(inDevice)
 	{

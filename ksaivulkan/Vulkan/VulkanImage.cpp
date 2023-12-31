@@ -51,13 +51,13 @@ void ksai::VulkanImageBase::CmdTransitionImageLayout(const VulkanCommandBuffer& 
 
 }
 
-void ksai::VulkanImageBase::GetMemoryTypeIndex(vk::MemoryPropertyFlagBits inFlag, vk::Image inImage, vk::DeviceSize& outSize, uint32_t& outIndex)
+void ksai::VulkanImageBase::GetMemoryTypeIndex(vk::MemoryPropertyFlagBits inFlag, vk::Image inImage, vk::DeviceSize& outSize, ui& outIndex)
 {
 	vk::PhysicalDeviceMemoryProperties memoryProperties = mPhysicalDevice.getMemoryProperties();
 	vk::MemoryRequirements memoryRequirements = mDevice.getImageMemoryRequirements(inImage);
-	uint32_t typeBits = memoryRequirements.memoryTypeBits;
-	uint32_t typeIndex = uint32_t(~0);
-	for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++)
+	ui typeBits = memoryRequirements.memoryTypeBits;
+	ui typeIndex = ui(~0);
+	for (ui i = 0; i < memoryProperties.memoryTypeCount; i++)
 	{
 		if ((typeBits & 1) && ((memoryProperties.memoryTypes[i].propertyFlags & vk::MemoryPropertyFlagBits::eDeviceLocal) == inFlag))
 		{
@@ -111,7 +111,7 @@ void ksai::VulkanImageBase::CreateImageAndBindMemory(vk::Image& inImage, vk::Dev
 	);
 	inImage = mDevice.createImage(ImageCreateInfo);
 	vk::DeviceSize RequiredSize;
-	uint32_t RequiredIndex;
+	ui RequiredIndex;
 	GetMemoryTypeIndex(mImageProperties.mMemoryProperty, inImage, RequiredSize, RequiredIndex);
 	inDeviceMemory = mDevice.allocateMemory(vk::MemoryAllocateInfo(RequiredSize, RequiredIndex));
 	mDevice.bindImageMemory(inImage, inDeviceMemory, 0);

@@ -21,6 +21,7 @@
 #include <harfbuzz/hb.h>
 
 namespace Jkr::Renderer {
+using namespace ksai;
 class BestText_base {
 public:
     struct TextDimensions {

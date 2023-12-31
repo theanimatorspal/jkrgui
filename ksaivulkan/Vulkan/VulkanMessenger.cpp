@@ -18,19 +18,19 @@ VKAPI_ATTR VkBool32 VKAPI_CALL KsaiDebugMessengerCallback(VkDebugUtilsMessageSev
     message << std::string("\t") << "message         = <" << pCallbackData->pMessage << ">\n";
     if (0 < pCallbackData->queueLabelCount) {
         message << std::string("\t") << "Queue Labels:\n";
-        for (uint32_t i = 0; i < pCallbackData->queueLabelCount; i++) {
+        for (ui i = 0; i < pCallbackData->queueLabelCount; i++) {
             message << std::string("\t\t") << "labelName = <" << pCallbackData->pQueueLabels[i].pLabelName << ">\n";
         }
     }
     if (0 < pCallbackData->cmdBufLabelCount) {
         message << std::string("\t") << "CommandBuffer Labels:\n";
-        for (uint32_t i = 0; i < pCallbackData->cmdBufLabelCount; i++) {
+        for (ui i = 0; i < pCallbackData->cmdBufLabelCount; i++) {
             message << std::string("\t\t") << "labelName = <" << pCallbackData->pCmdBufLabels[i].pLabelName << ">\n";
         }
     }
     if (0 < pCallbackData->objectCount) {
         message << std::string("\t") << "Objects:\n";
-        for (uint32_t i = 0; i < pCallbackData->objectCount; i++) {
+        for (ui i = 0; i < pCallbackData->objectCount; i++) {
             message << std::string("\t\t") << "Object " << i << "\n";
             message << std::string("\t\t\t") << "objectType   = " << vk::to_string(static_cast<vk::ObjectType>(pCallbackData->pObjects[i].objectType)) << "\n";
             message << std::string("\t\t\t") << "objectHandle = " << pCallbackData->pObjects[i].objectHandle << "\n";

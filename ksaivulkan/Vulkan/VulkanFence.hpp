@@ -11,7 +11,7 @@ namespace ksai {
 		~VulkanFence();
 		vk::Result Wait();
 		void Reset();
-		inline constexpr const auto& GetFenceHandle() const { return mFence; }
+		GETTER& GetFenceHandle() const { return mFence; }
 	private:
 		const vk::Device& mDevice;
 		vk::Fence mFence;

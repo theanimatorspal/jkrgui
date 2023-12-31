@@ -10,8 +10,8 @@ namespace ksai {
 		VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice, const VulkanQueueContext& inQueueContext);
 		~VulkanDevice();
 		void Wait() const;
-		inline constexpr const auto& GetDeviceHandle() const { return mDevice; }
-		inline constexpr const auto& GetPhysicalDeviceHandle() const { return mPhysicalDevice; }
+		GETTER& GetDeviceHandle() const { return mDevice; }
+		GETTER& GetPhysicalDeviceHandle() const { return mPhysicalDevice; }
 	private:
 		std::vector<vk::QueueFamilyProperties> mQueueFamilyProperties;
 		const vk::PhysicalDevice& mPhysicalDevice;

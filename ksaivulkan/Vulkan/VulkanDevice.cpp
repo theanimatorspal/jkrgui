@@ -8,12 +8,12 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice, const V
     : mPhysicalDevice(inPhysicalDevice.GetPhysicalDeviceHandle())
 {
     float QueuePriority = 0.0f;
-    vk::DeviceQueueCreateInfo deviceQueueCreateInfo(vk::DeviceQueueCreateFlags(), static_cast<uint32_t>(inQueueContext.GetGraphicsQueueFamilyIndex()), 1, &QueuePriority);
+    vk::DeviceQueueCreateInfo deviceQueueCreateInfo(vk::DeviceQueueCreateFlags(), static_cast<ui>(inQueueContext.GetGraphicsQueueFamilyIndex()), 1, &QueuePriority);
 
-    std::vector<vk::ExtensionProperties> extensionsProperties = mPhysicalDevice.enumerateDeviceExtensionProperties();
-    std::vector<vk::LayerProperties> layerProperties = mPhysicalDevice.enumerateDeviceLayerProperties();
-    std::vector<char const*> deviceLayerNames;
-    std::vector<char const*> deviceExtensionNames;
+    v<vk::ExtensionProperties> extensionsProperties = mPhysicalDevice.enumerateDeviceExtensionProperties();
+    v<vk::LayerProperties> layerProperties = mPhysicalDevice.enumerateDeviceLayerProperties();
+    v<char const*> deviceLayerNames;
+    v<char const*> deviceExtensionNames;
     deviceExtensionNames.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 #ifdef __APPLE__
     mInstanceExtensionNames.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);

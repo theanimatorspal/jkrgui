@@ -19,7 +19,7 @@ protected:
 
 namespace ksai {
 class VulkanCommandBuffer;
-template <size_t inMaxFramesFlight>
+template <sz inMaxFramesFlight>
 class VulkanSwapChain;
 
 template <QueueContext inContext>
@@ -37,10 +37,10 @@ public:
     template <SubmitContext inSubmitContext>
     void Submit(const VulkanCommandBuffer& inCommandBuffer) const;
 
-    template <size_t inMaxFramesInFlight, SubmitContext inSubmitContext>
-    uint32_t Present(const VulkanSwapChain<inMaxFramesInFlight>& inSwapChain,
+    template <sz inMaxFramesInFlight, SubmitContext inSubmitContext>
+    ui Present(const VulkanSwapChain<inMaxFramesInFlight>& inSwapChain,
         const VulkanSemaphore& inRenderFinishedSemaphore,
-        uint32_t inImageIndex) const;
+        ui inImageIndex) const;
 };
 }
 
@@ -65,24 +65,24 @@ inline VulkanQueue<QueueContext::Graphics>::VulkanQueue(const VulkanQueueContext
 }
 
 template <QueueContext inContext>
-template <size_t inMaxFramesInFlight, SubmitContext inSubmitContext>
-inline uint32_t VulkanQueue<inContext>::Present(
+template <sz inMaxFramesInFlight, SubmitContext inSubmitContext>
+inline ui VulkanQueue<inContext>::Present(
     const VulkanSwapChain<inMaxFramesInFlight>& inSwapChain,
     const VulkanSemaphore& inRenderFinishedSemaphore,
-    uint32_t inImageIndex) const
+    ui inImageIndex) const
 {
     return 0;
 }
 
 template <>
-template <size_t inMaxFramesInFlight, SubmitContext inSubmitContext>
-inline uint32_t VulkanQueue<QueueContext::Graphics>::Present(
+template <sz inMaxFramesInFlight, SubmitContext inSubmitContext>
+inline ui VulkanQueue<QueueContext::Graphics>::Present(
     const VulkanSwapChain<inMaxFramesInFlight>& inSwapChain,
     const VulkanSemaphore& inRenderFinishedSemaphore,
-    uint32_t inImageIndex) const
+    ui inImageIndex) const
 {
     auto PresentInfoKHR = vk::PresentInfoKHR(inRenderFinishedSemaphore.GetSemaphoreHandle(), inSwapChain.GetSwapChainHandle(), inImageIndex);
     vk::Result Result = mQueue.presentKHR(PresentInfoKHR);
-    return static_cast<uint32_t>(Result);
+    return static_cast<ui>(Result);
 }
 }

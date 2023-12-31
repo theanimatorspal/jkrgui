@@ -173,7 +173,7 @@ bb::TextDimensions bb::RenderTextToImage(
 
         for (size_t y = 0; y < bitmap_rows; ++y) {
             for (size_t x = 0; x < bitmap_width * mImageChannelCount; ++x) {
-                ui maini = drawX + x + (drawY - y) * outbmp_w * 4;
+                ui maini = drawX + x + (drawY - y - 1) * outbmp_w * 4;
                 ui biti = x + y * bitmap_width * 4;
                 outImage[maini] = bmp[biti];
             }
@@ -181,8 +181,9 @@ bb::TextDimensions bb::RenderTextToImage(
         originX += ToPixels(advance * mImageChannelCount);
     }
 
-    using it = v<uc>;
-    ksai::image::process(outbmp_w, outbmp_h, mImageChannelCount, outImage, ksai::image::flipvertically<it>);
+    ksai::image::process(outbmp_w, outbmp_h, mImageChannelCount, outImage, ksai::image::flipvertically);
+
+    stbi_write_bmp("ImageBMP.bmp", outbmp_w, outbmp_h, mImageChannelCount, outImage.data());
     mIndices.clear(); // TODO Don't Clear Vertices and Indices
     mVertices.clear();
     return TextDimensions { .mWidth = outbmp_w, .mHeight = outbmp_h };

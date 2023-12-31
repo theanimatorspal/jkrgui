@@ -19,7 +19,7 @@ namespace ksai {
 
 	template <size_t MaxFramesInFlight>
 
-	using ImageResult = std::pair<uint32_t, uint32_t>;
+	using ImageResult = p<ui, ui>;
 
 	class VulkanQueueContext
 	{
@@ -34,10 +34,10 @@ namespace ksai {
 		const vk::PhysicalDevice& mPhysicalDevice;
 		const vk::SurfaceKHR& mSurface;
 		const SDL_Window* mWindow;
-		uint32_t mGraphicsQueueIndex = 0;
-		uint32_t mPresentQueueIndex = 0;
-		uint32_t mComputeQueueIndex = 0;
-		std::vector<vk::QueueFamilyProperties> mQueueFamilyProperties;
+		ui mGraphicsQueueIndex = 0;
+		ui mPresentQueueIndex = 0;
+		ui mComputeQueueIndex = 0;
+		v<vk::QueueFamilyProperties> mQueueFamilyProperties;
 	};
 
 }

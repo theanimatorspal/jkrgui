@@ -14,8 +14,8 @@ namespace Jkr::Renderer::_3D {
 
 class glTF_Model {
     using ImageType = Jkr::PainterParameter<PainterParameterContext::UniformImage>;
-    std::vector<uint32_t> mIndexBuffer;
-    std::vector<Vertex3D> mVertexBuffer;
+    v<ui> mIndexBuffer;
+    v<Vertex3D> mVertexBuffer;
 
     void EraseVerticesAndIndices()
     {
@@ -26,16 +26,16 @@ class glTF_Model {
     }
 
 public:
-    glTF_Model(const Instance& inInstance, const std::string_view inFilePath)
+    glTF_Model(const Instance& inInstance, const sv inFilePath)
         : mInstance(inInstance)
     {
         tinygltf::Model glTFInput;
         tinygltf::TinyGLTF gltfContext;
-        std::string error, warning;
+        s error, warning;
         bool file_loaded = gltfContext.LoadASCIIFromFile(&glTFInput,
             &error,
             &warning,
-            std::string(inFilePath));
+            s(inFilePath));
         if (file_loaded) {
             this->LoadImages(glTFInput);
             this->LoadMaterials(glTFInput);
@@ -55,8 +55,8 @@ public:
 
 protected:
     struct Primitive {
-        uint32_t mFirstIndex;
-        uint32_t mIndexCount;
+        ui mFirstIndex;
+        ui mIndexCount;
         int32_t mMaterialIndex;
     };
 
@@ -65,28 +65,28 @@ protected:
     };
 
     struct Mesh {
-        std::vector<Primitive> mPrimitives;
+        v<Primitive> mPrimitives;
     };
 
     struct Node {
         Node* mParent;
-        std::vector<Up<Node>> mChildren;
+        v<Up<Node>> mChildren;
         Mesh mMesh;
         glm::mat4 mMatrix;
     };
 
     struct Material {
         glm::vec4 mBaseColorFactor = glm::vec4(1.0f);
-        uint32_t mBaseColorTextureIndex;
+        ui mBaseColorTextureIndex;
     };
 
     struct Texture {
         int32_t mImageIndex;
     };
 
-    std::vector<Texture> mTextures;
-    std::vector<Material> mMaterials;
-    std::vector<Up<Node>> mNodes;
+    v<Texture> mTextures;
+    v<Material> mMaterials;
+    v<Up<Node>> mNodes;
 
     void LoadImages(tinygltf::Model& input);
     void LoadTextures(tinygltf::Model& input);
@@ -94,8 +94,8 @@ protected:
     void LoadNode(const tinygltf::Node& inputNode,
         const tinygltf::Model& input,
         glTF_Model::Node* inParent,
-        std::vector<uint32_t>& indexBuffer,
-        std::vector<Vertex3D>& vertexBuffer);
+        v<ui>& indexBuffer,
+        v<Vertex3D>& vertexBuffer);
     void DrawNode(VulkanCommandBuffer& inCommandBuffer,
         VulkanPipelineLayoutBase& inPipelineLayout,
         glTF_Model::Node* inNode);
@@ -105,7 +105,7 @@ private:
     struct Image {
         Up<ImageType> mTextureImage;
     };
-    std::vector<Image> mImages;
+    v<Image> mImages;
 };
 
 } // namespace Jkr::Renderer::_3D

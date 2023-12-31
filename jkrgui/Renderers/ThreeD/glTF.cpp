@@ -2,7 +2,9 @@
 #include "Painter.hpp"
 #include <filesystem>
 
-Jkr::Renderer::_3D::glTF::glTF(const Instance& inInstance,
+using namespace Jkr::Renderer::_3D;
+
+glTF::glTF(const Instance& inInstance,
     Window& inCompatibleWindow)
     : mInstance(inInstance)
 {
@@ -17,7 +19,7 @@ Jkr::Renderer::_3D::glTF::glTF(const Instance& inInstance,
     mPrimitive->SetIndexCount(mTotalNoOfIndicesRendererCanHold);
 }
 
-void Jkr::Renderer::_3D::glTF::Add(const std::string_view inFileName, uint32_t& outId)
+void glTF::Add(const std::string_view inFileName, uint32_t& outId)
 {
     mModels.emplace_back(MakeUp<glTF_Model>(mInstance, inFileName));
     CheckAndResize(*mModels.back());
@@ -48,7 +50,7 @@ void Jkr::Renderer::_3D::glTF::Add(const std::string_view inFileName, uint32_t& 
 #endif
 }
 
-void Jkr::Renderer::_3D::glTF::AddPainter(const std::string_view inFileName,
+void glTF::AddPainter(const std::string_view inFileName,
     const std::string_view inVertexShader,
     const std::string_view inFragmentShader,
     const std::string_view inComputeShader,
@@ -68,7 +70,7 @@ void Jkr::Renderer::_3D::glTF::AddPainter(const std::string_view inFileName,
     AddPainter(std::move(painter), std::move(painterCache), outId);
 }
 
-void Jkr::Renderer::_3D::glTF::Dispatch(Window& inWindow)
+void glTF::Dispatch(Window& inWindow)
 {
 #ifndef JKR_NO_STAGING_BUFFERS
     if (not rb::IsCopyRegionsEmpty()) {
@@ -84,7 +86,7 @@ void Jkr::Renderer::_3D::glTF::Dispatch(Window& inWindow)
 #endif
 }
 
-void Jkr::Renderer::_3D::glTF::AddPainter(Up<Painter> inPainter, Up<PainterCache> inPainterCache, uint32_t& outId)
+void glTF::AddPainter(Up<Painter> inPainter, Up<PainterCache> inPainterCache, uint32_t& outId)
 {
     outId = mPainters.size();
     mPainters.push_back(std::move(inPainter));

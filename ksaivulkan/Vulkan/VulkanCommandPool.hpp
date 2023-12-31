@@ -9,7 +9,7 @@ namespace ksai {
 	public:
 		VulkanCommandPool(const VulkanDevice& inDevice, const VulkanQueueContext& inContext);
 		~VulkanCommandPool();
-		inline constexpr const auto& GetCommandPoolHandle() const { return mPool; }
+		GETTER& GetCommandPoolHandle() const { return mPool; }
 	private:
 		const vk::Device& mDevice;
 		vk::CommandPool mPool;

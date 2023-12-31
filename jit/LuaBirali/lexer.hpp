@@ -8,6 +8,11 @@ public:
         : mC(inCodeStream)
     {
         ls.mz = &mC;
+        ls.mt.token = (Token)0;
+        ls.mcurrent = (Token)mC.get();
+        ls.mlookahead.token = Token::Eos;
+        ls.mlinenumber = 1;
+        ls.mlastline = 1;
     }
 
     void Next()
@@ -17,7 +22,7 @@ public:
             ls.mt = ls.mlookahead;
             ls.mlookahead = Token::Eos;
         } else {
-            ls.mt = ls.Lex(ls.mlookahead.s);
+            ls.mt = ls.Lex(ls.mt.s);
         }
     }
 

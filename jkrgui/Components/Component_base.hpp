@@ -1,6 +1,6 @@
 #pragma once
 #include <EventManager.hpp>
-#include <Renderers/TwoD/2d.hpp>
+#include <Renderers/2d.hpp>
 #include <Window.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
