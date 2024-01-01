@@ -148,7 +148,7 @@ bb::TextDimensions bb::RenderTextToImage(
     outbmp_w = maxX - minX + 1;
     outbmp_h = maxY - minY + 1;
 
-    outImage.resize(outbmp_h * outbmp_w * mImageChannelCount);
+    outImage.resize(outbmp_h * outbmp_w * mImageChannelCount, 0);
 
     originX = -minX;
     originY = -minY;
@@ -163,27 +163,26 @@ bb::TextDimensions bb::RenderTextToImage(
         const auto bitmap_rows = CharacterInMap.first.mBitmapRows;
         int offsetX = ToPixels(pos.x_offset + metrics.horiBearingX);
         int offsetY = ToPixels(pos.y_offset + metrics.horiBearingY);
+        int advance = CharacterInMap.first.mGlyphPos.x_advance;
         int glyphMinX = originX + offsetX;
         int glyphMaxX = originX + bitmap_width + offsetX;
         int glyphMinY = originY - bitmap_rows + offsetY;
         int glyphMaxY = originY + offsetY;
-        int advance = CharacterInMap.first.mGlyphPos.x_advance;
         int drawX = originX + ToPixels(pos.x_offset + metrics.horiBearingX);
         int drawY = originY + ToPixels(pos.y_offset + metrics.horiBearingY);
 
-        for (size_t y = 0; y < bitmap_rows; ++y) {
-            for (size_t x = 0; x < bitmap_width * mImageChannelCount; ++x) {
-                ui maini = drawX + x + (drawY - y - 1) * outbmp_w * 4;
-                ui biti = x + y * bitmap_width * 4;
+        for (int y = 0; y < bitmap_rows; ++y) {
+            for (int x = 0; x < bitmap_width * mImageChannelCount; ++x) {
+                ui maini = drawX + x + (drawY - y - 1) * outbmp_w * mImageChannelCount;
+                ui biti = x + y * bitmap_width * mImageChannelCount;
                 outImage[maini] = bmp[biti];
             }
         }
-        originX += ToPixels(advance * mImageChannelCount);
+        originX += ToPixels(advance * (mImageChannelCount));
     }
 
     ksai::image::process(outbmp_w, outbmp_h, mImageChannelCount, outImage, ksai::image::flipvertically);
 
-    stbi_write_bmp("ImageBMP.bmp", outbmp_w, outbmp_h, mImageChannelCount, outImage.data());
     mIndices.clear(); // TODO Don't Clear Vertices and Indices
     mVertices.clear();
     return TextDimensions { .mWidth = outbmp_w, .mHeight = outbmp_h };

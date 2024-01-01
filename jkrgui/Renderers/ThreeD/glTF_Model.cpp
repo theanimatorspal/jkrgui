@@ -153,7 +153,7 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                     vert.mNormal = glm::normalize(glm::vec3(
                         normalsBuffer ? glm::make_vec3(&normalsBuffer[v * 3]) : glm::vec3(0.0f)));
                     vert.mUV = texCoordsBuffer ? glm::make_vec2(&texCoordsBuffer[v * 2])
-                                               : glm::vec3(0.0f);
+                                               : glm::vec2(0.0f);
                     vert.mColor = glm::vec3(1.0f);
                     vertexBuffer.push_back(vert);
                 }

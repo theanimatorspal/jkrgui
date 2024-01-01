@@ -38,6 +38,17 @@ public:
     void PainterBindDispatch(ui inId)
     {
     }
+
+    void AddModelTextureToPainter (ui inId, ui inPainterId, sz inOffset = 0, ui inBinding = 0, ui inDestinationArrayElement = 0) {
+        auto& pp = mModels[inId]->GetPainterImageParameters().back().mTextureImage;
+        mPainters[inPainterId]->RegisterPainterParameter(*pp, inOffset, inBinding, inDestinationArrayElement);
+    }
+
+    void BindModelTextureToPainter (ui inId , ui inPainterId, Window& inWindow)
+    {
+        mPainters[inPainterId]->BindDrawParamtersDescriptorsOnly_EXT(*mPrimitive, inWindow);
+    }
+
     template <typename T>
     void PainterDraw(ui inId, T inPush, Window& inWindow)
     {

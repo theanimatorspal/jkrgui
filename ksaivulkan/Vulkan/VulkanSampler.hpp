@@ -9,6 +9,7 @@ namespace ksai {
 			: mDevice(inDevice.GetDeviceHandle())
 		{
 			auto VulkanSamplerCreateInfo = vk::SamplerCreateInfo() ;
+			VulkanSamplerCreateInfo.setMinFilter(vk::Filter::eLinear);
 			mSampler = mDevice.createSampler(VulkanSamplerCreateInfo);
 		}
 		~VulkanSampler()

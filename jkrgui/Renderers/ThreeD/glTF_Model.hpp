@@ -52,6 +52,7 @@ public:
     GETTER& GetIndicesRef() { return mIndexBuffer; }
     GETTER& GetVertices() const { return mVertexBuffer; }
     GETTER& GetIndices() const { return mIndexBuffer; }
+    GETTER& GetPainterImageParameters() const { return mImages; }
 
 protected:
     struct Primitive {

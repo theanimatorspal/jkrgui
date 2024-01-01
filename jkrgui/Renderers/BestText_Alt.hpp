@@ -24,7 +24,7 @@ public:
     {
     }
 
-    void Add(ImageId& outId, ui inFontId, glm::vec2 inPos, int inDepth, const sv inText)
+    void Add(ui inFontId, glm::vec2 inPos, int inDepth, const sv inText, ImageId& outId)
     {
         Jkr::Renderer::BestText_base::TextDimensions dimens;
         using namespace ksai;
@@ -38,7 +38,16 @@ public:
         outId = ImageId { .mRectId = font_rect_id, .mImgId = font_image };
     }
 
-    void Update() { }
+    void Update(ImageId inId, ui inFontId, glm::vec2 inPos, int inDepth, const sv inText)
+    {
+        Jkr::Renderer::BestText_base::TextDimensions dimens;
+        using namespace ksai;
+        v<uc> img = bt.RenderTextToImage(inFontId, inText, dimens);
+        sh.UpdateImage(inId.mImgId, img, dimens.mWidth, dimens.mHeight);
+
+	   Jkr::Generator FontRectGen(Jkr::Shapes::Rectangle, glm::uvec2(dimens.mWidth, dimens.mHeight));
+        sh.Update(inId.mRectId, FontRectGen, inPos.x, inPos.y, inDepth);
+    }
 
     void Draw(ImageId inId, Window& inWindow, glm::vec4 inColor, ui inW, ui inH, glm::mat4 inMatrix)
     {

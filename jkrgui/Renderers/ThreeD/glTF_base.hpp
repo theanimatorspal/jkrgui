@@ -24,8 +24,6 @@ public:
         const std::vector<uint32_t> inIndices,
         uint32_t& outId)
     {
-        mVertices.resize(mVertices.size() + inVertices.size());
-        mIndices.resize(mIndices.size() + inIndices.size());
         std::copy(inVertices.begin(), inVertices.end(), mVertices.begin() + mCurrentVertexPointer);
         std::copy(inIndices.begin(), inIndices.end(), mIndices.begin() + mCurrentIndexPointer);
         VertexIndexMemOffset Offset = { .mVertexOffset = mCurrentVertexPointer,

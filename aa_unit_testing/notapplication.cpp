@@ -10,7 +10,7 @@
 #include <Window.hpp>
 #include <Renderers/BestText_Alt.hpp>
 
-int main()
+int msdafdsaf()
 {
     auto Instance = Jkr::Instance();
     auto Window = Jkr::Window(Instance, "Heell", 1080 / 2, 1920 / 2);
@@ -65,27 +65,20 @@ layout(push_constant, std430) uniform pc {
     ImagePainter.RegisterImageToBeDrawnTo(Window, 100, 100);
     sr.CopyToImage(image_to_draw_id, ImagePainter);
 
-    bst.AddFontFace("font.ttf", 2, Font_id);
-    bst.AddText("Wow", 100, 300, 5, BestText_id, BestText_length);
+    bst.AddFontFace("font.ttf", 8, Font_id);
+    bst.AddText("कस्मिन् विषये कार्यं कर्तुमिच्छसि मानव !", 100, 300, 5, BestText_id, BestText_length);
     bst.AddText("don", 500, 300, 5, BestText_id1, BestText_length1);
-
-    Jkr::Renderer::BestText_base::TextDimensions dimens;
-    using namespace ksai;
-    v<uc> img = bst.RenderTextToImage(Font_id, "Hello", dimens);
-    Jkr::Generator FontRectGen(Jkr::Shapes::Rectangle, glm::uvec2(dimens.mWidth, dimens.mHeight));
-    ui font_image;
-    sr.AddImage(img, dimens.mWidth, dimens.mHeight, font_image);
-    ui font_rect_id;
-    sr.Add(FontRectGen, 100, 100, 5, font_rect_id);
 
     Jkr::Renderer::BestText_Alt Alt(sr, bst);
     Jkr::Renderer::BestText_Alt::ImageId fntimgid;
-    Alt.Add(fntimgid, Font_id, glm::vec2(100, 100), 5, "Darshan Koirala");
+    Alt.Add(Font_id, glm::vec2(100, 100), 5, "कस्मिन् विषये कार्यं कर्तुमिच्छसि मानव ! ", fntimgid);
 
     auto RenderFontImage = [&]() {
         sr.BindShapes(Window);
         sr.BindFillMode(Jkr::Renderer::FillType::Image, Window);
         Alt.Draw(fntimgid, Window, glm::vec4(1, 1, 1, 1), 1920 / 2, 1080 / 2, glm::identity<glm::mat4>());
+        bst.Bind(Window);
+        bst.Draw(Window, glm::vec4(1, 1, 1, 1), 1920 / 2, 1080 / 2, BestText_id, BestText_length, glm::identity<glm::mat4>());
     };
 
     Jkr::Generator CircleGen(Jkr::Shapes::Circle, glm::uvec2(50, 16));
