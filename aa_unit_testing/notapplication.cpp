@@ -10,7 +10,7 @@
 #include <Window.hpp>
 #include <Renderers/BestText_Alt.hpp>
 
-int msdafdsaf()
+int main()
 {
     auto Instance = Jkr::Instance();
     auto Window = Jkr::Window(Instance, "Heell", 1080 / 2, 1920 / 2);
@@ -71,7 +71,7 @@ layout(push_constant, std430) uniform pc {
 
     Jkr::Renderer::BestText_Alt Alt(sr, bst);
     Jkr::Renderer::BestText_Alt::ImageId fntimgid;
-    Alt.Add(Font_id, glm::vec2(100, 100), 5, "कस्मिन् विषये कार्यं कर्तुमिच्छसि मानव ! ", fntimgid);
+    Alt.Add(Font_id, glm::vec2(100, 100), 5, "Dipesh Regmi", fntimgid);
 
     auto RenderFontImage = [&]() {
         sr.BindShapes(Window);

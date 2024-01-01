@@ -361,6 +361,8 @@ Jkr.Components.Static.TextObject = {
         end,
         Update = function (self, inPosition_3f)
                 self.mPosition_3f = inPosition_3f
+                local str = string.rep(" ", self.mId.y)
+                T.Update(Int(self.mId.x), str, self.mPosition_3f)
                 T.Update(Int(self.mId.x), self.mString, self.mPosition_3f)
         end,
         SetScissor = function (self)
