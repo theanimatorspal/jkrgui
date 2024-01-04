@@ -85,7 +85,6 @@ else()
 endif()
 
 add_subdirectory(aa_unit_testing)
-add_subdirectory(application)
 add_subdirectory(jkrgui)
 add_subdirectory(ksaivulkan)
 add_subdirectory(aJkrLua)

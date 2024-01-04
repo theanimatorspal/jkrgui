@@ -14,6 +14,8 @@
 #include <cassert>
 #include <sstream>
 #include <optional>
+#include <iostream>
+#include <map>
 
 template<typename ... T>
 using var = std::variant<T...>;
@@ -35,6 +37,10 @@ using p = std::pair<T, U>;
 using Number = double;
 using Integer = int;
 
+template<typename T, typename U>
+using map = std::map<T, U>;
+
+
 #define mu std::make_unique
 #define mv std::move
-
+#define getter inline auto

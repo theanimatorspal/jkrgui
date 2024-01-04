@@ -102,7 +102,8 @@ void Shape::AddImage(ui inWidth, ui inHeight, ui& outIndex)
     Up<ImageType> Image = MakeUp<ImageType>(mInstance);
     v<uint8_t> image;
     image.resize(inWidth * inHeight * 4);
-    Image->Setup(reinterpret_cast<void**>(&image.data()), inWidth, inHeight, 4);
+    void* Data = image.data();
+    Image->Setup(reinterpret_cast<void**>(&Data), inWidth, inHeight, 4);
     Image->Register(0, 0, 0, *Desset);
     outIndex = mImages.size();
     mImages.push_back(std::move(Image));
@@ -342,7 +343,7 @@ void Shape::BindImage(Window& inWindow, ui inImageId)
     // TODO Remove
     if (inImageId != -1) {
 #ifndef JKR_USE_VARIABLE_DES_INDEXING
-        auto& Cmd = mInstance.GetCommandBuffers()[inWindow.GetCurrentFrame()];
+        auto& Cmd = inWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()];
         Cmd.GetCommandBufferHandle().bindDescriptorSets(
             vk::PipelineBindPoint::eGraphics,
             mPainterCaches[FillType::Image]->GetVertexFragmentPipelineLayout().GetPipelineLayoutHandle(),

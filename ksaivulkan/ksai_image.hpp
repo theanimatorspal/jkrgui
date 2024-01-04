@@ -90,22 +90,29 @@ inline const auto fliphorizontally = []<typename T>(const T& from, T& to, int x,
     to[fid] = from[oid];
 };
 
-template <ImageConcept T, ManipulatorConcept<T>... F>
-void process(ui inw, ui inh, ui inComp, T& inoutImage, F&... inOp)
+template <ImageConcept T, ManipulatorConcept<T> F>
+void process(ui inw, ui inh, ui inComp, T& inoutImage, F& inOp)
 {
-    ([&] {
-        T flippedimage;
-        flippedimage.resize(inoutImage.size());
+    T flippedimage;
+    flippedimage.resize(inoutImage.size());
 
-        for (int y = 0; y < inh; ++y) {
-            for (int x = 0; x < inw * inComp; ++x) {
-                inOp(inoutImage, flippedimage, x, y, inw, inh, inComp);
-            }
+    for (int y = 0; y < inh; ++y) {
+        for (int x = 0; x < inw * inComp; ++x) {
+            inOp(inoutImage, flippedimage, x, y, inw, inh, inComp);
         }
+    }
 
-        inoutImage = flippedimage;
-    }(),
-        ...);
+    inoutImage = flippedimage;
+}
+
+template <ImageConcept T, ManipulatorConcept<T> F>
+void process(ui inw, ui inh, ui inComp, const T& fromImage, T& toImage, F& inOp)
+{
+    for (int y = 0; y < inh; ++y) {
+        for (int x = 0; x < inw * inComp; ++x) {
+            inOp(fromImage, toImage, x, y, inw, inh, inComp);
+        }
+    }
 }
 
 }

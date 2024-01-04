@@ -1,94 +1,5 @@
 ﻿#pragma once
-#include "include.hpp"
-#include <cinttypes>
-#include <climits>
-constexpr int8_t first_reserved = INT8_MAX + 1;
-constexpr uint32_t UTF8BUFFZ = 8;
-enum Token : int8_t {
-    And = first_reserved,
-    Break,
-    Do,
-    Else,
-    Elseif,
-    End,
-    False,
-    For,
-    Function,
-    Goto,
-    If,
-    In,
-    Local,
-    Nil,
-    Not,
-    Or,
-    Repeat,
-    Return,
-    Then,
-    True,
-    Until,
-    While,
-    /* other terminal symbols */ Idiv,
-    Concat,
-    Dots,
-    Eq,
-    Ge,
-    Le,
-    Ne,
-    Shl,
-    Shr,
-    Dbcolon,
-    Eos,
-    Flt,
-    Int,
-    Name,
-    String
-};
-
-using SemanticInfo = var<Number, Integer, s>;
-
-struct TokenSematic {
-    Token token;
-    SemanticInfo s;
-    std::strong_ordering operator<=>(int inToken)
-    {
-        return inToken <=> token;
-    }
-    std::strong_ordering operator<=>(Token inToken)
-    {
-        return inToken <=> token;
-    }
-    bool operator!=(int inToken)
-    {
-        return inToken != token;
-    }
-    void operator=(int inToken)
-    {
-        token = (Token)inToken;
-    }
-    template <typename T>
-    T Get()
-    {
-        return get<T>(s);
-    }
-};
-
-static const std::vector<sv> TokenStrings = {
-    "and", "break", "do", "else", "elseif", "end", "false", "for", "function", "goto",
-    "if", "in", "local", "nil", "not", "or", "repeat", "return", "then", "true", "until", "while",
-    "//", "..", "...", "==", ">=", "<=", "~=", "<<", ">>", "::", "<eof>", "<number>", "<integer>", "<name>", "<string>"
-};
-
-constexpr s TokenToString(int inToken)
-{
-    if (inToken < first_reserved) {
-        if (std::isprint(inToken)) {
-            return s().append("'").append(std::to_string((char)inToken)).append("'");
-        } else {
-            return s().append("'<").append(std::to_string((char)inToken)).append(">'");
-        }
-    }
-    return s(TokenStrings[inToken - first_reserved]);
-}
+#include "lexer/token.hpp"
 
 struct gse {
     constexpr gse(s instr)
@@ -122,6 +33,7 @@ private:
 
 static gse SyntaxError("SyntaxError:");
 static gse LexError("LexError:");
+static gse SemanticError("SemanticError:");
 
 struct LexerState {
     Token mcurrent;
@@ -130,9 +42,9 @@ struct LexerState {
     TokenSematic mt;
     TokenSematic mlookahead;
     s mbuff;
-    std::istream *mz;
+    std::istream* mz;
 
-    void next() { mcurrent = (Token) mz->get(); }
+    void next() { mcurrent = (Token)mz->get(); }
     void save(int c) { mbuff.push_back(c); }
     void save_and_next()
     {
@@ -464,7 +376,7 @@ struct LexerState {
         inseminfo = s(mbuff.begin() + 1, mbuff.end() - 2);
     }
 
-    auto isreserved(sv inStr)
+    auto searchreserveditr(sv inStr)
     {
         return std::find(TokenStrings.begin(), TokenStrings.end(), inStr);
     }
@@ -608,7 +520,7 @@ struct LexerState {
                     } while (std::isalnum(mcurrent));
                     ts = s(mbuff.begin(), mbuff.end());
                     inS = ts;
-                    auto itr = isreserved(ts);
+                    auto itr = searchreserveditr(ts);
                     if (itr != TokenStrings.end()) { // Vanesi yo reserved token ho
                         return std::distance(TokenStrings.begin(), itr); // Get iterator distance
                     } else {
@@ -623,9 +535,7 @@ struct LexerState {
             }
         }
     }
-
 };
-
 
 /* kinds of variables/expressions */
 enum ExpKind {
@@ -643,7 +553,7 @@ enum ExpKind {
                   info = result register */
     vlocal, /* local variable; var.ridx = register index;
                var.vidx = relative index in 'actvar.arr'  */
-    vupval, /* upvalue variable; info = index of upvalue in 'upvalues' */
+    vglobal, /* upvalue variable; info = index of upvalue in 'upvalues' */
     vconst, /* compile-time <const> variable;
                info = absolute index in 'actvar.arr'  */
     vindexed, /* indexed variable;
@@ -666,22 +576,20 @@ enum ExpKind {
     vvararg /* vararg expression; info = instruction pc */
 };
 
-struct ExpDesc
-{
+struct ExpDesc {
     ExpKind kind;
     SemanticInfo u;
-    int info;
+    int info; // For constants
 };
 
 enum VarKind {
-	regular,
-	constant,
-	toclose,
-	ctimeconstant
+    regular,
+    constant,
+    toclose,
+    ctimeconstant
 };
 
-struct VarDesc
-{
+struct VarDesc {
     VarKind kind;
     s name;
 };
@@ -691,5 +599,11 @@ struct Dyndata {
         v<VarDesc> arr;
         int inuse;
     } localvars;
+};
+
+struct GlobalData {
+	struct {
+        v<VarDesc> arr;
+    } globalvars;
 };
 

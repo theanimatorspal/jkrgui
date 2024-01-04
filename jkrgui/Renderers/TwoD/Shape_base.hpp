@@ -5,12 +5,11 @@
 #include <variant>
 #include <Global/Standards.hpp>
 #include <span>
+#include <Vulkan/Config.hpp>
 
 namespace Jkr
 {
 enum class Shapes { Circle, Rectangle, Bezier2_8 };
-using namespace Jkr;
-using namespace ksai;
 class Generator
 {
 public:
@@ -22,8 +21,8 @@ public:
                     uint32_t inZ,
                     uint32_t inStartVertexIndex,
                     uint32_t inStartIndexIndex,
-                    std::vector<kstd::Vertex> &modVertices,
-                    std::vector<uint32_t> &modIndices);
+                    ksai::v<ksai::kstd::Vertex> &modVertices,
+                    ksai::v<uint32_t> &modIndices);
     Shapes GetShape() const { return mShape; }
     uint32_t GetVertexCount() const { return mVertexCount; }
     uint32_t GetIndexCount() const { return mIndexCount; }

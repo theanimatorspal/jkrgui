@@ -11,7 +11,6 @@ namespace ksai {
 			: VulkanImageBase(inDevice), mVMA(inVMA)
 		{
 			FillImageProperties<inImageContext>();
-			// TODO inChannel
 			mImageProperties.mExtent.width = inWidth;
 			mImageProperties.mExtent.height = inHeight;
 			vk::ImageTiling Tiling;
@@ -41,6 +40,8 @@ namespace ksai {
 		    mDevice.waitIdle();
 			vmaDestroyImage(mVMA.GetVMAHandle(), mImage, mAllocation);
 		}
+
+
 	private:
 		const VulkanVMA& mVMA;
 		VmaAllocation mAllocation;

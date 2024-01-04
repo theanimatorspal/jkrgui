@@ -7,7 +7,7 @@
 
 namespace Jkr::Renderer::_3D {
 using namespace ksai::kstd;
-class glTF;
+class Shape;
 
 class glTF_base {
 private:

@@ -61,22 +61,22 @@ layout(push_constant, std430) uniform pc {
         .mParam = vec4(0) };
     uint32_t image_to_draw_id;
     sr.AddImage(100, 100, image_to_draw_id);
-    ImagePainter.Store(Window);
+    ImagePainter.Load(Window);
     ImagePainter.RegisterImageToBeDrawnTo(Window, 100, 100);
     sr.CopyToImage(image_to_draw_id, ImagePainter);
 
     bst.AddFontFace("font.ttf", 8, Font_id);
-    bst.AddText("कस्मिन् विषये कार्यं कर्तुमिच्छसि मानव !", 100, 300, 5, BestText_id, BestText_length);
+    bst.AddText("What is that", 100, 300, 5, BestText_id, BestText_length);
     bst.AddText("don", 500, 300, 5, BestText_id1, BestText_length1);
 
     Jkr::Renderer::BestText_Alt Alt(sr, bst);
     Jkr::Renderer::BestText_Alt::ImageId fntimgid;
-    Alt.Add(Font_id, glm::vec2(100, 100), 5, "Dipesh Regmi", fntimgid);
+    Alt.Add(Font_id, glm::vec2(100, 100), 5, "What is that", fntimgid);
 
     auto RenderFontImage = [&]() {
         sr.BindShapes(Window);
         sr.BindFillMode(Jkr::Renderer::FillType::Image, Window);
-        Alt.Draw(fntimgid, Window, glm::vec4(1, 1, 1, 1), 1920 / 2, 1080 / 2, glm::identity<glm::mat4>());
+        Alt.Draw(fntimgid, Window, glm::vec4(2, 2, 2, 2), 1920 / 2, 1080 / 2, glm::identity<glm::mat4>());
         bst.Bind(Window);
         bst.Draw(Window, glm::vec4(1, 1, 1, 1), 1920 / 2, 1080 / 2, BestText_id, BestText_length, glm::identity<glm::mat4>());
     };

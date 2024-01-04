@@ -122,6 +122,7 @@ bb::TextDimensions bb::RenderTextToImage(
         const auto& pos = CharacterInMap.first.mGlyphPos;
         const auto bitmap_width = CharacterInMap.first.mBitmapWidth;
         const auto bitmap_rows = CharacterInMap.first.mBitmapRows;
+        int advance = ToPixels(pos.x_advance);
         int offsetX = ToPixels(pos.x_offset + metrics.horiBearingX);
         int offsetY = ToPixels(pos.y_offset + metrics.horiBearingY);
         int glyphMinX = originX + offsetX;
@@ -141,7 +142,7 @@ bb::TextDimensions bb::RenderTextToImage(
             minY = glyphMinY;
         if (glyphMaxY > maxY)
             maxY = glyphMaxY;
-        originX += ToPixels(pos.x_advance);
+        originX += advance;
     }
     originX = -minX;
     originY = -minY;
@@ -171,14 +172,17 @@ bb::TextDimensions bb::RenderTextToImage(
         int drawX = originX + ToPixels(pos.x_offset + metrics.horiBearingX);
         int drawY = originY + ToPixels(pos.y_offset + metrics.horiBearingY);
 
-        for (int y = 0; y < bitmap_rows; ++y) {
-            for (int x = 0; x < bitmap_width * mImageChannelCount; ++x) {
-                ui maini = drawX + x + (drawY - y - 1) * outbmp_w * mImageChannelCount;
-                ui biti = x + y * bitmap_width * mImageChannelCount;
-                outImage[maini] = bmp[biti];
-            }
-        }
-        originX += ToPixels(advance * (mImageChannelCount));
+        const auto join_img =
+            [=]<typename T>(const T& from, T& to, int x, int y, int w, int h, int c) {
+                ui maini = drawX * c + x + (drawY - y - 1) * outbmp_w * c;
+                ui biti = x + y * w * c;
+                to[maini] += glm::clamp((int)from[biti], 0, 255) ;
+            };
+
+        ksai::image::process(bitmap_width, bitmap_rows, mImageChannelCount, bmp, outImage, join_img);
+
+        int PixelAdvance = ToPixels(advance);
+        originX += PixelAdvance;
     }
 
     ksai::image::process(outbmp_w, outbmp_h, mImageChannelCount, outImage, ksai::image::flipvertically);

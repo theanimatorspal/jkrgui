@@ -202,7 +202,8 @@ namespace ShapeRenderers_Image
 
 			void GlslMain()
 			{
-				outColor = texture(image, inTexCoord);
+				vec4 color = texture(u_image[int(push.mParams.x)], inTextCoord);
+				outColor = vec4(color.r * push.Color.r, color.g * push.Color.g, color.b * push.Color.b, color.a * push.Color.a);
 			}
 
 			GlslCodeFinish();
@@ -237,6 +238,7 @@ namespace ShapeRenderers_Image
 
 		};
 }
+
 #else
 namespace ShapeRenderers_Image
 {
@@ -295,7 +297,8 @@ namespace ShapeRenderers_Image
 
 			void GlslMain()
 			{
-				outColor = texture(u_image[int(push.mParams.x)], inTextCoord);
+				vec4 color = texture(u_image[int(push.mParams.x)], inTextCoord);
+				outColor = vec4(color.r * push.Color.r, color.g * push.Color.g, color.b * push.Color.b, color.a * push.Color.a);
 			}
 
 			GlslCodeFinish();

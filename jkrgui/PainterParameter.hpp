@@ -9,6 +9,7 @@ enum class PainterParameterContext {
     UniformImage,
     UniformSampler
 };
+
 using StorageBufferType = VulkanBufferVMA<BufferContext::Storage, MemoryType::DeviceLocal>;
 using UniformBufferType
     = VulkanBufferVMA<BufferContext::Uniform, MemoryType::HostVisibleAndCoherenet>;
@@ -56,10 +57,15 @@ namespace Jkr
 	class PainterParameter<PainterParameterContext::UniformBuffer> : public PainterParameterBase {
 	public:
 		PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
-		inline void Setup(vk::DeviceSize inUniformBufferSize) { PainterParameterBase::Setup(mUniformBufferPtr, inUniformBufferSize, &mUniformMappedMemoryRegion); }
+		inline void Setup(vk::DeviceSize inUniformBufferSize) {
+			PainterParameterBase::Setup(mUniformBufferPtr, inUniformBufferSize, &mUniformMappedMemoryRegion); 
+			mSize = inUniformBufferSize;
+		}
 		GETTER& GetUniformMappedMemoryRegion() { return mUniformMappedMemoryRegion; }
 		GETTER& GetUniformBuffer() const { return *mUniformBufferPtr; }
+		GETTER GetUniformBufferSize() const { return mSize; }
 	private:
+		sz mSize;
 		Up<UniformBufferType> mUniformBufferPtr;
 		void* mUniformMappedMemoryRegion;
 	};

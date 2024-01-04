@@ -1,4 +1,5 @@
-#include "include.hpp"
+#pragma once
+#include "../include.hpp"
 
 #include <llvm/Analysis/CGSCCPassManager.h>
 #include <llvm/Analysis/LoopAnalysisManager.h>

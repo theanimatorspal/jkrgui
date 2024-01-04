@@ -103,6 +103,15 @@ Load = function()
                         end
                 }
         }
+        ContextMenu_Right = {
+                [1] = {
+                        name = "Refresh",
+                        action = function ()
+                                print("Refresh")
+
+                        end
+                }
+        }
 
         FileMenux = {
                 [1] = {
@@ -137,9 +146,13 @@ Load = function()
 end
 
 Event = function()
+
+
+
         Com.Events()
         ContextMenu:Event()
         FileMenu:Event()
+
 end
 
 Update = function()

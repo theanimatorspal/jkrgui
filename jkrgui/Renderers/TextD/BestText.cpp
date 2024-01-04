@@ -1,5 +1,7 @@
 #include "BestText.hpp"
 
+#ifdef JKR_USE_VARIABLE_DES_INDEXING
+
 Jkr::Renderer::BestText::BestText(const Instance &inInstance,
                                   const Window &inCompatibleWindow,
                                   const PainterCache &inCache,
@@ -255,3 +257,5 @@ void Jkr::Renderer::BestText::CheckAndResize(size_t inNewSize)
 #endif
     }
 }
+
+#endif

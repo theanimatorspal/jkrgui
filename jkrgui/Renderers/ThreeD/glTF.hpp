@@ -1,5 +1,8 @@
 #pragma once
 #include "Primitive.hpp"
+#include "VulkanBuffer.hpp"
+#include "VulkanBufferVMA.hpp"
+#include "VulkanPhysicalDevice.hpp"
 #include "glTF_Model.hpp"
 #include "glTF_base.hpp"
 #include <Renderers/Renderer_base.hpp>
@@ -7,122 +10,130 @@
 
 namespace Jkr::Renderer::_3D {
 
-class glTF : public Renderer_base, public glTF_base {
+struct GlobalUB {
+    glm::mat4 view;
+    glm::mat4 projection;
+};
+
+struct GlobalSSBO {
+    glm::vec4 light;
+};
+
+class Shape : public Renderer_base, public glTF_base {
     using gb = glTF_base;
     using rb = Renderer_base;
-
-    /* TODO: to be removed, khai maile kina lekhe */
-    struct MemoryArea {
-        glm::uvec2 mVertexIdStartEnd;
-        glm::uvec2 mIndexIdStartEnd;
-    };
+    using SSBOType = PainterParameter<Jkr::PainterParameterContext::StorageBuffer>;
+    using UBType = PainterParameter<Jkr::PainterParameterContext::UniformBuffer>;
+    using StagingBufferType
+        = VulkanBuffer<BufferContext::Staging, MemoryType::HostVisibleAndCoherenet>;
 
 public:
-    glTF(const Instance& inInstance, Window& inCompatibleWindow);
+    Shape(const Instance& inInstance, Window& inCompatibleWindow, sz inGlobalUBsize = sizeof(GlobalUB), sz inSSBOsize = sizeof(GlobalSSBO) * 10);
     void Add(const sv inFileName, ui& outId);
+    void Bind(Window& inWindow);
+    void Dispatch(Window& inWindow);
+    template <typename T>
+    void WriteToGlobalUB(T inData);
+    void RegisterGlobalUBToPainter(ui inPainterId, sz inOffset = 0, ui inBinding = 0, ui inDestinationArrayElement = 0);
+    void RegisterGlobalSSBOToPainter(ui inPainterId, sz inOffset = 0, ui inBinding = 0, ui inDestinationArrayElement = 0);
+
     void AddPainter(const sv inFileName,
         const sv inVertexShader,
         const sv inFragmentShader,
         const sv inComputeShader,
         Window& inCompatibleWindow,
         ui& outId, bool inForceStore = false);
-
-    void Bind(Window& inWindow)
-    {
-        Painter::BindDrawParamtersVertexAndIndexBuffersOnly_EXT(mInstance, *mPrimitive, inWindow);
-    }
-    void PainterBindDraw(ui inPainterId, Window& inWindow)
-    {
-        mPainters[inPainterId]->BindDrawParamtersPipelineOnly_EXT(*mPrimitive, inWindow);
-    }
-    void PainterBindDispatch(ui inId)
-    {
-    }
-
-    void AddModelTextureToPainter (ui inId, ui inPainterId, sz inOffset = 0, ui inBinding = 0, ui inDestinationArrayElement = 0) {
-        auto& pp = mModels[inId]->GetPainterImageParameters().back().mTextureImage;
-        mPainters[inPainterId]->RegisterPainterParameter(*pp, inOffset, inBinding, inDestinationArrayElement);
-    }
-
-    void BindModelTextureToPainter (ui inId , ui inPainterId, Window& inWindow)
-    {
-        mPainters[inPainterId]->BindDrawParamtersDescriptorsOnly_EXT(*mPrimitive, inWindow);
-    }
-
+    void PainterBindDraw(ui inPainterId, Window& inWindow);
+    void AddModelTextureToPainter(ui inId,
+        ui inPainterId,
+        sz inOffset = 0,
+        ui inBinding = 0,
+        ui inDestinationArrayElement = 0);
     template <typename T>
-    void PainterDraw(ui inId, T inPush, Window& inWindow)
-    {
-        mPainters[mBoundPainterVF]->Draw_EXT<T>(*mPrimitive, inPush, inWindow, gb::GetIndexCount(inId), 1, 0, 0);
-    }
-    void PainterDispatch(ui inId)
-    {
-    }
-    void Dispatch(Window& inWindow);
+    void PainterDraw(ui inId, T inPush, Window& inWindow);
+    void PainterDispatch(ui inId);
 
 private:
     void AddPainter(Up<Painter> inPainter, Up<PainterCache> inPainterCaches, ui& outId);
-    void CheckAndResize(const glTF_Model& inModel)
-    {
-        bool ResizeRequired = false;
-        while (true) {
-            bool ResizeRequiredi = (inModel.GetIndices().size() + gb::GetCurrentIndexOffset() >= mTotalNoOfIndicesRendererCanHold) or (inModel.GetVertices().size() + gb::GetCurrentVertexOffset() >= mTotalNoOfVerticesRendererCanHold);
-            if (ResizeRequiredi) {
-                mTotalNoOfVerticesRendererCanHold *= rb::RendererCapacityResizeFactor;
-                mTotalNoOfIndicesRendererCanHold *= rb::RendererCapacityResizeFactor;
-                ResizeRequired = true;
-            } else {
-                break;
-            }
-        }
-
-        if (ResizeRequired) {
-            mPrimitive.reset();
-            mPrimitive = MakeUp<Primitive>(
-                mInstance,
-                gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
-                gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
-            mPrimitive->SetIndexCount(mTotalNoOfIndicesRendererCanHold);
-
-            gb::Resize(mTotalNoOfVerticesRendererCanHold, mTotalNoOfIndicesRendererCanHold);
-
-#ifndef JKR_NO_STAGING_BUFFERS
-            rb::ResizeStagingBuffer(
-                mInstance,
-                gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
-                gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
-            rb::CopyToStagingBuffers(
-                gb::GetVertexBufferData(),
-                gb::GetIndexBufferData(),
-                gb::VertexCountToBytes(0),
-                gb::IndexCountToBytes(0),
-                gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
-                gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
-            rb::RegisterBufferCopyRegionToPrimitiveFromStaging(
-                gb::VertexCountToBytes(0),
-                gb::IndexCountToBytes(0),
-                gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
-                gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
-#else
-            rb::CopyToPrimitive(*mPrimitive,
-                gb::GetVertexBufferData(),
-                gb::GetIndexBufferData(),
-                gb::VertexCountToBytes(0),
-                gb::IndexCountToBytes(0),
-                gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
-                gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
-#endif
-        }
-    }
+    void CheckAndResize(const glTF_Model& inModel);
     v<Up<glTF_Model>> mModels;
     v<Up<Painter>> mPainters;
     v<Up<PainterCache>> mPainterCaches;
     ui mBoundPainterVF = 0;
     ui mBoundPainterC = 0; // Compute
     Up<Primitive> mPrimitive;
+
+private:
+    Up<SSBOType> mGlobalSSBO;
+    Up<UBType> mGlobalUB;
+
+#ifndef JKR_NO_STAGING_BUFFER
+    Up<StagingBufferType> mGlobalUBOStatingBuffer;
+#endif
+
+private:
     const Instance& mInstance;
 
 private:
     ui mTotalNoOfVerticesRendererCanHold = rb::InitialRendererElementArraySize;
     ui mTotalNoOfIndicesRendererCanHold = rb::InitialRendererElementArraySize;
 };
+
+template <typename T>
+void Shape::WriteToGlobalUB(T inData)
+{
+    T d = inData;
+    assert(mGlobalUB->GetUniformBufferSize() >= sizeof(inData));
+    void* region = mGlobalUB->GetUniformMappedMemoryRegion();
+    std::memcpy(region, &d, sizeof(d));
+}
+
+template <typename T>
+void Shape::PainterDraw(ui inId, T inPush, Window& inWindow)
+{
+    mPainters[mBoundPainterVF]
+        ->Draw_EXT<T>(*mPrimitive, inPush, inWindow, gb::GetIndexCount(inId), 1, 0, 0);
+}
+
+inline void Shape::Bind(Window& inWindow)
+{
+    Painter::BindDrawParamtersVertexAndIndexBuffersOnly_EXT(mInstance, *mPrimitive, inWindow);
+}
+
+inline void Shape::RegisterGlobalUBToPainter(ui inPainterId,
+    sz inOffset,
+    ui inBinding,
+    ui inDestinationArrayElement)
+{
+    mPainters[inPainterId]->RegisterPainterParameter(*mGlobalUB, inOffset, inBinding, inDestinationArrayElement);
+}
+
+inline void Shape::RegisterGlobalSSBOToPainter(ui inPainterId,
+                                  sz inOffset,
+                                  ui inBinding,
+                                  ui inDestinationArrayElement)
+{
+    mPainters[inPainterId]->RegisterPainterParameter(*mGlobalSSBO,
+                                                     inOffset,
+                                                     inBinding,
+                                                     inDestinationArrayElement,
+                                                     RegisterMode::AllShaders);
+}
+
+inline void Shape::PainterBindDraw(ui inPainterId, Window& inWindow)
+{
+    mPainters[inPainterId]->BindDrawParamtersPipelineOnly_EXT(*mPrimitive, inWindow);
+    mPainters[inPainterId]->BindDrawParamtersDescriptorsOnly_EXT(*mPrimitive, inWindow);
+}
+
+inline void Shape::AddModelTextureToPainter(
+    ui inId, ui inPainterId, sz inOffset, ui inBinding, ui inDestinationArrayElement)
+{
+    auto& pp = mModels[inId]->GetPainterImageParameters().back().mTextureImage;
+    mPainters[inPainterId]->RegisterPainterParameter(*pp,
+        inOffset,
+        inBinding,
+        inDestinationArrayElement);
+}
+
 } // namespace Jkr::Renderer::_3D

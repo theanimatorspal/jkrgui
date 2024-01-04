@@ -1,9 +1,16 @@
 #pragma once
-#include "include.hpp"
-#include "lua.hpp"
+#include "../../LuaBirali/lua.hpp"
+#include "../include.hpp"
+#include "operators.hpp"
+#include "token.hpp"
 
 class Lexer {
 public:
+    Lexer()
+        : mC(mDummyStr)
+    {
+    }
+
     Lexer(std::istream& inCodeStream)
         : mC(inCodeStream)
     {
@@ -15,7 +22,7 @@ public:
         ls.mlastline = 1;
     }
 
-    void Next()
+    Token Next()
     {
         ls.mlastline = ls.mlinenumber;
         if (ls.mlookahead != Token::Eos) {
@@ -23,16 +30,19 @@ public:
             ls.mlookahead = Token::Eos;
         } else {
             ls.mt = ls.Lex(ls.mt.s);
+            return ls.mt.token;
         }
     }
 
-    int LookAhead()
+    Token LookAhead()
     {
         assert(ls.mlookahead.token == Token::Eos);
         ls.mlookahead = ls.Lex(ls.mlookahead.s);
         return ls.mlookahead.token;
     }
 
+private:
+    std::stringstream mDummyStr;
 protected:
     LexerState ls;
     std::istream& mC;

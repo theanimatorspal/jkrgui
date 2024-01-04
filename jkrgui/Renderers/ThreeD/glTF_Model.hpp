@@ -11,6 +11,23 @@ using namespace ksai::kstd;
 namespace tg = tinygltf;
 
 namespace Jkr::Renderer::_3D {
+struct Material {
+    Material() = default;
+    constexpr Material(const sv inN, glm::vec3 inC, float inRoughness, float inMetalness)
+        : mname(inN)
+        , props(Prop { .roughness = inRoughness, .metalness = inMetalness, .color = inC })
+    {
+    }
+
+    s mname;
+    struct Prop {
+        float roughness;
+        float metalness;
+        glm::vec3 color;
+    } props;
+    glm::vec4 mBaseColorFactor = glm::vec4(1.0f);
+    ui mBaseColorTextureIndex;
+};
 
 class glTF_Model {
     using ImageType = Jkr::PainterParameter<PainterParameterContext::UniformImage>;
@@ -76,11 +93,6 @@ protected:
         glm::mat4 mMatrix;
     };
 
-    struct Material {
-        glm::vec4 mBaseColorFactor = glm::vec4(1.0f);
-        ui mBaseColorTextureIndex;
-    };
-
     struct Texture {
         int32_t mImageIndex;
     };
@@ -107,6 +119,7 @@ private:
         Up<ImageType> mTextureImage;
     };
     v<Image> mImages;
+
 };
 
 } // namespace Jkr::Renderer::_3D
