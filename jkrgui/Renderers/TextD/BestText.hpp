@@ -60,8 +60,7 @@ private:
 #endif
 };
 
-}; // namespace Jkr::Renderer
-
+} // namespace Jkr::Renderer
 #else
 
 namespace Jkr::Renderer {
@@ -118,5 +117,6 @@ private:
 #endif
 };
 
-#endif
 }
+
+#endif

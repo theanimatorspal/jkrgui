@@ -113,7 +113,6 @@ layout(push_constant, std430) uniform pc {
         bst.Dispatch(Window);
     };
 
-    static int i = 0;
     auto Draw = [&](void* data) {
         RenderFontImage();
     };

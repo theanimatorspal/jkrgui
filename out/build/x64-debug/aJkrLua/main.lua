@@ -140,19 +140,14 @@ Load = function()
                 }
         }
         FileMenu = Com.FileMenuBarObject:New(FileMenux, 25, 80, Font)
-        print("along")
-
-       
+        Id = r.balt.add(Int(Font.mId), "Hello", vec2(100, 100), Int(5))
+        print("along")       
 end
 
 Event = function()
-
-
-
         Com.Events()
         ContextMenu:Event()
         FileMenu:Event()
-
 end
 
 Update = function()
@@ -164,7 +159,11 @@ end
 
 Draw = function()
         Com.Draws()
+        S.Bind()
+        S.BindFillMode(FillType.image)
+        r.balt.draw(vec4(-1, -1, -1, 1), Int(WindowDimension.x), Int(WindowDimension.y), Id, GetIdentityMatrix())
 end
+
 
 UnLoad = function()
 end

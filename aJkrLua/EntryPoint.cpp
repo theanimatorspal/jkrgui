@@ -1,16 +1,14 @@
 #include "BestText.hpp"
+#include "BestText_base.hpp"
 #include "SDL2/SDL_clipboard.h"
 #include "SDL2/SDL_events.h"
 #include "Shape_base.hpp"
 #include <EventManager.hpp>
 #include <Instance.hpp>
+#include <Renderers/2d.hpp>
+#include <Renderers/BestText_Alt.hpp>
 #include <Renderers/ResourceManager.hpp>
-#include <Renderers/2d.hpp>
 #include <Vendor/Tracy/tracy/Tracy.hpp>
-
-#pragma once
-#include <EventManager.hpp>
-#include <Renderers/2d.hpp>
 #include <Window.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -139,9 +137,6 @@ private:
     bool isFocused = false;
 };
 }
-
-
-
 
 #ifdef WIN32
 #include <Windows.h>
@@ -936,6 +931,34 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
                 {};
                 td.sh.BindImage(w, id);
             });
+        /* Alternative Implementations */
+
+        Jkr::Renderer::BestText_Alt ALT(td.sh, td.bt);
+
+        r.new_usertype<Jkr::Renderer::BestText_Alt::ImageId>("ImageId");
+
+        r.new_usertype<Jkr::Renderer::BestText_Alt>(
+            "balt",
+
+            "add",
+            [&](int inFontId, string inS, vec2 inposition, int inDepth)
+                -> Jkr::Renderer::BestText_Alt::ImageId {
+                BestText_Alt::ImageId outId;
+                ALT.Add(inFontId, inposition, inDepth, inS, outId);
+                return outId;
+            },
+
+            "draw",
+            [&](vec4 color, int ww, int wh, BestText_Alt::ImageId inId, glm::mat4 matrix) {
+                ALT.Draw(inId, w, color, ww, wh, matrix);
+            },
+
+            "update",
+            [&](BestText_Alt::ImageId inId,
+                int inFontId,
+                vec2 inposition,
+                int inDepth,
+                string inText) { ALT.Update(inId, inFontId, inposition, inDepth, inText); });
 
         r.set_function("set_scissor", [&](vec2 offset, vec2 extent) {
             vk::Rect2D rect;
