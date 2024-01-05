@@ -31,10 +31,10 @@ public:
         v<uc> img = bt.RenderTextToImage(inFontId, inText, dimens);
         ui font_image;
         sh.AddImage(img, dimens.mWidth, dimens.mHeight, font_image);
+
         ui font_rect_id;
         Jkr::Generator FontRectGen(Jkr::Shapes::Rectangle, glm::uvec2(dimens.mWidth, dimens.mHeight));
-        auto dem = bt.GetTextDimensions(inText, inFontId);
-        sh.Add(FontRectGen, inPos.x, inPos.y - dem.mHeight, inDepth, font_rect_id);
+        sh.Add(FontRectGen, inPos.x, inPos.y - dimens.mHeight, inDepth, font_rect_id);
         outId = ImageId { .mRectId = font_rect_id, .mImgId = font_image };
     }
 
@@ -46,8 +46,7 @@ public:
         sh.UpdateImage(inId.mImgId, img, dimens.mWidth, dimens.mHeight);
 
         Jkr::Generator FontRectGen(Jkr::Shapes::Rectangle, glm::uvec2(dimens.mWidth, dimens.mHeight));
-        auto dem = bt.GetTextDimensions(inText, inFontId);
-        sh.Update(inId.mRectId, FontRectGen, inPos.x, inPos.y - dem.mHeight, inDepth);
+        sh.Update(inId.mRectId, FontRectGen, inPos.x, inPos.y - dimens.mHeight, inDepth);
     }
 
     void Draw(ImageId inId, Window& inWindow, glm::vec4 inColor, ui inW, ui inH, glm::mat4 inMatrix)

@@ -3,10 +3,15 @@
 #
 
 cmake_minimum_required (VERSION 3.8)
-set(LLVM_PATH "C:/Users/sansk/OneDrive/Documents/llvm-project-llvmorg-17.0.6/llvm-project-llvmorg-17.0.6/llvm")
+if(APPLE)
+	set(VULKAN_SDK "/Users/bishaljaiswal/VulkanSDK")
+	set(VULKAN_VERSION "1.3.268.1")
+else()
+	set(VULKAN_SDK "C:/VulkanSDK")
+	set(VULKAN_VERSION "1.3.250.1")
+	set(LLVM_PATH "C:/Users/sansk/OneDrive/Documents/llvm-project-llvmorg-17.0.6/llvm-project-llvmorg-17.0.6/llvm")
+endif()
 
-set(VULKAN_SDK "C:/VulkanSDK")
-set(VULKAN_VERSION "1.3.250.1")
 set(VULKAN_PATH "${VULKAN_SDK}/${VULKAN_VERSION}")
 
 
@@ -78,10 +83,15 @@ include_directories(${VULKAN_INCLUDE_PATH})
 link_directories(${VULKAN_LIBRARY_PATH})
 link_directories("${CMAKE_SOURCE_DIR}/libs/")
 
-if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-        link_directories("${LLVM_PATH}/Release/lib")
+if(APPLE)
+	link_directories("/opt/homebrew/lib/")
+	link_directories("/usr/local/lib/")
 else()
-        link_directories("${LLVM_PATH}/Debug/lib")
+	if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+		   link_directories("${LLVM_PATH}/Release/lib")
+	else()
+		   link_directories("${LLVM_PATH}/Debug/lib")
+	endif()
 endif()
 
 add_subdirectory(aa_unit_testing)

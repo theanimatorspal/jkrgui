@@ -1,6 +1,9 @@
 #include "VulkanDevice.hpp"
 #include "vulkan/vulkan_handles.hpp"
 #include <iostream>
+#ifdef __APPLE__
+#include <Vulkan/vulkan_beta.h>
+#endif
 
 using namespace ksai;
 
@@ -16,7 +19,7 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice, const V
     v<char const*> deviceExtensionNames;
     deviceExtensionNames.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 #ifdef __APPLE__
-    mInstanceExtensionNames.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
+    deviceExtensionNames.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
 #endif
 
     vk::PhysicalDeviceFeatures Features;
