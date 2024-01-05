@@ -12,6 +12,8 @@ local __Depth = Depth + 10 -- Farthest (This meant to be used when the ComObject
 Load = function()
         LineId = L.add(vec2(100, 100), vec2(700, 700), 55)
         Font = Jkr.FontObject:New("font.ttf", 4)
+        FontTEST = Jkr.FontObject:New("font.ttf", 6)
+
 
         ContextMenu = Com.ContextMenu:New(vec3(100,100,80),vec3(80,20,1),Font,10, 10)
 
@@ -140,8 +142,8 @@ Load = function()
                 }
         }
         FileMenu = Com.FileMenuBarObject:New(FileMenux, 25, 80, Font)
-        Id = r.balt.add(Int(Font.mId), "Hello", vec2(100, 100), Int(5))
-        print("along")       
+        Id = r.balt.add(Int(FontTEST.mId), "किं कश्चन", vec2(100, 100), Int(20))
+        print("along")
 end
 
 Event = function()
@@ -161,7 +163,7 @@ Draw = function()
         Com.Draws()
         S.Bind()
         S.BindFillMode(FillType.image)
-        r.balt.draw(vec4(-1, -1, -1, 1), Int(WindowDimension.x), Int(WindowDimension.y), Id, GetIdentityMatrix())
+        r.balt.draw(vec4(0, 0, 0, 2), Int(WindowDimension.x), Int(WindowDimension.y), Id, GetIdentityMatrix())
 end
 
 

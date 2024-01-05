@@ -19,5 +19,7 @@ add_library(jkrgui STATIC ${app_SRC}
 "Renderers/ThreeD/glTF_base.hpp"
 "Renderers/ThreeD/glTF_base.cpp"
 "Renderers/BestText_Alt.hpp"
+"WindowMulT.hpp"
+"Window.hpp"
 )
 

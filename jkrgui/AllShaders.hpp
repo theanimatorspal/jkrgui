@@ -202,7 +202,7 @@ namespace ShapeRenderers_Image
 
 			void GlslMain()
 			{
-				vec4 color = texture(u_image[int(push.mParams.x)], inTextCoord);
+				vec4 color = texture(image, inTexCoord);
 				outColor = vec4(color.r * push.Color.r, color.g * push.Color.g, color.b * push.Color.b, color.a * push.Color.a);
 			}
 

@@ -26,6 +26,7 @@ class Shape : public Renderer_base, public glTF_base {
     using UBType = PainterParameter<Jkr::PainterParameterContext::UniformBuffer>;
     using StagingBufferType
         = VulkanBuffer<BufferContext::Staging, MemoryType::HostVisibleAndCoherenet>;
+    using ImageType = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
 
 public:
     Shape(const Instance& inInstance, Window& inCompatibleWindow, sz inGlobalUBsize = sizeof(GlobalUB), sz inSSBOsize = sizeof(GlobalSSBO) * 10);
@@ -49,6 +50,21 @@ public:
         sz inOffset = 0,
         ui inBinding = 0,
         ui inDestinationArrayElement = 0);
+
+    void RegisterExternalTextureToPainter(ui& outId,
+        ui inPainterId,
+        const sv inFilename,
+        sz inOffset = 0,
+        ui inBinding = 0,
+        ui inDestinationArrayElement = 0);
+
+    void RegisterExternalTextureArrayToPainter(ui& outId,
+        ui inPainterId,
+        std::span<const sv> inFileNames,
+        sz inOffset = 0,
+        ui inBindingn = 0,
+        ui inDestinationArrayElement = 0);
+
     template <typename T>
     void PainterDraw(ui inId, T inPush, Window& inWindow);
     void PainterDispatch(ui inId);
@@ -63,13 +79,12 @@ private:
     ui mBoundPainterC = 0; // Compute
     Up<Primitive> mPrimitive;
 
+    v<Up<ImageType>> mExternalTextures;
+
 private:
     Up<SSBOType> mGlobalSSBO;
     Up<UBType> mGlobalUB;
-
-#ifndef JKR_NO_STAGING_BUFFER
     Up<StagingBufferType> mGlobalUBOStatingBuffer;
-#endif
 
 private:
     const Instance& mInstance;
@@ -78,6 +93,43 @@ private:
     ui mTotalNoOfVerticesRendererCanHold = rb::InitialRendererElementArraySize;
     ui mTotalNoOfIndicesRendererCanHold = rb::InitialRendererElementArraySize;
 };
+
+/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/
 
 template <typename T>
 void Shape::WriteToGlobalUB(T inData)
@@ -105,19 +157,19 @@ inline void Shape::RegisterGlobalUBToPainter(ui inPainterId,
     ui inBinding,
     ui inDestinationArrayElement)
 {
-    mPainters[inPainterId]->RegisterPainterParameter(*mGlobalUB, inOffset, inBinding, inDestinationArrayElement);
+    mPainters[inPainterId]->RegisterPainterParameter(*mGlobalUB, inOffset, inBinding, inDestinationArrayElement, Jkr::RegisterMode::VertexFragmentOnly);
 }
 
 inline void Shape::RegisterGlobalSSBOToPainter(ui inPainterId,
-                                  sz inOffset,
-                                  ui inBinding,
-                                  ui inDestinationArrayElement)
+    sz inOffset,
+    ui inBinding,
+    ui inDestinationArrayElement)
 {
     mPainters[inPainterId]->RegisterPainterParameter(*mGlobalSSBO,
-                                                     inOffset,
-                                                     inBinding,
-                                                     inDestinationArrayElement,
-                                                     RegisterMode::AllShaders);
+        inOffset,
+        inBinding,
+        inDestinationArrayElement,
+        RegisterMode::AllShaders);
 }
 
 inline void Shape::PainterBindDraw(ui inPainterId, Window& inWindow)
@@ -134,6 +186,42 @@ inline void Shape::AddModelTextureToPainter(
         inOffset,
         inBinding,
         inDestinationArrayElement);
+}
+
+inline void Shape::RegisterExternalTextureToPainter(ui& outId,
+    ui inPainterId,
+    const sv inFilename,
+    sz inOffset,
+    ui inBinding,
+    ui inDestinationArrayElement)
+{
+    Up<ImageType> AnImage = MakeUp<ImageType>(mInstance);
+    AnImage->Setup(inFilename);
+    mExternalTextures.push_back(mv(AnImage));
+    outId = mExternalTextures.size() - 1;
+    mPainters[inPainterId]->RegisterPainterParameter(*mExternalTextures.back(),
+        inOffset,
+        inBinding,
+        inDestinationArrayElement,
+        RegisterMode::VertexFragmentOnly);
+}
+
+inline void Shape::RegisterExternalTextureArrayToPainter(ui& outId,
+    ui inPainterId,
+    std::span<const sv> inFileNames,
+    sz inOffset,
+    ui inBindingn,
+    ui inDestinationArrayElement)
+{
+    Up<ImageType> AnImage = MakeUp<ImageType>(mInstance);
+    AnImage->Setup(inFileNames);
+    mExternalTextures.push_back(mv(AnImage));
+    outId = mExternalTextures.size() - 1;
+    mPainters[inPainterId]->RegisterPainterParameter(*mExternalTextures.back(),
+        inOffset,
+        inBindingn,
+        inDestinationArrayElement,
+        RegisterMode::VertexFragmentOnly);
 }
 
 } // namespace Jkr::Renderer::_3D

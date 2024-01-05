@@ -2,6 +2,9 @@
 JkrGUI lua
 ]]
 
+
+local AlternativeTextRenderer = true
+
 -- this is for utf8 strings (the string that supports कखग), ignore it
 
 function utf8.sub(s, i, j)
@@ -335,7 +338,8 @@ Jkr.Components.Static.TextObject = {
                         mFont = nil, -- Font Object
                         mId = nil,  
                         mDimension_2f = nil,
-                        mColor = Theme.Colors.Text.Normal
+                        mColor = Theme.Colors.Text.Normal,
+                        mAlt = AlternativeTextRenderer
                 }
 
                 setmetatable(Obj, self)
@@ -343,11 +347,18 @@ Jkr.Components.Static.TextObject = {
 
                 Obj.mString = inText
                 Obj.mPosition_3f = inPosition_3f
-                T.SetCurrentFace(inFontObject.mId)
-                T.SetTextProperty(TextH.left, TextV.top)
-                Obj.mId = T.Add(Obj.mString, vec3(Obj.mPosition_3f.x, Obj.mPosition_3f.y, Depth))
-                Obj.mDimension_2f = inFontObject:GetDimension(Obj.mString)
+
+                if not Obj.mAlt then
+                        T.SetCurrentFace(inFontObject.mId)
+                        T.SetTextProperty(TextH.left, TextV.top)
+                        Obj.mId = T.Add(Obj.mString, vec3(Obj.mPosition_3f.x, Obj.mPosition_3f.y, Depth))
+                        Obj.mDimension_2f = inFontObject:GetDimension(Obj.mString)
+                else
+                        Obj.mId = r.balt.add(inFontObject.mId, Obj.mString, vec3(Obj.mPosition_3f.x, Obj.mPosition_3f.y, Depth))
+                end
+
                 Obj.mFont = inFontObject
+
                 return Obj
         end,
         GetLength = function(self)
@@ -356,20 +367,31 @@ Jkr.Components.Static.TextObject = {
         Event = function (self)
         end,
         Draw = function (self)
-                T.Bind()
-                T.Draw(self.mColor, Int(WindowDimension.x), Int(WindowDimension.y), Int(self.mId.x), Int(self.mId.y), GetIdentityMatrix())
+
+                if not self.mAlt then
+                        T.Bind()
+                        T.Draw(self.mColor, Int(WindowDimension.x), Int(WindowDimension.y), Int(self.mId.x), Int(self.mId.y), GetIdentityMatrix())
+                else
+                        S.Bind()
+                        S.BindFillMode(FillType.image)
+                        r.balt.draw(self.mColor, Int(WindowDimension.x), Int(WindowDimension.y), self.mId, GetIdentityMatrix())
+                end
         end,
         Update = function (self, inPosition_3f)
                 self.mPosition_3f = inPosition_3f
-                local str = string.rep(" ", self.mId.y)
-                T.Update(Int(self.mId.x), str, self.mPosition_3f)
-                T.Update(Int(self.mId.x), self.mString, self.mPosition_3f)
+                if not self.mAlt then
+                        local str = string.rep(" ", self.mId.y)
+                        T.Update(Int(self.mId.x), str, self.mPosition_3f)
+                        T.Update(Int(self.mId.x), self.mString, self.mPosition_3f)
+                else
+                        r.balt.update(self.mId, Int(self.mFont.mId), self.mPosition_3f, self.mString)
+                end
         end,
         SetScissor = function (self)
                 if self.mScissorPosition_2f and self.mScissorDimension_2f then
                         Jkr.set_scissor(self.mScissorPosition_2f, self.mScissorDimension_2f)
                 end
-        end 
+        end
 }
 
 

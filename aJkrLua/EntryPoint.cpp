@@ -644,8 +644,8 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
     auto rr = ResourceManager(cf["-cache_folder"]);
     auto VarDesCount = stoi(string(cf["-var_des_size"]));
     if (toBool(cf["-store"])) {
-        rr.Load(i, VarDesCount);
-        // rr.Store(i);
+        //rr.Load(i, VarDesCount);
+        rr.Store(i);
     } else {
         rr.Load(i, VarDesCount);
     }
@@ -931,8 +931,8 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
                 {};
                 td.sh.BindImage(w, id);
             });
-        /* Alternative Implementations */
 
+        /* Alternative Implementations */
         Jkr::Renderer::BestText_Alt ALT(td.sh, td.bt);
 
         r.new_usertype<Jkr::Renderer::BestText_Alt::ImageId>("ImageId");
@@ -941,10 +941,10 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
             "balt",
 
             "add",
-            [&](int inFontId, string inS, vec2 inposition, int inDepth)
+            [&](int inFontId, string inS, vec3 inposition)
                 -> Jkr::Renderer::BestText_Alt::ImageId {
                 BestText_Alt::ImageId outId;
-                ALT.Add(inFontId, inposition, inDepth, inS, outId);
+                ALT.Add(inFontId, vec2(inposition.x, inposition.y), inposition.z, inS, outId);
                 return outId;
             },
 
@@ -956,9 +956,17 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
             "update",
             [&](BestText_Alt::ImageId inId,
                 int inFontId,
-                vec2 inposition,
-                int inDepth,
-                string inText) { ALT.Update(inId, inFontId, inposition, inDepth, inText); });
+                vec3 inposition,
+                string inText) {
+			  
+                ALT.Update(inId, inFontId, vec2(inposition.x, inposition.y), inposition.z, inText);
+            },
+
+            "update_pos_only",
+            [&](BestText_Alt::ImageId inId, int inFontId, vec2 inposition, int inDepth) {
+            }
+
+        );
 
         r.set_function("set_scissor", [&](vec2 offset, vec2 extent) {
             vk::Rect2D rect;

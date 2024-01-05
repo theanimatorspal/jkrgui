@@ -36,7 +36,7 @@ namespace ksai {
 			mPool = inDevice.GetDeviceHandle().createDescriptorPool(
 				vk::DescriptorPoolCreateInfo(vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet, inMaxDescriptorSets, mPoolContext.GetDescriptorPoolSizesArray())
 			);
-			mMaxDescriptorSets = inMaxDescriptorSets;
+			mMaxDescriptorSets = PoolSize;
 		}
 		~VulkanDescriptorPool() = default;
 	private:

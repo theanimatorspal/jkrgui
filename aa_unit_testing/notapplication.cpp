@@ -10,7 +10,7 @@
 #include <Window.hpp>
 #include <Renderers/BestText_Alt.hpp>
 
-int main()
+int maijaflkjdaslkjflk()
 {
     auto Instance = Jkr::Instance();
     auto Window = Jkr::Window(Instance, "Heell", 1080 / 2, 1920 / 2);
@@ -76,7 +76,7 @@ layout(push_constant, std430) uniform pc {
     auto RenderFontImage = [&]() {
         sr.BindShapes(Window);
         sr.BindFillMode(Jkr::Renderer::FillType::Image, Window);
-        Alt.Draw(fntimgid, Window, glm::vec4(2, 2, 2, 2), 1920 / 2, 1080 / 2, glm::identity<glm::mat4>());
+        Alt.Draw(fntimgid, Window, glm::vec4(0, 0, 0, 2), 1920 / 2, 1080 / 2, glm::identity<glm::mat4>());
         bst.Bind(Window);
         bst.Draw(Window, glm::vec4(1, 1, 1, 1), 1920 / 2, 1080 / 2, BestText_id, BestText_length, glm::identity<glm::mat4>());
     };
@@ -126,7 +126,7 @@ layout(push_constant, std430) uniform pc {
 
     while (!EventManager.ShouldQuit()) {
         EventManager.ProcessEvents();
-        Window.Draw(0.2f, 0.2f, 0.2f, 0.2f);
+        Window.Draw(1.0f, 1.0f, 1.0f, 1.0f);
     }
     return 0;
 }

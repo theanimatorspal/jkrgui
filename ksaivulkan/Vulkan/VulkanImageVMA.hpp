@@ -7,10 +7,11 @@ namespace ksai {
 	class VulkanImageVMA : public VulkanImageBase
 	{
 	public:
-		VulkanImageVMA(const VulkanVMA& inVMA, const VulkanDevice& inDevice, ui inWidth, ui inHeight, ui inChannel = 4)
+		VulkanImageVMA(const VulkanVMA& inVMA, const VulkanDevice& inDevice, ui inWidth, ui inHeight, ui inChannel = 4, ui inLayerCount = 1)
 			: VulkanImageBase(inDevice), mVMA(inVMA)
 		{
 			FillImageProperties<inImageContext>();
+			mImageProperties.mArrayLayers = inLayerCount;
 			mImageProperties.mExtent.width = inWidth;
 			mImageProperties.mExtent.height = inHeight;
 			vk::ImageTiling Tiling;
@@ -40,8 +41,6 @@ namespace ksai {
 		    mDevice.waitIdle();
 			vmaDestroyImage(mVMA.GetVMAHandle(), mImage, mAllocation);
 		}
-
-
 	private:
 		const VulkanVMA& mVMA;
 		VmaAllocation mAllocation;

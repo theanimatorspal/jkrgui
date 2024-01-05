@@ -41,6 +41,13 @@ public:
     VulkanImageBase(const VulkanDevice& inDevice);
     ~VulkanImageBase();
     void SubmitImmediateCmdCopyFromData(const VulkanQueue<QueueContext::Graphics>& inQueue, const VulkanCommandBuffer& inCmdBuffer, const VulkanDevice& inDevice, void** inData, vk::DeviceSize inSize);
+
+    void SubmitImmediateCmdCopyFromData(const VulkanQueue<QueueContext::Graphics> &inQueue,
+                                        const VulkanCommandBuffer &inCmdBuffer,
+                                        const VulkanDevice &inDevice,
+                                        vk::DeviceSize inSize,
+                                        std::span<void **> inLayerImageDatas);
+
     void CmdTransitionImageLayout(const VulkanCommandBuffer& inBuffer, vk::ImageLayout inOldImageLayout, vk::ImageLayout inNewImageLayout, vk::PipelineStageFlags inBeforeStage, vk::PipelineStageFlags inAfterStage, vk::AccessFlags inBeforeAccess, vk::AccessFlags inAfterAccess);
     GETTER& GetImageFormat() const { return mImageProperties.mImageFormat; }
     GETTER& GetImageViewHandle() const { return mImageView; }
