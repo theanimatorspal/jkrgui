@@ -37,24 +37,20 @@ public:
         std::vector<uint32_t>& outVertexShaderModule,
         std::vector<uint32_t>& outFragmentShaderModule)
     {
-        SpirvHelper::Init();
         bool success = SpirvHelper::GLSLtoSPV(vk::ShaderStageFlagBits::eVertex, inVertexShaderString.c_str(), outVertexShaderModule);
         if (!success)
             assert("VertexShader Failed" && false);
         success = SpirvHelper::GLSLtoSPV(vk::ShaderStageFlagBits::eFragment, inFragmentShaderString.c_str(), outFragmentShaderModule);
         if (!success)
             assert("FragmentShader failed" && false);
-        SpirvHelper::Finalize();
     }
     ShaderCompiler(
         const std::string& inComputeShaderString,
         std::vector<uint32_t>& outComputeShaderModule)
     {
-        SpirvHelper::Init();
         bool success = SpirvHelper::GLSLtoSPV(vk::ShaderStageFlagBits::eCompute, inComputeShaderString.c_str(), outComputeShaderModule);
         if (!success)
             assert("ComputeShader failed" && false);
-        SpirvHelper::Finalize();
     }
 };
 }

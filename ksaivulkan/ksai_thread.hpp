@@ -78,6 +78,15 @@ struct ThreadPool {
             t->Wait();
         }
     }
+
+    void Add_Job(std::span<std::function<void()>> inJob)
+    {
+        static int i = 0;
+        for (auto& x : inJob) {
+            mThreads[i]->AddJob(x);
+            i = (i + 1) % mThreads.size();
+        }
+    }
     v<up<Thread>> mThreads;
 };
 }

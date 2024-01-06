@@ -644,8 +644,9 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
     auto em = EventManager();
     auto rr = ResourceManager(cf["-cache_folder"]);
     auto VarDesCount = stoi(string(cf["-var_des_size"]));
+    SpirvHelper::Init();
+    rr.SetThreadPool(i.GetThreadPool());
     if (toBool(cf["-store"])) {
-        // rr.Load(i, VarDesCount);
         rr.Store(i);
     } else {
         rr.Load(i, VarDesCount);
@@ -945,7 +946,7 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
             [&](int inFontId, string inS, vec3 inposition)
                 -> Jkr::Renderer::BestText_Alt::ImageId {
                 BestText_Alt::ImageId outId;
-                ALT.Add(inFontId, vec2(inposition.x, inposition.y), inposition.z, inS, outId);
+                ALT.Add(inFontId, vec2(inposition.x, inposition.y), inposition.z, inS, outId, i.GetThreadPool());
                 return outId;
             },
 
@@ -959,7 +960,7 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
                 int inFontId,
                 vec3 inposition,
                 string inText) {
-                ALT.Update(inId, inFontId, vec2(inposition.x, inposition.y), inposition.z, inText);
+                ALT.Update(inId, inFontId, vec2(inposition.x, inposition.y), inposition.z, inText, i.GetThreadPool());
             },
 
             "update_pos_only",
@@ -1132,6 +1133,7 @@ layout(push_constant, std430) uniform pc {
         toFloat(cf["-bgb"]),
         toFloat(cf["-bga"]) };
 
+    SpirvHelper::Finalize();
     while (!em.ShouldQuit()) {
         em.ProcessEvents();
         w.Draw(bg[0], bg[1], bg[2], bg[3]);

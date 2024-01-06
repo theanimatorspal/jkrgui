@@ -17,7 +17,11 @@ int main()
     auto Window = Jkr::Window(Instance, "Heell", 1080 / 2, 1920 / 2);
     auto EventManager = Jkr::EventManager();
     auto RendererResources = Jkr::Renderer::ResourceManager();
+    SpirvHelper::Init();
+    Jkr::time.reset();
+    RendererResources.SetThreadPool(Instance.GetThreadPool());
     RendererResources.Store(Instance);
+    Jkr::time.elapsed("RendererResources Load");
     auto lr = Jkr::Renderer::Line(Instance, Window, RendererResources.GetLineRendererCache());
     // auto ftx = Jkr::Renderer::FastText(Instance, Window, RendererResources.GetFastTextRendererCache());
     auto sr = Jkr::Renderer::Shape(Instance, Window, RendererResources.GetShapePainterCaches());
@@ -62,9 +66,6 @@ layout(push_constant, std430) uniform pc {
         .mParam = vec4(0) };
     uint32_t image_to_draw_id;
     sr.AddImage(100, 100, image_to_draw_id);
-    ImagePainter.Store(Window);
-    ImagePainter.RegisterImageToBeDrawnTo(Window, 100, 100);
-    sr.CopyToImage(image_to_draw_id, ImagePainter);
 
     bst.AddFontFace("font.ttf", 64, Font_id);
     //bst.AddText("What is that", 100, 300, 5, BestText_id, BestText_length);
@@ -115,7 +116,6 @@ layout(push_constant, std430) uniform pc {
     uint32_t idx;
 
     auto Dispatch = [&](void* data) {
-        ImagePainter.Draw<pc>(Window, push_constant, 16, 16, 1);
         lr.Dispatch(Window);
         sr.Dispatch(Window);
         bst.Dispatch(Window);
@@ -131,6 +131,8 @@ layout(push_constant, std430) uniform pc {
     Window.SetUpdateCallBack(Update);
     Window.SetDrawCallBack(Draw);
     Window.SetComputeDispatchCallBack(Dispatch);
+
+    SpirvHelper::Finalize();
 
     while (!EventManager.ShouldQuit()) {
         EventManager.ProcessEvents();

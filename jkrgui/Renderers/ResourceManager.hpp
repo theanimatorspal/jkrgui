@@ -16,18 +16,20 @@ class ResourceManager {
 public:
     ResourceManager() { Folderize(""); };
     ResourceManager(const sv inFolderPath) { Folderize(inFolderPath); }
-    ResourceManager &Load(const Jkr::Instance &inInstance, uint32_t inVarDesCount = 5000);
-    ResourceManager &Store(const Jkr::Instance &inInstance, uint32_t inVarDesCount = 5000);
+    ResourceManager& Load(const Jkr::Instance& inInstance, uint32_t inVarDesCount = 5000);
+    ResourceManager& Store(const Jkr::Instance& inInstance, uint32_t inVarDesCount = 5000);
     GETTER& GetLineRendererCache() { return *mLineRendererCache; }
     GETTER& GetFastTextRendererCache() { return *mFastTextRendererCache; }
     GETTER& GetShapePainterCaches() { return mShapePainterCaches; }
     GETTER& GetBestTextRendererCache() { return *mBestTextRendererCache; }
+    SETTER SetThreadPool(ksai::ThreadPool& inThreadPool) { mThreadPool = inThreadPool; }
 
 private:
     Up<Jkr::PainterCache> mLineRendererCache;
     Up<Jkr::PainterCache> mFastTextRendererCache;
     Up<Jkr::PainterCache> mBestTextRendererCache;
     umap<FillType, Up<Jkr::PainterCache>> mShapePainterCaches;
+    optref<ThreadPool> mThreadPool;
 
 private:
     s LineRendererCacheFileName = "LineRendererCache.bin";
@@ -42,7 +44,7 @@ private:
 #endif
     s ShapeRendererCacheFileName_ContinousLine = "ShapeRendererCache_ContinousLine.bin";
 
-    void Make(const Jkr::Instance &inInstance);
+    void Make(const Jkr::Instance& inInstance);
     void Folderize(const sv inFolderPath);
 };
 
