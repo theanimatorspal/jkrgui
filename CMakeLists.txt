@@ -1,8 +1,8 @@
 ﻿# CMakeList.txt : CMake project for jkrengine, include source and define
 # project specific logic here.
 #
-
 cmake_minimum_required (VERSION 3.8)
+
 if(APPLE)
 	set(VULKAN_SDK "/Users/bishaljaiswal/VulkanSDK")
 	set(VULKAN_VERSION "1.3.268.1")

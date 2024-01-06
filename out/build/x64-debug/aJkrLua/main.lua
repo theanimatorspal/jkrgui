@@ -3,8 +3,8 @@
 ]]
 
 require "jkrgui.jkrgui"
-require "jkrgui.PrimitiveComponents"
 require "jkrgui.TextEditorComponents"
+require "jkrgui.ExtraComponents"
 
 local __Depth = Depth + 10 -- Farthest (This meant to be used when the ComObject adds Over sth)
 

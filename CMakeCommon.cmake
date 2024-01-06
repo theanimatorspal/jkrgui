@@ -69,6 +69,8 @@ function(configure_target TARGET_NAME)
     endif()
 endfunction()
 
+if(APPLE)
+else()
 function(configure_llvm TARGET_NAME)
         target_link_libraries(${TARGET_NAME}
             LLVMWindowsManifest
@@ -250,3 +252,4 @@ function(configure_llvm TARGET_NAME)
             LLVMDemangle
         )
 endfunction()
+endif()
