@@ -35,7 +35,7 @@ protected:
 namespace Jkr {
 class Window : public SDLWindow {
 public:
-    virtual const VulkanCommandPool& GetCommandPool() const { return mCommandPool; }
+    const VulkanCommandPool& GetCommandPool() const { return mCommandPool; }
     virtual const std::array<VulkanCommandBuffer, 2U>& GetCommandBuffers() const { return mCommandBuffers; }
 
     Window(const Instance& inInstance, std::string_view inTitle, int inHeight, int inWidth);
@@ -60,19 +60,19 @@ public:
     GETTER& GetInstance() const { return mInstance; }
     GETTER& GetRenderPass() const { return mRenderPass; }
 
-private:
+protected:
     std::function<void(void*)> mDrawFunction = [](void*) {};
     std::function<void(void*)> mUpdateFunction = [](void*) {};
     std::function<void(void*)> mComputeDispatchFunction = [](void*) {};
 
-private:
+protected:
     static const int mMaxFramesInFlight = 2;
     using SwapChainVulkanImages = std::vector<VulkanImage<ImageContext::ExternalHandled>>;
     using FrameBufferType = VulkanFrameBuffer<
         RenderPassContext::Default, 2, VulkanImage<ImageContext::ExternalHandled>,
         VulkanImage<ImageContext::DepthImage>>;
 
-private:
+protected:
     const Instance& mInstance;
     VulkanSurface mSurface;
     VulkanSwapChain<mMaxFramesInFlight> mSwapChain;
@@ -81,14 +81,14 @@ private:
     SwapChainVulkanImages mSwapChainImages;
     std::array<FrameBufferType, mMaxFramesInFlight> mFrameBuffers;
 
-private:
+protected:
     const std::array<VulkanSemaphore, mMaxFramesInFlight> mImageAvailableSemaphores;
     const std::array<VulkanSemaphore, mMaxFramesInFlight> mRenderFinishedSemaphores;
     std::array<VulkanFence, mMaxFramesInFlight> mFences;
     uint32_t mCurrentFrame = 0;
     uint32_t mAcquiredImageIndex = 0;
 
-private:
+protected:
     const VulkanCommandPool mCommandPool;
     const std::array<VulkanCommandBuffer, mMaxFramesInFlight> mCommandBuffers;
 };

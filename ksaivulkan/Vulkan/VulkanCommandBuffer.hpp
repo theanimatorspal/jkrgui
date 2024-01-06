@@ -12,23 +12,32 @@ public:
         Secondary
     };
     enum class BeginContext {
-		Normal,
-		ContinueRenderPass
+        Normal,
+        ContinueRenderPass
     };
 
     VulkanCommandBuffer(const VulkanDevice& inDevice, const VulkanCommandPool& inPool, Type inContext = Type::Primary);
     ~VulkanCommandBuffer();
     GETTER& GetCommandBufferHandle() const { return mBuffer; }
-    template<BeginContext inContext = BeginContext::Normal>
+    template <BeginContext inContext = BeginContext::Normal>
     void Begin() const;
     void Reset() const { mBuffer.reset(); }
     void End() const { mBuffer.end(); }
+    template<typename ... T>
+    void ExecuteCommands(T& ... inT) const
+    {
+        v<vk::CommandBuffer> Buff;
+	   ([ & ] {
+            Buff.push_back(inT.mBuffer);
+		   }, ...);
+        mBuffer.executeCommands(Buff);
+    }
 
     enum class RenderPassBeginContext {
-		Inline,
-		SecondaryCommandBuffers
+        Inline,
+        SecondaryCommandBuffers
     };
-    template<RenderPassBeginContext inBeginContext = RenderPassBeginContext::Inline>
+    template <RenderPassBeginContext inBeginContext = RenderPassBeginContext::Inline>
     void BeginRenderPass(const VulkanRenderPassBase& inRenderPass, const VulkanSurface& inSurface, const VulkanFrameBufferBase& inFrameBuffer, std::array<float, 5> inClearValue) const;
     void EndRenderPass() const;
 

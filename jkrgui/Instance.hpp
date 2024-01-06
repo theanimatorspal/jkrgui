@@ -1,4 +1,5 @@
 #pragma once
+#include "ksai_thread.hpp"
 #include "Global/Standards.hpp"
 #include "TestUtils.hpp"
 #include <Vulkan/Pipeline/VulkanDescriptorPool.hpp>
@@ -43,6 +44,8 @@ public:
 
     GETTER& GetVMA() const { return mVmaAllocator; }
 
+    GETTER& GetThreadPool() { return mThreadPool; }
+
 private:
     static const int mMaxFramesInFlight = 2;
     static const int DescriptorPoolSize = 10000;
@@ -60,5 +63,6 @@ private:
     const VulkanCommandBuffer mUtilCommandBuffer;
     const VulkanDescriptorPool<DescriptorPoolSize> mDescriptorPool;
     const VulkanVMA mVmaAllocator;
+    ksai::ThreadPool mThreadPool;
 };
 }

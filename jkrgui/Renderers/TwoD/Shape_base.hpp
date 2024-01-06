@@ -9,7 +9,7 @@
 
 namespace Jkr
 {
-enum class Shapes { Circle, Rectangle, Bezier2_8 };
+enum class Shapes { Circle, Rectangle_Fill, Bezier2_8 };
 class Generator
 {
 public:
@@ -22,7 +22,7 @@ public:
                     uint32_t inStartVertexIndex,
                     uint32_t inStartIndexIndex,
                     ksai::v<ksai::kstd::Vertex> &modVertices,
-                    ksai::v<uint32_t> &modIndices);
+                    ksai::v<ksai::ui> &modIndices);
     Shapes GetShape() const { return mShape; }
     uint32_t GetVertexCount() const { return mVertexCount; }
     uint32_t GetIndexCount() const { return mIndexCount; }
@@ -39,7 +39,7 @@ private:
 
 namespace Jkr::Renderer
 {
-	enum class Shapes { Circle, Rectangle };
+	enum class Shapes { Circle, Rectangle_Fill };
 	using namespace Jkr;
 	using namespace ksai;
 	class Shape_base

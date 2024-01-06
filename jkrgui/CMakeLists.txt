@@ -21,5 +21,5 @@ add_library(jkrgui STATIC ${app_SRC}
 "Renderers/BestText_Alt.hpp"
 "WindowMulT.hpp"
 "Window.hpp"
-)
+ "WindowMulT.cpp" "Renderers/ResourceManager.cpp" "Renderers/CustomImagePainter.cpp")
 

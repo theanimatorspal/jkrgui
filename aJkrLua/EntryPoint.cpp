@@ -645,7 +645,7 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
     auto rr = ResourceManager(cf["-cache_folder"]);
     auto VarDesCount = stoi(string(cf["-var_des_size"]));
     if (toBool(cf["-store"])) {
-        //rr.Load(i, VarDesCount);
+        // rr.Load(i, VarDesCount);
         rr.Store(i);
     } else {
         rr.Load(i, VarDesCount);
@@ -766,7 +766,7 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
         [](Jkr::BoundRect2D inb) { std::cout << "vec(" << inb.mXy.x << std::endl; });
 
     l["shapes"] = l.create_table_with("rectangle",
-        Jkr::Shapes::Rectangle,
+        Jkr::Shapes::Rectangle_Fill,
         "bezier2_8",
         Jkr::Shapes::Bezier2_8,
         "circle",
@@ -959,7 +959,6 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
                 int inFontId,
                 vec3 inposition,
                 string inText) {
-			  
                 ALT.Update(inId, inFontId, vec2(inposition.x, inposition.y), inposition.z, inText);
             },
 
@@ -1013,32 +1012,35 @@ layout(push_constant, std430) uniform pc {
             }),
 
             "make_from",
-            [&](CustomImagePainter& inP, std::string fileName, std::string inShaderCode) {
+            [&](CustomImagePainter &inP, std::string fileName, std::string inShaderCode) {
                 return CustomImagePainter(inP, fileName, inShaderCode, pc);
             },
 
             "load",
-            [&](CustomImagePainter& inP) {
+            [&](CustomImagePainter &inP) {
                 cout << "Load CustomImagePainter" << endl;
                 inP.Load(w);
             },
 
             "store",
-            [&](CustomImagePainter& inP) {
+            [&](CustomImagePainter &inP) {
                 cout << "Store CustomImagePainter" << endl;
                 inP.Store(w);
             },
 
             "paint",
-            [&](CustomImagePainter& inP, vec4 inPosDimen, vec4 inColor, vec4 inParam) {
+            [&](CustomImagePainter &inP, vec4 inPosDimen, vec4 inColor, vec4 inParam) {
                 push_constant push { .mPosDimen = inPosDimen, .mColor = inColor, .mParam = inParam };
                 inP.Draw<push_constant>(w, push);
             },
 
             "register_image",
-            [&](CustomImagePainter& inP, int inHeight, int inWidth) {
+            [&](CustomImagePainter &inP, int inHeight, int inWidth) {
                 inP.RegisterImageToBeDrawnTo(w, inHeight, inWidth);
-            }
+            },
+
+            "register_image_existing",
+            [&](CustomImagePainter &inP) { inP.RegisterImageToBeDrawnTo(w, inP); }
 
         );
     }

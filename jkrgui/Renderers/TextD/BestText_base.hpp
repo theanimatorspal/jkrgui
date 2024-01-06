@@ -19,6 +19,7 @@
 #include <glm/glm.hpp>
 #include <harfbuzz/hb-ft.h>
 #include <harfbuzz/hb.h>
+#include "ksai_thread.hpp"
 
 namespace Jkr::Renderer {
 using namespace ksai;
@@ -50,13 +51,13 @@ public:
 protected:
     TextDimensions GetTextDimensions(const std::string_view inString, uint32_t inFontShapeId, hb_glyph_info_t* info, hb_glyph_position_t* pos, uint32_t len);
     TextDimensions AddText(uint32_t inX, uint32_t inY, const std::string_view inString, uint32_t inFontShapeId, uint32_t inDepthValue, std::vector<uint32_t>& outCodePoints, uint32_t& outIdt);
-    TextDimensions RenderTextToImage(std::string_view inString, uint32_t inFontShapeId, std::vector<uc>& outImage);
+    TextDimensions RenderTextToImage(std::string_view inString, uint32_t inFontShapeId, std::vector<uc>& outImage, ksai::optref<ksai::ThreadPool> inThreadpool = std::nullopt, ksai::optref<int> outYoff = std::nullopt);
 
 public:
-    [[nodiscard]] v<uc> RenderTextToImage(ui inFontShapeId, sv inStringView, TextDimensions& outDimens)
+    [[nodiscard]] v<uc> RenderTextToImage(ui inFontShapeId, sv inStringView, TextDimensions& outDimens, ksai::optref<ksai::ThreadPool> inThreadPool = std::nullopt, ksai::optref<int> outYoff = std::nullopt)
     {
         v<uc> img;
-        outDimens = RenderTextToImage(inStringView, inFontShapeId, img);
+        outDimens = RenderTextToImage(inStringView, inFontShapeId, img, inThreadPool, outYoff);
         return img;
     }
 

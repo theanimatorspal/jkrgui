@@ -13,7 +13,7 @@ Generator::Generator(Shapes inShape, Arguments inArgs)
         mVertexCount = std::get<glm::uvec2>(mArgs).y;
         mIndexCount = std::get<glm::uvec2>(mArgs).y + 1;
         break;
-    case Shapes::Rectangle:
+    case Shapes::Rectangle_Fill:
         mVertexCount = 4;
         mIndexCount = 6;
         break;
@@ -53,7 +53,7 @@ void Jkr::Generator::operator()(int inX, int inY, uint32_t inZ, uint32_t inStart
         }
         break;
     }
-    case Shapes::Rectangle: {
+    case Shapes::Rectangle_Fill: {
         int x = inX;
         int dx = std::get<glm::uvec2>(mArgs).x;
         int y = inY;

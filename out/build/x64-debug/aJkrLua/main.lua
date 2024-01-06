@@ -2,9 +2,9 @@
         Yo chae User le lekhne Code ho
 ]]
 
-require "jkrgui"
-require "PrimitiveComponents"
-require "TextEditorComponents"
+require "jkrgui.jkrgui"
+require "jkrgui.PrimitiveComponents"
+require "jkrgui.TextEditorComponents"
 
 local __Depth = Depth + 10 -- Farthest (This meant to be used when the ComObject adds Over sth)
 

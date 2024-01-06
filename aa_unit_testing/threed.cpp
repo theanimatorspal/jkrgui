@@ -143,7 +143,7 @@ void GlslMain()
 
 )""";
 
-int main()
+int mlafjksjadfljin()
 {
 
     struct UB {

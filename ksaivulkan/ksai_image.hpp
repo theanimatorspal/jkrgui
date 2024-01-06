@@ -8,6 +8,7 @@
 #ifdef max
 #undef max
 #endif
+#include "ksai_thread.hpp"
 #include <cassert>
 #include <climits>
 #include <iostream>
@@ -91,27 +92,47 @@ inline const auto fliphorizontally = []<typename T>(const T& from, T& to, int x,
 };
 
 template <ImageConcept T, ManipulatorConcept<T> F>
-void process(ui inw, ui inh, ui inComp, T& inoutImage, F& inOp)
+void process(ui inw, ui inh, ui inComp, T& inoutImage, F& inOp, optref<ksai::ThreadPool> inThreadPool = std::nullopt)
 {
-    T flippedimage;
-    flippedimage.resize(inoutImage.size());
+    auto Pro = [=, &inoutImage]() {
+        T flippedimage;
+        flippedimage.resize(inoutImage.size());
 
-    for (int y = 0; y < inh; ++y) {
-        for (int x = 0; x < inw * inComp; ++x) {
-            inOp(inoutImage, flippedimage, x, y, inw, inh, inComp);
+        for (int y = 0; y < inh; ++y) {
+            for (int x = 0; x < inw * inComp; ++x) {
+                inOp(inoutImage, flippedimage, x, y, inw, inh, inComp);
+            }
         }
-    }
+        inoutImage = flippedimage;
+    };
 
-    inoutImage = flippedimage;
+    if (inThreadPool.has_value()) {
+        static int i = 0;
+        auto NoOfThreads = inThreadPool.value().get().mThreads.size();
+        inThreadPool.value().get().mThreads[i]->AddJob(Pro);
+        i = (i + 1) % NoOfThreads;
+    } else {
+        Pro();
+    }
 }
 
 template <ImageConcept T, ManipulatorConcept<T> F>
-void process(ui inw, ui inh, ui inComp, const T& fromImage, T& toImage, F& inOp)
+void process(ui inw, ui inh, ui inComp, const T& fromImage, T& toImage, F& inOp, optref<ksai::ThreadPool> inThreadPool = std::nullopt)
 {
-    for (int y = 0; y < inh; ++y) {
-        for (int x = 0; x < inw * inComp; ++x) {
-            inOp(fromImage, toImage, x, y, inw, inh, inComp);
+    auto Pro = [=, &fromImage, &toImage]() {
+        for (int y = 0; y < inh; ++y) {
+            for (int x = 0; x < inw * inComp; ++x) {
+                inOp(fromImage, toImage, x, y, inw, inh, inComp);
+            }
         }
+    };
+    if (inThreadPool.has_value()) {
+        static int i = 0;
+        auto NoOfThreads = inThreadPool.value().get().mThreads.size();
+        inThreadPool.value().get().mThreads[i]->AddJob(Pro);
+        i = (i + 1) % NoOfThreads;
+    } else {
+        Pro();
     }
 }
 

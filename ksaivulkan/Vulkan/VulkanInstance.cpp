@@ -1,6 +1,8 @@
 #include "VulkanInstance.hpp"
 #include "vulkan/vulkan_core.h"
-#include "Vulkan/vulkan_beta.h"
+#ifdef __APPLE__
+#include "vulkan/vulkan_beta.h"
+#endif
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_vulkan.h>
 #ifdef WIN32

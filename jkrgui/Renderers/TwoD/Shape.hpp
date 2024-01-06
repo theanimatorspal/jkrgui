@@ -4,6 +4,7 @@
 #include "Shape_base.hpp"
 #include "VulkanImage.hpp"
 #include <unordered_map>
+#include "../CustomImagePainter.hpp"
 
 namespace Jkr::Renderer {
 class Shape : public Shape_base, Renderer_base {
