@@ -8,33 +8,41 @@ void Jkr::WindowMulT::Draw(float r, float g, float b, float a, float d)
     mFences[mCurrentFrame].Wait();
     std::pair<uint32_t, uint32_t> SwapChainResult = mSwapChain.AcquireNextImage(mImageAvailableSemaphores[mCurrentFrame]);
     mFences[mCurrentFrame].Reset();
-    auto& CommandBuffers = this->GetCommandBuffers();
     if (!mSwapChain.ImageIsNotOptimal(SwapChainResult)) {
         mAcquiredImageIndex = SwapChainResult.second;
-        CommandBuffers[mCurrentFrame].Reset();
-        CommandBuffers[mCurrentFrame].Begin();
+        mCommandBuffers[mCurrentFrame].Reset();
+        mCommandBuffers[mCurrentFrame].Begin();
 
         mComputeDispatchFunction(mData);
-
-        CommandBuffers[mCurrentFrame].BeginRenderPass<VulkanCommandBuffer::RenderPassBeginContext::SecondaryCommandBuffers>(
+        mCommandBuffers[mCurrentFrame].BeginRenderPass<VulkanCommandBuffer::RenderPassBeginContext::SecondaryCommandBuffers>(
             mRenderPass,
             mSurface,
             mFrameBuffers[mAcquiredImageIndex], // यो स्थानमा जहिल्यै झुक्किन्छ । फ्रेम बफर एउटा हुने हो ।  "Acquired Image Index" अनुसार ।
             ClearValues);
 
-        mDrawFunction(mData);
-        CommandBuffers[mCurrentFrame].EndRenderPass();
+        mSecondaryCommandBuffersUI[mCurrentFrame].Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPass>(
+            mRenderPass,
+            0,
+            mFrameBuffers[mCurrentFrame]);
+        mSecondaryCommandBuffersUI[mCurrentFrame].SetViewport(mSurface);
+        mSecondaryCommandBuffersUI[mCurrentFrame].SetScissor(mSurface);
 
-        Executeall();
-        CommandBuffers[mCurrentFrame].End();
+        {
+            mDrawFunction(mData);
+        }
+
+        mSecondaryCommandBuffersUI[mCurrentFrame].End();
+
+        mCommandBuffers[mCurrentFrame].ExecuteCommands(mSecondaryCommandBuffersUI[mCurrentFrame]);
+        mCommandBuffers[mCurrentFrame].EndRenderPass();
+        mCommandBuffers[mCurrentFrame].End();
 
         mInstance.GetGraphicsQueue().Submit<SubmitContext::ColorAttachment>(
             mImageAvailableSemaphores[mCurrentFrame],
             mRenderFinishedSemaphores[mCurrentFrame],
             mFences[mCurrentFrame],
-            CommandBuffers[mCurrentFrame]);
-
-        ui Result = mInstance.GetGraphicsQueue().Present<mMaxFramesInFlight, SubmitContext::ColorAttachment>(
+            mCommandBuffers[mCurrentFrame]);
+        uint32_t Result = mInstance.GetGraphicsQueue().Present<mMaxFramesInFlight, SubmitContext::ColorAttachment>(
             mSwapChain,
             mRenderFinishedSemaphores[mCurrentFrame],
             mAcquiredImageIndex);

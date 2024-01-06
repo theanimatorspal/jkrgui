@@ -71,15 +71,7 @@ void vb::BeginRenderPass<vb::RenderPassBeginContext::SecondaryCommandBuffers>(co
                                    .setClearValueCount(ClearValues.size())
                                    .setClearValues(ClearValues);
 
-    mBuffer.beginRenderPass(RenderPassBeginInfo, vk::SubpassContents::eInline);
-    mBuffer.setViewport(0,
-        vk::Viewport(0.0f,
-            0.0f,
-            static_cast<float>(Extent.width),
-            static_cast<float>(Extent.height),
-            0.0f,
-            1.0f));
-    mBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), Extent));
+    mBuffer.beginRenderPass(RenderPassBeginInfo, vk::SubpassContents::eSecondaryCommandBuffers);
 }
 
 
@@ -100,4 +92,17 @@ template<>
 void vb::Begin<vb::BeginContext::ContinueRenderPass>() const
 {
     mBuffer.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eRenderPassContinue));
+}
+
+template<>
+void vb::Begin<vb::BeginContext::ContinueRenderPass>(VulkanRenderPassBase &inRenderPass,
+                                                     ui inSubpass,
+                                                     VulkanFrameBufferBase &inFrameBuffer) const
+{
+    vk::CommandBufferBeginInfo info(vk::CommandBufferUsageFlagBits::eRenderPassContinue);
+    vk::CommandBufferInheritanceInfo inheritanceInfo(inRenderPass.GetRenderPassHandle(),
+                                                     inSubpass,
+                                                     inFrameBuffer.GetFrameBufferHandle());
+    info.setPInheritanceInfo(&inheritanceInfo);
+    mBuffer.begin(info);
 }

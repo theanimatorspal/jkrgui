@@ -142,8 +142,9 @@ Load = function()
                 }
         }
         FileMenu = Com.FileMenuBarObject:New(FileMenux, 25, 80, Font)
-        Id = r.balt.add(Int(FontTEST.mId), "किं कश्चन", vec2(100, 100), Int(20))
-        print("along")
+        Pip = Com.PopupMenu:New(50, Font, 10)
+        Pip:Update(vec3(100, 100, 50), vec3(180, 100, 1), "Popup", "Error is Encountered")
+        Pip:Update(vec3(50, 100, 50), vec3(180, 100, 1), "Popup", "Error is Encountered")
 end
 
 Event = function()
@@ -161,9 +162,6 @@ end
 
 Draw = function()
         Com.Draws()
-        S.Bind()
-        S.BindFillMode(FillType.image)
-        r.balt.draw(vec4(0, 0, 0, 2), Int(WindowDimension.x), Int(WindowDimension.y), Id, GetIdentityMatrix())
 end
 
 

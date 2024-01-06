@@ -37,6 +37,7 @@ class Window : public SDLWindow {
 public:
     const VulkanCommandPool& GetCommandPool() const { return mCommandPool; }
     virtual const std::array<VulkanCommandBuffer, 2U>& GetCommandBuffers() const { return mCommandBuffers; }
+    virtual const VulkanCommandBuffer& GetUtilCommandBuffer() const { return mCommandBuffers[mCurrentFrame]; }
 
     Window(const Instance& inInstance, std::string_view inTitle, int inHeight, int inWidth);
     ~Window() { mInstance.GetDevice().Wait(); }

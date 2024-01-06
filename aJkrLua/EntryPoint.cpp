@@ -148,8 +148,7 @@ private:
 #include <Vendor/sol/sol.hpp>
 #include <Window.hpp>
 
-int my_exception_handler(lua_State* L, sol::optional<const std::exception&> maybe_execption, sol::string_view description)
-{
+int my_exception_handler(lua_State* L, sol::optional<const std::exception&> maybe_execption, sol::string_view description) {
     std::cout << "An Exception has occured in the function here is what it says: ";
     if (maybe_execption) {
         std::cout << "(Straight from the exception) ";
@@ -902,11 +901,17 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
             },
 
             "add_image",
-            [&](int Width, int Height) -> int {
-                uint32_t id;
-                td.sh.AddImage(Width, Height, id);
-                return id;
-            },
+            sol::overload(
+                [&](int Width, int Height) -> int {
+                    uint32_t id;
+                    td.sh.AddImage(Width, Height, id);
+                    return id;
+                },
+                [&](string infilename) {
+                    uint32_t id;
+                    td.sh.AddImage(infilename, id);
+                    return id;
+                }),
 
             "copy_image",
             [&](int id, CustomImagePainter& inPainter) { td.sh.CopyToImage(id, inPainter); },
@@ -1013,35 +1018,35 @@ layout(push_constant, std430) uniform pc {
             }),
 
             "make_from",
-            [&](CustomImagePainter &inP, std::string fileName, std::string inShaderCode) {
+            [&](CustomImagePainter& inP, std::string fileName, std::string inShaderCode) {
                 return CustomImagePainter(inP, fileName, inShaderCode, pc);
             },
 
             "load",
-            [&](CustomImagePainter &inP) {
+            [&](CustomImagePainter& inP) {
                 cout << "Load CustomImagePainter" << endl;
                 inP.Load(w);
             },
 
             "store",
-            [&](CustomImagePainter &inP) {
+            [&](CustomImagePainter& inP) {
                 cout << "Store CustomImagePainter" << endl;
                 inP.Store(w);
             },
 
             "paint",
-            [&](CustomImagePainter &inP, vec4 inPosDimen, vec4 inColor, vec4 inParam) {
+            [&](CustomImagePainter& inP, vec4 inPosDimen, vec4 inColor, vec4 inParam) {
                 push_constant push { .mPosDimen = inPosDimen, .mColor = inColor, .mParam = inParam };
                 inP.Draw<push_constant>(w, push);
             },
 
             "register_image",
-            [&](CustomImagePainter &inP, int inHeight, int inWidth) {
+            [&](CustomImagePainter& inP, int inHeight, int inWidth) {
                 inP.RegisterImageToBeDrawnTo(w, inHeight, inWidth);
             },
 
             "register_image_existing",
-            [&](CustomImagePainter &inP) { inP.RegisterImageToBeDrawnTo(w, inP); }
+            [&](CustomImagePainter& inP) { inP.RegisterImageToBeDrawnTo(w, inP); }
 
         );
     }
@@ -1104,29 +1109,41 @@ layout(push_constant, std430) uniform pc {
         exit(-1);
     }
 
-    sol::function draw_callback = l["Draw"];
-    sol::function load_callback = l["Load"];
-    sol::function event_callback = l["Event"];
-    sol::function disptach_callback = l["Dispatch"];
-    sol::function update_callback = l["Update"];
+    sol::protected_function draw_callback = l["Draw"];
+    sol::protected_function load_callback = l["Load"];
+    sol::protected_function event_callback = l["Event"];
+    sol::protected_function disptach_callback = l["Dispatch"];
+    sol::protected_function update_callback = l["Update"];
+
+    auto SafeCall = [](sol::protected_function& infunc) {
+        auto result = infunc();
+        if (not result.valid()) {
+            sol::error err = result;
+            std::string what = err.what();
+            std::cout << what << std::endl;
+            exit(EXIT_FAILURE);
+        }
+    };
 
     auto Event = [&](void*) { event_callback(); };
     em.SetEventCallBack(Event);
     auto Draw = [&](void* data) {
-        draw_callback();
+        SafeCall(draw_callback);
     };
     w.SetDrawCallBack(Draw);
-    auto Update = [&](void* data) { update_callback(); };
+    auto Update = [&](void* data) {
+        SafeCall(update_callback);
+    };
     w.SetUpdateCallBack(Update);
     auto Dispatch = [&](void* data) {
-        disptach_callback();
+        SafeCall(disptach_callback);
 
         td.ln.Dispatch(w);
         td.sh.Dispatch(w);
         td.bt.Dispatch(w);
     };
     w.SetComputeDispatchCallBack(Dispatch);
-    load_callback();
+    SafeCall(load_callback);
 
     array<float, 4> bg = { toFloat(cf["-bgr"]),
         toFloat(cf["-bgg"]),

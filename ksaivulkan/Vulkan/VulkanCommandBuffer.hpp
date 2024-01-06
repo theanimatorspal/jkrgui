@@ -2,6 +2,8 @@
 #include "VulkanCommandPool.hpp"
 #include "VulkanDevice.hpp"
 #include "VulkanFrameBuffer.hpp"
+#include "VulkanRenderPass.hpp"
+#include "vulkan/vulkan_structs.hpp"
 #include <Pipeline/VulkanPipelineLayout.hpp>
 namespace ksai {
 
@@ -11,26 +13,27 @@ public:
         Primary,
         Secondary
     };
-    enum class BeginContext {
-        Normal,
-        ContinueRenderPass
-    };
+    enum class BeginContext { Normal,
+        ContinueRenderPass,
+        OneTimeSubmit };
 
     VulkanCommandBuffer(const VulkanDevice& inDevice, const VulkanCommandPool& inPool, Type inContext = Type::Primary);
     ~VulkanCommandBuffer();
     GETTER& GetCommandBufferHandle() const { return mBuffer; }
     template <BeginContext inContext = BeginContext::Normal>
     void Begin() const;
+
+    template <BeginContext inContext = BeginContext::Normal>
+    void Begin(VulkanRenderPassBase& inRenderPass,
+        ksai::ui inSubpass,
+        VulkanFrameBufferBase& inFrameBuffer) const;
+
     void Reset() const { mBuffer.reset(); }
     void End() const { mBuffer.end(); }
-    template<typename ... T>
-    void ExecuteCommands(T& ... inT) const
+
+    inline void ExecuteCommands(VulkanCommandBuffer& inBuffer) const
     {
-        v<vk::CommandBuffer> Buff;
-	   ([ & ] {
-            Buff.push_back(inT.mBuffer);
-		   }, ...);
-        mBuffer.executeCommands(Buff);
+        mBuffer.executeCommands(inBuffer.mBuffer);
     }
 
     enum class RenderPassBeginContext {
@@ -45,6 +48,24 @@ public:
     void PushConstants(const VulkanPipelineLayoutBase& inPipelineLayout, const vk::ArrayProxy<const T> inValues) const
     {
         mBuffer.pushConstants<T>(inPipelineLayout.GetPipelineLayoutHandle(), vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eCompute, 0, inValues);
+    }
+
+    void SetViewport(const VulkanSurface& inSurface)
+    {
+        const auto& Extent = inSurface.GetExtent();
+        mBuffer.setViewport(0,
+            vk::Viewport(0.0f,
+                0.0f,
+                static_cast<float>(Extent.width),
+                static_cast<float>(Extent.height),
+                0.0f,
+                1.0f));
+    }
+
+    void SetScissor(const VulkanSurface& inSurface)
+    {
+        const auto& Extent = inSurface.GetExtent();
+        mBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), Extent));
     }
 
 private:

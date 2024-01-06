@@ -2,6 +2,7 @@
 #include <Instance.hpp>
 #include <Renderers/ThreeD/glTF.hpp>
 #include <Window.hpp>
+#include <WindowMulT.hpp>
 const std::string_view vshader = R"""(
 layout (location = 0) out vec2 vUV;
 layout (location = 1) out vec3 vNormal;
@@ -143,7 +144,7 @@ void GlslMain()
 
 )""";
 
-int mlafjksjadfljin()
+int maiadfklkjadsflkj()
 {
 
     struct UB {
@@ -154,8 +155,13 @@ int mlafjksjadfljin()
     } ub;
     std::stringstream s;
     auto Instance = Jkr::Instance();
-    auto Window = Jkr::Window(Instance, "Heell", 1080 / 2, 1920 / 2);
+    std::vector<ksai::ui> CmdBufferCountPerThread;
+    uint32_t NoOfThreads = Instance.GetThreadPool().mThreads.size();
+    CmdBufferCountPerThread.resize(NoOfThreads, 2);
+    //auto Window = Jkr::Window(Instance, "Heell", 1080 / 2, 1920 / 2);
+    auto Window = Jkr::WindowMulT(Instance, "Heell", 1080 / 2, 1920 / 2, NoOfThreads, CmdBufferCountPerThread);
     auto EventManager = Jkr::EventManager();
+    SpirvHelper::Init();
 
     Jkr::Renderer::_3D::Shape r(Instance, Window, sizeof(UB));
     s << r.GetGlslVertexShaderHeaderString() << vshader;
@@ -205,6 +211,8 @@ int mlafjksjadfljin()
     Window.SetComputeDispatchCallBack([&](void*) {
         r.Dispatch(Window);
     });
+
+    SpirvHelper::Finalize();
 
     while (!EventManager.ShouldQuit()) {
         EventManager.ProcessEvents();

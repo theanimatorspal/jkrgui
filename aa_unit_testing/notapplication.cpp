@@ -2,19 +2,23 @@
 #include "glm/ext/matrix_transform.hpp"
 #include <EventManager.hpp>
 #include <Instance.hpp>
+#include <Renderers/BestText_Alt.hpp>
 #include <Renderers/ResourceManager.hpp>
 #include <Renderers/TextD/BestText.hpp>
 #include <Renderers/TextD/FastText.hpp>
 #include <Renderers/TwoD/Line.hpp>
 #include <Renderers/TwoD/Shape.hpp>
-#include <Window.hpp>
-#include <Renderers/BestText_Alt.hpp>
 #include <Vendor/NanoBench/nanobench.h>
+#include <Window.hpp>
+#include <WindowMulT.hpp>
 
 int main()
 {
+    using namespace ksai;
+    std::vector<ui> ThreadLocalCommandBuffers;
     auto Instance = Jkr::Instance();
-    auto Window = Jkr::Window(Instance, "Heell", 1080 / 2, 1920 / 2);
+    ThreadLocalCommandBuffers.resize(Instance.GetThreadPool().mThreads.size(), 2);
+    auto Window = Jkr::WindowMulT(Instance, "Heell", 1080 / 2, 1920 / 2, Instance.GetThreadPool().mThreads.size(), ThreadLocalCommandBuffers);
     auto EventManager = Jkr::EventManager();
     auto RendererResources = Jkr::Renderer::ResourceManager();
     SpirvHelper::Init();
@@ -68,8 +72,8 @@ layout(push_constant, std430) uniform pc {
     sr.AddImage(100, 100, image_to_draw_id);
 
     bst.AddFontFace("font.ttf", 64, Font_id);
-    //bst.AddText("What is that", 100, 300, 5, BestText_id, BestText_length);
-    //bst.AddText("don", 500, 300, 5, BestText_id1, BestText_length1);
+    // bst.AddText("What is that", 100, 300, 5, BestText_id, BestText_length);
+    // bst.AddText("don", 500, 300, 5, BestText_id1, BestText_length1);
 
     Jkr::Renderer::BestText_Alt Alt(sr, bst);
     Jkr::Renderer::BestText_Alt::ImageId fntimgid;
@@ -77,7 +81,7 @@ layout(push_constant, std430) uniform pc {
     Jkr::time.reset();
     Alt.Add(Font_id, glm::vec2(100, 100), 5, "What is thatlsadfjlkasdjflkjasdlfjlaksjdflkjsalkfjlasjdflaslkfj", fntimgid, Instance.GetThreadPool());
     Jkr::time.elapsed("Without Threading");
-    
+
     Jkr::time.reset();
     Alt.Add(Font_id, glm::vec2(100, 100), 5, "What is thatlsadfjlkasdjflkjasdlfjlaksjdflkjsalkfjlasjdflaslkfj", fntimgid, Instance.GetThreadPool());
     Jkr::time.elapsed("With Threading");
@@ -106,7 +110,7 @@ layout(push_constant, std430) uniform pc {
     sr.Add(Bezier, 100, 100, 6, bez_id);
 
     uint32_t sidn;
-    for (int i = 0; i < 3; i++){
+    for (int i = 0; i < 3; i++) {
         uint32_t id;
         lr.AddLine(glm::vec2(i * 20, 0), glm::vec2(100, 100), 5, id);
         sr.Add(Rectangle_Fill, i * 20, 300, 5, sidn);

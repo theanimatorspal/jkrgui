@@ -37,7 +37,7 @@ void Jkr::Renderer::Renderer_base::ResizeStagingBuffer(const Instance& inInstanc
 
 void Jkr::Renderer::Renderer_base::CmdCopyToPrimitiveFromStagingBuffer(const Instance& inInstance, Primitive& inPrimitive, Window& inWindow, size_t inVertexMemorySizeToBeBarriered, size_t inIndexMemorySizeToBeBarriered)
 {
-    inWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()]
+    inWindow.GetUtilCommandBuffer()
         .GetCommandBufferHandle()
         .copyBuffer(mStagingVertexBuffer->GetBufferHandle(),
                     inPrimitive.GetVertexBufferPtr()->GetBufferHandle(),
@@ -52,14 +52,14 @@ void Jkr::Renderer::Renderer_base::CmdCopyToPrimitiveFromStagingBuffer(const Ins
                      vk::PipelineStageFlagBits::eTransfer,
                      vk::PipelineStageFlagBits::eVertexInput);
 
-    inWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()]
+    inWindow.GetUtilCommandBuffer()
         .GetCommandBufferHandle()
         .copyBuffer(mStagingIndexBuffer->GetBufferHandle(),
                     inPrimitive.GetIndexBufferPtr()->GetBufferHandle(),
                     mIndexCopyRegionsToBeSubmitted);
 
     inPrimitive.GetIndexBufferPtr()
-        ->SetBarrier(inWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()],
+        ->SetBarrier(inWindow.GetUtilCommandBuffer(),
                      0,
                      inIndexMemorySizeToBeBarriered,
                      vk::AccessFlagBits::eMemoryWrite,
