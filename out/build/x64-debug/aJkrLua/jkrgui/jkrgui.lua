@@ -420,7 +420,7 @@ Jkr.Components.Util.ImagePainter = {
         return Obj
     end,
     Paint = function (self, inPosDimen_4f, inColor_4f, inParam_4f, inImageObject)
-        Obj.mPainter:paint(inPosDimen_4f, inColor_4f, inParam_4f)
+        self.mPainter:paint(inPosDimen_4f, inColor_4f, inParam_4f)
         S.CopyImage(Int(inImageObject.mId), self.mPainter)
     end
 }

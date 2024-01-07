@@ -18,7 +18,6 @@ Event = function()
         Com.Events()
         ContextMenu:Event()
         FileMenu:Event()
-        Ip:Paint(vec4(0.5, 0.5, 0.5, 0.5), vec4(1, 0, 0, 1), vec4(1, 0, 0, 1), Ip.mImageObjectAbs)
 end
 
 Update = function()
@@ -26,6 +25,7 @@ Update = function()
 end
 
 Dispatch = function()
+        Ip:Paint(vec4(0.5, 0.5, 0.5, 0.5), vec4(1, 0, 0, 1), vec4(1, 0, 0, 1), Obj.mImageObjectAbs)
 end
 
 Draw = function()

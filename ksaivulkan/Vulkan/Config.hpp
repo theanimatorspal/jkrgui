@@ -14,9 +14,13 @@
 #include <cassert>
 #include <sstream>
 #include <optional>
+
+#ifdef __APPLE__
+#define USE_VULKAN_1_2
+#else
 //#define USE_VULKAN_1_1
-//#define USE_VULKAN_1_2
 #define USE_VULKAN_1_3
+#endif
 
 #define USE_VARIABLE_DESCRIPTOR_INDEXING_FEATURE
 

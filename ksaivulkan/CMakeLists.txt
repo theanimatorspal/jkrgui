@@ -1,3 +1,5 @@
+
+#if apple then no tracy
 if(APPLE)
         file(GLOB_RECURSE app_SRC CONFIGURE_DEPENDS
         "Vulkan/*.hpp"
@@ -22,6 +24,8 @@ if(APPLE)
         "Vendor/sol/*.c"
         "Vendor/stbi/*.c"
         "Vendor/VulkanMemoryAllocator/*.c"
+	   "Vendor/TinyGLTF/*.cpp"
+	   "Vendor/TinyGLTF/*.hpp"
         )
         add_library(ksaivulkan ${app_SRC})
 else()
