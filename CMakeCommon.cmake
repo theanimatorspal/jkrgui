@@ -35,7 +35,8 @@ function(configure_target TARGET_NAME)
         )
 endfunction()
 
-endif()
+else()
+
 
 function(configure_target TARGET_NAME)
     if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
@@ -106,6 +107,8 @@ function(configure_target TARGET_NAME)
         )
     endif()
 endfunction()
+
+endif()
 
 
 

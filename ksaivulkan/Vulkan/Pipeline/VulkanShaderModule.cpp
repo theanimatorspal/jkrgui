@@ -3,7 +3,8 @@
 ksai::VulkanShaderModule::VulkanShaderModule(const VulkanDevice& inDevice, const std::vector<uint32_t>& inSPIRV) 
 	: mDevice(inDevice.GetDeviceHandle()), mCompiler(inSPIRV)
 {
-    mModule = mDevice.createShaderModule(vk::ShaderModuleCreateInfo(vk::ShaderModuleCreateFlags(), inSPIRV));
+    vk::ShaderModuleCreateInfo info(vk::ShaderModuleCreateFlags(), inSPIRV);
+    mModule = mDevice.createShaderModule(info);
     mResources = mCompiler.get_shader_resources();
 }
 

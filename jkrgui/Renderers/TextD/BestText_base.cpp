@@ -443,6 +443,7 @@ bb::TextDimensions bb::GetTextDimensions(const sv inString, ui inFontShapeId)
     unsigned int len = hb_buffer_get_length(hbBuffer);
     hb_glyph_info_t* info = hb_buffer_get_glyph_infos(hbBuffer, 0);
     hb_glyph_position_t* pos = hb_buffer_get_glyph_positions(hbBuffer, 0);
+    LoadTextToKeyMap(len, inFontShapeId, info, pos);
     auto td = GetTextDimensions(inString, inFontShapeId, info, pos, len);
     hb_buffer_destroy(hbBuffer);
     return td;

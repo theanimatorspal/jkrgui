@@ -12,6 +12,10 @@
 #include <Window.hpp>
 #include <WindowMulT.hpp>
 
+
+
+
+
 int main()
 {
     using namespace ksai;
@@ -20,24 +24,9 @@ int main()
     ThreadLocalCommandBuffers.resize(Instance.GetThreadPool().mThreads.size(), 2);
     auto Window = Jkr::WindowMulT(Instance, "Heell", 1080 / 2, 1920 / 2, Instance.GetThreadPool().mThreads.size(), ThreadLocalCommandBuffers);
     auto EventManager = Jkr::EventManager();
-    auto RendererResources = Jkr::Renderer::ResourceManager();
-    SpirvHelper::Init();
-    Jkr::time.reset();
-    RendererResources.SetThreadPool(Instance.GetThreadPool());
-    RendererResources.Store(Instance);
-    Jkr::time.elapsed("RendererResources Load");
-    auto lr = Jkr::Renderer::Line(Instance, Window, RendererResources.GetLineRendererCache());
-    // auto ftx = Jkr::Renderer::FastText(Instance, Window, RendererResources.GetFastTextRendererCache());
-    auto sr = Jkr::Renderer::Shape(Instance, Window, RendererResources.GetShapePainterCaches());
-    auto bst = Jkr::Renderer::BestText(Instance, Window, RendererResources.GetBestTextRendererCache());
-    uint32_t sid1, sid2;
-    Jkr::Generator Rectangle_Fill(Jkr::Shapes::Rectangle_Fill, glm::uvec2(50, 50));
-    sr.Add(Rectangle_Fill, 300, 300, 5, sid1);
-    sr.Add(Rectangle_Fill, 0, 0, 5, sid2);
-    uint32_t Font_id, BestText_id, BestText_length;
-    uint32_t BestText_id1, BestText_length1;
 
-    Jkr::Renderer::CustomImagePainter ImagePainter(Instance,
+
+    Jkr::Renderer::CustomImagePainter ImagePainter(
         "file.bin",
 
         R"""(
@@ -58,8 +47,25 @@ layout(push_constant, std430) uniform pc {
         16,
         1);
 
-    using namespace glm;
+    ImagePainter.Store(Instance, Window);
 
+    auto RendererResources = Jkr::Renderer::ResourceManager();
+    Jkr::time.reset();
+    RendererResources.SetThreadPool(Instance.GetThreadPool());
+    RendererResources.Load(Instance);
+    Jkr::time.elapsed("RendererResources Load");
+    auto lr = Jkr::Renderer::Line(Instance, Window, RendererResources.GetLineRendererCache());
+    // auto ftx = Jkr::Renderer::FastText(Instance, Window, RendererResources.GetFastTextRendererCache());
+    auto sr = Jkr::Renderer::Shape(Instance, Window, RendererResources.GetShapePainterCaches());
+    auto bst = Jkr::Renderer::BestText(Instance, Window, RendererResources.GetBestTextRendererCache());
+    uint32_t sid1, sid2;
+    Jkr::Generator Rectangle_Fill(Jkr::Shapes::Rectangle_Fill, glm::uvec2(50, 50));
+    sr.Add(Rectangle_Fill, 300, 300, 5, sid1);
+    sr.Add(Rectangle_Fill, 0, 0, 5, sid2);
+    uint32_t Font_id, BestText_id, BestText_length;
+    uint32_t BestText_id1, BestText_length1;
+
+    using namespace glm;
     struct pc {
         vec4 mPosDimen;
         vec4 mColor;

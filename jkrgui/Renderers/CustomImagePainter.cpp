@@ -1,20 +1,29 @@
 #include "CustomImagePainter.hpp"
+#include "AllShaders.hpp"
 
-const std::string_view gbefore_xyz = R"""(
-			
+using namespace Jkr::Renderer;
+using namespace ksai;
+
+const sv gbefore_xyz = R"""(
 #version 450
 layout(set = 0, binding = 0, rgba8) uniform image2D storageImage;
                                    
 )""";
 
-const std::string_view gmain_function_null = R"""(
+const sv gmain_function_null = R"""(
 void GlslMain()
 {
-
 }
 )""";
 
-const std::string_view gafter_xyz = R"""(
+const sv gmain_function_null_fragment = R"""(
+void GlslMain()
+{
+	
+}
+)""";
+
+const sv gafter_xyz = R"""(
 void GlslMain()
 {
 	uvec3 gID = gl_GlobalInvocationID;
@@ -29,21 +38,20 @@ void GlslMain()
 	vec2 xy = vec2(x_cart, y_cart);
 )""";
 
-const std::string_view gend = R"""(
+const sv gend = R"""(
 }
 )""";
 
-Jkr::Renderer::CustomImagePainter::CustomImagePainter(CustomImagePainter &inPainter,
-                                                      std::string_view inName,
-                                                      std::string_view inComputeShaderFunction,
-                                                      std::string_view inPushConstantSignature)
-    : mInstance(inPainter.mInstance)
-    , mCustomPainterFileName(std::string(inName))
+CustomImagePainter::CustomImagePainter(CustomImagePainter& inPainter,
+    sv inName,
+    sv inComputeShaderFunction,
+    sv inPushConstantSignature)
+    : mCustomPainterFileName(std::string(inName))
     , mThreads(inPainter.mThreads)
 {
     mComputeStream << gbefore_xyz;
-    mComputeStream << "layout(local_size_x = " << 16 << ", local_size_y = " << 16 << ","
-                   << " local_size_z = " << 1 << ") in;";
+    mComputeStream << "layout(local_size_x = " << (int)mThreads.x << ", local_size_y = " << (int)mThreads.y << ","
+                   << " local_size_z = " << (int)mThreads.z << ") in;";
     mComputeStream << inPushConstantSignature;
     mComputeStream << gafter_xyz;
     mComputeStream << inComputeShaderFunction;
@@ -56,18 +64,15 @@ Jkr::Renderer::CustomImagePainter::CustomImagePainter(CustomImagePainter &inPain
     mFragmentStream << gbefore_xyz;
     mFragmentStream << inPushConstantSignature;
     mFragmentStream << gmain_function_null;
-
-    mCustomPainterCache = MakeUp<PainterCache>(mInstance);
 }
 
-Jkr::Renderer::CustomImagePainter::CustomImagePainter(const Instance& inInstance, sv inName, sv inComputeShaderFunction, sv inPushConstantSignature, ui inX, ui inY, ui inZ)
-    : mInstance(mInstance)
-    , mCustomPainterFileName(std::string(inName))
+CustomImagePainter::CustomImagePainter(sv inName, sv inComputeShaderFunction, sv inPushConstantSignature, ui inX, ui inY, ui inZ)
+    : mCustomPainterFileName(std::string(inName))
     , mThreads(inX, inY, inZ)
 {
     mComputeStream << gbefore_xyz;
-    mComputeStream << "layout(local_size_x = " << 16 << ", local_size_y = " << 16 << ","
-                   << " local_size_z = " << 1 << ") in;";
+    mComputeStream << "layout(local_size_x = " << inX << ", local_size_y = " << inY << ","
+                   << " local_size_z = " << inZ << ") in;";
     mComputeStream << inPushConstantSignature;
     mComputeStream << gafter_xyz;
     mComputeStream << inComputeShaderFunction;
@@ -80,40 +85,46 @@ Jkr::Renderer::CustomImagePainter::CustomImagePainter(const Instance& inInstance
     mFragmentStream << gbefore_xyz;
     mFragmentStream << inPushConstantSignature;
     mFragmentStream << gmain_function_null;
-
-    mCustomPainterCache = MakeUp<PainterCache>(mInstance);
 }
 
-void Jkr::Renderer::CustomImagePainter::Load(Window& inWindow)
+void CustomImagePainter::Load(const Instance& inInstance, Window& inWindow)
 {
-    Make();
+    mCustomPainterCache = MakeUp<PainterCache>(inInstance);
     mCustomPainterCache->Load(mCustomPainterFileName);
-    mPainter = MakeUp<Painter>(mInstance, inWindow, *mCustomPainterCache);
+    mPainter = MakeUp<Painter>(inInstance, inWindow, *mCustomPainterCache);
 }
 
-void Jkr::Renderer::CustomImagePainter::Store(Window &inWindow)
+void CustomImagePainter::Store(const Instance& inInstance, Window& inWindow)
 {
-    Make();
-    std::cout << mComputeStream.str() << std::endl;
+    ksai::Shader Shape_Fill(ShapeRenderers_Fill::VertexShader, ShapeRenderers_Fill::FragmentShader);
+    ksai::Shader Shape_FillCompute(8, ShapeRenderers_Fill::ComputeShader);
+    SpirvHelper::Init();
+    auto xxxx = MakeUp<Jkr::PainterCache>(inInstance);
+    xxxx->Store("CreateNewFile.bin",
+        Shape_Fill.GetVertexShader().str(),
+        Shape_Fill.GetFragmentShader().str(),
+        Shape_FillCompute.GetComputeShader().str());
+
+    mCustomPainterCache = MakeUp<PainterCache>(inInstance);
     mCustomPainterCache->Store(mCustomPainterFileName,
-                               mVertexStream.str(),
-                               mFragmentStream.str(),
-                               mComputeStream.str());
-    mPainter = MakeUp<Painter>(mInstance, inWindow, *mCustomPainterCache);
+        mVertexStream.str(),
+        mFragmentStream.str(),
+        mComputeStream.str());
+    mPainter = MakeUp<Painter>(inInstance, inWindow, *mCustomPainterCache);
 }
 
-void Jkr::Renderer::CustomImagePainter::RegisterImageToBeDrawnTo(Window &inWindow,
-                                                                 uint32_t inWidth,
-                                                                 uint32_t inHeight)
+void CustomImagePainter::RegisterImageToBeDrawnTo(const Instance& inInstance, Window& inWindow,
+    uint32_t inWidth,
+    uint32_t inHeight)
 {
-    mPainterParam = MakeUp<Image>(mInstance);
+    mPainterParam = MakeUp<Image>(inInstance);
     mPainterParam->Setup(inWidth, inHeight);
     mPainter->RegisterPainterParameter(*mPainterParam, 0, 0, 0);
     mPainter->OptimizeParameter(*mPainterParam, inWindow);
 }
 
-void Jkr::Renderer::CustomImagePainter::RegisterImageToBeDrawnTo(Window &inWindow,
-                                                                 CustomImagePainter &inExisting)
+void CustomImagePainter::RegisterImageToBeDrawnTo(const Instance& inInstance, Window& inWindow,
+    CustomImagePainter& inExisting)
 {
     mPainter->RegisterPainterParameter(*inExisting.GetImagePainterParameter(), 0, 0, 0);
 }

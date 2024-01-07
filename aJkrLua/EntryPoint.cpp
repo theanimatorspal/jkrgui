@@ -148,7 +148,8 @@ private:
 #include <Vendor/sol/sol.hpp>
 #include <Window.hpp>
 
-int my_exception_handler(lua_State* L, sol::optional<const std::exception&> maybe_execption, sol::string_view description) {
+int my_exception_handler(lua_State* L, sol::optional<const std::exception&> maybe_execption, sol::string_view description)
+{
     std::cout << "An Exception has occured in the function here is what it says: ";
     if (maybe_execption) {
         std::cout << "(Straight from the exception) ";
@@ -1008,7 +1009,7 @@ layout(push_constant, std430) uniform pc {
             "image_painter",
             sol::call_constructor,
             sol::factories([&](std::string fileName, std::string inShaderCode, vec3 in_threads) {
-                return CustomImagePainter(i,
+                return CustomImagePainter(
                     fileName,
                     inShaderCode,
                     pc,
@@ -1025,13 +1026,12 @@ layout(push_constant, std430) uniform pc {
             "load",
             [&](CustomImagePainter& inP) {
                 cout << "Load CustomImagePainter" << endl;
-                inP.Load(w);
+                inP.Load(i, w);
             },
 
             "store",
             [&](CustomImagePainter& inP) {
-                cout << "Store CustomImagePainter" << endl;
-                inP.Store(w);
+                inP.Store(i, w);
             },
 
             "paint",
@@ -1042,11 +1042,11 @@ layout(push_constant, std430) uniform pc {
 
             "register_image",
             [&](CustomImagePainter& inP, int inHeight, int inWidth) {
-                inP.RegisterImageToBeDrawnTo(w, inHeight, inWidth);
+                inP.RegisterImageToBeDrawnTo(i, w, inHeight, inWidth);
             },
 
             "register_image_existing",
-            [&](CustomImagePainter& inP) { inP.RegisterImageToBeDrawnTo(w, inP); }
+            [&](CustomImagePainter& inP) { inP.RegisterImageToBeDrawnTo(i, w, inP); }
 
         );
     }
@@ -1125,7 +1125,7 @@ layout(push_constant, std430) uniform pc {
         }
     };
 
-    auto Event = [&](void*) { event_callback(); };
+    auto Event = [&](void*) { SafeCall(event_callback); };
     em.SetEventCallBack(Event);
     auto Draw = [&](void* data) {
         SafeCall(draw_callback);
