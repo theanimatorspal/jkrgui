@@ -320,7 +320,7 @@ Com.TextButtonObject = {
         local Position = vec3(inPosition_3f.x + self.mPadding, inPosition_3f.y + inDimension_3f.y - self.mPadding,
             inPosition_3f.z - 3)
         if inString then
-            self.mTextObject:Update(Position, inString)
+            self.mTextObject:Update(Position, nil, inString)
         end
     end,
     Event = function(self)

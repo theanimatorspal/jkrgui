@@ -24,7 +24,7 @@ void ResourceManager::Folderize(const std::string_view inFolderPath)
     ShapeRendererCacheFileName_Fill = Path + "ShapeRendererCache_Fill.bin";
 
 #ifndef JKR_USE_VARIABLE_DES_INDEXING
-    ShapeRendererCacheFileName_Image = "ShapeRendererCache_Image.bin";
+    ShapeRendererCacheFileName_Image = Path + "ShapeRendererCache_Image.bin";
 #else
     ShapeRendererCacheFileName_Image = Path + "ShapeRendererCache_ImageVarDes.bin";
     BestTextRendererCacheFilename = Path + "BestTextRendererCache.bin";

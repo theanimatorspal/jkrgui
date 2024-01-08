@@ -64,6 +64,7 @@ CustomImagePainter::CustomImagePainter(CustomImagePainter& inPainter,
     mFragmentStream << gbefore_xyz;
     mFragmentStream << inPushConstantSignature;
     mFragmentStream << gmain_function_null;
+    mPainterParam = inPainter.GetImagePainterParameter();
 }
 
 CustomImagePainter::CustomImagePainter(sv inName, sv inComputeShaderFunction, sv inPushConstantSignature, ui inX, ui inY, ui inZ)
@@ -117,14 +118,13 @@ void CustomImagePainter::RegisterImageToBeDrawnTo(const Instance& inInstance, Wi
     uint32_t inWidth,
     uint32_t inHeight)
 {
-    mPainterParam = MakeUp<Image>(inInstance);
+    mPainterParam = mksh<Image>(inInstance);
     mPainterParam->Setup(inWidth, inHeight);
     mPainter->RegisterPainterParameter(*mPainterParam, 0, 0, 0);
     mPainter->OptimizeParameter(*mPainterParam, inWindow);
 }
 
-void CustomImagePainter::RegisterImageToBeDrawnTo(const Instance& inInstance, Window& inWindow,
-    CustomImagePainter& inExisting)
+void CustomImagePainter::RegisterImageToBeDrawnTo(const Instance& inInstance, Window& inWindow)
 {
-    mPainter->RegisterPainterParameter(*inExisting.GetImagePainterParameter(), 0, 0, 0);
+    mPainter->RegisterPainterParameter(*mPainterParam, 0, 0, 0);
 }

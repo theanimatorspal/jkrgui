@@ -285,6 +285,7 @@ Com.PopupMenu = {
         local Obj = {
             mPosition_3f = vec3(0, 0, inDepth),
             mDimension_3f = vec3(0, 0, 0),
+            mFontObject = inFontObject,
         }
         setmetatable(Obj, self)
         self.__index = self
@@ -302,9 +303,48 @@ Com.PopupMenu = {
         local buttonpos = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z - 4)
         self.mHeadButton:Update(buttonpos, buttondimen, inHeadString)
         local infopos = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z - 4)
-        self.mInfo:Update(vec3(inPosition_3f.x + 10, inPosition_3f.y + 25 * 2, inPosition_3f.z - 3), inInfo)
+        self.mInfo:Update(vec3(inPosition_3f.x + 10, inPosition_3f.y + 25 * 2, inPosition_3f.z - 3), inDimension_3f, inInfo)
         buttonpos = vec3(inPosition_3f.x + inDimension_3f.y / 2, inPosition_3f.y + 25 * 2.5, inPosition_3f.z - 4)
         buttondimen = vec3(60, 25, 1)
         self.mButton:Update(buttonpos, buttondimen, "Cancel")
+    end
+}
+
+
+Com.ImgRect = {
+    mDimension_3f = vec3(0, 0, 0),
+    mPosition_3f = vec3(0, 0, 0),
+    mId = nil,
+    mImgId = nil,
+    New = function(self, inPosition_3f, inDimension_3f)
+        local Obj = {
+            mDimension_2f = inDimension_3f,
+            mPosition_3f = inPosition_3f,
+            mId = nil,
+            mImgId = nil,
+
+        }
+
+        setmetatable(Obj, self)
+        self.__index = self
+        Com.NewComponent()
+
+        ComTable[com_i] = Jkr.Components.Static.ShapeObject:New(inPosition_3f, inDimension_3f, "stickman.png", vec2(inDimension_3f.x, inDimension_3f.y))
+        
+        ComTable[com_i].mFillColor = vec4(1, 0, 0, 1)
+        ComTable[com_i].mComponentObject.mFocusOnHover_b = false
+        -- com_i)
+        Obj.mIds.y = com_i
+        Obj.mAreaId = com_i
+        return Obj
+    end,
+    Event = function()
+    end,
+    Update = function(self)
+        local Dimension = vec2(self.mDimension_2f.x, self.mDimension_2f.y)
+        local rect_gen = Generator(Shapes.rectangle, Dimension)
+        -- Hello eVeryone
+        -- WHat 
+        S.Update(Int(self.mId), rect_gen, self.mPosition_3f)
     end
 }

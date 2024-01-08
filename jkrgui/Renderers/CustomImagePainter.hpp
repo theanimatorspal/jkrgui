@@ -22,7 +22,7 @@ public:
     void Load(const Instance& inInstance, Window& inWindow);
     void Store(const Instance& inInstance, Window& inWindow);
     void RegisterImageToBeDrawnTo(const Instance& inInstance, Window& inWindow, ui inWidth, ui inHeight);
-    void RegisterImageToBeDrawnTo(const Instance& inInstance, Window& inWindow, CustomImagePainter& inExisting);
+    void RegisterImageToBeDrawnTo(const Instance& inInstance, Window& inWindow);
     template <class T>
     void Draw(Window& inWindow, T inPushConstant, ui inX, ui inY, ui inZ)
     {
@@ -45,7 +45,7 @@ private:
     glm::vec3 mThreads;
     Up<PainterCache> mCustomPainterCache;
     Up<Painter> mPainter;
-    Up<Image> mPainterParam;
+    sp<Image> mPainterParam;
 };
 
 } // namespace Jkr::Renderer

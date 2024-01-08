@@ -44,4 +44,5 @@ namespace ksai
 
 #define mu std::make_unique
 #define mv std::move
+#define mksh std::make_shared
 }

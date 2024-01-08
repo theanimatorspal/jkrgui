@@ -14,6 +14,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #define SETTER inline void
 
+// This is our Legacy C++ Component System, This class is used inside so cannot be deleted now, 
+// TODO: Needs cleanup
 namespace Jkr::Component {
 using namespace Jkr::Renderer;
 class Component_base {
@@ -749,6 +751,11 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
             Rec.mXy = xy;
             Rec.mWh = wh;
             em.UpdateBoundRect(depth, id, Rec);
+        },
+
+        "get_current_time",
+        [&]() -> int {
+            w.GetWindowCurrentTime();
         }
 
     );
@@ -1046,7 +1053,7 @@ layout(push_constant, std430) uniform pc {
             },
 
             "register_image_existing",
-            [&](CustomImagePainter& inP) { inP.RegisterImageToBeDrawnTo(i, w, inP); }
+            [&](CustomImagePainter& inP) { inP.RegisterImageToBeDrawnTo(i, w); }
 
         );
     }

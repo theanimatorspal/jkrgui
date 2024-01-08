@@ -1,14 +1,5 @@
-require "jkrgui.TextEditorComponents"
 require "jkrgui.ExtraComponents"
 require "jkrgui.Resources"
-
-LineId = L.add(vec2(100, 100), vec2(700, 700), 55)
-Font = Jkr.FontObject:New("font.ttf", 4)
-FontTEST = Jkr.FontObject:New("font.ttf", 6)
-
-
-ContextMenu = Com.ContextMenu:New(vec3(100, 100, 80), vec3(80, 20, 1), Font, 10, 10)
-
 
 ContextMenuEntries_FileMenu = {
     [1] = {
