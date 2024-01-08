@@ -210,7 +210,7 @@ Jkr.ComponentObject = {
         mTransparentToMouse_b = false,
         New = function(self, inPosition_3f, inDimension_3f)
                 local Obj = {}
-                print("Component Construction")
+                --("Component Construction")
                 setmetatable(Obj, self)
                 self.__index = self
 
@@ -222,7 +222,7 @@ Jkr.ComponentObject = {
                 local pos = vec2(Obj.mPosition_3f.x, Obj.mPosition_3f.y)
                 local dim = vec2(Obj.mDimension_3f.x, Obj.mDimension_3f.y)
                 Obj.mBoundedRectId_i = E.set_bounded_rect(pos, dim, Int(Obj.mPosition_3f.z))
-                print("Component Construction Finished")
+                --("Component Construction Finished")
                 return Obj
         end,
 
@@ -273,6 +273,7 @@ Jkr.Components.Abstract.ImageObject = {
                else
                         Obj.mId = S.AddImage(Int(inWidth), Int(inHeight))
                end 
+               return Obj
         end
 }
 
@@ -303,7 +304,9 @@ Jkr.Components.Static.ShapeObject = {
                 Obj.mShapeId =  S.Add(rect_gen, Obj.mComponentObject.mPosition_3f)
 
                 if inImageObject then
-                        self.mImageId = inImageObject.mId
+                        Obj.mImageId = inImageObject.mId
+                else
+                        Obj.mImageId = nil
                 end
 
                 Obj.mFillColor = vec4(1, 1, 1, 1)
@@ -417,6 +420,19 @@ Jkr.Components.Util.ImagePainter = {
             Obj.mPainter:load()
         end
         Obj.mPainter:register_image(Int(inImageSize_2f.x), Int(inImageSize_2f.y))
+        return Obj
+    end,
+    NewFrom = function (self, inPainter, inFileName, inStore_b, inGLSL, inX, inY, inZ)
+        local Obj = {} 
+        setmetatable(Obj, self)
+        self.__index = self
+        Obj.mPainter = inPainter.mPainter:make_from(inFileName, inGLSL)
+        if inStore_b then
+            Obj.mPainter:store()
+        else
+            Obj.mPainter:load()
+        end
+        Obj.mPainter:register_image_existing()
         return Obj
     end,
     Paint = function (self, inPosDimen_4f, inColor_4f, inParam_4f, inImageObject)

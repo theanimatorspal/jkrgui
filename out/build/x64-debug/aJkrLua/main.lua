@@ -10,8 +10,10 @@ Load = function()
         Pip = Com.PopupMenu:New(50, Font, 10)
         Pip:Update(vec3(100, 100, 50), vec3(180, 100, 1), "Popup", "Error is Encountered")
         Pip:Update(vec3(50, 100, 50), vec3(180, 100, 1), "Popup", "Error is Encountered")
-        Ip = Jkr.Components.Util.ImagePainter:New("cache/ImagePainterRoundedRect.bin", vec2(100, 100), false, Jkr.GLSL.RoundedCircle, 16, 16, 1)
-        Obj = Com.ImageLabelObject:NewEmpty(vec3(100, 100, 50), vec3(100, 100, 1))
+        Ip = Jkr.Components.Util.ImagePainter:New("cache/ImagePainterRoundedRect.bin", vec2(50, 50), false, Jkr.GLSL.RoundedCircle, 16, 16, 1)
+        IpRR = Jkr.Components.Util.ImagePainter:NewFrom(Ip, "cache/ImagePainterRoundedRectangle.bin",  true, Jkr.GLSL.RoundedRectangle, 16, 16, 1)
+        ImgLabel = Com.ImageLabelObject:NewEmpty(50, 50, vec3(500, 100, 50), vec3(20, 20, 1))
+        ImgLabel:TintColor(vec4(0, 2, 1, 0.5))
 end
 
 Event = function()
@@ -25,7 +27,7 @@ Update = function()
 end
 
 Dispatch = function()
-        Ip:Paint(vec4(0.5, 0.5, 0.5, 0.5), vec4(1, 0, 0, 1), vec4(1, 0, 0, 1), Obj.mImageObjectAbs)
+        Ip:Paint(vec4(0, 0, 0.2, 0.5), vec4(1, 1, 1, 1), vec4(1, 0, 0, 1), ImgLabel.mImageObjectAbs)
 end
 
 Draw = function()

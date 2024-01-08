@@ -233,7 +233,7 @@ Com.TextLabelObject = {
         -- "TextLabelObject Construction Finished")
         return Obj
     end,
-    Update = function(self, inPosition_3f, inString)
+    Update = function(self, inPosition_3f, inDimension_3f, inString)
         self.mPosition_3f = inPosition_3f
         if inString then
             ComTable[self.mIds.x].mString = inString
@@ -244,6 +244,7 @@ Com.TextLabelObject = {
 
 Com.ImageLabelObject = {
     mImageObjectAbs = nil,
+    mShapeId = nil,
     New = function (self, inFileName, inPosition_3f, inDimension_3f)
         local Obj = {}
         setmetatable(Obj, self)
@@ -252,17 +253,22 @@ Com.ImageLabelObject = {
         ComTable[com_i] = Jkr.Components.Static.ShapeObject:New(inPosition_3f, inDimension_3f, Obj.mImageObjectAbs)
         return Obj
     end,
-    NewEmpty  = function (self, inPosition_3f, inDimension_3f)
+    NewEmpty  = function (self, inWidth, inHeight, inPosition_3f, inDimension_3f)
         local Obj = {} 
         setmetatable(Obj, self)
-        Obj.mImageObjectAbs = Jkr.Components.Abstract.ImageObject:New(inDimension_3f.x, inDimension_3f.y)
+        self.__index = self
+        Obj.mImageObjectAbs = Jkr.Components.Abstract.ImageObject:New(inWidth, inHeight, nil)
+        print(Obj.mImageObjectAbs)
         Com.NewComponent()
         ComTable[com_i] = Jkr.Components.Static.ShapeObject:New(inPosition_3f, inDimension_3f, Obj.mImageObjectAbs)
+        Obj.mShapeId = com_i
         return Obj
     end,
     NewExisting = function (self, inImageObject, inPosition_3f, inDimension_3f)
         local Obj = {} 
         setmetatable(Obj, self)
+        self.__index = self
+        Obj.mImageObjectAbs = inImageObject
         Com.NewComponent()
         ComTable[com_i] = Jkr.Components.Static.ShapeObject:New(inPosition_3f, inDimension_3f, inImageObject)
         return Obj
@@ -271,6 +277,9 @@ Com.ImageLabelObject = {
         local dimen = vec2(inDimension_3f.x, inDimension_3f.y)
         local gen = Generator(Shapes.rectangle, dimen)
         S.Update(Int(self.mRectId), gen, inPosition_3f) 
+    end,
+    TintColor = function (self, inColor_4f)
+        ComTable[self.mShapeId].mFillColor = inColor_4f
     end
 }
 
