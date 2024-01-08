@@ -1,7 +1,7 @@
 #include "Instance.hpp"
 #include "TestUtils.hpp"
 
-Jkr::Instance::Instance(uint32_t inNoOfDescriptors)
+Jkr::Instance::Instance(uint32_t inNoOfDescriptors, uint32_t inPoolSize)
     : mInstance()
     , mMessenger(mInstance)
     , mSurface(mInstance, TestWindow().GetHandle())
@@ -11,7 +11,7 @@ Jkr::Instance::Instance(uint32_t inNoOfDescriptors)
     , mGraphicsQueue(mQueueContext, mDevice)
     , mCommandPool(mDevice, mQueueContext)
     , mUtilCommandBuffer(mDevice, mCommandPool)
-    , mDescriptorPool(mDevice, inNoOfDescriptors)
+    , mDescriptorPool(mDevice, inNoOfDescriptors, inPoolSize)
     , mVmaAllocator(mInstance, mDevice)
 {
     mThreadPool.SetThreadCount(std::thread::hardware_concurrency());

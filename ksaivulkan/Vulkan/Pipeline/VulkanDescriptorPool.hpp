@@ -26,12 +26,12 @@ namespace ksai {
 
 
 namespace ksai {
-	template <size_t PoolSize>
 	class VulkanDescriptorPool : public VulkanDescriptorPoolBase
 	{
 	public:
-		VulkanDescriptorPool(const VulkanDevice& inDevice, int inMaxDescriptorSets)
-			: VulkanDescriptorPoolBase(inDevice)
+		VulkanDescriptorPool(const VulkanDevice& inDevice, int inMaxDescriptorSets, int PoolSize)
+                : VulkanDescriptorPoolBase(inDevice)
+                , mPoolContext(PoolSize)
 		{
 			mPool = inDevice.GetDeviceHandle().createDescriptorPool(
 				vk::DescriptorPoolCreateInfo(vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet, inMaxDescriptorSets, mPoolContext.GetDescriptorPoolSizesArray())
@@ -40,6 +40,6 @@ namespace ksai {
 		}
 		~VulkanDescriptorPool() = default;
 	private:
-		const VulkanDescriptorPoolContext<PoolSize> mPoolContext;
+		const VulkanDescriptorPoolContext mPoolContext;
 	};
 }

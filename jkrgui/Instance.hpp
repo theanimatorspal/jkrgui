@@ -30,7 +30,7 @@ using namespace ksai;
 static Timer time;
 class Instance {
 public:
-    Instance(uint32_t inNoOfDescriptors = 20);
+    Instance(uint32_t inNoOfDescriptors = 20, uint32_t inPoolSize = 10000);
     GETTER& GetVulkanInstance() const { return mInstance; }
     GETTER& GetPhysicalDevice() const { return mPhysicalDevice; }
     GETTER& GetQueueContext() const { return mQueueContext; }
@@ -48,8 +48,6 @@ public:
 
 private:
     static const int mMaxFramesInFlight = 2;
-    static const int DescriptorPoolSize = 10000;
-
 private:
     const VulkanInstance mInstance;
     const VulkanMessenger mMessenger;
@@ -61,7 +59,7 @@ private:
     const VulkanCommandPool mCommandPool;
     // const std::array<VulkanCommandBuffer, mMaxFramesInFlight> mCommandBuffers;
     const VulkanCommandBuffer mUtilCommandBuffer;
-    const VulkanDescriptorPool<DescriptorPoolSize> mDescriptorPool;
+    const VulkanDescriptorPool mDescriptorPool;
     const VulkanVMA mVmaAllocator;
     ksai::ThreadPool mThreadPool;
 };

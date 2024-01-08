@@ -14,7 +14,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #define SETTER inline void
 
-// This is our Legacy C++ Component System, This class is used inside so cannot be deleted now, 
+// This is our Legacy C++ Component System, This class is used inside so cannot be deleted now,
 // TODO: Needs cleanup
 namespace Jkr::Component {
 using namespace Jkr::Renderer;
@@ -622,9 +622,11 @@ unordered_map<string_view, string_view> gConfiguration { { "-title", "JkrGUI" },
     { "-bgb", "1.0" },
     { "-bga", "1.0" },
     { "-des_size", "1000" },
+    { "-des_pool_size", "10000" },
     { "-var_des_size", "5000" },
     { "-cache_folder", "cache/" },
     { "-main_file", "main.lua" } };
+
 
 auto FillConfig(const vector<string_view>& inArguments)
 {
@@ -641,7 +643,7 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
     const vector<string_view> Arguments(ArgStrings + 1, ArgStrings + ArgCount);
     FillConfig(Arguments);
 
-    auto i = Instance(stoi(string(cf["-des_size"])));
+    auto i = Instance(stoi(string(cf["-des_size"])), stoi(string(cf["-des_pool_size"])));
     auto w = Window(i, cf["-title"], stoi(string(cf["-height"])), stoi(string(cf["-width"])));
     auto em = EventManager();
     auto rr = ResourceManager(cf["-cache_folder"]);
