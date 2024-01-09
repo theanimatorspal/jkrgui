@@ -12,11 +12,7 @@
 #include <Window.hpp>
 #include <WindowMulT.hpp>
 
-
-
-
-
-int main()
+int ldsajfklasjdf()
 {
     using namespace ksai;
     std::vector<ui> ThreadLocalCommandBuffers;

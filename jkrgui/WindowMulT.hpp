@@ -37,10 +37,11 @@ public:
     }
 
     virtual void Draw(float r = 0.1f, float g = 0.1f, float b = 0.1f, float a = 0.1f, float d = 1.0f) override;
-    // virtual const std::array<VulkanCommandBuffer, 2U>& GetCommandBuffers() const override { return mSecondaryCommandBuffersUI; }
+    const std::array<VulkanCommandBuffer, 2U>& GetCommandBuffers() const override { return mSecondaryCommandBuffersUI; }
     GETTER& GetSecondaryCmdBufferBackground() { return mSecondaryCommandBufferBackground; }
     GETTER& GetSecondaryCmdBufferUI() { return mSecondaryCommandBuffersUI; }
     GETTER& GetSecondaryCmdBufferInThread(ui inThreadID) { return mThreadData[inThreadID]; }
+    virtual const VulkanCommandBuffer& GetUtilCommandBuffer() const { return mCommandBuffers[mCurrentFrame]; }
 
 private:
     VulkanCommandBuffer mSecondaryDispatchCommandBuffer;
