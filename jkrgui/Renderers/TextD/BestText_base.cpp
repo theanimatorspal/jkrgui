@@ -193,8 +193,6 @@ bb::TextDimensions bb::RenderTextToImage(
 
     if (inThreadPool.has_value())
         inThreadPool.value().get().Wait();
-    if (inThreadPool.has_value())
-        inThreadPool.value().get().Wait();
     mIndices.clear(); // TODO Don't Clear Vertices and Indices
     mVertices.clear();
     if (outYoff.has_value()) {
