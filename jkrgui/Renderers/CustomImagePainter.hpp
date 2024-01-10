@@ -2,10 +2,21 @@
 #include "../PainterParameter.hpp"
 
 namespace Jkr::Renderer {
+using Image = PainterParameter<Jkr::PainterParameterContext::StorageImage>;
+
+struct CustomPainterImage {
+    up<Image> mPainterParam;
+    CustomPainterImage(const Instance& inInstance, const Window& inWindow, ui inWidth, ui inHeight)
+    {
+        mPainterParam = mu<Image>(inInstance);
+        mPainterParam->Setup(inWidth, inHeight);
+        Painter::OptimizeParameter(inInstance, *mPainterParam, inWindow);
+    }
+    GETTER& GetPainterParam() { return *mPainterParam; }
+};
+
 
 class CustomImagePainter {
-    using Image = PainterParameter<Jkr::PainterParameterContext::StorageImage>;
-
 public:
     CustomImagePainter(
         sv inName,
@@ -14,28 +25,37 @@ public:
         ui inX,
         ui inY,
         ui inZ);
+    GETTER& GetPainter() { return *mPainter; }
 
-    explicit CustomImagePainter(CustomImagePainter& inPainter,
-        sv inName,
-        sv inComputeShaderFunction,
-        sv inPushConstantSignature);
     void Load(const Instance& inInstance, Window& inWindow);
     void Store(const Instance& inInstance, Window& inWindow);
-    void RegisterImageToBeDrawnTo(const Instance& inInstance, Window& inWindow, ui inWidth, ui inHeight);
-    void RegisterImageToBeDrawnTo(const Instance& inInstance, Window& inWindow);
+
+    void RegisterImage(const Instance& inInstance, Window& inWindow, CustomPainterImage& inImage)
+    {
+        mPainter->RegisterPainterParameter(inImage.GetPainterParam(), 0, 0, 0, Jkr::RegisterMode::ComputeOnly);
+    }
+
+    void Bind (const Window &inWindow)
+    {
+        mPainter->BindDispatchParametersPipelineOnly_EXT(inWindow);
+    }
+
+    void BindImage(const Window& inWindow)
+    {
+        mPainter->BindDispatchParametersDescriptorsOnly_EXT(inWindow);
+    }
+
     template <class T>
     void Draw(Window& inWindow, T inPushConstant, ui inX, ui inY, ui inZ)
     {
-        mPainter->Dispatch<T>(inPushConstant, inX, inY, inZ);
+        mPainter->Dispatch_EXT<T>(inPushConstant, inX, inY, inZ);
     }
+
     template <class T>
     void Draw(Window& inWindow, T inPushConstant)
     {
-        Draw<T>(inWindow, inPushConstant, mThreads.x, mThreads.y, mThreads.z);
+        mPainter->Dispatch_EXT<T>(inPushConstant, mThreads.x, mThreads.y, mThreads.z);
     }
-    GETTER& GetImage() { return mPainterParam->GetStorageImage(); }
-    GETTER GetImagePtr() { return mPainterParam->GetStorageImagePtr(); }
-    GETTER& GetImagePainterParameter() { return mPainterParam; }
 
 private:
     s mCustomPainterFileName = "customPainter.bin";
@@ -45,7 +65,6 @@ private:
     glm::vec3 mThreads;
     Up<PainterCache> mCustomPainterCache;
     Up<Painter> mPainter;
-    sp<Image> mPainterParam;
 };
 
 } // namespace Jkr::Renderer

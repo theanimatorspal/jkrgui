@@ -1,6 +1,7 @@
 ﻿#include "BestText_base.hpp"
 #include <Vendor/stbi/stb_image_write.h>
 #include <ksai_image.hpp>
+#include <Vendor/Tracy/tracy/Tracy.hpp>
 using namespace Jkr::Renderer;
 using bb = BestText_base;
 
@@ -91,6 +92,7 @@ bb::TextDimensions bb::AddText(ui inX, ui inY, const sv inString, ui inFontShape
 bb::TextDimensions bb::RenderTextToImage(
     sv inString, ui inFontShapeId, v<uc>& outImage, optref<ThreadPool> inThreadPool, optref<int> outYoff)
 {
+    ZoneScoped;
     hb_buffer_t* hbBuffer = hb_buffer_create();
     hb_buffer_add_utf8(hbBuffer, reinterpret_cast<const char*>(inString.data()), -1, 0, -1);
     hb_buffer_guess_segment_properties(hbBuffer);
@@ -179,21 +181,18 @@ bb::TextDimensions bb::RenderTextToImage(
 
         const auto join_img =
             [=]<typename T>(const T& from, T& to, int x, int y, int w, int h, int c) {
-                ui maini = drawX * c + x + (drawY - y - 1) * outbmp_w * c;
+                ui maini = drawX * c + x + (outbmp_h -  (drawY - y - 1) - 1) * outbmp_w * c;
                 ui biti = x + y * w * c;
                 to[maini] += glm::clamp((int)from[biti], 0, 255);
             };
 
         ksai::image::process(bitmap_width, bitmap_rows, mImageChannelCount, mCharacterBitmapSet[key].second, outImage, join_img, inThreadPool);
-
         int PixelAdvance = ToPixels(advance);
         originX += PixelAdvance;
     }
+
     if (inThreadPool.has_value())
         inThreadPool.value().get().Wait();
-
-    ksai::image::process(outbmp_w, outbmp_h, mImageChannelCount, outImage, ksai::image::flipvertically, inThreadPool);
-
     if (inThreadPool.has_value())
         inThreadPool.value().get().Wait();
     mIndices.clear(); // TODO Don't Clear Vertices and Indices

@@ -1,9 +1,42 @@
 Com = {}
 ComTable = {}
+ComTable_Dispatch = {}
+ComTable_SingleTimeDispatch = {}
 
 com_i = 0
 Com.NewComponent = function()
     com_i = com_i + 1
+end
+
+com_disi = 0
+Com.NewComponent_Dispatch = function()
+    com_disi = com_disi + 1
+end
+
+com_sdisi = 0
+Com.NewComponent_SingleTimeDispatch = function()
+    com_sdisi = com_sdisi + 1
+end
+
+Com.Events = function()
+    for _, com in ipairs(ComTable_Draw) do
+        com:Event()
+    end
+end
+
+Com.Draws = function()
+    for _, com in ipairs(ComTable_Draw) do
+        com:Draw()
+    end
+end
+
+local loaded = 1
+Com.Dispatches = function()
+    if loaded <= #ComTable_SingleTimeDispatch then
+        print(loaded)
+        ComTable_SingleTimeDispatch[loaded]:Dispatch()
+        loaded = loaded + 1
+    end
 end
 
 Com.Events = function()
@@ -19,92 +52,6 @@ Com.Draws = function()
         if com.SetScissor then Jkr.reset_scissor() end
     end
 end
-
-Com.GPS = {
-    mPadding = 10,
-    mPosition_3f = vec3(0, 0, 0),
-    mDimension_3f = vec3(0, 0, 0),
-    mBackDepthValue = 0,
-    mFrontDepthValue = 0,
-    New = function(self, inBackDepthValueAbsolute, inFrontDepthValueAbsolute, inPosition_3f)
-        local Obj = {
-            mPadding = 10,
-            mPosition_3f = vec3(0, 0, 0),
-            mDimension_3f = vec3(0, 0, 0),
-            mBackDepthValue = inBackDepthValueAbsolute,
-            mFrontDepthValue = inFrontDepthValueAbsolute
-        }
-        if not inPosition_3f then
-            Obj.mPosition_3f = vec3(Obj.mPadding, Obj.mPadding, inBackDepthValueAbsolute)
-        else
-            Obj.mPosition_3f = vec3(inPosition_3f.x + Obj.mPadding, inPosition_3f.y + Obj.mPadding,
-                inBackDepthValueAbsolute)
-        end
-        setmetatable(Obj, self)
-        self.__index = self
-        return Obj
-    end,
-    StartOver = function(self)
-        self.mPosition_3f = vec3(self.mPadding, self.mPadding, self.mPosition_3f.z)
-    end,
-    PrintCurrent = function(self)
-    end,
-    SetDimension = function(self, inDimension_3f)
-        self.mDimension_3f = inDimension_3f
-    end,
-    Start = function(self)
-        self.mPosition_3f = vec3(self.mPadding, self.mPadding, self.mPadding)
-    end,
-    MoveDown = function(self)
-        self.mPosition_3f = vec3(
-            self.mPosition_3f.x,
-            self.mPosition_3f.y + self.mDimension_3f.y + self.mPadding,
-            self.mPosition_3f.z
-        )
-        self:PrintCurrent()
-    end,
-    MoveRight = function(self)
-        self.mPosition_3f = vec3(
-            self.mPosition_3f.x + self.mDimension_3f.x + self.mPadding,
-            self.mPosition_3f.y,
-            self.mPosition_3f.z
-        )
-        self:PrintCurrent()
-    end,
-    MoveUp = function(self)
-        self.mPosition_3f = vec3(
-            self.mPosition_3f.x,
-            self.mPosition_3f.y - (self.mDimension_3f.y + self.mPadding),
-            self.mPosition_3f.z
-        )
-        self:PrintCurrent()
-    end,
-    MoveLeft = function(self)
-        self.mPosition_3f = vec3(
-            self.mPosition_3f.x - (self.mDimension_3f.x + self.mPadding),
-            self.mPosition_3f.y,
-            self.mPosition_3f.z
-        )
-        self:PrintCurrent()
-    end,
-    MoveBackAbsolute = function(self)
-        self.mPosition_3f = vec3(
-            self.mPosition_3f.x,
-            self.mPosition_3f.y,
-            self.mBackDepthValue
-        )
-        self:PrintCurrent()
-    end,
-    MoveFrontAbsolute = function(self)
-        self.mPosition_3f = vec3(
-            self.mPosition_3f.x,
-            self.mPosition_3f.y,
-            self.mFrontDepthValue
-        )
-        self:PrintCurrent()
-    end
-}
-
 
 
 Com.AreaObject = {
@@ -221,7 +168,6 @@ Com.TextLabelObject = {
         local Obj = {
             mIds = vec2(0, 0),
             mPosition_3f = vec3(0, 0, 0),
-            mPositionToParent_3f = vec3(0, 0, 0),
             mDimension_3f = vec3(0, 0, 0)
         }
         setmetatable(Obj, self)
@@ -280,18 +226,28 @@ Com.ImageLabelObject = {
     end,
     TintColor = function (self, inColor_4f)
         ComTable[self.mShapeId].mFillColor = inColor_4f
-    end
+    end,
+    PaintByComputeSingleTime = function(self, inPainterWithPainterParameters, inPainterWithRegisteredImage)
+        local ip = inPainterWithPainterParameters
+        local compute_func = function ()
+        end
+        Com.NewComponent_SingleTimeDispatch()
+        ComTable_SingleTimeDispatch[com_sdisi] = Jkr.Components.Abstract.Dispatchable:New(
+            function ()
+                inPainterWithRegisteredImage:BindImage()
+                ip.painter:BindPainter()
+                ip.painter:Paint(ip.posdimen, ip.color, ip.param, self.mImageObjectAbs, inPainterWithRegisteredImage) 
+            end
+        )
+    end,
 }
 
-
-
 Com.TextButtonObject = {
-    mPositionToParent_3f = vec3(0, 0, 0),
     mPadding = 5,
     mTextObject = nil,
     mFunction = nil,
     mPressed = false,
-    New = function(self, inText, inFontObject, inPosition_3f, inDimension_3f, inParent)
+    New = function(self, inText, inFontObject, inPosition_3f, inDimension_3f)
         -- "TextButtonObject")
         local Obj = Com.AreaObject:New(inPosition_3f, inDimension_3f)
         setmetatable(self, Com.AreaObject) -- Inherits Com.AreaObject
@@ -299,20 +255,61 @@ Com.TextButtonObject = {
         self.__index = self
 
         Obj.mTextObject = {}
-        Obj.mPositionToParent_3f = {}
         Obj.mPadding = {}
         Obj.mFunction = {}
         Obj.mPressed = {}
         Obj.mPressed = false
         Obj.mPadding = 5
-        Obj.mPositionToParent_3f = inPosition_3f
         local Position = vec3(inPosition_3f.x + Obj.mPadding, inPosition_3f.y + inDimension_3f.y - Obj.mPadding,
             inPosition_3f.z - 3)
         Obj.mTextObject = Com.TextLabelObject:New(inText, Position, inFontObject)
-        if inParent then
-            Obj:SetParent(inParent)
+        return Obj
+    end,
+    Update = function(self, inPosition_3f, inDimension_3f, inString)
+        Com.AreaObject.Update(self, inPosition_3f, inDimension_3f)
+        local Position = vec3(inPosition_3f.x + self.mPadding, inPosition_3f.y + inDimension_3f.y - self.mPadding,
+            inPosition_3f.z - 3)
+        if inString then
+            self.mTextObject:Update(Position, nil, inString)
         end
-        -- "TextButtonObject Construction Finished")
+    end,
+    Event = function(self)
+        if ComTable[self.mAreaId].mComponentObject.mFocus_b then
+            self:Press()
+            -- self.mTextObject:Update(ComTable[self.mAreaId].mPosition_3f)
+            self.mPressed = true
+        else
+            self:Update(self.mPosition_3f, self.mDimension_3f)
+            self.mPressed = false
+        end
+    end,
+    SetFunction = function(self, inFunction)
+        self.mFunction = inFunction
+    end
+}
+
+
+Com.ImageButtonObject = {
+    mPadding = 5,
+    mTextObject = nil,
+    mFunction = nil,
+    mPressed = false,
+    New = function(self, inText, inFontObject, inPosition_3f, inDimension_3f)
+        -- "TextButtonObject")
+        local Obj = Com.AreaObject:New(inPosition_3f, inDimension_3f)
+        setmetatable(self, Com.AreaObject) -- Inherits Com.AreaObject
+        setmetatable(Obj, self)
+        self.__index = self
+
+        Obj.mTextObject = {}
+        Obj.mPadding = {}
+        Obj.mFunction = {}
+        Obj.mPressed = {}
+        Obj.mPressed = false
+        Obj.mPadding = 5
+        local Position = vec3(inPosition_3f.x + Obj.mPadding, inPosition_3f.y + inDimension_3f.y - Obj.mPadding,
+            inPosition_3f.z - 3)
+        Obj.mTextObject = Com.TextLabelObject:New(inText, Position, inFontObject)
         return Obj
     end,
     Update = function(self, inPosition_3f, inDimension_3f, inString)

@@ -10,6 +10,7 @@
 #include <variant>
 #include <vector>
 #include <span>
+#include <iostream>
 
 namespace ksai
 {

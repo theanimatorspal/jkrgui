@@ -11,16 +11,18 @@
 #include <Vendor/NanoBench/nanobench.h>
 #include <Window.hpp>
 #include <WindowMulT.hpp>
+#define WIN32_LEAN_AND_MEAN
+#include <Vendor/Tracy/tracy/Tracy.hpp>
 
-int ldsajfklasjdf()
+int main()
 {
+    ZoneScoped;
     using namespace ksai;
     std::vector<ui> ThreadLocalCommandBuffers;
-    auto Instance = Jkr::Instance();
+    auto Instance = Jkr::Instance(100000, 10000);
     ThreadLocalCommandBuffers.resize(Instance.GetThreadPool().mThreads.size(), 2);
     auto Window = Jkr::WindowMulT(Instance, "Heell", 1080 / 2, 1920 / 2, Instance.GetThreadPool().mThreads.size(), ThreadLocalCommandBuffers);
     auto EventManager = Jkr::EventManager();
-
 
     Jkr::Renderer::CustomImagePainter ImagePainter(
         "file.bin",
@@ -73,20 +75,15 @@ layout(push_constant, std430) uniform pc {
     uint32_t image_to_draw_id;
     sr.AddImage(100, 100, image_to_draw_id);
 
-    bst.AddFontFace("font.ttf", 64, Font_id);
+    bst.AddFontFace("font.ttf", 100, Font_id);
     // bst.AddText("What is that", 100, 300, 5, BestText_id, BestText_length);
     // bst.AddText("don", 500, 300, 5, BestText_id1, BestText_length1);
 
     Jkr::Renderer::BestText_Alt Alt(sr, bst);
     Jkr::Renderer::BestText_Alt::ImageId fntimgid;
 
-    Jkr::time.reset();
     Alt.Add(Font_id, glm::vec2(100, 100), 5, "What is thatlsadfjlkasdjflkjasdlfjlaksjdflkjsalkfjlasjdflaslkfj", fntimgid, Instance.GetThreadPool());
-    Jkr::time.elapsed("Without Threading");
-
-    Jkr::time.reset();
     Alt.Add(Font_id, glm::vec2(100, 100), 5, "What is thatlsadfjlkasdjflkjasdlfjlaksjdflkjsalkfjlasjdflaslkfj", fntimgid, Instance.GetThreadPool());
-    Jkr::time.elapsed("With Threading");
 
     auto RenderFontImage = [&]() {
         sr.BindShapes(Window);
@@ -140,9 +137,19 @@ layout(push_constant, std430) uniform pc {
 
     SpirvHelper::Finalize();
 
+    int i = 0;
     while (!EventManager.ShouldQuit()) {
         EventManager.ProcessEvents();
         Window.Draw(1.0f, 1.0f, 1.0f, 1.0f);
+        if (i <= 4) {
+            for (int i = 0; i < 20; i++)
+                Alt.Add(Font_id, glm::vec2(100, 100), 5, "What is thatlsadfjlkasdjflkjasdlfjlaksjdflkjsalkfjlasjdflaslkfj", fntimgid);
+            for (int i = 0; i < 20; i++)
+                Alt.Add(Font_id, glm::vec2(100, 100), 5, "What is thatlsadfjlkasdjflkjasdlfjlaksjdflkjsalkfjlasjdflaslkfj", fntimgid, Instance.GetThreadPool());
+        }
+           i++;
+        FrameMark;
+
     }
     return 0;
 }

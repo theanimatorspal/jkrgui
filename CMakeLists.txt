@@ -72,6 +72,7 @@ include_directories("${CMAKE_SOURCE_DIR}/libs/")
 if(APPLE)
 else()
 include_directories("${LLVM_PATH}/include")
+include_directories(ksaivulkan/Vendor/Tracy/tracy)
 endif()
 
 

@@ -1,10 +1,10 @@
 #pragma once
+#include "../CustomImagePainter.hpp"
 #include "../Renderer_base.hpp"
 #include "../ResourceManager.hpp"
 #include "Shape_base.hpp"
 #include "VulkanImage.hpp"
 #include <unordered_map>
-#include "../CustomImagePainter.hpp"
 
 namespace Jkr::Renderer {
 class Shape : public Shape_base, Renderer_base {
@@ -24,14 +24,14 @@ public:
     void CopyToImage(uint32_t inId,
         uint32_t inWidth,
         uint32_t inHeight,
-        CustomImagePainter& inPainter);
+	   CustomPainterImage& inPainterImage);
 
-    void CopyToImage(uint32_t inId, CustomImagePainter& inPainter)
+    void CopyToImage(uint32_t inId, CustomPainterImage& inPainterImage)
     {
         CopyToImage(inId,
-            inPainter.GetImage().GetImageExtent().width,
-            inPainter.GetImage().GetImageExtent().height,
-            inPainter);
+            inPainterImage.GetPainterParam().GetStorageImagePtr()->GetImageExtent().width,
+            inPainterImage.GetPainterParam().GetStorageImagePtr()->GetImageExtent().height,
+            inPainterImage);
     }
     void Update(uint32_t inId, Jkr::Generator& inShape, int inX, int inY, uint32_t inZ);
     void Dispatch(Window& inWindow);

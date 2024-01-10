@@ -38,6 +38,9 @@ public:
     const VulkanCommandPool& GetCommandPool() const { return mCommandPool; }
     virtual const std::array<VulkanCommandBuffer, 2U>& GetCommandBuffers() const { return mCommandBuffers; }
     virtual const VulkanCommandBuffer& GetUtilCommandBuffer() const { return mCommandBuffers[mCurrentFrame]; }
+    virtual const VulkanCommandBuffer& GetSecondaryCmdBufferUI() const { return mCommandBuffers[mCurrentFrame]; }
+    virtual const VulkanCommandBuffer& GetSecondaryCmdBufferBackground() const { return mCommandBuffers[mCurrentFrame]; }
+    virtual const VulkanCommandBuffer& GetSecondaryCmdBufferInThread(ui inThreadID, ui inObjId) const { return mCommandBuffers[mCurrentFrame]; }
 
     Window(const Instance& inInstance, std::string_view inTitle, int inHeight, int inWidth);
     ~Window() { mInstance.GetDevice().Wait(); }

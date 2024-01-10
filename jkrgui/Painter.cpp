@@ -50,17 +50,17 @@ Jkr::Painter::Painter(const Instance& inInstance, const Window& inWindow, const 
 {
 }
 
-void Painter::OptimizeParameter(
+void Painter::OptimizeParameter( const Instance& inInstance,
     const PainterParameter<PainterParameterContext::StorageImage>& inImage, const Window& inWindow)
 {
-    auto& Cmd = mInstance.GetUtilCommandBuffer().GetCommandBufferHandle();
+    auto& Cmd = inInstance.GetUtilCommandBuffer().GetCommandBufferHandle();
     Cmd.begin(vk::CommandBufferBeginInfo());
-    OptimizeImageParameter(mInstance.GetUtilCommandBuffer(), inImage, inWindow);
+    OptimizeImageParameter(inInstance, inInstance.GetUtilCommandBuffer(), inImage, inWindow);
     Cmd.end();
-    mInstance.GetGraphicsQueue().Submit<SubmitContext::SingleTime>(mInstance.GetUtilCommandBuffer());
+    inInstance.GetGraphicsQueue().Submit<SubmitContext::SingleTime>(inInstance.GetUtilCommandBuffer());
 }
 
-void Jkr::Painter::OptimizeImageParameter(const VulkanCommandBuffer& inBuffer, const PainterParameter<PainterParameterContext::StorageImage>& inImage, const Window& inWindow)
+void Jkr::Painter::OptimizeImageParameter(const Instance& inInstance, const VulkanCommandBuffer& inBuffer, const PainterParameter<PainterParameterContext::StorageImage>& inImage, const Window& inWindow)
 {
     inImage.GetStorageImage().CmdTransitionImageLayout(inBuffer,
         vk::ImageLayout::eUndefined,
@@ -151,4 +151,50 @@ void Painter::RegisterPainterParameter<PainterParameterContext::UniformSampler>(
             inPainterParameter.GetSampler(),
             inDstBinding,
             inDstArrayElement);
+}
+
+
+void Painter::BindDispatchParameters_EXT(const Window& inWindow)
+{
+    auto& Cmd = inWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()];
+    Cmd.GetCommandBufferHandle()
+        .bindDescriptorSets(vk::PipelineBindPoint::eCompute,
+            mGUIPainterCache.GetComputePipelineLayout().GetPipelineLayoutHandle(),
+            0,
+            mComputeDescriptorSet.GetDescriptorSetHandle(),
+            {});
+    mVulkanComputePipeline.Bind<PipelineContext::Compute>(Cmd);
+}
+
+void Jkr::Painter::BindDispatchParametersDescriptorsOnly_EXT(const Window& inWindow)
+{
+    auto& Cmd = inWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()];
+    Cmd.GetCommandBufferHandle()
+        .bindDescriptorSets(vk::PipelineBindPoint::eCompute,
+            mGUIPainterCache.GetComputePipelineLayout().GetPipelineLayoutHandle(),
+            0,
+            mComputeDescriptorSet.GetDescriptorSetHandle(),
+            {});
+}
+
+void Jkr::Painter::BindDispatchParametersPipelineOnly_EXT(const Window& inWindow)
+{
+    auto index = inWindow.GetCurrentFrame();
+    auto &Cmd = inWindow.GetCommandBuffers()[index];
+    mVulkanComputePipeline.Bind<PipelineContext::Compute>(Cmd);
+}
+
+
+void Painter::BindDrawParamters_EXT(const Primitive& inPrimitive, const Window& inWindow)
+{
+    auto& Cmd = mWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()];
+    inPrimitive.GetVertexBufferPtr()->Bind<BufferContext::Vertex>(Cmd);
+    inPrimitive.GetIndexBufferPtr()->Bind<BufferContext::Index>(Cmd);
+    Cmd.GetCommandBufferHandle().bindDescriptorSets(
+        vk::PipelineBindPoint::eGraphics,
+        mGUIPainterCache.GetVertexFragmentPipelineLayout().GetPipelineLayoutHandle(),
+        0,
+        mVertexFragmentDescriptorSet.GetDescriptorSetHandle(),
+        {});
+    mVulkanPipeline.Bind<PipelineContext::Default>(Cmd);
 }

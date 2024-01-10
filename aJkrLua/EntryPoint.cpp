@@ -627,7 +627,6 @@ unordered_map<string_view, string_view> gConfiguration { { "-title", "JkrGUI" },
     { "-cache_folder", "cache/" },
     { "-main_file", "main.lua" } };
 
-
 auto FillConfig(const vector<string_view>& inArguments)
 {
     for (auto i = inArguments.begin(); i < inArguments.end(); i += 2) {
@@ -839,7 +838,7 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
             "bt",
 
             "add_font_face",
-            [&](string font_path, int font_size) -> int {
+            [&](string_view font_path, int font_size) -> int {
                 uint32_t id;
                 td.bt.AddFontFace(font_path, font_size, id);
                 return id;
@@ -851,7 +850,7 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
             },
 
             "get_text_dimension",
-            [&](std::string inString, int id) -> vec2 {
+            [&](std::string_view inString, int id) -> vec2 {
                 auto d = td.bt.GetTextDimensions(inString, id);
                 return vec2(d.mWidth, d.mHeight);
             },
@@ -865,14 +864,14 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
             },
 
             "add",
-            [&](string text, vec3 pos) -> vec2 {
+            [&](string_view text, vec3 pos) -> vec2 {
                 uvec2 id_and_length;
                 td.bt.AddText(text, pos.x, pos.y, pos.z, id_and_length.x, id_and_length.y);
                 return id_and_length;
             },
 
             "update",
-            [&](int id, string inString, vec3 inpos) -> void {
+            [&](int id, string_view inString, vec3 inpos) -> void {
                 {};
                 td.bt.UpdateText(id, inString, inpos.x, inpos.y, inpos.z);
             },
@@ -917,14 +916,14 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
                     td.sh.AddImage(Width, Height, id);
                     return id;
                 },
-                [&](string infilename) {
+                [&](string_view infilename) {
                     uint32_t id;
                     td.sh.AddImage(infilename, id);
                     return id;
                 }),
 
             "copy_image",
-            [&](int id, CustomImagePainter& inPainter) { td.sh.CopyToImage(id, inPainter); },
+            [&](int id, CustomPainterImage& inPainterImage) { td.sh.CopyToImage(id, inPainterImage); },
 
             "bind_fill_mode",
             [&](FillType fill) {
@@ -958,7 +957,7 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
             "balt",
 
             "add",
-            [&](int inFontId, string inS, vec3 inposition)
+            [&](int inFontId, string_view inS, vec3 inposition)
                 -> Jkr::Renderer::BestText_Alt::ImageId {
                 BestText_Alt::ImageId outId;
                 ALT.Add(inFontId, vec2(inposition.x, inposition.y), inposition.z, inS, outId, i.GetThreadPool());
@@ -974,7 +973,7 @@ auto main(int ArgCount, char* ArgStrings[]) -> int
             [&](BestText_Alt::ImageId inId,
                 int inFontId,
                 vec3 inposition,
-                string inText) {
+                string_view inText) {
                 ALT.Update(inId, inFontId, vec2(inposition.x, inposition.y), inposition.z, inText, i.GetThreadPool());
             },
 
@@ -1014,10 +1013,18 @@ layout(push_constant, std430) uniform pc {
 } push;
 
 )""";
+        r.new_usertype<CustomPainterImage>("painter_image",
+                                           sol::call_constructor,
+                                           sol::factories([&](int ww, int wh) {
+                                               return CustomPainterImage(i, w, ww, wh);
+                                           }));
+
         r.new_usertype<CustomImagePainter>(
             "image_painter",
             sol::call_constructor,
-            sol::factories([&](std::string fileName, std::string inShaderCode, vec3 in_threads) {
+            sol::factories([&](std::string_view fileName,
+                               std::string_view inShaderCode,
+                               vec3 in_threads) {
                 return CustomImagePainter(
                     fileName,
                     inShaderCode,
@@ -1027,35 +1034,30 @@ layout(push_constant, std430) uniform pc {
                     in_threads.z);
             }),
 
-            "make_from",
-            [&](CustomImagePainter& inP, std::string fileName, std::string inShaderCode) {
-                return CustomImagePainter(inP, fileName, inShaderCode, pc);
-            },
-
             "load",
-            [&](CustomImagePainter& inP) {
-                cout << "Load CustomImagePainter" << endl;
+            [&](CustomImagePainter &inP) {
                 inP.Load(i, w);
             },
 
             "store",
-            [&](CustomImagePainter& inP) {
-                inP.Store(i, w);
-            },
+            [&](CustomImagePainter &inP) { inP.Store(i, w); },
 
             "paint",
-            [&](CustomImagePainter& inP, vec4 inPosDimen, vec4 inColor, vec4 inParam) {
+            [&](CustomImagePainter &inP, vec4 inPosDimen, vec4 inColor, vec4 inParam) {
                 push_constant push { .mPosDimen = inPosDimen, .mColor = inColor, .mParam = inParam };
                 inP.Draw<push_constant>(w, push);
             },
 
-            "register_image",
-            [&](CustomImagePainter& inP, int inHeight, int inWidth) {
-                inP.RegisterImageToBeDrawnTo(i, w, inHeight, inWidth);
-            },
+            "bind_image",
+            [&](CustomImagePainter &inP) { inP.BindImage(w); },
 
-            "register_image_existing",
-            [&](CustomImagePainter& inP) { inP.RegisterImageToBeDrawnTo(i, w); }
+            "bind",
+            [&](CustomImagePainter &inP) { inP.Bind(w); },
+
+            "register_image",
+            [&](CustomImagePainter &inP, CustomPainterImage &inImg) {
+                inP.RegisterImage(i, w, inImg);
+            }
 
         );
     }

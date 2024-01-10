@@ -14,5 +14,5 @@ Jkr::Instance::Instance(uint32_t inNoOfDescriptors, uint32_t inPoolSize)
     , mDescriptorPool(mDevice, inNoOfDescriptors, inPoolSize)
     , mVmaAllocator(mInstance, mDevice)
 {
-    mThreadPool.SetThreadCount(std::thread::hardware_concurrency());
+    mThreadPool.SetThreadCount(std::thread::hardware_concurrency() - 1);
 }

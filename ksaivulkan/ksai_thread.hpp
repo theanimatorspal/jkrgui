@@ -1,7 +1,10 @@
 #pragma once
 #include "ksai_config.hpp"
+#include <Vendor/Tracy/tracy/Tracy.hpp>
+
 
 namespace ksai {
+constexpr ui gQueueReserved = 20;
 class Thread {
 public:
     Thread()
@@ -81,12 +84,23 @@ struct ThreadPool {
 
     void Add_Job(std::span<std::function<void()>> inJob)
     {
-        static int i = 0;
         for (auto& x : inJob) {
-            mThreads[i]->AddJob(x);
-            i = (i + 1) % mThreads.size();
+            mThreads[mThreadIndex]->AddJob(x);
+            mThreadIndex = (mThreadIndex + 1) % mThreads.size();
         }
     }
+
+    void Add_Job(std::function<void()> inJob)
+    {
+        ZoneScoped;
+        mThreads[mThreadIndex]->AddJob(inJob);
+        std::cout << mThreadIndex << '\n';
+        mThreadIndex = (mThreadIndex + 1) % mThreads.size();
+    }
+
     v<up<Thread>> mThreads;
+
+private:
+    int mThreadIndex = 0;
 };
 }

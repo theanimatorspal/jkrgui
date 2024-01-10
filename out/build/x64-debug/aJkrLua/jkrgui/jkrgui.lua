@@ -406,9 +406,21 @@ Jkr.Components.Static.TextObject = {
         end
 }
 
+Jkr.Components.Abstract.PainterImageObject = {
+        mImage = nil,
+        New = function(self, inWidth, inHeight)
+               local Obj = {} 
+               setmetatable(Obj, self)
+               self.__index = self
+               Obj.mImage = Jkr.painter_image(Int(inWidth), Int(inHeight))
+               return Obj
+        end
+}
+
 Jkr.Components.Util.ImagePainter = {
     mPainter = nil,
-    New = function(self, inFileName, inImageSize_2f, inStore_b, inGLSL, inX, inY, inZ)
+    mPainterRegisteredImageObject = nil,
+    New = function(self, inFileName, inStore_b, inGLSL, inX, inY, inZ)
         local Obj = {}
         setmetatable(Obj, self)
         self.__index = self
@@ -419,24 +431,44 @@ Jkr.Components.Util.ImagePainter = {
         else
             Obj.mPainter:load()
         end
-        Obj.mPainter:register_image(Int(inImageSize_2f.x), Int(inImageSize_2f.y))
         return Obj
     end,
-    NewFrom = function (self, inPainter, inFileName, inStore_b, inGLSL, inX, inY, inZ)
-        local Obj = {} 
-        setmetatable(Obj, self)
-        self.__index = self
-        Obj.mPainter = inPainter.mPainter:make_from(inFileName, inGLSL)
-        if inStore_b then
-            Obj.mPainter:store()
-        else
-            Obj.mPainter:load()
-        end
-        Obj.mPainter:register_image_existing()
-        return Obj
+    RegisterImage = function(self, inPainterImageObject)
+        print("Image Registered")
+        self.mPainter:register_image(inPainterImageObject.mImage)
+        self.mPainterRegisteredImageObject = inPainterImageObject
     end,
-    Paint = function (self, inPosDimen_4f, inColor_4f, inParam_4f, inImageObject)
+    BindImage = function(self)
+        self.mPainter:bind_image()
+    end,
+    BindPainter = function(self)
+        self.mPainter:bind()
+    end,
+    Paint = function (self, inPosDimen_4f, inColor_4f, inParam_4f, inImageObject, inPainterWithRegisteredImage)
         self.mPainter:paint(inPosDimen_4f, inColor_4f, inParam_4f)
-        S.CopyImage(Int(inImageObject.mId), self.mPainter)
+        S.CopyImage(Int(inImageObject.mId), inPainterWithRegisteredImage.mPainterRegisteredImageObject.mImage)
+    end,
+    PaintImages = function(self, inPosDimen_4f, inColor_4f, inParam_4f, ...)
+        self.mPainter:paint(inPosDimen_4f, inColor_4f, inParam_4f)
+        local args = table.pack(...)
+        for i, v in ipairs(args) do
+            S.CopyImage(Int(v.mId), self.mPainter)
+        end
     end
+}
+
+
+Jkr.Components.Abstract.Dispatchable = {
+        mDispatchFunction = nil,
+        mDispatchParameters = nil,
+        New = function(self, indispatchfunction)
+                local Obj = {}
+                setmetatable(Obj, self)
+                self.__index = self
+                Obj.mDispatchFunction = indispatchfunction
+                return Obj
+        end,
+        Dispatch = function(self)
+                self.mDispatchFunction(self.mDispatchParameters)
+        end
 }

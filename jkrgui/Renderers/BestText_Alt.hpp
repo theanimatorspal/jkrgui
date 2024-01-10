@@ -3,6 +3,7 @@
 #include "TwoD/Shape.hpp"
 #include <Renderers/Renderer_base.hpp>
 #include <Vendor/stbi/stb_image_write.h>
+#include <Vendor/Tracy/tracy/Tracy.hpp>
 
 /*
 An alternate renderer of the Best Text Renderer for low power platforms
@@ -26,6 +27,7 @@ public:
 
     void Add(ui inFontId, glm::vec2 inPos, int inDepth, const sv inText, ImageId& outId, ksai::optref<ksai::ThreadPool> inThreadPool = std::nullopt)
     {
+        ZoneScoped;
         Jkr::Renderer::BestText_base::TextDimensions dimens;
         using namespace ksai;
         int y;

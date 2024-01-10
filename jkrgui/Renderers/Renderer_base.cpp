@@ -44,7 +44,7 @@ void Jkr::Renderer::Renderer_base::CmdCopyToPrimitiveFromStagingBuffer(const Ins
                     mVertexCopyRegionsToBeSubmitted);
 
     inPrimitive.GetVertexBufferPtr()
-        ->SetBarrier(inWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()],
+        ->SetBarrier(inWindow.GetUtilCommandBuffer(),
                      0,
                      inVertexMemorySizeToBeBarriered,
                      vk::AccessFlagBits::eMemoryWrite,

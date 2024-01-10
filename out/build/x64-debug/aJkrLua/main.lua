@@ -14,9 +14,36 @@ Load = function()
         Pip = Com.PopupMenu:New(50, Font, 10)
         Pip:Update(vec3(100, 100, 50), vec3(180, 100, 1), "Popup", "Error is Encountered")
         Pip:Update(vec3(50, 100, 50), vec3(180, 100, 1), "Popup", "Error is Encountered")
-        Ip_RoundedRectangle = Jkr.Components.Util.ImagePainter:New("cache/RoundedRectangle.Compute", vec2(100, 100), true, Jkr.GLSL.RoundedRectangle, 16, 16, 1)
-        Ip_RoundedCircle = Jkr.Components.Util.ImagePainter:NewFrom(Ip_RoundedRectangle, "cache/RoundedCircle.Compute", true, Jkr.GLSL.RoundedCircle, 16, 16, 1)
-        ImgLab = Com.ImageLabelObject:NewEmpty(100, 100, vec3(300, 200, 80), vec3(100, 100, 1))
+        Painter_Image = Jkr.Components.Abstract.PainterImageObject:New(40, 40)
+
+        Ip_Clear = Jkr.Components.Util.ImagePainter:New("cache/Clear.Compute", true, Jkr.GLSL.Clear, 16, 16, 1)
+        Ip_Clear:RegisterImage(Painter_Image)
+
+        Ip_RoundedRectangle = Jkr.Components.Util.ImagePainter:New("cache/RoundedRectangle.Compute", true, Jkr.GLSL.RoundedRectangle, 16, 16, 1)
+        Ip_RoundedCircle = Jkr.Components.Util.ImagePainter:New("cache/RoundedCircle.Compute", true, Jkr.GLSL.RoundedCircle, 16, 16, 1)
+        ImgLab = Com.ImageLabelObject:NewEmpty(40, 40, vec3(300, 200, 80), vec3(40, 40, 1))
+        ImgLab:TintColor(vec4(2, 1, 1, 1))
+        ImgLab:PaintByComputeSingleTime(
+                {
+                        posdimen = vec4(0, 0, 0.4, 0.4),
+                        color = vec4(1, 1, 1, 1),
+                        param = vec4(0.3, 0.5, 0.5, 0),
+                        painter = Ip_RoundedRectangle,
+                }, 
+                Ip_Clear
+        )
+
+        ImgLab2 = Com.ImageLabelObject:NewEmpty(40, 40, vec3(300, 200, 80), vec3(40, 40, 1))
+        ImgLab2:TintColor(vec4(1, 0, 0, 1))
+        ImgLab2:PaintByComputeSingleTime(
+                {
+                        posdimen = vec4(0, 0, 0.4, 0.4),
+                        color = vec4(1, 1, 1, 1),
+                        param = vec4(0.3, 0.5, 0.5, 0),
+                        painter = Ip_RoundedCircle
+                },
+                Ip_Clear
+        )
 end
 
 Event = function()
@@ -30,7 +57,7 @@ Update = function()
 end
 
 Dispatch = function()
-        Ip_RoundedRectangle:Paint(vec4(0, 0, 0.2, 0.2), vec4(1, 0.5, 0.2, 1), vec4(0.5, 0.5, 0.5, 0.5), ImgLab.mImageObjectAbs)
+        Com.Dispatches()
 end
 
 Draw = function()

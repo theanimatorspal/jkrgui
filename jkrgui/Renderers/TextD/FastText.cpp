@@ -112,7 +112,7 @@ void Jkr::Renderer::FastText::Dispatch(Window& inWindow)
 
 void Jkr::Renderer::FastText::Bind(Window& inWindow)
 {
-	mPainter->BindDrawParamters_EXT<PushConstant>(*mPrimitive, inWindow);
+	mPainter->BindDrawParamters_EXT(*mPrimitive, inWindow);
 }
 
 void Jkr::Renderer::FastText::Draw(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inStartTextId, uint32_t inNoOfChars, glm::mat4 inMatrix)

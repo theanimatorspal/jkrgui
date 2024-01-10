@@ -9,6 +9,7 @@
 #undef max
 #endif
 #include "ksai_thread.hpp"
+#include <Vendor/Tracy/tracy/Tracy.hpp>
 #include <cassert>
 #include <climits>
 #include <iostream>
@@ -95,6 +96,7 @@ template <ImageConcept T, ManipulatorConcept<T> F>
 void process(ui inw, ui inh, ui inComp, T& inoutImage, F& inOp, optref<ksai::ThreadPool> inThreadPool = std::nullopt)
 {
     auto Pro = [=, &inoutImage]() {
+        ZoneScoped;
         T flippedimage;
         flippedimage.resize(inoutImage.size());
 
@@ -107,10 +109,7 @@ void process(ui inw, ui inh, ui inComp, T& inoutImage, F& inOp, optref<ksai::Thr
     };
 
     if (inThreadPool.has_value()) {
-        static int i = 0;
-        auto NoOfThreads = inThreadPool.value().get().mThreads.size();
-        inThreadPool.value().get().mThreads[i]->AddJob(Pro);
-        i = (i + 1) % NoOfThreads;
+        inThreadPool.value().get().Add_Job(Pro);
     } else {
         Pro();
     }
@@ -119,7 +118,9 @@ void process(ui inw, ui inh, ui inComp, T& inoutImage, F& inOp, optref<ksai::Thr
 template <ImageConcept T, ManipulatorConcept<T> F>
 void process(ui inw, ui inh, ui inComp, const T& fromImage, T& toImage, F& inOp, optref<ksai::ThreadPool> inThreadPool = std::nullopt)
 {
+   ZoneScoped;
     auto Pro = [=, &fromImage, &toImage]() {
+        ZoneScoped;
         for (int y = 0; y < inh; ++y) {
             for (int x = 0; x < inw * inComp; ++x) {
                 inOp(fromImage, toImage, x, y, inw, inh, inComp);
@@ -127,10 +128,7 @@ void process(ui inw, ui inh, ui inComp, const T& fromImage, T& toImage, F& inOp,
         }
     };
     if (inThreadPool.has_value()) {
-        static int i = 0;
-        auto NoOfThreads = inThreadPool.value().get().mThreads.size();
-        inThreadPool.value().get().mThreads[i]->AddJob(Pro);
-        i = (i + 1) % NoOfThreads;
+        inThreadPool.value().get().Add_Job(Pro);
     } else {
         Pro();
     }

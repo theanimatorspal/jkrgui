@@ -166,16 +166,15 @@ void Shape::UpdateImage(ui inId, v<uc> inImage, ui inWidth, ui inHeight)
     Image->Register(0, 0, inId, *mVarDesVulkanDescriptorSet);
     mImages[inId] = std::move(Image);
 #endif
-
 }
 
 void Shape::CopyToImage(ui inId,
     ui inWidth,
     ui inHeight,
-    CustomImagePainter& inPainter)
+    CustomPainterImage& inPainterImage)
 {
     mImagesToBeCopiedIds.push_back(inId);
-    mImagesToBeCopiedFrom.push_back(inPainter.GetImagePtr());
+    mImagesToBeCopiedFrom.push_back(inPainterImage.GetPainterParam().GetStorageImagePtr());
 
     mImageCopyCommands.push_back([&](const ksai::VulkanCommandBuffer& inCmd,
                                      ksai::VulkanImageBase& inSrcImage,
@@ -263,7 +262,6 @@ void Shape::CopyToImage(ui inId,
             vk::AccessFlagBits::eMemoryRead,
             vk::AccessFlagBits::eNone);
     });
-
 }
 
 void Shape::Update(ui inId, Jkr::Generator& inShape, int inX, int inY, ui inZ)

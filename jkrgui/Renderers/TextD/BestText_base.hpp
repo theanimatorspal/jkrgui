@@ -20,6 +20,7 @@
 #include <harfbuzz/hb-ft.h>
 #include <harfbuzz/hb.h>
 #include "ksai_thread.hpp"
+#include <Vendor/Tracy/tracy/Tracy.hpp>
 
 namespace Jkr::Renderer {
 using namespace ksai;
@@ -56,6 +57,7 @@ protected:
 public:
     [[nodiscard]] v<uc> RenderTextToImage(ui inFontShapeId, sv inStringView, TextDimensions& outDimens, ksai::optref<ksai::ThreadPool> inThreadPool = std::nullopt, ksai::optref<int> outYoff = std::nullopt)
     {
+        ZoneScoped;
         v<uc> img;
         outDimens = RenderTextToImage(inStringView, inFontShapeId, img, inThreadPool, outYoff);
         return img;

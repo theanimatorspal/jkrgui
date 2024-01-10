@@ -144,7 +144,7 @@ void GlslMain()
 
 )""";
 
-int main()
+int asldkfj()
 {
 
     struct UB {

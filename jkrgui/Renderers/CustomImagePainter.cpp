@@ -42,31 +42,6 @@ const sv gend = R"""(
 }
 )""";
 
-CustomImagePainter::CustomImagePainter(CustomImagePainter& inPainter,
-    sv inName,
-    sv inComputeShaderFunction,
-    sv inPushConstantSignature)
-    : mCustomPainterFileName(std::string(inName))
-    , mThreads(inPainter.mThreads)
-{
-    mComputeStream << gbefore_xyz;
-    mComputeStream << "layout(local_size_x = " << (int)mThreads.x << ", local_size_y = " << (int)mThreads.y << ","
-                   << " local_size_z = " << (int)mThreads.z << ") in;";
-    mComputeStream << inPushConstantSignature;
-    mComputeStream << gafter_xyz;
-    mComputeStream << inComputeShaderFunction;
-    mComputeStream << gend;
-
-    mVertexStream << gbefore_xyz;
-    mVertexStream << inPushConstantSignature;
-    mVertexStream << gmain_function_null;
-
-    mFragmentStream << gbefore_xyz;
-    mFragmentStream << inPushConstantSignature;
-    mFragmentStream << gmain_function_null;
-    mPainterParam = inPainter.GetImagePainterParameter();
-}
-
 CustomImagePainter::CustomImagePainter(sv inName, sv inComputeShaderFunction, sv inPushConstantSignature, ui inX, ui inY, ui inZ)
     : mCustomPainterFileName(std::string(inName))
     , mThreads(inX, inY, inZ)
@@ -114,17 +89,3 @@ void CustomImagePainter::Store(const Instance& inInstance, Window& inWindow)
     mPainter = MakeUp<Painter>(inInstance, inWindow, *mCustomPainterCache);
 }
 
-void CustomImagePainter::RegisterImageToBeDrawnTo(const Instance& inInstance, Window& inWindow,
-    uint32_t inWidth,
-    uint32_t inHeight)
-{
-    mPainterParam = mksh<Image>(inInstance);
-    mPainterParam->Setup(inWidth, inHeight);
-    mPainter->RegisterPainterParameter(*mPainterParam, 0, 0, 0);
-    mPainter->OptimizeParameter(*mPainterParam, inWindow);
-}
-
-void CustomImagePainter::RegisterImageToBeDrawnTo(const Instance& inInstance, Window& inWindow)
-{
-    mPainter->RegisterPainterParameter(*mPainterParam, 0, 0, 0);
-}

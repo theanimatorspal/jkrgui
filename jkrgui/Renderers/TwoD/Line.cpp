@@ -103,7 +103,7 @@ void Jkr::Renderer::Line::Dispatch(Window& inWindow)
 
 void Jkr::Renderer::Line::Bind(Window& inWindow)
 {
-	mPainter->BindDrawParamters_EXT<PushConstant>(*mPrimitive, inWindow);
+	mPainter->BindDrawParamters_EXT(*mPrimitive, inWindow);
 }
 
 void Jkr::Renderer::Line::Draw(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inStartLineId, uint32_t inEndLineId, glm::mat4 inMatrix)
