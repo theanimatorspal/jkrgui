@@ -94,7 +94,6 @@ struct ThreadPool {
     {
         ZoneScoped;
         mThreads[mThreadIndex]->AddJob(inJob);
-        std::cout << mThreadIndex << '\n';
         mThreadIndex = (mThreadIndex + 1) % mThreads.size();
     }
 

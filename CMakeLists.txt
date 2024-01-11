@@ -106,5 +106,5 @@ add_subdirectory(aJkrLua)
 
 if(APPLE)
 else()
-add_subdirectory(jit)
+#add_subdirectory(jit)
 endif()

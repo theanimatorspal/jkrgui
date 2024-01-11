@@ -26,10 +26,9 @@ if(APPLE)
         "Vendor/VulkanMemoryAllocator/*.c"
 	   "Vendor/TinyGLTF/*.cpp"
 	   "Vendor/TinyGLTF/*.hpp"
-	   "Vendor/Tracy/*.cpp"
-	   "Vendor/Tracy/*.hpp"
-	   "Vendor/Tracy/*.c"
-	   "Vendor/Tracy/*.h"
+	   "ksai_config.hpp"
+	   "ksai_image.hpp"
+	   "ksai_thread.hpp"
         )
         add_library(ksaivulkan ${app_SRC})
 else()

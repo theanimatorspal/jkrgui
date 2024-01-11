@@ -144,7 +144,7 @@ void GlslMain()
 
 )""";
 
-int asldkfj()
+int main()
 {
 
     struct UB {
@@ -202,12 +202,17 @@ int asldkfj()
     push.rgb = glm::vec3(0.6, 0.2, 0.5);
 
     Window.SetUpdateCallBack([](void*) {});
-    Window.SetDrawCallBack([&](void*) {
-        r.Bind(Window);
-        r.PainterBindDraw(pid, Window);
-        r.PainterDraw<PushConstant>(objid, push, Window);
-    });
-    Window.SetComputeDispatchCallBack([](void*) {});
+
+    //Window.SetDrawCallBack([&](void*) {
+    //});
+
+    Window.SetBackgroundCallback(
+        [&](void*) {
+            r.Bind(Window);
+            r.PainterBindDraw(pid, Window);
+            r.PainterDraw<PushConstant>(objid, push, Window);
+        });
+
     Window.SetComputeDispatchCallBack([&](void*) {
         r.Dispatch(Window);
     });

@@ -121,7 +121,7 @@ endif()
 
 
 if(APPLE)
-else()
+elseif(DONTDOTHIS)
 function(configure_llvm TARGET_NAME)
         target_link_libraries(${TARGET_NAME}
             LLVMWindowsManifest

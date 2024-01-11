@@ -37,11 +37,11 @@ public:
     }
 
     virtual void Draw(float r = 0.1f, float g = 0.1f, float b = 0.1f, float a = 0.1f, float d = 1.0f) override;
-    const std::array<VulkanCommandBuffer, 2U>& GetCommandBuffers() const override { return mSecondaryCommandBuffersUI; }
     const VulkanCommandBuffer& GetSecondaryCmdBufferBackground() const override { return mSecondaryCommandBufferBackground[mCurrentFrame]; }
     const VulkanCommandBuffer& GetSecondaryCmdBufferUI() const override { return mSecondaryCommandBuffersUI[mCurrentFrame]; }
     const VulkanCommandBuffer& GetSecondaryCmdBufferInThread(ui inThreadID, ui inObjId) const override { return *mThreadData[inThreadID]->mCommandBufferPerObj[inObjId]; }
     const VulkanCommandBuffer& GetUtilCommandBuffer() const override { return mCommandBuffers[mCurrentFrame]; }
+    const std::array<VulkanCommandBuffer, 2U>& GetCommandBuffers() const override { return mSecondaryCommandBuffersUI; }
 
 private:
     VulkanCommandBuffer mSecondaryDispatchCommandBuffer;
@@ -49,6 +49,14 @@ private:
     std::array<VulkanCommandBuffer, mMaxFramesInFlight> mSecondaryCommandBuffersUI;
     v<up<VulkanCommandBuffer>> mSecondaryCommandBuffers;
     v<up<ThreadData>> mThreadData;
+
+public:
+    void SetBackgroundCallback(std::function<void(void*)> inFunction) { mBackgroundCallback = inFunction; }
+    void SetDedicated3DCallback(std::function<void(void*)> inFunction) { mDedicated3DCallback = inFunction; }
+
+private:
+    std::function<void(void*)> mBackgroundCallback = [](void*) {};
+    std::function<void(void*)> mDedicated3DCallback = [](void*) {};
 };
 
 } // namespace Jkr

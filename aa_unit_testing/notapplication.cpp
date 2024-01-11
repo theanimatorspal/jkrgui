@@ -14,7 +14,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Vendor/Tracy/tracy/Tracy.hpp>
 
-int main()
+int WHat_the_fuck()
 {
     ZoneScoped;
     using namespace ksai;

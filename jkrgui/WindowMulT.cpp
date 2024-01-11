@@ -20,19 +20,37 @@ void Jkr::WindowMulT::Draw(float r, float g, float b, float a, float d)
             mFrameBuffers[mAcquiredImageIndex], // यो स्थानमा जहिल्यै झुक्किन्छ । फ्रेम बफर एउटा हुने हो ।  "Acquired Image Index" अनुसार ।
             ClearValues);
 
-        mSecondaryCommandBuffersUI[mCurrentFrame].Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPass>(
-            mRenderPass,
-            0,
-            mFrameBuffers[mCurrentFrame]);
-        mSecondaryCommandBuffersUI[mCurrentFrame].SetViewport(mSurface);
-        mSecondaryCommandBuffersUI[mCurrentFrame].SetScissor(mSurface);
 
-        {
-            mDrawFunction(mData);
+	   /* Secondary Command Buffer Background */
+	   {
+            mSecondaryCommandBufferBackground[mCurrentFrame].Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPass>(
+                mRenderPass,
+                0,
+                mFrameBuffers[mCurrentFrame]);
+            mSecondaryCommandBufferBackground[mCurrentFrame].SetViewport(mSurface);
+            mSecondaryCommandBufferBackground[mCurrentFrame].SetScissor(mSurface);
+            {
+                mBackgroundCallback(mData);
+            }
+            mSecondaryCommandBufferBackground[mCurrentFrame].End();
         }
 
-        mSecondaryCommandBuffersUI[mCurrentFrame].End();
+	   /* Secondary Command Buffer UI */
+	   {
+            mSecondaryCommandBuffersUI[mCurrentFrame].Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPass>(
+                mRenderPass,
+                0,
+                mFrameBuffers[mCurrentFrame]);
 
+            mSecondaryCommandBuffersUI[mCurrentFrame].SetViewport(mSurface);
+            mSecondaryCommandBuffersUI[mCurrentFrame].SetScissor(mSurface);
+            {
+                mDrawFunction(mData);
+            }
+            mSecondaryCommandBuffersUI[mCurrentFrame].End();
+        }
+
+        mCommandBuffers[mCurrentFrame].ExecuteCommands(mSecondaryCommandBufferBackground[mCurrentFrame]);
         mCommandBuffers[mCurrentFrame].ExecuteCommands(mSecondaryCommandBuffersUI[mCurrentFrame]);
         mCommandBuffers[mCurrentFrame].EndRenderPass();
         mCommandBuffers[mCurrentFrame].End();
