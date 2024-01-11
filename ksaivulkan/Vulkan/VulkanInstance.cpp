@@ -53,7 +53,7 @@ VulkanInstance::VulkanInstance()
 #endif
 
 #ifdef __APPLE__
-    mInstanceExtensionNames.push_back(VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME);
+    //mInstanceExtensionNames.push_back(VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME);
     mInstanceExtensionNames.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
 #endif
 
