@@ -27,6 +27,7 @@ Shape::Shape(const Instance& inInstance,
 #ifndef JKR_NO_STAGING_BUFFERS
 //	mGlobalkj
 #endif
+
 }
 
 void Shape::Add(const std::string_view inFileName, uint32_t& outId)

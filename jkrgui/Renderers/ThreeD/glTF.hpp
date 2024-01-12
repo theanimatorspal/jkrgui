@@ -33,10 +33,40 @@ public:
     void Add(const sv inFileName, ui& outId);
     void Bind(Window& inWindow);
     void Dispatch(Window& inWindow);
+
+    std::unique_lock<std::mutex> MakeLockedLocker()
+    {
+        return std::unique_lock<std::mutex>(mPainterMutex);
+    }
+    void Wait(std::unique_lock<std::mutex>& inLocker)
+    {
+        mCondVar.wait(inLocker, [this]() { return IsNotLocked; });
+        IsNotLocked = false;
+    }
+    void UnlockLocker(std::unique_lock<std::mutex>& inLocker)
+    {
+        IsNotLocked = true;
+        inLocker.unlock();
+        mCondVar.notify_all();
+    }
+
+private:
+    std::mutex mPainterMutex;
+    std::condition_variable mCondVar;
+    bool IsNotLocked = true;
+
+public:
+    /*
+         Global Uniform buffer and Global SSBO
+    */
     template <typename T>
     void WriteToGlobalUB(T inData);
     void RegisterGlobalUBToPainter(ui inPainterId, sz inOffset = 0, ui inBinding = 0, ui inDestinationArrayElement = 0);
     void RegisterGlobalSSBOToPainter(ui inPainterId, sz inOffset = 0, ui inBinding = 0, ui inDestinationArrayElement = 0);
+
+    /*
+        Painters that can be added with Shader Code, Each Painter Contains a Vertex, Fragment and Compute Shaders.
+    */
 
     void AddPainter(const sv inFileName,
         const sv inVertexShader,
@@ -67,7 +97,9 @@ public:
 
     template <typename T>
     void PainterDraw(ui inId, T inPush, Window& inWindow);
-    void PainterDispatch(ui inId);
+
+    template <typename T>
+    void PainterDraw(ui inPipelineId, ui inId, T inPush, Window& inWindow);
 
 private:
     void AddPainter(Up<Painter> inPainter, Up<PainterCache> inPainterCaches, ui& outId);
@@ -78,7 +110,6 @@ private:
     ui mBoundPainterVF = 0;
     ui mBoundPainterC = 0; // Compute
     Up<Primitive> mPrimitive;
-
     v<Up<ImageType>> mExternalTextures;
 
 private:
@@ -145,6 +176,12 @@ void Shape::PainterDraw(ui inId, T inPush, Window& inWindow)
 {
     mPainters[mBoundPainterVF]
         ->Draw_EXT<T>(*mPrimitive, inPush, inWindow, gb::GetIndexCount(inId), 1, 0, 0);
+}
+
+template <typename T>
+inline void Shape::PainterDraw(ui inPipelineId, ui inId, T inPush, Window& inWindow)
+{
+    mPainters[inPipelineId]->Draw_EXT<T>(*mPrimitive, inPush, inWindow, gb::GetIndexCount(inId), 1, 0, 0);
 }
 
 inline void Shape::Bind(Window& inWindow)

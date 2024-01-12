@@ -107,7 +107,7 @@ bb::TextDimensions bb::RenderTextToImage(
     v<ui> codepoints;
     for (int i = 0; i < len; i++)
         codepoints.push_back(info[i].codepoint);
-    AddRespectiveVerticesAndIndicesAt(len, mCharQuadGlyphCount, 1, inFontShapeId, info, 0, 0);
+    //AddRespectiveVerticesAndIndicesAt(len, mCharQuadGlyphCount, 1, inFontShapeId, info, 0, 0);
 
     auto* dst = outImage.data();
     ui outbmp_h = 0;
@@ -193,8 +193,6 @@ bb::TextDimensions bb::RenderTextToImage(
 
     if (inThreadPool.has_value())
         inThreadPool.value().get().Wait();
-    mIndices.clear(); // TODO Don't Clear Vertices and Indices
-    mVertices.clear();
     if (outYoff.has_value()) {
         outYoff.value().get() = (maxY - minY) - maxYBearing;
     }

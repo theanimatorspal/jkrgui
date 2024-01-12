@@ -158,7 +158,7 @@ int main()
     std::vector<ksai::ui> CmdBufferCountPerThread;
     uint32_t NoOfThreads = Instance.GetThreadPool().mThreads.size();
     CmdBufferCountPerThread.resize(NoOfThreads, 2);
-    //auto Window = Jkr::Window(Instance, "Heell", 1080 / 2, 1920 / 2);
+    // auto Window = Jkr::Window(Instance, "Heell", 1080 / 2, 1920 / 2);
     auto Window = Jkr::WindowMulT(Instance, "Heell", 1080 / 2, 1920 / 2, NoOfThreads, CmdBufferCountPerThread);
     auto EventManager = Jkr::EventManager();
     SpirvHelper::Init();
@@ -203,8 +203,8 @@ int main()
 
     Window.SetUpdateCallBack([](void*) {});
 
-    //Window.SetDrawCallBack([&](void*) {
-    //});
+    // Window.SetDrawCallBack([&](void*) {
+    // });
 
     Window.SetBackgroundCallback(
         [&](void*) {
@@ -223,4 +223,83 @@ int main()
         EventManager.ProcessEvents();
         Window.Draw(0.2f, 0.2f, 0.2f, 0.2f);
     }
+}
+
+class TD {
+public:
+    auto MakeLockedLocker()
+    {
+        return std::unique_lock<std::mutex>(mPainterMutex);
+    }
+    void Wait(std::unique_lock<std::mutex>& inLocker)
+    {
+        std::cout << "Starting to wait, value:" << IsNotLocked << '\n';
+        mCondVar.wait(inLocker, [this]() { return IsNotLocked; });
+        std::cout << "Waited, value:" << IsNotLocked << '\n';
+        IsNotLocked = false;
+        std::cout << "Changed, value:" << IsNotLocked << '\n';
+    }
+    void Unlock(std::unique_lock<std::mutex>& inLocker)
+    {
+        std::cout << "ChaigingValue :" << IsNotLocked << '\n';
+        IsNotLocked = true;
+        std::cout << "Changed Value :" << IsNotLocked << '\n';
+        inLocker.unlock();
+        std::cout << "Unlocked" << IsNotLocked << '\n';
+        mCondVar.notify_one();
+        std::cout << "Notify One" << IsNotLocked << '\n';
+    }
+
+private:
+    std::mutex mPainterMutex;
+    std::condition_variable mCondVar;
+    bool IsNotLocked = true;
+};
+
+int fuck()
+{
+    TD d;
+    int j = 0;
+    std::thread thread([&] {
+        auto lck = d.MakeLockedLocker();
+        std::cout << "Locked, Unlocked, Waiting1"
+                  << "\n";
+        d.Wait(lck);
+        for (int i = 0; i < 10; i++) {
+            std::cout << "Executed 1 \n";
+	   }
+        std::cout << "Executed 1\n";
+        j = 1;
+        d.Unlock(lck);
+    });
+
+    std::thread anoterthread([&] {
+        auto lck = d.MakeLockedLocker();
+        std::cout << "Locked, Unlocked, Waiting2"
+                  << "\n";
+        d.Wait(lck);
+        for (int i = 0; i < 10; i++) {
+            std::cout << "Executed 2 \n";
+	   }
+        std::cout << "Executed 2 \n";
+        j = 5;
+        d.Unlock(lck);
+    });
+
+    std::thread fkasfjd([&] {
+        auto lck = d.MakeLockedLocker();
+        std::cout << "Locked, Unlocked, Waiting3"
+                  << "\n";
+        d.Wait(lck);
+        for (int i = 0; i < 10; i++) {
+            std::cout << "Executed 3 \n";
+	   }
+        std::cout << "Executed 3 \n";
+        j = 5;
+        d.Unlock(lck);
+    });
+
+    thread.join();
+    anoterthread.join();
+    fkasfjd.join();
 }

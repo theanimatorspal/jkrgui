@@ -138,7 +138,7 @@ void Jkr::Window::Draw(float r, float g, float b, float a, float d)
     mFences[mCurrentFrame].Wait();
     std::pair<uint32_t, uint32_t> SwapChainResult = mSwapChain.AcquireNextImage(mImageAvailableSemaphores[mCurrentFrame]);
     mFences[mCurrentFrame].Reset();
-    auto& CommandBuffers = this->GetCommandBuffers();
+    auto& CommandBuffers = this->GetCommandBuffers(ParameterContext::None);
     if (!mSwapChain.ImageIsNotOptimal(SwapChainResult)) {
         mAcquiredImageIndex = SwapChainResult.second;
         CommandBuffers[mCurrentFrame].Reset();

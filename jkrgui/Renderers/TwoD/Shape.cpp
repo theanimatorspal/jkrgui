@@ -292,7 +292,7 @@ void Shape::Update(ui inId, Jkr::Generator& inShape, int inX, int inY, ui inZ)
 #endif
 }
 
-void Shape::Dispatch(Window& inWindow)
+void Shape::Dispatch(Window& inWindow, CmdParam inParam)
 {
 #ifndef JKR_NO_STAGING_BUFFERS
     if (!rb::IsCopyRegionsEmpty()) {
@@ -311,7 +311,7 @@ void Shape::Dispatch(Window& inWindow)
         auto& srcImage = mImagesToBeCopiedFrom[i];
 
         const ksai::VulkanCommandBuffer& cmd = inWindow
-                                                   .GetCommandBuffers()[inWindow.GetCurrentFrame()];
+                                                   .GetCommandBuffers(inParam)[inWindow.GetCurrentFrame()];
         func(cmd, *srcImage, mImages[id]->GetUniformImage());
     }
     if (mImagesToBeCopiedIds.size() != 0) {
@@ -336,12 +336,12 @@ void Shape::BindFillMode(FillType inFillType, Window& inWindow)
     mCurrentFillMode = inFillType;
 }
 
-void Shape::BindImage(Window& inWindow, ui inImageId)
+void Shape::BindImage(Window& inWindow, ui inImageId, CmdParam inParam)
 {
     // TODO Remove
     if (inImageId != -1) {
 #ifndef JKR_USE_VARIABLE_DES_INDEXING
-        auto& Cmd = inWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()];
+        auto& Cmd = inWindow.GetCommandBuffers(inParam)[inWindow.GetCurrentFrame()];
         Cmd.GetCommandBufferHandle().bindDescriptorSets(
             vk::PipelineBindPoint::eGraphics,
             mPainterCaches[FillType::Image]->GetVertexFragmentPipelineLayout().GetPipelineLayoutHandle(),

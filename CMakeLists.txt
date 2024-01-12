@@ -104,6 +104,7 @@ add_subdirectory(aJkrLua)
 add_subdirectory(jkrgui)
 
 if(APPLE)
+elseif(ANDROID)
 else()
 add_subdirectory(aa_unit_testing)
 #add_subdirectory(jit)

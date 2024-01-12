@@ -5,6 +5,8 @@
 #include <Vulkan/VulkanBufferVMA.hpp>
 
 namespace Jkr::Renderer {
+
+	using CmdParam = Window::ParameterContext;
 	class Renderer_base
 	{
 	public:

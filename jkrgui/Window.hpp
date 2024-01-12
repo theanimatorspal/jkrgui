@@ -35,8 +35,15 @@ protected:
 namespace Jkr {
 class Window : public SDLWindow {
 public:
+	enum ParameterContext : int {
+		None = -3,
+		UI = -2,
+		Background = -1,
+    };
+
+public:
     const VulkanCommandPool& GetCommandPool() const { return mCommandPool; }
-    virtual const std::array<VulkanCommandBuffer, 2U>& GetCommandBuffers() const { return mCommandBuffers; }
+    virtual const std::array<VulkanCommandBuffer, 2U>& GetCommandBuffers(ParameterContext inParameter, int inP1 = 0, int inP2 = 0) const { return mCommandBuffers; }
     virtual const VulkanCommandBuffer& GetUtilCommandBuffer() const { return mCommandBuffers[mCurrentFrame]; }
     virtual const VulkanCommandBuffer& GetSecondaryCmdBufferUI() const { return mCommandBuffers[mCurrentFrame]; }
     virtual const VulkanCommandBuffer& GetSecondaryCmdBufferBackground() const { return mCommandBuffers[mCurrentFrame]; }
@@ -50,15 +57,15 @@ public:
     void SetContextData(void* inData) { mData = inData; }
     void Refresh();
     virtual void Draw(float r = 0.1f, float g = 0.1f, float b = 0.1f, float a = 0.1f, float d = 1.0f);
-    void SetScissor(const vk::ArrayProxy<vk::Rect2D>& inScissor)
+    void SetScissor(const vk::ArrayProxy<vk::Rect2D>& inScissor, ParameterContext inContext = ParameterContext::UI)
     {
-        this->GetCommandBuffers()[mCurrentFrame].GetCommandBufferHandle().setScissor(0,
+        this->GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setScissor(0,
             inScissor);
     }
-    void ResetScissor()
+    void ResetScissor(ParameterContext inContext = ParameterContext::UI)
     {
         vk::Rect2D Rect(vk::Offset2D(0), mDepthImage.GetImageExtent());
-        this->GetCommandBuffers()[mCurrentFrame].GetCommandBufferHandle().setScissor(0, Rect);
+        this->GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setScissor(0, Rect);
     }
     GETTER& GetCurrentFrame() const { return mCurrentFrame; }
     GETTER& GetInstance() const { return mInstance; }

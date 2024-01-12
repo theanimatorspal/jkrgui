@@ -3,6 +3,39 @@
 void Jkr::WindowMulT::Draw(float r, float g, float b, float a, float d)
 {
     mUpdateFunction(mData);
+
+   {
+       mSecondaryCommandBuffersBackground[mCurrentFrame].Reset();
+	  mSecondaryCommandBuffersBackground[mCurrentFrame].Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPass>(
+		 mRenderPass,
+		 0,
+		 mFrameBuffers[mCurrentFrame]);
+	  mSecondaryCommandBuffersBackground[mCurrentFrame].SetViewport(mSurface);
+	  mSecondaryCommandBuffersBackground[mCurrentFrame].SetScissor(mSurface);
+	  {
+		 mBackgroundCallback(mData);
+	  }
+	  mSecondaryCommandBuffersBackground[mCurrentFrame].End();
+   }
+
+   /* Secondary Command Buffer UI */
+   {
+       mSecondaryCommandBuffersBackground[mCurrentFrame].Reset();
+	  mSecondaryCommandBuffersUI[mCurrentFrame].Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPass>(
+		 mRenderPass,
+		 0,
+		 mFrameBuffers[mCurrentFrame]);
+
+	  mSecondaryCommandBuffersUI[mCurrentFrame].SetViewport(mSurface);
+	  mSecondaryCommandBuffersUI[mCurrentFrame].SetScissor(mSurface);
+	  {
+		 mDrawFunction(mData);
+	  }
+	  mSecondaryCommandBuffersUI[mCurrentFrame].End();
+   }
+
+
+
     std::array<float, 5>
         ClearValues = { r, g, b, a, d };
     mFences[mCurrentFrame].Wait();
@@ -22,35 +55,7 @@ void Jkr::WindowMulT::Draw(float r, float g, float b, float a, float d)
 
 
 	   /* Secondary Command Buffer Background */
-	   {
-            mSecondaryCommandBufferBackground[mCurrentFrame].Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPass>(
-                mRenderPass,
-                0,
-                mFrameBuffers[mCurrentFrame]);
-            mSecondaryCommandBufferBackground[mCurrentFrame].SetViewport(mSurface);
-            mSecondaryCommandBufferBackground[mCurrentFrame].SetScissor(mSurface);
-            {
-                mBackgroundCallback(mData);
-            }
-            mSecondaryCommandBufferBackground[mCurrentFrame].End();
-        }
-
-	   /* Secondary Command Buffer UI */
-	   {
-            mSecondaryCommandBuffersUI[mCurrentFrame].Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPass>(
-                mRenderPass,
-                0,
-                mFrameBuffers[mCurrentFrame]);
-
-            mSecondaryCommandBuffersUI[mCurrentFrame].SetViewport(mSurface);
-            mSecondaryCommandBuffersUI[mCurrentFrame].SetScissor(mSurface);
-            {
-                mDrawFunction(mData);
-            }
-            mSecondaryCommandBuffersUI[mCurrentFrame].End();
-        }
-
-        mCommandBuffers[mCurrentFrame].ExecuteCommands(mSecondaryCommandBufferBackground[mCurrentFrame]);
+        mCommandBuffers[mCurrentFrame].ExecuteCommands(mSecondaryCommandBuffersBackground[mCurrentFrame]);
         mCommandBuffers[mCurrentFrame].ExecuteCommands(mSecondaryCommandBuffersUI[mCurrentFrame]);
         mCommandBuffers[mCurrentFrame].EndRenderPass();
         mCommandBuffers[mCurrentFrame].End();

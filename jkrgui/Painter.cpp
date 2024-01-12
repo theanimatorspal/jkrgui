@@ -154,9 +154,9 @@ void Painter::RegisterPainterParameter<PainterParameterContext::UniformSampler>(
 }
 
 
-void Painter::BindDispatchParameters_EXT(const Window& inWindow)
+void Painter::BindDispatchParameters_EXT(const Window& inWindow, CmdParam inParam)
 {
-    auto& Cmd = inWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()];
+    auto& Cmd = inWindow.GetCommandBuffers(inParam)[inWindow.GetCurrentFrame()];
     Cmd.GetCommandBufferHandle()
         .bindDescriptorSets(vk::PipelineBindPoint::eCompute,
             mGUIPainterCache.GetComputePipelineLayout().GetPipelineLayoutHandle(),
@@ -166,9 +166,9 @@ void Painter::BindDispatchParameters_EXT(const Window& inWindow)
     mVulkanComputePipeline.Bind<PipelineContext::Compute>(Cmd);
 }
 
-void Jkr::Painter::BindDispatchParametersDescriptorsOnly_EXT(const Window& inWindow)
+void Jkr::Painter::BindDispatchParametersDescriptorsOnly_EXT(const Window& inWindow, CmdParam inParam)
 {
-    auto& Cmd = inWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()];
+    auto& Cmd = inWindow.GetCommandBuffers(inParam)[inWindow.GetCurrentFrame()];
     Cmd.GetCommandBufferHandle()
         .bindDescriptorSets(vk::PipelineBindPoint::eCompute,
             mGUIPainterCache.GetComputePipelineLayout().GetPipelineLayoutHandle(),
@@ -177,17 +177,17 @@ void Jkr::Painter::BindDispatchParametersDescriptorsOnly_EXT(const Window& inWin
             {});
 }
 
-void Jkr::Painter::BindDispatchParametersPipelineOnly_EXT(const Window& inWindow)
+void Jkr::Painter::BindDispatchParametersPipelineOnly_EXT(const Window& inWindow, CmdParam inParam)
 {
     auto index = inWindow.GetCurrentFrame();
-    auto &Cmd = inWindow.GetCommandBuffers()[index];
+    auto &Cmd = inWindow.GetCommandBuffers(inParam)[index];
     mVulkanComputePipeline.Bind<PipelineContext::Compute>(Cmd);
 }
 
 
-void Painter::BindDrawParamters_EXT(const Primitive& inPrimitive, const Window& inWindow)
+void Painter::BindDrawParamters_EXT(const Primitive& inPrimitive, const Window& inWindow, CmdParam inParam)
 {
-    auto& Cmd = mWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()];
+    auto& Cmd = mWindow.GetCommandBuffers(inParam)[inWindow.GetCurrentFrame()];
     inPrimitive.GetVertexBufferPtr()->Bind<BufferContext::Vertex>(Cmd);
     inPrimitive.GetIndexBufferPtr()->Bind<BufferContext::Index>(Cmd);
     Cmd.GetCommandBufferHandle().bindDescriptorSets(
