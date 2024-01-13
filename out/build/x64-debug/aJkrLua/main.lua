@@ -6,9 +6,7 @@ require "mainh"
 local __Depth = Depth + 10 -- Farthest (This meant to be used when the ComObject adds Over sth)
 
 Load = function()
-        LineId = L.add(vec2(100, 100), vec2(700, 700), 55)
         Font = Jkr.FontObject:New("font.ttf", 4)
-        FontTEST = Jkr.FontObject:New("font.ttf", 6)
         FileMenu = Com.FileMenuBarObject:New(FileMenux, 25, 80, Font)
         ContextMenu = Com.ContextMenu:New(vec3(100, 100, 80), vec3(80, 20, 1), Font, 10, 10)
         Pip = Com.PopupMenu:New(50, Font, 10)
@@ -32,15 +30,19 @@ Load = function()
         --         }, 
         --         Ip_Clear
         -- )
-        ImageLLable = Com.ImageLabelObject:New("icons_material\\4k\\outline.png", vec3(100, 100, 80), vec3(20, 20, 1))
-        ImageLLable:Update(vec3(700, 100, 80), vec3(20, 20, 1))
-        ImageLLable:TintColor(vec4(1, 1, 0, 1))
+        ImagePreload = Jkr.Components.Abstract.ImageObject:New(0, 0, "icons_material\\4k\\outline.png")
+
+        Window = Com.WindowLayout:New(vec3(400, 400, 80), vec3(100, 100, 1), vec2(100, 30))
+        Window:Start()
+                ImageLLable = Com.ImageLabelObject:NewExisting(ImagePreload, vec3(100, 100, 80), vec3(20, 20, 1))
+                ImageLLable:Update(vec3(700, 100, 80), vec3(100, 100, 1))
+                ImageLLable:TintColor(vec4(1, 0, 0, 1))
+                Window:SetCentralComponent(ImageLLable)
+        Window:End()
 end
 
 Event = function()
         Com.Events()
-        ContextMenu:Event()
-        FileMenu:Event()
 end
 
 Update = function()

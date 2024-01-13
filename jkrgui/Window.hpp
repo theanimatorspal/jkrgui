@@ -55,12 +55,11 @@ public:
     void SetUpdateCallBack(const std::function<void(void*)>& inFunction) { mUpdateFunction = inFunction; }
     void SetComputeDispatchCallBack(const std::function<void(void*)>& inFunction) { mComputeDispatchFunction = inFunction; }
     void SetContextData(void* inData) { mData = inData; }
-    void Refresh();
+    virtual void Refresh();
     virtual void Draw(float r = 0.1f, float g = 0.1f, float b = 0.1f, float a = 0.1f, float d = 1.0f);
     void SetScissor(const vk::ArrayProxy<vk::Rect2D>& inScissor, ParameterContext inContext = ParameterContext::UI)
     {
-        this->GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setScissor(0,
-            inScissor);
+        this->GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setScissor(0, inScissor);
     }
     void ResetScissor(ParameterContext inContext = ParameterContext::UI)
     {

@@ -1,57 +1,4 @@
-Com = {}
-ComTable = {}
-ComTable_Dispatch = {}
-ComTable_SingleTimeDispatch = {}
-
-com_i = 0
-Com.NewComponent = function()
-    com_i = com_i + 1
-end
-
-com_disi = 0
-Com.NewComponent_Dispatch = function()
-    com_disi = com_disi + 1
-end
-
-com_sdisi = 0
-Com.NewComponent_SingleTimeDispatch = function()
-    com_sdisi = com_sdisi + 1
-end
-
-Com.Events = function()
-    for _, com in ipairs(ComTable_Draw) do
-        com:Event()
-    end
-end
-
-Com.Draws = function()
-    for _, com in ipairs(ComTable_Draw) do
-        com:Draw()
-    end
-end
-
-local loaded = 1
-Com.Dispatches = function()
-    if loaded <= #ComTable_SingleTimeDispatch then
-        print(loaded)
-        ComTable_SingleTimeDispatch[loaded]:Dispatch()
-        loaded = loaded + 1
-    end
-end
-
-Com.Events = function()
-    for _, com in ipairs(ComTable) do
-        com:Event()
-    end
-end
-
-Com.Draws = function()
-    for _, com in ipairs(ComTable) do
-        if com.SetScissor then com:SetScissor() end
-        com:Draw()
-        if com.SetScissor then Jkr.reset_scissor() end
-    end
-end
+require "jkrgui.ComTable"
 
 
 Com.AreaObject = {
@@ -222,8 +169,6 @@ Com.ImageLabelObject = {
         return Obj
     end,
     Update = function (self, inPosition_3f, inDimension_3f)
-        local dimen = vec2(inDimension_3f.x, inDimension_3f.y)
-        local gen = Generator(Shapes.rectangle, dimen)
         ComTable[self.mShapeId]:Update(inPosition_3f, inDimension_3f)
     end,
     TintColor = function (self, inColor_4f)

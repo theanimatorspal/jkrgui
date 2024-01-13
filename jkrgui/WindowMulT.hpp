@@ -69,6 +69,7 @@ public:
         //TracyVkDestroy(mctx_main1);
         //TracyVkDestroy(mctx_main2);
     }
+    virtual void Refresh();
     virtual void Draw(float r = 0.1f, float g = 0.1f, float b = 0.1f, float a = 0.1f, float d = 1.0f) override;
     const VulkanCommandBuffer& GetSecondaryCmdBufferBackground() const override { return mSecondaryCommandBuffersBackground[mCurrentFrame]; }
     const VulkanCommandBuffer& GetSecondaryCmdBufferUI() const override { return mSecondaryCommandBuffersUI[mCurrentFrame]; }

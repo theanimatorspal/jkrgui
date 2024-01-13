@@ -1,5 +1,6 @@
 require "jkrgui.ExtraComponents"
 require "jkrgui.Resources"
+require "jkrgui.LayoutComponents"
 
 ContextMenuEntries_FileMenu = {
     [1] = {

@@ -89,6 +89,7 @@ Int = math.floor
         Jkr is basically a namespace "Renderer" namespace to be precise
 ]]
 Jkr = r;
+Jkr3d = r3d;
 
 --[[
        This is the entity that can give information about mouse keyboard etc,
@@ -457,10 +458,37 @@ Jkr.Components.Util.ImagePainter = {
     end
 }
 
+Jkr.Components.Abstract.Drawable = {
+        mDrawFunction = nil,
+        New = function(self, inDrawFunction)
+                local Obj = {}
+                setmetatable(Obj, self)
+                self.__index = self
+                Obj.mDrawFunction = inDrawFunction
+                return Obj
+        end,
+        Draw = function(self)
+               self.mDrawFunction(); 
+        end
+}
+
+Jkr.Components.Abstract.Eventable = {
+        mEventFunction = nil,
+        New = function(self, inEventFunction)
+                local Obj = {}
+                setmetatable(Obj, self)
+                self.__index = self
+                Obj.mEventFunction = inEventFunction
+                return Obj
+        end,
+        Event = function(self)
+               self.mEventFunction(); 
+        end
+}
+
 
 Jkr.Components.Abstract.Dispatchable = {
         mDispatchFunction = nil,
-        mDispatchParameters = nil,
         New = function(self, indispatchfunction)
                 local Obj = {}
                 setmetatable(Obj, self)
@@ -469,6 +497,6 @@ Jkr.Components.Abstract.Dispatchable = {
                 return Obj
         end,
         Dispatch = function(self)
-                self.mDispatchFunction(self.mDispatchParameters)
+                self.mDispatchFunction()
         end
 }

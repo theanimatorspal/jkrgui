@@ -762,7 +762,6 @@ void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, J
 
     r.set_function("reset_scissor",
         [&] {
-            {};
             w.ResetScissor();
         }
 

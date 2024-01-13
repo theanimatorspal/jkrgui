@@ -7,6 +7,10 @@ void Jkr::WindowMulT::Draw(float r, float g, float b, float a, float d)
     mFences[mCurrentFrame].Wait();
     mFences[mCurrentFrame].Reset();
 
+    std::array<float, 5>
+        ClearValues = { r, g, b, a, d };
+    std::pair<uint32_t, uint32_t> SwapChainResult = mSwapChain.AcquireNextImage(mImageAvailableSemaphores[mCurrentFrame]);
+    mAcquiredImageIndex = SwapChainResult.second;
     if (mThreadPool.has_value()) {
         auto& tp = mThreadPool.value().get();
         tp.Add_Job([this]() { Jkr::WindowMulT::CmdBackground(); });
@@ -16,47 +20,39 @@ void Jkr::WindowMulT::Draw(float r, float g, float b, float a, float d)
         CmdUI();
     }
 
-    std::array<float, 5>
-        ClearValues = { r, g, b, a, d };
-    std::pair<uint32_t, uint32_t> SwapChainResult = mSwapChain.AcquireNextImage(mImageAvailableSemaphores[mCurrentFrame]);
-    if (!mSwapChain.ImageIsNotOptimal(SwapChainResult)) {
-        mAcquiredImageIndex = SwapChainResult.second;
-        mCommandBuffers[mCurrentFrame].Reset();
-        mCommandBuffers[mCurrentFrame].Begin();
+    mCommandBuffers[mCurrentFrame].Reset();
+    mCommandBuffers[mCurrentFrame].Begin();
 
-        mComputeDispatchFunction(mData);
-        mCommandBuffers[mCurrentFrame].BeginRenderPass<VulkanCommandBuffer::RenderPassBeginContext::SecondaryCommandBuffers>(
-            mRenderPass,
-            mSurface,
-            mFrameBuffers[mAcquiredImageIndex], // यो स्थानमा जहिल्यै झुक्किन्छ । फ्रेम बफर एउटा हुने हो ।  "Acquired Image Index" अनुसार ।
-            ClearValues);
+    mComputeDispatchFunction(mData);
+    mCommandBuffers[mCurrentFrame].BeginRenderPass<VulkanCommandBuffer::RenderPassBeginContext::SecondaryCommandBuffers>(
+        mRenderPass,
+        mSurface,
+        mFrameBuffers[mAcquiredImageIndex], // यो स्थानमा जहिल्यै झुक्किन्छ । फ्रेम बफर एउटा हुने हो ।  "Acquired Image Index" अनुसार ।
+        ClearValues);
 
-        /* Secondary Command Buffer Background */
-        if (mThreadPool.has_value()) {
-            mThreadPool.value().get().Wait();
-        }
+    /* Secondary Command Buffer Background */
+    if (mThreadPool.has_value()) {
+        mThreadPool.value().get().Wait();
+    }
 
-        mCommandBuffers[mCurrentFrame].ExecuteCommands(mSecondaryCommandBuffersUI[mCurrentFrame]);
-        mCommandBuffers[mCurrentFrame].ExecuteCommands(mSecondaryCommandBuffersBackground[mCurrentFrame]);
-        mCommandBuffers[mCurrentFrame].EndRenderPass();
-        mCommandBuffers[mCurrentFrame].End();
+    mCommandBuffers[mCurrentFrame].ExecuteCommands(mSecondaryCommandBuffersUI[mCurrentFrame]);
+    mCommandBuffers[mCurrentFrame].ExecuteCommands(mSecondaryCommandBuffersBackground[mCurrentFrame]);
+    mCommandBuffers[mCurrentFrame].EndRenderPass();
+    mCommandBuffers[mCurrentFrame].End();
 
-        mInstance.GetGraphicsQueue().Submit<SubmitContext::ColorAttachment>(
-            mImageAvailableSemaphores[mCurrentFrame],
-            mRenderFinishedSemaphores[mCurrentFrame],
-            mFences[mCurrentFrame],
-            mCommandBuffers[mCurrentFrame]);
-        uint32_t Result = mInstance.GetGraphicsQueue().Present<mMaxFramesInFlight, SubmitContext::ColorAttachment>(
-            mSwapChain,
-            mRenderFinishedSemaphores[mCurrentFrame],
-            mAcquiredImageIndex);
-        if (mSwapChain.ImageIsNotOptimal(Result)) {
-            Refresh();
-        } else {
-            mCurrentFrame = (mCurrentFrame + 1) % mMaxFramesInFlight;
-        }
-    } else {
+    mInstance.GetGraphicsQueue().Submit<SubmitContext::ColorAttachment>(
+        mImageAvailableSemaphores[mCurrentFrame],
+        mRenderFinishedSemaphores[mCurrentFrame],
+        mFences[mCurrentFrame],
+        mCommandBuffers[mCurrentFrame]);
+    uint32_t Result = mInstance.GetGraphicsQueue().Present<mMaxFramesInFlight, SubmitContext::ColorAttachment>(
+        mSwapChain,
+        mRenderFinishedSemaphores[mCurrentFrame],
+        mAcquiredImageIndex);
+    if (mSwapChain.ImageIsNotOptimal(Result)) {
         Refresh();
+    } else {
+        mCurrentFrame = (mCurrentFrame + 1) % mMaxFramesInFlight;
     }
 }
 
@@ -65,23 +61,22 @@ void Jkr::WindowMulT::CmdBackground()
     mSecondaryCommandBuffersBackground[mCurrentFrame].Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPassAndOneTimeSubmit>(
         mRenderPass,
         0,
-        mFrameBuffers[mCurrentFrame]);
+        mFrameBuffers[mAcquiredImageIndex]);
     mSecondaryCommandBuffersBackground[mCurrentFrame].SetViewport(mSurface);
     mSecondaryCommandBuffersBackground[mCurrentFrame].SetScissor(mSurface);
     {
         mBackgroundCallback(mData);
     }
-//    TracyVkZone(mctx_bg1, mSecondaryCommandBuffersBackground[mCurrentFrame].GetCommandBufferHandle(), "BG1");
+    //    TracyVkZone(mctx_bg1, mSecondaryCommandBuffersBackground[mCurrentFrame].GetCommandBufferHandle(), "BG1");
     mSecondaryCommandBuffersBackground[mCurrentFrame].End();
 }
 
 void Jkr::WindowMulT::CmdUI()
 {
-    mSecondaryCommandBuffersUI[mCurrentFrame].Reset();
     mSecondaryCommandBuffersUI[mCurrentFrame].Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPassAndOneTimeSubmit>(
         mRenderPass,
         0,
-        mFrameBuffers[mCurrentFrame]);
+        mFrameBuffers[mAcquiredImageIndex]);
 
     mSecondaryCommandBuffersUI[mCurrentFrame].SetViewport(mSurface);
     mSecondaryCommandBuffersUI[mCurrentFrame].SetScissor(mSurface);
@@ -89,4 +84,16 @@ void Jkr::WindowMulT::CmdUI()
         mDrawFunction(mData);
     }
     mSecondaryCommandBuffersUI[mCurrentFrame].End();
+}
+
+void Jkr::WindowMulT::Refresh()
+{
+    mSurface.ProcessCurrentSurfaceConditions(mInstance.GetPhysicalDevice());
+    mSwapChain = VulkanSwapChain<mMaxFramesInFlight>(mInstance.GetDevice(), mInstance.GetQueueContext(), mSurface);
+    mSwapChainImages = mSwapChain.GetVulkanImages(mInstance.GetDevice(), mSurface);
+    mDepthImage = VulkanImage<ImageContext::DepthImage>(mInstance.GetDevice(), mSurface);
+    mFrameBuffers = {
+        FrameBufferType(mInstance.GetDevice(), mRenderPass, mSwapChainImages[0], mDepthImage),
+        FrameBufferType(mInstance.GetDevice(), mRenderPass, mSwapChainImages[1], mDepthImage)
+    };
 }
