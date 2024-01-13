@@ -3,6 +3,9 @@
 #include <Renderers/ThreeD/glTF.hpp>
 #include <Window.hpp>
 #include <WindowMulT.hpp>
+#include <Vendor/Tracy/tracy/TracyVulkan.hpp>
+
+
 const std::string_view vshader = R"""(
 layout (location = 0) out vec2 vUV;
 layout (location = 1) out vec3 vNormal;
@@ -37,7 +40,7 @@ const std::string_view fshader = R"""(
 	layout(set = 0, binding = 1) uniform UBO {
 	   mat4 view;
 	   mat4 proj;
-	   vec3 campos;
+	   vec4 campos;
 	   vec4 lights[10];
 	} ubo;
 
@@ -144,13 +147,13 @@ void GlslMain()
 
 )""";
 
-int main()
+int oajdsfklsajldfkja()
 {
 
     struct UB {
         glm::mat4 view;
         glm::mat4 proj;
-        glm::vec3 campos;
+        glm::vec4 campos;
         glm::vec4 lights[10];
     } ub;
     std::stringstream s;
@@ -158,8 +161,7 @@ int main()
     std::vector<ksai::ui> CmdBufferCountPerThread;
     uint32_t NoOfThreads = Instance.GetThreadPool().mThreads.size();
     CmdBufferCountPerThread.resize(NoOfThreads, 2);
-    // auto Window = Jkr::Window(Instance, "Heell", 1080 / 2, 1920 / 2);
-    auto Window = Jkr::WindowMulT(Instance, "Heell", 1080 / 2, 1920 / 2, NoOfThreads, CmdBufferCountPerThread);
+    auto Window = Jkr::WindowMulT(Instance, "Heell", 1080 / 2, 1920 / 2, NoOfThreads, CmdBufferCountPerThread, Instance.GetThreadPool());
     auto EventManager = Jkr::EventManager();
     SpirvHelper::Init();
 
@@ -183,15 +185,18 @@ int main()
         glm::mat4 mat;
         glm::vec3 ro_met;
         glm::vec3 rgb;
-    } push;
+    } ;
+    PushConstant push;
+    PushConstant push2;
 
     glm::mat4 model = glm::identity<glm::mat4>();
+    model = glm::translate(model, glm::vec3(-1, 0, -5));
     glm::mat4 view = glm::lookAt(glm::vec3(1, -4, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
     glm::mat4 proj = glm::perspective(glm::radians(90.0f), 16.0f / 9.0f, 0.1f, 100.0f);
 
     using namespace Jkr::Renderer::_3D;
 
-    ub = { .view = view, .proj = proj, .campos = glm::vec3(1, -4, 1) };
+    ub = { .view = view, .proj = proj, .campos = glm::vec4(1, -4, 1, 1) };
     ub.lights[0] = glm::vec4(5, -2, 5, 0.7);
 
     r.WriteToGlobalUB(ub);
@@ -203,14 +208,39 @@ int main()
 
     Window.SetUpdateCallBack([](void*) {});
 
-    // Window.SetDrawCallBack([&](void*) {
-    // });
-
+    auto itr = 10000;
     Window.SetBackgroundCallback(
         [&](void*) {
-            r.Bind(Window);
-            r.PainterBindDraw(pid, Window);
-            r.PainterDraw<PushConstant>(objid, push, Window);
+            for (int i = 0; i < itr; i++) {
+                r.Bind(Window, Jkr::Window::ParameterContext::Background);
+                r.PainterBindForDraw(pid, Window, Jkr::Window::ParameterContext::Background);
+                push.mat = glm::translate(model, glm::vec3(i / 10.0f, i / 10.0f, i / 10.0f));
+                push.mat = glm::rotate(push.mat, Window.GetWindowCurrentTime() / 1000.0f * i, glm::vec3(0, 1, 0));
+                r.PainterDraw<PushConstant>(objid, push, Window, Jkr::Window::ParameterContext::Background);
+                //TracyVkZone(Window.mctx_ui1, Window.GetCommandBuffers(Jkr::Window::ParameterContext::Background)[Window.GetCurrentFrame()].GetCommandBufferHandle(), "BG1");
+                ZoneScoped;
+            }
+            ZoneScoped;
+        });
+
+    glm::mat4 model2 = glm::identity<glm::mat4>();
+    model = glm::translate(model, glm::vec3(-5, -5, -5));
+    push2.mat = model;
+    push2.ro_met = glm::vec3(0.5, 0, 0);
+    push2.rgb = glm::vec3(1.0, 0.2, 0.5);
+    Window.SetDrawCallBack(
+        [&](void*) {
+            for (int i = 0; i < itr; i++) {
+                auto ctime = Window.GetWindowCurrentTime() / 1000.0f;
+                r.Bind(Window, Jkr::Window::ParameterContext::UI);
+                r.PainterBindForDraw(pid, Window, Jkr::Window::ParameterContext::UI);
+                push2.mat = glm::translate(model2, glm::vec3(i / 10.0f, i / 10.0f, i / 10.0f));
+                push2.mat = glm::rotate(push2.mat, Window.GetWindowCurrentTime() / 1000.0f * i, glm::vec3(0, 1, 0));
+                r.PainterDraw<PushConstant>(objid, push2, Window, Jkr::Window::ParameterContext::UI);
+                //TracyVkZone(Window.mctx_ui1, Window.GetCommandBuffers(Jkr::Window::ParameterContext::UI)[Window.GetCurrentFrame()].GetCommandBufferHandle(), "UI1");
+                ZoneScoped;
+            }
+            ZoneScoped;
         });
 
     Window.SetComputeDispatchCallBack([&](void*) {
@@ -222,84 +252,9 @@ int main()
     while (!EventManager.ShouldQuit()) {
         EventManager.ProcessEvents();
         Window.Draw(0.2f, 0.2f, 0.2f, 0.2f);
+	   FrameMark;
     }
 }
 
-class TD {
-public:
-    auto MakeLockedLocker()
-    {
-        return std::unique_lock<std::mutex>(mPainterMutex);
-    }
-    void Wait(std::unique_lock<std::mutex>& inLocker)
-    {
-        std::cout << "Starting to wait, value:" << IsNotLocked << '\n';
-        mCondVar.wait(inLocker, [this]() { return IsNotLocked; });
-        std::cout << "Waited, value:" << IsNotLocked << '\n';
-        IsNotLocked = false;
-        std::cout << "Changed, value:" << IsNotLocked << '\n';
-    }
-    void Unlock(std::unique_lock<std::mutex>& inLocker)
-    {
-        std::cout << "ChaigingValue :" << IsNotLocked << '\n';
-        IsNotLocked = true;
-        std::cout << "Changed Value :" << IsNotLocked << '\n';
-        inLocker.unlock();
-        std::cout << "Unlocked" << IsNotLocked << '\n';
-        mCondVar.notify_one();
-        std::cout << "Notify One" << IsNotLocked << '\n';
-    }
-
-private:
-    std::mutex mPainterMutex;
-    std::condition_variable mCondVar;
-    bool IsNotLocked = true;
-};
-
-int fuck()
-{
-    TD d;
-    int j = 0;
-    std::thread thread([&] {
-        auto lck = d.MakeLockedLocker();
-        std::cout << "Locked, Unlocked, Waiting1"
-                  << "\n";
-        d.Wait(lck);
-        for (int i = 0; i < 10; i++) {
-            std::cout << "Executed 1 \n";
-	   }
-        std::cout << "Executed 1\n";
-        j = 1;
-        d.Unlock(lck);
-    });
-
-    std::thread anoterthread([&] {
-        auto lck = d.MakeLockedLocker();
-        std::cout << "Locked, Unlocked, Waiting2"
-                  << "\n";
-        d.Wait(lck);
-        for (int i = 0; i < 10; i++) {
-            std::cout << "Executed 2 \n";
-	   }
-        std::cout << "Executed 2 \n";
-        j = 5;
-        d.Unlock(lck);
-    });
-
-    std::thread fkasfjd([&] {
-        auto lck = d.MakeLockedLocker();
-        std::cout << "Locked, Unlocked, Waiting3"
-                  << "\n";
-        d.Wait(lck);
-        for (int i = 0; i < 10; i++) {
-            std::cout << "Executed 3 \n";
-	   }
-        std::cout << "Executed 3 \n";
-        j = 5;
-        d.Unlock(lck);
-    });
-
-    thread.join();
-    anoterthread.join();
-    fkasfjd.join();
+int main ( ) {
 }

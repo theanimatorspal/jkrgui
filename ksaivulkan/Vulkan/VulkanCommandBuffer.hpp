@@ -15,7 +15,9 @@ public:
     };
     enum class BeginContext { Normal,
         ContinueRenderPass,
-        OneTimeSubmit };
+        OneTimeSubmit,
+        ContinueRenderPassAndOneTimeSubmit
+    };
 
     VulkanCommandBuffer(const VulkanDevice& inDevice, const VulkanCommandPool& inPool, Type inContext = Type::Primary);
     ~VulkanCommandBuffer();
@@ -27,14 +29,9 @@ public:
     void Begin(VulkanRenderPassBase& inRenderPass,
         ksai::ui inSubpass,
         VulkanFrameBufferBase& inFrameBuffer) const;
-
     void Reset() const { mBuffer.reset(); }
     void End() const { mBuffer.end(); }
-
-    inline void ExecuteCommands(VulkanCommandBuffer& inBuffer) const
-    {
-        mBuffer.executeCommands(inBuffer.mBuffer);
-    }
+    inline void ExecuteCommands(VulkanCommandBuffer& inBuffer) const { mBuffer.executeCommands(inBuffer.mBuffer); }
 
     enum class RenderPassBeginContext {
         Inline,
@@ -43,7 +40,6 @@ public:
     template <RenderPassBeginContext inBeginContext = RenderPassBeginContext::Inline>
     void BeginRenderPass(const VulkanRenderPassBase& inRenderPass, const VulkanSurface& inSurface, const VulkanFrameBufferBase& inFrameBuffer, std::array<float, 5> inClearValue) const;
     void EndRenderPass() const;
-
     template <class T>
     void PushConstants(const VulkanPipelineLayoutBase& inPipelineLayout, const vk::ArrayProxy<const T> inValues) const
     {

@@ -106,3 +106,16 @@ void vb::Begin<vb::BeginContext::ContinueRenderPass>(VulkanRenderPassBase &inRen
     info.setPInheritanceInfo(&inheritanceInfo);
     mBuffer.begin(info);
 }
+
+template<>
+void vb::Begin<vb::BeginContext::ContinueRenderPassAndOneTimeSubmit>(VulkanRenderPassBase &inRenderPass,
+                                                     ui inSubpass,
+                                                     VulkanFrameBufferBase &inFrameBuffer) const
+{
+    vk::CommandBufferBeginInfo info(vk::CommandBufferUsageFlagBits::eRenderPassContinue | vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
+    vk::CommandBufferInheritanceInfo inheritanceInfo(inRenderPass.GetRenderPassHandle(),
+                                                     inSubpass,
+                                                     inFrameBuffer.GetFrameBufferHandle());
+    info.setPInheritanceInfo(&inheritanceInfo);
+    mBuffer.begin(info);
+}

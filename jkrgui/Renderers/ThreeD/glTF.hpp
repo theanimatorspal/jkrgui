@@ -28,10 +28,11 @@ class Shape : public Renderer_base, public glTF_base {
         = VulkanBuffer<BufferContext::Staging, MemoryType::HostVisibleAndCoherenet>;
     using ImageType = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
 
+    using ComPar = Window::ParameterContext;
 public:
     Shape(const Instance& inInstance, Window& inCompatibleWindow, sz inGlobalUBsize = sizeof(GlobalUB), sz inSSBOsize = sizeof(GlobalSSBO) * 10);
     void Add(const sv inFileName, ui& outId);
-    void Bind(Window& inWindow);
+    void Bind(Window& inWindow, ComPar inCompar);
     void Dispatch(Window& inWindow);
 
     std::unique_lock<std::mutex> MakeLockedLocker()
@@ -74,7 +75,7 @@ public:
         const sv inComputeShader,
         Window& inCompatibleWindow,
         ui& outId, bool inForceStore = false);
-    void PainterBindDraw(ui inPainterId, Window& inWindow);
+    void PainterBindForDraw(ui inPainterId, Window& inWindow, ComPar inCompar);
     void AddModelTextureToPainter(ui inId,
         ui inPainterId,
         sz inOffset = 0,
@@ -96,10 +97,10 @@ public:
         ui inDestinationArrayElement = 0);
 
     template <typename T>
-    void PainterDraw(ui inId, T inPush, Window& inWindow);
+    void PainterDraw(ui inId, T inPush, Window& inWindow, ComPar inCompar);
 
     template <typename T>
-    void PainterDraw(ui inPipelineId, ui inId, T inPush, Window& inWindow);
+    void PainterDraw(ui inPipelineId, ui inId, T inPush, Window& inWindow, ComPar inCompar);
 
 private:
     void AddPainter(Up<Painter> inPainter, Up<PainterCache> inPainterCaches, ui& outId);
@@ -172,21 +173,21 @@ void Shape::WriteToGlobalUB(T inData)
 }
 
 template <typename T>
-void Shape::PainterDraw(ui inId, T inPush, Window& inWindow)
+void Shape::PainterDraw(ui inId, T inPush, Window& inWindow, ComPar inComPar)
 {
     mPainters[mBoundPainterVF]
-        ->Draw_EXT<T>(*mPrimitive, inPush, inWindow, gb::GetIndexCount(inId), 1, 0, 0);
+        ->Draw_EXT<T>(*mPrimitive, inPush, inWindow, gb::GetIndexCount(inId), 1, 0, 0, inComPar);
 }
 
 template <typename T>
-inline void Shape::PainterDraw(ui inPipelineId, ui inId, T inPush, Window& inWindow)
+inline void Shape::PainterDraw(ui inPipelineId, ui inId, T inPush, Window& inWindow, ComPar inComPar)
 {
-    mPainters[inPipelineId]->Draw_EXT<T>(*mPrimitive, inPush, inWindow, gb::GetIndexCount(inId), 1, 0, 0);
+    mPainters[inPipelineId]->Draw_EXT<T>(*mPrimitive, inPush, inWindow, gb::GetIndexCount(inId), 1, 0, 0, inComPar);
 }
 
-inline void Shape::Bind(Window& inWindow)
+inline void Shape::Bind(Window& inWindow, ComPar inCompar)
 {
-    Painter::BindDrawParamtersVertexAndIndexBuffersOnly_EXT(mInstance, *mPrimitive, inWindow);
+    Painter::BindDrawParamtersVertexAndIndexBuffersOnly_EXT(mInstance, *mPrimitive, inWindow, inCompar);
 }
 
 inline void Shape::RegisterGlobalUBToPainter(ui inPainterId,
@@ -209,10 +210,10 @@ inline void Shape::RegisterGlobalSSBOToPainter(ui inPainterId,
         RegisterMode::AllShaders);
 }
 
-inline void Shape::PainterBindDraw(ui inPainterId, Window& inWindow)
+inline void Shape::PainterBindForDraw(ui inPainterId, Window& inWindow, ComPar inComPar)
 {
-    mPainters[inPainterId]->BindDrawParamtersPipelineOnly_EXT(*mPrimitive, inWindow);
-    mPainters[inPainterId]->BindDrawParamtersDescriptorsOnly_EXT(*mPrimitive, inWindow);
+    mPainters[inPainterId]->BindDrawParamtersPipelineOnly_EXT(*mPrimitive, inWindow, inComPar);
+    mPainters[inPainterId]->BindDrawParamtersDescriptorsOnly_EXT(*mPrimitive, inWindow, inComPar);
 }
 
 inline void Shape::AddModelTextureToPainter(

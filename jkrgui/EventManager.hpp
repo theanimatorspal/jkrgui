@@ -27,9 +27,9 @@ public:
             default:
                 break;
             }
+		  SDL_GetRelativeMouseState(&mRelativePos.x, &mRelativePos.y);
         }
         mCurrentPushedMouseButton = SDL_GetMouseState(&mMousePos.x, &mMousePos.y);
-        SDL_GetRelativeMouseState(&mRelativePos.x, &mRelativePos.y);
     }
 
     GETTER GetDepthValue() { return mCurrentDepthValue; }

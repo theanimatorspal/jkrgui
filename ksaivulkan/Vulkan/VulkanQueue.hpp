@@ -9,6 +9,7 @@ class VulkanQueueBase {
 public:
     VulkanQueueBase(const VulkanQueueContext& inQueueContext, const VulkanDevice& inDevice);
     void Wait() const { mQueue.waitIdle(); }
+    GETTER& GetQueueHandle() const { return mQueue; }
 
 protected:
     const vk::Device& mDevice;

@@ -92,7 +92,6 @@ bb::TextDimensions bb::AddText(ui inX, ui inY, const sv inString, ui inFontShape
 bb::TextDimensions bb::RenderTextToImage(
     sv inString, ui inFontShapeId, v<uc>& outImage, optref<ThreadPool> inThreadPool, optref<int> outYoff)
 {
-    ZoneScoped;
     hb_buffer_t* hbBuffer = hb_buffer_create();
     hb_buffer_add_utf8(hbBuffer, reinterpret_cast<const char*>(inString.data()), -1, 0, -1);
     hb_buffer_guess_segment_properties(hbBuffer);

@@ -32,8 +32,9 @@ Load = function()
         --         }, 
         --         Ip_Clear
         -- )
-        ImageLLable = Com.ImageLabelObject:New("C:\\Users\\sansk\\OneDrive\\Pictures\\LuaJkrGUI\\PNG_transparency_demonstration_1.png", vec3(500, 100, 80), vec3(100, 100, 1))
-        ImageLLable:Update(vec3(700, 100, 80), vec3(0, 0, 1))
+        ImageLLable = Com.ImageLabelObject:New("icons_material\\4k\\outline.png", vec3(100, 100, 80), vec3(20, 20, 1))
+        ImageLLable:Update(vec3(700, 100, 80), vec3(20, 20, 1))
+        ImageLLable:TintColor(vec4(1, 1, 0, 1))
 end
 
 Event = function()

@@ -1,46 +1,24 @@
 ﻿#include "WindowMulT.hpp"
+#include <Vendor/Tracy/tracy/Tracy.hpp>
 
 void Jkr::WindowMulT::Draw(float r, float g, float b, float a, float d)
 {
     mUpdateFunction(mData);
+    mFences[mCurrentFrame].Wait();
+    mFences[mCurrentFrame].Reset();
 
-   {
-       mSecondaryCommandBuffersBackground[mCurrentFrame].Reset();
-	  mSecondaryCommandBuffersBackground[mCurrentFrame].Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPass>(
-		 mRenderPass,
-		 0,
-		 mFrameBuffers[mCurrentFrame]);
-	  mSecondaryCommandBuffersBackground[mCurrentFrame].SetViewport(mSurface);
-	  mSecondaryCommandBuffersBackground[mCurrentFrame].SetScissor(mSurface);
-	  {
-		 mBackgroundCallback(mData);
-	  }
-	  mSecondaryCommandBuffersBackground[mCurrentFrame].End();
-   }
-
-   /* Secondary Command Buffer UI */
-   {
-       mSecondaryCommandBuffersBackground[mCurrentFrame].Reset();
-	  mSecondaryCommandBuffersUI[mCurrentFrame].Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPass>(
-		 mRenderPass,
-		 0,
-		 mFrameBuffers[mCurrentFrame]);
-
-	  mSecondaryCommandBuffersUI[mCurrentFrame].SetViewport(mSurface);
-	  mSecondaryCommandBuffersUI[mCurrentFrame].SetScissor(mSurface);
-	  {
-		 mDrawFunction(mData);
-	  }
-	  mSecondaryCommandBuffersUI[mCurrentFrame].End();
-   }
-
-
+    if (mThreadPool.has_value()) {
+        auto& tp = mThreadPool.value().get();
+        tp.Add_Job([this]() { Jkr::WindowMulT::CmdBackground(); });
+        tp.Add_Job([this]() { Jkr::WindowMulT::CmdUI(); });
+    } else {
+        CmdBackground();
+        CmdUI();
+    }
 
     std::array<float, 5>
         ClearValues = { r, g, b, a, d };
-    mFences[mCurrentFrame].Wait();
     std::pair<uint32_t, uint32_t> SwapChainResult = mSwapChain.AcquireNextImage(mImageAvailableSemaphores[mCurrentFrame]);
-    mFences[mCurrentFrame].Reset();
     if (!mSwapChain.ImageIsNotOptimal(SwapChainResult)) {
         mAcquiredImageIndex = SwapChainResult.second;
         mCommandBuffers[mCurrentFrame].Reset();
@@ -53,10 +31,13 @@ void Jkr::WindowMulT::Draw(float r, float g, float b, float a, float d)
             mFrameBuffers[mAcquiredImageIndex], // यो स्थानमा जहिल्यै झुक्किन्छ । फ्रेम बफर एउटा हुने हो ।  "Acquired Image Index" अनुसार ।
             ClearValues);
 
+        /* Secondary Command Buffer Background */
+        if (mThreadPool.has_value()) {
+            mThreadPool.value().get().Wait();
+        }
 
-	   /* Secondary Command Buffer Background */
-        mCommandBuffers[mCurrentFrame].ExecuteCommands(mSecondaryCommandBuffersBackground[mCurrentFrame]);
         mCommandBuffers[mCurrentFrame].ExecuteCommands(mSecondaryCommandBuffersUI[mCurrentFrame]);
+        mCommandBuffers[mCurrentFrame].ExecuteCommands(mSecondaryCommandBuffersBackground[mCurrentFrame]);
         mCommandBuffers[mCurrentFrame].EndRenderPass();
         mCommandBuffers[mCurrentFrame].End();
 
@@ -77,4 +58,35 @@ void Jkr::WindowMulT::Draw(float r, float g, float b, float a, float d)
     } else {
         Refresh();
     }
+}
+
+void Jkr::WindowMulT::CmdBackground()
+{
+    mSecondaryCommandBuffersBackground[mCurrentFrame].Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPassAndOneTimeSubmit>(
+        mRenderPass,
+        0,
+        mFrameBuffers[mCurrentFrame]);
+    mSecondaryCommandBuffersBackground[mCurrentFrame].SetViewport(mSurface);
+    mSecondaryCommandBuffersBackground[mCurrentFrame].SetScissor(mSurface);
+    {
+        mBackgroundCallback(mData);
+    }
+//    TracyVkZone(mctx_bg1, mSecondaryCommandBuffersBackground[mCurrentFrame].GetCommandBufferHandle(), "BG1");
+    mSecondaryCommandBuffersBackground[mCurrentFrame].End();
+}
+
+void Jkr::WindowMulT::CmdUI()
+{
+    mSecondaryCommandBuffersUI[mCurrentFrame].Reset();
+    mSecondaryCommandBuffersUI[mCurrentFrame].Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPassAndOneTimeSubmit>(
+        mRenderPass,
+        0,
+        mFrameBuffers[mCurrentFrame]);
+
+    mSecondaryCommandBuffersUI[mCurrentFrame].SetViewport(mSurface);
+    mSecondaryCommandBuffersUI[mCurrentFrame].SetScissor(mSurface);
+    {
+        mDrawFunction(mData);
+    }
+    mSecondaryCommandBuffersUI[mCurrentFrame].End();
 }
