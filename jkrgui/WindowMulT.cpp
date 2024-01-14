@@ -89,7 +89,7 @@ void Jkr::WindowMulT::CmdUI()
 void Jkr::WindowMulT::Refresh()
 {
     mSurface.ProcessCurrentSurfaceConditions(mInstance.GetPhysicalDevice());
-    mSwapChain = VulkanSwapChain<mMaxFramesInFlight>(mInstance.GetDevice(), mInstance.GetQueueContext(), mSurface);
+    mSwapChain = VulkanSwapChain<mMaxFramesInFlight>(mInstance.GetDevice(), mInstance.GetQueueContext(), mSurface, mSwapChain);
     mSwapChainImages = mSwapChain.GetVulkanImages(mInstance.GetDevice(), mSurface);
     mDepthImage = VulkanImage<ImageContext::DepthImage>(mInstance.GetDevice(), mSurface);
     mFrameBuffers = {
