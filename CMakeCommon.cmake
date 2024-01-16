@@ -3,8 +3,6 @@ if(APPLE)
 function(configure_target TARGET_NAME)
         target_link_libraries(${TARGET_NAME}
             ${Vulkan_LIBRARIES}
-            ksaivulkan 
-            jkrgui 
             SDL2
             SPIRV
             MachineIndependent
@@ -35,6 +33,50 @@ function(configure_target TARGET_NAME)
         )
 endfunction()
 
+elseif(ANDROID)
+
+function(configure_target TARGET_NAME)
+   target_link_libraries(${TARGET_NAME}
+	  ${Vulkan_LIBRARIES}
+	  brotlicommon-static
+		brotlidec-static
+		brotlienc-static
+		bz2
+		freetype
+		GenericCodeGen
+		glslang-default-resource-limits
+		glslang
+		harfbuzz-subset
+		harfbuzz
+		HLSL
+		lua54
+		MachineIndependent
+		OGLCompiler
+		OSDependent
+		png
+		png16
+		SDL2
+		spirv-cross-c
+		spirv-cross-core
+		spirv-cross-cpp
+		spirv-cross-glsl
+		spirv-cross-hlsl
+		spirv-cross-msl
+		spirv-cross-reflect
+		spirv-cross-util
+		SPIRV-Tools-diff
+		SPIRV-Tools-link
+		SPIRV-Tools-lint
+		SPIRV-Tools-opt
+		SPIRV-Tools-reduce
+		SPIRV-Tools
+		SPIRV
+		SPVRemapper
+		z
+   )
+endfunction()
+
+
 else()
 
 
@@ -42,8 +84,6 @@ function(configure_target TARGET_NAME)
     if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
         target_link_libraries(${TARGET_NAME}
             ${Vulkan_LIBRARIES}
-            ksaivulkan 
-            jkrgui 
             SDL2
             SPIRV
             MachineIndependent
@@ -78,8 +118,6 @@ function(configure_target TARGET_NAME)
     elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
         target_link_libraries(${TARGET_NAME}
             ${Vulkan_LIBRARIES}
-            ksaivulkan 
-            jkrgui 
             SDL2
             SPIRVd
             MachineIndependentd

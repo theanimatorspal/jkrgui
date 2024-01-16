@@ -7,8 +7,11 @@ file(GLOB app_SRC CONFIGURE_DEPENDS
 "*.c"
 )
 
-link_directories(${VULKAN_LIBRARY_PATH})
+if(ANDROID)
+add_library(aJkrLua SHARED ${app_SRC} "EntryPoint.cpp" "Bindings.cpp" "Bindings3d.cpp")
+else()
+add_executable(aJkrLua ${app_SRC} )
+endif()
 
-add_executable(aJkrLua ${app_SRC} "EntryPoint.cpp" "Bindings.cpp" "Bindings3d.cpp")
-
+target_link_libraries(aJkrLua ksaivulkan jkrgui)
 configure_target(aJkrLua)

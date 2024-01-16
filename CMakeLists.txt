@@ -1,15 +1,15 @@
-﻿# CMakeList.txt : CMake project for jkrengine, include source and define
-# project specific logic here.
-#
-cmake_minimum_required (VERSION 3.8)
+﻿cmake_minimum_required (VERSION 3.8)
+set(ANDROID true)
 
+#set your VULKAN_SDK PATH 
 if(APPLE)
 	set(VULKAN_SDK "/Users/bishaljaiswal/VulkanSDK")
 	set(VULKAN_VERSION "1.3.268.1")
-else(WIN32)
+elseif(WIN32)
 	set(VULKAN_SDK "C:/VulkanSDK")
 	set(VULKAN_VERSION "1.3.250.1")
 	set(LLVM_PATH "C:/Users/sansk/OneDrive/Documents/llvm-project-llvmorg-17.0.6/llvm-project-llvmorg-17.0.6/llvm")
+elseif(ANDROID)
 endif()
 
 set(VULKAN_PATH "${VULKAN_SDK}/${VULKAN_VERSION}")
@@ -25,8 +25,11 @@ endif()
 
 set(CMAKE_BUILD_PARALLEL_LEVEL 8)
 
-add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED -DTRACY_ENABLE)
+if(ANDROID OR APPLE)
 #add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED)
+else()
+add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED -DTRACY_ENABLE)
+endif()
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -37,17 +40,9 @@ if (POLICY CMP0141)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
-
-if (ANDROID)
-    add_definitions(-DVULKAN_HPP_NO_SMART_HANDLE)
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
-    set(APP_GLUE_DIR ${ANDROID_NDK}/sources/android/native_app_glue)
-    include_directories(${APP_GLUE_DIR})
-    add_library(app-glue STATIC ${APP_GLUE_DIR}/android_native_app_glue.c)
-endif()
-
 if (ANDROID)
     add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR)
+    add_definitions(-DANDROID)
 elseif (WIN32)
     add_definitions(-DVK_USE_PLATFORM_WIN32_KHR)
     # add_definitions(-DVK_USE_PLATFORM_XCB_KHR)
@@ -70,7 +65,10 @@ include_directories(ksaivulkan/Vendor)
 include_directories(ksaivulkan/Vendor/stbi)
 include_directories(ksaivulkan/Vendor/lua)
 include_directories("${CMAKE_SOURCE_DIR}/libs/")
+
 if(APPLE)
+elseif(ANDROID)
+include_directories("${CMAKE_SOURCE_DIR}/ANDROID/SDL4droid/SDL2/include")
 else()
 include_directories("${LLVM_PATH}/include")
 include_directories(ksaivulkan/Vendor/Tracy/tracy)
@@ -85,8 +83,12 @@ message(STATUS "Using manual specified path: ${VULKAN_PATH}")
 message(STATUS "Vulkan Library Directory ${Vulkan_LIBRARIES}")
 include_directories(${VULKAN_INCLUDE_PATH})
 
-link_directories(${VULKAN_LIBRARY_PATH})
-link_directories("${CMAKE_SOURCE_DIR}/libs/")
+if(ANDROID)
+	link_directories("${CMAKE_SOURCE_DIR}/libs/Android/")
+else()
+	link_directories(${VULKAN_LIBRARY_PATH})
+	link_directories("${CMAKE_SOURCE_DIR}/libs/")
+endif()
 
 if(APPLE)
 	link_directories("/opt/homebrew/lib/")
@@ -104,8 +106,12 @@ add_subdirectory(aJkrLua)
 add_subdirectory(jkrgui)
 
 if(APPLE)
+
 elseif(ANDROID)
+
 else()
+
 add_subdirectory(aa_unit_testing)
 #add_subdirectory(jit)
+
 endif()

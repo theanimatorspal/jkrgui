@@ -3,9 +3,8 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
-out/.*
-out/*.obj
-out/*.pdb
+out/*.*
+libs/Android/*.*
 
 # User-specific files
 *.rsuser

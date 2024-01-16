@@ -1,6 +1,7 @@
+include("../CMakeCommon.cmake")
 
 #if apple then no tracy
-if(APPLE)
+if(APPLE OR ANDROID)
         file(GLOB_RECURSE app_SRC CONFIGURE_DEPENDS
         "Vulkan/*.hpp"
         "Vulkan/*.cpp"
@@ -26,11 +27,17 @@ if(APPLE)
         "Vendor/VulkanMemoryAllocator/*.c"
 	   "Vendor/TinyGLTF/*.cpp"
 	   "Vendor/TinyGLTF/*.hpp"
+	   "Vendor/VulkanMemoryAllocator/vma.cpp"
 	   "ksai_config.hpp"
 	   "ksai_image.hpp"
 	   "ksai_thread.hpp"
         )
-        add_library(ksaivulkan ${app_SRC})
+	   if(ANDROID)
+		   add_library(ksaivulkan SHARED ${app_SRC})
+		   configure_target(ksaivulkan)
+	   else()
+		   add_library(ksaivulkan ${app_SRC})
+	   endif()
 else()
         file(GLOB_RECURSE app_SRC CONFIGURE_DEPENDS
         "*.hpp"
@@ -41,3 +48,9 @@ else()
         add_library(ksaivulkan ${app_SRC} "ksai_image.hpp" "ksai_thread.hpp" "Vendor/NanoBench/nanobench.h" "Vendor/NanoBench/nanobench.cpp")
 endif()
 
+add_custom_command(
+	TARGET ksaivulkan POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy
+	${CMAKE_CURRENT_BINARY_DIR}/libksaivulkan.so
+	${CMAKE_SOURCE_DIR}/libs/Android/libksaivulkan.so
+)
