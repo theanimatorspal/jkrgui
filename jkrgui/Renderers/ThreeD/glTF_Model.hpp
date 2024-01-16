@@ -13,7 +13,7 @@ namespace tg = tinygltf;
 namespace Jkr::Renderer::_3D {
 struct Material {
     Material() = default;
-    constexpr Material(const sv inN, glm::vec3 inC, float inRoughness, float inMetalness)
+    Material(const sv inN, glm::vec3 inC, float inRoughness, float inMetalness)
         : mname(inN)
         , props(Prop { .roughness = inRoughness, .metalness = inMetalness, .color = inC })
     {

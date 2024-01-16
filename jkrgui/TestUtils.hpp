@@ -1,7 +1,14 @@
 ﻿#pragma once
-#define SDL_MAIN_HANDLED
 #include "ksaiSandBox/glslHelper.hpp"
+
+#ifndef ANDROID
+#define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
+#else
+#include <SDL.h>
+#endif
+
+
 #include <chrono>
 #include <iostream>
 #include <memory>

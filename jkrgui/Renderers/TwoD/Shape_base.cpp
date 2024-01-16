@@ -1,5 +1,4 @@
 #include "Shape_base.hpp"
-#include <numbers>
 
 using namespace Jkr;
 using namespace Jkr::Renderer;
@@ -33,7 +32,7 @@ void Jkr::Generator::operator()(int inX, int inY, uint32_t inZ, uint32_t inStart
         modVertices.resize(mVertexCount + modVertices.size());
         modIndices.resize(mIndexCount + modIndices.size());
         float TH = 0;
-        float dTH = 2 * std::numbers::pi / mVertexCount;
+        float dTH = 2 * 3.14159 / mVertexCount;
 
         {
             int i = 0;
