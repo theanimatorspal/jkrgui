@@ -1,0 +1,151 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2,
+						3,
+						4
+					],
+					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"projectIndex" : 0,
+					"source" : "."
+				},
+				{
+					"build" : "ksaivulkan",
+					"jsonFile" : "directory-ksaivulkan-Debug-2fe019b427ee0fa34f26.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "ksaivulkan",
+					"targetIndexes" : 
+					[
+						3
+					]
+				},
+				{
+					"build" : "aJkrLua",
+					"jsonFile" : "directory-aJkrLua-Debug-405f519357c5577a804e.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "aJkrLua",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "jkrgui",
+					"jsonFile" : "directory-jkrgui-Debug-1790877846041b92e341.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "jkrgui",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"build" : "aa_unit_testing",
+					"jsonFile" : "directory-aa_unit_testing-Debug-daf7b1913ea911f7c40b.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "aa_unit_testing",
+					"targetIndexes" : 
+					[
+						1
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4
+					],
+					"name" : "jkrengine",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 2,
+					"id" : "aJkrLua::@7ab2c1573dc07b256b10",
+					"jsonFile" : "target-aJkrLua-Debug-c4cf69846f971f4762cf.json",
+					"name" : "aJkrLua",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "aa_unit_testing::@3edf9a65e1cb61279143",
+					"jsonFile" : "target-aa_unit_testing-Debug-64d3cfe2138338505a83.json",
+					"name" : "aa_unit_testing",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "jkrgui::@bdf1634a9c421c1b76ea",
+					"jsonFile" : "target-jkrgui-Debug-31067cff8b7f7f47b166.json",
+					"name" : "jkrgui",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "ksaivulkan::@469bd9ebbf23ce0bed3a",
+					"jsonFile" : "target-ksaivulkan-Debug-39ad544be1dcab3c49d8.json",
+					"name" : "ksaivulkan",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android",
+		"source" : "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 6
+	}
+}

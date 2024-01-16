@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project>
+  <SOLibPaths />
+  <AndroidLibPaths />
+  <OObjPaths />
+  <Configuration />
+  <Platform />
+  <AndroidArchitecture>arm64-v8a</AndroidArchitecture>
+  <!--links to other recipe files-->
+  <RecipeFiles>C:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ANDROID\SDL4droid\ARM64\Release\libmain.so.recipe;C:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ANDROID\SDL4droid\ARM64\Release\libSDL2.so.recipe</RecipeFiles>
+</project>

@@ -1,0 +1,19 @@
+<lint-module
+    format="1"
+    dir="C:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ANDROID\SDL4droid\SDL2_Application\app"
+    name=":app"
+    type="APP"
+    maven="SDL2_Application:app:"
+    gradle="7.2.0"
+    buildFolder="build"
+    bootClassPath="C:\Program Files (x86)\Android\android-sdk\platforms\android-33\android.jar;C:\Users\sansk\AppData\Local\Android\Sdk\build-tools\32.0.0\core-lambda-stubs.jar"
+    javaSourceLevel="1.8"
+    compileTarget="android-33"
+    neverShrinking="true">
+  <lintOptions
+      abortOnError="true"
+      absolutePaths="true"
+      checkReleaseBuilds="true"
+      explainIssues="true"/>
+  <variant name="arm8Release"/>
+</lint-module>

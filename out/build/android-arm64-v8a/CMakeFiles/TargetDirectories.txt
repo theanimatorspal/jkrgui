@@ -1,0 +1,11 @@
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android-arm64-v8a/CMakeFiles/edit_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android-arm64-v8a/CMakeFiles/rebuild_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android-arm64-v8a/ksaivulkan/CMakeFiles/ksaivulkan.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android-arm64-v8a/ksaivulkan/CMakeFiles/edit_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android-arm64-v8a/ksaivulkan/CMakeFiles/rebuild_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android-arm64-v8a/aJkrLua/CMakeFiles/aJkrLua.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android-arm64-v8a/aJkrLua/CMakeFiles/edit_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android-arm64-v8a/aJkrLua/CMakeFiles/rebuild_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android-arm64-v8a/jkrgui/CMakeFiles/jkrgui.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android-arm64-v8a/jkrgui/CMakeFiles/edit_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android-arm64-v8a/jkrgui/CMakeFiles/rebuild_cache.dir

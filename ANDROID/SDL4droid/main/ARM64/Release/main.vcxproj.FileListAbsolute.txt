@@ -1,0 +1,4 @@
+C:\Users\sansk\source\repos\SDL4droid\main\ARM64\Release\main.vcxproj.AssemblyReference.cache
+C:\Users\sansk\source\repos\SDL4droid\main\ARM64\Release\main.vcxproj.CopyComplete
+C:\Users\sansk\source\repos\SDL4droid\main\ARM64\Release\libmain.so
+C:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ANDROID\SDL4droid\main\ARM64\Release\libmain.so

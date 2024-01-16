@@ -1,0 +1,14 @@
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android/CMakeFiles/edit_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android/CMakeFiles/rebuild_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android/ksaivulkan/CMakeFiles/ksaivulkan.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android/ksaivulkan/CMakeFiles/edit_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android/ksaivulkan/CMakeFiles/rebuild_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android/aJkrLua/CMakeFiles/aJkrLua.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android/aJkrLua/CMakeFiles/edit_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android/aJkrLua/CMakeFiles/rebuild_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android/jkrgui/CMakeFiles/jkrgui.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android/jkrgui/CMakeFiles/edit_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android/jkrgui/CMakeFiles/rebuild_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android/aa_unit_testing/CMakeFiles/aa_unit_testing.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android/aa_unit_testing/CMakeFiles/edit_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android/aa_unit_testing/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,10 @@
+com.SDL2_Application.app-arm8-0 C:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ANDROID\SDL4droid\SDL2_Application\app\build\generated\res\pngs\arm8\release
+com.SDL2_Application.app-arm8-1 C:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ANDROID\SDL4droid\SDL2_Application\app\build\generated\res\resValues\arm8\release
+com.SDL2_Application.app-arm8-2 C:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ANDROID\SDL4droid\SDL2_Application\app\build\generated\res\rs\arm8\release
+com.SDL2_Application.app-mergeArm8ReleaseResources-3 C:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ANDROID\SDL4droid\SDL2_Application\app\build\intermediates\incremental\arm8Release\mergeArm8ReleaseResources\merged.dir
+com.SDL2_Application.app-mergeArm8ReleaseResources-4 C:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ANDROID\SDL4droid\SDL2_Application\app\build\intermediates\incremental\arm8Release\mergeArm8ReleaseResources\stripped.dir
+com.SDL2_Application.app-merged_res-5 C:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ANDROID\SDL4droid\SDL2_Application\app\build\intermediates\merged_res\arm8Release
+com.SDL2_Application.app-arm8-6 C:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ANDROID\SDL4droid\SDL2_Application\app\src\arm8\res
+com.SDL2_Application.app-arm8Release-7 C:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ANDROID\SDL4droid\SDL2_Application\app\src\arm8Release\res
+com.SDL2_Application.app-main-8 C:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ANDROID\SDL4droid\SDL2_Application\app\src\main\res
+com.SDL2_Application.app-release-9 C:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ANDROID\SDL4droid\SDL2_Application\app\src\release\res

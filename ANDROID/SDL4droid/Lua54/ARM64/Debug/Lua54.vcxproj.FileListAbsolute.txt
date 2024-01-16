@@ -1,0 +1,1 @@
+C:\Users\sansk\source\repos\SDL4droid\Lua54\ARM64\Debug\libLua54.so

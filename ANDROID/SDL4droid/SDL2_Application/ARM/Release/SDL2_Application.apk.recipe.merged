@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project>
+  <SOLibPaths>C:\Users\sansk\source\repos\SDL4droid\ARM\Release\libSDL2.so;C:\Microsoft\AndroidNDK\android-ndk-r23c\prebuilt\android-arm\gdbserver\gdbserver;C:\Microsoft\AndroidNDK\android-ndk-r23c\sources\cxx-stl\llvm-libc++\libs\armeabi-v7a\libc++_static.a;C:\Microsoft\AndroidNDK\android-ndk-r23c\sources\cxx-stl\llvm-libc++\libs\armeabi-v7a\libc++abi.a</SOLibPaths>
+  <AndroidLibPaths></AndroidLibPaths>
+  <OObjPaths>C:\Users\sansk\source\repos\SDL4droid\SDL2\ARM\Release</OObjPaths>
+  <Configuration>Release</Configuration>
+  <Platform>ARM</Platform>
+  <AndroidArchitecture>armeabi-v7a</AndroidArchitecture>
+</project>

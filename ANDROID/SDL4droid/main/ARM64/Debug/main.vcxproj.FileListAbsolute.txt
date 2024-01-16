@@ -1,0 +1,2 @@
+C:\Users\sansk\source\repos\SDL4droid\main\ARM64\Debug\libmain.so
+C:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ANDROID\SDL4droid\main\ARM64\Debug\libmain.so

@@ -1,0 +1,7 @@
+#Mon Jan 15 11:09:05 NPT 2024
+base.0=C\:\\Users\\sansk\\source\\repos\\SDL4droid\\SDL2_Application\\app\\build\\intermediates\\dex\\arm8Debug\\mergeProjectDexArm8Debug\\0\\classes.dex
+base.1=C\:\\Users\\sansk\\source\\repos\\SDL4droid\\SDL2_Application\\app\\build\\intermediates\\dex\\arm8Debug\\mergeProjectDexArm8Debug\\2\\classes.dex
+path.0=0/classes.dex
+path.1=2/classes.dex
+renamed.0=classes.dex
+renamed.1=classes2.dex

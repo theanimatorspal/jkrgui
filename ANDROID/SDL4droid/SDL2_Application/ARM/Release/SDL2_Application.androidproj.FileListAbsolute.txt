@@ -1,0 +1,2 @@
+C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\ARM\Release\SDL2_Application.apk.recipe
+C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\ARM\Release\SDL2_Application.apk

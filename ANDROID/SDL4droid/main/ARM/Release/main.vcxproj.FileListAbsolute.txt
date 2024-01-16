@@ -1,0 +1,3 @@
+C:\Users\sansk\source\repos\SDL4droid\main\ARM\Release\main.vcxproj.AssemblyReference.cache
+C:\Users\sansk\source\repos\SDL4droid\main\ARM\Release\main.vcxproj.CopyComplete
+C:\Users\sansk\source\repos\SDL4droid\main\ARM\Release\libmain.so

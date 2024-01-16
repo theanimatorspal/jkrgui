@@ -1,0 +1,61 @@
+-- Merging decision tree log ---
+manifest
+ADDED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml:2:1-18:12
+INJECTED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml:2:1-18:12
+INJECTED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml:2:1-18:12
+INJECTED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml:2:1-18:12
+INJECTED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml:2:1-18:12
+INJECTED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml:2:1-18:12
+INJECTED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml:2:1-18:12
+	package
+		ADDED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml:3:11-41
+		INJECTED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml
+		INJECTED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml
+	android:versionName
+		ADDED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml:5:11-36
+		INJECTED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml
+		INJECTED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml
+	xmlns:android
+		ADDED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml:2:11-69
+	android:versionCode
+		ADDED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml:4:11-34
+		INJECTED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml
+		INJECTED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml
+application
+ADDED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml:6:3-17:17
+	android:label
+		ADDED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml:8:7-39
+	android:allowBackup
+		ADDED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml:7:7-34
+activity#com.SDL2_Application.SDL2_Application
+ADDED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml:9:5-16:16
+	android:label
+		ADDED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml:10:15-47
+	android:exported
+		ADDED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml:11:15-38
+	android:name
+		ADDED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml:9:15-47
+intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
+ADDED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml:12:7-15:23
+action#android.intent.action.MAIN
+ADDED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml:13:9-61
+	android:name
+		ADDED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml:13:17-58
+category#android.intent.category.LAUNCHER
+ADDED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml:14:9-69
+	android:name
+		ADDED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml:14:19-66
+uses-sdk
+INJECTED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml
+INJECTED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml
+INJECTED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml
+INJECTED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml
+		ADDED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml
+		INJECTED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml
+		ADDED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml
+		INJECTED from C:\Users\sansk\source\repos\SDL4droid\SDL2_Application\app\src\main\AndroidManifest.xml

@@ -1,0 +1,5 @@
+ANDROID/*.*
+libs/Android/*.*
+out/*.*
+.vs
+.vscode

@@ -1,0 +1,1 @@
+C:\Users\sansk\source\repos\SDL4droid\SDL2\ARM\Debug\libSDL2.so

@@ -1,0 +1,3 @@
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release/CMakeFiles/CMakeScratch/TryCompile-vi26nk/CMakeFiles/cmTC_e8b96.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release/CMakeFiles/CMakeScratch/TryCompile-vi26nk/CMakeFiles/edit_cache.dir
+C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/x64-release/CMakeFiles/CMakeScratch/TryCompile-vi26nk/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,126 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2,
+						3
+					],
+					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"projectIndex" : 0,
+					"source" : "."
+				},
+				{
+					"build" : "ksaivulkan",
+					"jsonFile" : "directory-ksaivulkan-Debug-2fe019b427ee0fa34f26.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "ksaivulkan",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"build" : "aJkrLua",
+					"jsonFile" : "directory-aJkrLua-Debug-405f519357c5577a804e.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "aJkrLua",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "jkrgui",
+					"jsonFile" : "directory-jkrgui-Debug-1790877846041b92e341.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "jkrgui",
+					"targetIndexes" : 
+					[
+						1
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					],
+					"name" : "jkrengine",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 2,
+					"id" : "aJkrLua::@7ab2c1573dc07b256b10",
+					"jsonFile" : "target-aJkrLua-Debug-1aaa77a2a231bac4d761.json",
+					"name" : "aJkrLua",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "jkrgui::@bdf1634a9c421c1b76ea",
+					"jsonFile" : "target-jkrgui-Debug-ee5d82e13f1708b09832.json",
+					"name" : "jkrgui",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "ksaivulkan::@469bd9ebbf23ce0bed3a",
+					"jsonFile" : "target-ksaivulkan-Debug-09682bae5f5f9e9878bd.json",
+					"name" : "ksaivulkan",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine/out/build/android-arm64-v8a",
+		"source" : "C:/Users/sansk/OneDrive/Desktop/Project/jkrengine"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 6
+	}
+}

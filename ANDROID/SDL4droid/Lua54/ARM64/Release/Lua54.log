@@ -1,0 +1,57 @@
+﻿  ANDROID_HOME=C:\Program Files (x86)\Android\android-sdk
+  ANDROID_SDK_ROOT=C:\Program Files (x86)\Android\android-sdk
+  ANT_HOME=
+  JAVA_HOME=C:\Users\sansk\.jdks\corretto-18.0.2
+  NDK_ROOT=C:\\Microsoft\AndroidNDK\android-ndk-r23c
+  lapi.c
+  lauxlib.c
+  lbaselib.c
+  lcode.c
+  lcorolib.c
+  lctype.c
+  ldblib.c
+  ldebug.c
+  ldo.c
+  ldump.c
+  lfunc.c
+  lgc.c
+  linit.c
+  liolib.c
+  llex.c
+  lmathlib.c
+  lmem.c
+  loadlib.c
+  lobject.c
+  lopcodes.c
+  loslib.c
+src\loslib.c(172,3): warning : 'tmpnam' is deprecated: tmpnam is unsafe, use mkstemp or tmpfile instead [-Wdeprecated-declarations]
+    lua_tmpnam(buff, err);
+    ^
+  src\loslib.c(124,33): note: expanded from macro 'lua_tmpnam'
+  #define lua_tmpnam(b,e)         { e = (tmpnam(b) == NULL); }
+                                         ^
+  C:\\Microsoft\AndroidNDK\android-ndk-r23c\toolchains\llvm\prebuilt\windows-x86_64\sysroot\usr\include\stdio.h(167,5): note: 'tmpnam' has been explicitly marked deprecated here
+      __warnattr("tmpnam is unsafe, use mkstemp or tmpfile instead");
+      ^
+  C:\\Microsoft\AndroidNDK\android-ndk-r23c\toolchains\llvm\prebuilt\windows-x86_64\sysroot\usr\include\sys/cdefs.h(135,40): note: expanded from macro '__warnattr'
+  #define __warnattr(msg) __attribute__((deprecated(msg)))
+                                         ^
+  1 warning generated.
+  lparser.c
+  lstate.c
+  lstring.c
+  lstrlib.c
+  ltable.c
+  ltablib.c
+  ltm.c
+  lua.c
+src\lua.c(617,12): warning : unused function 'pmain' [-Wunused-function]
+  static int pmain (lua_State *L) {
+             ^
+  1 warning generated.
+  luac.c
+  lundump.c
+  lutf8lib.c
+  lvm.c
+  lzio.c
+  Lua54.vcxproj -> C:\Users\sansk\OneDrive\Desktop\Project\jkrengine\ANDROID\SDL4droid\ARM64\Release\liblua54.so
