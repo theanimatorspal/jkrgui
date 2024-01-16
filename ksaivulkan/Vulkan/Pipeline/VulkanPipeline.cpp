@@ -52,7 +52,11 @@ void VulkanPipelineBase::FillVertexInputDescriptions(const spirv_cross::ShaderRe
             InputAttrDescription[i] = vk::VertexInputAttributeDescription(location, bindingIndex, format, AttributeOffset);
             AttributeOffset += AttributeSize;
         }
-	   std::ranges::sort(InputAttrDescription, {},  &vk::VertexInputAttributeDescription::location);
+	   //std::ranges::sort(InputAttrDescription, {},  &vk::VertexInputAttributeDescription::location);
+
+        std::sort(InputAttrDescription.begin(), InputAttrDescription.end(), [](const auto& lhs, const auto& rhs) {
+               return lhs.location < rhs.location;
+		   });
 
 	   for (ui off = 0, i = 0; auto & u : InputAttrDescription)
 	   {

@@ -68,7 +68,7 @@ include_directories("${CMAKE_SOURCE_DIR}/libs/")
 
 if(APPLE)
 elseif(ANDROID)
-include_directories("${CMAKE_SOURCE_DIR}/ANDROID/SDL4droid/SDL2/include")
+include_directories("${CMAKE_SOURCE_DIR}/libs/AndroidInclude/SDL2")
 else()
 include_directories("${LLVM_PATH}/include")
 include_directories(ksaivulkan/Vendor/Tracy/tracy)

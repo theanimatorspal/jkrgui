@@ -3,10 +3,13 @@
 #ifdef __APPLE__
 #include "vulkan/vulkan_beta.h"
 #endif
+#ifdef WIN32
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_vulkan.h>
-#ifdef WIN32
 #include <Windows.h>
+#elif ANDROID
+#include <SDL.h>
+#include <SDL_vulkan.h>
 #endif
 #include <iostream>
 

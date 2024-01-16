@@ -1,6 +1,13 @@
 #pragma once
+
+#ifndef ANDROID
 #define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
+#else
+#include <SDL.h>
+#endif
+
+
 #include "VulkanInstance.hpp"
 #include "VulkanPhysicalDevice.hpp"
 

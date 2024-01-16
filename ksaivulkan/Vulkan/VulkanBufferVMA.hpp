@@ -1,6 +1,7 @@
 #pragma once
 #include "VulkanBuffer.hpp"
 #include "VulkanVMA.hpp"
+#include <Vulkan/Config.hpp>
 #include <vma/vk_mem_alloc.h>
 
 namespace ksai {

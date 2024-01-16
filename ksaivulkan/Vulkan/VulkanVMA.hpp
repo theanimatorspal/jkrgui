@@ -1,4 +1,5 @@
 #pragma once
+#include <Vulkan/Config.hpp>
 #include <vma/vk_mem_alloc.h>
 #include "VulkanDevice.hpp"
 
@@ -11,7 +12,7 @@ namespace ksai {
 			auto info = VmaAllocatorCreateInfo();
 			info.device = inDevice.GetDeviceHandle();
 			info.instance = inInstance.GetInstanceHandle();
-			info.vulkanApiVersion = VK_API_VERSION_1_3;
+			info.vulkanApiVersion = VK_API_VERSION_1_0;
 			info.physicalDevice = inDevice.GetPhysicalDeviceHandle();
 			vmaCreateAllocator(&info, &mAllocator);
 		}
