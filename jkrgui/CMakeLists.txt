@@ -43,12 +43,4 @@ else()
 	 "WindowMulT.cpp" "Renderers/ResourceManager.cpp" "Renderers/CustomImagePainter.cpp")
  endif()
 
-
- if(ANDROID)
- add_custom_command(
-	TARGET jkrgui POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy
-	${CMAKE_CURRENT_BINARY_DIR}/libjkrgui.so
-	${CMAKE_SOURCE_DIR}/libs/Android/libjkrgui.so
-)
-endif()
+COPYTODESTINATION(jkrgui)

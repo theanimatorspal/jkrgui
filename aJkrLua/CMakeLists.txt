@@ -17,11 +17,4 @@ target_link_libraries(aJkrLua ksaivulkan jkrgui)
 configure_target(aJkrLua)
 
 
-if(ANDROID)
-add_custom_command(
-	TARGET aJkrLua POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy
-	${CMAKE_CURRENT_BINARY_DIR}/libaJkrLua.so
-	${CMAKE_SOURCE_DIR}/libs/Android/libaJkrLua.so
-)
-endif()
+COPYTODESTINATION(aJkrLua)

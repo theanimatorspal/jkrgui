@@ -48,11 +48,4 @@ else()
         add_library(ksaivulkan ${app_SRC} "ksai_image.hpp" "ksai_thread.hpp" "Vendor/NanoBench/nanobench.h" "Vendor/NanoBench/nanobench.cpp")
 endif()
 
-if(ANDROID)
-add_custom_command(
-	TARGET ksaivulkan POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy
-	${CMAKE_CURRENT_BINARY_DIR}/libksaivulkan.so
-	${CMAKE_SOURCE_DIR}/libs/Android/libksaivulkan.so
-)
-endif()
+COPYTODESTINATION(ksaivulkan)

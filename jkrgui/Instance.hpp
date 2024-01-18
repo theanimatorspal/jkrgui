@@ -51,7 +51,6 @@ private:
 private:
     const VulkanInstance mInstance;
     const VulkanMessenger mMessenger;
-    const VulkanSurface mSurface;
     const VulkanPhysicalDevice mPhysicalDevice;
     const VulkanQueueContext mQueueContext;
     const VulkanDevice mDevice;

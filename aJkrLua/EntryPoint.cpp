@@ -1,17 +1,39 @@
+#ifdef ANDROID
+#undef SDL_MAIN_HANDLED
+#include <SDL.h>
+#endif
+
 #include "EntryPoint.hpp"
 #include "WindowMulT.hpp"
 
-auto main(int ArgCount, char* ArgStrings[]) -> int
+//int main (int ArgCount , char **ArgStrings)
+//{
+//    SDL_Init(SDL_INIT_VIDEO);
+//    SDL_Window* Window = SDL_CreateWindow("Darshan", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 100, 100, SDL_WINDOW_VULKAN);
+//    while (true) {
+//
+//    }
+//    SDL_Quit();
+//    return 0;
+//}
+
+int main(int ArgCount, char** ArgStrings)
 {
+    ksai_print("Started");
     auto& cf = gConfiguration;
     const vector<string_view> Arguments(ArgStrings + 1, ArgStrings + ArgCount);
     FillConfig(Arguments);
 
+    ksai_print("Starting Instance");
     auto i = Instance(stoi(string(cf["-des_size"])), stoi(string(cf["-des_pool_size"])));
+    ksai_print("Finished Instance");
+
     std::vector<ui> inNoOfCmdBufferObjectsPerThread = { 2, 2, 2, 2, 2 };
     // auto w = WindowMulT(i, cf["-title"], stoi(string(cf["-height"])), stoi(string(cf["-width"])), 5, inNoOfCmdBufferObjectsPerThread, i.GetThreadPool());
+    ksai_print("Starting Window");
     auto w = WindowMulT(i, cf["-title"], stoi(string(cf["-height"])), stoi(string(cf["-width"])), 5, inNoOfCmdBufferObjectsPerThread);
-    //auto w = Window(i, cf["-title"], stoi(string(cf["-height"])), stoi(string(cf["-width"])));
+    ksai_print("Finished Window");
+    // auto w = Window(i, cf["-title"], stoi(string(cf["-height"])), stoi(string(cf["-width"])));
     auto em = EventManager();
     auto rr = ResourceManager(cf["-cache_folder"]);
     auto VarDesCount = stoi(string(cf["-var_des_size"]));

@@ -10,6 +10,7 @@ using namespace ksai;
 
 VKAPI_ATTR VkBool32 VKAPI_CALL KsaiDebugMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageTypes, VkDebugUtilsMessengerCallbackDataEXT const* pCallbackData, void* /*pUserData*/)
 {
+    ksai_print("Triggered VALIDATION ERROR:::: JKR");
     std::ostringstream message;
     message << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(messageSeverity)) << ": "
             << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(messageTypes)) << ":\n";
@@ -62,6 +63,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL KsaiDebugMessengerCallback(VkDebugUtilsMessageSev
 #else
     std::cout << message.str() << std::endl;
 #endif
+    ksai_print(message.str().c_str());
     return false;
 }
 
@@ -87,11 +89,13 @@ VulkanMessenger::VulkanMessenger(const VulkanInstance& inInstance)
         Instance.getProcAddr("vkCreateDebugUtilsMessengerEXT"));
     if (!pfnVkCreateDebugUtilsMessengerEXT) {
         std::cout << "GetInstanceProcAddr: Unable to find pfnVkCreateDebugUtilsMessengerEXT function." << std::endl;
+        ksai_print("Unable to Find pfnVkCreateDebg");
     }
 
     pfnVkDestroyDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(Instance.getProcAddr("vkDestroyDebugUtilsMessengerEXT"));
     if (!pfnVkDestroyDebugUtilsMessengerEXT) {
         std::cout << "GetInstanceProcAddr: Unable to find pfnVkDestroyDebugUtilsMessengerEXT function." << std::endl;
+        ksai_print("Unable to Find pfnVkCreateDebg");
         exit(1);
     }
 
@@ -101,13 +105,17 @@ VulkanMessenger::VulkanMessenger(const VulkanInstance& inInstance)
         vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation | vk::DebugUtilsMessageTypeFlagBitsEXT::eDeviceAddressBinding);
 
     auto DebugUtilsMessengerCreateInfo = vk::DebugUtilsMessengerCreateInfoEXT({}, severityFlags, messageTypeFlags, &KsaiDebugMessengerCallback);
+#if !defined(ANDROID) // My Android device Doesn't Support this
     mMessenger = Instance.createDebugUtilsMessengerEXT(DebugUtilsMessengerCreateInfo);
+#endif
 #endif
 }
 
 VulkanMessenger::~VulkanMessenger()
 {
 #if defined(_DEBUG)
+#if !defined(ANDROID)
     mInstance.destroyDebugUtilsMessengerEXT(mMessenger);
+#endif
 #endif
 }

@@ -194,7 +194,7 @@ const string gWidth = to_string(1920 / 2);
 static unordered_map<string_view, string_view> gConfiguration { { "-title", "JkrGUI" },
     { "-height", gHeight },
     { "-width", gWidth },
-    { "-store", "true" },
+    { "-store", "false" },
     { "-bgr", "1.0" },
     { "-bgg", "1.0" },
     { "-bgb", "1.0" },

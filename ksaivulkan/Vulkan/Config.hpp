@@ -5,15 +5,15 @@
 #ifdef max
 #undef max
 #endif
+#include <cassert>
 #include <climits>
+#include <iostream>
+#include <memory>
+#include <optional>
+#include <sstream>
 #include <string>
 #include <variant>
 #include <vector>
-#include <memory>
-#include <iostream>
-#include <cassert>
-#include <sstream>
-#include <optional>
 
 #ifdef __APPLE__
 #define USE_VULKAN_1_2
@@ -23,7 +23,7 @@
 #define VK_VERSION_1_1
 #undef VK_VERSION_1_3
 #undef VK_VERSION_1_2
-#define VMA_VULKAN_VERSION 1001000 
+#define VMA_VULKAN_VERSION 1001000
 #else
 #define USE_VULKAN_1_3
 #define VK_VERSION_1_3
@@ -35,3 +35,14 @@
 #define GETTER inline auto
 #endif
 #include "../ksai_config.hpp"
+
+#ifdef ANDROID
+extern "C" int __android_log_print(int prio, const char* tag, const char* fmt, ...);
+#endif
+
+template <typename... T>
+inline void ksai_print(T&&... t)
+{
+    __android_log_print(6, "KSAI::", std::forward<T>(t)...);
+}
+

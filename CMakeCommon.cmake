@@ -38,6 +38,8 @@ elseif(ANDROID)
 function(configure_target TARGET_NAME)
    target_link_libraries(${TARGET_NAME}
 	  ${Vulkan_LIBRARIES}
+	  android
+	  log
 	  brotlicommon-static
 		brotlidec-static
 		brotlienc-static
@@ -342,3 +344,26 @@ function(configure_llvm TARGET_NAME)
         )
 endfunction()
 endif()
+
+
+function(copyToDestination cpyName)
+  if(ANDROID)
+    add_custom_command(TARGET ${cpyName} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy
+      ${CMAKE_CURRENT_BINARY_DIR}/lib${cpyName}.so
+      ${CMAKE_SOURCE_DIR}/libs/Android/lib${cpyName}.so
+    )
+    add_custom_command(TARGET ${cpyName} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy
+      ${CMAKE_CURRENT_BINARY_DIR}/lib${cpyName}.so
+      ${CMAKE_SOURCE_DIR}/SDL4droid/aJkrLua_app/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI}/lib${cpyName}.so
+    )
+
+    add_custom_command(TARGET ${cpyName} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy
+      ${CMAKE_SOURCE_DIR}/libs/Android/liblua54.so
+      ${CMAKE_SOURCE_DIR}/SDL4droid/aJkrLua_app/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI}/liblua54.so
+    )
+  endif()
+endfunction()
+

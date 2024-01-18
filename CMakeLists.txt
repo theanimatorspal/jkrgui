@@ -1,5 +1,6 @@
 ﻿cmake_minimum_required (VERSION 3.8)
 set(ANDROID true)
+set(CMAKE_ANDROID_EXCEPTIONS true)
 
 #set your VULKAN_SDK PATH 
 if(APPLE)
@@ -9,8 +10,16 @@ elseif(WIN32)
 	set(VULKAN_SDK "C:/VulkanSDK")
 	set(VULKAN_VERSION "1.3.250.1")
 	set(LLVM_PATH "C:/Users/sansk/OneDrive/Documents/llvm-project-llvmorg-17.0.6/llvm-project-llvmorg-17.0.6/llvm")
-elseif(ANDROID)
 endif()
+
+if(ANDROID)
+     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+		add_definitions(-D_DEBUG)
+		set(NDK_DEBUG true)
+	endif()
+endif()
+
+set(ANDROID_NDK "C:/Users/sansk/AppData/Local/Android/Sdk/ndk/25.1.8937393")
 
 set(VULKAN_PATH "${VULKAN_SDK}/${VULKAN_VERSION}")
 
@@ -43,6 +52,10 @@ endif()
 if (ANDROID)
     add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR)
     add_definitions(-DANDROID)
+    add_definitions(-DVULKAN_HPP_NO_SMART_HANDLE)
+    set(APP_GLUE_DIR ${ANDROID_NDK}/sources/android/native_app_glue)
+    include_directories(${APP_GLUE_DIR})
+    #add_library(app-glue STATIC ${APP_GLUE_DIR}/android_native_app_glue.c)
 elseif (WIN32)
     add_definitions(-DVK_USE_PLATFORM_WIN32_KHR)
     # add_definitions(-DVK_USE_PLATFORM_XCB_KHR)

@@ -24,7 +24,7 @@ namespace ksai {
 	class VulkanQueueContext
 	{
 	public:
-		VulkanQueueContext(const VulkanPhysicalDevice& inDevice, const VulkanSurface& inSurface);
+		VulkanQueueContext(const VulkanInstance& inInstance, const VulkanPhysicalDevice& inDevice);
 		~VulkanQueueContext();
 		void ProcessSurfaceContextModes();
 		GETTER GetGraphicsQueueFamilyIndex() const { return mGraphicsQueueIndex; }
@@ -32,8 +32,6 @@ namespace ksai {
 		GETTER GetComputeQueueFamilyIndex() const { return mComputeQueueIndex; }
 	private:
 		const vk::PhysicalDevice& mPhysicalDevice;
-		const vk::SurfaceKHR& mSurface;
-		const SDL_Window* mWindow;
 		ui mGraphicsQueueIndex = 0;
 		ui mPresentQueueIndex = 0;
 		ui mComputeQueueIndex = 0;
