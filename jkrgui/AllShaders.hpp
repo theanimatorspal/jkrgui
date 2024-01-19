@@ -417,11 +417,8 @@ namespace ShapeRenderers_Fill
 				vec4 mParams;
 			} push;
 
-			layout(set = 0, binding = 0) uniform sampler2D u_atlas8;
-
 			void GlslMain()
 			{
-				uint gID = gl_GlobalInvocationID.x;
 			}
 
 			GlslCodeFinish();

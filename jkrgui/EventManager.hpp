@@ -27,14 +27,10 @@ public:
             default:
                 break;
             }
-#ifndef ANDROID
             SDL_GetRelativeMouseState(&mRelativePos.x, &mRelativePos.y);
-#endif
         }
 
-#ifndef ANDROID
         mCurrentPushedMouseButton = SDL_GetMouseState(&mMousePos.x, &mMousePos.y);
-#endif
     }
 
     GETTER GetDepthValue() { return mCurrentDepthValue; }

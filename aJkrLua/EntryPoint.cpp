@@ -10,17 +10,6 @@
 #include <algorithm>
 #include <filesystem>
 
-// int main (int ArgCount , char **ArgStrings)
-//{
-//     SDL_Init(SDL_INIT_VIDEO);
-//     SDL_Window* Window = SDL_CreateWindow("Darshan", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 100, 100, SDL_WINDOW_VULKAN);
-//     while (true) {
-//
-//     }
-//     SDL_Quit();
-//     return 0;
-// }
-
 int main(int ArgCount, char** ArgStrings)
 {
 #ifdef ANDROID
@@ -85,14 +74,6 @@ int main(int ArgCount, char** ArgStrings)
     ksai_print((string(cf["-main_file"]).c_str()));
     ksai_print("Protected Function Result");
 
-    sol::protected_function_result resultlksdjaf = l.safe_script("require\"jkrgui.jkrgui\"", &sol::script_pass_on_error);
-    if (not resultlksdjaf.valid()) {
-        sol::error error = resultlksdjaf;
-        ksai_print(error.what());
-        exit(-1);
-    }
-    ksai_print("require mainh executed");
-
     sol::protected_function_result result = l.safe_script_file(string(cf["-main_file"]), &sol::script_pass_on_error);
     ksai_print("Protected Function Result Finished");
 
@@ -143,15 +124,21 @@ int main(int ArgCount, char** ArgStrings)
     };
     w.SetComputeDispatchCallBack(Dispatch);
     SafeCall(load_callback);
-    //array<float, 4> bg = { toFloat(cf["-bgr"]), toFloat(cf["-bgg"]), toFloat(cf["-bgb"]), toFloat(cf["-bga"]) };
-    array<float, 4> bg = {1, 1, 1, 1};
+    array<float, 4> bg = { toFloat(cf["-bgr"]), toFloat(cf["-bgg"]), toFloat(cf["-bgb"]), toFloat(cf["-bga"]) };
 
     SpirvHelper::Finalize();
+
+
+#ifdef ANDROID
+    chdir("/");
+#endif
+
     ksai_print("Draw Start");
-    while (!em.ShouldQuit()) {
-        //em.ProcessEvents();
+    while (true) {
+        em.ProcessEvents();
         w.Draw(bg[0], bg[1], bg[2], bg[3]);
 	   ksai_print("Drawing");
     }
     ksai_print("Draw Start Finished");
+    return 0;
 }

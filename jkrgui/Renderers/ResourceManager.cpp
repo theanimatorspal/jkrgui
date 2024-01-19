@@ -45,10 +45,14 @@ void ResourceManager::Folderize(const std::string_view inFolderPath)
 ResourceManager& ResourceManager::Load(const Jkr::Instance& inInstance, uint32_t inVarDesCount)
 {
     Make(inInstance);
+    ksai_print("line Renderer Load Start");
     mLineRendererCache->Load(LineRendererCacheFileName);
+    ksai_print("Fastext Renderer Load Start");
     mFastTextRendererCache->Load(FastTextRendererCacheFileName);
+    ksai_print("ShapeFIll Renderer Load Start ");
     mShapePainterCaches[FillType::Fill]->Load(ShapeRendererCacheFileName_Fill);
 
+    ksai_print("ShapeFillImage Load Start ");
 #ifndef JKR_USE_VARIABLE_DES_INDEXING
     mShapePainterCaches[FillType::Image]->Load(ShapeRendererCacheFileName_Image);
 #else
@@ -56,6 +60,7 @@ ResourceManager& ResourceManager::Load(const Jkr::Instance& inInstance, uint32_t
         inVarDesCount);
     mBestTextRendererCache->__var_des_index_Load_EXT(BestTextRendererCacheFilename, inVarDesCount);
 #endif
+    ksai_print("ShapeFillContinousline Load Start ");
     mShapePainterCaches[FillType::ContinousLine]->Load(ShapeRendererCacheFileName_ContinousLine);
     ksai_print("Loaded All Painter Caches");
     return *this;

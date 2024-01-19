@@ -50,6 +50,7 @@ Jkr::SDLWindow::SDLWindow(std::string_view inName, int inHeight, int inWidth)
     , mHeight(inHeight)
     , mWidth(inWidth)
 {
+#ifndef ANDROID
     mSDLWindowPtr = SDL_CreateWindow(
         mName.c_str(),
         SDL_WINDOWPOS_CENTERED,
@@ -57,6 +58,17 @@ Jkr::SDLWindow::SDLWindow(std::string_view inName, int inHeight, int inWidth)
         mWidth,
         mHeight,
         SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+#else
+    SDL_DisplayMode mode;
+    SDL_GetCurrentDisplayMode(0, &mode);
+    mSDLWindowPtr = SDL_CreateWindow(
+        mName.c_str(),
+        SDL_WINDOWPOS_UNDEFINED,
+        SDL_WINDOWPOS_UNDEFINED,
+        mode.w,
+        mode.h,
+        SDL_WINDOW_VULKAN | SDL_WINDOW_BORDERLESS);
+#endif
 }
 
 Jkr::SDLWindow::~SDLWindow()

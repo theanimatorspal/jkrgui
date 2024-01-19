@@ -61,6 +61,7 @@ inline void ksai_print(T&&... t)
     __android_log_print(6, "KSAI::", std::forward<T>(t)...);
 #else
     printf(std::forward<T>(t)...);
+    printf("\n");
 #endif // ANDROID
 }
 
