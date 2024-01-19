@@ -27,14 +27,10 @@ public:
             default:
                 break;
             }
-#ifndef ANDROID
             SDL_GetRelativeMouseState(&mRelativePos.x, &mRelativePos.y);
-#endif
         }
 
-#ifndef ANDROID
         mCurrentPushedMouseButton = SDL_GetMouseState(&mMousePos.x, &mMousePos.y);
-#endif
     }
 
     GETTER GetDepthValue() { return mCurrentDepthValue; }
@@ -78,6 +74,7 @@ public:
     {
         return mBoundRect2Ds[inDepthValue][inId].IsPointWithin(mMousePos);
     }
+
     [[nodiscard]] uint32_t SetBoundedRect(glm::vec2 inXy, glm::vec2 inWh, uint32_t inDepthValue)
     {
         if (!mBoundRect2Ds.contains(inDepthValue)) {

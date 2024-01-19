@@ -35,10 +35,10 @@ protected:
 namespace Jkr {
 class Window : public SDLWindow {
 public:
-	enum ParameterContext : int {
-		None = -3,
-		UI = -2,
-		Background = -1,
+    enum ParameterContext : int {
+        None = -3,
+        UI = -2,
+        Background = -1,
     };
 
 public:
@@ -51,9 +51,10 @@ public:
 
     Window(const Instance& inInstance, std::string_view inTitle, int inHeight, int inWidth);
     ~Window() { mInstance.GetDevice().Wait(); }
-    void SetDrawCallBack(const std::function<void(void*)>& inFunction) { mDrawFunction = inFunction; }
-    void SetUpdateCallBack(const std::function<void(void*)>& inFunction) { mUpdateFunction = inFunction; }
-    void SetComputeDispatchCallBack(const std::function<void(void*)>& inFunction) { mComputeDispatchFunction = inFunction; }
+    void SetDrawCallBack(std::function<void(void*)> inFunction) { mDrawFunction = inFunction; }
+    void SetUpdateCallBack(std::function<void(void*)> inFunction) { mUpdateFunction = inFunction; }
+    void SetComputeDispatchCallBack(std::function<void(void*)> inFunction) { mComputeDispatchFunction = inFunction; }
+
     void SetContextData(void* inData) { mData = inData; }
     virtual void Refresh();
     virtual void Draw(float r = 0.1f, float g = 0.1f, float b = 0.1f, float a = 0.1f, float d = 1.0f);

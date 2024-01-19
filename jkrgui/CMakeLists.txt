@@ -12,7 +12,7 @@ file(GLOB_RECURSE app_Precompile_SRC CONFIGURE_DEPENDS
 )
 
 if(ANDROID)
-	add_library(jkrgui SHARED ${app_SRC}
+	add_library(jkrgui STATIC ${app_SRC}
 	"Renderers/TextD/BestText_base.cpp"
 	"Renderers/TextD/BestText_base.hpp"
 	"Renderers/TextD/BestText.cpp"
@@ -43,4 +43,3 @@ else()
 	 "WindowMulT.cpp" "Renderers/ResourceManager.cpp" "Renderers/CustomImagePainter.cpp")
  endif()
 
-COPYTODESTINATION(jkrgui)

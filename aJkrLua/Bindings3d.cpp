@@ -53,16 +53,29 @@ void Create3DBindings(Instance& i, Window& w, sol::state& l)
             string_view infragment,
             string_view incompute,
             bool forcestore) -> ui {
+            stringstream s;
+            s << inR.GetGlslVertexShaderHeaderString() << invertex;
+            string vs = s.str();
+            s.str(string());
+            s << inR.GetGlslFragmentShaderHeaderString() << infragment;
+            string fs = s.str();
+            s.str(string());
+            s << inR.GetGlslComputeShaderHeaderString() << incompute;
+            string cs = s.str();
+            s.str(string());
+            std::cout << "FUCK THIS \n";
             ui id;
             inR.AddPainter(filename,
-                invertex,
-                infragment,
-                incompute,
+                vs,
+                fs,
+                cs,
                 w,
                 id,
                 forcestore);
+            std::cout << "DONE FUCK THIS \n";
             return id;
         },
+
         "add_model",
         [&](_3D::Shape& inR, string_view filename) -> int {
             ui id;

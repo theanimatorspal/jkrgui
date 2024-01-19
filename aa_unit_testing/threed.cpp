@@ -185,7 +185,7 @@ int oajdsfklsajldfkja()
         glm::mat4 mat;
         glm::vec3 ro_met;
         glm::vec3 rgb;
-    } ;
+    };
     PushConstant push;
     PushConstant push2;
 
@@ -209,7 +209,7 @@ int oajdsfklsajldfkja()
     Window.SetUpdateCallBack([](void*) {});
 
     auto itr = 10000;
-    Window.SetBackgroundCallback(
+    Window.SetBackgroundCallBack(
         [&](void*) {
             for (int i = 0; i < itr; i++) {
                 r.Bind(Window, Jkr::Window::ParameterContext::Background);

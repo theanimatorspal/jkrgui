@@ -19,15 +19,11 @@ Jkr::PainterCache& Jkr::PainterCache::Load(const std::string& fileName)
     time.reset();
     LoadSPIRVsFromFile(fileName);
 
-    ksai_print("SPIRVs Loaded");
     std::vector<uint32_t> vf = mVertexFragmentShaderSPIRV[0];
     std::vector<uint32_t> ff = mVertexFragmentShaderSPIRV[1];
     std::vector<uint32_t> cf = mComputeShaderSPIRV[0];
 
-    ksai_print("Sizes:: %d, %d, %d", vf.size(), ff.size(), cf.size());
     mShaderModulesPtr = MakeUp<ShaderModules>(mInstance.GetDevice(), mVertexFragmentShaderSPIRV[0], mVertexFragmentShaderSPIRV[1], mComputeShaderSPIRV[0]);
-    time.elapsed("Shader Compilation Load Cached");
-    ksai_print("Shader Modules made");
 
     time.reset();
     mPtrVertexFragmentDescriptorSetLayout = MakeUp<VulkanDescriptorSetLayout<2, ShaderModuleContext::Vertex, ShaderModuleContext::Fragment>>(mInstance.GetDevice(), mShaderModulesPtr->GetShaderModulesArray());
@@ -37,7 +33,6 @@ Jkr::PainterCache& Jkr::PainterCache::Load(const std::string& fileName)
     mPtrComputeDescriptorSetLayout = MakeUp<VulkanDescriptorSetLayout<1, ShaderModuleContext::Compute>>(mInstance.GetDevice(), mShaderModulesPtr->GetComputeShaderModuleArray());
     mPtrComputePipelineLayout = MakeUp<VulkanPipelineLayout<1>>(mInstance.GetDevice(), *mPtrComputeDescriptorSetLayout, mShaderModulesPtr->GetComputeShaderModuleArray());
     time.elapsed("Shader Descriptor + Pipeline Reflection");
-    ksai_print("Finished ------------------------------");
 
     return *this;
 }

@@ -403,10 +403,16 @@ void CreateGLMBindings(sol::state& lua)
 
     );
 
+    auto mat4_multiply_overloads
+        = sol::overload([](const glm::mat4& m1, const glm::vec4& v2) { return m1 * v2; },
+            [](const glm::mat4& m1, const glm::mat4& m2) { return m1 * m2; });
+
     lua.new_usertype<glm::mat4>(
         "mat4",
         sol::call_constructor,
-        sol::constructors<glm::mat4(float)>());
+        sol::constructors<glm::mat4(float)>(),
+        sol::meta_function::multiplication,
+        mat4_multiply_overloads);
 
     lua.set_function("std_vector_vec3", []() -> std::vector<glm::vec3> { return {}; });
     lua.set_function("std_vector_vec4", []() -> std::vector<glm::vec4> { return {}; });
@@ -414,6 +420,7 @@ void CreateGLMBindings(sol::state& lua)
     lua.set_function("std_vector_vec2", []() -> std::vector<glm::vec2> { return {}; });
     lua.set_function("std_vector_float", []() -> std::vector<float> { return {}; });
     lua.set_function("std_vector_int", []() -> std::vector<int> { return {}; });
+    lua.set_function("std_vector_vertex3d", []() -> std::vector<Vertex3D> { return {}; });
 }
 
 void BindMathFunctions(sol::state& lua)
@@ -428,9 +435,24 @@ void BindMathFunctions(sol::state& lua)
     lua.set_function("scale", sol::overload([](glm::mat4 inmatrix, glm::vec3 invector) -> glm::mat4 {
         return glm::translate(inmatrix, invector);
     }));
+    lua.set_function("rotate", sol::overload([](glm::mat4 inmatrix, float angle_rad, glm::vec3 invector) -> glm::mat4 {
+        return glm::rotate(inmatrix, angle_rad, invector);
+    }));
+    lua.set_function("rotate_deg", sol::overload([](glm::mat4 inmatrix, float angle_deg, glm::vec3 invector) -> glm::mat4 {
+        return glm::rotate(inmatrix, glm::radians(angle_deg), invector);
+    }));
     lua.set_function("get_identity_matrix", []() -> glm::mat4 {
         {};
         return glm::identity<glm::mat4>();
+    });
+    lua.set_function("lookat", [](glm::vec3 eye, glm::vec3 center, glm::vec3 up) -> glm::mat4 {
+        return glm::lookAt(eye, center, up);
+    });
+    lua.set_function("perspective", [](float fov, float aspect, float nearz, float farz) -> glm::mat4 {
+        return glm::perspective(fov, aspect, nearz, farz);
+    });
+    lua.set_function("ortho", [](float left, float right, float bottom, float top, float nearz, float farz) -> glm::mat4 {
+        return glm::ortho(left, right, bottom, top, nearz, farz);
     });
 }
 
@@ -838,7 +860,7 @@ layout(push_constant, std430) uniform pc {
         sol::call_constructor,
         sol::factories([&]() {
             std::cout << "Component_base Called" << std::endl;
-            return Component_base(td, em);
+            return Component_base();
         }),
 
         "set_default_bound_rect2d",
@@ -856,26 +878,10 @@ layout(push_constant, std430) uniform pc {
         "depth_value",
         sol::property(&Component_base::GetDepthValue, &Component_base::SetDepthValue),
 
-        "focus",
-        sol::property(&Component_base::IsFocused, &Component_base::SetFocus),
-
         "is_mouse_on_top",
         &Component_base::IsMouseOnTop,
 
         "is_mouse_within",
-        &Component_base::IsMouseWithin,
-
-        "translation_matrix",
-        &Component_base::GetTranslationMatrix,
-
-        "from_component",
-        &Component_base::FromComponent,
-
-        "from_world",
-        &Component_base::FromWorld,
-
-        "update_window",
-        &Component_base::SetWindowDimensions
-
+        &Component_base::IsMouseWithin
     );
 }

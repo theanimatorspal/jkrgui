@@ -46,28 +46,28 @@ public:
             mThreadData.emplace_back(MakeUp<ThreadData>(mInstance, inPerThreadBuffers[i]));
         }
 
-        //mctx_ui1 = TracyVkContext(inInstance.GetPhysicalDevice().GetPhysicalDeviceHandle(), inInstance.GetDevice().GetDeviceHandle(), inInstance.GetGraphicsQueue().GetQueueHandle(), GetCommandBuffers(Jkr::Window::ParameterContext::UI)[0].GetCommandBufferHandle());
-        //mctx_ui2 = TracyVkContext(inInstance.GetPhysicalDevice().GetPhysicalDeviceHandle(), inInstance.GetDevice().GetDeviceHandle(), inInstance.GetGraphicsQueue().GetQueueHandle(), GetCommandBuffers(Jkr::Window::ParameterContext::UI)[1].GetCommandBufferHandle());
-        //mctx_bg1 = TracyVkContext(inInstance.GetPhysicalDevice().GetPhysicalDeviceHandle(), inInstance.GetDevice().GetDeviceHandle(), inInstance.GetGraphicsQueue().GetQueueHandle(), GetCommandBuffers(Jkr::Window::ParameterContext::Background)[0].GetCommandBufferHandle());
-        //mctx_bg2 = TracyVkContext(inInstance.GetPhysicalDevice().GetPhysicalDeviceHandle(), inInstance.GetDevice().GetDeviceHandle(), inInstance.GetGraphicsQueue().GetQueueHandle(), GetCommandBuffers(Jkr::Window::ParameterContext::Background)[1].GetCommandBufferHandle());
-        //mctx_main1 = TracyVkContext(inInstance.GetPhysicalDevice().GetPhysicalDeviceHandle(), inInstance.GetDevice().GetDeviceHandle(), inInstance.GetGraphicsQueue().GetQueueHandle(), GetCommandBuffers(Jkr::Window::ParameterContext::None)[0].GetCommandBufferHandle());
-        //mctx_main2 = TracyVkContext(inInstance.GetPhysicalDevice().GetPhysicalDeviceHandle(), inInstance.GetDevice().GetDeviceHandle(), inInstance.GetGraphicsQueue().GetQueueHandle(), GetCommandBuffers(Jkr::Window::ParameterContext::None)[1].GetCommandBufferHandle());
-        //TracyVkContextName(mctx_ui1, "ui1", 5);
-        //TracyVkContextName(mctx_ui2, "ui2", 5);
-        //TracyVkContextName(mctx_bg1, "bg1", 5);
-        //TracyVkContextName(mctx_bg2, "bg2", 5);
-        //TracyVkContextName(mctx_main1, "mn1", 5);
-        //TracyVkContextName(mctx_main2, "mn2", 5);
+        // mctx_ui1 = TracyVkContext(inInstance.GetPhysicalDevice().GetPhysicalDeviceHandle(), inInstance.GetDevice().GetDeviceHandle(), inInstance.GetGraphicsQueue().GetQueueHandle(), GetCommandBuffers(Jkr::Window::ParameterContext::UI)[0].GetCommandBufferHandle());
+        // mctx_ui2 = TracyVkContext(inInstance.GetPhysicalDevice().GetPhysicalDeviceHandle(), inInstance.GetDevice().GetDeviceHandle(), inInstance.GetGraphicsQueue().GetQueueHandle(), GetCommandBuffers(Jkr::Window::ParameterContext::UI)[1].GetCommandBufferHandle());
+        // mctx_bg1 = TracyVkContext(inInstance.GetPhysicalDevice().GetPhysicalDeviceHandle(), inInstance.GetDevice().GetDeviceHandle(), inInstance.GetGraphicsQueue().GetQueueHandle(), GetCommandBuffers(Jkr::Window::ParameterContext::Background)[0].GetCommandBufferHandle());
+        // mctx_bg2 = TracyVkContext(inInstance.GetPhysicalDevice().GetPhysicalDeviceHandle(), inInstance.GetDevice().GetDeviceHandle(), inInstance.GetGraphicsQueue().GetQueueHandle(), GetCommandBuffers(Jkr::Window::ParameterContext::Background)[1].GetCommandBufferHandle());
+        // mctx_main1 = TracyVkContext(inInstance.GetPhysicalDevice().GetPhysicalDeviceHandle(), inInstance.GetDevice().GetDeviceHandle(), inInstance.GetGraphicsQueue().GetQueueHandle(), GetCommandBuffers(Jkr::Window::ParameterContext::None)[0].GetCommandBufferHandle());
+        // mctx_main2 = TracyVkContext(inInstance.GetPhysicalDevice().GetPhysicalDeviceHandle(), inInstance.GetDevice().GetDeviceHandle(), inInstance.GetGraphicsQueue().GetQueueHandle(), GetCommandBuffers(Jkr::Window::ParameterContext::None)[1].GetCommandBufferHandle());
+        // TracyVkContextName(mctx_ui1, "ui1", 5);
+        // TracyVkContextName(mctx_ui2, "ui2", 5);
+        // TracyVkContextName(mctx_bg1, "bg1", 5);
+        // TracyVkContextName(mctx_bg2, "bg2", 5);
+        // TracyVkContextName(mctx_main1, "mn1", 5);
+        // TracyVkContextName(mctx_main2, "mn2", 5);
     }
 
     ~WindowMulT()
     {
-        //TracyVkDestroy(mctx_ui1);
-        //TracyVkDestroy(mctx_ui2);
-        //TracyVkDestroy(mctx_bg1);
-        //TracyVkDestroy(mctx_bg2);
-        //TracyVkDestroy(mctx_main1);
-        //TracyVkDestroy(mctx_main2);
+        // TracyVkDestroy(mctx_ui1);
+        // TracyVkDestroy(mctx_ui2);
+        // TracyVkDestroy(mctx_bg1);
+        // TracyVkDestroy(mctx_bg2);
+        // TracyVkDestroy(mctx_main1);
+        // TracyVkDestroy(mctx_main2);
     }
     virtual void Refresh() override;
     virtual void Draw(float r = 0.1f, float g = 0.1f, float b = 0.1f, float a = 0.1f, float d = 1.0f) override;
@@ -101,11 +101,11 @@ private:
     v<up<VulkanCommandBuffer>> mSecondaryCommandBuffers;
     v<up<ThreadData>> mThreadData;
 
-public:
-    void SetBackgroundCallback(std::function<void(void*)> inFunction) { mBackgroundCallback = inFunction; }
-    void SetDedicated3DCallback(std::function<void(void*)> inFunction) { mDedicated3DCallback = inFunction; }
     void CmdBackground();
     void CmdUI();
+public:
+    void SetBackgroundCallBack(std::function<void(void*)> inFunction) { mBackgroundCallback = inFunction; }
+    void SetDedicated3DCallback(std::function<void(void*)> inFunction) { mDedicated3DCallback = inFunction; }
 
 private:
     std::function<void(void*)> mBackgroundCallback = [](void*) {};
@@ -113,12 +113,12 @@ private:
 
 public:
     /* Performance Profiling */
-    //tracy::VkCtx* mctx_ui1;
-    //tracy::VkCtx* mctx_ui2;
-    //tracy::VkCtx* mctx_bg1;
-    //tracy::VkCtx* mctx_bg2;
-    //tracy::VkCtx* mctx_main1;
-    //tracy::VkCtx* mctx_main2;
+    // tracy::VkCtx* mctx_ui1;
+    // tracy::VkCtx* mctx_ui2;
+    // tracy::VkCtx* mctx_bg1;
+    // tracy::VkCtx* mctx_bg2;
+    // tracy::VkCtx* mctx_main1;
+    // tracy::VkCtx* mctx_main2;
 };
 
 } // namespace Jkr

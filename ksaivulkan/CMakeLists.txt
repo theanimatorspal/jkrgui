@@ -33,7 +33,7 @@ if(APPLE OR ANDROID)
 	   "ksai_thread.hpp"
         )
 	   if(ANDROID)
-		   add_library(ksaivulkan SHARED ${app_SRC})
+		   add_library(ksaivulkan ${app_SRC})
 		   configure_target(ksaivulkan)
 	   else()
 		   add_library(ksaivulkan ${app_SRC})
@@ -48,4 +48,3 @@ else()
         add_library(ksaivulkan ${app_SRC} "ksai_image.hpp" "ksai_thread.hpp" "Vendor/NanoBench/nanobench.h" "Vendor/NanoBench/nanobench.cpp")
 endif()
 
-COPYTODESTINATION(ksaivulkan)
