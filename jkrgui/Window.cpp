@@ -111,14 +111,6 @@ Jkr::Window::Window(const Instance& inInstance, std::string_view inTitle, int in
     , mDepthImage(mInstance.GetDevice(), mSurface)
     , mRenderPass(mInstance.GetDevice(), mSurface, mDepthImage)
     , mSwapChainImages { mSwapChain.GetVulkanImages(mInstance.GetDevice(), mSurface) }
-    , mFrameBuffers { FrameBufferType(mInstance.GetDevice(),
-                          mRenderPass,
-                          mSwapChainImages[0],
-                          mDepthImage),
-        FrameBufferType(mInstance.GetDevice(),
-            mRenderPass,
-            mSwapChainImages[1],
-            mDepthImage) }
     , mImageAvailableSemaphores { VulkanSemaphore(mInstance.GetDevice()),
         VulkanSemaphore(mInstance.GetDevice()) }
     , mRenderFinishedSemaphores { VulkanSemaphore(mInstance.GetDevice()),
@@ -128,6 +120,10 @@ Jkr::Window::Window(const Instance& inInstance, std::string_view inTitle, int in
     , mCommandBuffers { VulkanCommandBuffer(inInstance.GetDevice(), mCommandPool),
         VulkanCommandBuffer(inInstance.GetDevice(), mCommandPool) }
 {
+    ksai_print("SwapChainImagesSize: %d", mSwapChainImages.size());
+    for (int i = 0; i < mSwapChainImages.size(); i++) {
+        mFrameBuffers.emplace_back(MakeUp<FrameBufferType>(inInstance.GetDevice(), mRenderPass, mSwapChainImages[i], mDepthImage));
+    }
 }
 
 void Jkr::Window::Draw(float r, float g, float b, float a, float d)
@@ -139,8 +135,9 @@ void Jkr::Window::Draw(float r, float g, float b, float a, float d)
     std::pair<uint32_t, uint32_t> SwapChainResult = mSwapChain.AcquireNextImage(mImageAvailableSemaphores[mCurrentFrame]);
     mFences[mCurrentFrame].Reset();
     auto& CommandBuffers = this->GetCommandBuffers(ParameterContext::None);
-    if (!mSwapChain.ImageIsNotOptimal(SwapChainResult)) {
+    if (not mSwapChain.ImageIsNotOptimal(SwapChainResult)) {
         mAcquiredImageIndex = SwapChainResult.second;
+        ksai_print("Acquired image Index: %d", mAcquiredImageIndex);
         CommandBuffers[mCurrentFrame].Reset();
         CommandBuffers[mCurrentFrame].Begin();
 
@@ -149,7 +146,7 @@ void Jkr::Window::Draw(float r, float g, float b, float a, float d)
         CommandBuffers[mCurrentFrame].BeginRenderPass(
             mRenderPass,
             mSurface,
-            mFrameBuffers[mAcquiredImageIndex], // यो स्थानमा जहिल्यै झुक्किन्छ । फ्रेम बफर एउटा हुने हो ।  "Acquired Image Index" अनुसार ।
+            *mFrameBuffers[mAcquiredImageIndex], // यो स्थानमा जहिल्यै झुक्किन्छ । फ्रेम बफर एउटा हुने हो ।  "Acquired Image Index" अनुसार ।
             ClearValues);
 
         mDrawFunction(mData);
@@ -173,6 +170,7 @@ void Jkr::Window::Draw(float r, float g, float b, float a, float d)
             mCurrentFrame = (mCurrentFrame + 1) % mMaxFramesInFlight;
         }
     } else {
+        ksai_print("Refresh");
         Refresh();
     }
 }
@@ -183,8 +181,7 @@ void Jkr::Window::Refresh()
     mSwapChain = VulkanSwapChain<mMaxFramesInFlight>(mInstance.GetDevice(), mInstance.GetQueueContext(), mSurface);
     mSwapChainImages = mSwapChain.GetVulkanImages(mInstance.GetDevice(), mSurface);
     mDepthImage = VulkanImage<ImageContext::DepthImage>(mInstance.GetDevice(), mSurface);
-    mFrameBuffers = {
-        FrameBufferType(mInstance.GetDevice(), mRenderPass, mSwapChainImages[0], mDepthImage),
-        FrameBufferType(mInstance.GetDevice(), mRenderPass, mSwapChainImages[1], mDepthImage)
-    };
+    for (int i = 0; i < mSwapChainImages.size(); i++) {
+        mFrameBuffers[i] = MakeUp<FrameBufferType>(mInstance.GetDevice(), mRenderPass, mSwapChainImages[i], mDepthImage);
+    }
 }

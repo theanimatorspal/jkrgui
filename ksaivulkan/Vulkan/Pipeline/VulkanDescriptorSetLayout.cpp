@@ -35,6 +35,8 @@ VulkanDescriptorSetLayout<1, ShaderModuleContext::Compute>::VulkanDescriptorSetL
     mDescriptorSetLayout = mDevice.createDescriptorSetLayout(DescriptorSetLayoutCreateInfo);
 }
 
+#ifdef JKR_USE_VARIABLE_DES_INDEXING
+
 template <>
 VulkanDescriptorSetLayout<NoOfShaderModules, ShaderModuleContext::Vertex, ShaderModuleContext::Fragment>::VulkanDescriptorSetLayout(const VulkanDevice& inDevice, const std::array<VulkanShaderModule, NoOfShaderModules>& inModules, uint32_t inVariableSizedDescriptorMaxCount)
     : VulkanDescriptorSetLayoutBase(inDevice)
@@ -84,6 +86,7 @@ VulkanDescriptorSetLayout<1, ShaderModuleContext::Compute>::VulkanDescriptorSetL
     vk::StructureChain<vk::DescriptorSetLayoutCreateInfo, vk::DescriptorSetLayoutBindingFlagsCreateInfo> Chain(DescriptorSetLayoutCreateInfo, BindingFlags);
     mDescriptorSetLayout = mDevice.createDescriptorSetLayout(Chain.get<vk::DescriptorSetLayoutCreateInfo>());
 }
+#endif
 
 ksai::VulkanDescriptorSetLayoutBase::VulkanDescriptorSetLayoutBase(const VulkanDevice& inDevice)
     : mDevice(inDevice.GetDeviceHandle())

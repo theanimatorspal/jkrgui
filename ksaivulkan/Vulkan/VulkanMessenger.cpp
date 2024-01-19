@@ -1,6 +1,8 @@
 #include "VulkanMessenger.hpp"
 #ifdef WIN32
 #include <Windows.h>
+#elif ANDROID
+#include <SDL.h>
 #endif
 
 #include <iostream>

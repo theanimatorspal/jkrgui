@@ -74,7 +74,7 @@ template <sz inMaxFramesInFlight>
 inline v<VulkanImages> VulkanSwapChain<inMaxFramesInFlight>::GetVulkanImages(const VulkanDevice& inDevice, const VulkanSurface& inSurface)
 {
     v<VulkanImages> Vectors;
-    for (int i = 0; i < inMaxFramesInFlight; i++) {
+    for (int i = 0; i < mSwapChainImageViews.size(); i++) {
         auto Image = VulkanImage<ImageContext::ExternalHandled>(inDevice, inSurface, nullptr, mSwapChainImageViews[i]);
         Vectors.push_back(std::move(Image));
     }

@@ -52,18 +52,17 @@ void VulkanPipelineBase::FillVertexInputDescriptions(const spirv_cross::ShaderRe
             InputAttrDescription[i] = vk::VertexInputAttributeDescription(location, bindingIndex, format, AttributeOffset);
             AttributeOffset += AttributeSize;
         }
-	   //std::ranges::sort(InputAttrDescription, {},  &vk::VertexInputAttributeDescription::location);
+        // std::ranges::sort(InputAttrDescription, {},  &vk::VertexInputAttributeDescription::location);
 
         std::sort(InputAttrDescription.begin(), InputAttrDescription.end(), [](const auto& lhs, const auto& rhs) {
-               return lhs.location < rhs.location;
-		   });
+            return lhs.location < rhs.location;
+        });
 
-	   for (ui off = 0, i = 0; auto & u : InputAttrDescription)
-	   {
+        for (ui off = 0, i = 0; auto& u : InputAttrDescription) {
             u.offset = off;
-            off += AttrSizes[i];	
-		  i++;
-	   }
+            off += AttrSizes[i];
+            i++;
+        }
 
         const auto InputBindingWholeSize = AttributeOffset;
         const auto FirstBindingIndex = 0;
@@ -165,9 +164,9 @@ VulkanPipeline<2, PipelineContext::Default>::VulkanPipeline(const VulkanDevice& 
         &PipelineMultisampleStateCreateInfo,
         &PipelineDepthStencilStateCreateInfo,
         &PipelineColorBlendStateCreateInfo,
-        &PipelineDynamicStateCreateInfo)
-                                          .setRenderPass(inRenderPass.GetRenderPassHandle())
-                                          .setLayout(inLayout.GetPipelineLayoutHandle());
+        &PipelineDynamicStateCreateInfo);
+    GraphicsPipelineCreateInfo.setRenderPass(inRenderPass.GetRenderPassHandle())
+        .setLayout(inLayout.GetPipelineLayoutHandle());
     mPipeline = mDevice.createGraphicsPipeline(nullptr, GraphicsPipelineCreateInfo).value;
 }
 

@@ -24,10 +24,11 @@ void Jkr::WindowMulT::Draw(float r, float g, float b, float a, float d)
     mCommandBuffers[mCurrentFrame].Begin();
 
     mComputeDispatchFunction(mData);
+
     mCommandBuffers[mCurrentFrame].BeginRenderPass<VulkanCommandBuffer::RenderPassBeginContext::SecondaryCommandBuffers>(
         mRenderPass,
         mSurface,
-        mFrameBuffers[mAcquiredImageIndex], // यो स्थानमा जहिल्यै झुक्किन्छ । फ्रेम बफर एउटा हुने हो ।  "Acquired Image Index" अनुसार ।
+        *mFrameBuffers[mAcquiredImageIndex], // यो स्थानमा जहिल्यै झुक्किन्छ । फ्रेम बफर एउटा हुने हो ।  "Acquired Image Index" अनुसार ।
         ClearValues);
 
     /* Secondary Command Buffer Background */
@@ -49,6 +50,7 @@ void Jkr::WindowMulT::Draw(float r, float g, float b, float a, float d)
         mSwapChain,
         mRenderFinishedSemaphores[mCurrentFrame],
         mAcquiredImageIndex);
+
     if (mSwapChain.ImageIsNotOptimal(Result)) {
         Refresh();
     } else {
@@ -61,7 +63,7 @@ void Jkr::WindowMulT::CmdBackground()
     mSecondaryCommandBuffersBackground[mCurrentFrame].Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPassAndOneTimeSubmit>(
         mRenderPass,
         0,
-        mFrameBuffers[mAcquiredImageIndex]);
+        *mFrameBuffers[mAcquiredImageIndex]);
     mSecondaryCommandBuffersBackground[mCurrentFrame].SetViewport(mSurface);
     mSecondaryCommandBuffersBackground[mCurrentFrame].SetScissor(mSurface);
     {
@@ -76,7 +78,7 @@ void Jkr::WindowMulT::CmdUI()
     mSecondaryCommandBuffersUI[mCurrentFrame].Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPassAndOneTimeSubmit>(
         mRenderPass,
         0,
-        mFrameBuffers[mAcquiredImageIndex]);
+        *mFrameBuffers[mAcquiredImageIndex]);
 
     mSecondaryCommandBuffersUI[mCurrentFrame].SetViewport(mSurface);
     mSecondaryCommandBuffersUI[mCurrentFrame].SetScissor(mSurface);
@@ -92,8 +94,8 @@ void Jkr::WindowMulT::Refresh()
     mSwapChain = VulkanSwapChain<mMaxFramesInFlight>(mInstance.GetDevice(), mInstance.GetQueueContext(), mSurface, mSwapChain);
     mSwapChainImages = mSwapChain.GetVulkanImages(mInstance.GetDevice(), mSurface);
     mDepthImage = VulkanImage<ImageContext::DepthImage>(mInstance.GetDevice(), mSurface);
-    mFrameBuffers = {
-        FrameBufferType(mInstance.GetDevice(), mRenderPass, mSwapChainImages[0], mDepthImage),
-        FrameBufferType(mInstance.GetDevice(), mRenderPass, mSwapChainImages[1], mDepthImage)
-    };
+
+    for (int i = 0; i < mSwapChainImages.size(); i++) {
+        mFrameBuffers[i] = MakeUp<FrameBufferType>(mInstance.GetDevice(), mRenderPass, mSwapChainImages[i], mDepthImage);
+    }
 }

@@ -64,6 +64,11 @@ VulkanInstance::VulkanInstance()
         exit(1);
     }
 
+    if (SDL_Init (SDL_INIT_EVERYTHING) == -1)
+    {
+        ksai_print("SDL returned error");
+        ksai_print("Couldn't INitialize SDL: %s", SDL_GetError());
+    }
     SDL_Window* Window = SDL_CreateWindow("Test", 0, 0, 100, 100, SDL_WINDOW_HIDDEN | SDL_WINDOW_VULKAN);
     auto ExtensionProperties = vk::enumerateInstanceExtensionProperties();
     ui pCount = 0;
@@ -137,4 +142,5 @@ VulkanInstance::VulkanInstance()
 VulkanInstance::~VulkanInstance()
 {
     mInstance.destroy();
+    SDL_Quit();
 }

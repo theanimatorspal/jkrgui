@@ -30,7 +30,7 @@ VulkanSurface& VulkanSurface::ProcessCurrentSurfaceConditions(const VulkanPhysic
 {
     ProcessCurrentSurfaceExtents(inPhysicalDevice);
     mPresentMode = vk::PresentModeKHR::eFifo; // Guaranteed by the spec to be supported
-    mPresentMode = vk::PresentModeKHR::eImmediate;
+    //mPresentMode = vk::PresentModeKHR::eImmediate;
     mPreTransform = (mSurfaceCapabilities.supportedTransforms & vk::SurfaceTransformFlagBitsKHR::eIdentity)
         ? vk::SurfaceTransformFlagBitsKHR::eIdentity
         : mSurfaceCapabilities.currentTransform;

@@ -3,13 +3,23 @@ using namespace Jkr;
 
 void ResourceManager::Make(const Jkr::Instance& inInstance)
 {
+#ifndef ANDROID
     mLineRendererCache = MakeUp<Jkr::PainterCache>(inInstance,
         ksai::PipelinePropertiesContext::Line);
+#else
+    mLineRendererCache = MakeUp<Jkr::PainterCache>(inInstance);
+#endif
+
     mFastTextRendererCache = MakeUp<Jkr::PainterCache>(inInstance);
     mShapePainterCaches[FillType::Fill] = MakeUp<Jkr::PainterCache>(inInstance);
     mShapePainterCaches[FillType::Image] = MakeUp<Jkr::PainterCache>(inInstance);
-    mShapePainterCaches[FillType::ContinousLine]
-        = MakeUp<Jkr::PainterCache>(inInstance, ksai::PipelinePropertiesContext::LineStrip);
+
+#ifndef ANDROID
+    mShapePainterCaches[FillType::ContinousLine] = MakeUp<Jkr::PainterCache>(inInstance, ksai::PipelinePropertiesContext::LineStrip);
+#else
+    mShapePainterCaches[FillType::ContinousLine] = MakeUp<Jkr::PainterCache>(inInstance);
+#endif
+
     mBestTextRendererCache = MakeUp<Jkr::PainterCache>(inInstance);
 }
 
@@ -47,6 +57,7 @@ ResourceManager& ResourceManager::Load(const Jkr::Instance& inInstance, uint32_t
     mBestTextRendererCache->__var_des_index_Load_EXT(BestTextRendererCacheFilename, inVarDesCount);
 #endif
     mShapePainterCaches[FillType::ContinousLine]->Load(ShapeRendererCacheFileName_ContinousLine);
+    ksai_print("Loaded All Painter Caches");
     return *this;
 }
 
@@ -59,7 +70,6 @@ ResourceManager& ResourceManager::Store(const Jkr::Instance& inInstance, uint32_
     ksai::Shader FastTextCompute(8, FontShader::ComputeShader);
     ksai::Shader Shape_Fill(ShapeRenderers_Fill::VertexShader, ShapeRenderers_Fill::FragmentShader);
     ksai::Shader Shape_FillCompute(8, ShapeRenderers_Fill::ComputeShader);
-
 
     auto mLineRendererCacheF = [&]() { mLineRendererCache->Store(LineRendererCacheFileName,
                                            Line.GetVertexShader().str(),

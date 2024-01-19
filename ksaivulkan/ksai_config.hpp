@@ -11,6 +11,7 @@
 #include <vector>
 #include <span>
 #include <iostream>
+#include <fstream>
 
 namespace ksai
 {
@@ -47,3 +48,14 @@ namespace ksai
 #define mv std::move
 #define mksh std::make_shared
 }
+
+#ifdef ANDROID
+extern "C" int __android_log_print(int prio, const char* tag, const char* fmt, ...);
+#endif
+
+template <typename... T>
+inline void ksai_print(T&&... t)
+{
+    __android_log_print(6, "KSAI::", std::forward<T>(t)...);
+}
+

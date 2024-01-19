@@ -5,38 +5,38 @@ ksai::VulkanPipelineCache::VulkanPipelineCache(const VulkanDevice &inDevice, std
     : mName(inFileName)
     , mDevice(inDevice.GetDeviceHandle())
 {
-    FILE *PtrReadFile = fopen(inFileName.c_str(), "rb");
-    mPipelineCacheSize = GetFileSizeUtil(PtrReadFile);
-	mPipelineCacheData = (char*)malloc(sizeof(char) * mPipelineCacheSize);
-	if (mPipelineCacheData == nullptr)
-	{
-		fputs("Memory error", stderr);
-		exit(EXIT_FAILURE);
-	}
+ //   FILE *PtrReadFile = fopen(inFileName.c_str(), "rb");
+ //   mPipelineCacheSize = GetFileSizeUtil(PtrReadFile);
+	//mPipelineCacheData = (char*)malloc(sizeof(char) * mPipelineCacheSize);
+	//if (mPipelineCacheData == nullptr)
+	//{
+	//	fputs("Memory error", stderr);
+	//	exit(EXIT_FAILURE);
+	//}
 
-	size_t Result = fread(mPipelineCacheData, 1, mPipelineCacheSize, PtrReadFile);
-	bool FileReadSuccessful = Result == mPipelineCacheSize;
-	if (!FileReadSuccessful)
-	{
-		fputs("Reading Error", stderr);
-		free(mPipelineCacheData);
-		exit(EXIT_FAILURE);
-	}
-	if (PtrReadFile != nullptr)
-	{
-		fclose(PtrReadFile);
-	}
+	//size_t Result = fread(mPipelineCacheData, 1, mPipelineCacheSize, PtrReadFile);
+	//bool FileReadSuccessful = Result == mPipelineCacheSize;
+	//if (!FileReadSuccessful)
+	//{
+	//	fputs("Reading Error", stderr);
+	//	free(mPipelineCacheData);
+	//	exit(EXIT_FAILURE);
+	//}
+	//if (PtrReadFile != nullptr)
+	//{
+	//	fclose(PtrReadFile);
+	//}
 
-	CheckCacheData(inFileName);
+	//CheckCacheData(inFileName);
 
-	auto CacheCreateInfo = vk::PipelineCacheCreateInfo(
-		vk::PipelineCacheCreateFlags(),
-		mPipelineCacheSize,
-		mPipelineCacheData
-	);
-	mPipelineCache = mDevice.createPipelineCache(CacheCreateInfo);
-	free(mPipelineCacheData);
-	mPipelineCacheData = NULL;
+	//auto CacheCreateInfo = vk::PipelineCacheCreateInfo(
+	//	vk::PipelineCacheCreateFlags(),
+	//	mPipelineCacheSize,
+	//	mPipelineCacheData
+	//);
+	//mPipelineCache = mDevice.createPipelineCache(CacheCreateInfo);
+	//free(mPipelineCacheData);
+	//mPipelineCacheData = NULL;
 }
 
 ksai::VulkanPipelineCache::~VulkanPipelineCache()

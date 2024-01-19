@@ -89,7 +89,7 @@ protected:
     VulkanImage<ImageContext::DepthImage> mDepthImage;
     VulkanRenderPass<RenderPassContext::Default> mRenderPass;
     SwapChainVulkanImages mSwapChainImages;
-    std::array<FrameBufferType, mMaxFramesInFlight> mFrameBuffers;
+    std::vector<up<FrameBufferType>> mFrameBuffers;
 
 protected:
     const std::array<VulkanSemaphore, mMaxFramesInFlight> mImageAvailableSemaphores;

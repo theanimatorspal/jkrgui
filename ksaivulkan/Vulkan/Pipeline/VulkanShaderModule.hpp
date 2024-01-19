@@ -18,11 +18,11 @@ namespace ksai {
 		~VulkanShaderModule();
 		GETTER& GetShaderModuleHandle() const { return mModule; }
 		GETTER& GetShaderResourcesHandle() const { return mResources; }
-		GETTER& GetShaderResourcesCompilerHandle() const { return mCompiler; }
+		GETTER& GetShaderResourcesCompilerHandle() const { return *mCompiler; }
 	private:
 		const vk::Device& mDevice;
 		vk::ShaderModule mModule;
-		spirv_cross::Compiler mCompiler;
+		std::unique_ptr<spirv_cross::Compiler> mCompiler;
 		spirv_cross::ShaderResources mResources;
 	};
 }
