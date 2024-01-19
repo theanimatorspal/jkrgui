@@ -23,17 +23,13 @@ VulkanQueueContext::VulkanQueueContext(const VulkanInstance& inInstance, const V
     mGraphicsQueueIndex = std::distance(mQueueFamilyProperties.begin(), PropertyIterator);
     assert(mGraphicsQueueIndex < mQueueFamilyProperties.size());
 
-#define ForEachFamilyProperty(i) for (int i = 0; i < mQueueFamilyProperties.size(); i++)
-
-    size_t presentQueueFamilyIndex = mPhysicalDevice
-                                         .getSurfaceSupportKHR(mGraphicsQueueIndex, SurfaceHandle)
+    size_t presentQueueFamilyIndex = mPhysicalDevice .getSurfaceSupportKHR(mGraphicsQueueIndex, SurfaceHandle)
         ? mGraphicsQueueIndex
         : mQueueFamilyProperties.size();
     mPresentQueueIndex = presentQueueFamilyIndex;
 
     if (presentQueueFamilyIndex == mQueueFamilyProperties.size()) {
-        ForEachFamilyProperty(i)
-        {
+        for (int i = 0; i < mQueueFamilyProperties.size(); i++) {
             bool isQueueSupportedForPresentAndGraphics = (mQueueFamilyProperties[i].queueFlags & vk::QueueFlagBits::eGraphics) && mPhysicalDevice.getSurfaceSupportKHR(mGraphicsQueueIndex, SurfaceHandle);
             if (isQueueSupportedForPresentAndGraphics) {
                 mGraphicsQueueIndex = i;
@@ -44,8 +40,7 @@ VulkanQueueContext::VulkanQueueContext(const VulkanInstance& inInstance, const V
 
         bool isPresentQueueDifferent = (mPresentQueueIndex == mQueueFamilyProperties.size());
         if (isPresentQueueDifferent) {
-            ForEachFamilyProperty(i)
-            {
+            for (int i = 0; i < mQueueFamilyProperties.size(); i++) {
                 bool SupportsPresentation = mPhysicalDevice.getSurfaceSupportKHR(i, SurfaceHandle);
                 if (SupportsPresentation) {
                     mPresentQueueIndex = i;

@@ -12,6 +12,7 @@
 #include <span>
 #include <iostream>
 #include <fstream>
+#include <cstdio>
 
 namespace ksai
 {
@@ -56,6 +57,10 @@ extern "C" int __android_log_print(int prio, const char* tag, const char* fmt, .
 template <typename... T>
 inline void ksai_print(T&&... t)
 {
+#ifdef ANDROID
     __android_log_print(6, "KSAI::", std::forward<T>(t)...);
+#else
+    printf(std::forward<T>(t)...);
+#endif // ANDROID
 }
 

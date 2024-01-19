@@ -23,6 +23,21 @@
 
 int main(int ArgCount, char** ArgStrings)
 {
+#ifdef ANDROID
+    std::string InternalPath = SDL_AndroidGetInternalStoragePath();
+    std::string cd_to = InternalPath.substr(0, InternalPath.find_last_of('/') + 1);
+    ksai_print(cd_to.c_str());
+    // ksai_print(InternalPath.c_str());
+    char initialdir[256];
+    getcwd(initialdir, sizeof(initialdir));
+    ksai_print("InitialWD: %s", initialdir);
+    chdir(cd_to.c_str());
+
+    char finaldir[256];
+    getcwd(finaldir, sizeof(finaldir));
+    ksai_print("After CD: %s", finaldir);
+#endif
+
     ksai_print("Started");
     auto& cf = gConfiguration;
     const vector<string_view> Arguments(ArgStrings + 1, ArgStrings + ArgCount);
@@ -66,20 +81,6 @@ int main(int ArgCount, char** ArgStrings)
     Create3DBindings(i, w, l);
 
     ksai_print("Protected Function Result");
-#ifdef ANDROID
-    std::string InternalPath = SDL_AndroidGetInternalStoragePath();
-    std::string cd_to = InternalPath.substr(0, InternalPath.find_last_of('/') + 1);
-    ksai_print(cd_to.c_str());
-    // ksai_print(InternalPath.c_str());
-    char initialdir[256];
-    getcwd(initialdir, sizeof(initialdir));
-    ksai_print("InitialWD: %s", initialdir);
-    chdir(cd_to.c_str());
-
-    char finaldir[256];
-    getcwd(finaldir, sizeof(finaldir));
-    ksai_print("After CD: %s", finaldir);
-#endif
 
     ksai_print((string(cf["-main_file"]).c_str()));
     ksai_print("Protected Function Result");
@@ -149,7 +150,7 @@ int main(int ArgCount, char** ArgStrings)
     ksai_print("Draw Start");
     while (!em.ShouldQuit()) {
         //em.ProcessEvents();
-        w.Draw(bg[0] * sin(w.GetWindowCurrentTime()), bg[1], bg[2], bg[3]);
+        w.Draw(bg[0], bg[1], bg[2], bg[3]);
 	   ksai_print("Drawing");
     }
     ksai_print("Draw Start Finished");

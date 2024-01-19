@@ -14,4 +14,5 @@ add_executable(aa_unit_testing ${app_SRC} "testmain.cpp" "nodetest.cpp" "threed.
 
 
 configure_target(aa_unit_testing)
+target_link_libraries(aa_unit_testing ksaivulkan jkrgui)
 

@@ -11,6 +11,8 @@ void Jkr::WindowMulT::Draw(float r, float g, float b, float a, float d)
         ClearValues = { r, g, b, a, d };
     std::pair<uint32_t, uint32_t> SwapChainResult = mSwapChain.AcquireNextImage(mImageAvailableSemaphores[mCurrentFrame]);
     mAcquiredImageIndex = SwapChainResult.second;
+    ksai_print("Acquired Image: %d", mAcquiredImageIndex);
+    ksai_print("Current Frame: %d", mCurrentFrame);
     if (mThreadPool.has_value()) {
         auto& tp = mThreadPool.value().get();
         tp.Add_Job([this]() { Jkr::WindowMulT::CmdBackground(); });
@@ -30,6 +32,7 @@ void Jkr::WindowMulT::Draw(float r, float g, float b, float a, float d)
         mSurface,
         *mFrameBuffers[mAcquiredImageIndex], // यो स्थानमा जहिल्यै झुक्किन्छ । फ्रेम बफर एउटा हुने हो ।  "Acquired Image Index" अनुसार ।
         ClearValues);
+    ksai_print("Begin Render Pass");
 
     /* Secondary Command Buffer Background */
     if (mThreadPool.has_value()) {
@@ -39,6 +42,7 @@ void Jkr::WindowMulT::Draw(float r, float g, float b, float a, float d)
     mCommandBuffers[mCurrentFrame].ExecuteCommands(mSecondaryCommandBuffersUI[mCurrentFrame]);
     mCommandBuffers[mCurrentFrame].ExecuteCommands(mSecondaryCommandBuffersBackground[mCurrentFrame]);
     mCommandBuffers[mCurrentFrame].EndRenderPass();
+    ksai_print("End Render Pass");
     mCommandBuffers[mCurrentFrame].End();
 
     mInstance.GetGraphicsQueue().Submit<SubmitContext::ColorAttachment>(
@@ -46,16 +50,20 @@ void Jkr::WindowMulT::Draw(float r, float g, float b, float a, float d)
         mRenderFinishedSemaphores[mCurrentFrame],
         mFences[mCurrentFrame],
         mCommandBuffers[mCurrentFrame]);
+    ksai_print("Submit");
     uint32_t Result = mInstance.GetGraphicsQueue().Present<mMaxFramesInFlight, SubmitContext::ColorAttachment>(
         mSwapChain,
         mRenderFinishedSemaphores[mCurrentFrame],
         mAcquiredImageIndex);
+    ksai_print("Present");
 
     if (mSwapChain.ImageIsNotOptimal(Result)) {
         Refresh();
     } else {
         mCurrentFrame = (mCurrentFrame + 1) % mMaxFramesInFlight;
     }
+
+    ksai_print("CheckOptimal");
 }
 
 void Jkr::WindowMulT::CmdBackground()

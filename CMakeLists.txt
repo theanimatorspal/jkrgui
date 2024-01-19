@@ -1,5 +1,5 @@
 ﻿cmake_minimum_required (VERSION 3.8)
-set(ANDROID true)
+#set(ANDROID true)
 set(CMAKE_ANDROID_EXCEPTIONS true)
 
 #set your VULKAN_SDK PATH 
