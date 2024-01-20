@@ -118,8 +118,14 @@ int main(int ArgCount, char** ArgStrings)
     w.SetComputeDispatchCallBack([&](void* data) { SafeCall(UICallbacks[CallbackType::Dispatch]); td.ln.Dispatch(w); td.sh.Dispatch(w); td.bt.Dispatch(w); });
     w.SetBackgroundCallBack([&](void*) { SafeCall(BackgroundCallbacks[CallbackType::Draw]); });
 
-    SafeCall(UICallbacks[CallbackType::Load]);
-    SafeCall(BackgroundCallbacks[CallbackType::Load]);
+        td.ln.Dispatch(w);
+        td.sh.Dispatch(w);
+        td.bt.Dispatch(w);
+    };
+    w.SetComputeDispatchCallBack(Dispatch);
+    SafeCall(load_callback);
+    //array<float, 4> bg = { toFloat(cf["-bgr"]), toFloat(cf["-bgg"]), toFloat(cf["-bgb"]), toFloat(cf["-bga"]) };
+    array<float, 4> bg = {1, 1, 1, 1};
 
     SpirvHelper::Finalize();
 
