@@ -4,7 +4,10 @@
 #include "vulkan/vulkan_beta.h"
 #endif
 
-#ifdef WIN32 || __APPLE__
+#ifdef WIN32
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_vulkan.h>
+#elif __APPLE__
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_vulkan.h>
 #endif
