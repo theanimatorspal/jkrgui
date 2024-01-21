@@ -14,6 +14,9 @@
 #include <fstream>
 #include <cstdio>
 
+void* operator new(std ::size_t count);
+void operator delete(void* ptr) noexcept;
+
 namespace ksai
 {
     template <typename... T>

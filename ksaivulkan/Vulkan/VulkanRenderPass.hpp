@@ -80,15 +80,6 @@ inline VulkanRenderPass<inRenderPassContext>::VulkanRenderPass(const VulkanDevic
                                                .setDstAccessMask(vk::AccessFlagBits::eNone)
                                                .setDependencyFlags(vk::DependencyFlagBits::eByRegion);
 
-    // vk::SubpassDependency FinalDependency = vk::SubpassDependency ( )
-    //	.setSrcSubpass ( 0 )
-    //	.setDstSubpass ( VK_SUBPASS_EXTERNAL )
-    //	.setSrcStageMask ( vk::PipelineStageFlagBits::eLateFragmentTests )
-    //	.setDstStageMask ( vk::PipelineStageFlagBits::eLateFragmentTests )
-    //	.setSrcAccessMask ( vk::AccessFlagBits::eNone )
-    //	.setDstAccessMask ( vk::AccessFlagBits::eNone )
-    //	.setDependencyFlags ( vk::DependencyFlagBits::eByRegion );
-
     std::array<vk::SubpassDependency, 2> SubpassDependencies;
     SubpassDependencies = { SubpassDependency,
         SelfDependency };

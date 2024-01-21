@@ -18,7 +18,11 @@ VKAPI_ATTR VkBool32 VKAPI_CALL KsaiDebugMessengerCallback(VkDebugUtilsMessageSev
             << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(messageTypes)) << ":\n";
     message << std::string("\t") << "messageIDName   = <" << pCallbackData->pMessageIdName << ">\n";
     message << std::string("\t") << "messageIdNumber = " << pCallbackData->messageIdNumber << "\n";
-    message << std::string("\t") << "message         = <" << pCallbackData->pMessage << ">\n";
+    std::string CallbackDataMessage = pCallbackData->pMessage;
+    std::replace_if(
+        CallbackDataMessage.begin(), CallbackDataMessage.end(), [](char c) { return c == ',' || c == ';' || c == '|'; }, '\n');
+
+    message << std::string("\t") << "message         = (\n\n" << CallbackDataMessage << "\n)\n\n";
     if (0 < pCallbackData->queueLabelCount) {
         message << std::string("\t") << "Queue Labels:\n";
         for (ui i = 0; i < pCallbackData->queueLabelCount; i++) {
@@ -42,9 +46,10 @@ VKAPI_ATTR VkBool32 VKAPI_CALL KsaiDebugMessengerCallback(VkDebugUtilsMessageSev
             }
         }
     }
+    std::string message_string = message.str();
 
 #ifdef _WIN32
-    std::cout << message.str() << std::endl;
+    std::cout << message_string << std::endl;
     bool isError = messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
     bool isWarning = messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
     bool isInfo = messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
@@ -52,20 +57,20 @@ VKAPI_ATTR VkBool32 VKAPI_CALL KsaiDebugMessengerCallback(VkDebugUtilsMessageSev
     bool isPerformance = messageTypes & VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 
     if (isError) {
-        MessageBoxA(NULL, message.str().c_str(), "Error", MB_ICONERROR);
+        MessageBoxA(NULL, message_string.c_str(), "Error", MB_ICONERROR);
         assert("Erro" && false);
     } else if (isWarning && !(isPerformance)) {
-        MessageBoxA(NULL, message.str().c_str(), "Warning", MB_ICONWARNING);
+        MessageBoxA(NULL, message_string.c_str(), "Warning", MB_ICONWARNING);
     } else if (isInfo) {
-        std::cout << message.str() << '\n';
+        std::cout << message_string.c_str() << '\n';
     } else if (isPerformance) {
         std::cout << "=========================PERFORMANCE================================" << '\n';
-        std::cout << message.str() << '\n';
+        std::cout << message_string << '\n';
     }
 #else
     std::cout << message.str() << std::endl;
 #endif
-    ksai_print(message.str().c_str());
+    ksai_print(message_string.c_str());
     return false;
 }
 

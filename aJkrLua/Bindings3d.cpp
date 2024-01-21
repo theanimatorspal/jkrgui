@@ -8,10 +8,8 @@ void Create3DBindings(Instance& i, Window& w, sol::state& l)
         glm::mat4 m1;
         glm::mat4 m2;
         glm::vec4 v1;
-        glm::vec4 v2[10];
     };
     size_t SizeOfUB_Default = sizeof(UB_Default);
-    r["SizeOfUB_Default"] = SizeOfUB_Default;
     r["SizeOfUB_Default"] = SizeOfUB_Default;
 
     struct SSBO {
@@ -94,14 +92,11 @@ void Create3DBindings(Instance& i, Window& w, sol::state& l)
         },
 
         "write_to_global_ub_default",
-        [&](_3D::Shape& inR, glm::mat4 m1, glm::mat4 m2, glm::vec4 v1, std::vector<glm::vec4> v2) {
+        [&](_3D::Shape& inR, glm::mat4 m1, glm::mat4 m2, glm::vec4 v1) {
             UB_Default d;
             d.m1 = m1;
             d.m2 = m2;
             d.v1 = v1;
-            for (int i = 0; i < 10; i++) {
-                d.v2[i] = v2[i];
-            }
             inR.WriteToGlobalUB(d);
         },
 
@@ -129,6 +124,6 @@ void Create3DBindings(Instance& i, Window& w, sol::state& l)
             glm::vec4 v1,
             glm::vec4 v2) {
             PCm4v4v4 m = { .m1 = m1, .v1 = v1, .v2 = v2 };
-            inR.PainterDraw(painterid, m, w, (Jkr::Window::ParameterContext)bindpoint);
+            inR.PainterDraw<PCm4v4v4>(painterid, m, w, (Jkr::Window::ParameterContext)bindpoint);
         });
 }

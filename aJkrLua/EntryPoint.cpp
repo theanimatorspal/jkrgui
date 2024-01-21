@@ -66,14 +66,18 @@ int main(int ArgCount, char** ArgStrings)
 
     vector<sol::state> states;
     states.resize(ThreadsCount);
-    for (auto& u : states) {
-        u = bind_and_get_LuaState();
-        sol::protected_function_result result = u.safe_script_file(string(cf["-main_file"]), &sol::script_pass_on_error);
-        if (not result.valid()) {
-            sol::error error = result;
-            ksai_print(error.what());
-            cout << error.what() << endl;
-            exit(EXIT_FAILURE);
+    {
+        int i = 0;
+        for (auto& u : states) {
+            u = bind_and_get_LuaState();
+            sol::protected_function_result result = u.safe_script_file(string(cf["-main_file"]), &sol::script_pass_on_error);
+            if (not result.valid() && i == 0) {
+                sol::error error = result;
+                ksai_print(error.what());
+                cout << error.what() << endl;
+                exit(EXIT_FAILURE);
+            }
+            i++;
         }
     }
 
@@ -116,15 +120,17 @@ int main(int ArgCount, char** ArgStrings)
     w.SetDrawCallBack([&](void* data) { SafeCall(UICallbacks[CallbackType::Draw]); });
     w.SetUpdateCallBack([&](void* data) { SafeCall(UICallbacks[CallbackType::Update]); });
     w.SetComputeDispatchCallBack([&](void* data) { SafeCall(UICallbacks[CallbackType::Dispatch]); td.ln.Dispatch(w); td.sh.Dispatch(w); td.bt.Dispatch(w); });
-    w.SetBackgroundCallBack([&](void*) { SafeCall(BackgroundCallbacks[CallbackType::Draw]); });
+    w.SetBackgroundCallBack([&](void*) {ZoneScoped; SafeCall(BackgroundCallbacks[CallbackType::Draw]); });
 
     SafeCall(UICallbacks[CallbackType::Load]);
+    SafeCall(BackgroundCallbacks[CallbackType::Load]);
     SpirvHelper::Finalize();
 
     array<float, 4> bg = { toFloat(cf["-bgr"]), toFloat(cf["-bgg"]), toFloat(cf["-bgb"]), toFloat(cf["-bga"]) };
     while (not em.ShouldQuit()) {
         em.ProcessEvents();
         w.Draw(bg[0], bg[1], bg[2], bg[3]);
+        FrameMark;
     }
     return 0;
 }

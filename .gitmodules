@@ -1,9 +1,3 @@
 [submodule "SDL4droid"]
 	path = SDL4droid
 	url = https://github.com/theanimatorspal/SDL4droid
-[submodule "out/build_bundle/jkrgui/LuaJkrGUI"]
-	path = out/build_bundle/jkrgui/LuaJkrGUI
-	url = https://github.com/dipesh7002/LuaJkrGUI.git
-[submodule "out/build_bundle/aJkrLua/LuaJkrGUI"]
-	path = out/build_bundle/aJkrLua/LuaJkrGUI
-	url = https://github.com/dipesh7002/LuaJkrGUI.git

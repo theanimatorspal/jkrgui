@@ -1,4 +1,6 @@
-﻿cmake_minimum_required (VERSION 3.8)
+﻿include("CMakeCommon.cmake")
+
+cmake_minimum_required (VERSION 3.8)
 #set(ANDROID true)
 set(CMAKE_ANDROID_EXCEPTIONS true)
 
@@ -19,7 +21,7 @@ if(ANDROID)
 	endif()
 endif()
 
-set(ANDROID_NDK "C:/Users/sansk/AppData/Local/Android/Sdk/ndk/25.1.8937393")
+#set(ANDROID_NDK "C:/Users/sansk/AppData/Local/Android/Sdk/ndk/25.1.8937393")
 
 set(VULKAN_PATH "${VULKAN_SDK}/${VULKAN_VERSION}")
 
@@ -119,12 +121,8 @@ add_subdirectory(aJkrLua)
 add_subdirectory(jkrgui)
 
 if(APPLE)
-
 elseif(ANDROID)
-
 else()
-
 add_subdirectory(aa_unit_testing)
 #add_subdirectory(jit)
-
 endif()

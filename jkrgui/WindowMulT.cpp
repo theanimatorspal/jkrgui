@@ -3,6 +3,7 @@
 
 void Jkr::WindowMulT::Draw(float r, float g, float b, float a, float d)
 {
+    ZoneScoped;
     mUpdateFunction(mData);
     mFences[mCurrentFrame].Wait();
     mFences[mCurrentFrame].Reset();
@@ -61,6 +62,7 @@ void Jkr::WindowMulT::Draw(float r, float g, float b, float a, float d)
 
 void Jkr::WindowMulT::CmdBackground()
 {
+    ZoneScoped;
     mSecondaryCommandBuffersBackground[mCurrentFrame].Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPassAndOneTimeSubmit>(
         mRenderPass,
         0,
@@ -68,6 +70,7 @@ void Jkr::WindowMulT::CmdBackground()
     mSecondaryCommandBuffersBackground[mCurrentFrame].SetViewport(mSurface);
     mSecondaryCommandBuffersBackground[mCurrentFrame].SetScissor(mSurface);
     {
+        ZoneScoped;
         mBackgroundCallback(mData);
     }
     //    TracyVkZone(mctx_bg1, mSecondaryCommandBuffersBackground[mCurrentFrame].GetCommandBufferHandle(), "BG1");
@@ -76,6 +79,7 @@ void Jkr::WindowMulT::CmdBackground()
 
 void Jkr::WindowMulT::CmdUI()
 {
+    ZoneScoped;
     mSecondaryCommandBuffersUI[mCurrentFrame].Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPassAndOneTimeSubmit>(
         mRenderPass,
         0,
@@ -84,6 +88,7 @@ void Jkr::WindowMulT::CmdUI()
     mSecondaryCommandBuffersUI[mCurrentFrame].SetViewport(mSurface);
     mSecondaryCommandBuffersUI[mCurrentFrame].SetScissor(mSurface);
     {
+        ZoneScoped;
         mDrawFunction(mData);
     }
     mSecondaryCommandBuffersUI[mCurrentFrame].End();
@@ -91,6 +96,7 @@ void Jkr::WindowMulT::CmdUI()
 
 void Jkr::WindowMulT::Refresh()
 {
+    ZoneScoped;
     mSurface.ProcessCurrentSurfaceConditions(mInstance.GetPhysicalDevice());
     mSwapChain = VulkanSwapChain<mMaxFramesInFlight>(mInstance.GetDevice(), mInstance.GetQueueContext(), mSurface, mSwapChain);
     mSwapChainImages = mSwapChain.GetVulkanImages(mInstance.GetDevice(), mSurface);

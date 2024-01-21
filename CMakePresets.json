@@ -6,8 +6,8 @@
 			"name": "windows-base",
 			"hidden": true,
 			"generator": "Ninja",
-			"binaryDir": "${sourceDir}/out/build/${presetName}",
-			"installDir": "${sourceDir}/out/install/${presetName}",
+			"binaryDir": "${sourceDir}/out/build_bundle/",
+			"installDir": "${sourceDir}/out/install_bundle/",
 			"cacheVariables": {
 				"CMAKE_C_COMPILER": "clang-cl.exe",
 				"CMAKE_CXX_COMPILER": "clang-cl.exe"
@@ -69,7 +69,7 @@
 
 		{
 			"name": "default",
-			"hidden": false,
+			"hidden": true,
 			"binaryDir": "${sourceDir}/out/build/${presetName}",
 			"installDir": "${sourceDir}/out/install/${presetName}",
 			"generator": "Ninja"

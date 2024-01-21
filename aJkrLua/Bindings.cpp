@@ -428,32 +428,47 @@ void BindMathFunctions(sol::state& lua)
     lua.set_function("distance", sol::overload([](glm::vec2& a, glm::vec2& b) { return glm::distance(a, b); }, [](glm::vec3& a, glm::vec3& b) { return glm::distance(a, b); }, [](glm::vec4& a, glm::vec4& b) { return glm::distance(a, b); }));
     lua.set_function("lerp", [](float a, float b, float t) { return std::lerp(a, b, t); });
     lua.set_function("clamp", sol::overload([](float value, float min, float max) { return std::clamp(value, min, max); }, [](double value, double min, double max) { return std::clamp(value, min, max); }, [](int value, int min, int max) { return std::clamp(value, min, max); }));
-    lua.set_function("translate",
-        sol::overload([](glm::mat4 inmatrix, glm::vec3 invector) -> glm::mat4 {
-            return glm::translate(inmatrix, invector);
-        }));
-    lua.set_function("scale", sol::overload([](glm::mat4 inmatrix, glm::vec3 invector) -> glm::mat4 {
-        return glm::translate(inmatrix, invector);
-    }));
-    lua.set_function("rotate", sol::overload([](glm::mat4 inmatrix, float angle_rad, glm::vec3 invector) -> glm::mat4 {
-        return glm::rotate(inmatrix, angle_rad, invector);
-    }));
-    lua.set_function("rotate_deg", sol::overload([](glm::mat4 inmatrix, float angle_deg, glm::vec3 invector) -> glm::mat4 {
-        return glm::rotate(inmatrix, glm::radians(angle_deg), invector);
-    }));
+
     lua.set_function("get_identity_matrix", []() -> glm::mat4 {
         {};
         return glm::identity<glm::mat4>();
     });
-    lua.set_function("lookat", [](glm::vec3 eye, glm::vec3 center, glm::vec3 up) -> glm::mat4 {
-        return glm::lookAt(eye, center, up);
-    });
-    lua.set_function("perspective", [](float fov, float aspect, float nearz, float farz) -> glm::mat4 {
-        return glm::perspective(fov, aspect, nearz, farz);
-    });
-    lua.set_function("ortho", [](float left, float right, float bottom, float top, float nearz, float farz) -> glm::mat4 {
-        return glm::ortho(left, right, bottom, top, nearz, farz);
-    });
+
+    lua.create_named_table(
+        "jmath3D",
+        "lookat",
+        [](glm::vec3 eye, glm::vec3 center, glm::vec3 up) -> glm::mat4 {
+            return glm::lookAt(eye, center, up);
+        },
+        "perspective",
+        [](float fov, float aspect, float nearz, float farz) -> glm::mat4 {
+            return glm::perspective(fov, aspect, nearz, farz);
+        },
+        "ortho",
+        [](float left, float right, float bottom, float top, float nearz, float farz) -> glm::mat4 {
+            return glm::ortho(left, right, bottom, top, nearz, farz);
+        },
+
+        "translate",
+        sol::overload([](glm::mat4 inmatrix, glm::vec3 invector) -> glm::mat4 {
+            return glm::translate(inmatrix, invector);
+        }),
+
+        "scale", sol::overload([](glm::mat4 inmatrix, glm::vec3 invector) -> glm::mat4 {
+            return glm::translate(inmatrix, invector);
+        }),
+        "rotate", sol::overload([](glm::mat4 inmatrix, float angle_rad, glm::vec3 invector) -> glm::mat4 {
+            return glm::rotate(inmatrix, angle_rad, invector);
+        }),
+        "rotate_deg", sol::overload([](glm::mat4 inmatrix, float angle_deg, glm::vec3 invector) -> glm::mat4 {
+            return glm::rotate(inmatrix, glm::radians(angle_deg), invector);
+        }),
+        "normalize", sol::overload([](glm::vec3 invec) {
+            return glm::normalize(invec);
+        }),
+        "magnitude", sol::overload([](glm::vec3 invec) {
+            return glm::length(invec);
+        }));
 }
 
 void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, Jkr::Renderer::_2d& td, Jkr::Renderer::BestText_Alt& ALT)
@@ -882,6 +897,5 @@ layout(push_constant, std430) uniform pc {
         &Component_base::IsMouseOnTop,
 
         "is_mouse_within",
-        &Component_base::IsMouseWithin
-    );
+        &Component_base::IsMouseWithin);
 }
