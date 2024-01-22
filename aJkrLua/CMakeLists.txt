@@ -8,9 +8,9 @@ file(GLOB app_SRC CONFIGURE_DEPENDS
 )
 
 if(ANDROID)
-add_library(aJkrLua SHARED ${app_SRC} "EntryPoint.cpp" "Bindings.cpp" "Bindings3d.cpp")
+add_library(aJkrLua SHARED ${app_SRC})
 else()
-add_executable(aJkrLua ${app_SRC} )
+add_executable(aJkrLua ${app_SRC})
 endif()
 
 target_link_libraries(aJkrLua ksaivulkan jkrgui)

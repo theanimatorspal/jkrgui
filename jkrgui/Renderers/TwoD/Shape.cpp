@@ -149,16 +149,16 @@ void Shape::AddImage(v<uc> inImage, ui inWidth, ui inHeight, ui& outIndex)
 void Shape::UpdateImage(ui inId, v<uc> inImage, ui inWidth, ui inHeight)
 {
 #ifndef JKR_USE_VARIABLE_DES_INDEXING
-    Up<VulkanDescriptorSet> Desset = MakeUp<VulkanDescriptorSet>(
-        mInstance.GetDevice(),
-        mInstance.GetDescriptorPool(),
-        mPainterCaches[FillType::Image]->GetVertexFragmentDescriptorSetLayout());
+    //Up<VulkanDescriptorSet> Desset = MakeUp<VulkanDescriptorSet>(
+    //    mInstance.GetDevice(),
+    //    mInstance.GetDescriptorPool(),
+    //    mPainterCaches[FillType::Image]->GetVertexFragmentDescriptorSetLayout());
     Up<ImageType> Image = MakeUp<ImageType>(mInstance);
     void* data = inImage.data();
     Image->Setup(reinterpret_cast<void**>(&data), inWidth, inHeight, 4);
-    Image->Register(0, 0, 0, *Desset);
+    Image->Register(0, 0, 0, *mVulkanPerImageDescriptorSets[inId]);
     mImages[inId] = std::move(Image);
-    mVulkanPerImageDescriptorSets[inId] = std::move(Desset);
+    //mVulkanPerImageDescriptorSets[inId] = std::move(Desset);
 #else
     Up<ImageType> Image = MakeUp<ImageType>(mInstance);
     void* data = inImage.data();

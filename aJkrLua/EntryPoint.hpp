@@ -16,8 +16,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #define SETTER inline void
 
-// This is our Legacy C++ Component System, This class is used inside so cannot be deleted now,
-// TODO: Needs cleanup
 namespace Jkr::Component {
 using namespace Jkr::Renderer;
 class Component_base {
@@ -94,9 +92,6 @@ static int my_exception_handler(lua_State* L, sol::optional<const std::exception
     return sol::stack::push(L, description);
 }
 
-void CreateSDLEventBindings(sol::state& lua);
-void CreateGLMBindings(sol::state& lua);
-void BindMathFunctions(sol::state& lua);
 using namespace std;
 using namespace glm;
 using namespace Jkr;
@@ -141,6 +136,27 @@ static auto FillConfigFrom(const vector<string_view>& inArguments)
     }
 }
 
-void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, Jkr::Renderer::_2d& td, Jkr::Renderer::BestText_Alt& inALT);
+using GlobalAccessType = unordered_map<int, int>;
 
+void CreateSDLEventBindings(sol::state& lua);
+void CreateGLMBindings(sol::state& lua);
+void BindMathFunctions(sol::state& lua);
+void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, Jkr::Renderer::_2d& td, Jkr::Renderer::BestText_Alt& inALT);
 void Create3DBindings(Instance& i, Window& w, sol::state& l);
+
+class GlobalAccessBindingsGenerator {
+	using GlobalDataType = std::variant<float, int, glm::vec2, glm::vec3, glm::vec4, std::string>;
+
+public:
+    GlobalAccessBindingsGenerator(Instance& i, Window& w, sol::state& l)
+    {
+        CreateGlobalAccessBindings(i, w, l);
+    }
+    void CreateGlobalAccessBindings(Instance& i, Window& w, sol::state& l);
+
+private:
+    std::mutex mMutex;
+    std::condition_variable mConditionVariable;
+    bool mNotIsBeingAccessed = true;
+    std::unordered_map<std::string, GlobalDataType> mGlobalData;
+};
