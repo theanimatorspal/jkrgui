@@ -434,6 +434,7 @@ void BindMathFunctions(sol::state& lua)
         return glm::identity<glm::mat4>();
     });
 
+
     lua.create_named_table(
         "jmath3D",
         "lookat",
@@ -450,25 +451,25 @@ void BindMathFunctions(sol::state& lua)
         },
 
         "translate",
-        sol::overload([](glm::mat4 inmatrix, glm::vec3 invector) -> glm::mat4 {
+        [](glm::mat4 inmatrix, glm::vec3 invector) -> glm::mat4 {
             return glm::translate(inmatrix, invector);
-        }),
+        },
 
-        "scale", sol::overload([](glm::mat4 inmatrix, glm::vec3 invector) -> glm::mat4 {
-            return glm::translate(inmatrix, invector);
-        }),
-        "rotate", sol::overload([](glm::mat4 inmatrix, float angle_rad, glm::vec3 invector) -> glm::mat4 {
+        "scale", [](glm::mat4 inmatrix, glm::vec3 invector) -> glm::mat4 {
+            return glm::scale(inmatrix, invector);
+        },
+        "rotate", [](glm::mat4 inmatrix, float angle_rad, glm::vec3 invector) -> glm::mat4 {
             return glm::rotate(inmatrix, angle_rad, invector);
-        }),
-        "rotate_deg", sol::overload([](glm::mat4 inmatrix, float angle_deg, glm::vec3 invector) -> glm::mat4 {
+        },
+        "rotate_deg", [](glm::mat4 inmatrix, float angle_deg, glm::vec3 invector) -> glm::mat4 {
             return glm::rotate(inmatrix, glm::radians(angle_deg), invector);
-        }),
-        "normalize", sol::overload([](glm::vec3 invec) {
+        },
+        "normalize", [](glm::vec3 invec) {
             return glm::normalize(invec);
-        }),
-        "magnitude", sol::overload([](glm::vec3 invec) {
+        },
+        "magnitude", [](glm::vec3 invec) {
             return glm::length(invec);
-        }));
+        });
 }
 
 void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, Jkr::Renderer::_2d& td, Jkr::Renderer::BestText_Alt& ALT)

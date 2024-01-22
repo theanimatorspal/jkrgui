@@ -124,6 +124,6 @@ void Create3DBindings(Instance& i, Window& w, sol::state& l)
             glm::vec4 v1,
             glm::vec4 v2) {
             PCm4v4v4 m = { .m1 = m1, .v1 = v1, .v2 = v2 };
-            inR.PainterDraw<PCm4v4v4>(painterid, m, w, (Jkr::Window::ParameterContext)bindpoint);
+            inR.PainterDraw<PCm4v4v4>(painterid, inmodelid, m, w, (Jkr::Window::ParameterContext)bindpoint);
         });
 }
