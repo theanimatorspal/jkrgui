@@ -1,38 +1,7 @@
 #pragma once
-#include "VulkanDevice.hpp"
-#include "VulkanQueue.hpp"
-#include "VulkanSurface.hpp"
-#include <iostream>
-#include <vulkan/vulkan.hpp>
-
+#include "VulkanImageContext.hpp"
 namespace ksai {
 class VulkanCommandBuffer;
-
-enum class ImageContext {
-    Default,
-    Unknown,
-    ExternalHandled,
-    DepthImage,
-    Storage,
-    PBR
-};
-
-struct ImageProperties {
-    vk::Format mImageFormat = vk::Format::eR16G16B16A16Sfloat;
-    vk::FormatFeatureFlagBits mImageFormatFeature = vk::FormatFeatureFlagBits::eSampledImage;
-    vk::ImageType mImageType = vk::ImageType::e2D;
-    vk::ImageUsageFlags mImageUsage = vk::ImageUsageFlagBits::eSampled;
-    vk::SampleCountFlagBits mSampleCountFlagBits = vk::SampleCountFlagBits::e1;
-    ui mMipLevels = 1;
-    ui mArrayLayers = 1;
-    vk::ImageTiling mTiling = vk::ImageTiling::eOptimal;
-    vk::ImageAspectFlagBits mImageAspect = vk::ImageAspectFlagBits::eColor;
-    vk::MemoryPropertyFlagBits mMemoryProperty = vk::MemoryPropertyFlagBits::eDeviceLocal;
-    vk::ImageViewType mImageViewType = vk::ImageViewType::e2D;
-    vk::SharingMode mSharingMode = vk::SharingMode::eExclusive;
-    vk::ImageLayout mInitialImageLayout = vk::ImageLayout::eGeneral;
-    vk::Extent2D mExtent;
-};
 }
 
 namespace ksai {
@@ -42,11 +11,11 @@ public:
     ~VulkanImageBase();
     void SubmitImmediateCmdCopyFromData(const VulkanQueue<QueueContext::Graphics>& inQueue, const VulkanCommandBuffer& inCmdBuffer, const VulkanDevice& inDevice, void** inData, vk::DeviceSize inSize);
 
-    void SubmitImmediateCmdCopyFromData(const VulkanQueue<QueueContext::Graphics> &inQueue,
-                                        const VulkanCommandBuffer &inCmdBuffer,
-                                        const VulkanDevice &inDevice,
-                                        vk::DeviceSize inSize,
-                                        std::span<void **> inLayerImageDatas);
+    void SubmitImmediateCmdCopyFromData(const VulkanQueue<QueueContext::Graphics>& inQueue,
+        const VulkanCommandBuffer& inCmdBuffer,
+        const VulkanDevice& inDevice,
+        vk::DeviceSize inSize,
+        std::span<void**> inLayerImageDatas);
 
     void CmdTransitionImageLayout(const VulkanCommandBuffer& inBuffer, vk::ImageLayout inOldImageLayout, vk::ImageLayout inNewImageLayout, vk::PipelineStageFlags inBeforeStage, vk::PipelineStageFlags inAfterStage, vk::AccessFlags inBeforeAccess, vk::AccessFlags inAfterAccess);
     GETTER& GetImageFormat() const { return mImageProperties.mImageFormat; }
@@ -128,6 +97,7 @@ namespace ksai {
 template <ImageContext inImageContext>
 inline void VulkanImageBase::FillImageProperties()
 {
+    // These are all for other than Defaults
     if constexpr (inImageContext == ImageContext::DepthImage) {
         mImageProperties.mImageFormat = vk::Format::eD16Unorm;
         mImageProperties.mImageFormatFeature = vk::FormatFeatureFlagBits::eDepthStencilAttachment;
@@ -146,7 +116,8 @@ inline void VulkanImageBase::FillImageProperties()
         mImageProperties.mImageUsage = vk::ImageUsageFlagBits::eSampled
             | vk::ImageUsageFlagBits::eTransferDst;
         mImageProperties.mImageFormat = vk::Format::eR8G8B8A8Srgb;
-    } else if constexpr (inImageContext == ImageContext::PBR) {
+    } else if constexpr (inImageContext == ImageContext::CubeCompatible) {
+        mImageProperties.mFlags = vk::ImageCreateFlagBits::eCubeCompatible;
     }
 }
 }

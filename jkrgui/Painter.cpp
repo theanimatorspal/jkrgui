@@ -135,6 +135,26 @@ void Painter::RegisterPainterParameter<PainterParameterContext::UniformImage>(co
 }
 
 template <>
+void Painter::RegisterPainterParameter<PainterParameterContext::SkyboxImage>(const PainterParameter<PainterParameterContext::SkyboxImage>& inPainterParameter,
+    vk::DeviceSize inOffset, uint32_t inDstBinding, uint32_t inDstArrayElement, RegisterMode inRegisterMode)
+{
+    if (inRegisterMode != RegisterMode::ComputeOnly)
+        mDescriptorUpdateHandler.Write<ImageContext::Default>(
+            mVertexFragmentDescriptorSet,
+            inPainterParameter.GetUniformImage(),
+            inPainterParameter.GetUniformImageSampler(),
+            inDstBinding,
+            inDstArrayElement);
+    if (inRegisterMode == RegisterMode::AllShaders or inRegisterMode == RegisterMode::ComputeOnly)
+        mDescriptorUpdateHandler.Write<ImageContext::Default>(
+            mComputeDescriptorSet,
+            inPainterParameter.GetUniformImage(),
+            inPainterParameter.GetUniformImageSampler(),
+            inDstBinding,
+            inDstArrayElement);
+}
+
+template <>
 void Painter::RegisterPainterParameter<PainterParameterContext::UniformSampler>(
     const PainterParameter<PainterParameterContext::UniformSampler>& inPainterParameter,
     vk::DeviceSize inOffset, uint32_t inDstBinding, uint32_t inDstArrayElement, RegisterMode inRegisterMode)

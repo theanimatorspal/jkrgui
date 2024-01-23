@@ -50,30 +50,10 @@ void Jkr::PainterParameterBase::Setup(Up<VulkanSampler>& inUniformImageSampler, 
 
 void Jkr::PainterParameterBase::Setup(Up<VulkanSampler>& inUniformImageSampler, Up<UniformImageType>& inUniformImage, std::span<const sv> inFileNames)
 {
-    int Width;
-    int Height;
-    int Channels;
+    SetupImage<UniformImageType>(inUniformImageSampler, inUniformImage, inFileNames);
+}
 
-    std::vector<void*> Datas;
-    Datas.reserve(inFileNames.size());
-    std::vector<void**> Datas_ptr;
-    Datas_ptr.reserve(inFileNames.size());
-
-    for (int i = 0; auto& u : inFileNames) {
-        Datas.push_back(stbi_load(u.data(), &Width, &Height, &Channels, STBI_rgb_alpha));
-        Datas_ptr.push_back(&Datas[i]);
-        i++;
-    }
-
-    inUniformImage = MakeUp<VulkanImageVMA<ImageContext::Default>>(mInstance.GetVMA(), mInstance.GetDevice(), Width, Height, inFileNames.size());
-    inUniformImageSampler = MakeUp<VulkanSampler>(mInstance.GetDevice());
-    inUniformImage->SubmitImmediateCmdCopyFromData(
-        mInstance.GetGraphicsQueue(),
-        mInstance.GetUtilCommandBuffer(),
-        mInstance.GetDevice(),
-        Channels * Height * Width, Datas_ptr);
-
-    for (void* u : Datas) {
-        stbi_image_free(u);
-    }
+void Jkr::PainterParameterBase::Setup(Up<VulkanSampler>& inUniformImageSampler, Up<SkyboxImageType>& inUniformImage, std::span<const sv> inFileNames)
+{
+    SetupImage<SkyboxImageType>(inUniformImageSampler, inUniformImage, inFileNames);
 }

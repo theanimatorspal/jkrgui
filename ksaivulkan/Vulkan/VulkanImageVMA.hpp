@@ -17,7 +17,7 @@ namespace ksai {
 			vk::ImageTiling Tiling;
 			GetImageTiling(mImageProperties.mImageFormat, mImageProperties.mImageFormatFeature, Tiling);
 			auto ImageCreateInfo = vk::ImageCreateInfo(
-				vk::ImageCreateFlags(),
+				mImageProperties.mFlags,
 				mImageProperties.mImageType,
 				mImageProperties.mImageFormat,
 				vk::Extent3D(mImageProperties.mExtent, 1),

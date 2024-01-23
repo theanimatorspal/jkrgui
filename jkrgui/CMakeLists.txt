@@ -40,6 +40,6 @@ else()
 	"Renderers/BestText_Alt.hpp"
 	"WindowMulT.hpp"
 	"Window.hpp"
-	 "WindowMulT.cpp" "Renderers/ResourceManager.cpp" "Renderers/CustomImagePainter.cpp")
+	 "WindowMulT.cpp" "Renderers/ResourceManager.cpp" "Renderers/CustomImagePainter.cpp" "SDLWindow.hpp" "SDLWindow.cpp" "Misc/MousePicker.cpp" "Misc/MousePicker.hpp")
  endif()
 

@@ -157,3 +157,5 @@ void Shape::CheckAndResize(const glTF_Model& inModel)
 #endif
     }
 }
+
+

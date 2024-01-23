@@ -27,8 +27,10 @@ class Shape : public Renderer_base, public glTF_base {
     using StagingBufferType
         = VulkanBuffer<BufferContext::Staging, MemoryType::HostVisibleAndCoherenet>;
     using ImageType = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
+    using SkyboxType = Jkr::PainterParameter<Jkr::PainterParameterContext::SkyboxImage>;
 
     using ComPar = Window::ParameterContext;
+
 public:
     Shape(const Instance& inInstance, Window& inCompatibleWindow, sz inGlobalUBsize = sizeof(GlobalUB), sz inSSBOsize = sizeof(GlobalSSBO) * 10);
     void Add(const sv inFileName, ui& outId);
@@ -64,41 +66,20 @@ public:
     void WriteToGlobalUB(T inData);
     void RegisterGlobalUBToPainter(ui inPainterId, sz inOffset = 0, ui inBinding = 0, ui inDestinationArrayElement = 0);
     void RegisterGlobalSSBOToPainter(ui inPainterId, sz inOffset = 0, ui inBinding = 0, ui inDestinationArrayElement = 0);
+    void AddSkybox(std::span<const sv> inSkyboxFiles);
+    void RegisterSkyboxToPainter(ui inPainterId, ui inBinding);
 
     /*
         Painters that can be added with Shader Code, Each Painter Contains a Vertex, Fragment and Compute Shaders.
     */
 
-    void AddPainter(const sv inFileName,
-        const sv inVertexShader,
-        const sv inFragmentShader,
-        const sv inComputeShader,
-        Window& inCompatibleWindow,
-        ui& outId, bool inForceStore = false);
+    void AddPainter(const sv inFileName, const sv inVertexShader, const sv inFragmentShader, const sv inComputeShader, Window& inCompatibleWindow, ui& outId, bool inForceStore = false);
+    void AddModelTextureToPainter(ui inId, ui inPainterId, sz inOffset = 0, ui inBinding = 0, ui inDestinationArrayElement = 0);
+    void RegisterExternalTextureToPainter(ui& outId, ui inPainterId, const sv inFilename, sz inOffset = 0, ui inBinding = 0, ui inDestinationArrayElement = 0);
+    void RegisterExternalTextureArrayToPainter(ui& outId, ui inPainterId, std::span<const sv> inFileNames, sz inOffset = 0, ui inBindingn = 0, ui inDestinationArrayElement = 0);
     void PainterBindForDraw(ui inPainterId, Window& inWindow, ComPar inCompar);
-    void AddModelTextureToPainter(ui inId,
-        ui inPainterId,
-        sz inOffset = 0,
-        ui inBinding = 0,
-        ui inDestinationArrayElement = 0);
-
-    void RegisterExternalTextureToPainter(ui& outId,
-        ui inPainterId,
-        const sv inFilename,
-        sz inOffset = 0,
-        ui inBinding = 0,
-        ui inDestinationArrayElement = 0);
-
-    void RegisterExternalTextureArrayToPainter(ui& outId,
-        ui inPainterId,
-        std::span<const sv> inFileNames,
-        sz inOffset = 0,
-        ui inBindingn = 0,
-        ui inDestinationArrayElement = 0);
-
     template <typename T>
     void PainterDraw(ui inId, T inPush, Window& inWindow, ComPar inCompar);
-
     template <typename T>
     void PainterDraw(ui inPipelineId, ui inId, T inPush, Window& inWindow, ComPar inCompar);
 
@@ -112,6 +93,7 @@ private:
     ui mBoundPainterC = 0; // Compute
     Up<Primitive> mPrimitive;
     v<Up<ImageType>> mExternalTextures;
+    Up<SkyboxType> mSkyboxTexture;
 
 private:
     Up<SSBOType> mGlobalSSBO;
@@ -260,6 +242,17 @@ inline void Shape::RegisterExternalTextureArrayToPainter(ui& outId,
         inBindingn,
         inDestinationArrayElement,
         RegisterMode::VertexFragmentOnly);
+}
+
+inline void Jkr::Renderer::_3D::Shape::AddSkybox(std::span<const sv> inSkyboxFiles)
+{
+    mSkyboxTexture = MakeUp<SkyboxType>(mInstance);
+    mSkyboxTexture->Setup(inSkyboxFiles);
+}
+
+inline void Jkr::Renderer::_3D::Shape::RegisterSkyboxToPainter(ui inPainterId, ui inBinding)
+{
+    mPainters[inPainterId]->RegisterPainterParameter(*mSkyboxTexture, 0, inBinding, 0, Jkr::RegisterMode::VertexFragmentOnly);
 }
 
 } // namespace Jkr::Renderer::_3D
