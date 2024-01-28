@@ -1,5 +1,6 @@
 #pragma once
 #include "Instance.hpp"
+#include <Vendor/stbi/stb_image.h>
 
 namespace Jkr {
 enum class PainterParameterContext {

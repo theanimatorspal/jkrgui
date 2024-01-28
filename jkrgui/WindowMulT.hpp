@@ -79,16 +79,12 @@ public:
         switch (inParameter) {
         case Jkr::Window::None:
             return mCommandBuffers;
-            break;
         case Jkr::Window::UI:
             return mSecondaryCommandBuffersUI;
-            break;
         case Jkr::Window::Background:
             return mSecondaryCommandBuffersBackground;
-            break;
         default:
             return mThreadData[inThreadId]->mCommandBuffers[inObjId]->mCmdBuffers;
-            break;
         }
     }
 

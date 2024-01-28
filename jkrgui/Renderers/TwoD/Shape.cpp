@@ -363,9 +363,9 @@ void Shape::Draw(Window& inWindow, glm::vec4 inColor, ui inWindowW, ui inWindowH
 {
     glm::mat4 Matrix = glm::ortho(
                            0.0f,
-                           static_cast<float>(inWindowW),
+                           static_cast<float>(inWindowW) * mSizeFactor.x,
                            0.0f,
-                           static_cast<float>(inWindowH),
+                           static_cast<float>(inWindowH) * mSizeFactor.y,
                            100.0f,
                            -100.0f)
         * inMatrix;

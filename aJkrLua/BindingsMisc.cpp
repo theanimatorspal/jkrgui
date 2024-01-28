@@ -480,7 +480,6 @@ void GlobalAccessBindingsGenerator::CreateGlobalAccessBindings(Instance& i, Wind
         std::scoped_lock lock(mMutex);
     //    mConditionVariable.wait(lock, [this]() { return mIsNotBeingAccessed; });
 
-
-	   //mIsNotBeingAccessed = true;
+        //mIsNotBeingAccessed = true;
     };
 }

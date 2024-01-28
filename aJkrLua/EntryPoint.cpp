@@ -9,6 +9,7 @@
 #include "ksai_filestream.hpp"
 #include <algorithm>
 #include <filesystem>
+#include <Vendor/Tracy/tracy/TracyLua.hpp>
 
 int main(int ArgCount, char** ArgStrings)
 {
@@ -29,6 +30,15 @@ int main(int ArgCount, char** ArgStrings)
     char finaldir[256];
     getcwd(finaldir, sizeof(finaldir));
     ksai_print("After CD: %s", finaldir);
+
+    auto hello = SDL_AndroidRequestPermission("WRITE_EXTERNAL_STORAGE");
+    if (hello == SDL_TRUE) {
+        ksai_print("WRITE EXTERNAL STORAGE PERMISSION GRANTED");
+    } else {
+        ksai_print("WRITE EXTERNAL STORAGE PERMISSION REJECTED");
+    }
+    char finaldirdir[256];
+    ksai_print("After CD into documents Folder: %s", finaldirdir);
 #endif
 
     int ThreadsCount = 7;
@@ -69,6 +79,7 @@ int main(int ArgCount, char** ArgStrings)
     {
         int i = 0;
         for (auto& u : states) {
+            tracy::LuaRegister(u);
             u = bind_and_get_LuaState();
             sol::protected_function_result result = u.safe_script_file(string(cf["-main_file"]), &sol::script_pass_on_error);
             if (not result.valid() && i == 0) {

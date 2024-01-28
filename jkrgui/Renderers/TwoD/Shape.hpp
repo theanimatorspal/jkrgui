@@ -83,5 +83,15 @@ private:
 #ifdef JKR_USE_VARIABLE_DES_INDEXING
     uint32_t mCurrentImageIndex;
 #endif
+
+private:
+    glm::vec2 mSizeFactor = { 1, 1 };
+
+public:
+    SETTER SetSizeFactor (glm::vec2 inFactor)
+    {
+        mSizeFactor = inFactor;
+    }
+
 };
 }

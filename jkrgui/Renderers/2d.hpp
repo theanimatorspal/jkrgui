@@ -19,5 +19,10 @@ namespace Jkr::Renderer
         Line ln;
         Shape sh;
         BestText bt;
+        SETTER SetSizeFactor (glm::vec2 inVec)
+        {
+            ln.SetSizeFactor(inVec);
+            sh.SetSizeFactor(inVec);
+        }
 	};
 }

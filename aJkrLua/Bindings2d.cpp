@@ -1,4 +1,13 @@
 #include "EntryPoint.hpp"	
+static auto pc = R"""(
+
+layout(push_constant, std430) uniform pc {
+	vec4 mPosDimen;
+	vec4 mColor;
+	vec4 mParam;
+} push;
+
+)""";
 
 void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, Jkr::Renderer::_2d& td, Jkr::Renderer::BestText_Alt& ALT)
 {
@@ -127,6 +136,10 @@ void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, J
         }));
 
     auto r = l["r"].get_or_create<sol::table>();
+
+    r.set_function("set_size_factor", [&](glm::vec2 inVec2) {
+        td.SetSizeFactor(inVec2);
+    });
 
     r.new_usertype<Line>(
         "ln",
@@ -339,15 +352,7 @@ void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, J
         vec4 mParam;
     };
 
-    auto pc = R"""(
-
-layout(push_constant, std430) uniform pc {
-	vec4 mPosDimen;
-	vec4 mColor;
-	vec4 mParam;
-} push;
-
-)""";
+    
     r.new_usertype<CustomPainterImage>("painter_image",
         sol::call_constructor,
         sol::factories([&](int ww, int wh) {

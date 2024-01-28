@@ -17,6 +17,7 @@ struct CustomPainterImage {
 
 
 class CustomImagePainter {
+     using ComPar = Jkr::Window::ParameterContext;
 public:
     CustomImagePainter(
         sv inName,
@@ -35,26 +36,26 @@ public:
         mPainter->RegisterPainterParameter(inImage.GetPainterParam(), 0, 0, 0, Jkr::RegisterMode::ComputeOnly);
     }
 
-    void Bind (const Window &inWindow)
+    void Bind(const Window& inWindow, ComPar inPar = ComPar::None)
     {
-        mPainter->BindDispatchParametersPipelineOnly_EXT(inWindow);
+        mPainter->BindDispatchParametersPipelineOnly_EXT(inWindow, inPar);
     }
 
-    void BindImage(const Window& inWindow)
+    void BindImage(const Window& inWindow, ComPar inPar = ComPar::None)
     {
-        mPainter->BindDispatchParametersDescriptorsOnly_EXT(inWindow);
-    }
-
-    template <class T>
-    void Draw(Window& inWindow, T inPushConstant, ui inX, ui inY, ui inZ)
-    {
-        mPainter->Dispatch_EXT<T>(inPushConstant, inX, inY, inZ);
+        mPainter->BindDispatchParametersDescriptorsOnly_EXT(inWindow, inPar);
     }
 
     template <class T>
-    void Draw(Window& inWindow, T inPushConstant)
+    void Draw(Window& inWindow, T inPushConstant, ui inX, ui inY, ui inZ, ComPar inPar = ComPar::None)
     {
-        mPainter->Dispatch_EXT<T>(inPushConstant, mThreads.x, mThreads.y, mThreads.z);
+        mPainter->Dispatch_EXT<T>(inPushConstant, inX, inY, inZ, inPar);
+    }
+
+    template <class T>
+    void Draw(Window& inWindow, T inPushConstant, ComPar inPar = ComPar::None)
+    {
+        mPainter->Dispatch_EXT<T>(inPushConstant, mThreads.x, mThreads.y, mThreads.z, inPar);
     }
 
 private:
