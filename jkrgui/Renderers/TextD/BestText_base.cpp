@@ -30,7 +30,7 @@ void bb::AddFontFace(const sv inFontFilePathName, size_t inFontSize, ui& outFont
     if (FT_New_Face(mFtLibrary, inFontFilePathName.data(), 0, &mFaces[FaceIndex])) {
         std::cout << "Font Face Load Failed" << '\n';
     }
-    if (FT_Set_Char_Size(mFaces[FaceIndex], ToFontUnits(inFontSize), ToFontUnits(inFontSize), 300, 300)) {
+    if (FT_Set_Char_Size(mFaces[FaceIndex], ToFontUnits(inFontSize), ToFontUnits(inFontSize), 96, 96)) {
         std::cout << "Font Char Size Set Failed" << '\n';
     }
     FT_Set_Transform(mFaces[FaceIndex], 0, 0);

@@ -16,5 +16,5 @@ endif()
 target_link_libraries(aJkrLua ksaivulkan jkrgui)
 configure_target(aJkrLua)
 
-
+someFlags(ksaivulkan)
 COPYTODESTINATION(aJkrLua)

@@ -367,3 +367,6 @@ function(copyToDestination cpyName)
   endif()
 endfunction()
 
+function(someFlags inName)
+     set_property(TARGET ${inName} PROPERTY INTERPROCEDURAL_OPTIMIZATION True)
+endfunction()

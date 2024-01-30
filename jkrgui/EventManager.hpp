@@ -20,6 +20,7 @@ public:
     void ProcessEvents()
     {
         while (SDL_PollEvent(&mEvent)) {
+	  mCurrentPushedMouseButton = SDL_GetMouseState(&mMousePos.x, &mMousePos.y);
             mEventCallBack(nullptr);
             switch (mEvent.type) {
             case SDL_QUIT:
@@ -29,8 +30,8 @@ public:
             }
             SDL_GetRelativeMouseState(&mRelativePos.x, &mRelativePos.y);
         }
-
-        mCurrentPushedMouseButton = SDL_GetMouseState(&mMousePos.x, &mMousePos.y);
+        int NumKeys;
+        mKeyboardState = SDL_GetKeyboardState(&NumKeys);
     }
 
     GETTER GetDepthValue() { return mCurrentDepthValue; }
@@ -41,6 +42,9 @@ public:
     GETTER GetMousePos() const { return mMousePos; }
     GETTER GetRelativeMousePos() const { return mRelativePos; }
     GETTER GetMouseButtonValue() const { return mCurrentPushedMouseButton; }
+    GETTER IsKeyPressedContinous(int inScanCode) const {
+        return (bool)mKeyboardState[inScanCode];	
+    }
     GETTER IsLeftButtonPressed() const
     {
         return (SDL_BUTTON(SDL_BUTTON_LEFT) bitand this->GetMouseButtonValue()) != 0;
@@ -109,6 +113,7 @@ private:
     int mCurrentPushedMouseButton;
     uint32_t mCurrentDepthValue = 80;
     bool should_quit = false;
+    const uint8_t* mKeyboardState;
 
 private:
     std::function<void(void*)> mEventCallBack = [](void*) {};

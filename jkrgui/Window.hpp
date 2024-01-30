@@ -76,3 +76,4 @@ inline void Jkr::Window::ResetScissor(ParameterContext inContext)
     vk::Rect2D Rect(vk::Offset2D(0), mDepthImage.GetImageExtent());
     this->GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setScissor(0, Rect);
 }
+

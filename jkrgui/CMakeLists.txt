@@ -43,3 +43,4 @@ else()
 	 "WindowMulT.cpp" "Renderers/ResourceManager.cpp" "Renderers/CustomImagePainter.cpp" "SDLWindow.hpp" "SDLWindow.cpp" "Misc/MousePicker.cpp" "Misc/MousePicker.hpp")
  endif()
 
+ someFlags(jkrgui)

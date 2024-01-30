@@ -1,4 +1,4 @@
-#include "EntryPoint.hpp"	
+#include "EntryPoint.hpp"
 static auto pc = R"""(
 
 layout(push_constant, std430) uniform pc {
@@ -15,6 +15,12 @@ void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, J
     l.set_function("get_window_dimensions", [&]() -> vec2 {
         auto d = w.GetWindowSize();
         return vec2(d.first, d.second);
+    });
+
+    l.set_function("get_display_dimensions", [&]() -> vec2 {
+        SDL_DisplayMode mode;
+        SDL_GetCurrentDisplayMode(0, &mode);
+        return glm::vec2(mode.w, mode.h);
     });
 
     l.new_usertype<_2d>("renderer", "get", [&]() -> _2d& {
@@ -48,23 +54,46 @@ void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, J
         "get_relative_mouse_pos",
         [&]() -> vec2 { return em.GetRelativeMousePos(); },
 
+        "is_mousepress_event",
+        [&]() -> bool {
+            return em.GetEventHandle().type == SDL_MOUSEBUTTONDOWN;
+        },
+
         "is_left_button_pressed",
         [&]() -> bool {
-            {};
-            return em.IsLeftButtonPressed();
+            return em.GetEventHandle().button.button == SDL_BUTTON_LEFT;
         },
 
         "is_right_button_pressed",
-        [&]() { return em.IsRightButtonPressed(); },
+        [&]() {
+            return em.GetEventHandle().button.button == SDL_BUTTON_RIGHT;
+        },
+
+        "is_left_button_pressed_continous",
+        [&]() {
+            return em.IsLeftButtonPressed();
+        },
+
+        "is_right_button_pressed_continous",
+        [&]() {
+            return em.IsRightButtonPressed();
+        },
 
         "is_key_pressed",
         [&](SDL_Keycode key) {
-            {};
             return em.GetEventHandle().key.keysym.sym == key;
+        },
+
+        "is_key_pressed_continous",
+        [&](int inScancode) {
+            return em.IsKeyPressedContinous(inScancode);
         },
 
         "is_keypress_event",
         [&]() -> bool { return em.GetEventHandle().type == SDL_KEYDOWN; },
+
+        "is_mousepress_event",
+        [&]() -> bool { return em.GetEventHandle().type == SDL_MOUSEBUTTONDOWN; },
 
         "is_mod_ctrl_pressed",
         [&]() -> bool { return SDL_GetModState() bitand KMOD_CTRL; },
@@ -352,7 +381,6 @@ void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, J
         vec4 mParam;
     };
 
-    
     r.new_usertype<CustomPainterImage>("painter_image",
         sol::call_constructor,
         sol::factories([&](int ww, int wh) {
@@ -386,6 +414,12 @@ void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, J
         [&](CustomImagePainter& inP, vec4 inPosDimen, vec4 inColor, vec4 inParam) {
             push_constant push { .mPosDimen = inPosDimen, .mColor = inColor, .mParam = inParam };
             inP.Draw<push_constant>(w, push);
+        },
+
+        "paintext",
+        [&](CustomImagePainter& inP, vec4 inPosDimen, vec4 inColor, vec4 inParam, int inX, int inY, int inZ) {
+            push_constant push { .mPosDimen = inPosDimen, .mColor = inColor, .mParam = inParam };
+            inP.Draw<push_constant>(w, push, inX, inY, inZ);
         },
 
         "bind_image",
@@ -433,4 +467,3 @@ void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, J
         "is_mouse_within",
         &Component_base::IsMouseWithin);
 }
-

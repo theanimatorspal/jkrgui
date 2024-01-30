@@ -260,6 +260,347 @@ void CreateSDLEventBindings(sol::state& lua)
     lua["key"]["SDLK_SOFTRIGHT"] = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_SOFTRIGHT);
     lua["key"]["SDLK_CALL"] = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_CALL);
     lua["key"]["SDLK_ENDCALL"] = SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_ENDCALL);
+
+    lua["key"]["SDL_SCANCODE_UNKNOWN"] = SDL_SCANCODE_UNKNOWN,
+
+    /**
+     *  \name Usage page 0x07
+     *
+     *  These values are from usage page 0x07 (USB keyboard page).
+     */
+    /* @{ */
+
+    lua["key"]["SDL_SCANCODE_A"] = 4;
+    lua["key"]["SDL_SCANCODE_B"] = 5;
+    lua["key"]["SDL_SCANCODE_C"] = 6;
+    lua["key"]["SDL_SCANCODE_D"] = 7;
+    lua["key"]["SDL_SCANCODE_E"] = 8;
+    lua["key"]["SDL_SCANCODE_F"] = 9;
+    lua["key"]["SDL_SCANCODE_G"] = 10;
+    lua["key"]["SDL_SCANCODE_H"] = 11;
+    lua["key"]["SDL_SCANCODE_I"] = 12;
+    lua["key"]["SDL_SCANCODE_J"] = 13;
+    lua["key"]["SDL_SCANCODE_K"] = 14;
+    lua["key"]["SDL_SCANCODE_L"] = 15;
+    lua["key"]["SDL_SCANCODE_M"] = 16;
+    lua["key"]["SDL_SCANCODE_N"] = 17;
+    lua["key"]["SDL_SCANCODE_O"] = 18;
+    lua["key"]["SDL_SCANCODE_P"] = 19;
+    lua["key"]["SDL_SCANCODE_Q"] = 20;
+    lua["key"]["SDL_SCANCODE_R"] = 21;
+    lua["key"]["SDL_SCANCODE_S"] = 22;
+    lua["key"]["SDL_SCANCODE_T"] = 23;
+    lua["key"]["SDL_SCANCODE_U"] = 24;
+    lua["key"]["SDL_SCANCODE_V"] = 25;
+    lua["key"]["SDL_SCANCODE_W"] = 26;
+    lua["key"]["SDL_SCANCODE_X"] = 27;
+    lua["key"]["SDL_SCANCODE_Y"] = 28;
+    lua["key"]["SDL_SCANCODE_Z"] = 29;
+
+    lua["key"]["SDL_SCANCODE_1"] = 30;
+    lua["key"]["SDL_SCANCODE_2"] = 31;
+    lua["key"]["SDL_SCANCODE_3"] = 32;
+    lua["key"]["SDL_SCANCODE_4"] = 33;
+    lua["key"]["SDL_SCANCODE_5"] = 34;
+    lua["key"]["SDL_SCANCODE_6"] = 35;
+    lua["key"]["SDL_SCANCODE_7"] = 36;
+    lua["key"]["SDL_SCANCODE_8"] = 37;
+    lua["key"]["SDL_SCANCODE_9"] = 38;
+    lua["key"]["SDL_SCANCODE_0"] = 39;
+
+    lua["key"]["SDL_SCANCODE_RETURN"] = 40;
+    lua["key"]["SDL_SCANCODE_ESCAPE"] = 41;
+    lua["key"]["SDL_SCANCODE_BACKSPACE"] = 42;
+    lua["key"]["SDL_SCANCODE_TAB"] = 43;
+    lua["key"]["SDL_SCANCODE_SPACE"] = 44;
+
+    lua["key"]["SDL_SCANCODE_MINUS"] = 45;
+    lua["key"]["SDL_SCANCODE_EQUALS"] = 46;
+    lua["key"]["SDL_SCANCODE_LEFTBRACKET"] = 47;
+    lua["key"]["SDL_SCANCODE_RIGHTBRACKET"] = 48;
+    lua["key"]["SDL_SCANCODE_BACKSLASH"] = 49; /**< Located at the lower left of the retur;
+                                  *   key on ISO keyboards and at the right end
+                                  *   of the QWERTY row on ANSI keyboards.
+                                  *   Produces REVERSE SOLIDUS (backslash) and
+                                  *   VERTICAL LINE in a US layout, REVERSE
+                                  *   SOLIDUS and VERTICAL LINE in a UK Mac
+                                  *   layout, NUMBER SIGN and TILDE in a UK
+                                  *   Windows layout, DOLLAR SIGN and POUND SIGN
+                                  *   in a Swiss German layout, NUMBER SIGN and
+                                  *   APOSTROPHE in a German layout, GRAVE
+                                  *   ACCENT and POUND SIGN in a French Mac
+                                  *   layout, and ASTERISK and MICRO SIGN in a
+                                  *   French Windows layout.
+                                  */
+    lua["key"]["SDL_SCANCODE_NONUSHASH"] = 50; /**< ISO USB keyboards actually use this cod;
+                                  *   instead of 49 for the same key, but all
+                                  *   OSes I've seen treat the two codes
+                                  *   identically. So, as an implementor, unless
+                                  *   your keyboard generates both of those
+                                  *   codes and your OS treats them differently,
+                                  *   you should generate SDL_SCANCODE_BACKSLASH
+                                  *   instead of this code. As a user, you
+                                  *   should not rely on this code because SDL
+                                  *   will never generate it with most (all?)
+                                  *   keyboards.
+                                  */
+    lua["key"]["SDL_SCANCODE_SEMICOLON"] = 51;
+    lua["key"]["SDL_SCANCODE_APOSTROPHE"] = 52;
+    lua["key"]["SDL_SCANCODE_GRAVE"] = 53; /**< Located in the top left corner (on both ANS;
+                              *   and ISO keyboards). Produces GRAVE ACCENT and
+                              *   TILDE in a US Windows layout and in US and UK
+                              *   Mac layouts on ANSI keyboards, GRAVE ACCENT
+                              *   and NOT SIGN in a UK Windows layout, SECTION
+                              *   SIGN and PLUS-MINUS SIGN in US and UK Mac
+                              *   layouts on ISO keyboards, SECTION SIGN and
+                              *   DEGREE SIGN in a Swiss German layout (Mac:
+                              *   only on ISO keyboards), CIRCUMFLEX ACCENT and
+                              *   DEGREE SIGN in a German layout (Mac: only on
+                              *   ISO keyboards), SUPERSCRIPT TWO and TILDE in a
+                              *   French Windows layout, COMMERCIAL AT and
+                              *   NUMBER SIGN in a French Mac layout on ISO
+                              *   keyboards, and LESS-THAN SIGN and GREATER-THAN
+                              *   SIGN in a Swiss German, German, or French Mac
+                              *   layout on ANSI keyboards.
+                              */
+    lua["key"]["SDL_SCANCODE_COMMA"] = 54;
+    lua["key"]["SDL_SCANCODE_PERIOD"] = 55;
+    lua["key"]["SDL_SCANCODE_SLASH"] = 56;
+
+    lua["key"]["SDL_SCANCODE_CAPSLOCK"] = 57;
+
+    lua["key"]["SDL_SCANCODE_F1"] = 58;
+    lua["key"]["SDL_SCANCODE_F2"] = 59;
+    lua["key"]["SDL_SCANCODE_F3"] = 60;
+    lua["key"]["SDL_SCANCODE_F4"] = 61;
+    lua["key"]["SDL_SCANCODE_F5"] = 62;
+    lua["key"]["SDL_SCANCODE_F6"] = 63;
+    lua["key"]["SDL_SCANCODE_F7"] = 64;
+    lua["key"]["SDL_SCANCODE_F8"] = 65;
+    lua["key"]["SDL_SCANCODE_F9"] = 66;
+    lua["key"]["SDL_SCANCODE_F10"] = 67;
+    lua["key"]["SDL_SCANCODE_F11"] = 68;
+    lua["key"]["SDL_SCANCODE_F12"] = 69;
+
+    lua["key"]["SDL_SCANCODE_PRINTSCREEN"] = 70;
+    lua["key"]["SDL_SCANCODE_SCROLLLOCK"] = 71;
+    lua["key"]["SDL_SCANCODE_PAUSE"] = 72;
+    lua["key"]["SDL_SCANCODE_INSERT"] = 73, /**< insert on PC, help on some Mac keyboards (bu;
+                                   does send code 73, not 117) */
+    lua["key"]["SDL_SCANCODE_HOME"] = 74;
+    lua["key"]["SDL_SCANCODE_PAGEUP"] = 75;
+    lua["key"]["SDL_SCANCODE_DELETE"] = 76;
+    lua["key"]["SDL_SCANCODE_END"] = 77;
+    lua["key"]["SDL_SCANCODE_PAGEDOWN"] = 78;
+    lua["key"]["SDL_SCANCODE_RIGHT"] = 79;
+    lua["key"]["SDL_SCANCODE_LEFT"] = 80;
+    lua["key"]["SDL_SCANCODE_DOWN"] = 81;
+    lua["key"]["SDL_SCANCODE_UP"] = 82;
+
+    lua["key"]["SDL_SCANCODE_NUMLOCKCLEAR"] = 83, /**< num lock on PC, clear on Mac keyboard;
+                                     */
+    lua["key"]["SDL_SCANCODE_KP_DIVIDE"] = 84;
+    lua["key"]["SDL_SCANCODE_KP_MULTIPLY"] = 85;
+    lua["key"]["SDL_SCANCODE_KP_MINUS"] = 86;
+    lua["key"]["SDL_SCANCODE_KP_PLUS"] = 87;
+    lua["key"]["SDL_SCANCODE_KP_ENTER"] = 88;
+    lua["key"]["SDL_SCANCODE_KP_1"] = 89;
+    lua["key"]["SDL_SCANCODE_KP_2"] = 90;
+    lua["key"]["SDL_SCANCODE_KP_3"] = 91;
+    lua["key"]["SDL_SCANCODE_KP_4"] = 92;
+    lua["key"]["SDL_SCANCODE_KP_5"] = 93;
+    lua["key"]["SDL_SCANCODE_KP_6"] = 94;
+    lua["key"]["SDL_SCANCODE_KP_7"] = 95;
+    lua["key"]["SDL_SCANCODE_KP_8"] = 96;
+    lua["key"]["SDL_SCANCODE_KP_9"] = 97;
+    lua["key"]["SDL_SCANCODE_KP_0"] = 98;
+    lua["key"]["SDL_SCANCODE_KP_PERIOD"] = 99;
+
+    lua["key"]["SDL_SCANCODE_NONUSBACKSLASH"] = 100; /**< This is the additional key that IS;
+                                        *   keyboards have over ANSI ones,
+                                        *   located between left shift and Y.
+                                        *   Produces GRAVE ACCENT and TILDE in a
+                                        *   US or UK Mac layout, REVERSE SOLIDUS
+                                        *   (backslash) and VERTICAL LINE in a
+                                        *   US or UK Windows layout, and
+                                        *   LESS-THAN SIGN and GREATER-THAN SIGN
+                                        *   in a Swiss German, German, or French
+                                        *   layout. */
+    lua["key"]["SDL_SCANCODE_APPLICATION"] = 101;
+    lua["key"]["SDL_SCANCODE_POWER"] = 102;
+
+    lua["key"]["SDL_SCANCODE_KP_EQUALS"] = 103;
+    lua["key"]["SDL_SCANCODE_F13"] = 104;
+    lua["key"]["SDL_SCANCODE_F14"] = 105;
+    lua["key"]["SDL_SCANCODE_F15"] = 106;
+    lua["key"]["SDL_SCANCODE_F16"] = 107;
+    lua["key"]["SDL_SCANCODE_F17"] = 108;
+    lua["key"]["SDL_SCANCODE_F18"] = 109;
+    lua["key"]["SDL_SCANCODE_F19"] = 110;
+    lua["key"]["SDL_SCANCODE_F20"] = 111;
+    lua["key"]["SDL_SCANCODE_F21"] = 112;
+    lua["key"]["SDL_SCANCODE_F22"] = 113;
+    lua["key"]["SDL_SCANCODE_F23"] = 114;
+    lua["key"]["SDL_SCANCODE_F24"] = 115;
+    lua["key"]["SDL_SCANCODE_EXECUTE"] = 116;
+    lua["key"]["SDL_SCANCODE_HELP"] = 117,    
+    lua["key"]["SDL_SCANCODE_MENU"] = 118,    
+    lua["key"]["SDL_SCANCODE_SELECT"] = 119;
+    lua["key"]["SDL_SCANCODE_STOP"] = 120,
+    lua["key"]["SDL_SCANCODE_AGAIN"] = 121,
+    lua["key"]["SDL_SCANCODE_UNDO"] = 122;
+    lua["key"]["SDL_SCANCODE_CUT"] = 123;    
+    lua["key"]["SDL_SCANCODE_COPY"] = 124,    /**< AC Copy **/
+    lua["key"]["SDL_SCANCODE_PASTE"] = 125;   /**< AC Paste **/
+    lua["key"]["SDL_SCANCODE_FIND"] = 126;    /**< AC Find **/
+    lua["key"]["SDL_SCANCODE_MUTE"] = 127;
+    lua["key"]["SDL_SCANCODE_VOLUMEUP"] = 128;
+    lua["key"]["SDL_SCANCODE_VOLUMEDOWN"] = 129;
+/* not sure whether there's a reason to enable these */
+/*     SDL_SCANCODE_LOCKINGCAPSLOCK = 130,  */
+/*     SDL_SCANCODE_LOCKINGNUMLOCK = 131, */
+/*     SDL_SCANCODE_LOCKINGSCROLLLOCK = 132, */
+    lua["key"]["SDL_SCANCODE_KP_COMMA"] = 133;
+    lua["key"]["SDL_SCANCODE_KP_EQUALSAS400"] = 134;
+
+    lua["key"]["SDL_SCANCODE_INTERNATIONAL1"] = 135;
+    lua["key"]["SDL_SCANCODE_INTERNATIONAL2"] = 136;
+    lua["key"]["SDL_SCANCODE_INTERNATIONAL3"] = 137;
+    lua["key"]["SDL_SCANCODE_INTERNATIONAL4"] = 138;
+    lua["key"]["SDL_SCANCODE_INTERNATIONAL5"] = 139;
+    lua["key"]["SDL_SCANCODE_INTERNATIONAL6"] = 140;
+    lua["key"]["SDL_SCANCODE_INTERNATIONAL7"] = 141;
+    lua["key"]["SDL_SCANCODE_INTERNATIONAL8"] = 142;
+    lua["key"]["SDL_SCANCODE_INTERNATIONAL9"] = 143;
+    lua["key"]["SDL_SCANCODE_LANG1"] = 144;
+    lua["key"]["SDL_SCANCODE_LANG2"] = 145;
+    lua["key"]["SDL_SCANCODE_LANG3"] = 14;
+    lua["key"]["SDL_SCANCODE_LANG4"] = 147;
+    lua["key"]["SDL_SCANCODE_LANG5"] = 148;
+    lua["key"]["SDL_SCANCODE_LANG6"] = 149;
+    lua["key"]["SDL_SCANCODE_LANG7"] = 150;
+    lua["key"]["SDL_SCANCODE_LANG8"] = 151;
+    lua["key"]["SDL_SCANCODE_LANG9"] = 152;
+
+    lua["key"]["SDL_SCANCODE_ALTERASE"] = 153;
+    lua["key"]["SDL_SCANCODE_SYSREQ"] = 154;
+    lua["key"]["SDL_SCANCODE_CANCEL"] = 155;
+    lua["key"]["SDL_SCANCODE_CLEAR"] = 156;
+    lua["key"]["SDL_SCANCODE_PRIOR"] = 157;
+    lua["key"]["SDL_SCANCODE_RETURN2"] = 158;
+    lua["key"]["SDL_SCANCODE_SEPARATOR"] = 159;
+    lua["key"]["SDL_SCANCODE_OUT"] = 160;
+    lua["key"]["SDL_SCANCODE_OPER"] = 161;
+    lua["key"]["SDL_SCANCODE_CLEARAGAIN"] = 162;
+    lua["key"]["SDL_SCANCODE_CRSEL"] = 163;
+    lua["key"]["SDL_SCANCODE_EXSEL"] = 164;
+
+    lua["key"]["SDL_SCANCODE_KP_00"] = 176;
+    lua["key"]["SDL_SCANCODE_KP_000"] = 177;
+    lua["key"]["SDL_SCANCODE_THOUSANDSSEPARATOR"] = 178;
+    lua["key"]["SDL_SCANCODE_DECIMALSEPARATOR"] = 179;
+    lua["key"]["SDL_SCANCODE_CURRENCYUNIT"] = 180;
+    lua["key"]["SDL_SCANCODE_CURRENCYSUBUNIT"] = 181;
+    lua["key"]["SDL_SCANCODE_KP_LEFTPAREN"] = 182;
+    lua["key"]["SDL_SCANCODE_KP_RIGHTPAREN"] = 183;
+    lua["key"]["SDL_SCANCODE_KP_LEFTBRACE"] = 184;
+    lua["key"]["SDL_SCANCODE_KP_RIGHTBRACE"] = 185;
+    lua["key"]["SDL_SCANCODE_KP_TAB"] = 186;
+    lua["key"]["SDL_SCANCODE_KP_BACKSPACE"] = 187;
+    lua["key"]["SDL_SCANCODE_KP_A"] = 188;
+    lua["key"]["SDL_SCANCODE_KP_B"] = 189;
+    lua["key"]["SDL_SCANCODE_KP_C"] = 190;
+    lua["key"]["SDL_SCANCODE_KP_D"] = 191;
+    lua["key"]["SDL_SCANCODE_KP_E"] = 192;
+    lua["key"]["SDL_SCANCODE_KP_F"] = 193;
+    lua["key"]["SDL_SCANCODE_KP_XOR"] = 194;
+    lua["key"]["SDL_SCANCODE_KP_POWER"] = 195;
+    lua["key"]["SDL_SCANCODE_KP_PERCENT"] = 196;
+    lua["key"]["SDL_SCANCODE_KP_LESS"] = 197;
+    lua["key"]["SDL_SCANCODE_KP_GREATER"] = 198;
+    lua["key"]["SDL_SCANCODE_KP_AMPERSAND"] = 199;
+    lua["key"]["SDL_SCANCODE_KP_DBLAMPERSAND"] = 200;
+    lua["key"]["SDL_SCANCODE_KP_VERTICALBAR"] = 201;
+    lua["key"]["SDL_SCANCODE_KP_DBLVERTICALBAR"] = 202;
+    lua["key"]["SDL_SCANCODE_KP_COLON"] = 203;
+    lua["key"]["SDL_SCANCODE_KP_HASH"] = 204;
+    lua["key"]["SDL_SCANCODE_KP_SPACE"] = 205;
+    lua["key"]["SDL_SCANCODE_KP_AT"] = 206;
+    lua["key"]["SDL_SCANCODE_KP_EXCLAM"] = 207;
+    lua["key"]["SDL_SCANCODE_KP_MEMSTORE"] = 208;
+    lua["key"]["SDL_SCANCODE_KP_MEMRECALL"] = 209;
+    lua["key"]["SDL_SCANCODE_KP_MEMCLEAR"] = 210;
+    lua["key"]["SDL_SCANCODE_KP_MEMADD"] = 211;
+    lua["key"]["SDL_SCANCODE_KP_MEMSUBTRACT"] = 212;
+    lua["key"]["SDL_SCANCODE_KP_MEMMULTIPLY"] = 213;
+    lua["key"]["SDL_SCANCODE_KP_MEMDIVIDE"] = 214;
+    lua["key"]["SDL_SCANCODE_KP_PLUSMINUS"] = 215;
+    lua["key"]["SDL_SCANCODE_KP_CLEAR"] = 216;
+    lua["key"]["SDL_SCANCODE_KP_CLEARENTRY"] = 217;
+    lua["key"]["SDL_SCANCODE_KP_BINARY"] = 218;
+    lua["key"]["SDL_SCANCODE_KP_OCTAL"] = 219;
+    lua["key"]["SDL_SCANCODE_KP_DECIMAL"] = 220;
+    lua["key"]["SDL_SCANCODE_KP_HEXADECIMAL"] = 221;
+
+    lua["key"]["SDL_SCANCODE_LCTRL"] = 224;
+    lua["key"]["SDL_SCANCODE_LSHIFT"] = 225;
+    lua["key"]["SDL_SCANCODE_LALT"] = 226;
+    lua["key"]["SDL_SCANCODE_LGUI"] = 227;
+    lua["key"]["SDL_SCANCODE_RCTRL"] = 228;
+    lua["key"]["SDL_SCANCODE_RSHIFT"] = 229;
+    lua["key"]["SDL_SCANCODE_RALT"] = 230;
+    lua["key"]["SDL_SCANCODE_RGUI"] = 231;
+
+    lua["key"]["SDL_SCANCODE_MODE"] = 257;
+
+    /* @} *//* Usage page 0x07 */
+
+    /**
+     *  \name Usage page 0x0C
+     *
+     *  These values are mapped from usage page 0x0C (USB consumer page).
+     *  See https://usb.org/sites/default/files/hut1_2.pdf
+     *
+     *  There are way more keys in the spec than we can represent in the
+     *  current scancode range, so pick the ones that commonly come up in
+     *  real world usage.
+     */
+    /* @{ */
+
+    lua["key"]["SDL_SCANCODE_AUDIONEXT"] = 258;
+    lua["key"]["SDL_SCANCODE_AUDIOPREV"] = 259;
+    lua["key"]["SDL_SCANCODE_AUDIOSTOP"] = 260;
+    lua["key"]["SDL_SCANCODE_AUDIOPLAY"] = 261;
+    lua["key"]["SDL_SCANCODE_AUDIOMUTE"] = 262;
+    lua["key"]["SDL_SCANCODE_MEDIASELECT"] = 263;
+    lua["key"]["SDL_SCANCODE_WWW"] = 264;         
+    lua["key"]["SDL_SCANCODE_MAIL"] = 265;
+    lua["key"]["SDL_SCANCODE_CALCULATOR"] = 266;  
+    lua["key"]["SDL_SCANCODE_COMPUTER"] = 267;
+    lua["key"]["SDL_SCANCODE_AC_SEARCH"] = 268; 
+    lua["key"]["SDL_SCANCODE_AC_HOME"] = 269;  
+    lua["key"]["SDL_SCANCODE_AC_BACK"] = 270;  
+    lua["key"]["SDL_SCANCODE_AC_FORWARD"] = 271;  
+    lua["key"]["SDL_SCANCODE_AC_STOP"] = 272;    
+    lua["key"]["SDL_SCANCODE_AC_REFRESH"] = 273;  ;
+    lua["key"]["SDL_SCANCODE_AC_BOOKMARKS"] = 274; 
+    lua["key"]["SDL_SCANCODE_BRIGHTNESSDOWN"] = 275;
+    lua["key"]["SDL_SCANCODE_BRIGHTNESSUP"] = 276;
+    lua["key"]["SDL_SCANCODE_DISPLAYSWITCH"] = 277;
+    lua["key"]["SDL_SCANCODE_KBDILLUMTOGGLE"] = 278;
+    lua["key"]["SDL_SCANCODE_KBDILLUMDOWN"] = 279;
+    lua["key"]["SDL_SCANCODE_KBDILLUMUP"] = 280;
+    lua["key"]["SDL_SCANCODE_EJECT"] = 281;
+    lua["key"]["SDL_SCANCODE_SLEEP"] = 282;
+    lua["key"]["SDL_SCANCODE_APP1"] = 283;
+    lua["key"]["SDL_SCANCODE_APP2"] = 284;
+    lua["key"]["SDL_SCANCODE_AUDIOREWIND"] = 285;
+    lua["key"]["SDL_SCANCODE_AUDIOFASTFORWARD"] = 286;
+    lua["key"]["SDL_SCANCODE_SOFTLEFT"] = 287;
+    lua["key"]["SDL_SCANCODE_SOFTRIGHT"] = 288;
+    lua["key"]["SDL_SCANCODE_CALL"] = 289;
+    lua["key"]["SDL_SCANCODE_ENDCALL"] = 290;
+    lua["key"]["SDL_NUM_SCANCODES"] = 512;
 }
 
 void CreateGLMBindings(sol::state& lua)
