@@ -72,14 +72,14 @@ void CustomImagePainter::Load(const Instance& inInstance, Window& inWindow)
 
 void CustomImagePainter::Store(const Instance& inInstance, Window& inWindow)
 {
-    ksai::Shader Shape_Fill(ShapeRenderers_Fill::VertexShader, ShapeRenderers_Fill::FragmentShader);
-    ksai::Shader Shape_FillCompute(8, ShapeRenderers_Fill::ComputeShader);
-    SpirvHelper::Init();
-    auto xxxx = MakeUp<Jkr::PainterCache>(inInstance);
-    xxxx->Store(mCustomPainterFileName,
-        Shape_Fill.GetVertexShader().str(),
-        Shape_Fill.GetFragmentShader().str(),
-        Shape_FillCompute.GetComputeShader().str());
+    //ksai::Shader Shape_Fill(ShapeRenderers_Fill::VertexShader, ShapeRenderers_Fill::FragmentShader);
+    //ksai::Shader Shape_FillCompute(8, ShapeRenderers_Fill::ComputeShader);
+    //SpirvHelper::Init();
+    //auto xxxx = MakeUp<Jkr::PainterCache>(inInstance);
+    //xxxx->Store(mCustomPainterFileName,
+    //    Shape_Fill.GetVertexShader().str(),
+    //    Shape_Fill.GetFragmentShader().str(),
+    //    Shape_FillCompute.GetComputeShader().str());
 
     mCustomPainterCache = MakeUp<PainterCache>(inInstance);
     mCustomPainterCache->Store(mCustomPainterFileName,
