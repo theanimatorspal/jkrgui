@@ -385,7 +385,11 @@ void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, J
         sol::call_constructor,
         sol::factories([&](int ww, int wh) {
             return CustomPainterImage(i, w, ww, wh);
-        }));
+        }),
+        "register", [&](CustomPainterImage& inImage, CustomImagePainter& inPainter){
+            inImage.Register(i, inPainter);
+                    }
+         );
 
     r.new_usertype<CustomImagePainter>(
         "image_painter",
@@ -424,6 +428,9 @@ void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, J
 
         "bind_image",
         [&](CustomImagePainter& inP) { inP.BindImage(w); },
+
+         "bind_image_from_image",
+        [&](CustomImagePainter& inP, CustomPainterImage& inImage) { inP.BindImageFromImage(w, inImage); },
 
         "bind",
         [&](CustomImagePainter& inP) { inP.Bind(w); },

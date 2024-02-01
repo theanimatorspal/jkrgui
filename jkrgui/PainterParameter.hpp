@@ -137,6 +137,19 @@ public:
     GETTER GetStorageImagePtr() const { return mStorageImagePtr.get(); }
     GETTER& GetStorageImage() const { return *mStorageImagePtr; }
     GETTER& GetStorageImageSampler() const { return *mSampler; }
+    void Register(
+        vk::DeviceSize inOffset,
+        uint32_t inDstBinding,
+        uint32_t inDstArrayElement,
+        VulkanDescriptorSet& inDescriptorSet)
+    {
+        mVulkanDescriptorSetHandler.Write<ImageContext::Storage>(
+            inDescriptorSet,
+            *mStorageImagePtr,
+            *mSampler,
+            inDstBinding,
+            inDstArrayElement);
+    }
 
 private:
     Up<StorageImageType> mStorageImagePtr;
