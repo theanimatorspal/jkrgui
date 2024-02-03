@@ -273,6 +273,28 @@ void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, J
         "continous_line",
         FillType::ContinousLine);
 
+    struct ImageInfo {
+        std::vector<uc> uc_vec;
+        int h, w, c;
+    };
+    l.new_usertype<ImageInfo>(
+        "image_info",
+        "uc_vec", &ImageInfo::uc_vec,
+        "h", &ImageInfo::h,
+        "w", &ImageInfo::w,
+        "c", &ImageInfo::c
+    );
+
+    l.set_function("read_image_into_uc_vector", [&](string_view inFilename) {
+        ImageInfo info;
+        auto data = stbi_load(inFilename.data(), &info.w, &info.h, &info.c, 4);
+        size_t img_size = info.w * info.h * 4;
+        info.uc_vec.resize(img_size);
+        std::memcpy(info.uc_vec.data(), data, img_size);
+        stbi_image_free(data);
+        return info;
+    });
+
     r.new_usertype<Shape>(
         "sh",
 
@@ -298,6 +320,11 @@ void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, J
             [&](string_view infilename) {
                 uint32_t id;
                 td.sh.AddImage(infilename, id);
+                return id;
+            },
+            [&](ImageInfo& inInfo) {
+                uint32_t id;
+                td.sh.AddImage(inInfo.uc_vec, inInfo.w, inInfo.h, id);
                 return id;
             }),
 
@@ -335,10 +362,10 @@ void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, J
         "balt",
 
         "add",
-        [&](int inFontId, string_view inS, vec3 inposition)
+        [&](int inFontId, string_view inS, vec3 inposition, bool inAlignBottom)
             -> Jkr::Renderer::BestText_Alt::ImageId {
             BestText_Alt::ImageId outId;
-            ALT.Add(inFontId, vec2(inposition.x, inposition.y), inposition.z, inS, outId, i.GetThreadPool());
+            ALT.Add(inFontId, vec2(inposition.x, inposition.y), inposition.z, inS, outId, i.GetThreadPool(), inAlignBottom);
             return outId;
         },
 
@@ -351,8 +378,8 @@ void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, J
         [&](BestText_Alt::ImageId inId,
             int inFontId,
             vec3 inposition,
-            string_view inText) {
-            ALT.Update(inId, inFontId, vec2(inposition.x, inposition.y), inposition.z, inText, i.GetThreadPool());
+            string_view inText, bool inAlignBottom) {
+            ALT.Update(inId, inFontId, vec2(inposition.x, inposition.y), inposition.z, inText, i.GetThreadPool(), inAlignBottom);
         },
 
         "update_pos_only",
@@ -386,10 +413,9 @@ void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, J
         sol::factories([&](int ww, int wh) {
             return CustomPainterImage(i, w, ww, wh);
         }),
-        "register", [&](CustomPainterImage& inImage, CustomImagePainter& inPainter){
+        "register", [&](CustomPainterImage& inImage, CustomImagePainter& inPainter) {
             inImage.Register(i, inPainter);
-                    }
-         );
+        });
 
     r.new_usertype<CustomImagePainter>(
         "image_painter",
@@ -429,7 +455,7 @@ void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, J
         "bind_image",
         [&](CustomImagePainter& inP) { inP.BindImage(w); },
 
-         "bind_image_from_image",
+        "bind_image_from_image",
         [&](CustomImagePainter& inP, CustomPainterImage& inImage) { inP.BindImageFromImage(w, inImage); },
 
         "bind",

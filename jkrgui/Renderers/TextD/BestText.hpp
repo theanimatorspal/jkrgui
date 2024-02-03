@@ -27,7 +27,7 @@ public:
         ui inX, ui inY,
         ui inDepthValue);
     void Dispatch(Window& inWindow);
-    void Bind(Window& inWindow);
+    void Bind(Window& inWindow, CmdParam inParam = CmdParam::UI);
     void Draw(Window& inWindow, glm::vec4 inColor, ui inWindowW,
         ui inWindowH, ui inStartTextId, ui inNoOfChars,
         glm::mat4 inMatrix);

@@ -4,7 +4,7 @@ namespace ksai {
 void VulkanPipelineBase::FillVertexInputDescriptions(const spirv_cross::ShaderResources& Resources, const spirv_cross::Compiler& comp, std::vector<vk::VertexInputBindingDescription>& VertexInputBindingDesp, std::vector<vk::VertexInputAttributeDescription>& InputAttrDescription)
 {
     {
-        uint32_t previousBindingIndex = 0;
+        //uint32_t previousBindingIndex = 0;
         uint32_t AttributeOffset = 0;
         InputAttrDescription.resize(Resources.stage_inputs.size());
         v<ui> AttrSizes(InputAttrDescription.size());
@@ -14,7 +14,6 @@ void VulkanPipelineBase::FillVertexInputDescriptions(const spirv_cross::ShaderRe
             size_t AttributeSize = 0; // TODO
             uint32_t location = comp.get_decoration(u.id, spv::DecorationLocation);
             uint32_t bindingIndex = comp.get_decoration(u.id, spv::DecorationBinding);
-            uint32_t offset = comp.get_decoration(u.id, spv::DecorationOffset);
             vk::Format format = vk::Format::eUndefined; // TODO
 
             uint32_t siz = type.vecsize;

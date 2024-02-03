@@ -51,8 +51,8 @@ inline constexpr void VulkanBufferVMA<inBufferContext, inBufferStorageType>::UnM
 }
 template <BufferContext inBufferContext, MemoryType inBufferStorageType>
 inline VulkanBufferVMA<inBufferContext, inBufferStorageType>::VulkanBufferVMA(const VulkanVMA& inVMA, const VulkanDevice& inDevice, size_t inSize)
-    : mAllocator(inVMA)
-    , VulkanBufferBase(inDevice)
+    : VulkanBufferBase(inDevice)
+    , mAllocator(inVMA)
 {
     mSize = inSize;
     auto BufferCreateInfo = vk::BufferCreateInfo(

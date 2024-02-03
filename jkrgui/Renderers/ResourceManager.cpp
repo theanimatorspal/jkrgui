@@ -104,7 +104,7 @@ ResourceManager& ResourceManager::Store(const Jkr::Instance& inInstance, uint32_
     ksai::Shader BestTextS(BestText_shader::VertexShader, BestText_shader::FragmentShader);
     ksai::Shader BestText_Compute(8, BestText_shader::ComputeShader);
 
-    mShapePainterChaches_imgfillF = [&]() { mShapePainterCaches[FillType::Image]
+    auto mShapePainterChaches_imgfillF = [&]() { mShapePainterCaches[FillType::Image]
                                                 ->__var_des_index_Store_EXT(ShapeRendererCacheFileName_Image,
                                                     Shape_Image.GetVertexShader().str(),
                                                     Shape_Image.GetFragmentShader().str(),

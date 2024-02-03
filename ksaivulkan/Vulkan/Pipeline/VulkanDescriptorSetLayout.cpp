@@ -35,7 +35,7 @@ VulkanDescriptorSetLayout<1, ShaderModuleContext::Compute>::VulkanDescriptorSetL
     mDescriptorSetLayout = mDevice.createDescriptorSetLayout(DescriptorSetLayoutCreateInfo);
 }
 
-#ifdef JKR_USE_VARIABLE_DES_INDEXING
+#ifdef USE_VARIABLE_DESCRIPTOR_INDEXING_FEATURE
 
 template <>
 VulkanDescriptorSetLayout<NoOfShaderModules, ShaderModuleContext::Vertex, ShaderModuleContext::Fragment>::VulkanDescriptorSetLayout(const VulkanDevice& inDevice, const std::array<VulkanShaderModule, NoOfShaderModules>& inModules, uint32_t inVariableSizedDescriptorMaxCount)

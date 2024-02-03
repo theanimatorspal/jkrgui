@@ -50,7 +50,7 @@ public:
     GETTER GetTextProperty() const { return mCurrentTextProp; };
 
 protected:
-    TextDimensions GetTextDimensions(const std::string_view inString, uint32_t inFontShapeId, hb_glyph_info_t* info, hb_glyph_position_t* pos, uint32_t len);
+    TextDimensions GetTextDimensions(const std::string_view inString, uint32_t inFontShapeId, hb_glyph_info_t* info, hb_glyph_position_t* pos, uint32_t len, optref<int> inYbearing = std::nullopt);
     TextDimensions AddText(uint32_t inX, uint32_t inY, const std::string_view inString, uint32_t inFontShapeId, uint32_t inDepthValue, std::vector<uint32_t>& outCodePoints, uint32_t& outIdt);
     TextDimensions RenderTextToImage(std::string_view inString, uint32_t inFontShapeId, std::vector<uc>& outImage, ksai::optref<ksai::ThreadPool> inThreadpool = std::nullopt, ksai::optref<int> outYoff = std::nullopt);
 

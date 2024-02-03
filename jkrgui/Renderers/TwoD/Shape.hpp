@@ -35,7 +35,7 @@ public:
     }
     void Update(uint32_t inId, Jkr::Generator& inShape, int inX, int inY, uint32_t inZ);
     void Dispatch(Window& inWindow, CmdParam inParam = CmdParam::None);
-    void BindFillMode(FillType inType, Window& inWindow);
+    void BindFillMode(FillType inType, Window& inWindow, CmdParam inParam = CmdParam::UI);
     void BindImage(Window& inWindow, uint32_t inImageId, CmdParam inParam = CmdParam::UI);
     void BindShapes(Window& inWindow);
     void Draw(Window& inWindow,

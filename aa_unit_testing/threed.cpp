@@ -231,7 +231,6 @@ int oajdsfklsajldfkja()
     Window.SetDrawCallBack(
         [&](void*) {
             for (int i = 0; i < itr; i++) {
-                auto ctime = Window.GetWindowCurrentTime() / 1000.0f;
                 r.Bind(Window, Jkr::Window::ParameterContext::UI);
                 r.PainterBindForDraw(pid, Window, Jkr::Window::ParameterContext::UI);
                 push2.mat = glm::translate(model2, glm::vec3(i / 10.0f, i / 10.0f, i / 10.0f));
@@ -254,7 +253,10 @@ int oajdsfklsajldfkja()
         Window.Draw(0.2f, 0.2f, 0.2f, 0.2f);
 	   FrameMark;
     }
+    return 0;
 }
 
+
 int main ( ) {
+    return 0;
 }

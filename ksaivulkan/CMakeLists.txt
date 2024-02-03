@@ -25,12 +25,12 @@ if(APPLE OR ANDROID)
         "Vendor/sol/*.c"
         "Vendor/stbi/*.c"
         "Vendor/VulkanMemoryAllocator/*.c"
-	   "Vendor/TinyGLTF/*.cpp"
-	   "Vendor/TinyGLTF/*.hpp"
-	   "Vendor/VulkanMemoryAllocator/vma.cpp"
-	   "ksai_config.hpp"
-	   "ksai_image.hpp"
-	   "ksai_thread.hpp"
+        "Vendor/TinyGLTF/*.cpp"
+        "Vendor/TinyGLTF/*.hpp"
+        "Vendor/VulkanMemoryAllocator/vma.cpp"
+        "ksai_config.hpp"
+        "ksai_image.hpp"
+        "ksai_thread.hpp"
         )
 	   if(ANDROID)
 		   add_library(ksaivulkan ${app_SRC})

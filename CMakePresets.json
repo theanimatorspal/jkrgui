@@ -2,22 +2,22 @@
 	"version": 3,
 	"configurePresets": [
 
-		{
-			"name": "windows-base",
-			"hidden": true,
-			"generator": "Ninja",
-			"binaryDir": "${sourceDir}/out/build/${presetName}",
-			"installDir": "${sourceDir}/out/install/${presetName}",
-			"cacheVariables": {
-				"CMAKE_C_COMPILER": "clang-cl.exe",
-				"CMAKE_CXX_COMPILER": "clang-cl.exe"
-			},
-			"condition": {
-				"type": "equals",
-				"lhs": "${hostSystemName}",
-				"rhs": "Windows"
-			}
+	     {
+		"name": "windows-base",
+		"hidden": true,
+		"generator": "Ninja",
+		"binaryDir": "${sourceDir}/out/build/${presetName}",
+		"installDir": "${sourceDir}/out/install/${presetName}",
+		"cacheVariables": {
+		     "CMAKE_C_COMPILER": "clang-cl.exe",
+		     "CMAKE_CXX_COMPILER": "clang-cl.exe"
 		},
+		"condition": {
+		     "type": "equals",
+		     "lhs": "${hostSystemName}",
+		     "rhs": "Windows"
+		}
+	     },
 		{
 			"name": "x64-debug",
 			"displayName": "x64 Debug",
@@ -44,6 +44,14 @@
 			"inherits": "x64-release",
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "RelWithDebInfo"
+			}
+		},
+		{
+			"name": "x64-MinSizeRel",
+			"displayName": "x64 Release MinSize",
+			"inherits": "x64-release",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "MinSizeRel"
 			}
 		},
 		{

@@ -77,20 +77,6 @@ enum CallbackType : int {
     Draw
 };
 
-static int my_exception_handler(lua_State* L, sol::optional<const std::exception&> maybe_execption, sol::string_view description)
-{
-    std::cout << "An Exception has occured in the function here is what it says: ";
-    if (maybe_execption) {
-        std::cout << "(Straight from the exception) ";
-        const std::exception& ex = *maybe_execption;
-        std::cout << ex.what() << std::endl;
-    } else {
-        std::cout << "(From the Descriptor Parameter) ";
-        std::cout.write(description.data(), static_cast<std::streamsize>(description.size()));
-        std::cout << std::endl;
-    }
-    return sol::stack::push(L, description);
-}
 
 using namespace std;
 using namespace glm;

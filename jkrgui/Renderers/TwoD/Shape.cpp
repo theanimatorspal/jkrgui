@@ -321,10 +321,10 @@ void Shape::Dispatch(Window& inWindow, CmdParam inParam)
     }
 }
 
-void Shape::BindFillMode(FillType inFillType, Window& inWindow)
+void Shape::BindFillMode(FillType inFillType, Window& inWindow, CmdParam inParam)
 {
 #ifdef JKR_USE_VARIABLE_DES_INDEXING
-    auto& Cmd = inWindow.GetCommandBuffers()[inWindow.GetCurrentFrame()];
+    auto& Cmd = inWindow.GetCommandBuffers(inParam)[inWindow.GetCurrentFrame()];
     Cmd.GetCommandBufferHandle().bindDescriptorSets(
         vk::PipelineBindPoint::eGraphics,
         mPainterCaches[FillType::Image]->GetVertexFragmentPipelineLayout().GetPipelineLayoutHandle(),

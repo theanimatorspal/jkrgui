@@ -35,9 +35,6 @@ public:
     void BindDrawParamtersPipelineOnly_EXT(const Primitive& inPrimitive, const Window& inWindow, CmdParam inCmdContext = CmdParam::UI);
 
     template <class PushType>
-    void BindDrawParamters_EXT(const Primitive& inPrimitive, CmdParam inCmdContext = CmdParam::UI);
-
-    template <class PushType>
     void Draw_EXT(const Primitive& inPrimitive,
         const vk::ArrayProxy<PushType> inPushConstants,
         const Window& inWindow,

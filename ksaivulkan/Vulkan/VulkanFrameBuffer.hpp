@@ -10,9 +10,7 @@ protected:
     vk::Framebuffer mBuffer;
 };
 
-template <RenderPassContext inRenderPassContext = RenderPassContext::Default,
-    size_t NoOfAttachements = 2,
-    typename... T>
+template <RenderPassContext inRenderPassContext = RenderPassContext::Default, size_t NoOfAttachements = 2, typename... T>
 class VulkanFrameBuffer : public VulkanFrameBufferBase {
 public:
     VulkanFrameBuffer(const VulkanDevice& inDevice,
@@ -34,6 +32,9 @@ private:
     std::vector<vk::ImageView> Attachments;
     vk::Extent2D mExtent;
 };
+}
+
+namespace ksai {
 
 template <RenderPassContext inRenderPassContext, size_t NoOfAttachements, typename... T>
 inline VulkanFrameBuffer<inRenderPassContext, NoOfAttachements, T...>::VulkanFrameBuffer(

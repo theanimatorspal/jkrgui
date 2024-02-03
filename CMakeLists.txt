@@ -1,9 +1,11 @@
 ﻿include("CMakeCommon.cmake")
 
+cmake_minimum_required (VERSION 3.27)
 
-cmake_minimum_required (VERSION 3.9)
-#set(ANDROID true)
-set(CMAKE_ANDROID_EXCEPTIONS true)
+#if(ANDROID)
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wl,--exclude-libs,ALL")
+#    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s") 
+#endif()
 
 #set your VULKAN_SDK PATH 
 if(APPLE)
@@ -81,6 +83,8 @@ include_directories(ksaivulkan/Vendor)
 include_directories(ksaivulkan/Vendor/stbi)
 include_directories(ksaivulkan/Vendor/lua)
 include_directories("${CMAKE_SOURCE_DIR}/libs/")
+
+include_directories(aJkrLua)
 
 if(APPLE)
 elseif(ANDROID)

@@ -52,31 +52,31 @@ inline void VulkanDescriptorSetLayoutBase::FillDescriptorLayoutBindings(const sp
         ShaderStageFlag = vk::ShaderStageFlagBits::eCompute;
 
     for (auto& u : inResources.uniform_buffers) {
-        uint32_t set = inGlslCompiler.get_decoration(u.id, spv::DecorationDescriptorSet);
+        //uint32_t set = inGlslCompiler.get_decoration(u.id, spv::DecorationDescriptorSet);
         uint32_t binding = inGlslCompiler.get_decoration(u.id, spv::DecorationBinding);
         auto dbinding = vk::DescriptorSetLayoutBinding(binding, vk::DescriptorType::eUniformBuffer, 1, ShaderStageFlag, nullptr);
         CheckAndPushBindings(inDescriptorSetLayoutBindings, dbinding);
     }
     for (auto& u : inResources.sampled_images) {
-        uint32_t set = inGlslCompiler.get_decoration(u.id, spv::DecorationDescriptorSet);
+        //uint32_t set = inGlslCompiler.get_decoration(u.id, spv::DecorationDescriptorSet);
         uint32_t binding = inGlslCompiler.get_decoration(u.id, spv::DecorationBinding);
         auto dbinding = vk::DescriptorSetLayoutBinding(binding, vk::DescriptorType::eCombinedImageSampler, 1, ShaderStageFlag, nullptr);
         CheckAndPushBindings(inDescriptorSetLayoutBindings, dbinding);
     }
     for (auto& u : inResources.storage_buffers) {
-        uint32_t set = inGlslCompiler.get_decoration(u.id, spv::DecorationDescriptorSet);
+        //uint32_t set = inGlslCompiler.get_decoration(u.id, spv::DecorationDescriptorSet);
         uint32_t binding = inGlslCompiler.get_decoration(u.id, spv::DecorationBinding);
         auto dbinding = vk::DescriptorSetLayoutBinding(binding, vk::DescriptorType::eStorageBuffer, 1, ShaderStageFlag);
         CheckAndPushBindings(inDescriptorSetLayoutBindings, dbinding);
     }
     for (auto& u : inResources.storage_images) {
-        uint32_t set = inGlslCompiler.get_decoration(u.id, spv::DecorationDescriptorSet);
+        //uint32_t set = inGlslCompiler.get_decoration(u.id, spv::DecorationDescriptorSet);
         uint32_t binding = inGlslCompiler.get_decoration(u.id, spv::DecorationBinding);
         auto dbinding = vk::DescriptorSetLayoutBinding(binding, vk::DescriptorType::eStorageImage, 1, ShaderStageFlag, nullptr);
         CheckAndPushBindings(inDescriptorSetLayoutBindings, dbinding);
     }
     for (auto& u : inResources.separate_samplers) {
-        uint32_t set = inGlslCompiler.get_decoration(u.id, spv::DecorationDescriptorSet);
+        //[[maybe_unused]]uint32_t set = inGlslCompiler.get_decoration(u.id, spv::DecorationDescriptorSet);
         uint32_t binding = inGlslCompiler.get_decoration(u.id, spv::DecorationBinding);
         auto dbinding = vk::DescriptorSetLayoutBinding(binding, vk::DescriptorType::eSampler, 1, ShaderStageFlag, nullptr);
         CheckAndPushBindings(inDescriptorSetLayoutBindings, dbinding);

@@ -106,7 +106,6 @@ bb::TextDimensions bb::RenderTextToImage(
     v<ui> codepoints;
     for (int i = 0; i < len; i++)
         codepoints.push_back(info[i].codepoint);
-    //AddRespectiveVerticesAndIndicesAt(len, mCharQuadGlyphCount, 1, inFontShapeId, info, 0, 0);
 
     auto* dst = outImage.data();
     ui outbmp_h = 0;
@@ -248,13 +247,14 @@ bb::TextDimensions bb::UpdateText(ui inX, ui inY, ui inId, const sv inString, ui
     return TextDims;
 }
 
-bb::TextDimensions bb::GetTextDimensions(const sv inString, ui inFontShapeId, hb_glyph_info_t* info, hb_glyph_position_t* pos, ui len)
+bb::TextDimensions bb::GetTextDimensions(const sv inString, ui inFontShapeId, hb_glyph_info_t* info, hb_glyph_position_t* pos, ui len, optref<int> inHoriYbearing)
 {
     int originX = 0, originY = 0;
     int minX = INT_MAX;
     int maxX = INT_MIN;
     int minY = INT_MAX;
     int maxY = INT_MIN;
+    int maxYBearing = 0;
     for (int i = 0; i < len; ++i) {
         CharacterKey key = { .mFontShapeId = inFontShapeId, .mGlyphCodePoint = info[i].codepoint };
         const auto& CharacterInMap = mCharacterBitmapSet[key];
@@ -270,7 +270,9 @@ bb::TextDimensions bb::GetTextDimensions(const sv inString, ui inFontShapeId, hb
         int glyphMaxX = originX + bitmap_width + offsetX;
         int glyphMinY = originY - bitmap_rows + offsetY;
         int glyphMaxY = originY + offsetY;
-
+        if (abs(maxYBearing) < ToPixels(abs(metrics.horiBearingY))) {
+            maxYBearing = ToPixels(metrics.horiBearingY);
+        }
         if (glyphMinX < minX)
             minX = glyphMinX;
         if (glyphMaxX > maxX)
@@ -291,6 +293,11 @@ bb::TextDimensions bb::GetTextDimensions(const sv inString, ui inFontShapeId, hb
     originY = -minY;
     size_t width = maxX - minX + 1;
     size_t height = maxY - minY + 1;
+
+    if (inHoriYbearing.has_value ( ))
+    {
+        inHoriYbearing.value().get() = maxYBearing;
+    }
 
     return TextDimensions { .mWidth = width, .mHeight = height };
 }

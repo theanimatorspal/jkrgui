@@ -178,9 +178,9 @@ void Jkr::Renderer::BestText::Dispatch(Window& inWindow)
 #endif
 }
 
-void Jkr::Renderer::BestText::Bind(Window& inWindow)
+void Jkr::Renderer::BestText::Bind(Window& inWindow, CmdParam inParam)
 {
-    mPainter->BindDrawParamters_EXT<PushConstant>(*mPrimitive, inWindow);
+    mPainter->BindDrawParamters_EXT(*mPrimitive, inWindow, inParam);
 }
 
 void Jkr::Renderer::BestText::Draw(Window& inWindow,
