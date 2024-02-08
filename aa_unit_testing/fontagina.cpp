@@ -9,4 +9,5 @@ int fk()
     //BestText_Alt alt;
     //ui i;
     //alt.AddFontFace("font.ttf", 64, i);
+    return 0;
 }

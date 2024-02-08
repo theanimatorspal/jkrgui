@@ -7,17 +7,6 @@ class VulkanCommandBuffer;
 namespace ksai {
 class VulkanImageBase {
 public:
-    VulkanImageBase(const VulkanDevice& inDevice);
-    ~VulkanImageBase();
-    void SubmitImmediateCmdCopyFromData(const VulkanQueue<QueueContext::Graphics>& inQueue, const VulkanCommandBuffer& inCmdBuffer, const VulkanDevice& inDevice, void** inData, vk::DeviceSize inSize);
-
-    void SubmitImmediateCmdCopyFromData(const VulkanQueue<QueueContext::Graphics>& inQueue,
-        const VulkanCommandBuffer& inCmdBuffer,
-        const VulkanDevice& inDevice,
-        vk::DeviceSize inSize,
-        std::span<void**> inLayerImageDatas);
-
-    void CmdTransitionImageLayout(const VulkanCommandBuffer& inBuffer, vk::ImageLayout inOldImageLayout, vk::ImageLayout inNewImageLayout, vk::PipelineStageFlags inBeforeStage, vk::PipelineStageFlags inAfterStage, vk::AccessFlags inBeforeAccess, vk::AccessFlags inAfterAccess);
     GETTER& GetImageFormat() const { return mImageProperties.mImageFormat; }
     GETTER& GetImageViewHandle() const { return mImageView; }
     GETTER& GetImageHandle() const { return mImage; }
@@ -25,6 +14,13 @@ public:
     GETTER GetInitialImageLayout() const { return mImageProperties.mInitialImageLayout; }
     GETTER GetAspect() const { return mImageProperties.mImageAspect; }
     GETTER GetImageProperty() const { return mImageProperties; }
+
+    VulkanImageBase(const VulkanDevice& inDevice);
+    ~VulkanImageBase();
+    void SubmitImmediateCmdCopyFromData(const VulkanQueue<QueueContext::Graphics>& inQueue, const VulkanCommandBuffer& inCmdBuffer, const VulkanDevice& inDevice, void** inData, vk::DeviceSize inSize);
+    void SubmitImmediateCmdCopyFromData(const VulkanQueue<QueueContext::Graphics>& inQueue, const VulkanCommandBuffer& inCmdBuffer, const VulkanDevice& inDevice, vk::DeviceSize inSize, std::span<void**> inLayerImageDatas);
+    void CmdCopyImageFromImageAfterStage(const VulkanQueue<QueueContext::Graphics>& inQueue, const VulkanCommandBuffer& inCmdBuffer, const VulkanDevice& inDevice, VulkanImageBase& inImage, vk::PipelineStageFlags inAfterStage, vk::AccessFlags inAfterStageAccessFlags);
+    void CmdTransitionImageLayout(const VulkanCommandBuffer& inBuffer, vk::ImageLayout inOldImageLayout, vk::ImageLayout inNewImageLayout, vk::PipelineStageFlags inBeforeStage, vk::PipelineStageFlags inAfterStage, vk::AccessFlags inBeforeAccess, vk::AccessFlags inAfterAccess);
 
 public:
     template <ImageContext inImageContext>

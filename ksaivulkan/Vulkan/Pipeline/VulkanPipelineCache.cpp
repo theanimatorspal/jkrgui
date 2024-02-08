@@ -54,6 +54,8 @@ std::vector<uint8_t> ksai::VulkanPipelineCache::Get()
 	PipelineCacheData.resize(CacheSize);
 	Result = mDevice.getPipelineCacheData(mPipelineCache, &CacheSize, PipelineCacheData.data());
 	if (Result != vk::Result::eSuccess) std::cout << "Error";
+	// TODO Fix this
+	return {};
 }
 
 void ksai::VulkanPipelineCache::CheckCacheData(std::string& inFileName)

@@ -55,8 +55,8 @@ VulkanSurface& VulkanSurface::ProcessCurrentSurfaceExtents(const VulkanPhysicalD
     if (surfaceSizeUndefined) {
         int width, height;
         SDL_GetWindowSize(const_cast<SDL_Window*>(mWindow), &width, &height);
-        mExtent.width = glm_clamp(width, mSurfaceCapabilities.minImageExtent.width, mSurfaceCapabilities.maxImageExtent.width);
-        mExtent.height = glm_clamp(height, mSurfaceCapabilities.minImageExtent.height, mSurfaceCapabilities.maxImageExtent.height);
+        mExtent.width = std::clamp<decltype(width)>(width, mSurfaceCapabilities.minImageExtent.width, mSurfaceCapabilities.maxImageExtent.width);
+        mExtent.height = std::clamp<decltype(height)>(height, mSurfaceCapabilities.minImageExtent.height, mSurfaceCapabilities.maxImageExtent.height);
     } else {
         mExtent = mSurfaceCapabilities.currentExtent;
     }

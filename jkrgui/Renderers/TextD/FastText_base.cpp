@@ -121,6 +121,7 @@ int Jkr::Renderer::FastText_base::GetNthPair(int inN, char* inString)
 			}
 		}
 	}
+	return 0;
 }
 
 void Jkr::Renderer::FastText_base::ParseBMFont(const char* inPath, FontDescription* inFontDesp)
@@ -162,7 +163,6 @@ void Jkr::Renderer::FastText_base::ParseBMFont(const char* inPath, FontDescripti
 
 Jkr::Renderer::FastText_base::TextDimensions Jkr::Renderer::FastText_base::AddText(const std::string_view inText, uint32_t inX, uint32_t inY, uint32_t inDepthValue, uint32_t& outId)
 {
-	auto prop = GetTextProperty();
 	auto dim = GetTextDimensions(inText);
 	uint32_t x = 0, y = 0;
 	switch (mCurrentTextProp.H)

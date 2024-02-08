@@ -134,7 +134,7 @@ void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, J
 
         "get_current_time",
         [&]() -> int {
-            w.GetWindowCurrentTime();
+            return w.GetWindowCurrentTime();
         }
 
     );

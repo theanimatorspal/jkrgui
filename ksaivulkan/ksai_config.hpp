@@ -58,12 +58,12 @@ extern "C" int __android_log_print(int prio, const char* tag, const char* fmt, .
 #endif
 
 template <typename... T>
-inline void ksai_print(T&&... t)
+inline void ksai_print(std::string_view inT, T&&... t)
 {
 #ifdef ANDROID
     __android_log_print(6, "KSAI::", std::forward<T>(t)...);
 #else
-    printf(t...);
+    // printf(inT.data(), t...);
     printf("\n");
 #endif // ANDROID
 }

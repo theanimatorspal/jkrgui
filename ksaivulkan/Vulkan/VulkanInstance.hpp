@@ -3,7 +3,6 @@
 #include <vulkan/vulkan.hpp>
 #define CONSTANT constexpr auto
 namespace ksai {
-
 	class VulkanInstance
 	{
 	public:
@@ -15,5 +14,4 @@ namespace ksai {
 		v <char const*> mInstanceLayerNames;
 		v <char const*> mInstanceExtensionNames;
 	};
-
 }

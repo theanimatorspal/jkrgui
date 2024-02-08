@@ -12,7 +12,7 @@ public:
         Refresh();
     }
     void Refresh();
-    void Update();
+    void Dispatch();
 
 private:
     Window& mWindow;

@@ -6,6 +6,8 @@
 #include "FastText_base.hpp"
 #include "../Renderer_base.hpp"
 
+// TODO: Either Remove this or Make it Better
+
 namespace Jkr::Renderer
 {
 	class FastText : public FastText_base, Renderer_base

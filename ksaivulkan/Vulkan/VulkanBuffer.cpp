@@ -30,8 +30,8 @@ void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFrom(const VulkanQueue<QueueC
 
 void ksai::VulkanBufferBase::CmdCopyFrom(const VulkanCommandBuffer& inCmdBuffer, VulkanBufferBase& inBuffer, vk::DeviceSize FromBufferOffset, vk::DeviceSize ToBufferOffset, vk::DeviceSize inSizeToCopy)
 {
-    vk::BufferCopy BufferCopyRegion = vk::BufferCopy(FromBufferOffset, ToBufferOffset, inSizeToCopy);
-    inCmdBuffer.GetCommandBufferHandle().copyBuffer(inBuffer.mBufferHandle, mBufferHandle, BufferCopyRegion);
+	vk::BufferCopy BufferCopyRegion = vk::BufferCopy(FromBufferOffset, ToBufferOffset, inSizeToCopy);
+	inCmdBuffer.GetCommandBufferHandle().copyBuffer(inBuffer.mBufferHandle, mBufferHandle, BufferCopyRegion);
 
 }
 
@@ -77,3 +77,34 @@ void ksai::VulkanBufferBase::GetMemoryTypeIndex(vk::MemoryPropertyFlags inFlag, 
 }
 
 
+void ksai::VulkanBufferBase::CmdCopyFromImage(const VulkanCommandBuffer& inCmdBuffer, VulkanImageBase& inImage, vk::PipelineStageFlags inAfterStage, vk::AccessFlags inAfterAccessFlags)
+{
+	// TODO This has to be tested
+	auto& Cmd = inCmdBuffer.GetCommandBufferHandle();
+	auto& srcImageHandle = inImage.GetImageHandle();
+	auto& srcImageProp = inImage.GetImageProperty();
+	auto& srcVulkanImage = inImage;
+	auto srcImageLayout = inImage.GetImageProperty().mInitialImageLayout;
+	vk::ImageSubresourceLayers SrcSubResource(srcImageProp.mImageAspect, 0, 0, srcImageProp.mArrayLayers);
+	vk::BufferImageCopy CopyRegions(0, 0, 0, SrcSubResource, vk::Offset3D{}, vk::Extent3D{});
+
+
+	srcVulkanImage.CmdTransitionImageLayout(inCmdBuffer,
+		srcImageLayout,
+		vk::ImageLayout::eTransferSrcOptimal,
+		inAfterStage,
+		vk::PipelineStageFlagBits::eTransfer,
+		inAfterAccessFlags,
+		vk::AccessFlagBits::eMemoryRead);
+
+	Cmd.copyImageToBuffer(srcImageHandle, inImage.GetInitialImageLayout(), this->mBufferHandle, CopyRegions);
+
+	srcVulkanImage.CmdTransitionImageLayout(inCmdBuffer,
+		vk::ImageLayout::eTransferSrcOptimal,
+		srcImageLayout,
+		vk::PipelineStageFlagBits::eTransfer,
+		vk::PipelineStageFlagBits::eFragmentShader,
+		vk::AccessFlagBits::eMemoryRead,
+		vk::AccessFlagBits::eMemoryRead
+	);
+}

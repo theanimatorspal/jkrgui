@@ -92,7 +92,7 @@ JKR_EXPORT int main(int ArgCount, char** ArgStrings)
         CreateSDLEventBindings(lua_state);
         Create2DBindings(i, w, lua_state, em, td, ALT);
         Create3DBindings(i, w, lua_state);
-        return move(lua_state);
+        return lua_state;
     };
 
     vector<sol::state> states;
@@ -126,7 +126,7 @@ JKR_EXPORT int main(int ArgCount, char** ArgStrings)
         for (auto& u : views) {
             callbacks.push_back(luaState[string(u) + string(Suffix)]);
         }
-        return move(callbacks);
+        return callbacks;
     };
 
     sol::state& main_state = states[0];

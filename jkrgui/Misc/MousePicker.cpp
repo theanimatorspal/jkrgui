@@ -8,7 +8,7 @@ void Jkr::MousePicker::Refresh()
     mMousePickingBuffer = MakeUp<MousePickingBufferType>(mWindow.GetInstance().GetDevice(), Size);
 }
 
-void Jkr::MousePicker::Update()
+void Jkr::MousePicker::Dispatch()
 {
-     
+
 }

@@ -45,7 +45,7 @@ else()
         "*.h"
         "*.c"
         )
-        add_library(ksaivulkan ${app_SRC} "ksai_image.hpp" "ksai_thread.hpp" "Vendor/NanoBench/nanobench.h" "Vendor/NanoBench/nanobench.cpp" "ksai_config.cpp")
+        add_library(ksaivulkan ${app_SRC} "ksai_image.hpp" "ksai_thread.hpp" "Vendor/NanoBench/nanobench.h" "Vendor/NanoBench/nanobench.cpp" "ksai_config.cpp" )
 endif()
 
 someFlags(ksaivulkan)

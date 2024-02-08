@@ -2,10 +2,10 @@
 
 cmake_minimum_required (VERSION 3.27)
 
-#if(ANDROID)
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wl,--exclude-libs,ALL")
-#    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s") 
-#endif()
+if(ANDROID)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wl,--exclude-libs,ALL")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s") 
+endif()
 
 #set your VULKAN_SDK PATH 
 if(APPLE)
