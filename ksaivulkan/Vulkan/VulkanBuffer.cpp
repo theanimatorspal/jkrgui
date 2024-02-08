@@ -82,7 +82,7 @@ void ksai::VulkanBufferBase::CmdCopyFromImage(const VulkanCommandBuffer& inCmdBu
 	// TODO This has to be tested
 	auto& Cmd = inCmdBuffer.GetCommandBufferHandle();
 	auto& srcImageHandle = inImage.GetImageHandle();
-	auto& srcImageProp = inImage.GetImageProperty();
+	auto srcImageProp = inImage.GetImageProperty();
 	auto& srcVulkanImage = inImage;
 	auto srcImageLayout = inImage.GetImageProperty().mInitialImageLayout;
 	vk::ImageSubresourceLayers SrcSubResource(srcImageProp.mImageAspect, 0, 0, srcImageProp.mArrayLayers);
