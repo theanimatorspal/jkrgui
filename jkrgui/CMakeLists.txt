@@ -7,10 +7,6 @@ file(GLOB_RECURSE app_SRC CONFIGURE_DEPENDS
 "*.c"
 )
 
-file(GLOB_RECURSE app_Precompile_SRC CONFIGURE_DEPENDS 
-"*.hpp"
-)
-
 if(ANDROID)
 	add_library(jkrgui STATIC ${app_SRC}
 	"Renderers/TextD/BestText_base.cpp"
@@ -40,7 +36,9 @@ else()
 	"Renderers/BestText_Alt.hpp"
 	"WindowMulT.hpp"
 	"Window.hpp"
-	 "WindowMulT.cpp" "Renderers/ResourceManager.cpp" "Renderers/CustomImagePainter.cpp" "SDLWindow.hpp" "SDLWindow.cpp" "Misc/MousePicker.cpp" "Misc/MousePicker.hpp" "Renderers/BestText_Alt.cpp")
+	 "WindowMulT.cpp" "Renderers/ResourceManager.cpp" "Renderers/CustomImagePainter.cpp" "SDLWindow.hpp" "SDLWindow.cpp" "Misc/MousePicker.cpp" "Misc/MousePicker.hpp" "Renderers/BestText_Alt.cpp"
+	 "TrivialShadersLegacy.hpp"
+	)
  endif()
 
  someFlags(jkrgui)

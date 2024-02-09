@@ -69,6 +69,13 @@ ResourceManager& ResourceManager::Load(const Jkr::Instance& inInstance, uint32_t
 ResourceManager& ResourceManager::Store(const Jkr::Instance& inInstance, uint32_t inVarDesCount)
 {
     Make(inInstance);
+    //ksai::Shader Line(LineRendererShaders::VertexShader, LineRendererShaders::FragmentShader);
+    //ksai::Shader LineCompute(8, LineRendererShaders::ComputeShader);
+    //ksai::Shader FastText(FontShader::VertexShader, FontShader::FragmentShader);
+    //ksai::Shader FastTextCompute(8, FontShader::ComputeShader);
+    //ksai::Shader Shape_Fill(ShapeRenderers_Fill::VertexShader, ShapeRenderers_Fill::FragmentShader);
+    //ksai::Shader Shape_FillCompute(8, ShapeRenderers_Fill::ComputeShader);
+
     ksai::Shader Line(LineRendererShaders::VertexShader, LineRendererShaders::FragmentShader);
     ksai::Shader LineCompute(8, LineRendererShaders::ComputeShader);
     ksai::Shader FastText(FontShader::VertexShader, FontShader::FragmentShader);
@@ -89,6 +96,9 @@ ResourceManager& ResourceManager::Store(const Jkr::Instance& inInstance, uint32_
                                                  Shape_Fill.GetFragmentShader().str(),
                                                  Shape_FillCompute.GetComputeShader().str()); };
 
+    //ksai::Shader Shape_Image(ShapeRenderers_Image::VertexShader,
+    //    ShapeRenderers_Image::FragmentShader);
+    //ksai::Shader Shape_ImageCompute(8, ShapeRenderers_Image::ComputeShader);
     ksai::Shader Shape_Image(ShapeRenderers_Image::VertexShader,
         ShapeRenderers_Image::FragmentShader);
     ksai::Shader Shape_ImageCompute(8, ShapeRenderers_Image::ComputeShader);
@@ -100,6 +110,9 @@ ResourceManager& ResourceManager::Store(const Jkr::Instance& inInstance, uint32_
                                                      Shape_ImageCompute.GetComputeShader().str()); };
 
 #else
+
+    //ksai::Shader BestTextS(BestText_shader::VertexShader, BestText_shader::FragmentShader);
+    //ksai::Shader BestText_Compute(8, BestText_shader::ComputeShader);
 
     ksai::Shader BestTextS(BestText_shader::VertexShader, BestText_shader::FragmentShader);
     ksai::Shader BestText_Compute(8, BestText_shader::ComputeShader);

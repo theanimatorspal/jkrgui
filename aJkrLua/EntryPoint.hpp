@@ -14,6 +14,7 @@
 #include <Window.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <Misc/MousePicker.hpp>
 #define SETTER inline void
 
 namespace Jkr::Component {
@@ -127,7 +128,7 @@ using GlobalAccessType = unordered_map<int, int>;
 void CreateSDLEventBindings(sol::state& lua);
 void CreateGLMBindings(sol::state& lua);
 void BindMathFunctions(sol::state& lua);
-void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, Jkr::Renderer::_2d& td, Jkr::Renderer::BestText_Alt& inALT);
+void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, Jkr::Renderer::_2d& td, Jkr::Renderer::BestText_Alt& inALT, Jkr::Misc::FrameCapturer& inCapturer);
 void Create3DBindings(Instance& i, Window& w, sol::state& l);
 
 class GlobalAccessBindingsGenerator {

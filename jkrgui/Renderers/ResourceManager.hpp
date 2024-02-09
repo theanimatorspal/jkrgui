@@ -1,5 +1,5 @@
 #pragma once
-#include "AllShaders.hpp"
+#include "TrivialShadersLegacy.hpp"
 #include "Painter.hpp"
 #include "PainterCache.hpp"
 #include <filesystem>

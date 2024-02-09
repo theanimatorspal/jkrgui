@@ -1,6 +1,5 @@
 #pragma once
 #include "Painter.hpp"
-#include "AllShaders.hpp"
 #include <glm/common.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "FastText_base.hpp"

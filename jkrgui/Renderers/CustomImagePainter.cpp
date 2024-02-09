@@ -1,6 +1,4 @@
 #include "CustomImagePainter.hpp"
-#include "AllShaders.hpp"
-
 using namespace Jkr::Renderer;
 using namespace ksai;
 

@@ -11,7 +11,7 @@ enum class RenderPassContext {
 
 class VulkanRenderPassBase {
 public:
-    inline constexpr const auto& GetRenderPassHandle() const { return mRenderPass; }
+    GETTER& GetRenderPassHandle() const { return mRenderPass; }
 
 protected:
     vk::RenderPass mRenderPass;

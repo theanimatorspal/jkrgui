@@ -11,6 +11,7 @@
 
 namespace ksai
 {
+	// TODO This is to be changed as a whole
 	class Shader
 	{
 	public:
@@ -37,6 +38,20 @@ namespace ksai
 			fragmentShader(*this);
 			geometryShader(*this);
 		}
+
+		// TODO to be changed
+		Shader(std::string_view inVertexShaderSV, std::string_view inFragmentShaderSV)
+		{
+			mVertexShader << inVertexShaderSV;
+			mFragmentShader << inFragmentShaderSV;
+		}
+
+		// TODO to be changed
+		Shader(uint32_t Threads, std::string_view inComputeShader)
+		{
+			mComputeShader << inComputeShader;
+		}
+
 		Shader(uint32_t Threads, ShaderStream computeShader)
 		{
 			computeShader(*this);

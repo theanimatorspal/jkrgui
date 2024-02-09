@@ -10,7 +10,6 @@
 #include <Vendor/Tracy/tracy/TracyLua.hpp>
 #include <algorithm>
 #include <filesystem>
-#include <Misc/MousePicker.hpp>
 
 
 #ifdef ANDROID
@@ -84,6 +83,7 @@ JKR_EXPORT int main(int ArgCount, char** ArgStrings)
     }
     auto td = _2d(i, w, rr, VarDesCount);
     auto ALT = Jkr::Renderer::BestText_Alt(td.sh, td.bt);
+    auto FrameCapturer = Jkr::Misc::FrameCapturer(w);
 
     auto bind_and_get_LuaState = [&]() -> sol::state {
         sol::state lua_state;
@@ -92,7 +92,7 @@ JKR_EXPORT int main(int ArgCount, char** ArgStrings)
         CreateGLMBindings(lua_state);
         BindMathFunctions(lua_state);
         CreateSDLEventBindings(lua_state);
-        Create2DBindings(i, w, lua_state, em, td, ALT);
+        Create2DBindings(i, w, lua_state, em, td, ALT, FrameCapturer);
         Create3DBindings(i, w, lua_state);
         return lua_state;
     };
@@ -151,15 +151,14 @@ JKR_EXPORT int main(int ArgCount, char** ArgStrings)
         }
     };
 
-    auto MousePicker = Jkr::Misc::MousePicker(w);
 
     em.SetEventCallBack([&](void*) { SafeCall(UICallbacks[CallbackType::Event]); });
     w.SetDrawCallBack([&](void* data) { SafeCall(UICallbacks[CallbackType::Draw]); });
     w.SetUpdateCallBack([&](void* data) { SafeCall(UICallbacks[CallbackType::Update]); });
     w.SetComputeDispatchCallBack([&](void* data) { SafeCall(UICallbacks[CallbackType::Dispatch]); td.ln.Dispatch(w); td.sh.Dispatch(w); td.bt.Dispatch(w); });
     w.SetBackgroundCallBack([&](void*) {ZoneScoped; SafeCall(BackgroundCallbacks[CallbackType::Draw]); });
-    w.SetResizeCallBack([&](void*) {MousePicker.Refresh(); });
-    w.SetPostRenderingCallBack([&](void*) { MousePicker.Dispatch();});
+    w.SetResizeCallBack([&](void*) {FrameCapturer.Refresh(); });
+    w.SetPostRenderingCallBack([&](void*) { FrameCapturer.Dispatch();});
 
     SafeCall(UICallbacks[CallbackType::Load]);
     SafeCall(BackgroundCallbacks[CallbackType::Load]);

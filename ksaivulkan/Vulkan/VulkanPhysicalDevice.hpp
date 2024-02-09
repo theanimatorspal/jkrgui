@@ -18,9 +18,12 @@ namespace ksai {
 	public:
 		VulkanPhysicalDevice(const VulkanInstance& inInstance);
 		~VulkanPhysicalDevice();
-		inline constexpr const auto& GetPhysicalDeviceHandle() const { return mPhysicalDevice; }
+		GETTER& GetPhysicalDeviceHandle() const { return mPhysicalDevice; }
 	private:
 		const vk::Instance& mInstance;
 		vk::PhysicalDevice mPhysicalDevice;
+		vk::PhysicalDeviceProperties mPhysicalDeviceProperties;
+		vk::SampleCountFlags mMaxSampleCount;
+
 	};
 }
