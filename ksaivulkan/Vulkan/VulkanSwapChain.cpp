@@ -1,4 +1,6 @@
 #include "VulkanSwapChain.hpp"
+#include "VulkanCommandBuffer.hpp"
+#include "VulkanBuffer.hpp"
 #include <limits>
 using namespace ksai;
 #ifdef max
@@ -49,3 +51,4 @@ std::pair<uint32_t, uint32_t> ksai::VulkanSwapChainBase::AcquireNextImage(const 
     vk::ResultValue<uint32_t> Result = mDevice.acquireNextImageKHR(mSwapChain, std::numeric_limits<uint32_t>::max(), inSemapore.GetSemaphoreHandle());
     return std::pair<uint32_t, uint32_t>(static_cast<uint32_t>(Result.result), static_cast<uint32_t>(Result.value));
 }
+

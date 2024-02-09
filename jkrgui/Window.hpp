@@ -32,9 +32,11 @@ public:
     SETTER SetUpdateCallBack(std::function<void(void*)> inFunction) { mUpdateFunction = inFunction; }
     SETTER SetComputeDispatchCallBack(std::function<void(void*)> inFunction) { mComputeDispatchFunction = inFunction; }
     SETTER SetResizeCallBack(std::function<void(void*)> inFunction) { mResizeFunction = inFunction; }
+    SETTER SetPostRenderingCallBack(std::function<void(void*)> inFunction) { mPostRenderingFunction = inFunction; }
     SETTER SetContextData(void* inData) { mData = inData; }
     SETTER SetScissor(const vk::ArrayProxy<vk::Rect2D>& inScissor, ParameterContext inContext = ParameterContext::UI);
     SETTER ResetScissor(ParameterContext inContext = ParameterContext::UI);
+    void CmdCopySwapChainImageToBufferPostRendering(VulkanBufferBase& inbuffer);
 
     Window(const Instance& inInstance, std::string_view inTitle, int inHeight, int inWidth);
     ~Window() { mInstance.GetDevice().Wait(); }
@@ -46,6 +48,7 @@ protected:
     std::function<void(void*)> mUpdateFunction = [](void*) {};
     std::function<void(void*)> mComputeDispatchFunction = [](void*) {};
     std::function<void(void*)> mResizeFunction = [](void*) {};
+    std::function<void(void*)> mPostRenderingFunction = [](void*) {};
 
 protected:
     static const int mMaxFramesInFlight = 2;

@@ -5,15 +5,16 @@
 
 using namespace ksai;
 
-ksai::VulkanImageBase::VulkanImageBase(const VulkanDevice& inDevice)
+ksai::VulkanImageBase::VulkanImageBase(const VulkanDevice& inDevice, bool inDestroyImageView)
 	: mPhysicalDevice(inDevice.GetPhysicalDeviceHandle())
-	, mDevice(inDevice.GetDeviceHandle())
+	, mDevice(inDevice.GetDeviceHandle()),
+	mDestroyImageView(inDestroyImageView)
 {
 }
 
 ksai::VulkanImageBase::~VulkanImageBase()
 {
-	if (mImageView)
+	if (mImageView and mDestroyImageView)
 		mDevice.destroyImageView(mImageView);
 }
 
@@ -84,7 +85,7 @@ void VulkanImageBase::SubmitImmediateCmdCopyFromData(
 	inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer);
 }
 
-void ksai::VulkanImageBase::CmdTransitionImageLayout(const VulkanCommandBuffer& inBuffer, vk::ImageLayout inOldImageLayout, vk::ImageLayout inNewImageLayout, vk::PipelineStageFlags inBeforeStage, vk::PipelineStageFlags inAfterStage, vk::AccessFlags inBeforeAccess, vk::AccessFlags inAfterAccess)
+void ksai::VulkanImageBase::CmdTransitionImageLayout(const VulkanCommandBuffer& inBuffer, vk::ImageLayout inOldImageLayout, vk::ImageLayout inNewImageLayout, vk::PipelineStageFlags inBeforeStage, vk::PipelineStageFlags inAfterStage, vk::AccessFlags inBeforeAccess, vk::AccessFlags inAfterAccess) const
 {
 	vk::ImageSubresourceRange ImageSubResourceRange(mImageProperties.mImageAspect, 0, mImageProperties.mMipLevels, 0, mImageProperties.mArrayLayers);
 	auto ImgMemBarr = vk::ImageMemoryBarrier(inBeforeAccess,

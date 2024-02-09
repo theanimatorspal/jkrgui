@@ -52,7 +52,7 @@ void Jkr::Window::Draw(float r, float g, float b, float a, float d)
         mDrawFunction(mData);
 
         CommandBuffers[mCurrentFrame].EndRenderPass();
-
+        mPostRenderingFunction(mData);
         CommandBuffers[mCurrentFrame].End();
 
         mInstance.GetGraphicsQueue().Submit<SubmitContext::ColorAttachment>(
@@ -85,4 +85,36 @@ void Jkr::Window::Refresh()
     for (int i = 0; i < mSwapChainImages.size(); i++) {
         mFrameBuffers[i] = MakeUp<FrameBufferType>(mInstance.GetDevice(), mRenderPass, mSwapChainImages[i], mDepthImage);
     }
+}
+
+void Jkr::Window::CmdCopySwapChainImageToBufferPostRendering(VulkanBufferBase& inbuffer)
+{
+	// TODO This has to be tested
+    auto& CommandBuffer = this->GetCommandBuffers(ParameterContext::None)[mCurrentFrame];
+	auto& Cmd = CommandBuffer.GetCommandBufferHandle();
+	auto& srcImageHandle = mSwapChainImages[mCurrentFrame].GetImageHandle();
+	auto srcImageProp = mSwapChainImages[mCurrentFrame].GetImageProperty();
+	auto& srcVulkanImage = mSwapChainImages[mCurrentFrame];
+	auto srcImageExtent = srcVulkanImage.GetImageExtent();
+    vk::ImageSubresourceLayers Layer(srcImageProp.mImageAspect, 0, 0, srcImageProp.mArrayLayers);
+	vk::BufferImageCopy CopyRegions(0, 0, 0, Layer, vk::Offset3D{}, vk::Extent3D(srcImageExtent, 1));
+
+	srcVulkanImage.CmdTransitionImageLayout(CommandBuffer,
+		vk::ImageLayout::ePresentSrcKHR,
+		vk::ImageLayout::eTransferSrcOptimal,
+		vk::PipelineStageFlagBits::eLateFragmentTests,
+		vk::PipelineStageFlagBits::eTransfer,
+		vk::AccessFlagBits::eNone,
+		vk::AccessFlagBits::eMemoryRead);
+
+	Cmd.copyImageToBuffer(srcImageHandle, vk::ImageLayout::eTransferSrcOptimal, inbuffer.GetBufferHandle(), CopyRegions);
+
+	srcVulkanImage.CmdTransitionImageLayout(CommandBuffer,
+		vk::ImageLayout::eTransferSrcOptimal,
+		vk::ImageLayout::ePresentSrcKHR,
+		vk::PipelineStageFlagBits::eTransfer,
+		vk::PipelineStageFlagBits::eBottomOfPipe,
+		vk::AccessFlagBits::eMemoryRead,
+		vk::AccessFlagBits::eMemoryRead
+	);
 }

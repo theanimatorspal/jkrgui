@@ -41,6 +41,8 @@ void Jkr::WindowMulT::Draw(float r, float g, float b, float a, float d)
     mCommandBuffers[mCurrentFrame].ExecuteCommands(mSecondaryCommandBuffersUI[mCurrentFrame]);
     mCommandBuffers[mCurrentFrame].ExecuteCommands(mSecondaryCommandBuffersBackground[mCurrentFrame]);
     mCommandBuffers[mCurrentFrame].EndRenderPass();
+
+    mPostRenderingFunction(mData);
     mCommandBuffers[mCurrentFrame].End();
 
     mInstance.GetGraphicsQueue().Submit<SubmitContext::ColorAttachment>(
@@ -105,4 +107,5 @@ void Jkr::WindowMulT::Refresh()
     for (int i = 0; i < mSwapChainImages.size(); i++) {
         mFrameBuffers[i] = MakeUp<FrameBufferType>(mInstance.GetDevice(), mRenderPass, mSwapChainImages[i], mDepthImage);
     }
+    mResizeFunction(nullptr);
 }

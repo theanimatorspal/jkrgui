@@ -14,6 +14,9 @@
 #include <fstream>
 #include <cstdio>
 
+#define GETTER inline auto
+#define SETTER inline void
+
 void* operator new(std ::size_t count);
 void operator delete(void* ptr) noexcept;
 

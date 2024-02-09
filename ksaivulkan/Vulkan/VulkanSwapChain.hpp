@@ -5,6 +5,7 @@
 #include "VulkanSemaphore.hpp"
 
 namespace ksai {
+class VulkanBufferBase;
 class VulkanSwapChainBase {
 public:
     VulkanSwapChainBase(const VulkanDevice& inDevice);
@@ -26,6 +27,7 @@ public:
 protected:
     const vk::Device& mDevice;
     vk::SwapchainKHR mSwapChain;
+    vk::Extent2D mSwapChainImageExtent;
     v<vk::Image> mSwapChainImages;
     v<vk::ImageView> mSwapChainImageViews;
 
@@ -75,7 +77,7 @@ inline v<VulkanImages> VulkanSwapChain<inMaxFramesInFlight>::GetVulkanImages(con
 {
     v<VulkanImages> Vectors;
     for (int i = 0; i < mSwapChainImageViews.size(); i++) {
-        auto Image = VulkanImage<ImageContext::ExternalHandled>(inDevice, inSurface, nullptr, mSwapChainImageViews[i]);
+        auto Image = VulkanImage<ImageContext::ExternalHandled>(inDevice, inSurface, mSwapChainImages[i], mSwapChainImageViews[i]);
         Vectors.push_back(std::move(Image));
     }
     return Vectors;
@@ -121,8 +123,8 @@ VulkanSwapChain<inMaxFramesInFlight>::VulkanSwapChain(const VulkanDevice& inDevi
     mSwapChainImages = mDevice.getSwapchainImagesKHR(mSwapChain);
     mSwapChainImageViews.resize(mSwapChainImages.size());
     auto Format = inSurface.GetSurfaceImageFormat();
-    vk::ImageViewCreateInfo imageViewCreateInfo({}, {}, vk::ImageViewType::e2D, Format, {},
-        { vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1 });
+    vk::ImageSubresourceRange imgSubResourceRange = { vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1 };
+    vk::ImageViewCreateInfo imageViewCreateInfo({}, {}, vk::ImageViewType::e2D, Format, {}, imgSubResourceRange );
     for (int i = 0; i < mSwapChainImages.size(); i++) {
         imageViewCreateInfo.image = mSwapChainImages[i];
         mSwapChainImageViews[i] = mDevice.createImageView(imageViewCreateInfo);

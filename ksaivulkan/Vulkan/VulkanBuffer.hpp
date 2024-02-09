@@ -31,7 +31,7 @@ namespace ksai {
 			vk::PipelineStageFlags inBeforeStages,
 			vk::PipelineStageFlags inAfterStages
 		);
-		void CmdCopyFromImage(const VulkanCommandBuffer& inCmdBuffer, VulkanImageBase& inImage, vk::PipelineStageFlags inAfterStage = vk::PipelineStageFlagBits::eComputeShader, vk::AccessFlags inAfterAccessFlags = vk::AccessFlagBits::eMemoryRead);
+		void CmdCopyFromImage(const VulkanCommandBuffer& inCmdBuffer, const VulkanImageBase& inImage, vk::PipelineStageFlags inAfterStage = vk::PipelineStageFlagBits::eComputeShader, vk::AccessFlags inAfterAccessFlags = vk::AccessFlagBits::eMemoryRead) const;
 		GETTER& GetBufferHandle() const { return mBufferHandle; }
 		GETTER GetBufferSize() const { return mSize; }
 	public:

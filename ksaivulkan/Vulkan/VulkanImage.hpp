@@ -15,12 +15,12 @@ public:
     GETTER GetAspect() const { return mImageProperties.mImageAspect; }
     GETTER GetImageProperty() const { return mImageProperties; }
 
-    VulkanImageBase(const VulkanDevice& inDevice);
+    VulkanImageBase(const VulkanDevice& inDevice, bool inDestroyImageView = true);
     ~VulkanImageBase();
     void SubmitImmediateCmdCopyFromData(const VulkanQueue<QueueContext::Graphics>& inQueue, const VulkanCommandBuffer& inCmdBuffer, const VulkanDevice& inDevice, void** inData, vk::DeviceSize inSize);
     void SubmitImmediateCmdCopyFromData(const VulkanQueue<QueueContext::Graphics>& inQueue, const VulkanCommandBuffer& inCmdBuffer, const VulkanDevice& inDevice, vk::DeviceSize inSize, std::span<void**> inLayerImageDatas);
     void CmdCopyImageFromImageAfterStage(const VulkanQueue<QueueContext::Graphics>& inQueue, const VulkanCommandBuffer& inCmdBuffer, const VulkanDevice& inDevice, VulkanImageBase& inImage, vk::PipelineStageFlags inAfterStage, vk::AccessFlags inAfterStageAccessFlags);
-    void CmdTransitionImageLayout(const VulkanCommandBuffer& inBuffer, vk::ImageLayout inOldImageLayout, vk::ImageLayout inNewImageLayout, vk::PipelineStageFlags inBeforeStage, vk::PipelineStageFlags inAfterStage, vk::AccessFlags inBeforeAccess, vk::AccessFlags inAfterAccess);
+    void CmdTransitionImageLayout(const VulkanCommandBuffer& inBuffer, vk::ImageLayout inOldImageLayout, vk::ImageLayout inNewImageLayout, vk::PipelineStageFlags inBeforeStage, vk::PipelineStageFlags inAfterStage, vk::AccessFlags inBeforeAccess, vk::AccessFlags inAfterAccess) const;
 
 public:
     template <ImageContext inImageContext>
@@ -38,6 +38,7 @@ protected:
     vk::Image mImage = nullptr;
     vk::ImageView mImageView = nullptr;
     ImageProperties mImageProperties;
+    bool mDestroyImageView = true;
 };
 }
 
@@ -74,18 +75,12 @@ private:
 }
 
 namespace ksai {
+    // TODO Rethink This
 template <>
-class VulkanImage<ImageContext::ExternalHandled> {
+class VulkanImage<ImageContext::ExternalHandled> : public VulkanImageBase {
 public:
-    VulkanImage(const VulkanDevice& inDevice, const VulkanSurface& inSurface, const vk::Image& inImage, vk::ImageView& inImageView);
+    VulkanImage(const VulkanDevice& inDevice, const VulkanSurface& inSurface, vk::Image inImage, vk::ImageView inImageView);
     ~VulkanImage() = default;
-    inline constexpr const auto& GetImageViewHandle() const { return mImageView; }
-    inline constexpr const auto& GetImageExtent() const { return mExtent; }
-
-private:
-    vk::Image mImage;
-    vk::Extent2D mExtent;
-    vk::ImageView mImageView;
 };
 }
 
@@ -196,9 +191,10 @@ inline void VulkanImage<inImageContext>::ExplicitDestroy()
 }
 
 namespace ksai {
-inline VulkanImage<ImageContext::ExternalHandled>::VulkanImage(const VulkanDevice& inDevice, const VulkanSurface& inSurface, const vk::Image& inImage, vk::ImageView& inImageView)
+inline VulkanImage<ImageContext::ExternalHandled>::VulkanImage(const VulkanDevice& inDevice, const VulkanSurface& inSurface, vk::Image inImage, vk::ImageView inImageView)
+    : VulkanImageBase(inDevice, false)
 {
-    mExtent = inSurface.GetExtent();
+    mImageProperties.mExtent = inSurface.GetExtent();
     mImage = inImage;
     mImageView = inImageView;
 }
