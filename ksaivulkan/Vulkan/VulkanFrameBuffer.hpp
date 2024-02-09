@@ -51,13 +51,7 @@ inline VulkanFrameBuffer<inRenderPassContext, NoOfAttachements, T...>::VulkanFra
     }(),
         ...);
 
-    auto FrameBufferCreateInfo = vk::FramebufferCreateInfo(
-        vk::FramebufferCreateFlags(),
-        inRenderPass.GetRenderPassHandle(),
-        Attachments,
-        mExtent.width,
-        mExtent.height,
-        1);
+    auto FrameBufferCreateInfo = vk::FramebufferCreateInfo( vk::FramebufferCreateFlags(), inRenderPass.GetRenderPassHandle(), Attachments, mExtent.width, mExtent.height, 1);
     mBuffer = inDevice.GetDeviceHandle().createFramebuffer(FrameBufferCreateInfo);
 }
 

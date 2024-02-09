@@ -122,7 +122,6 @@ JKR_EXPORT int main(int ArgCount, char** ArgStrings)
             "Update",
             "Dispatch",
             "Draw",
-            "Resize"
         };
 
         std::vector<sol::protected_function> callbacks;

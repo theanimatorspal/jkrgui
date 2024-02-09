@@ -12,7 +12,8 @@ enum class ImageContext {
     ExternalHandled,
     DepthImage,
     Storage,
-    CubeCompatible
+    CubeCompatible,
+    MSAA
 };
 
 struct ImageProperties {

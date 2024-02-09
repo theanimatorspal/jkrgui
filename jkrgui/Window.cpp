@@ -100,7 +100,7 @@ void Jkr::Window::CmdCopySwapChainImageToBufferPostRendering(VulkanBufferBase& i
 	vk::BufferImageCopy CopyRegions(0, 0, 0, Layer, vk::Offset3D{}, vk::Extent3D(srcImageExtent, 1));
 
 	srcVulkanImage.CmdTransitionImageLayout(CommandBuffer,
-		vk::ImageLayout::ePresentSrcKHR,
+		vk::ImageLayout::eUndefined,
 		vk::ImageLayout::eTransferSrcOptimal,
 		vk::PipelineStageFlagBits::eLateFragmentTests,
 		vk::PipelineStageFlagBits::eTransfer,
@@ -113,7 +113,7 @@ void Jkr::Window::CmdCopySwapChainImageToBufferPostRendering(VulkanBufferBase& i
 		vk::ImageLayout::eTransferSrcOptimal,
 		vk::ImageLayout::ePresentSrcKHR,
 		vk::PipelineStageFlagBits::eTransfer,
-		vk::PipelineStageFlagBits::eBottomOfPipe,
+		vk::PipelineStageFlagBits::eLateFragmentTests,
 		vk::AccessFlagBits::eMemoryRead,
 		vk::AccessFlagBits::eMemoryRead
 	);
