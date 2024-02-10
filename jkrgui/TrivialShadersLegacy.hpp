@@ -1,7 +1,9 @@
 #pragma once
 #include <ksaiSandBox/glslShader.hpp>
+#include <Global/Config.hpp>
 #include <string_view>
 
+#ifdef JKR_USE_VARIABLE_DES_INDEXING
 namespace BestText_shader {
 
 	const std::string_view VertexShader = R"""(
@@ -79,9 +81,9 @@ void GlslMain() {}
 
 )""";
 }
+#endif
 
 #ifndef JKR_USE_VARIABLE_DES_INDEXING
-
 namespace ShapeRenderers_Image {
 	const std::string_view VertexShader = R"""(
 #version 450

@@ -1,4 +1,5 @@
 #include "ResourceManager.hpp"
+#include "TrivialShadersLegacy.hpp"
 using namespace Jkr;
 
 void ResourceManager::Make(const Jkr::Instance& inInstance)
