@@ -111,7 +111,8 @@ VulkanPipeline<2, PipelineContext::Default>::VulkanPipeline(const VulkanDevice& 
         1.0f);
     auto PipelineMultisampleStateCreateInfo = vk::PipelineMultisampleStateCreateInfo(
         vk::PipelineMultisampleStateCreateFlags(),
-        vk::SampleCountFlagBits::e1);
+        // TODO Add this to Parameter
+        vk::SampleCountFlagBits::e4);
     auto StencilOpState = vk::StencilOpState(
         vk::StencilOp::eKeep,
         vk::StencilOp::eKeep,

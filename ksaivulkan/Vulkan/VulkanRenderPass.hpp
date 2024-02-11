@@ -6,7 +6,7 @@ namespace ksai {
 
 enum class RenderPassContext {
     Default,
-    OffScreen
+    MSAA
 };
 
 class VulkanRenderPassBase {
@@ -27,6 +27,7 @@ public:
     {
     }
     VulkanRenderPass(const VulkanDevice& inDevice, const VulkanSurface& inSurface, const VulkanImage<ImageContext::DepthImage>& inDepthImage);
+    VulkanRenderPass(const VulkanDevice& inDevice, const VulkanSurface& inSurface, const VulkanImage<ImageContext::ColorAttach>& inColorImageTarget, const VulkanImage<ImageContext::DepthImage>& inDepthImage, vk::SampleCountFlagBits inMSAASamples);
     ~VulkanRenderPass()
     {
         mDevice.destroyRenderPass(mRenderPass);

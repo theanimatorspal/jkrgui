@@ -24,7 +24,7 @@ namespace ksai {
 
 	public:
 		template <ImageContext inImageContext>
-		void FillImageProperties();
+		void FillImageProperties(uint32_t inNumSamples = 1);
 		void GetMemoryTypeIndex(vk::MemoryPropertyFlagBits inFlag, vk::Image inImage, vk::DeviceSize& outSize, ui& outIndex);
 		void GetImageTiling(vk::Format inFormat, vk::FormatFeatureFlagBits inFormatFeature, vk::ImageTiling& outTiling);
 
@@ -60,7 +60,7 @@ namespace ksai {
 		}
 		VulkanImage(const VulkanDevice& inDevice);
 		VulkanImage(const VulkanDevice& inDevice, ui inWidth, ui inHeight);
-		VulkanImage(const VulkanDevice& inDevice, const VulkanSurface& inSurface);
+		VulkanImage(const VulkanDevice& inDevice, const VulkanSurface& inSurface, ui inMSAASamples = 1);
 		VulkanImage(const VulkanDevice& inDevice,
 			const VulkanSurface& inSurface,
 			const vk::Image& inImage,
@@ -86,7 +86,7 @@ namespace ksai {
 
 namespace ksai {
 	template <ImageContext inImageContext>
-	inline void VulkanImageBase::FillImageProperties()
+	inline void VulkanImageBase::FillImageProperties(uint32_t inNumSamples)
 	{
 		// These are all for other than Defaults
 		if constexpr (inImageContext == ImageContext::DepthImage) {
@@ -113,21 +113,23 @@ namespace ksai {
 		else if constexpr (inImageContext == ImageContext::CubeCompatible) {
 			mImageProperties.mFlags = vk::ImageCreateFlagBits::eCubeCompatible;
 		}
-		else if constexpr (inImageContext == ImageContext::ColorImageMSAA)
+		else if constexpr (inImageContext == ImageContext::ColorAttach)
 		{
-
+			mImageProperties.mImageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransientAttachment;
+			mImageProperties.mImageFormat = vk::Format::eR8G8B8A8Unorm; // This in on the surface, so
 		}
-		else if constexpr (inImageContext == ImageContext::DepthImageMSAA)
+
+		switch (inNumSamples)
 		{
-			mImageProperties.mImageFormat = vk::Format::eD16Unorm;
-			mImageProperties.mImageFormatFeature = vk::FormatFeatureFlagBits::eDepthStencilAttachment;
-			mImageProperties.mImageType = vk::ImageType::e2D;
+			case 1:
 			mImageProperties.mSampleCountFlagBits = vk::SampleCountFlagBits::e1;
-			mImageProperties.mImageUsage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
-			mImageProperties.mImageAspect = vk::ImageAspectFlagBits::eDepth;
-			mImageProperties.mMemoryProperty = vk::MemoryPropertyFlagBits::eDeviceLocal;
-			mImageProperties.mImageViewType = vk::ImageViewType::e2D;
-			mImageProperties.mInitialImageLayout = vk::ImageLayout::eDepthAttachmentOptimal;
+			break;
+			case 2:
+			mImageProperties.mSampleCountFlagBits = vk::SampleCountFlagBits::e2;
+			break;
+			case 4:
+			mImageProperties.mSampleCountFlagBits = vk::SampleCountFlagBits::e4;
+			break;
 		}
 	}
 }
@@ -172,10 +174,10 @@ namespace ksai {
 	}
 
 	template <ImageContext inImageContext>
-	inline VulkanImage<inImageContext>::VulkanImage(const VulkanDevice& inDevice, const VulkanSurface& inSurface)
+	inline VulkanImage<inImageContext>::VulkanImage(const VulkanDevice& inDevice, const VulkanSurface& inSurface, ui inMSAASamples)
 		: VulkanImageBase(inDevice)
 	{
-		FillImageProperties<inImageContext>();
+		FillImageProperties<inImageContext>(inMSAASamples);
 		mImageProperties.mExtent = inSurface.GetExtent();
 		CreateImageAndBindMemory(mImage, mDeviceMemory);
 		CreateImageView(mImage);

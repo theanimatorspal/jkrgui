@@ -105,7 +105,7 @@ void Jkr::WindowMulT::Refresh()
     mDepthImage = VulkanImage<ImageContext::DepthImage>(mInstance.GetDevice(), mSurface);
 
     for (int i = 0; i < mSwapChainImages.size(); i++) {
-        mFrameBuffers[i] = MakeUp<FrameBufferType>(mInstance.GetDevice(), mRenderPass, mSwapChainImages[i], mDepthImage);
+        mFrameBuffers[i] = MakeUp<FrameBufferType>(mInstance.GetDevice(), mRenderPass, mColorImageRenderTarget, mDepthImage, mSwapChainImages[i]);
     }
     mResizeFunction(nullptr);
 }

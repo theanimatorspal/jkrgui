@@ -8,8 +8,9 @@ Jkr::Window::Window(const Instance& inInstance, std::string_view inTitle, int in
           mInstance.GetQueueContext(),
           mSurface.ProcessCurrentSurfaceConditions(mInstance.GetPhysicalDevice())
               .ProcessCurrentSurfaceExtents(mInstance.GetPhysicalDevice()))
-    , mDepthImage(mInstance.GetDevice(), mSurface)
-    , mRenderPass(mInstance.GetDevice(), mSurface, mDepthImage)
+    , mColorImageRenderTarget(mInstance.GetDevice(), mSurface, 4)
+    , mDepthImage(mInstance.GetDevice(), mSurface, 4) // Here
+    , mRenderPass(mInstance.GetDevice(), mSurface, mColorImageRenderTarget, mDepthImage, vk::SampleCountFlagBits::e4)
     , mSwapChainImages { mSwapChain.GetVulkanImages(mInstance.GetDevice(), mSurface) }
     , mImageAvailableSemaphores { VulkanSemaphore(mInstance.GetDevice()),
         VulkanSemaphore(mInstance.GetDevice()) }
@@ -22,7 +23,7 @@ Jkr::Window::Window(const Instance& inInstance, std::string_view inTitle, int in
 {
     ksai_print("SwapChainImagesSize: %d", mSwapChainImages.size());
     for (int i = 0; i < mSwapChainImages.size(); i++) {
-        mFrameBuffers.emplace_back(MakeUp<FrameBufferType>(inInstance.GetDevice(), mRenderPass, mSwapChainImages[i], mDepthImage));
+        mFrameBuffers.emplace_back(MakeUp<FrameBufferType>(inInstance.GetDevice(), mRenderPass, mColorImageRenderTarget, mDepthImage, mSwapChainImages[i]));
     }
 }
 
@@ -83,7 +84,7 @@ void Jkr::Window::Refresh()
     mSwapChainImages = mSwapChain.GetVulkanImages(mInstance.GetDevice(), mSurface);
     mDepthImage = VulkanImage<ImageContext::DepthImage>(mInstance.GetDevice(), mSurface);
     for (int i = 0; i < mSwapChainImages.size(); i++) {
-        mFrameBuffers[i] = MakeUp<FrameBufferType>(mInstance.GetDevice(), mRenderPass, mSwapChainImages[i], mDepthImage);
+        mFrameBuffers[i] = MakeUp<FrameBufferType>(mInstance.GetDevice(), mRenderPass, mColorImageRenderTarget, mDepthImage, mSwapChainImages[i]);
     }
 }
 

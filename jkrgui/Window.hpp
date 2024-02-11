@@ -6,8 +6,7 @@ class Window : public SDLWindow {
 public:
     using SwapChainVulkanImages = std::vector<VulkanImage<ImageContext::ExternalHandled>>;
     using FrameBufferType = VulkanFrameBuffer<
-        RenderPassContext::Default, 2, VulkanImage<ImageContext::ExternalHandled>,
-        VulkanImage<ImageContext::DepthImage>>;
+        RenderPassContext::MSAA, 3, VulkanImage<ImageContext::ColorAttach>, VulkanImage<ImageContext::DepthImage>, VulkanImage<ImageContext::ExternalHandled>>;
 
     enum ParameterContext : int {
         None = -3,
@@ -57,8 +56,9 @@ protected:
     const Instance& mInstance;
     VulkanSurface mSurface;
     VulkanSwapChain<mMaxFramesInFlight> mSwapChain;
+    VulkanImage<ImageContext::ColorAttach> mColorImageRenderTarget;
     VulkanImage<ImageContext::DepthImage> mDepthImage;
-    VulkanRenderPass<RenderPassContext::Default> mRenderPass;
+    VulkanRenderPass<RenderPassContext::MSAA> mRenderPass;
     SwapChainVulkanImages mSwapChainImages;
     std::vector<up<FrameBufferType>> mFrameBuffers;
     const std::array<VulkanSemaphore, mMaxFramesInFlight> mImageAvailableSemaphores;
