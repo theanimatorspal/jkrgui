@@ -13,7 +13,8 @@ enum class ImageContext {
     DepthImage,
     Storage,
     CubeCompatible,
-    MSAA
+    ColorImageMSAA,
+    DepthImageMSAA
 };
 
 struct ImageProperties {
