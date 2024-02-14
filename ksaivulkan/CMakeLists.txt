@@ -28,6 +28,7 @@ if(APPLE OR ANDROID)
         "Vendor/TinyGLTF/*.cpp"
         "Vendor/TinyGLTF/*.hpp"
         "Vendor/VulkanMemoryAllocator/vma.cpp"
+        "Vendor/Eigen/*.*"
         "ksai_config.hpp"
         "ksai_image.hpp"
         "ksai_thread.hpp"

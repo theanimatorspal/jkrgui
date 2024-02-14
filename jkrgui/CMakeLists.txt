@@ -38,7 +38,9 @@ else()
 	"Window.hpp"
 	 "WindowMulT.cpp" "Renderers/ResourceManager.cpp" "Renderers/CustomImagePainter.cpp" "SDLWindow.hpp" "SDLWindow.cpp" "Misc/MousePicker.cpp" "Misc/MousePicker.hpp" "Renderers/BestText_Alt.cpp"
 	 "TrivialShadersLegacy.hpp"
-	)
+	 "Audio/AudioDevice.cpp" "Audio/FourierAudioGenerator.cpp"
+	 "Audio/AudioDevice.hpp" "Audio/FourierAudioGenerator.hpp"
+	 )
  endif()
 
  someFlags(jkrgui)
