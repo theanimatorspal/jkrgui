@@ -181,7 +181,6 @@ void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, J
 
 		"add",
 		[&](vec2 p1, vec2 p2, float inDepth) -> int {
-			cout << "add Line" << '\n';
 			uint32_t id;
 			td.ln.AddLine(p1, p2, inDepth, id);
 			return id;

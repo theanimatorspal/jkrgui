@@ -104,6 +104,7 @@ static unordered_map<string_view, string_view> gConfiguration { { "-title", "Jkr
     { "-height", gHeight },
     { "-width", gWidth },
     { "-store", "false" },
+    { "-debug", "true" },
     { "-bgr", "1.0" },
     { "-bgg", "1.0" },
     { "-bgb", "1.0" },

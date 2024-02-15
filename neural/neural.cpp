@@ -1,3 +1,4 @@
+#define LUA_LIB
 #include <vector>
 #include <memory>
 #include <iostream>
@@ -5,6 +6,7 @@
 #include <string>
 #include <span>
 #include <Eigen/Eigen>
+#include <sol/sol.hpp>
 
 namespace Neural {
 	// Yo chae Geeks for Geeks bata herdai lekhya
@@ -25,19 +27,17 @@ namespace Neural {
 }
 
 
-class Neural::Network {
-public:
-	Network(std::span<int> inTopology, real inLearningRate = real(0.005));
+struct Neural::Network {
+	Network(std::vector<int> inTopology, real inLearningRate = real(0.005));
 	void PropagateForward(rowV& input);
 	void PropagateBackward(rowV& inOutput);
 	void CalculateErrors(rowV& output);
 	void UpdateWeights();
 	void Train(std::span<up<rowV>> inData, std::span<up<rowV>> outputData);
 
-private:
 	ActivationFunctionType mActivationFunction = [](real x) {return tanhf(x); };
 	ActivationFunctionType mActivationFunctionDerivative = [](real x) { return 1 - tanhf(x) * tanhf(x); };
-	std::span<int> mTopology;
+	std::vector<int> mTopology;
 	v<up<rowV>> mNeuronLayers; // out network ko layers lai store garxa
 	v<up<rowV>> mCacheLayers; // activation function apply navako lai store garxa
 	v<up<rowV>> mDeltas; // pratyek neuron ko error contribution lai herxa
@@ -46,9 +46,9 @@ private:
 };
 
 
-inline Neural::Network::Network(std::span<int> inTopology, real inLearningRate)
+inline Neural::Network::Network(std::vector<int> inTopology, real inLearningRate)
 {
-	mTopology = inTopology;
+	mTopology = std::vector<int>(inTopology);
 	mLearningRate = inLearningRate;
 	for (uint32_t i = 0; i < mTopology.size(); i++)
 	{
@@ -153,18 +153,18 @@ inline void Neural::Network::PropagateBackward(rowV& output)
 
 inline void Neural::Network::Train(std::span<up<rowV>> inData, std::span<up<rowV>> outputData)
 {
-	std::stringstream str;
+	//std::stringstream str;
 	for (uint32_t i = 0; i < inData.size(); i++)
 	{
-		str << "Input to Neural Network is " << *inData[i] << '\n';
+		//str << "Input to Neural Network is " << *inData[i] << '\n';
 		PropagateForward(*inData[i]);
-		str << "Expected Output is " << *outputData[i] << '\n';
-		str << "Output Produced is  " << *mNeuronLayers.back() << '\n';
+		//str << "Expected Output is " << *outputData[i] << '\n';
+		//str << "Output Produced is  " << *mNeuronLayers.back() << '\n';
 		PropagateBackward(*outputData[i]);
 		auto& outdelta = *mDeltas.back();
-		str << "MSE: " << std::sqrt(outdelta.dot(outdelta) / outdelta.size()) << "\n";
+		//str << "MSE: " << std::sqrt(outdelta.dot(outdelta) / outdelta.size()) << "\n";
 	}
-	std::cout << str.rdbuf();
+	//std::cout << str.rdbuf();
 
 }
 
@@ -205,11 +205,11 @@ static void ReadCSV(std::string inFileName, std::vector<up<rowV>>& outData)
 	}
 }
 
-void GenData(std::string inFileName)
+static void GenData(std::string inFileName, int dataCount)
 {
 	std::ofstream file1(inFileName + "-in");
 	std::ofstream file2(inFileName + "-out");
-	for (uint32_t r = 0; r < 5000; r++)
+	for (uint32_t r = 0; r < dataCount; r++)
 	{
 		real x = round(rand() / real(RAND_MAX));
 		real y = round(rand() / real(RAND_MAX));
@@ -225,14 +225,78 @@ void GenData(std::string inFileName)
 	}
 }
 
+extern "C" __declspec(dllexport) int luaopen_neural(lua_State * l)
+{
+	sol::state_view s(l);
+	s.set_function("neural", []() {
+		std::cout << "Hello World" << '\n';
+		});
+
+	auto neural = s["neur"].get_or_create<sol::table>();
+	//auto neural = s["n"].get_or_create<sol::table>();
+	neural.new_usertype<Neural::Network>(
+		"network",
+		sol::call_constructor,
+		sol::factories(
+			[&](std::vector<int>& inTopology) {
+				return Neural::Network(inTopology);
+			},
+			[&](std::vector<int>& inTopology, real inLearningRate) {
+				return Neural::Network(inTopology, inLearningRate);
+			}
+		),
+		"weight_of_connection",
+		[](Neural::Network& inNetwork, int inLayer, int inNeuron1, int inNeuron2) -> real
+		{
+			return inNetwork.mWeights[inLayer]->coeff(inNeuron1, inNeuron2);
+		},
+		"value_of_neuron",
+		[](Neural::Network& inNetwork, int inLayer, int inNeuron)
+		{
+			return inNetwork.mNeuronLayers[inLayer]->coeff(inNeuron);
+		},
+		"propagate_forward",
+		[](Neural::Network& inNetwork, std::vector<float> inFloat){
+			rowV v(inFloat.size());
+			for (int i = 0; i < inFloat.size(); i++)
+			{
+				v.coeffRef(i) = inFloat[i];
+			}
+			inNetwork.PropagateForward(v);
+		},
+
+		"propagate_backward_current",
+		[](Neural::Network& inNetwork, std::vector<float> inFloat)
+		{
+			rowV v(inFloat.size());
+			for (int i = 0; i < inFloat.size(); i++)
+			{
+				v.coeffRef(i) = inFloat[i];
+			}
+			inNetwork.PropagateBackward(v);
+		},
+		/* Dummy train function all TODO remove this*/
+		"dummy_train",
+		[&](Neural::Network& inNetwork, int inDataCount) {
+			std::vector<up<rowV>> in_data, out_data;
+			GenData("test", inDataCount);
+			ReadCSV("test-in", in_data);
+			ReadCSV("test-out", out_data);
+			inNetwork.Train(in_data, out_data);
+		}
+	);
+
+	return 0;
+}
 
 int main() {
-	auto Topology = std::array<int, 4>({ 2, 3, 2, 1 });
+	auto Topology = std::vector<int>({ 2, 3, 2, 1 });
 	Neural::Network n(Topology);
 	std::vector<up<rowV>> in_data, out_data;
-	GenData("test");
+	GenData("test", 5000);
 	ReadCSV("test-in", in_data);
 	ReadCSV("test-out", out_data);
 	n.Train(in_data, out_data);
+	getchar();
 	exit(0);
 }
