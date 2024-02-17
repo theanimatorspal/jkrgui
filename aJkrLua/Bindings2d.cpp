@@ -388,7 +388,8 @@ void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, J
 		},
 
 		"update_pos_only",
-		[&](BestText_Alt::ImageId inId, int inFontId, vec2 inposition, int inDepth) {
+		[&](BestText_Alt::ImageId inId, int inFontId, vec3 inposition, string_view inText, bool inAlignBottom) {
+			ALT.Update(inId, inFontId, vec2(inposition.x, inposition.y), inposition.z, inText, inAlignBottom);
 		}
 
 	);
@@ -420,7 +421,26 @@ void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, J
 			}),
 		"register", [&](CustomPainterImage& inImage, CustomImagePainter& inPainter) {
 			inImage.Register(i, inPainter);
-		});
+		},
+		"image_to_vector_uint",
+		[&](CustomPainterImage& inImage) -> std::vector<int>
+		{
+			return inImage.GetImageToVector(i, w);
+		},
+		"image_to_vector_single_channel_float",
+		[&](CustomPainterImage& inImage) -> std::vector<float>
+		{
+			auto vec = inImage.GetImageToVector(i, w);
+			std::vector<float> outImageFloatSingleChannel;
+			// TODO Four Channels hardcoded 
+			outImageFloatSingleChannel.reserve(vec.size() / 4);
+			for (int i = 0; i < vec.size(); i += 4)
+			{
+				outImageFloatSingleChannel.push_back(vec[i]/255.0f);
+			}
+			return outImageFloatSingleChannel;
+		}
+	);
 
 	r.new_usertype<CustomImagePainter>(
 		"image_painter",

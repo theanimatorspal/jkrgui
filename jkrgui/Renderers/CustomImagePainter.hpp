@@ -7,7 +7,6 @@ using Image = PainterParameter<Jkr::PainterParameterContext::StorageImage>;
 class CustomImagePainter;
 
 struct CustomPainterImage {
-    up<Image> mPainterParam;
     CustomPainterImage(const Instance& inInstance, const Window& inWindow, ui inWidth, ui inHeight)
     {
         mPainterParam = mu<Image>(inInstance);
@@ -16,8 +15,32 @@ struct CustomPainterImage {
     }
     void Register(const Instance& inInstance, CustomImagePainter& inPainterCache);
 
+    std::vector<int> GetImageToVector(const Instance& inInstance, const Window& inWindow)
+    {
+		ui ImageChannels = 4;
+        auto ImageExtent = mPainterParam->GetStorageImage().GetImageExtent();
+		auto Size = ImageChannels * ImageExtent.width * ImageExtent.height;
+        uint32_t size = ImageChannels * ImageExtent.width * ImageExtent.height;
+        VulkanBufferVMA<BufferContext::Storage, MemoryType::HostVisibleAndCoherenet> Buffer(inInstance.GetVMA(), inInstance.GetDevice(), size);
+        Buffer.SubmitImmediateCmdCopyFromImage(inInstance.GetGraphicsQueue(), inWindow.GetCommandBuffers(Jkr::Window::None)[inWindow.GetCurrentFrame()], mPainterParam->GetStorageImage());
+        void* MemoryRegion;
+        Buffer.MapMemoryRegion(&MemoryRegion);
+        std::vector<uint8_t> OutImage;
+        std::vector<int> OutImage_i;
+        OutImage.resize(size);
+        OutImage_i.reserve(size);
+        std::memcpy(OutImage.data(), MemoryRegion, size);
+
+        for (int i = 0; i < OutImage.size(); i++)
+        {
+            OutImage_i.push_back(OutImage[i]);
+        }
+        return OutImage_i;
+    }
+
     GETTER& GetPainterParam() { return *mPainterParam; }
     up<VulkanDescriptorSet> mVulkanDescriptorSet;
+    up<Image> mPainterParam;
 };
 
 

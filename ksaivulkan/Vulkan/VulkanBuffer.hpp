@@ -20,7 +20,10 @@ namespace ksai {
 	public:
 		VulkanBufferBase(const VulkanDevice& inDevice);
 		virtual ~VulkanBufferBase() = default;
+		// TODO Create Separate Command Pool and Do these things
 		void SubmitImmediateCmdCopyFrom(const VulkanQueue<QueueContext::Graphics>& inQueue, const VulkanCommandBuffer& inCmdBuffer, void* inData);
+		void SubmitImmediateCmdCopyFromImage(const VulkanQueue<QueueContext::Graphics>& inQueue, const VulkanCommandBuffer& inCmdBuffer, const VulkanImageBase& inImage) const;
+
 		void CmdCopyFrom(const VulkanCommandBuffer& inCmdBuffer, VulkanBufferBase& inBuffer, vk::DeviceSize FromBufferOffset, vk::DeviceSize ToBufferOffset, vk::DeviceSize inSizeToCopy);
 		void SetBarrier(
 			const VulkanCommandBuffer& inCmdBuffer,

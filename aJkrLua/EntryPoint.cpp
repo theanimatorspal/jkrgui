@@ -105,14 +105,21 @@ JKR_EXPORT int main(int ArgCount, char** ArgStrings)
 	{
 		int i = 0;
 		for (auto& u : states) {
-			tracy::LuaRegister(u);
 			u = bind_and_get_LuaState();
-			sol::protected_function_result result = u.safe_script_file(string(cf["-main_file"]), &sol::script_pass_on_error);
-			if (not result.valid() && i == 0) {
-				sol::error error = result;
-				ksai_print(error.what());
-				cout << error.what() << endl;
-				exit(EXIT_FAILURE);
+			tracy::LuaRegister(u);
+
+			if (toBool(cf["-debug"]))
+			{
+				sol::protected_function_result result = u.safe_script_file(string(cf["-main_file"]), &sol::script_pass_on_error);
+				if (not result.valid() && i == 0) {
+					sol::error error = result;
+					ksai_print(error.what());
+					cout << error.what() << endl;
+					exit(EXIT_FAILURE);
+				}
+			}
+			else {
+				sol::function_result result = u.script_file(string(cf["-main_file"]));
 			}
 			i++;
 		}
@@ -164,11 +171,11 @@ JKR_EXPORT int main(int ArgCount, char** ArgStrings)
 		w.SetPostRenderingCallBack([&](void*) { FrameCapturer.Dispatch(); });
 	}
 	else {
-		em.SetEventCallBack([&](void*) { UICallbacks[CallbackType::Event]; });
-		w.SetDrawCallBack([&](void* data) { UICallbacks[CallbackType::Draw]; });
-		w.SetUpdateCallBack([&](void* data) { UICallbacks[CallbackType::Update]; });
-		w.SetComputeDispatchCallBack([&](void* data) { UICallbacks[CallbackType::Dispatch]; td.ln.Dispatch(w); td.sh.Dispatch(w); td.bt.Dispatch(w); });
-		w.SetBackgroundCallBack([&](void*) {ZoneScoped; BackgroundCallbacks[CallbackType::Draw]; });
+		em.SetEventCallBack([&](void*) { UICallbacks[CallbackType::Event](); });
+		w.SetDrawCallBack([&](void* data) { UICallbacks[CallbackType::Draw](); });
+		w.SetUpdateCallBack([&](void* data) { UICallbacks[CallbackType::Update](); });
+		w.SetComputeDispatchCallBack([&](void* data) { UICallbacks[CallbackType::Dispatch](); td.ln.Dispatch(w); td.sh.Dispatch(w); td.bt.Dispatch(w); });
+		w.SetBackgroundCallBack([&](void*) {ZoneScoped; BackgroundCallbacks[CallbackType::Draw](); });
 		w.SetResizeCallBack([&](void*) {FrameCapturer.Refresh(); });
 		w.SetPostRenderingCallBack([&](void*) { FrameCapturer.Dispatch(); });
 	}

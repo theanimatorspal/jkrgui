@@ -3,10 +3,10 @@
 
 void Jkr::WindowMulT::Draw(float r, float g, float b, float a, float d)
 {
-    ZoneScoped;
-    mUpdateFunction(mData);
     mFences[mCurrentFrame].Wait();
     mFences[mCurrentFrame].Reset();
+    ZoneScoped;
+    mUpdateFunction(mData);
 
     std::array<float, 5>
         ClearValues = { r, g, b, a, d };

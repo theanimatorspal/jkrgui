@@ -101,13 +101,11 @@ bb::TextDimensions bb::RenderTextToImage(
     hb_glyph_position_t* pos = hb_buffer_get_glyph_positions(hbBuffer, 0);
 
     LoadTextToKeyMap(len, inFontShapeId, info, pos);
-    //auto TextDims = GetTextDimensions(inString, inFontShapeId, info, pos, len);
 
     v<ui> codepoints;
     for (int i = 0; i < len; i++)
         codepoints.push_back(info[i].codepoint);
 
-    //auto* dst = outImage.data();
     ui outbmp_h = 0;
     ui outbmp_w = 0;
 
@@ -130,10 +128,6 @@ bb::TextDimensions bb::RenderTextToImage(
         int glyphMinY = originY - bitmap_rows + offsetY;
         int glyphMaxY = originY + offsetY;
 
-        //int drawX = originX + ToPixels(pos.x_offset + metrics.horiBearingX);
-        //int drawY = originY + ToPixels(pos.y_offset + metrics.horiBearingY);
-        //size_t width = glyphMaxX - glyphMinX + 1;
-        //size_t height = glyphMaxY - glyphMinY + 1;
         if (glyphMinX < minX)
             minX = glyphMinX;
         if (glyphMaxX > maxX)
@@ -144,8 +138,6 @@ bb::TextDimensions bb::RenderTextToImage(
             maxY = glyphMaxY;
         originX += advance;
     }
-    //originX = -minX;
-    //originY = -minY;
     outbmp_w = maxX - minX + 1;
     outbmp_h = maxY - minY + 1;
 
@@ -164,13 +156,7 @@ bb::TextDimensions bb::RenderTextToImage(
         const auto& pos = CharacterInMap.first.mGlyphPos;
         const auto bitmap_width = CharacterInMap.first.mBitmapWidth;
         const auto bitmap_rows = CharacterInMap.first.mBitmapRows;
-        int offsetX = ToPixels(pos.x_offset + metrics.horiBearingX);
-        int offsetY = ToPixels(pos.y_offset + metrics.horiBearingY);
         int advance = CharacterInMap.first.mGlyphPos.x_advance;
-        //int glyphMinX = originX + offsetX;
-        //int glyphMaxX = originX + bitmap_width + offsetX;
-        //int glyphMinY = originY - bitmap_rows + offsetY;
-        //int glyphMaxY = originY + offsetY;
         int drawX = originX + ToPixels(pos.x_offset + metrics.horiBearingX);
         int drawY = originY + ToPixels(pos.y_offset + metrics.horiBearingY);
         if (abs(maxYBearing) < ToPixels(metrics.horiBearingY)) {
@@ -247,7 +233,7 @@ bb::TextDimensions bb::UpdateText(ui inX, ui inY, ui inId, const sv inString, ui
     return TextDims;
 }
 
-bb::TextDimensions bb::GetTextDimensions(const sv inString, ui inFontShapeId, hb_glyph_info_t* info, hb_glyph_position_t* pos, ui len, optref<int> inHoriYbearing)
+bb::TextDimensions bb::GetTextDimensions(const sv inString, ui inFontShapeId, hb_glyph_info_t* info, hb_glyph_position_t* pos, ui len, optref<int> outYOff)
 {
     int originX = 0, originY = 0;
     int minX = INT_MAX;
@@ -294,9 +280,9 @@ bb::TextDimensions bb::GetTextDimensions(const sv inString, ui inFontShapeId, hb
     size_t width = maxX - minX + 1;
     size_t height = maxY - minY + 1;
 
-    if (inHoriYbearing.has_value ( ))
+    if (outYOff.has_value ( ))
     {
-        inHoriYbearing.value().get() = maxYBearing;
+        outYOff.value().get() = (maxY - minY) - maxYBearing;
     }
 
     return TextDimensions { .mWidth = width, .mHeight = height };
@@ -323,12 +309,9 @@ void bb::AddRespectiveVerticesAndIndicesAt(unsigned int len, ui inStartIndex, ui
         int glyphMinY = originY + (bitmap_rows - offsetY);
         int glyphMaxY = originY - offsetY;
 
-        //int drawX = originX + ToPixels(pos.x_offset + metrics.horiBearingX);
-        //int drawY = originY + ToPixels(pos.y_offset + metrics.horiBearingY);
         [[maybe_unused]] size_t width = glyphMaxX - glyphMinX + 1;
         [[maybe_unused]] size_t height = glyphMaxY - glyphMinY + 1;
 
-        /* Add a Single Quad */
         {
             auto inTextSize = len;
             if (mVertices.size() < 4 * inTextSize + inStartIndex * 4) {
@@ -342,19 +325,12 @@ void bb::AddRespectiveVerticesAndIndicesAt(unsigned int len, ui inStartIndex, ui
 
             mVertices[v_index + 0].mPosition = { glyphMinX, glyphMaxY, inDepthValue };
             mVertices[v_index + 0].mTextureCoordinates = { 0, 0 };
-            //        mVertices[v_index + 0].mIvec3 = { 0, 0, 0 };
-
             mVertices[v_index + 1].mPosition = { glyphMinX, glyphMinY, inDepthValue };
             mVertices[v_index + 1].mTextureCoordinates = { 0, 1 };
-            //         mVertices[v_index + 1].mIvec3 = { 0, 0, 0 };
-
             mVertices[v_index + 2].mPosition = { glyphMaxX, glyphMinY, inDepthValue };
             mVertices[v_index + 2].mTextureCoordinates = { 1, 1 };
-            //          mVertices[v_index + 2].mIvec3 = { 0, 0, 0 };
-
             mVertices[v_index + 3].mPosition = { glyphMaxX, glyphMaxY, inDepthValue };
             mVertices[v_index + 3].mTextureCoordinates = { 1, 0 };
-            //           mVertices[v_index + 3].mIvec3 = { 0, 0, 0 };
 
             const auto i_index = i * 6 + inStartIndex * 6;
 
@@ -408,14 +384,6 @@ void bb::LoadTextToKeyMap(unsigned int len, const ui& inFontShapeId, hb_glyph_in
                 BitmapImage.resize(mImageChannelCount * character_info.mBitmapWidth * character_info.mBitmapRows);
                 auto* dst = BitmapImage.data();
 
-                // for (size_t y = 0; y < slot->bitmap.rows; ++y)
-                //{
-                //	for (size_t x = 0; x < slot->bitmap.width; ++x)
-                //	{
-                //		BitmapImage[(drawY - y) * width + drawX + x] = ptr[x];
-                //	}
-                //	ptr += slot->bitmap.pitch;
-                // }
                 if (mImageChannelCount == 4) {
                     ui i = 0;
                     for (size_t y = 0; y < slot->bitmap.rows; ++y) {
@@ -428,14 +396,13 @@ void bb::LoadTextToKeyMap(unsigned int len, const ui& inFontShapeId, hb_glyph_in
                         ptr += slot->bitmap.pitch;
                     }
                 }
-
                 mCharacterBitmapSet[key] = std::make_pair(character_info, std::move(BitmapImage));
             }
         }
     }
 }
 
-bb::TextDimensions bb::GetTextDimensions(const sv inString, ui inFontShapeId)
+bb::TextDimensions bb::GetTextDimensions(const sv inString, ui inFontShapeId, optref<int> outYOff)
 {
     hb_buffer_t* hbBuffer = hb_buffer_create();
     hb_buffer_add_utf8(hbBuffer, reinterpret_cast<const char*>(inString.data()), -1, 0, -1);

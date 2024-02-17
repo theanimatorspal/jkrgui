@@ -27,6 +27,7 @@ public:
 
     void Add(ui inFontId, glm::vec2 inPos, int inDepth, const sv inText, ImageId& outId, ksai::optref<ksai::ThreadPool> inThreadPool = std::nullopt, bool inAlignBottom = true);
     void Update(ImageId inId, ui inFontId, glm::vec2 inPos, int inDepth, const sv inText, ksai::optref<ksai::ThreadPool> inThreadPool = std::nullopt, bool inAlignBottom = true);
+    void Update(ImageId inId, ui inFontId, glm::vec2 inPos, int inDepth, const sv inText, bool inAlignBottom = true);
     void Draw(ImageId inId, Window& inWindow, glm::vec4 inColor, ui inW, ui inH, glm::mat4 inMatrix);
 
 private:

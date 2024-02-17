@@ -214,13 +214,13 @@ static void GenData(std::string inFileName, int dataCount)
 		real x = round(rand() / real(RAND_MAX));
 		real y = round(rand() / real(RAND_MAX));
 		file1 << x << ", " << y << '\n';
-		if (x == 0.0 and y == 0.0)
-		{
-			file2 << 0.0 << '\n';
-		}
-		else if (x == 1.0 or y == 1.0)
+		if (x == y)
 		{
 			file2 << 1.0 << '\n';
+		}
+		else if (x != y)
+		{
+			file2 << 0.0 << '\n';
 		}
 	}
 }
@@ -254,6 +254,17 @@ extern "C" __declspec(dllexport) int luaopen_neural(lua_State * l)
 		[](Neural::Network& inNetwork, int inLayer, int inNeuron)
 		{
 			return inNetwork.mNeuronLayers[inLayer]->coeff(inNeuron);
+		},
+		"get_layer_vector_float",
+		[](Neural::Network& inNetwork, int inLayer) -> std::vector<float>
+		{
+			std::vector<float> outvec;
+			auto& rowv = *inNetwork.mNeuronLayers[inLayer];
+			for (int i = 0; i < rowv.size(); i++)
+			{
+				outvec.push_back(rowv.coeff(i));
+			}
+			return outvec;
 		},
 		"propagate_forward",
 		[](Neural::Network& inNetwork, std::vector<float> inFloat){

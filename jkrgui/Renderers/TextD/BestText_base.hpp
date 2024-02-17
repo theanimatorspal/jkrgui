@@ -45,17 +45,17 @@ public:
     BestText_base();
     ~BestText_base();
     void AddFontFace(const std::string_view inFontFilePathName, size_t inFontSize, uint32_t& outFontId);
-    TextDimensions GetTextDimensions(const std::string_view inString, uint32_t inFontShapeId);
+    TextDimensions GetTextDimensions(const std::string_view inString, uint32_t inFontShapeId, optref<int> outYOff = std::nullopt);
     void SetTextProperty(TextProperty inProp) { mCurrentTextProp = inProp; };
     GETTER GetTextProperty() const { return mCurrentTextProp; };
 
 protected:
-    TextDimensions GetTextDimensions(const std::string_view inString, uint32_t inFontShapeId, hb_glyph_info_t* info, hb_glyph_position_t* pos, uint32_t len, optref<int> inYbearing = std::nullopt);
+    TextDimensions GetTextDimensions(const std::string_view inString, uint32_t inFontShapeId, hb_glyph_info_t* info, hb_glyph_position_t* pos, uint32_t len, optref<int> outYbearing = std::nullopt);
     TextDimensions AddText(uint32_t inX, uint32_t inY, const std::string_view inString, uint32_t inFontShapeId, uint32_t inDepthValue, std::vector<uint32_t>& outCodePoints, uint32_t& outIdt);
     TextDimensions RenderTextToImage(std::string_view inString, uint32_t inFontShapeId, std::vector<uc>& outImage, ksai::optref<ksai::ThreadPool> inThreadpool = std::nullopt, ksai::optref<int> outYoff = std::nullopt);
 
 public:
-    [[nodiscard]] v<uc> RenderTextToImage(ui inFontShapeId, sv inStringView, TextDimensions& outDimens, ksai::optref<ksai::ThreadPool> inThreadPool = std::nullopt, ksai::optref<int> outYoff = std::nullopt)
+    [[nodiscard]]inline v<uc> RenderTextToImage(ui inFontShapeId, sv inStringView, TextDimensions& outDimens, ksai::optref<ksai::ThreadPool> inThreadPool = std::nullopt, ksai::optref<int> outYoff = std::nullopt)
     {
         ZoneScoped;
         v<uc> img;

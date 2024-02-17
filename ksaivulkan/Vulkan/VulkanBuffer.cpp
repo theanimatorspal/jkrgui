@@ -8,6 +8,7 @@ ksai::VulkanBufferBase::VulkanBufferBase(const VulkanDevice& inDevice)
 
 void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFrom(const VulkanQueue<QueueContext::Graphics>& inQueue, const VulkanCommandBuffer& inCmdBuffer, void* inData)
 {
+	// TODO Abstract with your own APIs
 	uint32_t MemoryIndex;
 	vk::DeviceSize MemorySize;
 	GetMemoryTypeIndex(vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, mBufferHandle, MemorySize, MemoryIndex);
@@ -80,4 +81,19 @@ void ksai::VulkanBufferBase::GetMemoryTypeIndex(vk::MemoryPropertyFlags inFlag, 
 void ksai::VulkanBufferBase::CmdCopyFromImage(const VulkanCommandBuffer& inCmdBuffer, const VulkanImageBase& inImage, vk::PipelineStageFlags inAfterStage, vk::AccessFlags inAfterAccessFlags) const
 {
 	// TODO 
+}
+
+void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFromImage(const VulkanQueue<QueueContext::Graphics>& inQueue, const VulkanCommandBuffer& inCmdBuffer, const VulkanImageBase& inImage) const
+{
+	auto ImageExtent = inImage.GetImageExtent();
+	auto CopySize = ImageExtent.width * ImageExtent.height * 4; // TODO don't hardcode this
+	auto srcImageProp = inImage.GetImageProperty();
+	const vk::CommandBuffer& Cmd = inCmdBuffer.GetCommandBufferHandle();
+
+	Cmd.begin(vk::CommandBufferBeginInfo());
+	auto ImageSubResource = vk::ImageSubresourceLayers(srcImageProp.mImageAspect, 0, 0, srcImageProp.mArrayLayers);
+	auto BufferImageCopy = vk::BufferImageCopy(0, 0, 0, ImageSubResource, vk::Offset3D{ 0 }, vk::Extent3D(ImageExtent, 1));
+	Cmd.copyImageToBuffer(inImage.GetImageHandle(), vk::ImageLayout::eGeneral, mBufferHandle, BufferImageCopy);
+	Cmd.end();
+	inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer);
 }

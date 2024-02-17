@@ -195,27 +195,14 @@ void Shape::CopyToImage(ui inId,
             vk::Offset3D(0, 0, 0),
             vk::Extent3D(srcImgProp.mExtent, 1));
 
-        vk::ImageSubresourceRange src_SubRange(SrcSubresource.aspectMask,
-            0,
-            srcImgProp.mMipLevels,
-            0,
-            srcImgProp.mArrayLayers);
-
-        /* Source Image From General To Src Optimal  */
-        vk::ImageMemoryBarrier src_Barrier(vk::AccessFlagBits::eMemoryWrite,
-            vk::AccessFlagBits::eMemoryRead,
+        inSrcImage.CmdTransitionImageLayout(inCmd,
             vk::ImageLayout::eGeneral,
             vk::ImageLayout::eTransferSrcOptimal,
-            VK_QUEUE_FAMILY_IGNORED,
-            VK_QUEUE_FAMILY_IGNORED,
-            inSrcImage.GetImageHandle(),
-            src_SubRange);
-        inCmd.GetCommandBufferHandle().pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader,
+            vk::PipelineStageFlagBits::eComputeShader,
             vk::PipelineStageFlagBits::eTransfer,
-            vk::DependencyFlagBits::eByRegion,
-            {},
-            {},
-            src_Barrier);
+            vk::AccessFlagBits::eMemoryWrite,
+            vk::AccessFlagBits::eMemoryRead
+            );
 
         /* Destination Image From General To Dst Optimal  */
         inDstImage.CmdTransitionImageLayout(inCmd,
@@ -232,26 +219,14 @@ void Shape::CopyToImage(ui inId,
             vk::ImageLayout::eTransferDstOptimal,
             ImageCopy);
 
-        /* Destination Image From Dst Optimal To General  */
-        vk::ImageSubresourceRange dst_SubRange(DstSubresource.aspectMask,
-            0,
-            dstImgProp.mMipLevels,
-            0,
-            dstImgProp.mArrayLayers);
-        vk::ImageMemoryBarrier dst_Barrier(vk::AccessFlagBits::eMemoryWrite,
-            vk::AccessFlagBits::eMemoryRead,
+        inDstImage.CmdTransitionImageLayout(inCmd,
             vk::ImageLayout::eTransferDstOptimal,
             vk::ImageLayout::eGeneral,
-            VK_QUEUE_FAMILY_IGNORED,
-            VK_QUEUE_FAMILY_IGNORED,
-            inDstImage.GetImageHandle(),
-            dst_SubRange);
-        inCmd.GetCommandBufferHandle().pipelineBarrier(vk::PipelineStageFlagBits::eTransfer,
+            vk::PipelineStageFlagBits::eTransfer,
             vk::PipelineStageFlagBits::eFragmentShader,
-            vk::DependencyFlagBits::eByRegion,
-            {},
-            {},
-            dst_Barrier);
+            vk::AccessFlagBits::eMemoryWrite,
+            vk::AccessFlagBits::eMemoryRead
+            );
 
         /* Source Image From Src Optimal To General  */
         inSrcImage.CmdTransitionImageLayout(inCmd,

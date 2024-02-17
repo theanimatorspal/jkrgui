@@ -35,15 +35,11 @@ public:
     GETTER& GetPhysicalDevice() const { return mPhysicalDevice; }
     GETTER& GetQueueContext() const { return mQueueContext; }
     GETTER& GetDevice() const { return mDevice; }
-
     GETTER& GetGraphicsQueue() const { return mGraphicsQueue; }
     GETTER& GetCommandPool() const { return mCommandPool; }
-    // GETTER& GetCommandBuffers() const { return mCommandBuffers; }
-    GETTER& GetUtilCommandBuffer() const { return mUtilCommandBuffer; }
+    GETTER& GetUtilCommandBuffer() const { return mUtilCommandBuffer; } // TODO REMOVE THIS FROM HERE
     GETTER& GetDescriptorPool() const { return mDescriptorPool; }
-
     GETTER& GetVMA() const { return mVmaAllocator; }
-
     GETTER& GetThreadPool() { return mThreadPool; }
 
 private:
@@ -56,7 +52,6 @@ private:
     const VulkanDevice mDevice;
     const VulkanQueue<QueueContext::Graphics> mGraphicsQueue;
     const VulkanCommandPool mCommandPool;
-    // const std::array<VulkanCommandBuffer, mMaxFramesInFlight> mCommandBuffers;
     const VulkanCommandBuffer mUtilCommandBuffer;
     const VulkanDescriptorPool mDescriptorPool;
     const VulkanVMA mVmaAllocator;

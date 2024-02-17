@@ -93,7 +93,7 @@ inline const auto fliphorizontally = []<typename T>(const T& from, T& to, int x,
 };
 
 template <ImageConcept T, ManipulatorConcept<T> F>
-void process(ui inw, ui inh, ui inComp, T& inoutImage, F& inOp, optref<ksai::ThreadPool> inThreadPool = std::nullopt)
+inline void process(ui inw, ui inh, ui inComp, T& inoutImage, F& inOp, optref<ksai::ThreadPool> inThreadPool = std::nullopt)
 {
     auto Pro = [=, &inoutImage]() {
         ZoneScoped;
@@ -116,11 +116,10 @@ void process(ui inw, ui inh, ui inComp, T& inoutImage, F& inOp, optref<ksai::Thr
 }
 
 template <ImageConcept T, ManipulatorConcept<T> F>
-void process(ui inw, ui inh, ui inComp, const T& fromImage, T& toImage, F& inOp, optref<ksai::ThreadPool> inThreadPool = std::nullopt)
+inline void process(ui inw, ui inh, ui inComp, const T& fromImage, T& toImage, F& inOp, optref<ksai::ThreadPool> inThreadPool = std::nullopt)
 {
    ZoneScoped;
     auto Pro = [=, &fromImage, &toImage]() {
-        ZoneScoped;
         for (int y = 0; y < inh; ++y) {
             for (int x = 0; x < inw * inComp; ++x) {
                 inOp(fromImage, toImage, x, y, inw, inh, inComp);
