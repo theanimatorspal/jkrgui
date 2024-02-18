@@ -103,12 +103,12 @@ namespace ksai {
 		else if constexpr (inImageContext == ImageContext::Storage) {
 			mImageProperties.mImageUsage = vk::ImageUsageFlagBits::eStorage
 				| vk::ImageUsageFlagBits::eTransferSrc;
-			mImageProperties.mImageFormat = vk::Format::eR8G8B8A8Unorm;
+			mImageProperties.mImageFormat = vk::Format::eB8G8R8A8Unorm;
 		}
 		else if constexpr (inImageContext == ImageContext::Default) {
 			mImageProperties.mImageUsage = vk::ImageUsageFlagBits::eSampled
 				| vk::ImageUsageFlagBits::eTransferDst;
-			mImageProperties.mImageFormat = vk::Format::eR8G8B8A8Srgb;
+			mImageProperties.mImageFormat = vk::Format::eB8G8R8A8Unorm;
 		}
 		else if constexpr (inImageContext == ImageContext::CubeCompatible) {
 			mImageProperties.mFlags = vk::ImageCreateFlagBits::eCubeCompatible;
@@ -116,7 +116,7 @@ namespace ksai {
 		else if constexpr (inImageContext == ImageContext::ColorAttach)
 		{
 			mImageProperties.mImageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransientAttachment;
-			mImageProperties.mImageFormat = vk::Format::eR8G8B8A8Unorm; // This in on the surface, so
+			mImageProperties.mImageFormat = vk::Format::eB8G8R8A8Unorm; // This in on the surface, so
 		}
 
 		switch (inNumSamples)

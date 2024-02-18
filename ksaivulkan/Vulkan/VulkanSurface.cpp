@@ -48,9 +48,9 @@ VulkanSurface& VulkanSurface::ProcessCurrentSurfaceExtents(const VulkanPhysicalD
     std::vector<vk::SurfaceFormatKHR> formats = mPhysicalDevice.getSurfaceFormatsKHR(mSurface);
     assert(!formats.empty());
 
-    mSurfaceImageFormat = (formats[0].format == vk::Format::eUndefined) ? vk::Format::eR8G8B8A8Unorm : formats[0].format;
+    mSurfaceImageFormat = (formats[0].format == vk::Format::eUndefined) ? vk::Format::eB8G8R8A8Unorm : formats[0].format;
     // TODO Make this better
-    mSurfaceImageFormat = vk::Format::eR8G8B8A8Unorm;
+    mSurfaceImageFormat = vk::Format::eB8G8R8A8Unorm;
 
     mSurfaceCapabilities = mPhysicalDevice.getSurfaceCapabilitiesKHR(mSurface);
     bool surfaceSizeUndefined = mSurfaceCapabilities.currentExtent.width == std::numeric_limits<uint32_t>::max();
