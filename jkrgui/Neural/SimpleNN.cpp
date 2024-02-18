@@ -168,3 +168,11 @@ void Jkr::Neural::Network::ApplySimulatedAnnealing(rowV& inOutput, real inTemper
 	}
 	*this = State;
 }
+
+void Jkr::Neural::Network::SaveToFile(sv inFileName)
+{
+}
+
+void Jkr::Neural::Network::LoadFromFile(sv inFileName)
+{
+}

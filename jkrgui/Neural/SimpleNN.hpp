@@ -6,14 +6,11 @@
 #include <span>
 #include <Eigen/Eigen>
 #include <sol/sol.hpp>
+#include <Global/Config.hpp>
 
 namespace Jkr::Neural {
-	template <typename T>
-	using up = std::unique_ptr<T>;
-	template <typename T>
-	using v = std::vector<T>;
+	using namespace ksai;
 	class Network;
-#define mu std::make_unique
 	using real = float;
 	using matX = Eigen::MatrixXf;
 	using rowV = Eigen::RowVectorXf;
@@ -30,6 +27,8 @@ public: /* Interface */
 	void PropagateForward(rowV& input);
 	void PropagateBackward(rowV& inOutput);
 	void ApplySimulatedAnnealing(rowV& inOutput, real inTemperature = 100000, int inMaxIterations = 100);
+	void SaveToFile(sv inFileName); /* TODO */
+	void LoadFromFile(sv inFileName); /* TODO */
 
 public:
 	real GetMeanSquaredError()
