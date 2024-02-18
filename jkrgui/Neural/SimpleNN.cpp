@@ -1,6 +1,8 @@
 #include "SimpleNN.hpp"
+#include <algorithm>
 
 using namespace Jkr;
+using namespace Neural;
 
 Neural::Network::Network(std::vector<int> inTopology, real inLearningRate)
 {
@@ -56,6 +58,7 @@ void Neural::Network::PropagateForward(rowV& input)
 	}
 }
 
+
 void Neural::Network::CalculateErrors(rowV& inOutput)
 {
 	mDeltas.back() = inOutput - mNeuronLayers.back();
@@ -105,23 +108,46 @@ void Neural::Network::PropagateBackward(rowV& output)
 
 
 /* SIMULATED ANNEALING */
+/*============================================================================================*/
+/*============================================================================================*/
+/*============================================================================================*/
+/*============================================================================================*/
+/*============================================================================================*/
+/*============================================================================================*/
+/*============================================================================================*/
+/*============================================================================================*/
+/*============================================================================================*/
 
-using namespace Neural;
 
-static v<matX> NeighbourWeight(Jkr::Neural::Network& inNetwork)
+inline static v<matX> NeighbourWeight(Jkr::Neural::Network& inNetwork)
 {
 	v<matX> neighbourWeights;
 	for (auto& i : inNetwork.mWeights)
 	{
 		matX newMatrix = matX(i);
-		//newMatrix->unaryExpr([](real inX) {
-		//	float rand1 = rand() / RAND_MAX;
-		//	int rand3 = roundf(rand() / RAND_MAX);
-		//	inX += std::powf(-1, rand3) * rand1;
-		//	});
-		//neighbourWeights.push_back(newMatrix);
+		newMatrix.unaryExpr([](real inX) -> real {
+			float rand1 = rand() / RAND_MAX;
+			int rand3 = roundf(rand() / RAND_MAX);
+			inX += std::powf(-1, rand3) * rand1;
+			return inX;
+			});
+		neighbourWeights.push_back(newMatrix);
 	}
 	return neighbourWeights;
+}
+
+inline static Jkr::Neural::Network NeighbourNetwork(Jkr::Neural::Network inNetwork)
+{
+	inNetwork.mWeights = NeighbourWeight(inNetwork);
+	return inNetwork;
+}
+
+inline static real ProbabilityDistrFunction(real inE, real inE_new, real inT)
+{
+	if (inE_new < inE)
+		return 1;
+	else
+		return std::exp(-(inE_new - inE) / inT);
 }
 
 void Jkr::Neural::Network::ApplySimulatedAnnealing(rowV& inOutput, real inTemperature, int inMaxIterations)
@@ -130,18 +156,15 @@ void Jkr::Neural::Network::ApplySimulatedAnnealing(rowV& inOutput, real inTemper
 	Jkr::Neural::Network State = Jkr::Neural::Network(mTopology, mLearningRate);
 
 	int k_max = inMaxIterations;
-	float CurrentTemperature = inTemperature;
+	real CurrentTemperature = inTemperature;
 	for (int k = 0; k < inMaxIterations; ++k)
 	{
 		float CurrentTemperature = CurrentTemperature * (1 - (k + 1) / k_max);
-	}
-
-	for (uint32_t i = 0; i < mTopology.size() - 1; i++)
-	{
-		if (i != mTopology.size() - 2)
-		{
-		}
-		else {
+		auto State_new = NeighbourNetwork(State);
+		auto P = ProbabilityDistrFunction(State.GetMeanSquaredError(), State_new.GetMeanSquaredError(), CurrentTemperature);
+		if (P >= rand() / RAND_MAX) {
+			State = State_new;
 		}
 	}
+	*this = State;
 }

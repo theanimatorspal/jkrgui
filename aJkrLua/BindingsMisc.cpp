@@ -821,9 +821,6 @@ void GlobalAccessBindingsGenerator::CreateGlobalAccessBindings(Instance& i, Wind
 
     r["set_value"] = [this](std::string_view inView, GlobalDataType inType) {
         std::scoped_lock lock(mMutex);
-    //    mConditionVariable.wait(lock, [this]() { return mIsNotBeingAccessed; });
-
-        //mIsNotBeingAccessed = true;
     };
 }
 
