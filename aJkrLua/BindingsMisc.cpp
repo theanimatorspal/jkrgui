@@ -1,3 +1,4 @@
+#include "Neural/SimpleNN.hpp"
 #include "EntryPoint.hpp"
 
 void CreateSDLEventBindings(sol::state& lua)
@@ -824,4 +825,62 @@ void GlobalAccessBindingsGenerator::CreateGlobalAccessBindings(Instance& i, Wind
 
         //mIsNotBeingAccessed = true;
     };
+}
+
+void NeuralBindings(sol::state& s) {
+    using namespace Jkr::Neural;
+	auto neural = s["neural"].get_or_create<sol::table>();
+	neural.new_usertype<Neural::Network>(
+		"network",
+		sol::call_constructor,
+		sol::factories(
+			[&](std::vector<int>& inTopology) {
+				return Neural::Network(inTopology);
+			},
+			[&](std::vector<int>& inTopology, Neural::real inLearningRate) {
+				return Neural::Network(inTopology, inLearningRate);
+			}
+		),
+		"weight_of_connection",
+		[](Neural::Network& inNetwork, int inLayer, int inNeuron1, int inNeuron2) -> Neural::real
+		{
+			return inNetwork.mWeights[inLayer].coeff(inNeuron1, inNeuron2);
+		},
+		"value_of_neuron",
+		[](Neural::Network& inNetwork, int inLayer, int inNeuron)
+		{
+			return inNetwork.mNeuronLayers[inLayer].coeff(inNeuron);
+		},
+		"get_layer_vector_float",
+		[](Neural::Network& inNetwork, int inLayer) -> std::vector<float>
+		{
+			std::vector<float> outvec;
+			auto& rowv = inNetwork.mNeuronLayers[inLayer];
+			for (int i = 0; i < rowv.size(); i++)
+			{
+				outvec.push_back(rowv.coeff(i));
+			}
+			return outvec;
+		},
+		"propagate_forward",
+		[](Neural::Network& inNetwork, std::vector<float> inFloat){
+			rowV v(inFloat.size());
+			for (int i = 0; i < inFloat.size(); i++)
+			{
+				v.coeffRef(i) = inFloat[i];
+			}
+			inNetwork.PropagateForward(v);
+		},
+
+		"propagate_backward_current",
+		[](Neural::Network& inNetwork, std::vector<float> inFloat)
+		{
+			rowV v(inFloat.size());
+			for (int i = 0; i < inFloat.size(); i++)
+			{
+				v.coeffRef(i) = inFloat[i];
+			}
+			inNetwork.PropagateBackward(v);
+		}
+	);
 }

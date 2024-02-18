@@ -97,6 +97,7 @@ JKR_EXPORT int main(int ArgCount, char** ArgStrings)
 		CreateSDLEventBindings(lua_state);
 		Create2DBindings(i, w, lua_state, em, td, ALT, FrameCapturer);
 		Create3DBindings(i, w, lua_state);
+		NeuralBindings(lua_state);
 		return lua_state;
 		};
 

@@ -40,7 +40,7 @@ else()
 	 "TrivialShadersLegacy.hpp"
 	 "Audio/AudioDevice.cpp" "Audio/FourierAudioGenerator.cpp"
 	 "Audio/AudioDevice.hpp" "Audio/FourierAudioGenerator.hpp"
-	 )
+	  "Neural/SimpleNN.cpp")
  endif()
 
  someFlags(jkrgui)
