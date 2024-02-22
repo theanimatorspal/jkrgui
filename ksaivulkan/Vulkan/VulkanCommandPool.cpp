@@ -12,5 +12,6 @@ VulkanCommandPool::VulkanCommandPool(const VulkanDevice & inDevice, const Vulkan
 
 VulkanCommandPool::~VulkanCommandPool()
 {
+	mDevice.waitIdle();
 	mDevice.destroyCommandPool(mPool);
 }

@@ -93,7 +93,25 @@ void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFromImage(const VulkanQueue<Q
 	Cmd.begin(vk::CommandBufferBeginInfo());
 	auto ImageSubResource = vk::ImageSubresourceLayers(srcImageProp.mImageAspect, 0, 0, srcImageProp.mArrayLayers);
 	auto BufferImageCopy = vk::BufferImageCopy(0, 0, 0, ImageSubResource, vk::Offset3D{ 0 }, vk::Extent3D(ImageExtent, 1));
-	Cmd.copyImageToBuffer(inImage.GetImageHandle(), vk::ImageLayout::eGeneral, mBufferHandle, BufferImageCopy);
+	inImage.CmdTransitionImageLayout(
+		inCmdBuffer,
+		vk::ImageLayout::eGeneral,
+		vk::ImageLayout::eTransferSrcOptimal,
+		vk::PipelineStageFlagBits::eComputeShader,
+		vk::PipelineStageFlagBits::eTransfer,
+		vk::AccessFlagBits::eMemoryRead,
+		vk::AccessFlagBits::eMemoryRead
+	);
+	Cmd.copyImageToBuffer(inImage.GetImageHandle(), vk::ImageLayout::eTransferSrcOptimal, mBufferHandle, BufferImageCopy);
+	inImage.CmdTransitionImageLayout(
+		inCmdBuffer,
+		vk::ImageLayout::eTransferSrcOptimal,
+		vk::ImageLayout::eGeneral,
+		vk::PipelineStageFlagBits::eTransfer,
+		vk::PipelineStageFlagBits::eFragmentShader,
+		vk::AccessFlagBits::eMemoryRead,
+		vk::AccessFlagBits::eMemoryRead
+	);
 	Cmd.end();
 	inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer);
 }

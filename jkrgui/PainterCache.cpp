@@ -39,7 +39,6 @@ Jkr::PainterCache& Jkr::PainterCache::Load(const std::string& fileName)
 
 Jkr::PainterCache& Jkr::PainterCache::Store(const std::string& fileName, const std::string& inVertexShader, const std::string& inFragmentShader, const std::string& inComputeShader)
 {
-
     time.reset();
     ShaderCompiler Compiler(inVertexShader, inFragmentShader, mVertexFragmentShaderSPIRV[0], mVertexFragmentShaderSPIRV[1]);
     ShaderCompiler ComputeCompiler(inComputeShader, mComputeShaderSPIRV[0]);

@@ -122,3 +122,5 @@ elseif(ANDROID)
 else()
 add_subdirectory(aa_unit_testing)
 endif()
+
+add_subdirectory("JkrLuaExe")

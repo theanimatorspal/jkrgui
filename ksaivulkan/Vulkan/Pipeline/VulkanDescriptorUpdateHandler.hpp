@@ -12,7 +12,7 @@ namespace ksai {
 			: mDevice(inDevice)
 		{ }
 		template<BufferContext inBufferContext>
-		void Write(const VulkanDescriptorSet& inDescriptorSet, const VulkanBufferBase& inBuffer, vk::DeviceSize inOffset, uint32_t inDstBinding, uint32_t inDstArrayElement)
+		void RW(const VulkanDescriptorSet& inDescriptorSet, const VulkanBufferBase& inBuffer, vk::DeviceSize inOffset, uint32_t inDstBinding, uint32_t inDstArrayElement)
 		{
 			auto BufferInfo = vk::DescriptorBufferInfo(inBuffer.GetBufferHandle(), 0, inBuffer.GetBufferSize());
 
@@ -34,7 +34,7 @@ namespace ksai {
 		}
 
 		template<ImageContext inImageContext>
-		void Write(const VulkanDescriptorSet inDescriptorSet, const VulkanImageBase& inImage, const VulkanSampler& inSampler, uint32_t inDstBinding, uint32_t inDstArrayElement)
+		void RW(const VulkanDescriptorSet inDescriptorSet, const VulkanImageBase& inImage, const VulkanSampler& inSampler, uint32_t inDstBinding, uint32_t inDstArrayElement)
 		{
 			auto imageinfo = vk::DescriptorImageInfo(inSampler.GetSamplerHandle(), inImage.GetImageViewHandle(), inImage.GetInitialImageLayout());
 			auto DescriptorType = vk::DescriptorType::eCombinedImageSampler;
@@ -53,7 +53,7 @@ namespace ksai {
 			mDescriptorWrites.clear();
 		}
 
-		void Write(const VulkanDescriptorSet& inDescriptorSet, const VulkanSampler& inSampler, uint32_t inDstBinding, uint32_t inDstArrayElement)
+		void RW(const VulkanDescriptorSet& inDescriptorSet, const VulkanSampler& inSampler, uint32_t inDstBinding, uint32_t inDstArrayElement)
 		{
 			auto imageInfo = vk::DescriptorImageInfo(inSampler.GetSamplerHandle());
 			auto DescriptorType = vk::DescriptorType::eSampler;

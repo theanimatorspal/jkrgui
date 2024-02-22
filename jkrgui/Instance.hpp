@@ -31,6 +31,7 @@ static Timer time;
 class Instance {
 public:
     Instance(uint32_t inNoOfDescriptors = 20, uint32_t inPoolSize = 10000);
+    ~Instance() { SpirvHelper::Finalize(); }
     GETTER& GetVulkanInstance() const { return mInstance; }
     GETTER& GetPhysicalDevice() const { return mPhysicalDevice; }
     GETTER& GetQueueContext() const { return mQueueContext; }

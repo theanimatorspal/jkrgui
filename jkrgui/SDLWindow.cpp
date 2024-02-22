@@ -76,38 +76,3 @@ Jkr::SDLWindow::~SDLWindow()
     SDL_DestroyWindow(mSDLWindowPtr);
 }
 
-void Jkr::SDLWindow::SetSize(int inWidth, int inHeight)
-{
-}
-
-void Jkr::SDLWindow::SetTitle(std::string inString) const
-{
-    SDL_SetWindowTitle(mSDLWindowPtr, inString.c_str());
-}
-
-std::pair<int, int> Jkr::SDLWindow::GetWindowSize() const
-{
-    int w, h;
-    SDL_Vulkan_GetDrawableSize(mSDLWindowPtr, &w, &h);
-    return std::make_pair(w, h);
-}
-
-void Jkr::SDLWindow::ToggleWindowFullScreen()
-{
-    if (!mWindowIsFullScreen) {
-        SDL_SetWindowFullscreen(mSDLWindowPtr, SDL_WINDOW_FULLSCREEN_DESKTOP);
-        mWindowIsFullScreen = true;
-    } else {
-        SDL_SetWindowFullscreen(mSDLWindowPtr, 0);
-        SDL_SetWindowSize(mSDLWindowPtr, mWidth, mHeight);
-        mWindowIsFullScreen = false;
-    }
-}
-
-void Jkr::SDLWindow::Minimize()
-{
-    SDL_SetWindowFullscreen(mSDLWindowPtr, 0);
-    SDL_SetWindowSize(mSDLWindowPtr, mWidth, mHeight);
-    SDL_MinimizeWindow(mSDLWindowPtr);
-    mWindowIsFullScreen = false;
-}

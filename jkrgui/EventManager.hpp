@@ -84,7 +84,6 @@ public:
         if (!mBoundRect2Ds.contains(inDepthValue)) {
             mBoundRect2Ds[inDepthValue] = std::vector<BoundRect2D>();
         }
-
         uint32_t ret_val = mBoundRect2Ds[inDepthValue].size();
         mBoundRect2Ds[inDepthValue].push_back(BoundRect2D { .mXy = inXy, .mWh = inWh });
         return ret_val;

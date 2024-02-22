@@ -14,4 +14,5 @@ Jkr::Instance::Instance(uint32_t inNoOfDescriptors, uint32_t inPoolSize)
     , mVmaAllocator(mInstance, mDevice)
 {
     mThreadPool.SetThreadCount(std::thread::hardware_concurrency() - 1);
+    SpirvHelper::Init();
 }

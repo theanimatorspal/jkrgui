@@ -1,3 +1,4 @@
+// #define EIGEN_USE_BLAS	
 #include <vector>
 #include <memory>
 #include <iostream>
@@ -6,6 +7,7 @@
 #include <span>
 #include <Eigen/Eigen>
 #include <sol/sol.hpp>
+#include <Tracy/tracy/Tracy.hpp>
 #include <Global/Config.hpp>
 
 namespace Jkr::Neural {
@@ -24,19 +26,23 @@ struct Jkr::Neural::Network {
 	Network& operator=(const Network& inNetwork) = default;
 
 public: /* Interface */
-	void PropagateForward(rowV& input);
+	void PropagateForward(const rowV& input);
 	void PropagateBackward(rowV& inOutput);
-	void ApplySimulatedAnnealing(rowV& inOutput, real inTemperature = 100000, int inMaxIterations = 100);
+	void AddSAData(rowV& inInput, rowV& inOutput);
+	void ApplySA(real inTemperature = 100000, int inMaxIterations = 100);
 	void SaveToFile(sv inFileName); /* TODO */
 	void LoadFromFile(sv inFileName); /* TODO */
 
 public:
-	real GetMeanSquaredError()
+	real EnergySA();
+	real GetMeanSquaredError(const rowV& inInput, const rowV& inOutput)
 	{
+		PropagateForward(inInput);
+		CalculateErrors(inOutput);
 		auto& db = mDeltas.back();
 		return std::sqrt(db.dot(db) / db.size());
 	}
-	void CalculateErrors(rowV& output);
+	void CalculateErrors(const rowV& output);
 	void UpdateWeightsBackPropagation();
 
 public:
@@ -51,3 +57,26 @@ public:
 	v<matX> mWeights;
 	real mLearningRate;
 };
+
+
+inline void Jkr::Neural::Network::CalculateErrors(const rowV& inOutput)
+{
+	ZoneScoped;
+	mDeltas.back() = inOutput - mNeuronLayers.back();
+	for (uint32_t i = mTopology.size() - 2; i > 0; i--)
+	{
+		mDeltas[i] = mDeltas[i + 1] * mWeights[i].transpose();
+	}
+}
+
+inline void Jkr::Neural::Network::PropagateForward(const rowV& input)
+{
+	ZoneScoped;
+	mNeuronLayers.front().block(0, 0, 1, mNeuronLayers.front().size() - 1) = input; // exclude the bias
+	for (uint32_t i = 1; i < mTopology.size(); i++)
+	{
+		mNeuronLayers[i] = mNeuronLayers[i - 1] * mWeights[i - 1]; // Layer2_out = Matrix * Layer1
+		mCacheLayers[i] = mNeuronLayers[i];
+		mNeuronLayers[i].block(0, 0, 1, mTopology[i]) = mNeuronLayers[i].block(0, 0, 1, mTopology[i]).unaryExpr(mActivationFunction);
+	}
+}

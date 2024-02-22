@@ -143,7 +143,7 @@ public:
         uint32_t inDstArrayElement,
         VulkanDescriptorSet& inDescriptorSet)
     {
-        mVulkanDescriptorSetHandler.Write<ImageContext::Storage>(
+        mVulkanDescriptorSetHandler.RW<ImageContext::Storage>(
             inDescriptorSet,
             *mStorageImagePtr,
             *mSampler,
@@ -174,7 +174,7 @@ public:
         uint32_t inDstArrayElement,
         VulkanDescriptorSet& inDescriptorSet)
     {
-        mVulkanDescriptorSetHandler.Write<ImageContext::Default>(
+        mVulkanDescriptorSetHandler.RW<ImageContext::Default>(
             inDescriptorSet,
             *mUniformImagePtr,
             *mSampler,
@@ -203,7 +203,7 @@ public:
         uint32_t inDstArrayElement,
         VulkanDescriptorSet& inDescriptorSet)
     {
-        mVulkanDescriptorSetHandler.Write<ImageContext::Default>(
+        mVulkanDescriptorSetHandler.RW<ImageContext::Default>(
             inDescriptorSet,
             *mUniformImagePtr,
             *mSampler,

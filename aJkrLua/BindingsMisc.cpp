@@ -878,15 +878,31 @@ void NeuralBindings(sol::state& s) {
 			}
 			inNetwork.PropagateBackward(v);
 		},
-		"apply_simulated_annealing",
-		[](Neural::Network& inNetwork, std::vector<float> inOutput, float inTemperature, float inMaxIterations)
+		"add_sa_data",
+		[](Neural::Network& inNetwork, std::vector<float> inInput, std::vector<float> inOutput)
 		{
 			rowV v(inOutput.size());
 			for (int i = 0; i < inOutput.size(); i++)
 			{
 				v.coeffRef(i) = inOutput[i];
 			}
-			inNetwork.ApplySimulatedAnnealing(v, inTemperature, inMaxIterations);
+
+			rowV iv(inInput.size());
+			for (int i = 0; i < inInput.size(); i++)
+			{
+				iv.coeffRef(i) = inInput[i];
+			}
+			inNetwork.AddSAData(iv, v);
+		},
+		"apply_sa",
+		[](Neural::Network& inNetwork, float inTemperature, int inMaxIterations)
+		{
+			inNetwork.ApplySA(inTemperature, inMaxIterations);
+		},
+		"set_learning_rate",
+		[](Neural::Network& inNetwork, float inLearningRate)
+		{
+			inNetwork.mLearningRate = inLearningRate;
 		}
 	);
 }

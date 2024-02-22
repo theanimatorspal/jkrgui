@@ -75,7 +75,6 @@ JKR_EXPORT int main(int ArgCount, char** ArgStrings)
 	auto em = EventManager();
 	auto rr = ResourceManager(cf["-cache_folder"]);
 
-	SpirvHelper::Init();
 	rr.SetThreadPool(i.GetThreadPool());
 	auto VarDesCount = stoi(string(cf["-var_des_size"]));
 	if (toBool(cf["-store"])) {
@@ -183,7 +182,6 @@ JKR_EXPORT int main(int ArgCount, char** ArgStrings)
 
 	SafeCall(UICallbacks[CallbackType::Load]);
 	SafeCall(BackgroundCallbacks[CallbackType::Load]);
-	SpirvHelper::Finalize();
 
 	array<float, 4> bg = { toFloat(cf["-bgr"]), toFloat(cf["-bgg"]), toFloat(cf["-bgb"]), toFloat(cf["-bga"]) };
 	while (not em.ShouldQuit()) {
