@@ -62,6 +62,7 @@ void Jkr::WindowMulT::Draw(float r, float g, float b, float a, float d)
     }
 }
 
+
 void Jkr::WindowMulT::CmdBackground()
 {
     ZoneScoped;
