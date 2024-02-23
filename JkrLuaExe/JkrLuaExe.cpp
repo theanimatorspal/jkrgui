@@ -48,23 +48,26 @@ void CreateMainBindings(sol::state& s)
 			return std::make_unique<Jkr::WindowMulT>(inInstance, inTitle, inHeight, inWidth, ThreadsCount, CmdBufferCountPerThreadVec, inInstance.GetThreadPool());
 			}),
 		"SetDrawCallback",
-		[](Jkr::WindowMulT& inWindow, sol::function inFunction) {
+		[](Jkr::WindowMulT& inWindow, sol::protected_function inFunction) {
 			inWindow.SetDrawCallBack([inFunction](void*) { inFunction(); });
 		},
 		"SetComputeDispatchCallback",
-		[](Jkr::WindowMulT& inWindow, sol::function inFunction) {
+		[](Jkr::WindowMulT& inWindow, sol::protected_function inFunction) {
 			inWindow.SetComputeDispatchCallBack([inFunction](void*) { inFunction(); });
 		},
 		"Draw", &Jkr::WindowMulT::Draw,
 		"SetTitle", &Jkr::WindowMulT::SetTitle,
-		"BeginUpdate", &Jkr::WindowMulT::BeginUpdate,
-		"BeginDispatch", &Jkr::WindowMulT::BeginDispatch,
-		"BeginDraw", &Jkr::WindowMulT::BeginDraw,
-		"EndDraw", &Jkr::WindowMulT::EndDraw,
-		"EndDispatch", &Jkr::WindowMulT::EndDispatch,
-		"EndUpdate", &Jkr::WindowMulT::EndUpdate,
-		"BeginUI", &Jkr::WindowMulT::BeginUI,
-		"EndUI", &Jkr::WindowMulT::EndUI
+		"BeginUpdates", &Jkr::WindowMulT::BeginUpdates,
+		"EndUpdates", &Jkr::WindowMulT::EndUpdates,
+		"BeginDispatches", &Jkr::WindowMulT::BeginDispatches,
+		"EndDispatches", &Jkr::WindowMulT::EndDispatches,
+		"BeginDraws", &Jkr::WindowMulT::BeginDraws,
+		"EndDraws", &Jkr::WindowMulT::EndDraws,
+		"Present", &Jkr::WindowMulT::Present,
+
+		"BeginUIs", &Jkr::WindowMulT::BeginUIs,
+		"EndUIs", &Jkr::WindowMulT::EndUIs,
+		"ExecuteUIs", &Jkr::WindowMulT::ExecuteUIs
 	);
 
 	Jkr.new_usertype<Jkr::EventManager>(

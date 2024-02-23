@@ -1,6 +1,24 @@
 ﻿#include "WindowMulT.hpp"
 #include <Vendor/Tracy/tracy/Tracy.hpp>
 
+using namespace Jkr;
+
+Jkr::WindowMulT::WindowMulT(const Instance& inInstance, const sv inTitle, ui inHeight, ui inWidth, ui inNumThreads, std::span<ui> inPerThreadBuffers, optref<ksai::ThreadPool> inPool)
+	: Window(inInstance, inTitle, inHeight, inWidth)
+	, mThreadPool(inPool)
+	, mBackgroundCommandPool(inInstance.GetDevice(), inInstance.GetQueueContext())
+	, mUICommandPool(inInstance.GetDevice(), inInstance.GetQueueContext())
+	, mSecondaryCommandBuffersBackground {
+		VulkanCommandBuffer(inInstance.GetDevice(), mBackgroundCommandPool, VulkanCommandBuffer::Type::Secondary),
+		VulkanCommandBuffer(inInstance.GetDevice(), mBackgroundCommandPool, VulkanCommandBuffer::Type::Secondary)
+	}
+	, mSecondaryCommandBuffersUI { VulkanCommandBuffer(inInstance.GetDevice(), mUICommandPool, VulkanCommandBuffer::Type::Secondary), VulkanCommandBuffer(inInstance.GetDevice(), mUICommandPool, VulkanCommandBuffer::Type::Secondary) }
+{
+	for (int i = 0; i < inNumThreads; i++) {
+		mThreadData.emplace_back(MakeUp<ThreadData>(mInstance, inPerThreadBuffers[i]));
+	}
+}
+
 void Jkr::WindowMulT::Draw(float r, float g, float b, float a, float d)
 {
     mFences[mCurrentFrame].Wait();
@@ -29,7 +47,7 @@ void Jkr::WindowMulT::Draw(float r, float g, float b, float a, float d)
     mCommandBuffers[mCurrentFrame].BeginRenderPass<VulkanCommandBuffer::RenderPassBeginContext::SecondaryCommandBuffers>(
         mRenderPass,
         mSurface,
-        *mFrameBuffers[mAcquiredImageIndex], // यो स्थानमा जहिल्यै झुक्किन्छ । फ्रेम बफर एउटा हुने हो ।  "Acquired Image Index" अनुसार ।
+        *mFrameBuffers[mAcquiredImageIndex], 
         ClearValues);
 
     /* Secondary Command Buffer Background */
@@ -96,6 +114,7 @@ void Jkr::WindowMulT::CmdUI()
     }
     mSecondaryCommandBuffersUI[mCurrentFrame].End();
 }
+
 
 void Jkr::WindowMulT::Refresh()
 {

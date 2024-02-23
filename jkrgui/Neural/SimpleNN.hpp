@@ -15,6 +15,7 @@ namespace Jkr::Neural {
 	class Network;
 	using real = float;
 	using matX = Eigen::MatrixXf;
+	using kernelX = Eigen::MatrixXi;
 	using rowV = Eigen::RowVectorXf;
 	using colV = Eigen::VectorXf;
 	using ActivationFunctionType = std::function<real(real)>;

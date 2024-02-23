@@ -257,6 +257,3 @@ int oajdsfklsajldfkja()
 }
 
 
-int main ( ) {
-    return 0;
-}
