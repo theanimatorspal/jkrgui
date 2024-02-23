@@ -258,6 +258,38 @@ inline static T RW(std::fstream& inFile, std::optional<T> inType = std::nullopt)
 			return vec;
 		}
 	}
+
+	if constexpr (std::is_same_v<T, matX>)
+	{
+		if constexpr (inShouldWrite == Op::Write)
+		{
+			int rowscount = inType.value().rows();
+			int colcount = inType.value().cols();
+			RW<int>(inFile, rowscount);
+			RW<int>(inFile, colcount);
+			for (int y = 0; y < rowscount; y++)
+			{
+				for (int x = 0; x < colcount; x++)
+				{
+					RW<real>(inFile, inType.value().coeff(x, y));
+				}
+			}
+			return inType.value();
+		}
+		else {
+			int rowscount = RW<int, Op::Read>(inFile);
+			int colcount = RW<int, Op::Read>(inFile);
+			matX mat(rowscount, colcount);
+			for (int y = 0; y < rowscount; y++)
+			{
+				for (int x = 0; x < colcount; x++)
+				{
+					mat.coeffRef(x, y) = RW<real, Op::Read>(inFile);
+				}
+			}
+			return mat;
+		}
+	}
 }
 
 template<typename T, Op inShouldWrite = Op::Write>
@@ -273,6 +305,7 @@ inline static void RW(std::fstream& inFile, IsVector auto& outType)
 	}
 	else {
 		int size = RW<int, Op::Read>(inFile);
+		outType.clear();
 		outType.resize(size);
 		for (auto& i : outType)
 		{
@@ -284,23 +317,23 @@ inline static void RW(std::fstream& inFile, IsVector auto& outType)
 
 void Jkr::Neural::Network::SaveToFile(sv inFileName)
 {
-	std::fstream file(s(inFileName), std::ios_base::binary);
-	RW<int>(file, mTopology.size());
+	std::fstream file(s(inFileName), std::ios_base::binary | std::fstream::out);
+	RW<int>(file, mTopology);
 	RW<rowV>(file, mNeuronLayers);
 	RW<rowV>(file, mCacheLayers);
 	RW<rowV>(file, mDeltas);
-	RW<rowV>(file, mWeights);
+	RW<matX>(file, mWeights);
 	RW<real>(file, mLearningRate);
 }
 
 void Jkr::Neural::Network::LoadFromFile(sv inFileName)
 {
-	std::fstream file(s(inFileName), std::ios_base::binary);
+	std::fstream file(s(inFileName), std::ios_base::binary | std::fstream::in);
 	RW<int, Op::Read>(file, mTopology);
 	RW<rowV, Op::Read>(file, mNeuronLayers);
 	RW<rowV, Op::Read>(file, mCacheLayers);
 	RW<rowV, Op::Read>(file, mDeltas);
-	RW<rowV, Op::Read>(file, mWeights);
+	RW<matX, Op::Read>(file, mWeights);
 	mLearningRate = RW<real, Op::Read>(file, mLearningRate);
 }
 

@@ -57,5 +57,8 @@ int main ( ) {
     auto Image = KernelXByVector(img);
     auto Kernel = KernelXByVector(kernel);
     auto out = Conv(Image, Kernel);
+    Neural::Network NewNeu(std::vector<int>{4, 3, 2, 1});
+    NewNeu.SaveToFile("FUCKYOUNEURAL.bin");
+    NewNeu.LoadFromFile("FUCKYOUNEURAL.bin");
     return 0;
 }
