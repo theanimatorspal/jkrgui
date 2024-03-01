@@ -8,7 +8,6 @@
 #include <Renderers/TextD/FastText.hpp>
 #include <Renderers/TwoD/Line.hpp>
 #include <Renderers/TwoD/Shape.hpp>
-#include <Vendor/NanoBench/nanobench.h>
 #include <Window.hpp>
 #include <WindowMulT.hpp>
 #define WIN32_LEAN_AND_MEAN

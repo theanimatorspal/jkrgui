@@ -106,7 +106,7 @@ JKR_EXPORT int main(int ArgCount, char** ArgStrings)
 		int i = 0;
 		for (auto& u : states) {
 			u = bind_and_get_LuaState();
-			tracy::LuaRegister(u);
+			//tracy::LuaRegister(u);
 
 			if (toBool(cf["-debug"]))
 			{

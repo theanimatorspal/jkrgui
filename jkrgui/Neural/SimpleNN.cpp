@@ -306,10 +306,11 @@ inline static void RW(std::fstream& inFile, IsVector auto& outType)
 	else {
 		int size = RW<int, Op::Read>(inFile);
 		outType.clear();
-		outType.resize(size);
-		for (auto& i : outType)
+		outType.shrink_to_fit();
+		outType.reserve(size);
+		for (int i = 0; i < size; i++)
 		{
-			i = RW<T, Op::Read>(inFile);
+			outType.push_back(RW<T, Op::Read>(inFile));
 		}
 	}
 }
@@ -317,7 +318,7 @@ inline static void RW(std::fstream& inFile, IsVector auto& outType)
 
 void Jkr::Neural::Network::SaveToFile(sv inFileName)
 {
-	std::fstream file(s(inFileName), std::ios_base::binary | std::fstream::out);
+	std::fstream file(s(inFileName), std::ios_base::binary | std::fstream::out | std::fstream::trunc);
 	RW<int>(file, mTopology);
 	RW<rowV>(file, mNeuronLayers);
 	RW<rowV>(file, mCacheLayers);

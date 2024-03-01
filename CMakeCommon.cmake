@@ -26,7 +26,7 @@ function(configure_target TARGET_NAME)
             spirv-cross-hlsl
             spirv-cross-msl
             spirv-cross-reflect
-            lua54
+            lua
             freetype
             harfbuzz
             harfbuzz-subset
@@ -51,7 +51,7 @@ function(configure_target TARGET_NAME)
 		harfbuzz-subset
 		harfbuzz
 		HLSL
-		lua54
+		lua
 		MachineIndependent
 		OGLCompiler
 		OSDependent
@@ -109,7 +109,7 @@ function(configure_target TARGET_NAME)
             spirv-cross-hlsl
             spirv-cross-msl
             spirv-cross-reflect
-            lua54
+            lua
             freetype
             harfbuzz
             harfbuzz-subset
@@ -143,7 +143,7 @@ function(configure_target TARGET_NAME)
             spirv-cross-hlsld
             spirv-cross-msld
             spirv-cross-reflectd
-            lua54
+            lua
             freetype
             harfbuzz
             harfbuzz-subset
@@ -361,8 +361,8 @@ function(copyToDestination cpyName)
 
     add_custom_command(TARGET ${cpyName} POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_SOURCE_DIR}/libs/Android/liblua54.so
-      ${CMAKE_SOURCE_DIR}/SDL4droid/aJkrLua_app/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI}/liblua54.so
+      ${CMAKE_SOURCE_DIR}/libs/Android/liblua.so
+      ${CMAKE_SOURCE_DIR}/SDL4droid/aJkrLua_app/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI}/liblua.so
     )
   endif()
 endfunction()

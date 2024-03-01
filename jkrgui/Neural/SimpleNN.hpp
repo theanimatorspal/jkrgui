@@ -43,6 +43,11 @@ public:
 		auto& db = mDeltas.back();
 		return std::sqrt(db.dot(db) / db.size());
 	}
+	real GetMeanSquaredErrorCurrent()
+	{
+		auto& db = mDeltas.back();
+		return std::sqrt(db.dot(db) / db.size());
+	}
 	void CalculateErrors(const rowV& output);
 	void UpdateWeightsBackPropagation();
 

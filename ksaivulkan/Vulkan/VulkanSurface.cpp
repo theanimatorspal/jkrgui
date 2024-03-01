@@ -26,11 +26,10 @@ VulkanSurface::~VulkanSurface()
     mInstance.destroySurfaceKHR(mSurface);
 }
 
-VulkanSurface& VulkanSurface::ProcessCurrentSurfaceConditions(const VulkanPhysicalDevice& inPhysicalDevice)
+VulkanSurface& VulkanSurface::ProcessCurrentSurfaceConditions(const VulkanPhysicalDevice& inPhysicalDevice, vk::PresentModeKHR inMode)
 {
     ProcessCurrentSurfaceExtents(inPhysicalDevice);
-    mPresentMode = vk::PresentModeKHR::eFifo; // Guaranteed by the spec to be supported
-    //mPresentMode = vk::PresentModeKHR::eImmediate;
+    mPresentMode = inMode; 
     mPreTransform = (mSurfaceCapabilities.supportedTransforms & vk::SurfaceTransformFlagBitsKHR::eIdentity)
         ? vk::SurfaceTransformFlagBitsKHR::eIdentity
         : mSurfaceCapabilities.currentTransform;

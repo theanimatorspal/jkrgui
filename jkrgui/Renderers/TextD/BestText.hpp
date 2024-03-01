@@ -79,10 +79,14 @@ public:
     }
     bb::TextDimensions AddText(const sv inText, ui inX,
         ui inY, ui inDepthValue,
-        ui& outId, ui& outLength) { }
+        ui& outId, ui& outLength) {
+        return {};
+    }
     bb::TextDimensions UpdateText(ui inId, const sv inText,
         ui inX, ui inY,
-        ui inDepthValue) { }
+        ui inDepthValue) {
+        return {};
+    }
     void Dispatch(Window& inWindow) { }
     void Bind(Window& inWindow) { }
     void Draw(Window& inWindow, glm::vec4 inColor, ui inWindowW,

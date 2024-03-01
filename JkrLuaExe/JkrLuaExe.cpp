@@ -23,8 +23,11 @@ static auto my_exception_handler(lua_State* L, sol::optional<const std::exceptio
 using namespace std;
 using namespace ksai;
 
+extern std::string_view GetSolHpp();
 extern void CreateGLMBindings(sol::state& lua);
 extern void CreateKeyBindings(sol::state& lua);
+extern void CopyAllHeaderFiles(std::filesystem::path& insrc, std::filesystem::path& indst);
+
 void CreateMainBindings(sol::state& s)
 {
 	CreateGLMBindings(s);
@@ -67,7 +70,9 @@ void CreateMainBindings(sol::state& s)
 
 		"BeginUIs", &Jkr::WindowMulT::BeginUIs,
 		"EndUIs", &Jkr::WindowMulT::EndUIs,
-		"ExecuteUIs", &Jkr::WindowMulT::ExecuteUIs
+		"ExecuteUIs", &Jkr::WindowMulT::ExecuteUIs,
+
+		"GetWindowCurrentTime", &Jkr::WindowMulT::GetWindowCurrentTime
 	);
 
 	Jkr.new_usertype<Jkr::EventManager>(
@@ -96,17 +101,18 @@ void CreateMainBindings(sol::state& s)
 		[](Jkr::PainterCache& inCache, string_view inFilename)
 		{
 			inCache.Load(string(inFilename));
-		},
-		"VarDesStore",
-		[](Jkr::PainterCache& inCache, string_view inFilename, string_view inVertexShader, string_view inFragmentShader, string_view inComputeShader, int inVarDesCount)
-		{
-			inCache.__var_des_index_Store_EXT(string(inFilename), string(inVertexShader), string(inFragmentShader), string(inComputeShader), inVarDesCount);
-		},
-		"VarDesLoad",
-		[](Jkr::PainterCache& inCache, string_view inFilename, int inVarDesCount)
-		{
-			inCache.__var_des_index_Load_EXT(string(inFilename), inVarDesCount);
 		}
+		//,
+		//"VarDesStore",
+		//[](Jkr::PainterCache& inCache, string_view inFilename, string_view inVertexShader, string_view inFragmentShader, string_view inComputeShader, int inVarDesCount)
+		//{
+		//	inCache.__var_des_index_Store_EXT(string(inFilename), string(inVertexShader), string(inFragmentShader), string(inComputeShader), inVarDesCount);
+		//},
+		//"VarDesLoad",
+		//[](Jkr::PainterCache& inCache, string_view inFilename, int inVarDesCount)
+		//{
+		//	inCache.__var_des_index_Load_EXT(string(inFilename), inVarDesCount);
+		//}
 	);
 
 

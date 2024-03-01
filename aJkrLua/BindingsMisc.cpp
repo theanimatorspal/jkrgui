@@ -859,6 +859,11 @@ void NeuralBindings(sol::state& s) {
 			}
 			return outvec;
 		},
+		"get_topology",
+		[](Neural::Network& inNetwork) -> std::vector<int>
+		{
+			return inNetwork.mTopology;
+		},
 		"propagate_forward",
 		[](Neural::Network& inNetwork, std::vector<float> inFloat) {
 			rowV v(inFloat.size());
@@ -903,6 +908,21 @@ void NeuralBindings(sol::state& s) {
 		[](Neural::Network& inNetwork, float inLearningRate)
 		{
 			inNetwork.mLearningRate = inLearningRate;
+		},
+		"save_to_file",
+		[](Neural::Network& inNetwork, std::string inFileName)
+		{
+			inNetwork.SaveToFile(inFileName);
+		},
+		"load_from_file",
+		[](Neural::Network& inNetwork, std::string inFileName)
+		{
+			inNetwork.LoadFromFile(inFileName);
+		},
+		"get_current_mean_squared_error",
+		[](Neural::Network& inNetwork)
+		{
+			return inNetwork.GetMeanSquaredErrorCurrent();
 		}
 	);
 }

@@ -17,16 +17,16 @@ namespace ksai {
 	public:
 		VulkanSurface(const VulkanInstance& inInstance, SDL_Window* inWindow);
 		~VulkanSurface();
-		VulkanSurface& ProcessCurrentSurfaceConditions(const VulkanPhysicalDevice& inPhysicalDevice);
+		VulkanSurface& ProcessCurrentSurfaceConditions(const VulkanPhysicalDevice& inPhysicalDevice, vk::PresentModeKHR inMode = vk::PresentModeKHR::eFifo);
 		VulkanSurface& ProcessCurrentSurfaceExtents(const VulkanPhysicalDevice& inPhysicalDevice);
-		inline constexpr const auto& GetSurfaceHandle() const { return mSurface; }
-		inline constexpr const auto& GetWindowHandle() const { return mWindow; }
-		inline constexpr const auto& GetSurfaceCapabilities() const { return mSurfaceCapabilities; }
-		inline constexpr const auto& GetSurfaceImageFormat() const { return mSurfaceImageFormat; }
-		inline constexpr const auto& GetExtent() const { return mExtent; }
-		inline constexpr const auto& GetPresentMode() const { return mPresentMode; }
-		inline constexpr const auto& GetPreTransform() const { return mPreTransform; }
-		inline constexpr const auto& GetCompositeAlpha() const { return mCompositeAlpha; }
+		GETTER& GetSurfaceHandle() const { return mSurface; }
+		GETTER& GetWindowHandle() const { return mWindow; }
+		GETTER& GetSurfaceCapabilities() const { return mSurfaceCapabilities; }
+		GETTER& GetSurfaceImageFormat() const { return mSurfaceImageFormat; }
+		GETTER& GetExtent() const { return mExtent; }
+		GETTER& GetPresentMode() const { return mPresentMode; }
+		GETTER& GetPreTransform() const { return mPreTransform; }
+		GETTER& GetCompositeAlpha() const { return mCompositeAlpha; }
 	private:
 		const vk::Instance& mInstance;
 		vk::SurfaceKHR mSurface;
