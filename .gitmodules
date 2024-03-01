@@ -1,3 +1,6 @@
 [submodule "SDL4droid"]
 	path = SDL4droid
 	url = https://github.com/theanimatorspal/SDL4droid
+[submodule "vendor/spirv-tools"]
+	path = vendor/spirv-tools
+	url = https://github.com/KhronosGroup/SPIRV-Tools
