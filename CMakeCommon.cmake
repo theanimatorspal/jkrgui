@@ -1,3 +1,14 @@
+# Set the path to Vulkan SDK based on the platform
+if(APPLE)
+    set(VULKAN_SDK "/Users/bishaljaiswal/VulkanSDK")
+    set(VULKAN_VERSION "1.3.268.1")
+elseif(WIN32)
+    set(VULKAN_SDK "C:/VulkanSDK")
+    set(VULKAN_VERSION "1.3.250.1")
+endif()
+
+
+
 # Define a function to set up the target based on the build type
 if(APPLE)
 function(configure_target TARGET_NAME)
@@ -367,6 +378,16 @@ function(copyToDestination cpyName)
   endif()
 endfunction()
 
+function(copyCompileCommands inTarget)
+    add_custom_command(TARGET ${inTarget} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_BINARY_DIR}/compile_commands.json
+        ${CMAKE_SOURCE_DIR}
+        COMMENT "Copying compile_commands.json to source directory"
+    )
+endfunction(copyCompileCommands)
+
 function(someFlags inName)
      set_property(TARGET ${inName} PROPERTY INTERPROCEDURAL_OPTIMIZATION True)
 endfunction()
+

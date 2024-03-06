@@ -36,11 +36,11 @@ else()
 	"Renderers/BestText_Alt.hpp"
 	"WindowMulT.hpp"
 	"Window.hpp"
-	 "WindowMulT.cpp" "Renderers/ResourceManager.cpp" "Renderers/CustomImagePainter.cpp" "SDLWindow.hpp" "SDLWindow.cpp" "Misc/MousePicker.cpp" "Misc/MousePicker.hpp" "Renderers/BestText_Alt.cpp"
+	 "WindowMulT.cpp" "Renderers/ResourceManager.cpp" "Renderers/CustomImagePainter.cpp" "SDLWindow.hpp" "SDLWindow.cpp" "Misc/FrameCapturer.cpp" "Misc/FrameCapturer.hpp" "Renderers/BestText_Alt.cpp"
 	 "TrivialShadersLegacy.hpp"
 	 "Audio/AudioDevice.cpp" "Audio/FourierAudioGenerator.cpp"
 	 "Audio/AudioDevice.hpp" "Audio/FourierAudioGenerator.hpp"
-	  "Neural/SimpleNN.cpp" "Neural/ConvolutionalNN.cpp" "Renderers/TwoD/ShapeExt.cpp")
+	  "Neural/SimpleNN.cpp" "Neural/ConvolutionalNN.cpp" "Renderers/TwoD/ShapeExt.cpp" "Misc/GPUNeural.cpp" "Misc/GPUNeural.hpp")
  endif()
 
  someFlags(jkrgui)

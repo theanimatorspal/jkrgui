@@ -1,5 +1,10 @@
 ﻿include("CMakeCommon.cmake")
 cmake_minimum_required(VERSION 3.27)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# Set C++ standard to C++20
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # If building for Android, set specific compiler flags
 if(ANDROID)
@@ -7,14 +12,6 @@ if(ANDROID)
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
 endif()
 
-# Set the path to Vulkan SDK based on the platform
-if(APPLE)
-    set(VULKAN_SDK "/Users/bishaljaiswal/VulkanSDK")
-    set(VULKAN_VERSION "1.3.268.1")
-elseif(WIN32)
-    set(VULKAN_SDK "C:/VulkanSDK")
-    set(VULKAN_VERSION "1.3.250.1")
-endif()
 
 # Define debug flags for Android builds
 if(ANDROID)
@@ -49,8 +46,6 @@ else()
     endif()
 endif()
 
-# Set C++ standard to C++20
-set(CMAKE_CXX_STANDARD 20)
 
 # Set debug information format for MSVC
 if(POLICY CMP0141)
@@ -125,9 +120,12 @@ add_subdirectory(ksaivulkan)
 add_subdirectory(aJkrLua)
 add_subdirectory(jkrgui)
 add_subdirectory("JkrLuaExe")
+add_subdirectory("ksai_problems")
 
 # Add unit testing subdirectory if not building for Android or Apple
 if(NOT ANDROID AND NOT APPLE)
     add_subdirectory(aa_unit_testing)
 endif()
 
+add_custom_target(post_build_custom_target)
+copyCompileCommands(post_build_custom_target)

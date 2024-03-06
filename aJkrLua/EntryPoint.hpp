@@ -14,7 +14,7 @@
 #include <Window.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <Misc/MousePicker.hpp>
+#include <Misc/FrameCapturer.hpp>
 #define SETTER inline void
 
 namespace Jkr::Component {
