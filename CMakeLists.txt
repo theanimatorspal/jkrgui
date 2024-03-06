@@ -12,7 +12,6 @@ if(ANDROID)
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
 endif()
 
-
 # Define debug flags for Android builds
 if(ANDROID)
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")

@@ -1,7 +1,5 @@
 ﻿#include "MultiThreading.hpp"
 #include <Vendor/Tracy/tracy/TracyVulkan.hpp>
-#include <queue>
-#include <thread>
 
 namespace Jkr {
 	class WindowMulT : public Window {
