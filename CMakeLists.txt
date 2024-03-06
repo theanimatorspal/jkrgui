@@ -119,8 +119,8 @@ add_subdirectory(vendor/lua)
 add_subdirectory(ksaivulkan)
 add_subdirectory(aJkrLua)
 add_subdirectory(jkrgui)
-add_subdirectory("JkrLuaExe")
-add_subdirectory("ksai_problems")
+add_subdirectory(JkrLuaExe)
+add_subdirectory(ksai_problems)
 
 # Add unit testing subdirectory if not building for Android or Apple
 if(NOT ANDROID AND NOT APPLE)

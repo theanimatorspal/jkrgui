@@ -102,17 +102,7 @@ void CreateMainBindings(sol::state& s)
 		{
 			inCache.Load(string(inFilename));
 		}
-		//,
-		//"VarDesStore",
-		//[](Jkr::PainterCache& inCache, string_view inFilename, string_view inVertexShader, string_view inFragmentShader, string_view inComputeShader, int inVarDesCount)
-		//{
-		//	inCache.__var_des_index_Store_EXT(string(inFilename), string(inVertexShader), string(inFragmentShader), string(inComputeShader), inVarDesCount);
-		//},
-		//"VarDesLoad",
-		//[](Jkr::PainterCache& inCache, string_view inFilename, int inVarDesCount)
-		//{
-		//	inCache.__var_des_index_Load_EXT(string(inFilename), inVarDesCount);
-		//}
+		// TODO Sort Variable Descriptors
 	);
 
 
@@ -156,7 +146,7 @@ void CreateMainBindings(sol::state& s)
 			return mu<Jkr::Renderer::Line>(inInstance, inWindow, inCache);
 			})
 		,
-		"Add", &Jkr::Renderer::Line::Add,
+		"Add", &Jkr::Renderer::Line::AddEXT,
 		"Update", &Jkr::Renderer::Line::UpdateLine,
 		"Dispatch", &Jkr::Renderer::Line::Dispatch,
 		"Draw", &Jkr::Renderer::Line::Draw

@@ -19,6 +19,16 @@
 #define GETTER inline auto
 #define SETTER inline void
 
+#ifdef max
+#undef max
+#endif
+
+#ifdef min
+#undef min
+#endif
+
+
+
 void* operator new(std::size_t count);
 void operator delete(void* ptr) noexcept;
 

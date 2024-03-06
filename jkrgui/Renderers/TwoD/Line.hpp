@@ -11,9 +11,9 @@ class Line : public Line_base, Renderer_base {
 public:
     Line(const Instance& inInstance, Window& inCompatibleWindow, PainterCache& inPainterCache);
     void AddLine(glm::vec2 inFirstPoint, glm::vec2 inSecondPoint, float inDepthValue, uint32_t& outId);
-    int Add(glm::vec2 inFirstPoint, glm::vec2 inSecondPoint, float inDepthValue) {
+    int AddEXT(glm::vec3 inFirstPoint, glm::vec3 inSecondPoint) {
         uint32_t i;
-        AddLine(inFirstPoint, inSecondPoint, inDepthValue, i);
+        AddLine(inFirstPoint, inSecondPoint, inFirstPoint.z, i);
         return i;
     }
     void UpdateLine(uint32_t inId, glm::vec2 inFirstPoint, glm::vec2 inSecondPoint, float inDepthValue);

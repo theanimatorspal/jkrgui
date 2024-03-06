@@ -4,7 +4,7 @@ if(APPLE)
     set(VULKAN_VERSION "1.3.268.1")
 elseif(WIN32)
     set(VULKAN_SDK "C:/VulkanSDK")
-    set(VULKAN_VERSION "1.3.250.1")
+    set(VULKAN_VERSION "1.3.275.0")
 endif()
 
 
@@ -26,8 +26,6 @@ function(configure_target TARGET_NAME)
             SPIRV-Tools-shared
             OSDependent
             GenericCodeGen
-            OGLCompiler
-            HLSL
             glslang-default-resource-limits
             spirv-cross-c-shared
             spirv-cross-c
@@ -61,10 +59,8 @@ function(configure_target TARGET_NAME)
 		glslang
 		harfbuzz-subset
 		harfbuzz
-		HLSL
 		lua
 		MachineIndependent
-		OGLCompiler
 		OSDependent
 		png
 		png16
@@ -109,8 +105,6 @@ function(configure_target TARGET_NAME)
             SPIRV-Tools-shared
             OSDependent
             GenericCodeGen
-            OGLCompiler
-            HLSL
             glslang-default-resource-limits
             spirv-cross-c-shared
             spirv-cross-c
@@ -124,9 +118,9 @@ function(configure_target TARGET_NAME)
             freetype
             harfbuzz
             harfbuzz-subset
-		  ws2_32
-		  wsock32
-		  dbghelp
+            ws2_32
+            wsock32
+            dbghelp
         )
     elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
         target_link_libraries(${TARGET_NAME}
@@ -143,8 +137,6 @@ function(configure_target TARGET_NAME)
             SPIRV-Tools-sharedd
             OSDependentd
             GenericCodeGend
-            OGLCompilerd
-            HLSLd
             glslang-default-resource-limitsd
             spirv-cross-c-sharedd
             spirv-cross-cd
@@ -158,9 +150,9 @@ function(configure_target TARGET_NAME)
             freetype
             harfbuzz
             harfbuzz-subset
-		  ws2_32
-		  wsock32
-		  dbghelp
+            ws2_32
+            wsock32
+            dbghelp
         )
     endif()
 endfunction()
