@@ -10,6 +10,7 @@ namespace Jkr {
 class SDLWindow {
 public:
     std::pair<int, int> GetWindowSize() const;
+    glm::vec2 GetWindowDimension() const;
     GETTER GetWindowHandle() const { return mSDLWindowPtr; }
     SETTER SetWindowShouldClose(bool inValue) { mWindowShouldClose = inValue; }
     SETTER SetResizeCallBack(const std::function<void(void*)>& inFunction) { mResizeFunction = inFunction; }
@@ -34,6 +35,13 @@ protected:
     int mWidth;
     SDL_Window* mSDLWindowPtr;
 };
+}
+
+inline glm::vec2 Jkr::SDLWindow::GetWindowDimension() const
+{
+    int w, h;
+    SDL_Vulkan_GetDrawableSize(mSDLWindowPtr, &w, &h);
+    return glm::vec2(w, h);
 }
 
 inline void Jkr::SDLWindow::SetSize(int inWidth, int inHeight)

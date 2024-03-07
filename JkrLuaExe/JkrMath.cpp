@@ -165,14 +165,14 @@ void CreateGLMBindings(sol::state& lua)
 	lua.set_function("Lerp", [](float a, float b, float t) { return std::lerp(a, b, t); });
 	lua.set_function("Clamp", sol::overload([](float value, float min, float max) { return std::clamp(value, min, max); }, [](double value, double min, double max) { return std::clamp(value, min, max); }, [](int value, int min, int max) { return std::clamp(value, min, max); }));
 
-	lua.set_function("GetIdentityMatrix4x4", []() -> glm::mat4 {
-		{};
-		return glm::identity<glm::mat4>();
-		});
-
 
 	lua.create_named_table(
-		"Jmath3D",
+		"Jmath",
+		"GetIdentityMatrix4x4",
+		[]() -> glm::mat4 {
+			return glm::identity<glm::mat4>();
+		},
+
 		"LookAt",
 		[](glm::vec3 eye, glm::vec3 center, glm::vec3 up) -> glm::mat4 {
 			return glm::lookAt(eye, center, up);

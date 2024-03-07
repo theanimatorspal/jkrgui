@@ -40,8 +40,11 @@ void CreateMainBindings(sol::state& s)
 			return std::make_unique<Jkr::Instance>(inDescriptorSize, inPoolSize);
 			})
 	);
+	Jkr.new_usertype<Jkr::Window>("WindowBase");
 	Jkr.new_usertype<Jkr::WindowMulT>(
 		"Window",
+		sol::base_classes,
+		sol::bases<Jkr::Window>(),
 		sol::call_constructor,
 		sol::factories([](Jkr::Instance& inInstance, std::string_view inTitle, int inWidth, int inHeight) {
 			int ThreadsCount = 7; // TODO for now
@@ -72,7 +75,8 @@ void CreateMainBindings(sol::state& s)
 		"EndUIs", &Jkr::WindowMulT::EndUIs,
 		"ExecuteUIs", &Jkr::WindowMulT::ExecuteUIs,
 
-		"GetWindowCurrentTime", &Jkr::WindowMulT::GetWindowCurrentTime
+		"GetWindowCurrentTime", &Jkr::WindowMulT::GetWindowCurrentTime,
+		"GetWindowDimension", &Jkr::WindowMulT::GetWindowDimension
 	);
 
 	Jkr.new_usertype<Jkr::EventManager>(
@@ -149,6 +153,7 @@ void CreateMainBindings(sol::state& s)
 		"Add", &Jkr::Renderer::Line::AddEXT,
 		"Update", &Jkr::Renderer::Line::UpdateLine,
 		"Dispatch", &Jkr::Renderer::Line::Dispatch,
+		"Bind", &Jkr::Renderer::Line::Bind,
 		"Draw", &Jkr::Renderer::Line::Draw
 	);
 }

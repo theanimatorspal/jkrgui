@@ -11,10 +11,11 @@ public:
 	u32 AddNode(T inData, opt<u32> inParentId = std::nullopt);
 	void DeleteNode(u32 inId);
 	Node& GetRef(u32 inId);
+	u32 FindBFS(const T& inData);
 private:
 	u32 AddNode(T inData);
 	u32 mCurrentId = 0;
-	v<opt<Node>> mNodePool;
+	v<Node> mNodePool;
 };
 
 template<typename T>
@@ -47,5 +48,5 @@ inline u32 Tree<T>::AddNode(T inData, opt<u32> inParentId)
 template<typename T>
 inline Tree<T>::Node& Tree<T>::GetRef(u32 inId)
 {
-	return mNodePool[inId].value();
+	return mNodePool[inId];
 }
