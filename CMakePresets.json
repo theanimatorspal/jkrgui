@@ -1,17 +1,16 @@
 {
   "version": 3,
   "configurePresets": [
-
+    // 1> Command line: "C:\WINDOWS\system32\cmd.exe" /c "%SYSTEMROOT%\System32\chcp.com 65001 >NUL && "C:\PROGRAM FILES\MICROSOFT VISUAL STUDIO\2022\COMMUNITY\COMMON7\IDE\COMMONEXTENSIONS\MICROSOFT\CMAKE\CMake\bin\cmake.exe"  -G "Ninja"  -DCMAKE_C_COMPILER:STRING="clang-cl.exe" -DCMAKE_CXX_COMPILER:STRING="clang-cl.exe" -DCMAKE_BUILD_TYPE:STRING="Release" -DCMAKE_INSTALL_PREFIX:PATH="C:/Users/sansk/OneDrive/Pictures/jkrgui/out/install/x64-release"   -D "C:\Users\sansk\OneDrive\Pictures\jkrgui" 2>&1
     {
       "name": "windows-base",
       "hidden": true,
-      "generator": "Ninja",
+      "generator": "Ninja Multi-Config",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang-cl.exe",
-        "CMAKE_CXX_COMPILER": "clang-cl.exe",
-        "CMAKE_PRESET_NAME": "${presetName}"
+        "CMAKE_CXX_COMPILER": "clang-cl.exe"
       },
       "condition": {
         "type": "equals",

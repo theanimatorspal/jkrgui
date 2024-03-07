@@ -11,12 +11,9 @@ class Line : public Line_base, Renderer_base {
 public:
     Line(const Instance& inInstance, Window& inCompatibleWindow, PainterCache& inPainterCache);
     void AddLine(glm::vec2 inFirstPoint, glm::vec2 inSecondPoint, float inDepthValue, uint32_t& outId);
-    int AddEXT(glm::vec3 inFirstPoint, glm::vec3 inSecondPoint) {
-        uint32_t i;
-        AddLine(inFirstPoint, inSecondPoint, inFirstPoint.z, i);
-        return i;
-    }
+    int AddEXT(glm::vec3 inFirstPoint, glm::vec3 inSecondPoint);
     void UpdateLine(uint32_t inId, glm::vec2 inFirstPoint, glm::vec2 inSecondPoint, float inDepthValue);
+    void UpdateEXT(uint32_t inId, glm::vec3 inFirstPoint, glm::vec3 inSecondPoint);
     void Dispatch(Window& inWindow);
     void Bind(Window& inWindow);
     void Draw(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inStartLineId, uint32_t inEndLineId, glm::mat4 inMatrix);
@@ -47,4 +44,15 @@ public:
         mSizeFactor = inFactor;
     }
 };
+
+inline int Line::AddEXT(glm::vec3 inFirstPoint, glm::vec3 inSecondPoint) {
+        uint32_t i;
+        AddLine(inFirstPoint, inSecondPoint, inFirstPoint.z, i);
+        return i;
+}
+
+inline void Line::UpdateEXT(uint32_t inId, glm::vec3 inFirstPoint, glm::vec3 inSecondPoint) {
+    UpdateLine(inId, inFirstPoint, inSecondPoint, inFirstPoint.z);
+}
+
 }

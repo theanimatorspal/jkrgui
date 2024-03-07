@@ -45,7 +45,6 @@ else()
     endif()
 endif()
 
-
 # Set debug information format for MSVC
 if(POLICY CMP0141)
     cmake_policy(SET CMP0141 NEW)
@@ -125,6 +124,7 @@ add_subdirectory(ksai_problems)
 if(NOT ANDROID AND NOT APPLE)
     add_subdirectory(aa_unit_testing)
 endif()
+
 
 add_custom_target(post_build_custom_target)
 copyCompileCommands(post_build_custom_target)

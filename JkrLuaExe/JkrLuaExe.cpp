@@ -27,6 +27,7 @@ extern std::string_view GetSolHpp();
 extern void CreateGLMBindings(sol::state& lua);
 extern void CreateKeyBindings(sol::state& lua);
 extern void CopyAllHeaderFiles(std::filesystem::path& insrc, std::filesystem::path& indst);
+extern void CreateMiscBindings(sol::state &inState);
 
 void CreateMainBindings(sol::state& s)
 {
@@ -151,11 +152,13 @@ void CreateMainBindings(sol::state& s)
 			})
 		,
 		"Add", &Jkr::Renderer::Line::AddEXT,
-		"Update", &Jkr::Renderer::Line::UpdateLine,
+		"Update", &Jkr::Renderer::Line::UpdateEXT,
 		"Dispatch", &Jkr::Renderer::Line::Dispatch,
 		"Bind", &Jkr::Renderer::Line::Bind,
 		"Draw", &Jkr::Renderer::Line::Draw
 	);
+
+	CreateMiscBindings(s);
 }
 
 int main(int ArgCount, char** ArgStrings)

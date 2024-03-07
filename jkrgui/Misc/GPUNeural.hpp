@@ -2,7 +2,7 @@
 #include <Vulkan/VulkanBufferVMA.hpp>
 #include <Config.hpp>
 
-namespace Jkr::Neural::GPU {
+namespace Jkr::Misc::GPUNeural {
 	using namespace ksai;
 	class Network : public Jkr::Neural::Network {
 		using GPUBufferLocal = VulkanBufferVMA<ksai::BufferContext::Storage, ksai::MemoryType::DeviceLocal>;
