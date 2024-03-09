@@ -1,26 +1,27 @@
 #include "JkrLuaExe.hpp"
+#include "glm/fwd.hpp"
 
 void CreateGLMBindings(sol::state& lua)
 {
 	auto vec2_multiply_overloads = sol::overload(
-		[](const glm::vec2& v1, const glm::vec2& v2) { return v1 * v2; },
-		[](const glm::vec2& v1, float value) { return v1 * value; },
-		[](float value, const glm::vec2& v1) { return v1 * value; });
+		[](const glm::vec2& v1, const glm::vec2& v2) -> glm::vec2 { return v1 * v2; },
+		[](const glm::vec2& v1, float value) -> glm::vec2 { return v1 * value; },
+		[](float value, const glm::vec2& v1) -> glm::vec2 { return v1 * value; });
 
 	auto vec2_divide_overloads = sol::overload(
-		[](const glm::vec2& v1, const glm::vec2& v2) { return v1 / v2; },
-		[](const glm::vec2& v1, float value) { return v1 / value; },
-		[](float value, const glm::vec2& v1) { return v1 / value; });
+		[](const glm::vec2& v1, const glm::vec2& v2) -> glm::vec2 { return v1 / v2; },
+		[](const glm::vec2& v1, float value) -> glm::vec2 { return v1 / value; },
+		[](float value, const glm::vec2& v1) -> glm::vec2{ return v1 / value; });
 
 	auto vec2_addition_overloads = sol::overload(
-		[](const glm::vec2& v1, const glm::vec2& v2) { return v1 + v2; },
-		[](const glm::vec2& v1, float value) { return v1 + value; },
-		[](float value, const glm::vec2& v1) { return v1 + value; });
+		[](const glm::vec2& v1, const glm::vec2& v2) -> glm::vec2 { return v1 + v2; },
+		[](const glm::vec2& v1, float value) -> glm::vec2 { return v1 + value; },
+		[](float value, const glm::vec2& v1) -> glm::vec2 { return v1 + value; });
 
 	auto vec2_subtraction_overloads = sol::overload(
-		[](const glm::vec2& v1, const glm::vec2& v2) { return v1 - v2; },
-		[](const glm::vec2& v1, float value) { return v1 - value; },
-		[](float value, const glm::vec2& v1) { return v1 - value; });
+		[](const glm::vec2& v1, const glm::vec2& v2) -> glm::vec2 { return v1 - v2; },
+		[](const glm::vec2& v1, float value) -> glm::vec2 { return v1 - value; },
+		[](float value, const glm::vec2& v1) -> glm::vec2 { return v1 - value; });
 
 	lua.new_usertype<glm::vec2>(
 		"vec2",

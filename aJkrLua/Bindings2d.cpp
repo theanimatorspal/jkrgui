@@ -283,8 +283,10 @@ void Create2DBindings(Instance& i, Window& w, sol::state& l, EventManager& em, J
 		std::vector<uc> uc_vec;
 		int h, w, c;
 	};
+	l.new_usertype<std::vector<uc>>("std_vector_unsigned_char_type");
 	l.new_usertype<ImageInfo>(
 		"image_info",
+		sol::default_constructor,
 		"uc_vec", &ImageInfo::uc_vec,
 		"h", &ImageInfo::h,
 		"w", &ImageInfo::w,
