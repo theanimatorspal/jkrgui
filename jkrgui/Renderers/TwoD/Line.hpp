@@ -21,6 +21,9 @@ class Line : public Line_base, Renderer_base {
                     Draw(inWindow, inColor, inWindowW, inWindowH, 0, lb::GetCurrentLineOffsetAbsolute(), inMatrix);
           }
 
+
+          void DrawEXT(Window& inWindow, glm::vec4 inColor, uint32_t inStartLineId, uint32_t inEndLineId, glm::mat4 inMatrix);
+
         private:
           struct PushConstant {
                     glm::mat4 mMatrix;
@@ -51,6 +54,24 @@ inline int Line::AddEXT(glm::vec3 inFirstPoint, glm::vec3 inSecondPoint) {
 
 inline void Line::UpdateEXT(uint32_t inId, glm::vec3 inFirstPoint, glm::vec3 inSecondPoint) {
           UpdateLine(inId, inFirstPoint, inSecondPoint, inFirstPoint.z);
+}
+
+
+inline void Line::DrawEXT(Window& inWindow, glm::vec4 inColor, uint32_t inStartLineId, uint32_t inEndLineId, glm::mat4 inMatrix)
+{
+	PushConstant Push;
+	Push.mColor = inColor;
+	Push.mMatrix = inMatrix;
+
+	mPainter->Draw_EXT<PushConstant>(
+		*mPrimitive,
+		Push,
+		inWindow,
+		2 * (inEndLineId - inStartLineId + 1),
+		1,
+		inStartLineId * 2,
+		0
+	);
 }
 
 } // namespace Jkr::Renderer

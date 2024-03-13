@@ -1,19 +1,23 @@
-﻿#define SOL_PRINT_ERRORS 1
+﻿#include "sol/sol.hpp"
+#define SOL_PRINT_ERRORS 1
 #define SOL_ALL_SAFETIES_ON 1
 #include "JkrLuaExe.hpp"
 
+
 namespace JkrEXE {
-extern void CreateMainBindings(sol::state& inState);
+extern void CreateBasicBindings(sol::state& inState);
 extern void CreateGLMBindings(sol::state& inState);
 extern void CreateKeyBindings(sol::state& inState);
 extern void CreateMiscBindings(sol::state& inState);
 extern void CreateRendererBindings(sol::state& inState);
+extern void CreateTextRendererBindings(sol::state& inState);
 
 void CreateMainBindings(sol::state& s) {
 	     CreateGLMBindings(s);
 	     CreateKeyBindings(s);
-	     CreateMainBindings(s);
+	     CreateBasicBindings(s);
 	     CreateRendererBindings(s);
+	     CreateTextRendererBindings(s);
 	     CreateMiscBindings(s);
 }
 } // namespace JkrEXE

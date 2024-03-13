@@ -90,7 +90,7 @@ else()
 
 
 function(configure_target TARGET_NAME)
-    if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" OR CMAKE_BUILD_TYPE STREQUAL "MinSizeRel" OR (NOT MSVC))
+    if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" OR CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
         target_link_libraries(${TARGET_NAME}
             ${Vulkan_LIBRARIES}
             SDL2

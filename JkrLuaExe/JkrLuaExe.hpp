@@ -10,7 +10,6 @@
 using namespace std;
 using namespace ksai;
 
-namespace JkrEXE {
 static auto my_exception_handler(lua_State* L, sol::optional<const std::exception&> maybe_execption,
 			   sol::string_view description) -> int {
 	     std::cout << "An Exception "
@@ -29,4 +28,3 @@ static auto my_exception_handler(lua_State* L, sol::optional<const std::exceptio
 	     }
 	     return sol::stack::push(L, description);
 };
-} // namespace JkrEXE

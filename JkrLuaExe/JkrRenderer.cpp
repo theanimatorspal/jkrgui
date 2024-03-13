@@ -1,4 +1,5 @@
 #include "JkrLuaExe.hpp"
+#include "Pipeline/VulkanPipelineContext.hpp"
 #include "Shape.hpp"
 #include "Shape_base.hpp"
 #include "ksai_config.hpp"
@@ -25,6 +26,14 @@ void CreateRendererBindings(sol::state& inState) {
 					     "ContinousLine",
 					     FillType::ContinousLine);
 
+	     auto PipelinePropertiesEnum = Jkr.new_enum<false>("PipelineProperties",
+						     "Default",
+						     Jkr::PipelinePropertiesContext::Default,
+						     "Line",
+						     Jkr::PipelinePropertiesContext::Line,
+						     "LineStrip",
+						     Jkr::PipelinePropertiesContext::LineStrip);
+
 	     Jkr.new_usertype<ShapeRendererResources>(
 		   "ShapeRendererResources",
 		   sol::call_constructor,
@@ -34,6 +43,8 @@ void CreateRendererBindings(sol::state& inState) {
 
 	     Jkr.new_enum<false>(
 		   "Shapes", "RectangleFill", Jkr::Shapes::Rectangle_Fill, "CircleWire", Jkr::Shapes::Circle);
+
+	     Jkr.new_usertype<Jkr::Renderer::Generator::Arguments>("Arguments");
 
 	     Jkr.new_usertype<Jkr::Renderer::Generator>(
 		   "Generator",
@@ -53,6 +64,8 @@ void CreateRendererBindings(sol::state& inState) {
 		   }),
 		   "Add",
 		   &Jkr::Renderer::Shape::AddEXT,
+		   "Update",
+		   &Jkr::Renderer::Shape::UpdateEXT,
 		   "AddImage",
 		   sol::overload(sol::resolve<ui(const string_view)>(&Jkr::Renderer::Shape::AddImageEXT),
 			       sol::resolve<ui(ui, ui)>(&Jkr::Renderer::Shape::AddImageEXT),
@@ -62,7 +75,7 @@ void CreateRendererBindings(sol::state& inState) {
 		   "BindImage",
 		   &Jkr::Renderer::Shape::BindImage,
 		   "Draw",
-		   &Jkr::Renderer::Shape::Draw,
+		   &Jkr::Renderer::Shape::DrawEXT,
 		   "Dispatch",
 		   &Jkr::Renderer::Shape::Dispatch,
 		   "Update",
@@ -86,7 +99,7 @@ void CreateRendererBindings(sol::state& inState) {
 		   "Bind",
 		   &Jkr::Renderer::Line::Bind,
 		   "Draw",
-		   &Jkr::Renderer::Line::Draw);
+		   &Jkr::Renderer::Line::DrawEXT);
 }
 
 inline void ShapeRendererResources::Add(Jkr::Instance& inInstance, FillType inFillType,

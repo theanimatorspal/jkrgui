@@ -1,4 +1,5 @@
 #include "BestText_base.hpp"
+#include "Instance.hpp"
 #include "TextD/BestText.hpp"
 #include "TwoD/Shape.hpp"
 #include <Renderers/Renderer_base.hpp>
@@ -19,10 +20,12 @@ public:
         ui mRectId;
         ui mImgId;
     };
-    BestText_Alt(Shape& inSh, BestText& inBestText)
+    BestText_Alt(Instance& inInstance, Shape& inSh, BestText_base& inBestText)
         : sh(inSh)
-        , bt(inBestText)
+        , bt(inBestText),
+          i(inInstance)
     {
+
     }
 
     void Add(ui inFontId, glm::vec2 inPos, int inDepth, const sv inText, ImageId& outId, ksai::optref<ksai::ThreadPool> inThreadPool = std::nullopt, bool inAlignBottom = true);
@@ -30,8 +33,13 @@ public:
     void Update(ImageId inId, ui inFontId, glm::vec2 inPos, int inDepth, const sv inText, bool inAlignBottom = true);
     void Draw(ImageId inId, Window& inWindow, glm::vec4 inColor, ui inW, ui inH, glm::mat4 inMatrix);
 
+    void AddEXT(ui inFontId, glm::vec2 inPos, int inDepth, const sv inText, ImageId& outId);
+    void UpdateEXT(ImageId inId, ui inFontId, glm::vec2 inPos, int inDepth, const sv inText);
+    void UpdatePosOnlyEXT(ImageId inId, ui inFontId, glm::vec2 inPos, int inDepth, const sv inText);
+    void DrawEXT(ImageId inId, Window& inWindow, glm::vec4 inColor, ui inW, ui inH, glm::mat4 inMatrix);
 private:
     Shape& sh;
-    BestText& bt;
+    BestText_base& bt;
+    Instance& i;
 };
 }

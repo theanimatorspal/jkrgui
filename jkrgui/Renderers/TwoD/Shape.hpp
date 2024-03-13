@@ -39,6 +39,8 @@ class Shape : public Shape_base, Renderer_base {
 	     ui AddImageEXT(const std::string_view inFileName);
 	     ui AddImageEXT(uint32_t inWidth, uint32_t inHeight);
 	     ui AddImageEXT(v<uc> inImage, ui inWidth, ui inHeight);
+	     void UpdateEXT(ui inId, Jkr::Generator& inShape, glm::vec3 inPosition);
+	     void DrawEXT(Window& inWindow, glm::vec4 inColor, ui inStartShapeId, ui inEndShapeId, glm::mat4 inMatrix);
 
 	   private:
 	     struct PushConstant {
@@ -46,9 +48,6 @@ class Shape : public Shape_base, Renderer_base {
 			glm::vec4 mColor;
 			glm::vec4 mParams;
 	     };
-	     /*
-		   Here Primitive Elements is a factor
-		   */
 	     uint32_t mTotalNoOfVerticesRendererCanHold = rb::InitialRendererElementArraySize;
 	     uint32_t mTotalNoOfIndicesRendererCanHold = rb::InitialRendererElementArraySize;
 	     FillType mCurrentFillMode = FillType::Fill;
@@ -100,19 +99,43 @@ inline void Jkr::Renderer::Shape::CopyToImage(uint32_t inId, CustomPainterImage&
 }
 
 inline ksai::ui Jkr::Renderer::Shape::AddImageEXT(const std::string_view inFileName) {
-	ui i;
-	AddImage(inFileName, i);
-	return i;
+	     ui i;
+	     AddImage(inFileName, i);
+	     return i;
 }
 
 inline ksai::ui Jkr::Renderer::Shape::AddImageEXT(uint32_t inWidth, uint32_t inHeight) {
-	ui i;
-	AddImage(inWidth, inHeight, i);
-	return i;
+	     ui i;
+	     AddImage(inWidth, inHeight, i);
+	     return i;
 }
 
 inline ksai::ui Jkr::Renderer::Shape::AddImageEXT(v<uc> inImage, ui inWidth, ui inHeight) {
-	ui i;
-	AddImage(inImage, inWidth, inHeight, i);
-	return i;
+	     ui i;
+	     AddImage(inImage, inWidth, inHeight, i);
+	     return i;
+}
+
+inline void Jkr::Renderer::Shape::UpdateEXT(ui inId, Jkr::Generator& inShape, glm::vec3 inPosition) {
+	     Update(inId, inShape, inPosition.x, inPosition.y, inPosition.z);
+}
+
+inline void Jkr::Renderer::Shape::DrawEXT(Window& inWindow, glm::vec4 inColor, ui inStartShapeId, ui inEndShapeId, glm::mat4 inMatrix)
+{
+	     PushConstant Push;
+	     Push.mColor = inColor;
+	     Push.mMatrix = inMatrix;
+
+#ifdef JKR_USE_VARIABLE_DES_INDEXING
+	     Push.mParams.r = mCurrentImageIndex;
+#endif
+
+	     mPainters[mCurrentFillMode]->Draw_EXT<PushConstant>(
+		   *mPrimitive,
+		   Push,
+		   inWindow,
+		   sb::GetEndIndexOffsetAbsolute(inEndShapeId) - sb::GetIndexOffsetAbsolute(inStartShapeId), // TODO
+		   1,
+		   sb::GetIndexOffsetAbsolute(inStartShapeId),
+		   0);
 }

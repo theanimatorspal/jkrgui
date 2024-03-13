@@ -118,7 +118,6 @@ endif()
 # Add subdirectories for building
 add_subdirectory(vendor/lua)
 add_subdirectory(ksaivulkan)
-add_subdirectory(aJkrLua)
 add_subdirectory(jkrgui)
 add_subdirectory(JkrLuaExe)
 add_subdirectory(ksai_problems)
