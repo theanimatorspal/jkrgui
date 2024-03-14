@@ -1,0 +1,3 @@
+[submodule "out/build/x64-debug/JkrLuaExe"]
+	path = out/build/x64-debug/JkrLuaExe
+	url = https://www.github.com/dipesh7002/LuaJkrGUI
