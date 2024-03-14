@@ -1,7 +1,10 @@
 #include "JkrLuaExe.hpp"
 #include "Pipeline/VulkanPipelineContext.hpp"
+#include "Renderers/Renderer_base.hpp"
+#include "Renderers/ResourceManager.hpp"
 #include "Shape.hpp"
 #include "Shape_base.hpp"
+#include "Window.hpp"
 #include "ksai_config.hpp"
 #include "sol/sol.hpp"
 
@@ -18,6 +21,14 @@ struct ShapeRendererResources {
 void CreateRendererBindings(sol::state& inState) {
 	     auto Jkr = inState["Jkr"].get_or_create<sol::table>();
 	     using namespace Jkr::Renderer;
+	     auto CmdParamEnumType = Jkr.new_enum<false>("CmdParam",
+					     "UI",
+					     CmdParam::UI,
+					     "Background",
+					     CmdParam::Background,
+					     "None",
+					     CmdParam::None);
+
 	     auto FillTypeEnum = Jkr.new_enum<false>("FillType",
 					     "Fill",
 					     FillType::Fill,

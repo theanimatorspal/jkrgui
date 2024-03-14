@@ -49,6 +49,9 @@ public:
     void SetTextProperty(TextProperty inProp) { mCurrentTextProp = inProp; };
     GETTER GetTextProperty() const { return mCurrentTextProp; };
 
+    glm::vec2 GetTextDimensionsEXT(const std::string_view inString, uint32_t inFontShapeId);
+    ui AddFontFaceEXT(const std::string_view inFontFilePathName, size_t inFontSize);
+
 protected:
     TextDimensions GetTextDimensions(const std::string_view inString, uint32_t inFontShapeId, hb_glyph_info_t* info, hb_glyph_position_t* pos, uint32_t len, optref<int> outYbearing = std::nullopt);
     TextDimensions AddText(uint32_t inX, uint32_t inY, const std::string_view inString, uint32_t inFontShapeId, uint32_t inDepthValue, std::vector<uint32_t>& outCodePoints, uint32_t& outIdt);
@@ -137,4 +140,17 @@ private:
 private:
     const uint32_t mImageChannelCount = 4;
 };
+}
+
+inline glm::vec2 Jkr::Renderer::BestText_base::GetTextDimensionsEXT(const std::string_view inString, uint32_t inFontShapeId)
+{
+    TextDimensions dimen = GetTextDimensions(inString, inFontShapeId);
+    return glm::vec2(dimen.mWidth, dimen.mHeight);
+}
+
+inline ksai::ui Jkr::Renderer::BestText_base::AddFontFaceEXT(const std::string_view inFontFilePathName, size_t inFontSize)
+{
+    ui i;
+    AddFontFace(inFontFilePathName, inFontSize, i);
+    return i;
 }
