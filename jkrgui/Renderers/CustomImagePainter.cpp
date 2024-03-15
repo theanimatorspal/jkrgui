@@ -44,6 +44,7 @@ CustomImagePainter::CustomImagePainter(sv inName, sv inComputeShaderFunction, sv
     : mCustomPainterFileName(std::string(inName))
     , mThreads(inX, inY, inZ)
 {
+    // TODO THESE Are to be removed
     mComputeStream << gbefore_xyz;
     mComputeStream << "layout(local_size_x = " << inX << ", local_size_y = " << inY << ","
                    << " local_size_z = " << inZ << ") in;";
@@ -70,15 +71,6 @@ void CustomImagePainter::Load(const Instance& inInstance, Window& inWindow)
 
 void CustomImagePainter::Store(const Instance& inInstance, Window& inWindow)
 {
-    //ksai::Shader Shape_Fill(ShapeRenderers_Fill::VertexShader, ShapeRenderers_Fill::FragmentShader);
-    //ksai::Shader Shape_FillCompute(8, ShapeRenderers_Fill::ComputeShader);
-    //SpirvHelper::Init();
-    //auto xxxx = MakeUp<Jkr::PainterCache>(inInstance);
-    //xxxx->Store(mCustomPainterFileName,
-    //    Shape_Fill.GetVertexShader().str(),
-    //    Shape_Fill.GetFragmentShader().str(),
-    //    Shape_FillCompute.GetComputeShader().str());
-
     mCustomPainterCache = MakeUp<PainterCache>(inInstance);
     mCustomPainterCache->Store(mCustomPainterFileName,
         mVertexStream.str(),
@@ -87,3 +79,39 @@ void CustomImagePainter::Store(const Instance& inInstance, Window& inWindow)
     mPainter = MakeUp<Painter>(inInstance, inWindow, *mCustomPainterCache);
 }
 
+
+CustomImagePainter::CustomImagePainter(sv inName, sv inComputeShader)
+    : mCustomPainterFileName(std::string(inName))
+{
+    mComputeStream << inComputeShader;
+    mVertexStream << gbefore_xyz;
+    mVertexStream << gmain_function_null;
+
+    mFragmentStream << gbefore_xyz;
+    mFragmentStream << gmain_function_null;
+}
+
+std::vector<int> CustomPainterImage::GetImageToVector(const Instance& inInstance, const Window& inWindow) {
+            ui ImageChannels = 4;
+            auto ImageExtent = mPainterParam->GetStorageImage().GetImageExtent();
+            auto Size = ImageChannels * ImageExtent.width * ImageExtent.height;
+            uint32_t size = ImageChannels * ImageExtent.width * ImageExtent.height;
+            VulkanBufferVMA<BufferContext::Storage, MemoryType::HostVisibleAndCoherenet> Buffer(
+                    inInstance.GetVMA(), inInstance.GetDevice(), size);
+            Buffer.SubmitImmediateCmdCopyFromImage(
+                    inInstance.GetGraphicsQueue(),
+                    inWindow.GetCommandBuffers(Jkr::Window::None)[inWindow.GetCurrentFrame()],
+                    mPainterParam->GetStorageImage());
+            void* MemoryRegion;
+            Buffer.MapMemoryRegion(&MemoryRegion);
+            std::vector<uint8_t> OutImage;
+            std::vector<int> OutImage_i;
+            OutImage.resize(size);
+            OutImage_i.reserve(size);
+            std::memcpy(OutImage.data(), MemoryRegion, size);
+
+            for (int i = 0; i < OutImage.size(); i++) {
+                        OutImage_i.push_back(OutImage[i]);
+            }
+            return OutImage_i;
+}
