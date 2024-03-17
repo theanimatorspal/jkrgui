@@ -31,19 +31,22 @@ void CreateMiscBindings(sol::state& inState) {
                     glm::vec4 x, y, z;
           };
 
+          // Jkr.new_usertype<DefaultCustomImagePushConstant>(
+          //  "DefaultCustomImagePushConstant", "x", &DefaultCustomImagePushConstant::x, "y", &DefaultCustomImagePushConstant::y, "z", &DefaultCustomImagePushConstant::z);
+
           Jkr.new_usertype<Jkr::Renderer::CustomImagePainter>(
            "CustomImagePainter",
            sol::call_constructor,
-           sol::factories([](sv inCacheFileName, sv inComputeShader) { return mu<Jkr::Renderer::CustomImagePainter>(inCacheFileName, inComputeShader); },
-                          "Load",
-                          &Jkr::Renderer::CustomImagePainter::Load,
-                          "Store",
-                          &Jkr::Renderer::CustomImagePainter::Store,
-                          "Bind",
-                          &Jkr::Renderer::CustomImagePainter::Bind,
-                          "BindImageFromImage",
-                          &Jkr::Renderer::CustomImagePainter::BindImageFromImage,
-                          "Draw",
-                          &Jkr::Renderer::CustomImagePainter::Draw<DefaultCustomImagePushConstant>));
+           sol::factories([](sv inCacheFileName, sv inComputeShader) { return mu<Jkr::Renderer::CustomImagePainter>(inCacheFileName, inComputeShader); }),
+           "Load",
+           &Jkr::Renderer::CustomImagePainter::Load,
+           "Store",
+           &Jkr::Renderer::CustomImagePainter::Store,
+           "Bind",
+           &Jkr::Renderer::CustomImagePainter::Bind,
+           "BindImageFromImage",
+           &Jkr::Renderer::CustomImagePainter::BindImageFromImage,
+           "Draw",
+           &Jkr::Renderer::CustomImagePainter::Draw<DefaultCustomImagePushConstant>);
 }
 } // namespace JkrEXE
