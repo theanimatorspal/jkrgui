@@ -26,11 +26,13 @@ void CreateMainBindings(sol::state& s) {
 int main(int ArgCount, char** ArgStrings) {
           using namespace JkrEXE;
           auto CmdArg_Map = CommandLine(ArgCount, ArgStrings);
-          if (CmdArg_Map["--build"].front() == "") {
-                    sol::state s;
-                    s.open_libraries();
-                    CreateBuildSystemBindings(s);
-                    sol::protected_function_result result = s.safe_script_file("build.lua", &sol::script_pass_on_error);
+          if (not CmdArg_Map.empty()) {
+                    if (CmdArg_Map.contains("--build")) { // C++20 ma matrai
+                              sol::state s;
+                              s.open_libraries();
+                              CreateBuildSystemBindings(s);
+                              sol::protected_function_result result = s.safe_script_file("build.lua", &sol::script_pass_on_error);
+                    }
           }
 
           sol::state s;

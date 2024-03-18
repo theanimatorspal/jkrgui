@@ -121,12 +121,3 @@ add_subdirectory(ksaivulkan)
 add_subdirectory(jkrgui)
 add_subdirectory(JkrLuaExe)
 add_subdirectory(ksai_problems)
-
-# Add unit testing subdirectory if not building for Android or Apple
-if(NOT ANDROID AND NOT APPLE)
-    add_subdirectory(aa_unit_testing)
-endif()
-
-
-add_custom_target(post_build_custom_target)
-copyCompileCommands(post_build_custom_target)

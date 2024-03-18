@@ -3,7 +3,6 @@
 #pragma once
 #include <EventManager.hpp>
 #include <Instance.hpp>
-#include <Renderers/2d.hpp>
 #include <WindowMulT.hpp>
 #include <sol/sol.hpp>
 

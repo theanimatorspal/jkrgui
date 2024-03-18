@@ -1,4 +1,5 @@
 #include "Instance.hpp"
+#include "Renderers/Renderer_base.hpp"
 #include "Shape3D.hpp"
 #include "Window.hpp"
 
@@ -10,10 +11,11 @@ class Simple3D {
           GETTER& GetGlslComputeShaderHeaderString() const { return mGLslFragmentShaderHeader; }
 
           Simple3D(Jkr::Instance& inInstance, Jkr::Window& inCompatibleWindow);
+          template <typename T> void Draw(Jkr::Window& inWindow, Shape& inShape3D, T inPush, ui inIndexCount, ui inInstanceCount, CmdParam inParam);
 
       private:
-          Up<Painter> mPainters;
-          Up<PainterCache> mPainterCaches;
+          Up<Painter> mPainter;
+          Up<PainterCache> mPainterCache;
 
           const std::string mGlslVertexShaderHeader = R"""(
 #version 450
@@ -29,4 +31,9 @@ layout(location = 3) in vec3 inColor;
 };
 
 inline Simple3D::Simple3D(Jkr::Instance& inInstance, Jkr::Window& inCompatibleWindow) {}
+
+template <typename T>
+inline void Simple3D::Draw(Jkr::Window& inWindow, Shape& inShape3D, T inPush, ui inIndexCount, ui inInstanceCount, CmdParam inParam) {
+          mPainter->Draw_EXT(inShape3D.GetPrimitive(), inPush, inWindow, inIndexCount, inInstanceCount, 0, 0, inParam);
+}
 } // namespace Jkr::Renderer::_3D

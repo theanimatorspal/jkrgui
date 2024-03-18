@@ -23,7 +23,10 @@ class Shape_base {
           void Add(const std::vector<Vertex3D>& inVertices, const std::vector<uint32_t> inIndices, uint32_t& outId) {
                     std::copy(inVertices.begin(), inVertices.end(), mVertices.begin() + mCurrentVertexPointer);
                     std::copy(inIndices.begin(), inIndices.end(), mIndices.begin() + mCurrentIndexPointer);
-                    VertexIndexMemOffset Offset = {.mVertexOffset = mCurrentVertexPointer, .mIndexOffset = mCurrentIndexPointer, .mVertexSize = inVertices.size(), .mIndexSize = inIndices.size()};
+                    VertexIndexMemOffset Offset = {.mVertexOffset = mCurrentVertexPointer,
+                                                   .mIndexOffset = mCurrentIndexPointer,
+                                                   .mVertexSize = inVertices.size(),
+                                                   .mIndexSize = inIndices.size()};
                     outId = mIds.size();
                     mIds.push_back(Offset);
                     mCurrentVertexPointer += inVertices.size();

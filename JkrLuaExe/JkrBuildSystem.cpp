@@ -1,4 +1,5 @@
 #include "JkrLuaExe.hpp"
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <functional>
@@ -70,9 +71,11 @@ void CreateLuaLibraryEnvironment(sv inJkrGUIRepoDirectory, sv inNex, sv inDstDir
           const v<sv> BuildType = {"x64-release", "x64-debug", "x86-relase", "x86-debug"};
           fs::path src = s(inJkrGUIRepoDirectory);
           fs::path dst = s(inDstDirectory);
-          CopyAllHeaderFiles(src, dst);
 
+          fs::path jkrgui_path = s(inJkrGUIRepoDirectory) + "out/build/" + s(inBuildType) + "/jkrgui/jkrgui.lib";
+          fs::path jkrgui_dst_path = s(inDstDirectory) + "lib/jkrgui.lib";
           if (not inManualLibLinking) {
+                    fs::copy_file(jkrgui_path, jkrgui_dst_path);
           } else {
           }
 }
@@ -84,7 +87,8 @@ int GetArgumentCount(sv inString) { return CommandLineCommandsArgumentCount[s(in
 
 umap<s, v<s>> CommandLine(int ArgCount, char** ArgStrings) {
           umap<s, v<s>> CommandLineStuff;
-          for (int i = 0; i < ArgCount; i++) {
+          int FirstArgIndex = 1;
+          for (int i = FirstArgIndex; i < ArgCount; i++) {
                     const s arg(ArgStrings[i]);
                     const int ArgumentCount = GetArgumentCount(arg);
                     if (ArgumentCount == 0) {

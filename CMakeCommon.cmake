@@ -370,15 +370,6 @@ function(copyToDestination cpyName)
   endif()
 endfunction()
 
-function(copyCompileCommands inTarget)
-    add_custom_command(TARGET ${inTarget} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_BINARY_DIR}/compile_commands.json
-        ${CMAKE_SOURCE_DIR}
-        COMMENT "Copying compile_commands.json to source directory"
-    )
-endfunction(copyCompileCommands)
-
 function(someFlags inName)
      set_property(TARGET ${inName} PROPERTY INTERPROCEDURAL_OPTIMIZATION True)
 endfunction()
