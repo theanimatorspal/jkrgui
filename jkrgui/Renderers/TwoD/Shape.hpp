@@ -21,16 +21,9 @@ class Shape : public Shape_base, Renderer_base {
                 std::unordered_map<FillType, Up<PainterCache>>& inPainterCaches,
                 uint32_t inVarDesCount = 5000);
           void Add(Jkr::Generator& inShape, int inX, int inY, uint32_t inZ, uint32_t& outId);
-          void AddImage(const std::string_view inFileName, uint32_t& outIndex);
-          void AddImage(uint32_t inWidth, uint32_t inHeight, uint32_t& outIndex);
-          void AddImage(v<uc> inImage, ui inWidth, ui inHeight, uint32_t& outIndex);
-          void UpdateImage(ui inId, v<uc> inImage, ui inWidth, ui inHeight);
-          void CopyToImage(uint32_t inId, uint32_t inWidth, uint32_t inHeight, CustomPainterImage& inPainterImage);
-          void CopyToImage(uint32_t inId, CustomPainterImage& inPainterImage);
           void Update(uint32_t inId, Jkr::Generator& inShape, int inX, int inY, uint32_t inZ);
           void Dispatch(Window& inWindow, CmdParam inParam = CmdParam::None);
           void BindFillMode(FillType inType, Window& inWindow, CmdParam inParam = CmdParam::UI);
-          void BindImage(Window& inWindow, uint32_t inImageId, CmdParam inParam = CmdParam::UI);
           void BindShapes(Window& inWindow);
           void Draw(Window& inWindow,
                     glm::vec4 inColor,
@@ -40,10 +33,20 @@ class Shape : public Shape_base, Renderer_base {
                     uint32_t inEndShapeId,
                     glm::mat4 inMatrix);
 
-          ui AddEXT(Jkr::Generator& inShape, glm::vec3 inPosition);
+          // TODO Needs to be separated
+          void AddImage(const std::string_view inFileName, uint32_t& outIndex);
+          void AddImage(uint32_t inWidth, uint32_t inHeight, uint32_t& outIndex);
+          void AddImage(v<uc> inImage, ui inWidth, ui inHeight, uint32_t& outIndex);
+          void UpdateImage(ui inId, v<uc> inImage, ui inWidth, ui inHeight);
+          void CopyToImage(uint32_t inId, uint32_t inWidth, uint32_t inHeight, CustomPainterImage& inPainterImage);
+          void CopyToImage(uint32_t inId, CustomPainterImage& inPainterImage);
+          void BindImage(Window& inWindow, uint32_t inImageId, CmdParam inParam = CmdParam::UI);
+
           ui AddImageEXT(const std::string_view inFileName);
           ui AddImageEXT(uint32_t inWidth, uint32_t inHeight);
           ui AddImageEXT(v<uc> inImage, ui inWidth, ui inHeight);
+
+          ui AddEXT(Jkr::Generator& inShape, glm::vec3 inPosition);
           void UpdateEXT(ui inId, Jkr::Generator& inShape, glm::vec3 inPosition);
           void DrawEXT(Window& inWindow, glm::vec4 inColor, ui inStartShapeId, ui inEndShapeId, glm::mat4 inMatrix);
 
@@ -79,12 +82,6 @@ class Shape : public Shape_base, Renderer_base {
 #ifdef JKR_USE_VARIABLE_DES_INDEXING
           uint32_t mCurrentImageIndex;
 #endif
-
-      private:
-          glm::vec2 mSizeFactor = {1, 1};
-
-      public:
-          SETTER SetSizeFactor(glm::vec2 inFactor) { mSizeFactor = inFactor; }
 };
 } // namespace Jkr::Renderer
 

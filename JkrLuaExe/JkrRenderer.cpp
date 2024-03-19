@@ -1,13 +1,11 @@
 #include "JkrLuaExe.hpp"
-#include "Line.hpp"
 #include "Pipeline/VulkanPipelineContext.hpp"
 #include "Renderers/Renderer_base.hpp"
-#include "Shape.hpp"
-#include "Shape_base.hpp"
+#include "Renderers/TwoD/Line.hpp"
+#include "Renderers/TwoD/Shape.hpp"
 #include "Window.hpp"
 #include "ksai_config.hpp"
 #include "sol/sol.hpp"
-
 
 namespace JkrEXE {
 
@@ -43,7 +41,7 @@ void CreateRendererBindings(sol::state& inState) {
           Jkr.new_usertype<ShapeRendererResources>(
            "ShapeRendererResources", sol::call_constructor, []() { return ShapeRendererResources(); }, "Add", &ShapeRendererResources::Add);
 
-          Jkr.new_enum<false>("Shapes", "RectangleFill", Jkr::Shapes::Rectangle_Fill, "CircleWire", Jkr::Shapes::Circle);
+          Jkr.new_enum<false>("Shapes", "RectangleFill", Jkr::Shapes::RectangleFill, "EllipseWire", Jkr::Shapes::EllipseWire);
 
           Jkr.new_usertype<Jkr::Renderer::Generator::Arguments>("Arguments");
 

@@ -1,4 +1,5 @@
-﻿include("CMakeCommon.cmake")
+﻿include("CMakeConfig.cmake")
+include("CMakeCommon.cmake")
 cmake_minimum_required(VERSION 3.27)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -71,9 +72,6 @@ project("jkrengine")
 # Include directories
 include_directories(application)
 include_directories(jkrgui)
-include_directories(jkrgui/Renderers/ThreeD)
-include_directories(jkrgui/Renderers/TwoD)
-include_directories(jkrgui/Renderers/TextD)
 include_directories(ksaivulkan)
 include_directories(ksaivulkan/Vulkan)
 include_directories(ksaivulkan/Vendor)

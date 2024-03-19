@@ -15,10 +15,8 @@ struct CustomPainterImage {
           up<Image> mPainterParam;
 };
 
-class CustomImagePainter {
+struct CustomImagePainter {
           using ComPar = Jkr::Window::ParameterContext;
-
-      public:
           CustomImagePainter(sv inName, sv inComputeShaderFunction, sv inPushConstantSignature, ui inX, ui inY, ui inZ);
           CustomImagePainter(sv inName, sv inComputeShader);
           GETTER& GetPainter() { return *mPainter; }
@@ -30,13 +28,20 @@ class CustomImagePainter {
           void Bind(const Window& inWindow, ComPar inPar = ComPar::None) { mPainter->BindDispatchParametersPipelineOnly_EXT(inWindow, inPar); }
 
           // TODO To be removed
-          void BindImage(const Window& inWindow, ComPar inPar = ComPar::None) { mPainter->BindDispatchParametersDescriptorsOnly_EXT(inWindow, inPar); }
+          void BindImage(const Window& inWindow, ComPar inPar = ComPar::None) {
+                    mPainter->BindDispatchParametersDescriptorsOnly_EXT(inWindow, inPar);
+          }
           void BindImageFromImage(const Window& inWindow, CustomPainterImage& inImage, ComPar inPar = ComPar::None) {
                     auto& Cmd = inWindow.GetCommandBuffers(inPar)[inWindow.GetCurrentFrame()];
-                    Cmd.GetCommandBufferHandle().bindDescriptorSets(
-                     vk::PipelineBindPoint::eCompute, mCustomPainterCache->GetComputePipelineLayout().GetPipelineLayoutHandle(), 0, inImage.mVulkanDescriptorSet->GetDescriptorSetHandle(), {});
+                    Cmd.GetCommandBufferHandle().bindDescriptorSets(vk::PipelineBindPoint::eCompute,
+                                                                    mCustomPainterCache->GetComputePipelineLayout().GetPipelineLayoutHandle(),
+                                                                    0,
+                                                                    inImage.mVulkanDescriptorSet->GetDescriptorSetHandle(),
+                                                                    {});
           }
-          template <class T> void Draw(Window& inWindow, T inPushConstant, ui inX, ui inY, ui inZ, ComPar inPar = ComPar::None) { mPainter->Dispatch_EXT<T>(inPushConstant, inX, inY, inZ, inPar); }
+          template <class T> void Draw(Window& inWindow, T inPushConstant, ui inX, ui inY, ui inZ, ComPar inPar = ComPar::None) {
+                    mPainter->Dispatch_EXT<T>(inPushConstant, inX, inY, inZ, inPar);
+          }
 
           // // TODO to be removed
           // template <class T> void Draw(Window& inWindow, T inPushConstant, ComPar
@@ -57,7 +62,8 @@ class CustomImagePainter {
 };
 
 inline void Jkr::Renderer::CustomPainterImage::Register(const Instance& inInstance, CustomImagePainter& inPainter) {
-          mVulkanDescriptorSet = MakeUp<VulkanDescriptorSet>(inInstance.GetDevice(), inInstance.GetDescriptorPool(), inPainter.GetPainterCache().GetComputePipelineDescriptorSetLayout());
+          mVulkanDescriptorSet = MakeUp<VulkanDescriptorSet>(
+           inInstance.GetDevice(), inInstance.GetDescriptorPool(), inPainter.GetPainterCache().GetComputePipelineDescriptorSetLayout());
           mPainterParam->Register(0, 0, 0, *mVulkanDescriptorSet);
 }
 

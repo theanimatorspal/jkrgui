@@ -13,7 +13,7 @@
           "cmake.useCMakePresets": "always",
           "cmake.configureOnOpen": true,
           "cmake.options.statusBarVisibility": "visible",
-          "editor.fontFamily": "Victor Mono Regular",
+          "editor.fontFamily": "Comic Sans MS",
           "editor.fontWeight": "normal",
           "workbench.iconTheme": "material-icon-theme",
           "editor.fontSize": 20,
