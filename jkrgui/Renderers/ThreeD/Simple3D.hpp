@@ -12,6 +12,7 @@ class Simple3D {
 
           Simple3D(Jkr::Instance& inInstance, Jkr::Window& inCompatibleWindow);
           template <typename T> void Draw(Jkr::Window& inWindow, Shape& inShape3D, T inPush, ui inIndexCount, ui inInstanceCount, CmdParam inParam);
+          template <typename T> void Dispatch(Jkr::Window& inWindow, Shape& inShape3D, T inPush);
 
       private:
           Up<Painter> mPainter;

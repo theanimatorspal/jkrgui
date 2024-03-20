@@ -14,6 +14,7 @@ extern void CreateBuildSystemBindings(sol::state& inS);
 extern umap<s, v<s>> CommandLine(int ArgCount, char** ArgStrings);
 
 void CreateMainBindings(sol::state& s) {
+          s.open_libraries();
           CreateGLMBindings(s);
           CreateKeyBindings(s);
           CreateBasicBindings(s);
@@ -36,7 +37,6 @@ int main(int ArgCount, char** ArgStrings) {
           }
 
           sol::state s;
-          s.open_libraries();
           CreateMainBindings(s);
 
           const vector<string_view> CommandLineArgs(ArgStrings + 1, ArgStrings + ArgCount);
