@@ -6,6 +6,8 @@
 #include <WindowMulT.hpp>
 #include <sol/sol.hpp>
 
+sol::state& GetMainStateRef();
+
 using namespace std;
 using namespace ksai;
 

@@ -11,7 +11,8 @@ extern void CreateMiscBindings(sol::state& inState);
 extern void CreateRendererBindings(sol::state& inState);
 extern void CreateTextRendererBindings(sol::state& inState);
 extern void CreateBuildSystemBindings(sol::state& inS);
-extern umap<s, v<s>> CommandLine(int ArgCount, char** ArgStrings);
+extern void CreateRenderer3DBindings(sol::state& s);
+extern umap<s, v<s>> CommandLine(int ArgCount, char** ArgStrings); // TODO Complete This
 
 void CreateMainBindings(sol::state& s) {
           s.open_libraries();
@@ -21,8 +22,12 @@ void CreateMainBindings(sol::state& s) {
           CreateRendererBindings(s);
           CreateTextRendererBindings(s);
           CreateMiscBindings(s);
+          CreateRenderer3DBindings(s);
 }
 } // namespace JkrEXE
+
+static sol::state mainState;
+sol::state& GetMainStateRef() { return mainState; }
 
 int main(int ArgCount, char** ArgStrings) {
           using namespace JkrEXE;
@@ -36,12 +41,11 @@ int main(int ArgCount, char** ArgStrings) {
                     }
           }
 
-          sol::state s;
-          CreateMainBindings(s);
+          CreateMainBindings(mainState);
 
           const vector<string_view> CommandLineArgs(ArgStrings + 1, ArgStrings + ArgCount);
-          s.set_exception_handler(&my_exception_handler);
-          sol::protected_function_result result = s.safe_script_file("app.lua", &sol::script_pass_on_error);
+          mainState.set_exception_handler(&my_exception_handler);
+          sol::protected_function_result result = mainState.safe_script_file("app.lua", &sol::script_pass_on_error);
           if (not result.valid()) {
                     sol::error error = result;
                     std::cout << error.what();

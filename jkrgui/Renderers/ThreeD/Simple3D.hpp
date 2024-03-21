@@ -12,7 +12,7 @@ class Simple3D {
 
           Simple3D(Jkr::Instance& inInstance, Jkr::Window& inCompatibleWindow);
           template <typename T> void Draw(Jkr::Window& inWindow, Shape& inShape3D, T inPush, ui inIndexCount, ui inInstanceCount, CmdParam inParam);
-          template <typename T> void Dispatch(Jkr::Window& inWindow, Shape& inShape3D, T inPush);
+          template <typename T> void Dispatch(Jkr::Window& inWindow, Shape& inShape3D, T inPush) {}
 
       private:
           Up<Painter> mPainter;
@@ -35,6 +35,6 @@ inline Simple3D::Simple3D(Jkr::Instance& inInstance, Jkr::Window& inCompatibleWi
 
 template <typename T>
 inline void Simple3D::Draw(Jkr::Window& inWindow, Shape& inShape3D, T inPush, ui inIndexCount, ui inInstanceCount, CmdParam inParam) {
-          mPainter->Draw_EXT(inShape3D.GetPrimitive(), inPush, inWindow, inIndexCount, inInstanceCount, 0, 0, inParam);
+          mPainter->Draw_EXT<T>(inShape3D.GetPrimitive(), inPush, inWindow, inIndexCount, inInstanceCount, 0, 0, inParam);
 }
 } // namespace Jkr::Renderer::_3D

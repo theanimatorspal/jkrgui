@@ -1,5 +1,4 @@
 #include "JkrLuaExe.hpp"
-#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <functional>
@@ -7,7 +6,6 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
-#include <vector>
 
 namespace JkrEXE {
 namespace fs = std::filesystem;

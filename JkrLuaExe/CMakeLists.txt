@@ -7,6 +7,7 @@
    "JkrBuildSystem.cpp" 
    "JkrMisc.cpp"
     "JkrRenderer.cpp"
+    "JkrRenderer3D.cpp"
      "JkrBasic.cpp"
      "JkrTextRenderers.cpp"
      )
