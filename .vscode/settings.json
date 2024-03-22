@@ -1,5 +1,5 @@
 {
-          "workbench.colorTheme": "Material Theme Deepforest",
+          "workbench.colorTheme": "Gruvbox Dark (Medium)",
           "git.enableSmartCommit": true,
           "git.confirmSync": false,
           "gitlens.currentLine.enabled": false,
@@ -16,7 +16,7 @@
           "editor.fontFamily": "Fantasque Sans Mono",
           "editor.fontWeight": "normal",
           "workbench.iconTheme": "material-icon-theme",
-          "editor.fontSize": 20,
+          "editor.fontSize": 25,
           "workbench.editor.showTabs": "none",
           "explorer.confirmDelete": false,
           "cmake.showOptionsMovedNotification": false,

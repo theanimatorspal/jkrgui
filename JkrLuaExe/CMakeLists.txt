@@ -10,6 +10,7 @@
     "JkrRenderer3D.cpp"
      "JkrBasic.cpp"
      "JkrTextRenderers.cpp"
+     "JkrMultiThreading.cpp"
      )
 target_link_libraries(JkrLuaExe ksaivulkan jkrgui)
 configure_target(JkrLuaExe)

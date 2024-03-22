@@ -1,11 +1,4 @@
 #include "JkrLuaExe.hpp"
-#include "Pipeline/VulkanPipelineContext.hpp"
-#include "Renderers/Renderer_base.hpp"
-#include "Renderers/TwoD/Line.hpp"
-#include "Renderers/TwoD/Shape.hpp"
-#include "Window.hpp"
-#include "ksai_config.hpp"
-#include "sol/sol.hpp"
 
 namespace JkrEXE {
 

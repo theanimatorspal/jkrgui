@@ -5,6 +5,7 @@
 #include "VulkanBufferVMA.hpp"
 #include "VulkanPhysicalDevice.hpp"
 #include "glTF_Model.hpp"
+#include "spirv_cross/spirv.hpp"
 #include <Renderers/Renderer_base.hpp>
 #include <string>
 
@@ -24,6 +25,8 @@ class Shape : public Renderer_base, public Shape_base {
           void Bind(Window& inWindow, ComPar inCompar);
           void Dispatch(Window& inWindow);
 
+          ui AddEXT(const sv inFileName);
+
       private:
           void CheckAndResize(const glTF_Model& inModel);
           v<Up<glTF_Model>> mModels;
@@ -39,4 +42,9 @@ inline void Shape::Bind(Window& inWindow, ComPar inCompar) {
           Painter::BindDrawParamtersVertexAndIndexBuffersOnly_EXT(mInstance, *mPrimitive, inWindow, inCompar);
 }
 
+inline ui Shape::AddEXT(const sv inFileName) {
+          ui i;
+          Add(inFileName, i);
+          return i;
+}
 } // namespace Jkr::Renderer::_3D

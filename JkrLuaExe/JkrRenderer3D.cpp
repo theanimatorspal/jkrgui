@@ -1,8 +1,4 @@
 #include "JkrLuaExe.hpp"
-#include "Window.hpp"
-#include "ksai_config.hpp"
-#include "sol/sol.hpp"
-#include <Renderers/ThreeD/Simple3D.hpp>
 
 namespace JkrEXE {
 
@@ -24,5 +20,16 @@ void CreateRenderer3DBindings(sol::state& s) {
                                      &Simple3D::Draw<DefaultPushConstant3D>,
                                      "Dispatch",
                                      &Simple3D::Dispatch<DefaultPushConstant3DCompute>);
+
+          Jkr.new_usertype<Jkr::Renderer::_3D::Shape>("Shape3D",
+                                                      sol::factories([](const Jkr::Instance& inInstance, Jkr::Window& inCompatibleWindow) {
+                                                                return mu<Jkr::Renderer::_3D::Shape>(inInstance, inCompatibleWindow);
+                                                      }),
+                                                      "Bind",
+                                                      &Jkr::Renderer::_3D::Shape::Bind,
+                                                      "Add",
+                                                      &Jkr::Renderer::_3D::Shape::AddEXT,
+                                                      "Dispatch",
+                                                      &Jkr::Renderer::_3D::Shape::Dispatch);
 }
 } // namespace JkrEXE

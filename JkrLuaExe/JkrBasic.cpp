@@ -1,5 +1,4 @@
 #include "JkrLuaExe.hpp"
-#include "Renderers/Renderer_base.hpp"
 
 namespace JkrEXE {
 
