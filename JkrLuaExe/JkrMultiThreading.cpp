@@ -22,7 +22,7 @@ struct MultiThreading {
           void AddJobF(sol::function inFunction);
           sol::object Get(std::string_view inVariable);
           sol::object GetFull(sol::object inObject);
-          sol::object CastToType(sol::object inObject, AllTypes inTypes);
+          sol::object CastToType(std::string_view inVariableName, sol::object inObject, AllTypes inTypes);
 
       private:
           sol::object Copy(sol::object obj, sol::state& inTarget);
@@ -76,21 +76,19 @@ inline void MultiThreading::InjectScriptF(sol::function inFunction) {
 }
 
 inline static sol::object GetObjectByType(sol::object obj, sol::state& target, AllTypes inType) noexcept {
-          sol::object Object = {};
           if (inType == AllTypes::Window) {
-                    Object = sol::make_object(target, std::ref(obj.as<Jkr::Window>()));
+                    return sol::make_object(target, std::ref(obj.as<Jkr::Window>()));
           } else if (inType == AllTypes::DefaultCustomImagePainterPushConstant) {
-                    Object = sol::make_object(target, std::ref(obj.as<DefaultCustomImagePainterPushConstant>()));
+                    return sol::make_object(target, std::ref(obj.as<DefaultCustomImagePainterPushConstant>()));
           } else if (inType == AllTypes::Misc_RecycleBin) {
-                    Object = sol::make_object(target, std::ref(obj.as<Jkr::Misc::RecycleBin<int>>()));
+                    return sol::make_object(target, std::ref(obj.as<Jkr::Misc::RecycleBin<int>>()));
           } else if (inType == AllTypes::Renderer_Line) {
-                    Object = sol::make_object(target, std::ref(obj.as<Jkr::Renderer::Renderer::Line>()));
+                    return sol::make_object(target, std::ref(obj.as<Jkr::Renderer::Renderer::Line>()));
           } else if (inType == AllTypes::MultiThreading) {
-                    Object = sol::make_object(target, std::ref(obj.as<MultiThreading>()));
+                    return sol::make_object(target, std::ref(obj.as<MultiThreading>()));
           } else {
-                    {};
+                    return {};
           }
-          return Object;
 }
 
 template <typename T, typename... Ts> inline static sol::object getObjectByType(sol::object& obj, sol::state& target) noexcept {
