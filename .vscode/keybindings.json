@@ -1,0 +1,12 @@
+[
+          {
+                    "key": "ctrl+shift+]",
+                    "command": "editor.foldAll",
+                    "when": "editorFocus"
+          },
+          {
+                    "key": "ctrl+shift+[",
+                    "command": "editor.unfoldAll",
+                    "when": "editorFocus"
+          }
+]

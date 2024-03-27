@@ -30,6 +30,7 @@ class Painter {
                                                                      CmdParam inCmdContext = CmdParam::UI);
 
           void BindDrawParamtersPipelineOnly_EXT(const Primitive& inPrimitive, const Window& inWindow, CmdParam inCmdContext = CmdParam::UI);
+          void BindDrawParamtersPipelineOnly_EXT(const Window& inWindow, CmdParam inCmdContext = CmdParam::UI);
 
           template <class PushType>
           void Draw_EXT(const Primitive& inPrimitive,
@@ -113,7 +114,14 @@ inline void Painter::BindDrawParamtersVertexAndIndexBuffersOnly_EXT(const Instan
           inPrimitive.GetIndexBufferPtr()->Bind<BufferContext::Index>(Cmd);
 }
 
+// TODO to be removed
 inline void Painter::BindDrawParamtersPipelineOnly_EXT(const Primitive& inPrimitive, const Window& inWindow, CmdParam inCmdParam) {
+          auto index = inWindow.GetCurrentFrame();
+          auto& Cmd = inWindow.GetCommandBuffers(inCmdParam)[index];
+          mVulkanPipeline.Bind<PipelineContext::Default>(Cmd);
+}
+
+inline void Painter::BindDrawParamtersPipelineOnly_EXT(const Window& inWindow, CmdParam inCmdParam) {
           auto index = inWindow.GetCurrentFrame();
           auto& Cmd = inWindow.GetCommandBuffers(inCmdParam)[index];
           mVulkanPipeline.Bind<PipelineContext::Default>(Cmd);

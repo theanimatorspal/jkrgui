@@ -1,11 +1,12 @@
+#include "Instance.hpp"
 #include "JkrLuaExe.hpp"
 #include "Renderers/TwoD/Line.hpp"
 #include "Window.hpp"
 #include "sol/sol.hpp"
-#include "vulkan/vulkan_enums.hpp"
 
 namespace JkrEXE {
 extern void CreateMainBindings(sol::state& s);
+
 enum class AllTypes {
           Window,
           DefaultCustomImagePainterPushConstant,
@@ -13,24 +14,28 @@ enum class AllTypes {
           Renderer_Line,
           MultiThreading,
 };
+
 struct MultiThreading {
           MultiThreading(Jkr::Instance& inInstance);
           void Inject(std::string_view inVariable, sol::object inValue);
+          /* TODO Remove these functions */
           void InjectScript(std::string inView);
           void AddJob(std::string inView);
+
           void InjectScriptF(sol::function inFunction);
           void AddJobF(sol::function inFunction);
           sol::object Get(std::string_view inVariable);
-          sol::object GetFull(sol::object inObject);
-          sol::object CastToType(std::string_view inVariableName, sol::object inObject, AllTypes inTypes);
+
+          void Wait();
 
       private:
           sol::object Copy(sol::object obj, sol::state& inTarget);
-          ksai::ThreadPool& mPool;
+          ksai::ThreadPool mPool;
           std::vector<sol::state> mStates;
 };
 
-inline MultiThreading::MultiThreading(Jkr::Instance& inInstance) : mPool(inInstance.GetThreadPool()) {
+inline MultiThreading::MultiThreading(Jkr::Instance& inInstance) {
+          mPool.SetThreadCount(inInstance.GetThreadPool().mThreads.size()); // TODO don't do this, just GetThreadPoolSize();
           mStates.resize(inInstance.GetThreadPool().mThreads.size());
           int i = 0;
           for (auto& state : mStates) {
@@ -103,8 +108,6 @@ template <typename T, typename... Ts> inline static sol::object getObjectByType(
           return {};
 }
 
-sol::object MultiThreading::CastToType(sol::object inObject, AllTypes inType) { return GetObjectByType(inObject, mStates.front(), inType); }
-
 inline sol::object MultiThreading::Copy(sol::object obj, sol::state& target) {
           sol::type tp = obj.get_type();
           switch (tp) {
@@ -140,22 +143,16 @@ inline sol::object MultiThreading::Copy(sol::object obj, sol::state& target) {
                               return sol::make_object(target, t);
                     } break;
                     case sol::type::userdata: {
-                              //   if (obj.is<Jkr::Window>())
-                              //             return sol::make_object(target, std::ref(obj.as<Jkr::Window>()));
-                              //   else if (obj.is<DefaultCustomImagePainterPushConstant>())
-                              //             return sol::make_object(target, std::ref(obj.as<DefaultCustomImagePainterPushConstant>()));
-                              //   else if (obj.is<Jkr::Misc::RecycleBin<int>>())
-                              //             return sol::make_object(target, std::ref(obj.as<Jkr::Misc::RecycleBin<int>>()));
-                              //   else if (obj.is<Jkr::Renderer::Line>())
-                              //             return sol::make_object(target, std::ref(obj.as<Jkr::Renderer::Line>()));
-                              //   else if (obj.is<MultiThreading>())
-                              //             return sol::make_object(target, std::ref(obj.as<MultiThreading>()));
+                              return getObjectByType<Jkr::Instance,
+                                                     Jkr::Window,
+                                                     MultiThreading,
 
-                              return getObjectByType<Jkr::Window,
                                                      DefaultCustomImagePainterPushConstant,
                                                      Jkr::Misc::RecycleBin<int>,
+
                                                      Jkr::Renderer::Line,
-                                                     MultiThreading,
+                                                     Jkr::Renderer::_3D::Shape,
+                                                     Jkr::Renderer::_3D::Simple3D,
                                                      ui>(obj, target); // the last arg doesn't work
                     } break;
                     default:
@@ -163,8 +160,6 @@ inline sol::object MultiThreading::Copy(sol::object obj, sol::state& target) {
           }
           return {};
 }
-
-inline sol::object MultiThreading::GetFull(sol::object inObject) { return Copy(inObject, mStates.front()); }
 
 void CreateMultiThreadingBindings(sol::state& inState) {
           using namespace JkrEXE;
@@ -191,11 +186,8 @@ void CreateMultiThreadingBindings(sol::state& inState) {
                                            "AddJobF",
                                            &MultiThreading::AddJobF,
                                            "InjectScriptF",
-                                           &MultiThreading::InjectScriptF,
-                                           "GetFull", // TODO Remove this
-                                           &MultiThreading::GetFull,
-                                           "CastToType",
-                                           &MultiThreading::CastToType);
+                                           &MultiThreading::InjectScriptF);
 }
 
+inline void MultiThreading::Wait() { mPool.Wait(); }
 } // namespace JkrEXE

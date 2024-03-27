@@ -13,13 +13,12 @@ void CreateBasicBindings(sol::state& s) {
            sol::base_classes,
            sol::bases<Jkr::Window>(),
            sol::call_constructor,
-           sol::factories([](Jkr::Instance& inInstance, std::string_view inTitle, int inWidth, int inHeight) {
-                     int ThreadsCount = 7; // TODO for now
-                     int NoOfCmdBufferPerThread = 2;
+           sol::factories([](Jkr::Instance& inInstance, std::string_view inTitle, int inWidth, int inHeight, int inThreadsCount) {
+                     int NoOfCmdBufferPerThread = 2; // TODO Don't hardcode
                      std::vector<ui> CmdBufferCountPerThreadVec;
-                     CmdBufferCountPerThreadVec.resize(ThreadsCount, NoOfCmdBufferPerThread);
+                     CmdBufferCountPerThreadVec.resize(inThreadsCount, NoOfCmdBufferPerThread);
                      return std::make_unique<Jkr::WindowMulT>(
-                      inInstance, inTitle, inHeight, inWidth, ThreadsCount, CmdBufferCountPerThreadVec, inInstance.GetThreadPool());
+                      inInstance, inTitle, inHeight, inWidth, inThreadsCount, CmdBufferCountPerThreadVec, inInstance.GetThreadPool());
            }),
            "Draw",
            &Jkr::WindowMulT::Draw,

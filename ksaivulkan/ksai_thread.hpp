@@ -3,7 +3,6 @@
 #include <Vendor/Tracy/tracy/Tracy.hpp>
 
 namespace ksai {
-constexpr ui gQueueReserved = 20;
 class Thread {
       public:
           Thread() {

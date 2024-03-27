@@ -29,6 +29,7 @@ class Shape : public Renderer_base, public Shape_base {
 
       private:
           void CheckAndResize(const glTF_Model& inModel);
+          // TODO Remove this
           v<Up<glTF_Model>> mModels;
           Up<Primitive> mPrimitive;
 
