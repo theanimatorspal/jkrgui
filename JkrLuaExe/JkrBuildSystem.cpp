@@ -1,5 +1,5 @@
-#define FMT_HEADER_ONLY
 #include "JkrLuaExe.hpp"
+#include <algorithm>
 #include <filesystem>
 #include <format>
 #include <fstream>
@@ -12,6 +12,13 @@
 
 const string_view DefaultCMakeListsFile = R"CmakeListsFile(
 cmake_minimum_required(VERSION 3.27)
+include("{0}/out/build/{1}/luaExport.cmake")
+include("{0}/out/build/{1}/ksaivulkanExport.cmake")
+include("{0}/out/build/{1}/jkrguiExport.cmake")
+
+project({2})
+add_library({2} SHARED {2}.cpp)
+target_link_libraries({2} lua ksaivulkan jkrgui)
 )CmakeListsFile";
 
 const string_view DefaultLuaLibraryFile = R"LuaLibraryString(
@@ -23,11 +30,21 @@ int luaopen_{0}(lua_State *L) {{
 }}
 )LuaLibraryString";
 
+// TODO For android disable this subsystem entirely
+
 string GetLuaLibraryDefaultString(const string_view inLibraryName) {
 #ifdef ANDROID
           return " ";
 #else
           return std::vformat(DefaultLuaLibraryFile, std::make_format_args(inLibraryName));
+#endif
+}
+
+string GetLuaCMakeListsDefaultString(const string_view inJkrguiPath, const string_view inBuildType, const string_view inLibraryName) {
+#ifdef ANDROID
+          return " ";
+#else
+          return std::vformat(DefaultCMakeListsFile, std::make_format_args(inJkrguiPath, inBuildType, inLibraryName));
 #endif
 }
 
@@ -37,27 +54,29 @@ namespace BuildSystem {
 
 void CreateLuaLibraryEnvironment(
  sv inLibraryName, sv inJkrGUIRepoDirectory, sv inNativeDestinationDirectory, sv inBuildType, bool inManualLibLinking) {
-          const v<sv> BuildType = {"x64-release", "x64-debug", "x86-relase", "x86-debug"};
           fs::path CurrentPath = fs::current_path();
-          fs::path src = s(inJkrGUIRepoDirectory);
+          fs::path JkrGuiRepoPath = s(inJkrGUIRepoDirectory);
           fs::path NativeDestinationDirectory = s(inNativeDestinationDirectory);
 
           {
-                    fs::path jkrgui_path = s(inJkrGUIRepoDirectory) + "/out/build/" + s(inBuildType) + "/jkrgui/jkrgui.lib";
-                    fs::path jkrgui_dst_path = s(inNativeDestinationDirectory) + "jkrgui.lib";
                     fs::path mainCppFilePath = NativeDestinationDirectory / fs::path(string(inLibraryName) + ".cpp");
                     fs::path cmakeListsFilePath = NativeDestinationDirectory / fs::path("CMakeLists.txt");
-                    std::ofstream mainCppFile(mainCppFilePath.string(), std::fstream::out);
-                    std::ofstream cmakeListsFile(cmakeListsFilePath.string(), std::fstream::out);
+                    fs::path cmakePresetsFilePath = NativeDestinationDirectory / fs::path("CMakePresets.json");
+                    fs::path cmakePresetsJkrGuiLibraryPath = JkrGuiRepoPath / fs::path("CMakePresets.json");
 
                     if (not fs::exists(NativeDestinationDirectory)) fs::create_directory(inNativeDestinationDirectory);
                     if (not fs::exists(mainCppFilePath)) {
+                              std::ofstream mainCppFile(mainCppFilePath, std::fstream::out);
+                              std::ofstream cmakeListsFile(cmakeListsFilePath, std::fstream::out);
                               if (mainCppFile.is_open() and cmakeListsFile.is_open()) {
                                         mainCppFile << GetLuaLibraryDefaultString(inLibraryName);
-                                        cmakeListsFile << "cmake_minimum";
+                                        cmakeListsFile << GetLuaCMakeListsDefaultString(inJkrGUIRepoDirectory, inBuildType, inLibraryName);
                               } else {
                                         std::cout << "Fuck, Files are not open";
                               }
+                    }
+                    if (not fs::exists("CMakePresets.json")) {
+                              fs::copy_file(cmakePresetsJkrGuiLibraryPath, cmakePresetsFilePath);
                     }
           }
 }

@@ -12,7 +12,7 @@
           "cmake.allowCommentsInPresetsFile": true,
           "cmake.useCMakePresets": "always",
           "cmake.configureOnOpen": true,
-          "cmake.options.statusBarVisibility": "icon",
+          "cmake.options.statusBarVisibility": "compact",
           "cmake.parallelJobs": 8,
           "cmake.clearOutputBeforeBuild": true,
           /* EDITOR */
