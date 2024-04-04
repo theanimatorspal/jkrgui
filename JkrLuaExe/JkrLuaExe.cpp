@@ -40,18 +40,22 @@ int main(int ArgCount, char** ArgStrings) {
                               s.open_libraries();
                               CreateBuildSystemBindings(s);
                               sol::protected_function_result result = s.safe_script_file("build.lua", &sol::script_pass_on_error);
+                              if (not result.valid()) {
+                                        sol::error error = result;
+                                        std::cout << error.what();
+                                        exit(EXIT_FAILURE);
+                              }
                     }
-          }
-
-          CreateMainBindings(mainState);
-
-          const vector<string_view> CommandLineArgs(ArgStrings + 1, ArgStrings + ArgCount);
-          mainState.set_exception_handler(&my_exception_handler);
-          sol::protected_function_result result = mainState.safe_script_file("app.lua", &sol::script_pass_on_error);
-          if (not result.valid()) {
-                    sol::error error = result;
-                    std::cout << error.what();
-                    exit(EXIT_FAILURE);
+          } else {
+                    CreateMainBindings(mainState);
+                    const vector<string_view> CommandLineArgs(ArgStrings + 1, ArgStrings + ArgCount);
+                    mainState.set_exception_handler(&my_exception_handler);
+                    sol::protected_function_result result = mainState.safe_script_file("app.lua", &sol::script_pass_on_error);
+                    if (not result.valid()) {
+                              sol::error error = result;
+                              std::cout << error.what();
+                              exit(EXIT_FAILURE);
+                    }
           }
           return 0;
 }

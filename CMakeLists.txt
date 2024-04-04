@@ -122,4 +122,4 @@ add_subdirectory(ksai_problems)
 
 export(TARGETS lua FILE luaExport.cmake)
 export(TARGETS ksaivulkan FILE ksaivulkanExport.cmake)
-export(TARGETS ksaivulkan FILE jkrguiExport.cmake)
+export(TARGETS jkrgui FILE jkrguiExport.cmake)
