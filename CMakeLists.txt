@@ -119,3 +119,7 @@ add_subdirectory(ksaivulkan)
 add_subdirectory(jkrgui)
 add_subdirectory(JkrLuaExe)
 add_subdirectory(ksai_problems)
+
+export(TARGETS lua FILE luaExport.cmake)
+export(TARGETS ksaivulkan FILE ksaivulkanExport.cmake)
+export(TARGETS ksaivulkan FILE jkrguiExport.cmake)

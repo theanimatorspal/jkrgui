@@ -20,8 +20,6 @@ void CreateBasicBindings(sol::state& s) {
                      return std::make_unique<Jkr::WindowMulT>(
                       inInstance, inTitle, inHeight, inWidth, inThreadsCount, CmdBufferCountPerThreadVec, inInstance.GetThreadPool());
            }),
-           "Draw",
-           &Jkr::WindowMulT::Draw,
            "SetTitle",
            &Jkr::WindowMulT::SetTitle,
            "BeginUpdates",
@@ -45,6 +43,13 @@ void CreateBasicBindings(sol::state& s) {
            &Jkr::WindowMulT::EndUIs,
            "ExecuteUIs",
            &Jkr::WindowMulT::ExecuteUIs,
+
+           "BeginThreadCommandBuffer",
+           &Jkr::WindowMulT::BeginThreadCommandBuffer,
+           "EndThreadCommandBuffer",
+           &Jkr::WindowMulT::EndThreadCommandBuffer,
+           "ExecuteThreadCommandBuffer",
+           &Jkr::WindowMulT::ExecuteThreadCommandBuffer,
 
            "GetWindowCurrentTime",
            &Jkr::WindowMulT::GetWindowCurrentTime,

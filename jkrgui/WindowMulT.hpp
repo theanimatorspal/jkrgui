@@ -8,11 +8,6 @@ class WindowMulT : public Window {
           using ThreadCommandBufferArray = ThreadCommandBuffer<mMaxFramesInFlight>;
 
       public:
-          // TODO Remove these three
-          const VulkanCommandBuffer& GetSecondaryCmdBufferBackground() const override { return mSecondaryCommandBuffersBackground[mCurrentFrame]; }
-          const VulkanCommandBuffer& GetSecondaryCmdBufferUI() const override { return mSecondaryCommandBuffersUI[mCurrentFrame]; }
-          const VulkanCommandBuffer& GetUtilCommandBuffer() const override { return mCommandBuffers[mCurrentFrame]; }
-
           const VulkanCommandBufferArray& GetCommandBuffers(ParameterContext inParameter) const override;
 
           WindowMulT(const Instance& inInstance,
@@ -23,8 +18,6 @@ class WindowMulT : public Window {
                      std::span<ui> inPerThreadBuffers,
                      optref<ksai::ThreadPool> inPool = std::nullopt);
           ~WindowMulT() = default;
-          virtual void Refresh() override;
-          virtual void Draw(float r = 0.1f, float g = 0.1f, float b = 0.1f, float a = 0.1f, float d = 1.0f) override;
           void BeginUpdates();
           void EndUpdates();
           void BeginDispatches();
@@ -32,6 +25,7 @@ class WindowMulT : public Window {
           void BeginDraws(float r, float g, float b, float a, float d);
           void EndDraws();
           void Present();
+          void Refresh();
 
           void BeginUIs();
           void EndUIs();
@@ -50,15 +44,9 @@ class WindowMulT : public Window {
 
           v<up<ThreadCommandBufferArray>> mThreadCommandBuffers;
 
-          // TODO Remove these
-          void CmdBackground();
-          void CmdUI();
+          // TODO Background Command Buffer is not utilized
 
           // TODO Remove all Set callback functions
-      public:
-          void SetBackgroundCallBack(std::function<void(void*)> inFunction) { mBackgroundCallback = inFunction; }
-          void SetDedicated3DCallback(std::function<void(void*)> inFunction) { mDedicated3DCallback = inFunction; }
-
       private:
           std::function<void(void*)> mBackgroundCallback = [](void*) {};
           std::function<void(void*)> mDedicated3DCallback = [](void*) {};
@@ -139,4 +127,10 @@ inline void WindowMulT::ExecuteThreadCommandBuffer(int inThreadId) {
           mCommandBuffers[mCurrentFrame].ExecuteCommands(cmd);
 }
 
+inline void WindowMulT::BeginThreadCommandBuffer(int inThreadId) {
+          mThreadCommandBuffers[inThreadId]->mCommandBuffers[mCurrentFrame].Reset();
+          mThreadCommandBuffers[inThreadId]->mCommandBuffers[mCurrentFrame].Begin();
+}
+
+inline void WindowMulT::EndThreadCommandBuffer(int inThreadId) { mThreadCommandBuffers[inThreadId]->mCommandBuffers[mCurrentFrame].End(); }
 } // namespace Jkr

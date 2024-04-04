@@ -340,22 +340,22 @@ endif()
 
 function(copyToDestination cpyName)
   if(ANDROID)
-    add_custom_command(TARGET ${cpyName} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_CURRENT_BINARY_DIR}/lib${cpyName}.so
-      ${CMAKE_SOURCE_DIR}/libs/Android/lib${cpyName}.so
-    )
-    add_custom_command(TARGET ${cpyName} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_CURRENT_BINARY_DIR}/lib${cpyName}.so
-      ${CMAKE_SOURCE_DIR}/SDL4droid/aJkrLua_app/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI}/lib${cpyName}.so
-    )
+    # add_custom_command(TARGET ${cpyName} POST_BUILD
+    #   COMMAND ${CMAKE_COMMAND} -E copy
+    #   ${CMAKE_CURRENT_BINARY_DIR}/lib${cpyName}.so
+    #   ${CMAKE_SOURCE_DIR}/libs/Android/lib${cpyName}.so
+    # )
+    # add_custom_command(TARGET ${cpyName} POST_BUILD
+    #   COMMAND ${CMAKE_COMMAND} -E copy
+    #   ${CMAKE_CURRENT_BINARY_DIR}/lib${cpyName}.so
+    #   ${CMAKE_SOURCE_DIR}/SDL4droid/aJkrLua_app/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI}/lib${cpyName}.so
+    # )
 
-    add_custom_command(TARGET ${cpyName} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_SOURCE_DIR}/libs/Android/liblua.so
-      ${CMAKE_SOURCE_DIR}/SDL4droid/aJkrLua_app/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI}/liblua.so
-    )
+    # add_custom_command(TARGET ${cpyName} POST_BUILD
+    #   COMMAND ${CMAKE_COMMAND} -E copy
+    #   ${CMAKE_SOURCE_DIR}/libs/Android/liblua.so
+    #   ${CMAKE_SOURCE_DIR}/SDL4droid/aJkrLua_app/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI}/liblua.so
+    # )
   endif()
 endfunction()
 
