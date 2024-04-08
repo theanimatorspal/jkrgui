@@ -32,13 +32,14 @@ if(APPLE OR ANDROID)
         "ksai_config.hpp"
         "ksai_image.hpp"
         "ksai_thread.hpp"
+        "ksai_config.cpp"
         )
 	   if(ANDROID)
 		   add_library(ksaivulkan ${app_SRC})
-		   configure_target(ksaivulkan)
 	   else()
 		   add_library(ksaivulkan ${app_SRC})
 	   endif()
+          configure_target(ksaivulkan)
 else()
         file(GLOB_RECURSE app_SRC CONFIGURE_DEPENDS
         "*.hpp"
