@@ -44,9 +44,11 @@ class Shape_base {
                     mIndices.resize(inNewIndexSize);
           }
 
-      protected:
+      public:
           GETTER GetVertexCount(uint32_t inId) const { return mIds[inId].mVertexSize; }
           GETTER GetIndexCount(uint32_t inId) const { return mIds[inId].mIndexSize; }
+
+      protected:
           GETTER GetVertexBufferData() { return mVertices.data(); }
           GETTER GetIndexBufferData() { return mIndices.data(); }
           GETTER VertexCountToBytes(uint32_t inCount) const { return inCount * sizeof(Vertex3D); }

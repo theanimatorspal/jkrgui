@@ -57,7 +57,6 @@ inline void Simple3D::Compile(Jkr::Instance& inInstance,
                               std::string_view inFragmentShader,
                               std::string_view inComputeShader,
                               bool inShouldLoad) {
-
           mPainterCache = mu<PainterCache>(inInstance);
           using namespace std;
           if (not inShouldLoad) {

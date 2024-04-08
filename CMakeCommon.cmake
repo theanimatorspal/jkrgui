@@ -79,7 +79,7 @@ else()
 
 
 function(configure_target TARGET_NAME)
-    if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" OR CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
+    if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
         target_link_libraries(${TARGET_NAME}
             ${Vulkan_LIBRARIES}
             SDL2
@@ -111,7 +111,7 @@ function(configure_target TARGET_NAME)
             wsock32
             dbghelp
         )
-    elseif(CMAKE_BUILD_TYPE STREQUAL "Debug" OR MSVC)
+    elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
         target_link_libraries(${TARGET_NAME}
             ${Vulkan_LIBRARIES}
             SDL2

@@ -1,5 +1,6 @@
 ﻿#include "MultiThreading.hpp"
 #include "Renderers/Renderer_base.hpp"
+#include "VulkanCommandBuffer.hpp"
 #include <Vendor/Tracy/tracy/TracyVulkan.hpp>
 
 namespace Jkr {
@@ -129,7 +130,9 @@ inline void WindowMulT::ExecuteThreadCommandBuffer(int inThreadId) {
 
 inline void WindowMulT::BeginThreadCommandBuffer(int inThreadId) {
           mThreadCommandBuffers[inThreadId]->mCommandBuffers[mCurrentFrame].Reset();
-          mThreadCommandBuffers[inThreadId]->mCommandBuffers[mCurrentFrame].Begin();
+          mThreadCommandBuffers[inThreadId]
+           ->mCommandBuffers[mCurrentFrame]
+           .Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPassAndOneTimeSubmit>(mRenderPass, 0, *mFrameBuffers[mAcquiredImageIndex]);
 }
 
 inline void WindowMulT::EndThreadCommandBuffer(int inThreadId) { mThreadCommandBuffers[inThreadId]->mCommandBuffers[mCurrentFrame].End(); }

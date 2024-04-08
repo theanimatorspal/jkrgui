@@ -146,7 +146,7 @@ inline sol::object MultiThreading::Copy(sol::object obj, sol::state& target) {
                     } break;
                     case sol::type::userdata: {
                               return getObjectByType<Jkr::Instance,
-                                                     Jkr::Window,
+                                                     Jkr::WindowMulT,
                                                      MultiThreading,
 
                                                      DefaultCustomImagePainterPushConstant,

@@ -172,7 +172,6 @@ void CreateGLMBindings(sol::state& lua) {
            "Jmath",
            "GetIdentityMatrix4x4",
            []() -> glm::mat4 { return glm::identity<glm::mat4>(); },
-
            "LookAt",
            [](glm::vec3 eye, glm::vec3 center, glm::vec3 up) -> glm::mat4 { return glm::lookAt(eye, center, up); },
            "Perspective",
@@ -181,10 +180,8 @@ void CreateGLMBindings(sol::state& lua) {
            [](float left, float right, float bottom, float top, float nearz, float farz) -> glm::mat4 {
                      return glm::ortho(left, right, bottom, top, nearz, farz);
            },
-
            "Translate",
            [](glm::mat4 inmatrix, glm::vec3 invector) -> glm::mat4 { return glm::translate(inmatrix, invector); },
-
            "Scale",
            [](glm::mat4 inmatrix, glm::vec3 invector) -> glm::mat4 { return glm::scale(inmatrix, invector); },
            "Rotate",

@@ -1,5 +1,8 @@
 #pragma once
+#include "PainterParameter.hpp"
 #include "SDLWindow.hpp"
+#include "vulkan/vulkan.hpp"
+#include "vulkan/vulkan_structs.hpp"
 
 namespace Jkr {
 class Window : public SDLWindow {
@@ -10,7 +13,6 @@ class Window : public SDLWindow {
                                                     VulkanImage<ImageContext::ColorAttach>,
                                                     VulkanImage<ImageContext::DepthImage>,
                                                     VulkanImage<ImageContext::ExternalHandled>>;
-
           enum ParameterContext : int {
                     None = -3,
                     UI = -2,
@@ -20,13 +22,15 @@ class Window : public SDLWindow {
       public:
           virtual const std::array<VulkanCommandBuffer, 2U>& GetCommandBuffers(ParameterContext inParameter) const { return mCommandBuffers; }
           const VulkanCommandPool& GetCommandPool() const { return mCommandPool; }
-          GETTER& GetCurrentFrame() const { return mCurrentFrame; }
+          GETTER& GetCurrentFrame() const { return mCurrentFrame; } // TODO Remove this reference
           GETTER& GetInstance() const { return mInstance; }
           GETTER& GetRenderPass() const { return mRenderPass; }
           GETTER& GetSwapChainImages() const { return mSwapChainImages; }
 
-          SETTER SetScissor(const vk::ArrayProxy<vk::Rect2D>& inScissor, ParameterContext inContext = ParameterContext::UI);
-          SETTER ResetScissor(ParameterContext inContext = ParameterContext::UI);
+          SETTER SetScissor(int inX, int inY, int inW, int inH, ParameterContext inContext = ParameterContext::UI);
+          SETTER SetDefaultScissor(ParameterContext inContext = ParameterContext::UI);
+          SETTER SetViewport(int inX, int inY, int inW, int inH, int inMind, int inMaxD, ParameterContext inContext);
+          SETTER SetDefaultViewport(ParameterContext inContext);
           // TODO Remove this
           void CmdCopySwapChainImageToBufferPostRendering(VulkanBufferBase& inbuffer);
 
@@ -54,10 +58,21 @@ class Window : public SDLWindow {
 
 } // namespace Jkr
 
-inline void Jkr::Window::SetScissor(const vk::ArrayProxy<vk::Rect2D>& inScissor, ParameterContext inContext) {
-          this->GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setScissor(0, inScissor);
+SETTER Jkr::Window::SetScissor(int inX, int inY, int inW, int inH, ParameterContext inContext) {
+          GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setScissor(
+           0, vk::Rect2D{vk::Offset2D{inX, inY}, vk::Extent2D{(ui)inW, (ui)inH}});
 }
-inline void Jkr::Window::ResetScissor(ParameterContext inContext) {
+
+SETTER Jkr::Window::SetDefaultScissor(ParameterContext inContext) {
           vk::Rect2D Rect(vk::Offset2D(0), mDepthImage.GetImageExtent());
           this->GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setScissor(0, Rect);
+}
+
+SETTER Jkr::Window::SetViewport(int inX, int inY, int inW, int inH, int inMind, int inMaxD, ParameterContext inContext) {
+          GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setViewport(0, vk::Viewport(inX, inY, inW, inH, inMind, inMaxD));
+}
+
+SETTER Jkr::Window::SetDefaultViewport(ParameterContext inContext) {
+          auto wh = GetWindowDimension();
+          SetViewport(0, 0, wh.x, wh.y, 0, 1, inContext);
 }

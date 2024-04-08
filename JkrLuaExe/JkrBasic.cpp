@@ -54,7 +54,16 @@ void CreateBasicBindings(sol::state& s) {
            "GetWindowCurrentTime",
            &Jkr::WindowMulT::GetWindowCurrentTime,
            "GetWindowDimension",
-           &Jkr::WindowMulT::GetWindowDimension);
+           &Jkr::WindowMulT::GetWindowDimension,
+
+           "SetScissor",
+           &Jkr::WindowMulT::SetScissor,
+           "SetDefaultScissor",
+           &Jkr::WindowMulT::SetDefaultScissor,
+           "SetViewport",
+           &Jkr::WindowMulT::SetViewport,
+           "SetDefaultViewport",
+           &Jkr::WindowMulT::SetDefaultViewport);
 
           Jkr.new_usertype<Jkr::EventManager>("EventManager",
                                               sol::call_constructor,

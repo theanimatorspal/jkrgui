@@ -52,6 +52,10 @@ void CreateRenderer3DBindings(sol::state& s) {
                                                       "Add",
                                                       &Jkr::Renderer::_3D::Shape::AddEXT,
                                                       "Dispatch",
-                                                      &Jkr::Renderer::_3D::Shape::Dispatch);
+                                                      &Jkr::Renderer::_3D::Shape::Dispatch,
+                                                      "GetVertexCount",
+                                                      &Jkr::Renderer::_3D::Shape::GetVertexCount,
+                                                      "GetIndexCount",
+                                                      &Jkr::Renderer::_3D::Shape::GetIndexCount);
 }
 } // namespace JkrEXE
