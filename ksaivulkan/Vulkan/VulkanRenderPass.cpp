@@ -1,4 +1,5 @@
 #include "VulkanRenderPass.hpp"
+#include "vulkan/vulkan_enums.hpp"
 using namespace ksai;
 template <RenderPassContext T>
 using vr = VulkanRenderPass<T>;
@@ -74,6 +75,15 @@ VulkanRenderPass<RenderPassContext::MSAA>::VulkanRenderPass(const VulkanDevice& 
 {
 	vk::Format SurfaceSwapChainFormat = inSurface.GetSurfaceImageFormat();
 	vk::Format DepthImageFormat = inDepthImage.GetImageFormat();
+
+	vk::AttachmentDescription ColorAttachment = vk::AttachmentDescription(vk::AttachmentDescriptionFlags(), inColorImageTarget.GetImageFormat())
+		.setInitialLayout(vk::ImageLayout::eUndefined)
+		.setFinalLayout(vk::ImageLayout::eColorAttachmentOptimal) // For multi sampled images cannot be presented directly
+		.setLoadOp(vk::AttachmentLoadOp::eClear)
+		.setStoreOp(vk::AttachmentStoreOp::eStore)
+		.setSamples(inMSAASamples);
+	vk::AttachmentReference ColorAttachmentRef(0, vk::ImageLayout::eColorAttachmentOptimal);
+
 	vk::AttachmentDescription DepthAttachment = vk::AttachmentDescription(vk::AttachmentDescriptionFlags(), DepthImageFormat)
 		.setInitialLayout(vk::ImageLayout::eUndefined)
 		.setFinalLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal)
@@ -82,40 +92,29 @@ VulkanRenderPass<RenderPassContext::MSAA>::VulkanRenderPass(const VulkanDevice& 
 		.setSamples(inMSAASamples);
 	vk::AttachmentReference DepthAttachmentRef(1, vk::ImageLayout::eDepthStencilAttachmentOptimal);
 
-	vk::AttachmentDescription ColorAttachment = vk::AttachmentDescription(vk::AttachmentDescriptionFlags(), inColorImageTarget.GetImageFormat())
-		.setInitialLayout(vk::ImageLayout::eUndefined)
-		// .setFinalLayout(vk::ImageLayout::ePresentSrcKHR)
-		.setFinalLayout(vk::ImageLayout::eColorAttachmentOptimal) // For multi sampled images cannot be presented directly
-		.setLoadOp(vk::AttachmentLoadOp::eClear)
-		.setStoreOp(vk::AttachmentStoreOp::eStore)
-		.setSamples(inMSAASamples);
-	vk::AttachmentReference ColorAttachmentRef(0, vk::ImageLayout::eColorAttachmentOptimal);
-
 	vk::AttachmentDescription ColorAttachmentResolve = vk::AttachmentDescription(vk::AttachmentDescriptionFlags(), inColorImageTarget.GetImageFormat())
+		.setInitialLayout(vk::ImageLayout::eUndefined)
+		.setFinalLayout(vk::ImageLayout::ePresentSrcKHR)
 		.setLoadOp(vk::AttachmentLoadOp::eDontCare)
 		.setStoreOp(vk::AttachmentStoreOp::eStore)
 		.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
-		.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
-		.setInitialLayout(vk::ImageLayout::eUndefined)
-		.setFinalLayout(vk::ImageLayout::ePresentSrcKHR);
+		.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare);
 	vk::AttachmentReference ColorAttachmentResolveRef(2, vk::ImageLayout::eColorAttachmentOptimal); // Subpass ma hune layout expected
 
 	vk::SubpassDescription SubPassDescription = vk::SubpassDescription(vk::SubpassDescriptionFlags(), vk::PipelineBindPoint::eGraphics)
 		.setColorAttachmentCount(1)
-		.setPColorAttachments(&ColorAttachmentRef) // TODO Remove this addressing
+		.setColorAttachments(ColorAttachmentRef)
 		.setPDepthStencilAttachment(&DepthAttachmentRef)
 		.setResolveAttachments(ColorAttachmentResolveRef);
 
-	std::array<vk::SubpassDescription, 1> SubpassDescriptions;
-	SubpassDescriptions.fill(SubPassDescription);
-	std::array<vk::AttachmentDescription, 3> AttachmentDescriptions;
-	AttachmentDescriptions = { ColorAttachment, DepthAttachment, ColorAttachmentResolve };
+	std::vector<vk::SubpassDescription> SubpassDescriptions = {SubPassDescription};
+	std::vector<vk::AttachmentDescription> AttachmentDescriptions = { ColorAttachment, DepthAttachment, ColorAttachmentResolve };
 
 	vk::SubpassDependency SubpassDependency = vk::SubpassDependency()
 		.setSrcSubpass(VK_SUBPASS_EXTERNAL)
 		.setDstSubpass(0)
-		.setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests)
-		.setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests)
+		.setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eBottomOfPipe) // TOO Naive TODO Fix this
+		.setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eBottomOfPipe)
 		.setSrcAccessMask(vk::AccessFlagBits::eNone)
 		.setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite);
 
@@ -128,9 +127,7 @@ VulkanRenderPass<RenderPassContext::MSAA>::VulkanRenderPass(const VulkanDevice& 
 		.setDstAccessMask(vk::AccessFlagBits::eNone)
 		.setDependencyFlags(vk::DependencyFlagBits::eByRegion);
 
-	std::array<vk::SubpassDependency, 2> SubpassDependencies;
-	SubpassDependencies = { SubpassDependency,
-		SelfDependency };
+	std::vector<vk::SubpassDependency> SubpassDependencies = { SubpassDependency, SelfDependency };
 
 	mRenderPass = mDevice.createRenderPass(
 		vk::RenderPassCreateInfo()

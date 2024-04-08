@@ -15,8 +15,6 @@ function(configure_target TARGET_NAME)
             SPIRV-Tools-shared
             OSDependent
             GenericCodeGen
-            OGLCompiler
-            HLSL
             glslang-default-resource-limits
             spirv-cross-c-shared
             spirv-cross-c
@@ -50,10 +48,8 @@ function(configure_target TARGET_NAME)
 		glslang
 		harfbuzz-subset
 		harfbuzz
-		HLSL
 		lua
 		MachineIndependent
-		OGLCompiler
 		OSDependent
 		png
 		png16
@@ -98,8 +94,6 @@ function(configure_target TARGET_NAME)
             SPIRV-Tools-shared
             OSDependent
             GenericCodeGen
-            OGLCompiler
-            HLSL
             glslang-default-resource-limits
             spirv-cross-c-shared
             spirv-cross-c
@@ -113,11 +107,11 @@ function(configure_target TARGET_NAME)
             freetype
             harfbuzz
             harfbuzz-subset
-		  ws2_32
-		  wsock32
-		  dbghelp
+            ws2_32
+            wsock32
+            dbghelp
         )
-    elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    elseif(CMAKE_BUILD_TYPE STREQUAL "Debug" OR MSVC)
         target_link_libraries(${TARGET_NAME}
             ${Vulkan_LIBRARIES}
             SDL2
@@ -132,8 +126,6 @@ function(configure_target TARGET_NAME)
             SPIRV-Tools-sharedd
             OSDependentd
             GenericCodeGend
-            OGLCompilerd
-            HLSLd
             glslang-default-resource-limitsd
             spirv-cross-c-sharedd
             spirv-cross-cd
@@ -147,9 +139,9 @@ function(configure_target TARGET_NAME)
             freetype
             harfbuzz
             harfbuzz-subset
-		  ws2_32
-		  wsock32
-		  dbghelp
+            ws2_32
+            wsock32
+            dbghelp
         )
     endif()
 endfunction()
@@ -348,25 +340,26 @@ endif()
 
 function(copyToDestination cpyName)
   if(ANDROID)
-    add_custom_command(TARGET ${cpyName} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_CURRENT_BINARY_DIR}/lib${cpyName}.so
-      ${CMAKE_SOURCE_DIR}/libs/Android/lib${cpyName}.so
-    )
-    add_custom_command(TARGET ${cpyName} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_CURRENT_BINARY_DIR}/lib${cpyName}.so
-      ${CMAKE_SOURCE_DIR}/SDL4droid/aJkrLua_app/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI}/lib${cpyName}.so
-    )
+    # add_custom_command(TARGET ${cpyName} POST_BUILD
+    #   COMMAND ${CMAKE_COMMAND} -E copy
+    #   ${CMAKE_CURRENT_BINARY_DIR}/lib${cpyName}.so
+    #   ${CMAKE_SOURCE_DIR}/libs/Android/lib${cpyName}.so
+    # )
+    # add_custom_command(TARGET ${cpyName} POST_BUILD
+    #   COMMAND ${CMAKE_COMMAND} -E copy
+    #   ${CMAKE_CURRENT_BINARY_DIR}/lib${cpyName}.so
+    #   ${CMAKE_SOURCE_DIR}/SDL4droid/aJkrLua_app/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI}/lib${cpyName}.so
+    # )
 
-    add_custom_command(TARGET ${cpyName} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_SOURCE_DIR}/libs/Android/liblua.so
-      ${CMAKE_SOURCE_DIR}/SDL4droid/aJkrLua_app/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI}/liblua.so
-    )
+    # add_custom_command(TARGET ${cpyName} POST_BUILD
+    #   COMMAND ${CMAKE_COMMAND} -E copy
+    #   ${CMAKE_SOURCE_DIR}/libs/Android/liblua.so
+    #   ${CMAKE_SOURCE_DIR}/SDL4droid/aJkrLua_app/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI}/liblua.so
+    # )
   endif()
 endfunction()
 
 function(someFlags inName)
      set_property(TARGET ${inName} PROPERTY INTERPROCEDURAL_OPTIMIZATION True)
 endfunction()
+

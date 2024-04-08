@@ -1,19 +1,17 @@
-﻿include("CMakeCommon.cmake")
+﻿include("CMakeConfig.cmake")
+include("CMakeCommon.cmake")
 cmake_minimum_required(VERSION 3.27)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# Set C++ standard to C++20
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 # If building for Android, set specific compiler flags
 if(ANDROID)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wl,--exclude-libs,ALL")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
-endif()
-
-# Set the path to Vulkan SDK based on the platform
-if(APPLE)
-    set(VULKAN_SDK "/Users/bishaljaiswal/VulkanSDK")
-    set(VULKAN_VERSION "1.3.268.1")
-elseif(WIN32)
-    set(VULKAN_SDK "C:/VulkanSDK")
-    set(VULKAN_VERSION "1.3.250.1")
 endif()
 
 # Define debug flags for Android builds
@@ -49,13 +47,12 @@ else()
     endif()
 endif()
 
-# Set C++ standard to C++20
-set(CMAKE_CXX_STANDARD 20)
-
 # Set debug information format for MSVC
-if(POLICY CMP0141)
-    cmake_policy(SET CMP0141 NEW)
-    set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
+if(MSVC)
+    if(POLICY CMP0141)
+        cmake_policy(SET CMP0141 NEW)
+        set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
+    endif()
 endif()
 
 # Add platform-specific definitions
@@ -75,9 +72,6 @@ project("jkrengine")
 # Include directories
 include_directories(application)
 include_directories(jkrgui)
-include_directories(jkrgui/Renderers/ThreeD)
-include_directories(jkrgui/Renderers/TwoD)
-include_directories(jkrgui/Renderers/TextD)
 include_directories(ksaivulkan)
 include_directories(ksaivulkan/Vulkan)
 include_directories(ksaivulkan/Vendor)
@@ -122,12 +116,10 @@ endif()
 # Add subdirectories for building
 add_subdirectory(vendor/lua)
 add_subdirectory(ksaivulkan)
-add_subdirectory(aJkrLua)
 add_subdirectory(jkrgui)
-add_subdirectory("JkrLuaExe")
+add_subdirectory(JkrLuaExe)
+add_subdirectory(ksai_problems)
 
-# Add unit testing subdirectory if not building for Android or Apple
-if(NOT ANDROID AND NOT APPLE)
-    add_subdirectory(aa_unit_testing)
-endif()
-
+export(TARGETS lua FILE luaExport.cmake)
+export(TARGETS ksaivulkan FILE ksaivulkanExport.cmake)
+export(TARGETS jkrgui FILE jkrguiExport.cmake)
