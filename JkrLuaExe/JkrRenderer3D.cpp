@@ -16,6 +16,20 @@ struct DefaultPushConstant3DCompute {
 void CreateRenderer3DBindings(sol::state& s) {
           auto Jkr = s["Jkr"].get_or_create<sol::table>();
           using namespace Jkr::Renderer::_3D;
+          Jkr.new_usertype<DefaultPushConstant3D>("DefaultPushConstant3D",
+                                                  sol::call_constructor,
+                                                  sol::default_constructor,
+                                                  "m1",
+                                                  &DefaultPushConstant3D::m1,
+                                                  "m2",
+                                                  &DefaultPushConstant3D::m2);
+          Jkr.new_usertype<DefaultPushConstant3DCompute>("DefaultPushConstant3DCompute",
+                                                         sol::call_constructor,
+                                                         sol::default_constructor,
+                                                         "v1",
+                                                         &DefaultPushConstant3DCompute::v1,
+                                                         "v2",
+                                                         &DefaultPushConstant3DCompute::v2);
           Jkr.new_usertype<Simple3D>("Simple3D",
                                      sol::call_constructor,
                                      sol::factories([](Jkr::Instance& inI, Jkr::Window& inW) { return mu<Simple3D>(inI, inW); }),

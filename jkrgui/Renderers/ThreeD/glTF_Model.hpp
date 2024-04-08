@@ -51,6 +51,8 @@ class glTF_Model {
                                         const tinygltf::Node node = glTFInput.nodes[scene.nodes[i]];
                                         this->LoadNode(node, glTFInput, nullptr, mIndexBuffer, mVertexBuffer);
                               }
+                    } else {
+                              std::cout << "File Not Loaded, Not found with the name:" << inFilePath << '\n';
                     }
           }
 

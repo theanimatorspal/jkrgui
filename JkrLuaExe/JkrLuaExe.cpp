@@ -28,34 +28,39 @@ void CreateMainBindings(sol::state& s) {
 }
 } // namespace JkrEXE
 
+using namespace JkrEXE;
 static sol::state mainState;
 sol::state& GetMainStateRef() { return mainState; }
 
-int main(int ArgCount, char** ArgStrings) {
-          using namespace JkrEXE;
-          auto CmdArg_Map = CommandLine(ArgCount, ArgStrings);
-          if (not CmdArg_Map.empty()) {
-                    if (CmdArg_Map.contains("--build")) { // C++20 ma matrai
-                              sol::state s;
-                              s.open_libraries();
-                              CreateBuildSystemBindings(s);
-                              sol::protected_function_result result = s.safe_script_file("build.lua", &sol::script_pass_on_error);
-                              if (not result.valid()) {
-                                        sol::error error = result;
-                                        std::cout << error.what();
-                                        exit(EXIT_FAILURE);
-                              }
-                    }
-          } else {
-                    CreateMainBindings(mainState);
-                    const vector<string_view> CommandLineArgs(ArgStrings + 1, ArgStrings + ArgCount);
-                    mainState.set_exception_handler(&my_exception_handler);
-                    sol::protected_function_result result = mainState.safe_script_file("app.lua", &sol::script_pass_on_error);
+void RunScript() {
+          CreateMainBindings(mainState);
+          mainState.set_exception_handler(&my_exception_handler);
+          sol::protected_function_result result = mainState.safe_script_file("app.lua", &sol::script_pass_on_error);
+          if (not result.valid()) {
+                    sol::error error = result;
+                    std::cout << error.what();
+          }
+}
+
+void ProcessCmdLine(auto& inCmdLineArg_Map) {
+          if (inCmdLineArg_Map.contains("--build")) {
+                    sol::state s;
+                    s.open_libraries();
+                    CreateBuildSystemBindings(s);
+                    sol::protected_function_result result = s.safe_script_file("build.lua", &sol::script_pass_on_error);
                     if (not result.valid()) {
                               sol::error error = result;
                               std::cout << error.what();
-                              exit(EXIT_FAILURE);
                     }
           }
+}
+
+int main(int ArgCount, char** ArgStrings) {
+          auto CmdArg_Map = CommandLine(ArgCount, ArgStrings);
+          if (not CmdArg_Map.empty())
+                    ProcessCmdLine(CmdArg_Map);
+          else
+                    RunScript();
+
           return 0;
 }

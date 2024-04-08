@@ -1,6 +1,7 @@
 #pragma once
 #include "ksai_config.hpp"
 #include <Vendor/Tracy/tracy/Tracy.hpp>
+#include <functional>
 
 namespace ksai {
 class Thread {
@@ -82,10 +83,11 @@ struct ThreadPool {
           }
 
           void Add_Job(std::function<void()> inJob) {
-                    ZoneScoped;
                     mThreads[mThreadIndex]->AddJob(inJob);
                     mThreadIndex = (mThreadIndex + 1) % mThreads.size();
           }
+
+          void Add_JobToThread(std::function<void()> inJob, int inThreadIndex) { mThreads[inThreadIndex]->AddJob(inJob); }
 
           int GetThreadIndex() { return mThreadIndex; }
 

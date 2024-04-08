@@ -24,6 +24,8 @@ struct MultiThreading {
 
           void InjectScriptF(sol::function inFunction);
           void AddJobF(sol::function inFunction);
+          // TODO Make Lua Binding of this function
+          void AddJobToThreadF(sol::function inFunction, int inThreadIndex);
           sol::object Get(std::string_view inVariable);
 
           void Wait();
@@ -54,7 +56,7 @@ inline sol::object MultiThreading::Get(std::string_view inVariable) { return mSt
 
 inline void MultiThreading::InjectScript(std::string inView) {
           for (auto& state : mStates) {
-                    state.script(inView);
+                    state.safe_script(inView);
           }
 }
 
@@ -63,20 +65,20 @@ inline void MultiThreading::AddJob(std::string inView) {
           int ThreadIndex = mPool.GetThreadIndex();
           mPool.Add_Job([=, &state]() {
                     state["ThreadingId"] = ThreadIndex;
-                    state.script(inView);
+                    state.safe_script(inView);
           });
 }
 
 inline void MultiThreading::AddJobF(sol::function inFunction) {
           auto& state = mStates[mPool.GetThreadIndex()];
           auto f = inFunction.dump();
-          mPool.Add_Job([=, &state]() { state.script(f.as_string_view()); });
+          mPool.Add_Job([=, &state]() { state.safe_script(f.as_string_view()); });
 }
 
 inline void MultiThreading::InjectScriptF(sol::function inFunction) {
           auto f = inFunction.dump();
           for (auto& state : mStates) {
-                    state.script(f.as_string_view());
+                    state.safe_script(f.as_string_view());
           }
 }
 
@@ -186,8 +188,16 @@ void CreateMultiThreadingBindings(sol::state& inState) {
                                            "AddJobF",
                                            &MultiThreading::AddJobF,
                                            "InjectScriptF",
-                                           &MultiThreading::InjectScriptF);
+                                           &MultiThreading::InjectScriptF,
+                                           "Wait",
+                                           &MultiThreading::Wait);
 }
 
 inline void MultiThreading::Wait() { mPool.Wait(); }
+
+inline void MultiThreading::AddJobToThreadF(sol::function inFunction, int inThreadIndex) {
+          auto& state = mStates[inThreadIndex];
+          auto f = inFunction.dump();
+          mPool.Add_JobToThread([=, &state]() { state.script(f.as_string_view()); }, inThreadIndex);
+}
 } // namespace JkrEXE

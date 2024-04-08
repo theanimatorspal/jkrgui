@@ -10,8 +10,10 @@
 #include <type_traits>
 #include <unordered_map>
 
-const string_view DefaultCMakeListsFile = R"CmakeListsFile(
-cmake_minimum_required(VERSION 3.27)
+const string_view DefaultCMakeListsFile = R"CmakeListsFile(cmake_minimum_required(VERSION 3.27)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 include("{0}/out/build/{1}/luaExport.cmake")
 include("{0}/out/build/{1}/ksaivulkanExport.cmake")
 include("{0}/out/build/{1}/jkrguiExport.cmake")
@@ -46,10 +48,7 @@ endif()
 
 )CmakeListsFile";
 
-const string_view DefaultLuaLibraryFile = R"LuaLibraryString(
-#include <lua.h>
-#include <lauxlib.h>
-
+const string_view DefaultLuaLibraryFile = R"LuaLibraryString(#include <sol/sol.hpp>
 #ifdef _WIN32
     #define DLLEXPORT __declspec(dllexport)
 #else
@@ -57,7 +56,10 @@ const string_view DefaultLuaLibraryFile = R"LuaLibraryString(
 #endif
 
 extern "C" DLLEXPORT int luaopen_{0}(lua_State *L) {{
-    return 1;
+        sol::state_view s(L);
+        auto jkrguiApp = s["jkrguiApp"].get_or_create<sol::table>();
+        jkrguiApp.set_function("hello", []() {{ std::cout << "Hello World from jkrguiApp\n"; }});
+        return 1;
 }}
 )LuaLibraryString";
 
@@ -83,8 +85,7 @@ namespace JkrEXE {
 namespace fs = std::filesystem;
 namespace BuildSystem {
 
-void CreateLuaLibraryEnvironment(
- sv inLibraryName, sv inJkrGUIRepoDirectory, sv inNativeDestinationDirectory, sv inBuildType, bool inManualLibLinking) {
+void CreateLuaLibraryEnvironment(sv inLibraryName, sv inJkrGUIRepoDirectory, sv inNativeDestinationDirectory, sv inBuildType, bool inOverride) {
           fs::path CurrentPath = fs::current_path();
           fs::path JkrGuiRepoPath = s(inJkrGUIRepoDirectory);
           fs::path NativeDestinationDirectory = s(inNativeDestinationDirectory);
@@ -97,7 +98,7 @@ void CreateLuaLibraryEnvironment(
 
                     if (not fs::exists(NativeDestinationDirectory)) fs::create_directory(inNativeDestinationDirectory);
 
-                    if (not fs::exists(cmakeListsFilePath)) {
+                    if (not fs::exists(cmakeListsFilePath) or inOverride) {
                               std::ofstream cmakeListsFile(cmakeListsFilePath, std::fstream::out);
                               if (cmakeListsFile.is_open()) {
                                         cmakeListsFile << GetLuaCMakeListsDefaultString(inJkrGUIRepoDirectory, inBuildType, inLibraryName);
@@ -107,7 +108,7 @@ void CreateLuaLibraryEnvironment(
                               if (not fs::exists(cmakePresetsFilePath)) fs::copy_file(cmakePresetsJkrGuiLibraryPath, cmakePresetsFilePath);
                     }
 
-                    if (not fs::exists(mainCppFilePath)) {
+                    if (not fs::exists(mainCppFilePath) or inOverride) {
                               std::ofstream mainCppFile(mainCppFilePath, std::fstream::out);
                               if (mainCppFile.is_open()) {
                                         mainCppFile << GetLuaLibraryDefaultString(inLibraryName);
