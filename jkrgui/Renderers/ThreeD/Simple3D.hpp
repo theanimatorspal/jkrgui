@@ -1,3 +1,4 @@
+#pragma once
 #include "Instance.hpp"
 #include "PainterCache.hpp"
 #include "Renderers/Renderer_base.hpp"
@@ -8,10 +9,8 @@
 namespace Jkr::Renderer::_3D {
 class Simple3D {
       public:
-          GETTER& GetGlslVertexShaderHeaderString() const { return mGlslVertexShaderHeader; }
-          GETTER& GetGlslFragmentShaderHeaderString() const { return mGLslFragmentShaderHeader; }
-          GETTER& GetGlslComputeShaderHeaderString() const { return mGLslFragmentShaderHeader; }
-
+          GETTER& GetPainter() { return *mPainter; }
+          GETTER& GetPainterCache() { return *mPainterCache; }
           Simple3D(Jkr::Instance& inInstance, Jkr::Window& inCompatibleWindow);
           void Compile(Jkr::Instance& inInstance,
                        Jkr::Window& inCompatibleWindow,
@@ -27,18 +26,6 @@ class Simple3D {
       private:
           Up<Painter> mPainter;
           Up<PainterCache> mPainterCache;
-
-          const std::string mGlslVertexShaderHeader = R"""(
-#version 450
-layout(location = 0) in vec3 inPosition;
-layout(location = 1) in vec3 inNormal;
-layout(location = 2) in vec2 inUV;
-layout(location = 3) in vec3 inColor;
-)""";
-
-          const std::string mGLslFragmentShaderHeader = R"""(
-#version 450
-)""";
 };
 
 inline Simple3D::Simple3D(Jkr::Instance& inInstance, Jkr::Window& inCompatibleWindow) {}

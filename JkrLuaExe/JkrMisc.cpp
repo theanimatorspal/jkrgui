@@ -1,4 +1,6 @@
 #include "JkrLuaExe.hpp"
+#include "PainterParameter.hpp"
+#include "sol/sol.hpp"
 
 namespace JkrEXE {
 extern void CreateMainBindings(sol::state& s);
@@ -55,6 +57,18 @@ void CreateMiscBindings(sol::state& inState) {
                                                               &Jkr::Renderer::CustomImagePainter::BindImageFromImage,
                                                               "Draw",
                                                               &Jkr::Renderer::CustomImagePainter::Draw<DefaultCustomImagePainterPushConstant>);
+
+          using Uniform3D = Jkr::Misc::_3D::Uniform3D;
+          Jkr.new_usertype<Uniform3D>(
+           "Uniform3D",
+           sol::call_constructor,
+           sol::factories([](Jkr::Instance& inI, Jkr::Renderer::_3D::Simple3D& inSimple3D) { return mu<Uniform3D>(inI, inSimple3D); }),
+           "AddTexture",
+           &Uniform3D::AddTexture,
+           "Bind",
+           &Uniform3D::Bind,
+           "AddBuffer",
+           &Uniform3D::AddBuffer);
 }
 
 } // namespace JkrEXE

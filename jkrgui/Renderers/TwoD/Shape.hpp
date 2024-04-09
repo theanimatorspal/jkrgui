@@ -67,6 +67,7 @@ class Shape : public Shape_base, Renderer_base {
           std::unordered_map<FillType, Up<Painter>> mPainters;
           Up<Primitive> mPrimitive;
 
+          // TODO Really bad design, separate this to a Copier
       private:
           std::vector<Up<ImageType>> mImages;
           std::vector<uint32_t> mImagesToBeCopiedIds;

@@ -14,13 +14,17 @@ const string_view DefaultCMakeListsFile = R"CmakeListsFile(cmake_minimum_require
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+include("{0}/CMakeConfig.cmake")
+include("{0}/CMakeCommon.cmake")
 include("{0}/out/build/{1}/luaExport.cmake")
 include("{0}/out/build/{1}/ksaivulkanExport.cmake")
 include("{0}/out/build/{1}/jkrguiExport.cmake")
 
+
 project({2})
 add_library({2} SHARED {2}.cpp)
 target_link_libraries({2} lua ksaivulkan jkrgui)
+configure_target({2})
 
 add_custom_command(
     TARGET {2} POST_BUILD
@@ -28,23 +32,6 @@ add_custom_command(
             $<TARGET_FILE:{2}>
             ${{CMAKE_CURRENT_SOURCE_DIR}}/../
 )
-
-include_directories({0}/application)
-include_directories({0}/jkrgui)
-include_directories({0}/ksaivulkan)
-include_directories({0}/ksaivulkan/Vulkan)
-include_directories({0}/ksaivulkan/Vendor)
-include_directories({0}/ksaivulkan/Vendor/stbi)
-include_directories({0}/libs/)
-include_directories({0}/aJkrLua)
-include_directories({0}/vendor/lua)
-
-if(APPLE)
-elseif(ANDROID)
-    include_directories("{0}/libs/AndroidInclude/SDL2")
-else()
-    include_directories({0}/ksaivulkan/Vendor/Tracy/tracy)
-endif()
 
 )CmakeListsFile";
 

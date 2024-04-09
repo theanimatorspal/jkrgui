@@ -1,5 +1,5 @@
 {
-          "workbench.colorTheme": "Solarized Light",
+          "workbench.colorTheme": "GitHub Light",
           "git.enableSmartCommit": true,
           "git.confirmSync": false,
           "gitlens.currentLine.enabled": false,
@@ -41,7 +41,7 @@
                                         "scope": "variable.language",
                                         "settings": {
                                                   "fontStyle": "italic",
-                                                  "foreground": "#0000ff"
+                                                  "foreground": "#0f09ff"
                                         }
                               },
                               {
@@ -54,7 +54,7 @@
                                         "scope": "entity.name.function",
                                         "settings": {
                                                   "fontStyle": "italic bold",
-                                                  "foreground": "#0000aa"
+                                                  "foreground": "#0f89ff"
                                         }
                               }
                     ]
