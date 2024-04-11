@@ -1,4 +1,4 @@
-# Set C++ standard to C++20
+# SET C++ STANDARD TO C++20
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
@@ -80,7 +80,8 @@ else()
     include_directories(ksaivulkan/Vendor/Tracy/tracy)
 endif()
 
-set(Vulkan_LIBRARIES "vulkan-1")
+find_package(Vulkan REQUIRED)
+#set(Vulkan_LIBRARIES "vulkan-1")
 include_directories(${VULKAN_INCLUDE_PATH})
 # Link directories based on platform
 if(ANDROID)
