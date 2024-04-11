@@ -16,20 +16,20 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 include("{0}/CMakeConfig.cmake")
 include("{0}/CMakeCommon.cmake")
-include("{0}/out/build/{1}/luaExport.cmake")
-include("{0}/out/build/{1}/ksaivulkanExport.cmake")
-include("{0}/out/build/{1}/jkrguiExport.cmake")
+include("{0}/out/build/${CMAKE_PRESET_NAME}/luaExport.cmake")
+include("{0}/out/build/${CMAKE_PRESET_NAME}/ksaivulkanExport.cmake")
+include("{0}/out/build/${CMAKE_PRESET_NAME}/jkrguiExport.cmake")
 
 
-project({2})
-add_library({2} SHARED {2}.cpp)
-target_link_libraries({2} lua ksaivulkan jkrgui)
-configure_target({2})
+project({1})
+add_library({1} SHARED {1}.cpp)
+target_link_libraries({1} lua ksaivulkan jkrgui)
+configure_target({1})
 
 add_custom_command(
-    TARGET {2} POST_BUILD
+    TARGET {1} POST_BUILD
     COMMAND ${{CMAKE_COMMAND}} -E copy
-            $<TARGET_FILE:{2}>
+            $<TARGET_FILE:{1}>
             ${{CMAKE_CURRENT_SOURCE_DIR}}/../
 )
 
@@ -64,7 +64,7 @@ string GetLuaCMakeListsDefaultString(const string_view inJkrguiPath, const strin
 #ifdef ANDROID
           return " ";
 #else
-          return std::vformat(DefaultCMakeListsFile, std::make_format_args(inJkrguiPath, inBuildType, inLibraryName));
+          return std::vformat(DefaultCMakeListsFile, std::make_format_args(inJkrguiPath, inLibraryName));
 #endif
 }
 

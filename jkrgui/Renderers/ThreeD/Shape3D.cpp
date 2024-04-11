@@ -55,7 +55,7 @@ void Shape::Add(const std::string_view inFileName, uint32_t& outId) {
 void Shape::Add(Generator& inGenerator, glm::vec3 inPosition, ui& outId) {
           v<ui> Indices;
           v<Vertex3D> Vertices;
-          inGenerator(inPosition.x, inPosition.y, inPosition.z, 0, 0, Vertices, Indices);
+          inGenerator(inPosition.x, inPosition.y, inPosition.z, gb::GetCurrentVertexOffset(), 0, Vertices, Indices);
           CheckAndResize(Vertices.size(), Indices.size());
           gb::Add(Vertices, Indices, outId);
           const auto OffsetId = (uint32_t)outId;
