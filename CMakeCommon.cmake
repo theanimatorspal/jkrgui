@@ -71,6 +71,8 @@ if(ANDROID)
     include_directories(${APP_GLUE_DIR})
 elseif(WIN32)
     add_definitions(-DVK_USE_PLATFORM_WIN32_KHR)
+elseif(APPLE)
+    add_definitions(-DLUA_USE_MACOSX)
 endif()
 
 if(APPLE)
