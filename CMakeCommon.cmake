@@ -80,8 +80,14 @@ else()
     include_directories(ksaivulkan/Vendor/Tracy/tracy)
 endif()
 
-find_package(Vulkan REQUIRED)
-#set(Vulkan_LIBRARIES "vulkan-1")
+if(WIN32)
+set(Vulkan_LIBRARIES "vulkan-1")
+elseif(APPLE)
+set(Vulkan_LIBRARIES "vulkan")
+else()
+endif()
+
+
 include_directories(${VULKAN_INCLUDE_PATH})
 # Link directories based on platform
 if(ANDROID)
