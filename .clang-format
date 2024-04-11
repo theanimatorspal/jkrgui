@@ -10,7 +10,7 @@ PointerAlignment: Left
 ConstructorInitializerAllOnOneLineOrOnePerLine: false
 BinPackArguments: false
 BinPackParameters: false
-ContinuationIndentWidth: 1
+ContinuationIndentWidth: 10
 AlignAfterOpenBracket: Align
 #BreakTemplateDeclarations: Yes
 AccessModifierOffset: -4

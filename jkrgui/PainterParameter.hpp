@@ -1,5 +1,6 @@
 #pragma once
 #include "Instance.hpp"
+#include "VulkanBuffer.hpp"
 #include <Vendor/stbi/stb_image.h>
 
 namespace Jkr {
@@ -79,6 +80,10 @@ template <> class PainterParameter<PainterParameterContext::StorageBuffer> : pub
           PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
           inline void Setup(vk::DeviceSize inStorageBufferSize) { PainterParameterBase::Setup(mStorageBufferPtr, inStorageBufferSize); }
           GETTER& GetStorageBuffer() const { return *mStorageBufferPtr; }
+          void Register(vk::DeviceSize inOffset, uint32_t inDstBinding, uint32_t inDstArrayElement, VulkanDescriptorSet& inDescriptorSet) {
+                    mVulkanDescriptorSetHandler.RW<BufferContext::Storage>(
+                     inDescriptorSet, *mStorageBufferPtr, inOffset, inDstBinding, inDstArrayElement);
+          }
 
       private:
           Up<StorageBufferType> mStorageBufferPtr;
@@ -94,6 +99,10 @@ template <> class PainterParameter<PainterParameterContext::UniformBuffer> : pub
           GETTER& GetUniformMappedMemoryRegion() { return mUniformMappedMemoryRegion; }
           GETTER& GetUniformBuffer() const { return *mUniformBufferPtr; }
           GETTER GetUniformBufferSize() const { return mSize; }
+          void Register(vk::DeviceSize inOffset, uint32_t inDstBinding, uint32_t inDstArrayElement, VulkanDescriptorSet& inDescriptorSet) {
+                    mVulkanDescriptorSetHandler.RW<BufferContext::Uniform>(
+                     inDescriptorSet, *mUniformBufferPtr, inOffset, inDstBinding, inDstArrayElement);
+          }
 
       private:
           sz mSize;

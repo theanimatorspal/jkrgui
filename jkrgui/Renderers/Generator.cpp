@@ -1,15 +1,16 @@
 #include "Generator.hpp"
+#include "glm/fwd.hpp"
 
 using namespace Jkr;
 
 Generator::Generator(Shapes inShape, Arguments inArgs) : mArgs(inArgs), mShape(inShape) {
           switch (inShape) {
-                    case Shapes::EllipseFill:
-                              // TODO Implement
-                              break;
                     case Shapes::EllipseWire:
                               mVertexCount = std::get<glm::uvec2>(mArgs).y;
                               mIndexCount = std::get<glm::uvec2>(mArgs).y + 1;
+                              break;
+                    case Shapes::EllipseFill:
+                              // TODO Implement
                               break;
                     case Shapes::RectangleFill:
                               mVertexCount = 4;
@@ -21,6 +22,25 @@ Generator::Generator(Shapes inShape, Arguments inArgs) : mArgs(inArgs), mShape(i
                     case Shapes::Bezier2_8Wire:
                               mVertexCount = 8;
                               mIndexCount = 8;
+                    case Shapes::Cube3D:
+                              mVertexCount = 24;
+                              mIndexCount = 36;
+                              break;
+                    case Shapes::Sphere3D:
+                              // TODO Implement
+                              break;
+                    case Shapes::Cylinder3D:
+                              // TODO Implement
+                              break;
+                    case Shapes::Cone3D:
+                              // TODO Implement
+                              break;
+                    case Shapes::Torus3D:
+                              // TODO Implement
+                              break;
+                    case Shapes::Icosphere3D:
+                              // TODO Implement
+                              break;
           }
 }
 
@@ -32,9 +52,6 @@ void Jkr::Generator::operator()(int inX,
                                 std::vector<kstd::Vertex>& modVertices,
                                 std::vector<uint32_t>& modIndices) {
           switch (mShape) {
-                    case Shapes::EllipseFill: {
-                              // TODO Implement
-                    } break;
                     // TODO Implement Ellipse (This is a Circle Implementation)
                     case Shapes::EllipseWire: {
                               float x = inX;
@@ -51,9 +68,9 @@ void Jkr::Generator::operator()(int inX,
                                                   const float ix = R * cos(TH);
                                                   const float iy = R * sin(TH);
                                                   modVertices[inStartVertexIndex + i] =
-                                                   kstd::Vertex{.mPosition = {ix + y, iy + x, inZ}, .mTextureCoordinates = {ix, iy}
+                                                            kstd::Vertex{.mPosition = {ix + y, iy + x, inZ}, .mTextureCoordinates = {ix, iy}
 
-                                                   };
+                                                            };
                                                   modIndices[inStartIndexIndex + i] = inStartVertexIndex + i;
                                                   TH += dTH;
                                         }
@@ -61,6 +78,12 @@ void Jkr::Generator::operator()(int inX,
                               }
                               break;
                     }
+                    case Shapes::EllipseFill: {
+                              // TODO Implement
+                    } break;
+                    case Shapes::RectangleWire: {
+                              // TODO Implement
+                    } break;
                     case Shapes::RectangleFill: {
                               int x = inX;
                               int dx = std::get<glm::uvec2>(mArgs).x;
@@ -85,9 +108,6 @@ void Jkr::Generator::operator()(int inX,
                               modIndices[i_index + 5] = v_index + 3;
                               break;
                     }
-                    case Shapes::RectangleWire: {
-                              // TODO Implement
-                    } break;
                     case Shapes::Bezier2_8Wire: {
                               modVertices.resize(8 + modVertices.size());
                               modIndices.resize(8 + modIndices.size());
@@ -104,12 +124,14 @@ void Jkr::Generator::operator()(int inX,
                                         const glm::vec2 pt = (1 - t) * (1 - t) * (1 - t) * p_o + 3 * (1 - t) * (1 - t) * t * p_1 +
                                                              3 * (1 - t) * t * t * p_2 + t * t * t * p_3;
 
-                                        modVertices[v_index + i] =
-                                         kstd::Vertex{.mPosition = glm::vec3(pt.x + inX, pt.y + inY, inZ), .mTextureCoordinates = glm::vec2(0, 0)};
+                                        modVertices[v_index + i] = kstd::Vertex{.mPosition = glm::vec3(pt.x + inX, pt.y + inY, inZ),
+                                                                                .mTextureCoordinates = glm::vec2(0, 0)};
                                         modIndices[i + i_index] = i + v_index;
                                         t += del_t;
                               }
                     } break;
+                    default:
+                              break;
           }
 }
 
@@ -120,6 +142,80 @@ void Jkr::Generator::operator()(float inX,
                                 uint32_t inStartIndexIndex,
                                 ksai::v<kstd::Vertex3D>& modVertices,
                                 ksai::v<ksai::ui>& modIndices) {
+          switch (mShape) {
+                    case Shapes::Cube3D: {
+                              glm::vec3 Size = std::get<decltype(Size)>(mArgs);
+                              modVertices.resize(mVertexCount + modVertices.size());
+                              modIndices.resize(mIndexCount + modIndices.size());
+                              float x = Size.x;
+                              float y = Size.y;
+                              float z = Size.z;
+                              glm::vec3 positions[8] = {
+                                        // Bottom
+                                        {-x, -y, z},
+                                        {x, -y, z},
+                                        {x, -y, -z},
+                                        {-x, -y, -z},
+                                        // Top
+                                        {-x, -y, z},
+                                        {x, -y, z},
+                                        {x, -y, -z},
+                                        {-x, -y, -z},
+                              };
 
-          // TODO Implement 3D Shapes
+                              glm::vec3 normals[6] = {
+                                        {0, -1, 0}, // Bottom
+                                        {0, 1, 0},  // Top
+                                        {-1, 0, 0}, // Left
+                                        {0, 0, 1},  // Right
+                                        {0, 0, -1}, // Back
+                                        {0, 0, 1},  // Front
+                              };
+
+                              glm::vec2 uvs[4] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
+
+                              unsigned int faceIndices[6][4] = {
+                                        {0, 1, 2, 3}, // Bottom
+                                        {4, 5, 6, 7}, // Top
+                                        {0, 1, 5, 4}, // Left
+                                        {3, 2, 6, 7}, // Right
+                                        {0, 3, 7, 4}, // Back
+                                        {0, 2, 6, 5}  // Front
+                              };
+
+                              int start = inStartVertexIndex;
+                              for (int i = 0; i < 6; ++i) {
+                                        for (int j = 0; j < 4; ++j) {
+                                                  modVertices[start++] = {
+                                                            .mPosition = positions[faceIndices[i][j]],
+                                                            .mNormal = normals[i],
+                                                            .mUV = uvs[j],
+                                                            .mColor = glm::vec4(1, 1, 1, 1),
+                                                  };
+                                        }
+                              }
+
+                              start = inStartIndexIndex;
+                              for (int i = 0; i < 6; ++i) {
+                                        modIndices[start++] = inStartVertexIndex + (i * 4);
+                                        modIndices[start++] = inStartVertexIndex + (i * 4 + 1);
+                                        modIndices[start++] = inStartVertexIndex + (i * 4 + 2);
+                                        modIndices[start++] = inStartVertexIndex + (i * 4);
+                                        modIndices[start++] = inStartVertexIndex + (i * 4 + 2);
+                                        modIndices[start++] = inStartVertexIndex + (i * 4 + 3);
+                              }
+                    } break;
+                    case Shapes::Sphere3D: {
+                    } break;
+                    case Shapes::Cylinder3D: {
+                    } break;
+                    case Shapes::Cone3D: {
+                    } break;
+                    case Shapes::Torus3D: {
+                    } break;
+                    case Shapes::Icosphere3D: {
+                    } break;
+                    default:
+                              break;
+          }
 }

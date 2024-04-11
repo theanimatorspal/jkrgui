@@ -1,4 +1,5 @@
 #include "JkrLuaExe.hpp"
+#include "Renderers/Generator.hpp"
 
 namespace JkrEXE {
 
@@ -21,7 +22,7 @@ void CreateRendererBindings(sol::state& inState) {
           auto CmdParamEnumType = Jkr.new_enum<false>("CmdParam", "UI", CmdParam::UI, "Background", CmdParam::Background, "None", CmdParam::None);
 
           auto FillTypeEnum =
-           Jkr.new_enum<false>("FillType", "Fill", FillType::Fill, "Image", FillType::Image, "ContinousLine", FillType::ContinousLine);
+                    Jkr.new_enum<false>("FillType", "Fill", FillType::Fill, "Image", FillType::Image, "ContinousLine", FillType::ContinousLine);
 
           auto PipelinePropertiesEnum = Jkr.new_enum<false>("PipelineProperties",
                                                             "Default",
@@ -32,43 +33,65 @@ void CreateRendererBindings(sol::state& inState) {
                                                             Jkr::PipelinePropertiesContext::LineStrip);
 
           Jkr.new_usertype<ShapeRendererResources>(
-           "ShapeRendererResources", sol::call_constructor, []() { return ShapeRendererResources(); }, "Add", &ShapeRendererResources::Add);
+                    "ShapeRendererResources", sol::call_constructor, []() { return ShapeRendererResources(); }, "Add", &ShapeRendererResources::Add);
 
-          Jkr.new_enum<false>("Shapes", "RectangleFill", Jkr::Shapes::RectangleFill, "EllipseWire", Jkr::Shapes::EllipseWire);
+          Jkr.new_enum<false>("Shapes",
+                              "EllipseWire",
+                              Jkr::Shapes::EllipseWire,
+                              "EllipseFill",
+                              Jkr::Shapes::EllipseFill,
+                              "RectangleWire",
+                              Jkr::Shapes::RectangleWire,
+                              "RectangleFill",
+                              Jkr::Shapes::RectangleFill,
+                              "Bezier2_8Wire",
+                              Jkr::Shapes::Bezier2_8Wire,
+                              "Cube3D",
+                              Jkr::Shapes::Cube3D,
+                              "Sphere3D",
+                              Jkr::Shapes::Sphere3D,
+                              "Cylinder3D",
+                              Jkr::Shapes::Cylinder3D,
+                              "Cone3D",
+                              Jkr::Shapes::Cone3D,
+                              "Torus3D",
+                              Jkr::Shapes::Torus3D,
+                              "Icosphere3D",
+                              Jkr::Shapes::Icosphere3D);
 
           Jkr.new_usertype<Jkr::Renderer::Generator::Arguments>("Arguments");
 
           Jkr.new_usertype<Jkr::Renderer::Generator>(
-           "Generator",
-           sol::call_constructor,
-           sol::factories([]() { return Jkr::Renderer::Generator(); },
-                          [](Jkr::Shapes inShape, Jkr::Generator::Arguments inArg) { return Jkr::Renderer::Generator(inShape, inArg); }));
+                    "Generator",
+                    sol::call_constructor,
+                    sol::factories([]() { return Jkr::Renderer::Generator(); },
+                                   [](Jkr::Shapes inShape, Jkr::Generator::Arguments inArg) { return Jkr::Renderer::Generator(inShape, inArg); }));
           Jkr.new_usertype<Jkr::Renderer::Shape>(
-           "ShapeRenderer",
-           sol::call_constructor,
-           sol::factories([](Jkr::Instance& inInstance, Jkr::WindowMulT& inCompatibleWindow, ShapeRendererResources& inResources) {
-                     return mu<Jkr::Renderer::Shape>(inInstance, inCompatibleWindow, inResources.mCaches);
-           }),
-           "Add",
-           &Jkr::Renderer::Shape::AddEXT,
-           "Update",
-           &Jkr::Renderer::Shape::UpdateEXT,
-           "AddImage",
-           sol::overload(sol::resolve<ui(const string_view)>(&Jkr::Renderer::Shape::AddImageEXT),
-                         sol::resolve<ui(ui, ui)>(&Jkr::Renderer::Shape::AddImageEXT),
-                         sol::resolve<ui(vector<uc>, ui, ui)>(&Jkr::Renderer::Shape::AddImageEXT)),
-           "BindShapes",
-           &Jkr::Renderer::Shape::BindShapes,
-           "BindImage",
-           &Jkr::Renderer::Shape::BindImage,
-           "Draw",
-           &Jkr::Renderer::Shape::DrawEXT,
-           "Dispatch",
-           &Jkr::Renderer::Shape::Dispatch,
-           "Update",
-           &Jkr::Renderer::Shape::Update,
-           "BindFillMode",
-           &Jkr::Renderer::Shape::BindFillMode);
+                    "ShapeRenderer",
+                    sol::call_constructor,
+                    sol::factories([](Jkr::Instance& inInstance, Jkr::WindowMulT& inCompatibleWindow, ShapeRendererResources& inResources) {
+                              return mu<Jkr::Renderer::Shape>(inInstance, inCompatibleWindow, inResources.mCaches);
+                    }),
+                    "Add",
+                    &Jkr::Renderer::Shape::AddEXT,
+                    "Update",
+                    &Jkr::Renderer::Shape::UpdateEXT,
+                    "AddImage",
+                    sol::overload(sol::resolve<ui(const string_view)>(&Jkr::Renderer::Shape::AddImageEXT),
+                                  sol::resolve<ui(ui, ui)>(&Jkr::Renderer::Shape::AddImageEXT),
+                                  sol::resolve<ui(vector<uc>, ui, ui)>(&Jkr::Renderer::Shape::AddImageEXT)),
+                    "BindShapes",
+                    &Jkr::Renderer::Shape::BindShapes,
+                    "BindImage",
+                    &Jkr::Renderer::Shape::BindImage,
+                    "Draw",
+                    &Jkr::Renderer::Shape::DrawEXT,
+                    "Dispatch",
+                    &Jkr::Renderer::Shape::Dispatch,
+                    "Update",
+                    &Jkr::Renderer::Shape::Update,
+                    "BindFillMode",
+                    &Jkr::Renderer::Shape::BindFillMode);
 
           Jkr.new_usertype<Jkr::Renderer::Line>("LineRenderer",
                                                 sol::call_constructor,

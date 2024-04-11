@@ -1,12 +1,32 @@
+#pragma once
 #include <Global/Standards.hpp>
 #include <glm/glm.hpp>
 #include <ksai_config.hpp>
 
 namespace Jkr {
 using namespace ksai;
-enum class Shapes { EllipseWire, EllipseFill, RectangleFill, RectangleWire, Bezier2_8Wire };
+enum class Shapes {
+          EllipseWire,
+          EllipseFill,
+          RectangleWire,
+          RectangleFill,
+          Bezier2_8Wire,
+          Cube3D,
+          Sphere3D,
+          Cylinder3D,
+          Cone3D,
+          Torus3D,
+          Icosphere3D
+};
 struct Generator {
-          using Arguments = std::variant<glm::uvec2, std::vector<glm::uvec2>, std::vector<glm::vec2>, uint32_t, glm::vec4>;
+          using Arguments = std::variant<glm::uvec2,
+                                         std::vector<glm::uvec2>,
+                                         std::vector<glm::vec2>,
+                                         uint32_t,
+                                         glm::vec4,
+                                         glm::vec3,
+                                         glm::vec2,
+                                         std::vector<kstd::Vertex3D>>;
           Generator() = default;
           Generator(Shapes inShape, Arguments inArgs);
           void operator()(int inX,

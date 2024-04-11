@@ -68,7 +68,8 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                           const tinygltf::Model& input,
                           Node* inParent,
                           std::vector<uint32_t>& indexBuffer,
-                          std::vector<Vertex3D>& vertexBuffer) {
+                          std::vector<Vertex3D>& vertexBuffer,
+                          ui inInitialVertexOffset) {
           Up<glTF_Model::Node> Node = MakeUp<glTF_Model::Node>();
           Node->mMatrix = glm::mat4(1.0f);
           Node->mParent = inParent;
@@ -92,7 +93,7 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
           /* Load node's children */
           if (inputNode.children.size() > 0) {
                     for (size_t i = 0; i < inputNode.children.size(); i++) {
-                              LoadNode(input.nodes[inputNode.children[i]], input, Node.get(), indexBuffer, vertexBuffer);
+                              LoadNode(input.nodes[inputNode.children[i]], input, Node.get(), indexBuffer, vertexBuffer, inInitialVertexOffset);
                     }
           }
 
@@ -116,37 +117,37 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                                         /*Get Buffer data for vertex Position*/
                                         if (glTFPrimitive.attributes.find("POSITION") != glTFPrimitive.attributes.end()) {
                                                   const tinygltf::Accessor& accessor =
-                                                   input.accessors[glTFPrimitive.attributes.find("POSITION")->second];
+                                                            input.accessors[glTFPrimitive.attributes.find("POSITION")->second];
                                                   const tinygltf::BufferView& view = input.bufferViews[accessor.bufferView];
                                                   positionBuffer = reinterpret_cast<const float*>(
-                                                   &(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
+                                                            &(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
                                                   vertexCount = accessor.count;
                                         }
 
                                         /* Get Buffer Data From Vertex Normals */
                                         if (glTFPrimitive.attributes.find("NORMAL") != glTFPrimitive.attributes.end()) {
                                                   const tinygltf::Accessor& accessor =
-                                                   input.accessors[glTFPrimitive.attributes.find("NORMAL")->second];
+                                                            input.accessors[glTFPrimitive.attributes.find("NORMAL")->second];
                                                   const tinygltf::BufferView& view = input.bufferViews[accessor.bufferView];
                                                   normalsBuffer = reinterpret_cast<const float*>(
-                                                   &(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
+                                                            &(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
                                         }
 
                                         /*Get Buffer Data From TexCoords*/
                                         if (glTFPrimitive.attributes.find("TEXCOORD_0") != glTFPrimitive.attributes.end()) {
                                                   const tinygltf::Accessor& accessor =
-                                                   input.accessors[glTFPrimitive.attributes.find("TEXCOORD_0")->second];
+                                                            input.accessors[glTFPrimitive.attributes.find("TEXCOORD_0")->second];
                                                   const tinygltf::BufferView& view = input.bufferViews[accessor.bufferView];
                                                   texCoordsBuffer = reinterpret_cast<const float*>(
-                                                   &(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
+                                                            &(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
                                         }
 
                                         /* Append data to Model's VertexBuffer */
                                         for (size_t v = 0; v < vertexCount; v++) {
                                                   Vertex3D vert{};
                                                   vert.mPosition = glm::vec4(glm::make_vec3(&positionBuffer[v * 3]), 1.0f);
-                                                  vert.mNormal =
-                                                   glm::normalize(glm::vec3(normalsBuffer ? glm::make_vec3(&normalsBuffer[v * 3]) : glm::vec3(0.0f)));
+                                                  vert.mNormal = glm::normalize(
+                                                            glm::vec3(normalsBuffer ? glm::make_vec3(&normalsBuffer[v * 3]) : glm::vec3(0.0f)));
                                                   vert.mUV = texCoordsBuffer ? glm::make_vec2(&texCoordsBuffer[v * 2]) : glm::vec2(0.0f);
                                                   vert.mColor = glm::vec3(1.0f);
                                                   vertexBuffer.push_back(vert);
@@ -165,25 +166,25 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                                         switch (accessor.componentType) {
                                                   case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT: {
                                                             const uint32_t* buf = reinterpret_cast<const uint32_t*>(
-                                                             &buffer.data[accessor.byteOffset + bufferView.byteOffset]);
+                                                                      &buffer.data[accessor.byteOffset + bufferView.byteOffset]);
                                                             for (size_t index = 0; index < accessor.count; index++) {
-                                                                      indexBuffer.push_back(buf[index] + vertex_start);
+                                                                      indexBuffer.push_back(buf[index] + vertex_start + inInitialVertexOffset);
                                                             }
                                                             break;
                                                   }
                                                   case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT: {
                                                             const uint16_t* buf = reinterpret_cast<const uint16_t*>(
-                                                             &buffer.data[accessor.byteOffset + bufferView.byteOffset]);
+                                                                      &buffer.data[accessor.byteOffset + bufferView.byteOffset]);
                                                             for (size_t index = 0; index < accessor.count; index++) {
-                                                                      indexBuffer.push_back(buf[index] + vertex_start);
+                                                                      indexBuffer.push_back(buf[index] + vertex_start + inInitialVertexOffset);
                                                             }
                                                             break;
                                                   }
                                                   case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE: {
                                                             const uint8_t* buf = reinterpret_cast<const uint8_t*>(
-                                                             &buffer.data[accessor.byteOffset + bufferView.byteOffset]);
+                                                                      &buffer.data[accessor.byteOffset + bufferView.byteOffset]);
                                                             for (size_t index = 0; index < accessor.count; index++) {
-                                                                      indexBuffer.push_back(buf[index] + vertex_start);
+                                                                      indexBuffer.push_back(buf[index] + vertex_start + inInitialVertexOffset);
                                                             }
                                                             break;
                                                   }

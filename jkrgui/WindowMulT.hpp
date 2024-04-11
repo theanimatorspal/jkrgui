@@ -42,15 +42,7 @@ class WindowMulT : public Window {
           VulkanCommandBufferArray mSecondaryCommandBuffersBackground;
           VulkanCommandPool mUICommandPool;
           VulkanCommandBufferArray mSecondaryCommandBuffersUI;
-
           v<up<ThreadCommandBufferArray>> mThreadCommandBuffers;
-
-          // TODO Background Command Buffer is not utilized
-
-          // TODO Remove all Set callback functions
-      private:
-          std::function<void(void*)> mBackgroundCallback = [](void*) {};
-          std::function<void(void*)> mDedicated3DCallback = [](void*) {};
 };
 
 } // namespace Jkr
@@ -65,7 +57,7 @@ inline const std::array<VulkanCommandBuffer, 2U>& Jkr::WindowMulT::GetCommandBuf
                     case Jkr::Window::Background:
                               return mSecondaryCommandBuffersBackground;
                     default:
-                              return mThreadCommandBuffers[(int)inParameter]->mCommandBuffers;
+                              return mThreadCommandBuffers[inParameter]->mCommandBuffers;
           }
 }
 
@@ -89,7 +81,7 @@ inline void WindowMulT::EndDispatches() {}
 inline void WindowMulT::BeginDraws(float r = 0.1f, float g = 0.1f, float b = 0.1f, float a = 0.1f, float d = 1.0f) {
           std::array<float, 5> ClearValues = {r, g, b, a, d};
           mCommandBuffers[mCurrentFrame].BeginRenderPass<VulkanCommandBuffer::RenderPassBeginContext::SecondaryCommandBuffers>(
-           mRenderPass, mSurface, *mFrameBuffers[mAcquiredImageIndex], ClearValues);
+                    mRenderPass, mSurface, *mFrameBuffers[mAcquiredImageIndex], ClearValues);
 }
 
 inline void WindowMulT::EndDraws() { mCommandBuffers[mCurrentFrame].EndRenderPass(); }
@@ -102,7 +94,7 @@ inline void WindowMulT::Present() {
                                                                               mFences[mCurrentFrame],
                                                                               mCommandBuffers[mCurrentFrame]);
           uint32_t Result = mInstance.GetGraphicsQueue().Present<mMaxFramesInFlight, SubmitContext::ColorAttachment>(
-           mSwapChain, mRenderFinishedSemaphores[mCurrentFrame], mAcquiredImageIndex);
+                    mSwapChain, mRenderFinishedSemaphores[mCurrentFrame], mAcquiredImageIndex);
 
           if (mSwapChain.ImageIsNotOptimal(Result)) {
                     Refresh();
@@ -113,8 +105,9 @@ inline void WindowMulT::Present() {
 
 inline void WindowMulT::BeginUIs() {
           mSecondaryCommandBuffersUI[mCurrentFrame].Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPassAndOneTimeSubmit>(
-           mRenderPass, 0, *mFrameBuffers[mAcquiredImageIndex]);
+                    mRenderPass, 0, *mFrameBuffers[mAcquiredImageIndex]);
 
+          // TODO Replace this with Our Window Functions
           mSecondaryCommandBuffersUI[mCurrentFrame].SetViewport(mSurface);
           mSecondaryCommandBuffersUI[mCurrentFrame].SetScissor(mSurface);
 }
@@ -131,8 +124,9 @@ inline void WindowMulT::ExecuteThreadCommandBuffer(int inThreadId) {
 inline void WindowMulT::BeginThreadCommandBuffer(int inThreadId) {
           mThreadCommandBuffers[inThreadId]->mCommandBuffers[mCurrentFrame].Reset();
           mThreadCommandBuffers[inThreadId]
-           ->mCommandBuffers[mCurrentFrame]
-           .Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPassAndOneTimeSubmit>(mRenderPass, 0, *mFrameBuffers[mAcquiredImageIndex]);
+                    ->mCommandBuffers[mCurrentFrame]
+                    .Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPassAndOneTimeSubmit>(
+                              mRenderPass, 0, *mFrameBuffers[mAcquiredImageIndex]);
 }
 
 inline void WindowMulT::EndThreadCommandBuffer(int inThreadId) { mThreadCommandBuffers[inThreadId]->mCommandBuffers[mCurrentFrame].End(); }

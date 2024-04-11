@@ -13,5 +13,6 @@ void Uniform3D::AddTexture(int inDstBinding, s inFileName) {
 void Uniform3D::AddBuffer(int inDstBinding, size_t inSize) {
           Up<BufferType> Buffer = MakeUp<BufferType>(mInstance);
           Buffer->Setup(inSize);
+          Buffer->Register(0, inDstBinding, 0, *mVulkanDescriptorSet);
           mBuffers[inDstBinding] = mv(Buffer);
 }

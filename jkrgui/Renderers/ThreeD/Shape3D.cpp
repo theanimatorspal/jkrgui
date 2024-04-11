@@ -1,5 +1,7 @@
 #include "Shape3D.hpp"
+#include "Global/Standards.hpp"
 #include "Painter.hpp"
+#include "glTF_Model.hpp"
 #include <filesystem>
 
 using namespace Jkr::Renderer::_3D;
@@ -7,10 +9,10 @@ using namespace Jkr::Renderer::_3D;
 Shape::Shape(const Instance& inInstance, Window& inCompatibleWindow) : mInstance(inInstance) {
 #ifndef JKR_NO_STAGING_BUFFERS
           rb::CreateStagingBuffers(
-           inInstance, gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold), gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
+                    inInstance, gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold), gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
 #endif
           mPrimitive = MakeUp<Primitive>(
-           inInstance, gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold), gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
+                    inInstance, gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold), gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
           mPrimitive->SetIndexCount(mTotalNoOfIndicesRendererCanHold);
 
 #ifndef JKR_NO_STAGING_BUFFERS
@@ -18,34 +20,47 @@ Shape::Shape(const Instance& inInstance, Window& inCompatibleWindow) : mInstance
 #endif
 }
 
-void Shape::Add(const std::string_view inFileName, uint32_t& outId) {
-          mModels.emplace_back(MakeUp<glTF_Model>(inFileName));
-          CheckAndResize(*mModels.back());
-          gb::Add(mModels.back()->GetVerticesRef(), mModels.back()->GetIndicesRef(), outId);
-
-          const auto OffsetId = (uint32_t)outId;
-          const auto ModelId = (uint32_t)outId;
-
+void Shape::CopyToPrimitive(ui inOffsetId, ui inModelId) {
 #ifndef JKR_NO_STAGING_BUFFERS
           rb::CopyToStagingBuffers(gb::GetVertexBufferData(),
                                    gb::GetIndexBufferData(),
-                                   gb::VertexCountToBytes(gb::GetVertexOffsetAbsolute(OffsetId)),
-                                   gb::IndexCountToBytes(gb::GetIndexOffsetAbsolute(OffsetId)),
-                                   gb::VertexCountToBytes(gb::GetVertexCount(ModelId)),
-                                   gb::IndexCountToBytes(gb::GetIndexCount(ModelId)));
-          rb::RegisterBufferCopyRegionToPrimitiveFromStaging(gb::VertexCountToBytes(gb::GetVertexOffsetAbsolute(OffsetId)),
-                                                             gb::IndexCountToBytes(gb::GetIndexOffsetAbsolute(OffsetId)),
-                                                             gb::VertexCountToBytes(gb::GetVertexCount(ModelId)),
-                                                             gb::IndexCountToBytes(gb::GetIndexCount(ModelId)));
+                                   gb::VertexCountToBytes(gb::GetVertexOffsetAbsolute(inOffsetId)),
+                                   gb::IndexCountToBytes(gb::GetIndexOffsetAbsolute(inOffsetId)),
+                                   gb::VertexCountToBytes(gb::GetVertexCount(inModelId)),
+                                   gb::IndexCountToBytes(gb::GetIndexCount(inModelId)));
+          rb::RegisterBufferCopyRegionToPrimitiveFromStaging(gb::VertexCountToBytes(gb::GetVertexOffsetAbsolute(inOffsetId)),
+                                                             gb::IndexCountToBytes(gb::GetIndexOffsetAbsolute(inOffsetId)),
+                                                             gb::VertexCountToBytes(gb::GetVertexCount(inModelId)),
+                                                             gb::IndexCountToBytes(gb::GetIndexCount(inModelId)));
 #else
           rb::CopyToPrimitive(*mPrimitive,
                               gb::GetVertexBufferData(),
                               gb::GetIndexBufferData(),
-                              gb::VertexCountToBytes(gb::GetVertexOffsetAbsolute(OffsetId)),
-                              gb::IndexCountToBytes(gb::GetIndexOffsetAbsolute(OffsetId)),
-                              gb::VertexCountToBytes(gb::GetVertexCount(ModelId)),
-                              gb::IndexCountToBytes(gb::GetIndexCount(ModelId)));
+                              gb::VertexCountToBytes(gb::GetVertexOffsetAbsolute(inOffsetId)),
+                              gb::IndexCountToBytes(gb::GetIndexOffsetAbsolute(inOffsetId)),
+                              gb::VertexCountToBytes(gb::GetVertexCount(inModelId)),
+                              gb::IndexCountToBytes(gb::GetIndexCount(inModelId)));
 #endif
+}
+
+void Shape::Add(const std::string_view inFileName, uint32_t& outId) {
+          mModels.emplace_back(MakeUp<glTF_Model>(inFileName, gb::GetCurrentVertexOffset()));
+          CheckAndResize(*mModels.back());
+          gb::Add(mModels.back()->GetVerticesRef(), mModels.back()->GetIndicesRef(), outId);
+          const auto OffsetId = (uint32_t)outId;
+          const auto ModelId = (uint32_t)outId;
+          CopyToPrimitive(OffsetId, ModelId);
+}
+
+void Shape::Add(Generator& inGenerator, glm::vec3 inPosition, ui& outId) {
+          v<ui> Indices;
+          v<Vertex3D> Vertices;
+          inGenerator(inPosition.x, inPosition.y, inPosition.z, 0, 0, Vertices, Indices);
+          CheckAndResize(Vertices.size(), Indices.size());
+          gb::Add(Vertices, Indices, outId);
+          const auto OffsetId = (uint32_t)outId;
+          const auto ModelId = (uint32_t)outId;
+          CopyToPrimitive(OffsetId, ModelId);
 }
 
 void Shape::Dispatch(Window& inWindow) {
@@ -60,11 +75,11 @@ void Shape::Dispatch(Window& inWindow) {
 #endif
 }
 
-void Shape::CheckAndResize(const glTF_Model& inModel) {
+void Shape::CheckAndResize(size_t inIndicesSize, size_t inVerticesSize) {
           bool ResizeRequired = false;
           while (true) {
-                    bool ResizeRequiredi = (inModel.GetIndices().size() + gb::GetCurrentIndexOffset() >= mTotalNoOfIndicesRendererCanHold) or
-                                           (inModel.GetVertices().size() + gb::GetCurrentVertexOffset() >= mTotalNoOfVerticesRendererCanHold);
+                    bool ResizeRequiredi = (inIndicesSize + gb::GetCurrentIndexOffset() >= mTotalNoOfIndicesRendererCanHold) or
+                                           (inVerticesSize + gb::GetCurrentVertexOffset() >= mTotalNoOfVerticesRendererCanHold);
                     if (ResizeRequiredi) {
                               mTotalNoOfVerticesRendererCanHold *= rb::RendererCapacityResizeFactor;
                               mTotalNoOfIndicesRendererCanHold *= rb::RendererCapacityResizeFactor;
@@ -76,15 +91,17 @@ void Shape::CheckAndResize(const glTF_Model& inModel) {
 
           if (ResizeRequired) {
                     mPrimitive.reset();
-                    mPrimitive = MakeUp<Primitive>(
-                     mInstance, gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold), gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
+                    mPrimitive = MakeUp<Primitive>(mInstance,
+                                                   gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
+                                                   gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
                     mPrimitive->SetIndexCount(mTotalNoOfIndicesRendererCanHold);
 
                     gb::Resize(mTotalNoOfVerticesRendererCanHold, mTotalNoOfIndicesRendererCanHold);
 
 #ifndef JKR_NO_STAGING_BUFFERS
-                    rb::ResizeStagingBuffer(
-                     mInstance, gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold), gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
+                    rb::ResizeStagingBuffer(mInstance,
+                                            gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
+                                            gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
                     rb::CopyToStagingBuffers(gb::GetVertexBufferData(),
                                              gb::GetIndexBufferData(),
                                              gb::VertexCountToBytes(0),
@@ -106,3 +123,8 @@ void Shape::CheckAndResize(const glTF_Model& inModel) {
 #endif
           }
 }
+void Shape::Update(ui inId, Generator& inGenerator, glm::vec3 inPosition) {
+          // TODO To be Implemented
+}
+
+void Shape::CheckAndResize(const glTF_Model& inModel) { CheckAndResize(inModel.GetIndices().size(), inModel.GetVertices().size()); }

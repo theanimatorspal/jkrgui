@@ -19,18 +19,17 @@ class VulkanDescriptorSet {
                               const VulkanDescriptorSetLayoutBase& inDescriptorSetLayout,
                               uint32_t inNoOfVarDescriptorSets);
           void Bind(vk::PipelineBindPoint inBindPoint, const VulkanCommandBuffer& inBuffer, const VulkanPipelineLayoutBase& inBase);
-          GETTER& GetDescriptorSetHandle() const { return mComputeDescriptorSet; }
+          GETTER& GetDescriptorSetHandle() const { return mVulkanDescriptorSetHandle; }
 
       private:
           const vk::Device& mDevice;
-          // TODO Rename this to mDescriptorSetHandle
-          vk::DescriptorSet mComputeDescriptorSet;
+          vk::DescriptorSet mVulkanDescriptorSetHandle;
 };
 
 inline void
 VulkanDescriptorSet::Bind(vk::PipelineBindPoint inBindPoint, const VulkanCommandBuffer& inBuffer, const VulkanPipelineLayoutBase& inPipelineLayout) {
           inBuffer.GetCommandBufferHandle().bindDescriptorSets(
-           inBindPoint, inPipelineLayout.GetPipelineLayoutHandle(), 0, mComputeDescriptorSet, {0});
+           inBindPoint, inPipelineLayout.GetPipelineLayoutHandle(), 0, mVulkanDescriptorSetHandle, {});
 }
 
 } // namespace ksai

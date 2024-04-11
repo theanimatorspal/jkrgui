@@ -29,7 +29,7 @@ class Window : public SDLWindow {
 
           SETTER SetScissor(int inX, int inY, int inW, int inH, ParameterContext inContext = ParameterContext::UI);
           SETTER SetDefaultScissor(ParameterContext inContext = ParameterContext::UI);
-          SETTER SetViewport(int inX, int inY, int inW, int inH, int inMind, int inMaxD, ParameterContext inContext);
+          SETTER SetViewport(int inX, int inY, int inW, int inH, float inMind, float inMaxD, ParameterContext inContext);
           SETTER SetDefaultViewport(ParameterContext inContext);
           // TODO Remove this
           void CmdCopySwapChainImageToBufferPostRendering(VulkanBufferBase& inbuffer);
@@ -60,7 +60,7 @@ class Window : public SDLWindow {
 
 SETTER Jkr::Window::SetScissor(int inX, int inY, int inW, int inH, ParameterContext inContext) {
           GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setScissor(
-           0, vk::Rect2D{vk::Offset2D{inX, inY}, vk::Extent2D{(ui)inW, (ui)inH}});
+                    0, vk::Rect2D{vk::Offset2D{inX, inY}, vk::Extent2D{(ui)inW, (ui)inH}});
 }
 
 SETTER Jkr::Window::SetDefaultScissor(ParameterContext inContext) {
@@ -68,11 +68,11 @@ SETTER Jkr::Window::SetDefaultScissor(ParameterContext inContext) {
           this->GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setScissor(0, Rect);
 }
 
-SETTER Jkr::Window::SetViewport(int inX, int inY, int inW, int inH, int inMind, int inMaxD, ParameterContext inContext) {
+SETTER Jkr::Window::SetViewport(int inX, int inY, int inW, int inH, float inMind, float inMaxD, ParameterContext inContext) {
           GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setViewport(0, vk::Viewport(inX, inY, inW, inH, inMind, inMaxD));
 }
 
 SETTER Jkr::Window::SetDefaultViewport(ParameterContext inContext) {
-          auto wh = GetWindowDimension();
-          SetViewport(0, 0, wh.x, wh.y, 0, 1, inContext);
+          auto extent = mDepthImage.GetImageExtent();
+          SetViewport(0.0f, 0.0f, static_cast<float>(extent.width), static_cast<float>(extent.height), 0.0f, 1.0f, inContext);
 }

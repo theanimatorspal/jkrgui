@@ -155,6 +155,8 @@ inline sol::object MultiThreading::Copy(sol::object obj, sol::state& target) {
                                                      Jkr::Renderer::Line,
                                                      Jkr::Renderer::_3D::Shape,
                                                      Jkr::Renderer::_3D::Simple3D,
+
+                                                     Jkr::Misc::_3D::Uniform3D,
                                                      ui>(obj, target); // the last arg doesn't work
                     } break;
                     default:

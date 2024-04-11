@@ -37,7 +37,7 @@ class glTF_Model {
           }
 
       public:
-          glTF_Model(const sv inFilePath) {
+          glTF_Model(const sv inFilePath, ui inInitialVertexOffset = 0) {
                     tinygltf::Model glTFInput;
                     tinygltf::TinyGLTF gltfContext;
                     s error, warning;
@@ -49,7 +49,7 @@ class glTF_Model {
                               const tinygltf::Scene& scene = glTFInput.scenes[0];
                               for (size_t i = 0; i < scene.nodes.size(); i++) {
                                         const tinygltf::Node node = glTFInput.nodes[scene.nodes[i]];
-                                        this->LoadNode(node, glTFInput, nullptr, mIndexBuffer, mVertexBuffer);
+                                        this->LoadNode(node, glTFInput, nullptr, mIndexBuffer, mVertexBuffer, inInitialVertexOffset);
                               }
                     } else {
                               std::cout << "File Not Loaded, Not found with the name:" << inFilePath << '\n';
@@ -95,8 +95,12 @@ class glTF_Model {
           void LoadImages(tinygltf::Model& input);
           void LoadTextures(tinygltf::Model& input);
           void LoadMaterials(tinygltf::Model& input);
-          void LoadNode(
-           const tinygltf::Node& inputNode, const tinygltf::Model& input, glTF_Model::Node* inParent, v<ui>& indexBuffer, v<Vertex3D>& vertexBuffer);
+          void LoadNode(const tinygltf::Node& inputNode,
+                        const tinygltf::Model& input,
+                        glTF_Model::Node* inParent,
+                        v<ui>& indexBuffer,
+                        v<Vertex3D>& vertexBuffer,
+                        ui inInitialVertexOffset = 0);
 
       private:
           struct Image {

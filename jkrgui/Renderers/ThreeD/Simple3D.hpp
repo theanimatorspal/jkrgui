@@ -19,7 +19,8 @@ class Simple3D {
                        std::string_view inFragmentShader,
                        std::string_view inComputeShader,
                        bool inShouldLoad);
-          template <typename T> void Draw(Jkr::Window& inWindow, Shape& inShape3D, T inPush, ui inIndexCount, ui inInstanceCount, CmdParam inParam);
+          template <typename T>
+          void Draw(Jkr::Window& inWindow, Shape& inShape3D, T inPush, ui inFirstIndex, ui inIndexCount, ui inInstanceCount, CmdParam inParam);
           template <typename T> void Dispatch(Jkr::Window& inWindow, Shape& inShape3D, T inPush) {}
           void Bind(Window& inWindow, CmdParam inParam);
 
@@ -31,8 +32,9 @@ class Simple3D {
 inline Simple3D::Simple3D(Jkr::Instance& inInstance, Jkr::Window& inCompatibleWindow) {}
 
 template <typename T>
-inline void Simple3D::Draw(Jkr::Window& inWindow, Shape& inShape3D, T inPush, ui inIndexCount, ui inInstanceCount, CmdParam inParam) {
-          mPainter->Draw_EXT<T>(inShape3D.GetPrimitive(), inPush, inWindow, inIndexCount, inInstanceCount, 0, 0, inParam);
+inline void
+Simple3D::Draw(Jkr::Window& inWindow, Shape& inShape3D, T inPush, ui inFirstIndex, ui inIndexCount, ui inInstanceCount, CmdParam inParam) {
+          mPainter->Draw_EXT<T>(inShape3D.GetPrimitive(), inPush, inWindow, inIndexCount, inInstanceCount, inFirstIndex, 0, inParam);
 }
 
 inline void Simple3D::Bind(Window& inWindow, CmdParam inParam) { mPainter->BindDrawParamtersPipelineOnly_EXT(inWindow, inParam); }

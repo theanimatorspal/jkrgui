@@ -6,6 +6,7 @@
 #include "VulkanPhysicalDevice.hpp"
 #include "glTF_Model.hpp"
 #include "spirv_cross/spirv.hpp"
+#include <Renderers/Generator.hpp>
 #include <Renderers/Renderer_base.hpp>
 #include <string>
 
@@ -22,13 +23,18 @@ class Shape : public Renderer_base, public Shape_base {
           GETTER& GetPrimitive() { return *mPrimitive; }
           Shape(const Instance& inInstance, Window& inCompatibleWindow);
           void Add(const sv inFileName, ui& outId);
+          void Add(Generator& inGenerator, glm::vec3 inPosition, ui& outId);
+          void Update(ui inId, Generator& inGenerator, glm::vec3 inPosition);
           void Bind(Window& inWindow, ComPar inCompar);
           void Dispatch(Window& inWindow);
 
           ui AddEXT(const sv inFileName);
+          ui AddEXT(Generator& inGenerator, glm::vec3 inPosition);
 
       private:
           void CheckAndResize(const glTF_Model& inModel);
+          void CheckAndResize(size_t inIndicesSize, size_t inVerticesSize);
+          void CopyToPrimitive(ui inOffsetId, ui inModelId);
           // TODO Remove this
           v<Up<glTF_Model>> mModels;
           Up<Primitive> mPrimitive;
@@ -46,6 +52,11 @@ inline void Shape::Bind(Window& inWindow, ComPar inCompar) {
 inline ui Shape::AddEXT(const sv inFileName) {
           ui i;
           Add(inFileName, i);
+          return i;
+}
+inline ui Shape::AddEXT(Generator& inGenerator, glm::vec3 inPosition) {
+          ui i;
+          Add(inGenerator, inPosition, i);
           return i;
 }
 } // namespace Jkr::Renderer::_3D

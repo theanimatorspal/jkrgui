@@ -47,16 +47,16 @@ class Shape_base {
       public:
           GETTER GetVertexCount(uint32_t inId) const { return mIds[inId].mVertexSize; }
           GETTER GetIndexCount(uint32_t inId) const { return mIds[inId].mIndexSize; }
+          GETTER GetVertexOffsetAbsolute(uint32_t inId) const { return mIds[inId].mVertexOffset; }
+          GETTER GetIndexOffsetAbsolute(uint32_t inId) const { return mIds[inId].mIndexOffset; }
 
       protected:
           GETTER GetVertexBufferData() { return mVertices.data(); }
           GETTER GetIndexBufferData() { return mIndices.data(); }
           GETTER VertexCountToBytes(uint32_t inCount) const { return inCount * sizeof(Vertex3D); }
           GETTER IndexCountToBytes(uint32_t inCount) const { return inCount * sizeof(uint32_t); }
-          GETTER GetVertexOffsetAbsolute(uint32_t inId) const { return mIds[inId].mVertexOffset; }
-          GETTER GetIndexOffsetAbsolute(uint32_t inId) const { return mIds[inId].mIndexOffset; }
-          GETTER GetCurrentIndexOffset() const { return mIds.empty() ? 0 : mIds.end()->mIndexOffset; }
-          GETTER GetCurrentVertexOffset() const { return mIds.empty() ? 0 : mIds.end()->mVertexOffset; }
+          GETTER GetCurrentIndexOffset() const { return mCurrentIndexPointer; }
+          GETTER GetCurrentVertexOffset() const { return mCurrentVertexPointer; }
 
       private:
           std::vector<VertexIndexMemOffset> mIds;
@@ -67,6 +67,7 @@ class Shape_base {
           uint32_t mCurrentVertexPointer = 0;
           uint32_t mCurrentIndexPointer = 0;
 
+          // TODO Remove this
       private:
           const std::string mGlslVertexShaderHeader = R"""(
 #version 450

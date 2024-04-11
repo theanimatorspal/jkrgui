@@ -37,7 +37,7 @@ inline void Uniform3D::Bind(Window& inWindow, Window::ParameterContext inParam) 
 template <typename T> inline void Uniform3D::UpdateBuffer(int inDstBinding, T inData) {
           T data = inData;
           void* memory = mBuffers[inDstBinding]->GetUniformMappedMemoryRegion();
-          memcpy(memory, &inData, sizeof(T));
+          memcpy(memory, &data, sizeof(T));
 }
 
 } // namespace Jkr::Misc::_3D
