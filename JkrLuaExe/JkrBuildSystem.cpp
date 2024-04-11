@@ -16,9 +16,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 include("{0}/CMakeConfig.cmake")
 include("{0}/CMakeCommon.cmake")
-include("{0}/out/build/${CMAKE_PRESET_NAME}/luaExport.cmake")
-include("{0}/out/build/${CMAKE_PRESET_NAME}/ksaivulkanExport.cmake")
-include("{0}/out/build/${CMAKE_PRESET_NAME}/jkrguiExport.cmake")
+include("{0}/out/build/${{CMAKE_PRESET_NAME}}/luaExport.cmake")
+include("{0}/out/build/${{CMAKE_PRESET_NAME}}/ksaivulkanExport.cmake")
+include("{0}/out/build/${{CMAKE_PRESET_NAME}}/jkrguiExport.cmake")
 
 
 project({1})
