@@ -1,4 +1,6 @@
-﻿#define SOL_PRINT_ERRORS 1
+﻿#include "ksai_config.hpp"
+#include <filesystem>
+#define SOL_PRINT_ERRORS 1
 #define SOL_ALL_SAFETIES_ON 1
 #include "JkrLuaExe.hpp"
 #include "sol/sol.hpp"
@@ -39,6 +41,7 @@ void RunScript() {
           if (not result.valid()) {
                     sol::error error = result;
                     std::cout << error.what();
+                    ksai_print(error.what());
           }
 }
 
@@ -51,16 +54,22 @@ void ProcessCmdLine(auto& inCmdLineArg_Map) {
                     if (not result.valid()) {
                               sol::error error = result;
                               std::cout << error.what();
+                              ksai_print(error.what());
                     }
           }
 }
 
-int main(int ArgCount, char** ArgStrings) {
+JKR_EXPORT int main(int ArgCount, char** ArgStrings) {
+#ifdef ANDROID
+          ksai_print("Main Function Entered");
+#endif
+          std::filesystem::current_path("/data/data/com.AndroidApp/");
+#ifndef ANDROID
           auto CmdArg_Map = CommandLine(ArgCount, ArgStrings);
           if (not CmdArg_Map.empty())
                     ProcessCmdLine(CmdArg_Map);
           else
+#endif
                     RunScript();
-
           return 0;
 }

@@ -1,7 +1,9 @@
-﻿include("CMakeConfig.cmake")
+﻿cmake_minimum_required(VERSION 3.27)
+
+include("CMakeConfig.cmake")
 include("CMakeCommon.cmake")
-cmake_minimum_required(VERSION 3.27)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+ExcludeSymbolsForAndroid()
 
 project("jkrengine")
 # Additional include directories based on platform

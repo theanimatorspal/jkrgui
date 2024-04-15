@@ -32,7 +32,7 @@ void Jkr::WindowMulT::Refresh() {
 
           for (int i = 0; i < mSwapChainImages.size(); i++) {
                     mFrameBuffers[i] =
-                     MakeUp<FrameBufferType>(mInstance.GetDevice(), mRenderPass, mColorImageRenderTarget, mDepthImage, mSwapChainImages[i]);
+                              MakeUp<FrameBufferType>(mInstance.GetDevice(), mRenderPass, mColorImageRenderTarget, mDepthImage, mSwapChainImages[i]);
           }
           mResizeFunction(nullptr);
 }

@@ -61,6 +61,7 @@ extern "C" int __android_log_print(int prio, const char* tag, const char* fmt, .
 #endif
 
 template <typename T> inline void ksai_print(T inT) {
+          __android_log_print(6, "KSAI::%s", "=================================");
 #ifdef ANDROID
           __android_log_print(6, "KSAI::%s", (char*)inT);
 #else

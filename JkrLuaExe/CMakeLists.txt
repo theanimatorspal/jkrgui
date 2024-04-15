@@ -22,7 +22,7 @@ target_link_libraries(JkrLuaExe ksaivulkan jkrgui)
 configure_target(JkrLuaExe)
 
 set(SrcDirectory "${CMAKE_JKRGUI_DIR}/out/build/${CMAKE_PRESET_NAME}")
-set(DebugDirectory "${CMAKE_JKRGUI_DIR}/out/build/x64-debug")
+set(DebugDirectory "${CMAKE_JKRGUI_DIR}/out/build/x64-debug/JkrLuaExe")
 
 message(STATUS "Copying from Src to DebugDirectory")
 message(STATUS "${SrcDirectory} to ${DebugDirectory}")

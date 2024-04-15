@@ -106,6 +106,13 @@ void CreateLuaLibraryEnvironment(sv inLibraryName, sv inJkrGUIRepoDirectory, sv 
           }
 }
 
+void CreateAndroidEnvironment(const sv inLibraryName, const sv inNativeDestinationDirectory, const sv inJkrGUIRepoDirectory) {
+          fs::path Src = s(inJkrGUIRepoDirectory) + "/Android/";
+          fs::path Target = "Android/";
+          if (not fs::exists(Target)) fs::create_directory(Target);
+          fs::copy(Src, Target, fs::copy_options::recursive | fs::copy_options::skip_existing);
+}
+
 }; // namespace BuildSystem
 
 static umap<s, int> CommandLineCommandsArgumentCount = {{"--build", 0}};
@@ -137,6 +144,7 @@ void CreateBuildSystemBindings(sol::state& inS) {
           auto Jkr = inS["Jkr"].get_or_create<sol::table>();
           auto Build = Jkr["BuildSystem"].get_or_create<sol::table>();
           Build.set_function("CreateLuaLibraryEnvironment", &BuildSystem::CreateLuaLibraryEnvironment);
+          Build.set_function("CreateAndroidEnvironment", &BuildSystem::CreateAndroidEnvironment);
 }
 
 } // namespace JkrEXE

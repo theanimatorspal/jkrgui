@@ -21,11 +21,19 @@
 #include <Renderers/ThreeD/Simple3D.hpp>
 #include <Renderers/TwoD/Shape.hpp>
 #include <WindowMulT.hpp>
+#include <filesystem>
 #include <functional>
 #include <glm/gtc/matrix_transform.hpp>
 #include <memory>
 #include <sol/sol.hpp>
 #include <vector>
+
+
+#ifdef ANDROID
+#define JKR_EXPORT __attribute__((visibility("default")))
+#else
+#define JKR_EXPORT
+#endif
 
 sol::state& GetMainStateRef();
 

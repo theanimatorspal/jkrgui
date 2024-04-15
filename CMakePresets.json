@@ -82,16 +82,12 @@
       "hidden": true,
       "displayName": "testandroid",
       "inherits": "default",
-      "condition": {
-        "lhs": "$env{ANDROID_NDK}",
-        "type": "notEquals",
-        "rhs": ""
-      },
       "cacheVariables": {
         "CMAKE_SYSTEM_NAME": "Android",
         "ANDROID_PLATFORM": "android-31",
         "ANDROID": true,
-        "CMAKE_TOOLCHAIN_FILE": "C:\\AndroidNDK\\build\\cmake\\android.toolchain.cmake"
+        "CMAKE_TOOLCHAIN_FILE": "C:/AndroidSDK/ndk/26.3.11579264/build/cmake/android.toolchain.cmake",
+        "CMAKE_PRESET_NAME": "${presetName}"
       }
     },
     {

@@ -16,10 +16,12 @@ include_directories(${CMAKE_JKRGUI_DIR}/aJkrLua)
 include_directories(${CMAKE_JKRGUI_DIR}/vendor/lua)
 
 # If building for Android, set specific compiler flags
+function(ExcludeSymbolsForAndroid)
 if(ANDROID)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wl,--exclude-libs,ALL")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
 endif()
+endfunction()
 
 # Define debug flags for Android builds
 if(ANDROID)
@@ -44,7 +46,9 @@ endif()
 set(CMAKE_BUILD_PARALLEL_LEVEL 8)
 
 # Define additional flags based on the platform and build type
-if(ANDROID OR APPLE)
+if(ANDROID)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS -DLUA_USE_LINUX)
+elseif(APPLE)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED)
 else()
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -83,10 +87,9 @@ else()
 endif()
 
 if(WIN32)
-set(Vulkan_LIBRARIES "vulkan-1")
-elseif(APPLE)
-set(Vulkan_LIBRARIES "vulkan")
+    set(Vulkan_LIBRARIES "vulkan-1")
 else()
+    set(Vulkan_LIBRARIES "vulkan")
 endif()
 
 
@@ -142,7 +145,7 @@ elseif(ANDROID)
 
 function(configure_target TARGET_NAME)
    target_link_libraries(${TARGET_NAME}
-	  ${Vulkan_LIBRARIES}
+        vulkan # IDK Why ${Vulkan_LIBRARIES are not working}
 	  android
 	  log
 	  brotlicommon-static
