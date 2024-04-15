@@ -18,6 +18,26 @@ else()
      add_executable(JkrLuaExe ${JKR_SOURCES})
 endif()
 
+target_precompile_headers ( JkrLuaExe
+    PRIVATE
+        <vector>
+        <format>
+        <map>
+        <unordered_map>
+        <array>
+        <optional>
+        <expected>
+        <fstream>
+        <filesystem>
+        <functional>
+        <concepts>
+        <memory>
+        <string>
+        <cstdint>
+        <sol/sol.hpp>
+        <vulkan/vulkan.hpp>
+)
+
 target_link_libraries(JkrLuaExe ksaivulkan jkrgui)
 configure_target(JkrLuaExe)
 

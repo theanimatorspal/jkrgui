@@ -11,7 +11,6 @@
 #include "glm/fwd.hpp"
 #include "ksai_config.hpp"
 #include "ksai_thread.hpp"
-#include "sol/sol.hpp"
 #include <EventManager.hpp>
 #include <Instance.hpp>
 #include <Misc/RecycleBin.hpp>
@@ -19,6 +18,7 @@
 #include <Misc/ThreeD/Uniform3D.hpp>
 #include <Renderers/BestText_Alt.hpp>
 #include <Renderers/ThreeD/Simple3D.hpp>
+#include <Renderers/ThreeD/glTF_Model.hpp>
 #include <Renderers/TwoD/Shape.hpp>
 #include <WindowMulT.hpp>
 #include <filesystem>
@@ -27,7 +27,6 @@
 #include <memory>
 #include <sol/sol.hpp>
 #include <vector>
-
 
 #ifdef ANDROID
 #define JKR_EXPORT __attribute__((visibility("default")))

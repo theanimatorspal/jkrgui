@@ -3,6 +3,25 @@
 using namespace Jkr::Renderer::_3D;
 using namespace ksai;
 
+void glTF_Model::Load(ui inInitialVertexOffset) {
+          tinygltf::Model glTFInput;
+          tinygltf::TinyGLTF gltfContext;
+          s error, warning;
+          bool file_loaded = gltfContext.LoadASCIIFromFile(&glTFInput, &error, &warning, s(mFileName));
+          if (file_loaded) {
+                    this->LoadImages(glTFInput);
+                    this->LoadMaterials(glTFInput);
+                    this->LoadTextures(glTFInput);
+                    const tinygltf::Scene& scene = glTFInput.scenes[0];
+                    for (size_t i = 0; i < scene.nodes.size(); i++) {
+                              const tinygltf::Node node = glTFInput.nodes[scene.nodes[i]];
+                              this->LoadNode(node, glTFInput, nullptr, mIndexBuffer, mVertexBuffer, inInitialVertexOffset);
+                    }
+          } else {
+                    std::cout << "File Not Loaded, Not found with the name:" << mFileName << '\n';
+          }
+}
+
 void glTF_Model::LoadImages(tinygltf::Model& input) {
           // Images can be stored inside the glTF (which is the case for the sample model), so instead of directly
           // loading them from disk, we fetch them from the glTF loader and upload the buffers
@@ -208,28 +227,3 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                     mNodes.push_back(std::move(Node));
           }
 }
-
-// void glTF_Model::DrawNode(VulkanCommandBuffer& inCommandBuffer,
-//     VulkanPipelineLayoutBase& inPipelineLayout,
-//     Node* inNode)
-// {
-//     if (inNode->mMesh.mPrimitives.size() > 0) {
-//         glm::mat4 NodeMatrix = inNode->mMatrix;
-//         glTF_Model::Node* CurrentParent = inNode->mParent;
-//         while (CurrentParent) {
-//             NodeMatrix = CurrentParent->mMatrix * NodeMatrix;
-//             CurrentParent = CurrentParent->mParent;
-//         }
-
-//         auto value = PushConstant { .mModelMatrix = NodeMatrix };
-//         inCommandBuffer.PushConstants<PushConstant>(inPipelineLayout, value);
-//         for (auto& primitive : inNode->mMesh.mPrimitives) {
-//             if (primitive.mIndexCount > 0) {
-//                 glTF_Model::Texture Texture
-//                     = mTextures[mMaterials[primitive.mMaterialIndex].mBaseColorTextureIndex];
-//                 /* Bind DescriptorSets Here */
-//                 /* Draw Indexed Here */
-//             }
-//         }
-//     }
-// }

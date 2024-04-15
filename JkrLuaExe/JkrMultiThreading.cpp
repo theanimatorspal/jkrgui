@@ -1,8 +1,4 @@
-#include "Instance.hpp"
 #include "JkrLuaExe.hpp"
-#include "Renderers/TwoD/Line.hpp"
-#include "Window.hpp"
-#include "sol/sol.hpp"
 
 namespace JkrEXE {
 extern void CreateMainBindings(sol::state& s);
@@ -154,6 +150,7 @@ inline sol::object MultiThreading::Copy(sol::object obj, sol::state& target) {
 
                                                      Jkr::Renderer::Line,
                                                      Jkr::Renderer::_3D::Shape,
+                                                     Jkr::Renderer::_3D::glTF_Model,
                                                      Jkr::Renderer::_3D::Simple3D,
 
                                                      Jkr::Misc::_3D::Uniform3D,

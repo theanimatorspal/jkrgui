@@ -29,48 +29,23 @@ class glTF_Model {
           v<ui> mIndexBuffer;
           v<Vertex3D> mVertexBuffer;
 
-          void EraseVerticesAndIndices() {
-                    mIndexBuffer.clear();
-                    mIndexBuffer.shrink_to_fit();
-                    mVertexBuffer.clear();
-                    mVertexBuffer.shrink_to_fit();
-          }
-
       public:
-          glTF_Model(const sv inFilePath, ui inInitialVertexOffset = 0) {
-                    tinygltf::Model glTFInput;
-                    tinygltf::TinyGLTF gltfContext;
-                    s error, warning;
-                    bool file_loaded = gltfContext.LoadASCIIFromFile(&glTFInput, &error, &warning, s(inFilePath));
-                    if (file_loaded) {
-                              this->LoadImages(glTFInput);
-                              this->LoadMaterials(glTFInput);
-                              this->LoadTextures(glTFInput);
-                              const tinygltf::Scene& scene = glTFInput.scenes[0];
-                              for (size_t i = 0; i < scene.nodes.size(); i++) {
-                                        const tinygltf::Node node = glTFInput.nodes[scene.nodes[i]];
-                                        this->LoadNode(node, glTFInput, nullptr, mIndexBuffer, mVertexBuffer, inInitialVertexOffset);
-                              }
-                    } else {
-                              std::cout << "File Not Loaded, Not found with the name:" << inFilePath << '\n';
-                    }
-          }
-
           GETTER& GetVerticesRef() { return mVertexBuffer; }
           GETTER& GetIndicesRef() { return mIndexBuffer; }
           GETTER& GetVertices() const { return mVertexBuffer; }
           GETTER& GetIndices() const { return mIndexBuffer; }
           GETTER& GetPainterImageParameters() const { return mImages; }
+          void Load(ui inInitialVertexOffset = 0);
 
-      protected:
+          glTF_Model(std::string_view inFileName) : mFileName(inFileName) {}
+
+      private:
+          void Load(const sv inFilePath, ui inInitialVertexOffset = 0);
+          const std::string mFileName;
           struct Primitive {
                     ui mFirstIndex;
                     ui mIndexCount;
                     int32_t mMaterialIndex;
-          };
-
-          struct PushConstant {
-                    glm::mat4 mModelMatrix;
           };
 
           struct Mesh {
@@ -88,6 +63,11 @@ class glTF_Model {
                     int32_t mImageIndex;
           };
 
+          struct Image {
+                    v<uc> mTextureImage;
+          };
+
+          v<Image> mImages;
           v<Texture> mTextures;
           v<Material> mMaterials;
           v<Up<Node>> mNodes;
@@ -101,12 +81,12 @@ class glTF_Model {
                         v<ui>& indexBuffer,
                         v<Vertex3D>& vertexBuffer,
                         ui inInitialVertexOffset = 0);
-
-      private:
-          struct Image {
-                    v<uc> mTextureImage;
-          };
-          v<Image> mImages;
+          void EraseVerticesAndIndices() {
+                    mIndexBuffer.clear();
+                    mIndexBuffer.shrink_to_fit();
+                    mVertexBuffer.clear();
+                    mVertexBuffer.shrink_to_fit();
+          }
 };
 
 } // namespace Jkr::Renderer::_3D

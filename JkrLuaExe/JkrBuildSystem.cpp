@@ -72,7 +72,89 @@ namespace JkrEXE {
 namespace fs = std::filesystem;
 namespace BuildSystem {
 
-void CreateLuaLibraryEnvironment(sv inLibraryName, sv inJkrGUIRepoDirectory, sv inNativeDestinationDirectory, sv inBuildType, bool inOverride) {
+static void ReplaceStringInFile(fs::path filePath, const std::string_view searchString, const std::string_view replaceString) {
+          std::ifstream fileIn(filePath);
+          if (!fileIn.is_open()) {
+                    std::cerr << "Failed to open file: " << filePath << std::endl;
+                    return;
+          }
+
+          std::string content((std::istreambuf_iterator<char>(fileIn)), std::istreambuf_iterator<char>());
+          size_t pos = content.find(searchString);
+          if (pos != std::string::npos) {
+                    content.replace(pos, searchString.length(), replaceString);
+                    std::ofstream fileOut(filePath);
+                    fileOut << content;
+                    fileOut.close();
+                    std::cout << "Replaced in file: " << filePath << std::endl;
+          }
+          fileIn.close();
+}
+
+static void ReplaceString(fs::path path, const std::string_view searchString, const std::string_view replaceString) {
+          for (const auto& entry : fs::recursive_directory_iterator(path)) {
+                    if (entry.is_regular_file()) {
+                              ReplaceStringInFile(entry.path(), searchString, replaceString);
+                    }
+          }
+}
+
+static void RenameFileName(const fs::path& path, const std::string_view searchString, const std::string_view replaceString) {
+          fs::path parentPath = path.parent_path();
+          std::string newName = path.filename().string();
+          size_t pos = newName.find(searchString);
+          if (pos != std::string::npos) {
+                    newName.replace(pos, searchString.length(), replaceString);
+                    fs::path newPath = parentPath / newName;
+                    fs::rename(path, newPath);
+                    std::cout << "Renamed: " << path << " to " << newPath << std::endl;
+          }
+}
+
+static void RenameFilesInDirectory(const fs::path& path, const std::string_view searchString, const std::string_view replaceString) {
+          static v<fs::path> FilesToBeRenamedFrom;
+          for (const auto& entry : fs::recursive_directory_iterator(path)) {
+                    if (entry.is_regular_file() or entry.is_directory()) {
+                              size_t pos = entry.path().filename().string().find(searchString);
+                              if (pos != std::string::npos) {
+                                        FilesToBeRenamedFrom.push_back(entry.path());
+                              }
+                    }
+          }
+
+          for (auto i = FilesToBeRenamedFrom.rbegin(); i != FilesToBeRenamedFrom.rend(); ++i) {
+                    RenameFileName(*i, searchString, replaceString);
+          }
+}
+
+void CreateAndroidEnvironment(const sv inAndroidAppName, const sv inAndroiAppDirectory, const sv inLibraryName, const sv inJkrGUIRepoDirectory) {
+          fs::path Src = s(inJkrGUIRepoDirectory) + "/Android/";
+          fs::path Target = "Android";
+          if (not fs::exists(Target)) {
+                    fs::create_directory(Target);
+                    fs::copy(Src, Target, fs::copy_options::recursive | fs::copy_options::skip_existing);
+                    ReplaceString(Target, "AndroidApp", inAndroidAppName);
+                    RenameFilesInDirectory(Target, "AndroidApp", inAndroidAppName);
+          }
+
+          fs::path Assets = Target / "app" / "src" / "main" / "assets";
+          const v<sv> EntriesToBeCopied = {"cache2", "JkrGUIv2", "res", "app.lua"};
+
+          int i = 0;
+          for (const auto& entry : fs::directory_iterator(fs::current_path())) {
+                    bool ShouldCopy =
+                              std::any_of(EntriesToBeCopied.begin(), EntriesToBeCopied.end(), [&](auto& i) { return i == entry.path().filename(); });
+                    if (ShouldCopy) {
+                              fs::path src = entry;
+                              fs::path target = Assets / entry.path().filename();
+                              if (not fs::exists(target) and entry.is_directory()) fs::create_directory(target);
+                              fs::copy(src, target, fs::copy_options::recursive | fs::copy_options::skip_existing);
+                    }
+          }
+}
+
+static void
+CreateLuaLibraryEnvironment(sv inLibraryName, sv inJkrGUIRepoDirectory, sv inNativeDestinationDirectory, sv inBuildType, bool inOverride) {
           fs::path CurrentPath = fs::current_path();
           fs::path JkrGuiRepoPath = s(inJkrGUIRepoDirectory);
           fs::path NativeDestinationDirectory = s(inNativeDestinationDirectory);
@@ -104,13 +186,6 @@ void CreateLuaLibraryEnvironment(sv inLibraryName, sv inJkrGUIRepoDirectory, sv 
                               }
                     }
           }
-}
-
-void CreateAndroidEnvironment(const sv inLibraryName, const sv inNativeDestinationDirectory, const sv inJkrGUIRepoDirectory) {
-          fs::path Src = s(inJkrGUIRepoDirectory) + "/Android/";
-          fs::path Target = "Android/";
-          if (not fs::exists(Target)) fs::create_directory(Target);
-          fs::copy(Src, Target, fs::copy_options::recursive | fs::copy_options::skip_existing);
 }
 
 }; // namespace BuildSystem

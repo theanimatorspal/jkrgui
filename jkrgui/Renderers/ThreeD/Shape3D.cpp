@@ -43,10 +43,10 @@ void Shape::CopyToPrimitive(ui inOffsetId, ui inModelId) {
 #endif
 }
 
-void Shape::Add(const std::string_view inFileName, uint32_t& outId) {
-          mModels.emplace_back(MakeUp<glTF_Model>(inFileName, gb::GetCurrentVertexOffset()));
-          CheckAndResize(*mModels.back());
-          gb::Add(mModels.back()->GetVerticesRef(), mModels.back()->GetIndicesRef(), outId);
+void Shape::Add(glTF_Model& inModel, uint32_t& outId) {
+          inModel.Load(gb::GetCurrentVertexOffset());
+          CheckAndResize(inModel);
+          gb::Add(inModel.GetVerticesRef(), inModel.GetIndicesRef(), outId);
           const auto OffsetId = (uint32_t)outId;
           const auto ModelId = (uint32_t)outId;
           CopyToPrimitive(OffsetId, ModelId);

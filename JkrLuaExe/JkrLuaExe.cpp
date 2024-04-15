@@ -19,6 +19,13 @@ extern void CreateMultiThreadingBindings(sol::state& inState);
 
 void CreateMainBindings(sol::state& s) {
           s.open_libraries();
+#ifdef _WIN32
+          s["_WIN32"] = true;
+#elif APPLE
+          s["APPLE"] = true;
+#elif ANDROID
+          s["ANDROID"] = true;
+#endif
           CreateGLMBindings(s);
           CreateKeyBindings(s);
           CreateBasicBindings(s);
@@ -62,8 +69,9 @@ void ProcessCmdLine(auto& inCmdLineArg_Map) {
 JKR_EXPORT int main(int ArgCount, char** ArgStrings) {
 #ifdef ANDROID
           ksai_print("Main Function Entered");
+          std::filesystem::current_path("/data/data/com.AndroidApp/"); // TODO Do this in Lua, not in C++
 #endif
-          std::filesystem::current_path("/data/data/com.AndroidApp/");
+
 #ifndef ANDROID
           auto CmdArg_Map = CommandLine(ArgCount, ArgStrings);
           if (not CmdArg_Map.empty())

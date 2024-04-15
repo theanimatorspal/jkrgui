@@ -42,6 +42,8 @@ void CreateRenderer3DBindings(sol::state& s) {
                                      "Bind",
                                      &Simple3D::Bind);
 
+          Jkr.new_usertype<Jkr::Renderer::_3D::glTF_Model>(
+                    "glTF_Model", sol::call_constructor, sol::factories([](string_view inFileName) { return mu<glTF_Model>(inFileName); }));
           Jkr.new_usertype<Jkr::Renderer::_3D::Shape>("Shape3D",
                                                       sol::call_constructor,
                                                       sol::factories([](const Jkr::Instance& inInstance, Jkr::Window& inCompatibleWindow) {
@@ -50,7 +52,7 @@ void CreateRenderer3DBindings(sol::state& s) {
                                                       "Bind",
                                                       &Jkr::Renderer::_3D::Shape::Bind,
                                                       "Add",
-                                                      sol::overload(sol::resolve<const sv>(&Jkr::Renderer::_3D::Shape::AddEXT),
+                                                      sol::overload(sol::resolve<glTF_Model&>(&Jkr::Renderer::_3D::Shape::AddEXT),
                                                                     sol::resolve<Jkr::Generator&, glm::vec3>(&Jkr::Renderer::_3D::Shape::AddEXT)),
                                                       "Dispatch",
                                                       &Jkr::Renderer::_3D::Shape::Dispatch,

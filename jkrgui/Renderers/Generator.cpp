@@ -270,15 +270,20 @@ void Jkr::Generator::operator()(float inX,
                                                   }
 
                                                   if (xzseg == 0) {
-                                                            modIndices[iIndex++] = inStartVertexIndex;
-                                                            modIndices[iIndex++] = inStartVertexIndex + 1;
-                                                            modIndices[iIndex++] = inStartVertexIndex + 2;
+                                                            int FirstVIndex = vIndex - 3;
+                                                            modIndices[iIndex++] = FirstVIndex + 0;
+                                                            modIndices[iIndex++] = FirstVIndex + 1;
+                                                            modIndices[iIndex++] = FirstVIndex + 2;
                                                   } else if (xzseg == s3d - 1) {
 
                                                   } else {
-                                                            modIndices[iIndex++] = vIndex - 4;
-                                                            modIndices[iIndex++] = inStartVertexIndex + 1;
-                                                            modIndices[iIndex++] = inStartVertexIndex + 2;
+                                                            int FirstVIndex = vIndex - 4;
+                                                            modIndices[iIndex++] = FirstVIndex + 0;
+                                                            modIndices[iIndex++] = FirstVIndex + 2;
+                                                            modIndices[iIndex++] = FirstVIndex + 3;
+                                                            modIndices[iIndex++] = FirstVIndex + 0;
+                                                            modIndices[iIndex++] = FirstVIndex + 3;
+                                                            modIndices[iIndex++] = FirstVIndex + 1;
                                                   }
                                                   Theta += DelTheta;
                                         }
