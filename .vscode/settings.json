@@ -17,7 +17,7 @@
           "cmake.clearOutputBeforeBuild": true,
           /* EDITOR */
           "editor.matchBrackets": "near",
-          "editor.fontFamily": "Sitka Text",
+          "editor.fontFamily": "Cambria",
           "editor.fontWeight": "normal",
           "editor.fontSize": 24,
           "editor.tabSize": 10,
@@ -91,7 +91,7 @@
           "C_Cpp.intelliSenseEngine": "disabled",
           "cmake.showConfigureWithDebuggerNotification": false,
           "breadcrumbs.enabled": false,
-          "workbench.activityBar.location": "top",
+          "workbench.activityBar.location": "bottom",
           "notebook.output.fontSize": 10,
           "workbench.layoutControl.enabled": false,
           "workbench.panel.defaultLocation": "right",

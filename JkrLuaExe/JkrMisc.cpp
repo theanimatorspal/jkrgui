@@ -23,13 +23,13 @@ void CreateMiscBindings(sol::state& inState) {
                                                        &Jkr::Misc::RecycleBin<int>::Get);
 
           Jkr.new_usertype<Jkr::Renderer::CustomPainterImage>(
-           "CustomPainterImage",
-           sol::call_constructor,
-           sol::factories([](Jkr::Instance& inInstance, Jkr::Window& inWindow, int inWidth, int inHeight) {
-                     return mu<Jkr::Renderer::CustomPainterImage>(inInstance, inWindow, inWidth, inHeight);
-           }),
-           "GetImageToVector",
-           &Jkr::Renderer::CustomPainterImage::GetImageToVector);
+                    "CustomPainterImage",
+                    sol::call_constructor,
+                    sol::factories([](Jkr::Instance& inInstance, Jkr::Window& inWindow, int inWidth, int inHeight) {
+                              return mu<Jkr::Renderer::CustomPainterImage>(inInstance, inWindow, inWidth, inHeight);
+                    }),
+                    "GetImageToVector",
+                    &Jkr::Renderer::CustomPainterImage::GetImageToVector);
 
           Jkr.new_usertype<DefaultCustomImagePainterPushConstant>("DefaultCustomImagePainterPushConstant",
                                                                   sol::call_constructor,
@@ -60,15 +60,15 @@ void CreateMiscBindings(sol::state& inState) {
 
           using Uniform3D = Jkr::Misc::_3D::Uniform3D;
           Jkr.new_usertype<Uniform3D>(
-           "Uniform3D",
-           sol::call_constructor,
-           sol::factories([](Jkr::Instance& inI, Jkr::Renderer::_3D::Simple3D& inSimple3D) { return mu<Uniform3D>(inI, inSimple3D); }),
-           "AddTexture",
-           &Uniform3D::AddTexture,
-           "Bind",
-           &Uniform3D::Bind,
-           "AddBuffer",
-           &Uniform3D::AddBuffer);
+                    "Uniform3D",
+                    sol::call_constructor,
+                    sol::factories([](Jkr::Instance& inI, Jkr::Renderer::_3D::Simple3D& inSimple3D) { return mu<Uniform3D>(inI, inSimple3D); }),
+                    "AddTexture",
+                    &Uniform3D::AddTexture,
+                    "Bind",
+                    &Uniform3D::Bind,
+                    "AddBuffer",
+                    &Uniform3D::AddUniformBuffer);
 }
 
 } // namespace JkrEXE
