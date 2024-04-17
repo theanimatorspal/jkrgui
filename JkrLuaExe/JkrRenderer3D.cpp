@@ -31,7 +31,31 @@ void CreateRenderer3DBindings(sol::state& s) {
                                           "Bind",
                                           &Simple3D::Bind);
 
-               Jkr.new_usertype<Jkr::Renderer::_3D::glTF_Model>("glTF_Model", sol::call_constructor, sol::factories([](string_view inFileName) { return mu<glTF_Model>(inFileName); }));
+               Jkr.new_usertype<Jkr::Renderer::_3D::glTF_Model>("glTF_Model",
+                                                                sol::call_constructor,
+                                                                sol::factories([](string_view inFileName) { return mu<glTF_Model>(inFileName); }),
+                                                                "GetVerticesSize",
+                                                                &Jkr::Renderer::_3D::glTF_Model::GetVerticesSize,
+                                                                "GetIndicesSize",
+                                                                &Jkr::Renderer::_3D::glTF_Model::GetIndicesSize,
+                                                                "GetImagesSize",
+                                                                &Jkr::Renderer::_3D::glTF_Model::GetImagesSize,
+                                                                "GetTexturesSize",
+                                                                &Jkr::Renderer::_3D::glTF_Model::GetTexturesSize,
+                                                                "GetNodesSize",
+                                                                &Jkr::Renderer::_3D::glTF_Model::GetNodesSize,
+                                                                "GetMaterialsSize",
+                                                                &Jkr::Renderer::_3D::glTF_Model::GetMaterialsSize,
+                                                                "GetSkinsSize",
+                                                                &Jkr::Renderer::_3D::glTF_Model::GetSkinsSize,
+                                                                "GetAnimationsSize",
+                                                                &Jkr::Renderer::_3D::glTF_Model::GetAnimationsSize,
+                                                                "GetActiveAnimation",
+                                                                &Jkr::Renderer::_3D::glTF_Model::GetActiveAnimation,
+                                                                "GetJointsCount",
+                                                                &Jkr::Renderer::_3D::glTF_Model::GetJointsCount,
+                                                                "SetActiveAnimation",
+                                                                &Jkr::Renderer::_3D::glTF_Model::SetActiveAnimation);
                Jkr.new_usertype<Jkr::Renderer::_3D::Shape>(
                          "Shape3D",
                          sol::call_constructor,

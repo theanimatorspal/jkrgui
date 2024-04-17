@@ -1,5 +1,6 @@
 #include "glTF_Model.hpp"
 #include "Global/Standards.hpp"
+#include <optional>
 
 using namespace Jkr::Renderer::_3D;
 using namespace ksai;
@@ -13,8 +14,11 @@ void glTF_Model::Load(ui inInitialVertexOffset) {
                               this->LoadImages(glTFInput);
                               this->LoadMaterials(glTFInput);
                               this->LoadTextures(glTFInput);
-                              const tinygltf::Scene& scene = glTFInput.scenes[0];
+                              this->LoadSkins(glTFInput);
+                              this->LoadAnimations(glTFInput);
+                              const tinygltf::Scene& scene = glTFInput.scenes[0]; // TODO Fix This
                               for (size_t i = 0; i < scene.nodes.size(); i++) {
+                                             ui index = 0;
                                              const tinygltf::Node node = glTFInput.nodes[scene.nodes[i]];
                                              this->LoadNode(
                                                        node,
@@ -22,7 +26,7 @@ void glTF_Model::Load(ui inInitialVertexOffset) {
                                                        nullptr,
                                                        mIndexBuffer,
                                                        mVertexBuffer,
-                                                       [](Vertex3DExt inVertex) {
+                                                       [&](Vertex3DExt inVertex) {
                                                                       return Vertex3D{.mPosition = inVertex.mPosition, .mNormal = inVertex.mNormal, .mUV = inVertex.mUV, .mColor = inVertex.mColor};
                                                        },
                                                        [=](ui inIndex) { return (inIndex) + inInitialVertexOffset; });
@@ -39,7 +43,9 @@ void glTF_Model::Load(FillVertexCallBack inVertexCallback, FillIndexCallBack inI
                               this->LoadImages(glTFInput);
                               this->LoadMaterials(glTFInput);
                               this->LoadTextures(glTFInput);
-                              const tinygltf::Scene& scene = glTFInput.scenes[0];
+                              this->LoadSkins(glTFInput);
+                              this->LoadAnimations(glTFInput);
+                              const tinygltf::Scene& scene = glTFInput.scenes[0]; // TODO Fix this
                               for (size_t i = 0; i < scene.nodes.size(); i++) {
                                              const tinygltf::Node node = glTFInput.nodes[scene.nodes[i]];
                                              this->LoadNode(node, glTFInput, nullptr, mIndexBuffer, mVertexBuffer, inVertexCallback, inIndexCallback);
@@ -406,7 +412,7 @@ glm::mat4 glTF_Model::GetNodeMatrix(glTF_Model::Node* inNode) {
 }
 
 // POI: Update the joint matrices from the current animation frame and pass them to the GPU
-void glTF_Model::UpdateJoints(glTF_Model::Node* inNode) {
+void glTF_Model::UpdateJoints(glTF_Model::Node* inNode, UpdateJointsCallBack inCallBack) {
                if (inNode->mSkin > -1) {
                               // Update the joint matrices
                               glm::mat4 inverseTransform = glm::inverse(GetNodeMatrix(inNode));
@@ -417,16 +423,15 @@ void glTF_Model::UpdateJoints(glTF_Model::Node* inNode) {
                                              jointMatrices[i] = GetNodeMatrix(skin.mJoints[i]) * skin.mInverseBindMatrices[i];
                                              jointMatrices[i] = inverseTransform * jointMatrices[i];
                               }
-                              // Update ssbo
-                              // skin.ssbo.copyTo(jointMatrices.data(), jointMatrices.size() * sizeof(glm::mat4));
+                              inCallBack(jointMatrices);
                }
 
                for (auto& child : inNode->mChildren) {
-                              UpdateJoints(child.get());
+                              UpdateJoints(child.get(), inCallBack);
                }
 }
 
-void glTF_Model::UpdateAnimation(float inDeltaTime) {
+void glTF_Model::UpdateAnimation(float inDeltaTime, UpdateJointsCallBack inCallBack) {
                if (mActiveAnimation > static_cast<ui>(mAnimations.size() - 1)) {
                               std::cout << "No animation with index " << mActiveAnimation << "\n";
                               return;
@@ -472,7 +477,7 @@ void glTF_Model::UpdateAnimation(float inDeltaTime) {
                               }
                }
                for (auto& node : mNodes) {
-                              UpdateJoints(node.get());
+                              UpdateJoints(node.get(), inCallBack);
                }
 }
 
@@ -487,8 +492,12 @@ void glTF_Model::Draw(glTF_Model::Node& inNode, PushCallBack inPushCallBack, Dra
                               inPushCallBack(NodeMatrix);
                               for (glTF_Model::Primitive& primitive : inNode.mMesh.mPrimitives) {
                                              if (primitive.mIndexCount > 0) {
-                                                            glTF_Model::Texture texture = mTextures[mMaterials[primitive.mMaterialIndex].mBaseColorTextureIndex];
-                                                            inDrawCallBack(0, texture);
+                                                            if (mMaterials.size() > 0) {
+                                                                           glTF_Model::Texture texture = mTextures[mMaterials[primitive.mMaterialIndex].mBaseColorTextureIndex];
+                                                                           inDrawCallBack(0, texture);
+                                                            } else {
+                                                                           inDrawCallBack(0, std::nullopt);
+                                                            }
                                              }
                               }
                }

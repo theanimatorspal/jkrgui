@@ -11,14 +11,14 @@ class Uniform3D {
                using UniformBufferType = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformBuffer>;
                using StorageBufferType = Jkr::PainterParameter<Jkr::PainterParameterContext::StorageBuffer>;
 
-               GETTER& GetImages() { return mImages; }
-               GETTER& GetUniformBuffers() { return mUniformBuffers; }
-               GETTER& GetStorageBuffers() { return mStorageBuffers; }
+               GETTER& GetImagesRef() { return mImages; }
+               GETTER& GetUniformBuffersRef() { return mUniformBuffers; }
+               GETTER& GetStorageBuffersRef() { return mStorageBuffers; }
 
-               static Up<Uniform3D> CreateByGLTFNodeIndex(const Instance& inInstance, Simple3D& inSimple3D, Renderer::_3D::glTF_Model& inLoadedModel, ui inNodeIndex = 0);
+               static Up<Uniform3D> CreateByGLTFNodeIndex(const Instance& inInstance, Simple3D& inSimple3D, Renderer::_3D::glTF_Model& inLoadedModel, ui inNodeIndex = 0, bool inShouldSkin = false);
 
                void Build(Simple3D& inSimple3D);
-               void Build(Simple3D& inSimple3D, Renderer::_3D::glTF_Model& inModel, ui inNodeIndex = 0);
+               void Build(Simple3D& inSimple3D, Renderer::_3D::glTF_Model& inModel, ui inNodeIndex = 0, bool inShouldSkin = false);
 
                void AddTexture(int inDstBinding, s inFileName);
                void AddTextureByVector(int inDstBinding, v<uc>& inImageVector, ui inWidth, ui inHeight);
@@ -28,7 +28,10 @@ class Uniform3D {
 
                template <typename T> void UpdateStorageBuffer(int inDstBinding, T inData);
                template <typename T> void UpdateUniformBuffer(int inDstBinding, T inData);
+               void UpdateStorageBuffer(int inDstBinding, void** inData, size_t inSize);
+               void UpdateUniformBuffer(int inDstBinding, void** inData, size_t inSize);
                void Bind(Window& inWindow, Simple3D& inSimple, Window::ParameterContext inParam);
+               void Print(); // TODO ChatGPT
 
                Uniform3D(const Instance& inInstance, Simple3D& inSimple3D) : mInstance(inInstance) { Build(inSimple3D); }
                Uniform3D(const Instance& inInstance) : mInstance(inInstance) {}
@@ -56,6 +59,16 @@ template <typename T> inline void Uniform3D::UpdateStorageBuffer(int inDstBindin
                T data = inData;
                void* memory = mStorageBuffers[inDstBinding]->GetStorageMappedMemoryRegion();
                memcpy(memory, &data, sizeof(T));
+}
+
+inline void Uniform3D::UpdateUniformBuffer(int inDstBinding, void** inData, size_t inSize) {
+               void* memory = mUniformBuffers[inDstBinding]->GetUniformMappedMemoryRegion();
+               memcpy(memory, *inData, inSize);
+}
+
+inline void Uniform3D::UpdateStorageBuffer(int inDstBinding, void** inData, size_t inSize) {
+               void* memory = mStorageBuffers[inDstBinding]->GetStorageMappedMemoryRegion();
+               memcpy(memory, *inData, inSize);
 }
 
 } // namespace Jkr::Misc::_3D

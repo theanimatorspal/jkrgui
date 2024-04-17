@@ -6,11 +6,13 @@ void Jkr::PainterParameterBase::Setup(Up<StorageBufferType>& inStorageBuffer, vk
 }
 
 void Jkr::PainterParameterBase::Setup(Up<UniformBufferType>& inUniformBuffer, vk::DeviceSize inDeviceSize, void** inMappedMemoryRegion) {
-               inUniformBuffer = MakeUp<UniformBufferType>(mInstance.GetVMA(), mInstance.GetDevice(), inDeviceSize), inUniformBuffer->MapMemoryRegion(inMappedMemoryRegion);
+               inUniformBuffer = MakeUp<UniformBufferType>(mInstance.GetVMA(), mInstance.GetDevice(), inDeviceSize);
+               inUniformBuffer->MapMemoryRegion(inMappedMemoryRegion);
 }
 
 void Jkr::PainterParameterBase::Setup(Up<StorageBufferTypeCoherent>& inStorageBuffer, vk::DeviceSize inDeviceSize, void** inMappedMemoryRegion) {
-               inStorageBuffer = MakeUp<StorageBufferTypeCoherent>(mInstance.GetVMA(), mInstance.GetDevice(), inDeviceSize), inStorageBuffer->MapMemoryRegion(inMappedMemoryRegion);
+               inStorageBuffer = MakeUp<StorageBufferTypeCoherent>(mInstance.GetVMA(), mInstance.GetDevice(), inDeviceSize);
+               inStorageBuffer->MapMemoryRegion(inMappedMemoryRegion);
 }
 
 // TODO Replace Verbosity with

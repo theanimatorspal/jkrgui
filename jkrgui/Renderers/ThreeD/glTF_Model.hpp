@@ -100,28 +100,42 @@ class glTF_Model {
                using FillVertexCallBack = std::function<Vertex3D(Vertex3DExt)>;
                using FillIndexCallBack = std::function<ui(ui)>;
                using PushCallBack = std::function<void(glm::mat4)>;
-               using DrawCallBack = std::function<void(ui, Texture)>;
+               using DrawCallBack = std::function<void(ui, opt<Texture>)>;
+               using UpdateJointsCallBack = std::function<void(v<glm::mat4>&)>;
 
-               GETTER GetFileName() { return sv(mFileName); }
+               GETTER GetFileName() const { return sv(mFileName); }
                GETTER& GetVertices() const { return mVertexBuffer; }
                GETTER& GetIndices() const { return mIndexBuffer; }
-               GETTER& GetVerticesRef() { return mVertexBuffer; } // TODO Remove These Two
+               GETTER& GetVerticesRef() { return mVertexBuffer; }
                GETTER& GetIndicesRef() { return mIndexBuffer; }
                GETTER& GetImagesRef() { return mImages; }
                GETTER& GetTexturesRef() { return mTextures; }
                GETTER& GetMaterialsRef() { return mMaterials; }
                GETTER& GetNodesRef() { return mNodes; }
+               GETTER& GetSkinsRef() { return mSkins; }
+               GETTER& GetAnimationsRef() { return mAnimations; }
+               GETTER GetVerticesSize() { return mVertexBuffer.size(); }
+               GETTER GetIndicesSize() { return mIndexBuffer.size(); }
+               GETTER GetImagesSize() { return mImages.size(); }
+               GETTER GetTexturesSize() { return mTextures.size(); }
+               GETTER GetMaterialsSize() { return mMaterials.size(); }
+               GETTER GetNodesSize() { return mNodes.size(); }
+               GETTER GetSkinsSize() { return mSkins.size(); }
+               GETTER GetJointsCount(ui inIndex) { return mSkins[inIndex].mInverseBindMatrices.size(); }
+               GETTER GetAnimationsSize() { return mAnimations.size(); }
+               GETTER GetActiveAnimation() const { return mActiveAnimation; }
+               SETTER SetActiveAnimation(ui inAnimation) { mActiveAnimation = inAnimation; };
 
                void Load(ui inInitialVertexOffset = 0);
                void Load(FillVertexCallBack inVertexCallback, FillIndexCallBack inIndexCallback);
                void Draw(glTF_Model::Node& inNode, PushCallBack inBindDataCallBack, DrawCallBack inDrawCallBack);
 
-               glTF_Model(std::string_view inFileName) : mFileName(inFileName) {}
+               glTF_Model(const std::string_view inFileName) : mFileName(inFileName) {}
 
        private:
                glm::mat4 GetNodeMatrix(glTF_Model::Node* inNode);
-               void UpdateJoints(glTF_Model::Node* inNode);
-               void UpdateAnimation(float inDeltaTime);
+               void UpdateJoints(glTF_Model::Node* inNode, UpdateJointsCallBack inCallback);
+               void UpdateAnimation(float inDeltaTime, UpdateJointsCallBack inCallback);
 
                void Load(const sv inFilePath, ui inInitialVertexOffset = 0);
                void LoadImages(tinygltf::Model& input);
