@@ -39,7 +39,7 @@ struct Vertex3DExt {
                glm::vec4 mJointWeights;
 };
 
-struct JointInfluence {
+struct alignas(16) JointInfluence {
                glm::vec4 mJointIndices;
                glm::vec4 mJointWeights;
 };

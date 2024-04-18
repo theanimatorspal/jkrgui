@@ -7,7 +7,7 @@ namespace Jkr::Misc::_3D {
 using Simple3D = Renderer::_3D::Simple3D;
 class Uniform3D {
        public:
-               using ImageType = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
+               using ImageType         = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
                using UniformBufferType = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformBuffer>;
                using StorageBufferType = Jkr::PainterParameter<Jkr::PainterParameterContext::StorageBuffer>;
 
@@ -30,6 +30,7 @@ class Uniform3D {
                template <typename T> void UpdateUniformBuffer(int inDstBinding, T inData);
                void UpdateStorageBuffer(int inDstBinding, void** inData, size_t inSize);
                void UpdateUniformBuffer(int inDstBinding, void** inData, size_t inSize);
+               void UpdateByGLTFAnimation(Renderer::_3D::glTF_Model& inModel, float inDeltaTime = 0.0f, int inActiveAnimationIndex = 0);
                void Bind(Window& inWindow, Simple3D& inSimple, Window::ParameterContext inParam);
                void Print(); // TODO ChatGPT
 
@@ -50,13 +51,13 @@ inline void Uniform3D::Bind(Window& inWindow, Simple3D& inSimple3D, Window::Para
 }
 
 template <typename T> inline void Uniform3D::UpdateUniformBuffer(int inDstBinding, T inData) {
-               T data = inData;
+               T data       = inData;
                void* memory = mUniformBuffers[inDstBinding]->GetUniformMappedMemoryRegion();
                memcpy(memory, &data, sizeof(T));
 }
 
 template <typename T> inline void Uniform3D::UpdateStorageBuffer(int inDstBinding, T inData) {
-               T data = inData;
+               T data       = inData;
                void* memory = mStorageBuffers[inDstBinding]->GetStorageMappedMemoryRegion();
                memcpy(memory, &data, sizeof(T));
 }

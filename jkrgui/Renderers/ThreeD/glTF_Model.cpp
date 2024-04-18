@@ -7,6 +7,7 @@ using namespace ksai;
 
 glm::mat4 glTF_Model::Node::GetLocalMatrix() { return glm::translate(glm::mat4(1.0f), mTranslation) * glm::mat4(mRotation) * glm::scale(glm::mat4(1.0f), mScale) * mMatrix; }
 
+// TODO Merge these two functions
 void glTF_Model::Load(ui inInitialVertexOffset) {
                s error, warning;
                bool file_loaded = gltfContext.LoadASCIIFromFile(&glTFInput, &error, &warning, s(mFileName));
@@ -14,22 +15,26 @@ void glTF_Model::Load(ui inInitialVertexOffset) {
                               this->LoadImages(glTFInput);
                               this->LoadMaterials(glTFInput);
                               this->LoadTextures(glTFInput);
-                              this->LoadSkins(glTFInput);
-                              this->LoadAnimations(glTFInput);
                               const tinygltf::Scene& scene = glTFInput.scenes[0]; // TODO Fix This
                               for (size_t i = 0; i < scene.nodes.size(); i++) {
-                                             ui index = 0;
+                                             ui index                  = 0;
                                              const tinygltf::Node node = glTFInput.nodes[scene.nodes[i]];
                                              this->LoadNode(
                                                        node,
                                                        glTFInput,
                                                        nullptr,
+                                                       scene.nodes[i],
                                                        mIndexBuffer,
                                                        mVertexBuffer,
                                                        [&](Vertex3DExt inVertex) {
                                                                       return Vertex3D{.mPosition = inVertex.mPosition, .mNormal = inVertex.mNormal, .mUV = inVertex.mUV, .mColor = inVertex.mColor};
                                                        },
                                                        [=](ui inIndex) { return (inIndex) + inInitialVertexOffset; });
+                              }
+                              this->LoadSkins(glTFInput);
+                              this->LoadAnimations(glTFInput);
+                              for (auto& Node : mNodes) {
+                                             UpdateJoints(Node.get());
                               }
                } else {
                               std::cout << "File Not Loaded, Not found with the name:" << mFileName << '\n';
@@ -44,11 +49,15 @@ void glTF_Model::Load(FillVertexCallBack inVertexCallback, FillIndexCallBack inI
                               this->LoadMaterials(glTFInput);
                               this->LoadTextures(glTFInput);
                               this->LoadSkins(glTFInput);
-                              this->LoadAnimations(glTFInput);
                               const tinygltf::Scene& scene = glTFInput.scenes[0]; // TODO Fix this
                               for (size_t i = 0; i < scene.nodes.size(); i++) {
                                              const tinygltf::Node node = glTFInput.nodes[scene.nodes[i]];
-                                             this->LoadNode(node, glTFInput, nullptr, mIndexBuffer, mVertexBuffer, inVertexCallback, inIndexCallback);
+                                             this->LoadNode(node, glTFInput, nullptr, scene.nodes[i], mIndexBuffer, mVertexBuffer, inVertexCallback, inIndexCallback);
+                              }
+                              this->LoadSkins(glTFInput);
+                              this->LoadAnimations(glTFInput);
+                              for (auto& Node : mNodes) {
+                                             UpdateJoints(Node.get());
                               }
                } else {
                               std::cout << "File Not Loaded, Not found with the name:" << mFileName << '\n';
@@ -63,15 +72,15 @@ void glTF_Model::LoadImages(tinygltf::Model& input) {
                               tinygltf::Image& glTFImage = input.images[i];
                               // Get the image data from the glTF loader
                               v<uc> buffvec;
-                              uc* buffer = nullptr;
+                              uc* buffer        = nullptr;
                               size_t bufferSize = 0;
                               // We convert RGB-only images to RGBA, as most devices don't support RGB-formats in Vulkan
                               if (glTFImage.component == 3) {
                                              bufferSize = glTFImage.width * glTFImage.height * 4;
                                              buffvec.resize(bufferSize);
-                                             buffer = buffvec.data();
+                                             buffer              = buffvec.data();
                                              unsigned char* rgba = buffer;
-                                             unsigned char* rgb = &glTFImage.image[0];
+                                             unsigned char* rgb  = &glTFImage.image[0];
                                              for (size_t i = 0; i < glTFImage.width * glTFImage.height; ++i) {
                                                             memcpy(rgba, rgb, sizeof(unsigned char) * 3);
                                                             rgba += 4;
@@ -90,8 +99,8 @@ void glTF_Model::LoadImages(tinygltf::Model& input) {
                               //     4);
                               Image Image;
                               Image.mTextureImage = buffvec;
-                              Image.mWidth = glTFImage.width;
-                              Image.mHeight = glTFImage.height;
+                              Image.mWidth        = glTFImage.width;
+                              Image.mHeight       = glTFImage.height;
                               mImages.push_back(std::move(Image));
                }
 }
@@ -148,7 +157,7 @@ void glTF_Model::LoadSkins(tinygltf::Model& input) {
                mSkins.resize(input.skins.size());
                for (size_t i = 0; i < input.skins.size(); i++) {
                               tinygltf::Skin gltfSkin = input.skins[i];
-                              mSkins[i].mName = input.skins[i].name;
+                              mSkins[i].mName         = input.skins[i].name;
                               mSkins[i].mSkeletonRoot = NodeFromIndex(gltfSkin.skeleton);
 
                               for (int jointIndex : gltfSkin.joints) {
@@ -159,9 +168,9 @@ void glTF_Model::LoadSkins(tinygltf::Model& input) {
                               }
 
                               if (gltfSkin.inverseBindMatrices > -1) {
-                                             const tinygltf::Accessor& accessor = input.accessors[gltfSkin.inverseBindMatrices];
+                                             const tinygltf::Accessor& accessor     = input.accessors[gltfSkin.inverseBindMatrices];
                                              const tinygltf::BufferView& bufferView = input.bufferViews[accessor.bufferView];
-                                             const tinygltf::Buffer& buffer = input.buffers[bufferView.buffer];
+                                             const tinygltf::Buffer& buffer         = input.buffers[bufferView.buffer];
                                              mSkins[i].mInverseBindMatrices.resize(accessor.count);
                                              memcpy(mSkins[i].mInverseBindMatrices.data(), &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(glm::mat4));
                                              // TODO Store Inverse bind matrices in Shader Storage buffer Objects
@@ -173,19 +182,19 @@ void glTF_Model::LoadAnimations(tinygltf::Model& input) {
                mAnimations.resize(input.animations.size());
                for (size_t i = 0; i < input.animations.size(); i++) {
                               tinygltf::Animation glTFAnimation = input.animations[i];
-                              mAnimations[i].mName = glTFAnimation.name;
+                              mAnimations[i].mName              = glTFAnimation.name;
                               mAnimations[i].mSamplers.resize(glTFAnimation.samplers.size());
                               for (size_t j = 0; j < glTFAnimation.samplers.size(); j++) {
                                              tinygltf::AnimationSampler glTFSampler = glTFAnimation.samplers[j];
-                                             AnimationSampler& dstSampler = mAnimations[i].mSamplers[j];
-                                             dstSampler.mInterpolation = glTFSampler.interpolation;
+                                             AnimationSampler& dstSampler           = mAnimations[i].mSamplers[j];
+                                             dstSampler.mInterpolation              = glTFSampler.interpolation;
                                              // Read sampler keyframe input time values
                                              {
-                                                            const tinygltf::Accessor& accessor = input.accessors[glTFSampler.input];
+                                                            const tinygltf::Accessor& accessor     = input.accessors[glTFSampler.input];
                                                             const tinygltf::BufferView& bufferView = input.bufferViews[accessor.bufferView];
-                                                            const tinygltf::Buffer& buffer = input.buffers[bufferView.buffer];
-                                                            const void* dataPtr = &buffer.data[accessor.byteOffset + bufferView.byteOffset];
-                                                            const float* buf = static_cast<const float*>(dataPtr);
+                                                            const tinygltf::Buffer& buffer         = input.buffers[bufferView.buffer];
+                                                            const void* dataPtr                    = &buffer.data[accessor.byteOffset + bufferView.byteOffset];
+                                                            const float* buf                       = static_cast<const float*>(dataPtr);
                                                             for (size_t index = 0; index < accessor.count; index++) {
                                                                            dstSampler.mInputs.push_back(buf[index]);
                                                             }
@@ -202,10 +211,10 @@ void glTF_Model::LoadAnimations(tinygltf::Model& input) {
 
                                              // Read sampler keyframe output translate/rotate/scale values
                                              {
-                                                            const tinygltf::Accessor& accessor = input.accessors[glTFSampler.output];
+                                                            const tinygltf::Accessor& accessor     = input.accessors[glTFSampler.output];
                                                             const tinygltf::BufferView& bufferView = input.bufferViews[accessor.bufferView];
-                                                            const tinygltf::Buffer& buffer = input.buffers[bufferView.buffer];
-                                                            const void* dataPtr = &buffer.data[accessor.byteOffset + bufferView.byteOffset];
+                                                            const tinygltf::Buffer& buffer         = input.buffers[bufferView.buffer];
+                                                            const void* dataPtr                    = &buffer.data[accessor.byteOffset + bufferView.byteOffset];
                                                             switch (accessor.type) {
                                                                            case TINYGLTF_TYPE_VEC3: {
                                                                                           const glm::vec3* buf = static_cast<const glm::vec3*>(dataPtr);
@@ -231,10 +240,10 @@ void glTF_Model::LoadAnimations(tinygltf::Model& input) {
                                              mAnimations[i].mChannels.resize(glTFAnimation.channels.size());
                                              for (size_t j = 0; j < glTFAnimation.channels.size(); j++) {
                                                             tinygltf::AnimationChannel glTFChannel = glTFAnimation.channels[j];
-                                                            AnimationChannel& dstChannel = mAnimations[i].mChannels[j];
-                                                            dstChannel.mPath = glTFChannel.target_path;
-                                                            dstChannel.mSamplerIndex = glTFChannel.sampler;
-                                                            dstChannel.mNode = NodeFromIndex(glTFChannel.target_node);
+                                                            AnimationChannel& dstChannel           = mAnimations[i].mChannels[j];
+                                                            dstChannel.mPath                       = glTFChannel.target_path;
+                                                            dstChannel.mSamplerIndex               = glTFChannel.sampler;
+                                                            dstChannel.mNode                       = NodeFromIndex(glTFChannel.target_node);
                                              }
                               }
                }
@@ -243,13 +252,16 @@ void glTF_Model::LoadAnimations(tinygltf::Model& input) {
 void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                           const tinygltf::Model& input,
                           Node* inParent,
+                          ui inNodeIndex,
                           std::vector<uint32_t>& inIndexBuffer,
                           v<Vertex3D>& inVertexBuffer,
                           FillVertexCallBack inVertexCallBack,
                           FillIndexCallBack inIndexCallBack) {
                Up<glTF_Model::Node> Node = MakeUp<glTF_Model::Node>();
-               Node->mMatrix = glm::mat4(1.0f);
-               Node->mParent = inParent;
+               Node->mMatrix             = glm::mat4(1.0f);
+               Node->mParent             = inParent;
+               Node->mIndex              = inNodeIndex;
+               Node->mSkin               = inputNode.skin;
 
                /* Node Matrix is either made from translation, rotation, scale or a 4x4 matrix */
                if (inputNode.translation.size() == 3) {
@@ -270,7 +282,7 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                /* Load node's children */
                if (inputNode.children.size() > 0) {
                               for (size_t i = 0; i < inputNode.children.size(); i++) {
-                                             LoadNode(input.nodes[inputNode.children[i]], input, Node.get(), inIndexBuffer, inVertexBuffer, inVertexCallBack, inIndexCallBack);
+                                             LoadNode(input.nodes[inputNode.children[i]], input, Node.get(), inputNode.children[i], inIndexBuffer, inVertexBuffer, inVertexCallBack, inIndexCallBack);
                               }
                }
 
@@ -280,53 +292,53 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                               const tinygltf::Mesh mesh = input.meshes[inputNode.mesh];
                               for (size_t i = 0; i < mesh.primitives.size(); i++) {
                                              const tinygltf::Primitive& glTFPrimitive = mesh.primitives[i];
-                                             uint32_t first_index = static_cast<uint32_t>(inIndexBuffer.size());
-                                             uint32_t vertex_start = static_cast<uint32_t>(inVertexBuffer.size());
-                                             uint32_t index_count = 0;
-                                             bool hasSkin = false;
+                                             uint32_t first_index                     = static_cast<uint32_t>(inIndexBuffer.size());
+                                             uint32_t vertex_start                    = static_cast<uint32_t>(inVertexBuffer.size());
+                                             uint32_t index_count                     = 0;
+                                             bool hasSkin                             = false;
 
                                              /* Vertices */
                                              {
-                                                            const float* positionBuffer = nullptr;
-                                                            const float* normalsBuffer = nullptr;
-                                                            const float* texCoordsBuffer = nullptr;
+                                                            const float* positionBuffer        = nullptr;
+                                                            const float* normalsBuffer         = nullptr;
+                                                            const float* texCoordsBuffer       = nullptr;
                                                             const uint16_t* jointIndicesBuffer = nullptr;
-                                                            const float* jointWeightsBuffer = nullptr;
-                                                            size_t vertexCount = 0;
+                                                            const float* jointWeightsBuffer    = nullptr;
+                                                            size_t vertexCount                 = 0;
 
                                                             /*Get Buffer data for vertex Position*/
                                                             if (glTFPrimitive.attributes.find("POSITION") != glTFPrimitive.attributes.end()) {
                                                                            const tinygltf::Accessor& accessor = input.accessors[glTFPrimitive.attributes.find("POSITION")->second];
-                                                                           const tinygltf::BufferView& view = input.bufferViews[accessor.bufferView];
+                                                                           const tinygltf::BufferView& view   = input.bufferViews[accessor.bufferView];
                                                                            positionBuffer = reinterpret_cast<const float*>(&(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
-                                                                           vertexCount = accessor.count;
+                                                                           vertexCount    = accessor.count;
                                                             }
 
                                                             /* Get Buffer Data From Vertex Normals */
                                                             if (glTFPrimitive.attributes.find("NORMAL") != glTFPrimitive.attributes.end()) {
                                                                            const tinygltf::Accessor& accessor = input.accessors[glTFPrimitive.attributes.find("NORMAL")->second];
-                                                                           const tinygltf::BufferView& view = input.bufferViews[accessor.bufferView];
+                                                                           const tinygltf::BufferView& view   = input.bufferViews[accessor.bufferView];
                                                                            normalsBuffer = reinterpret_cast<const float*>(&(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
                                                             }
 
                                                             /*Get Buffer Data From TexCoords*/
                                                             if (glTFPrimitive.attributes.find("TEXCOORD_0") != glTFPrimitive.attributes.end()) {
                                                                            const tinygltf::Accessor& accessor = input.accessors[glTFPrimitive.attributes.find("TEXCOORD_0")->second];
-                                                                           const tinygltf::BufferView& view = input.bufferViews[accessor.bufferView];
+                                                                           const tinygltf::BufferView& view   = input.bufferViews[accessor.bufferView];
                                                                            texCoordsBuffer = reinterpret_cast<const float*>(&(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
                                                             }
                                                             // POI: Get buffer data required for vertex skinning
                                                             // Get vertex joint indices
                                                             if (glTFPrimitive.attributes.find("JOINTS_0") != glTFPrimitive.attributes.end()) {
                                                                            const tinygltf::Accessor& accessor = input.accessors[glTFPrimitive.attributes.find("JOINTS_0")->second];
-                                                                           const tinygltf::BufferView& view = input.bufferViews[accessor.bufferView];
+                                                                           const tinygltf::BufferView& view   = input.bufferViews[accessor.bufferView];
                                                                            jointIndicesBuffer =
                                                                                      reinterpret_cast<const uint16_t*>(&(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
                                                             }
                                                             // Get vertex joint weights
                                                             if (glTFPrimitive.attributes.find("WEIGHTS_0") != glTFPrimitive.attributes.end()) {
                                                                            const tinygltf::Accessor& accessor = input.accessors[glTFPrimitive.attributes.find("WEIGHTS_0")->second];
-                                                                           const tinygltf::BufferView& view = input.bufferViews[accessor.bufferView];
+                                                                           const tinygltf::BufferView& view   = input.bufferViews[accessor.bufferView];
                                                                            jointWeightsBuffer =
                                                                                      reinterpret_cast<const float*>(&(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
                                                             }
@@ -336,10 +348,10 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                                                             /* Append data to Model's VertexBuffer */
                                                             for (size_t v = 0; v < vertexCount; v++) {
                                                                            Vertex3DExt vert{};
-                                                                           vert.mPosition = glm::vec4(glm::make_vec3(&positionBuffer[v * 3]), 1.0f);
-                                                                           vert.mNormal = glm::normalize(glm::vec3(normalsBuffer ? glm::make_vec3(&normalsBuffer[v * 3]) : glm::vec3(0.0f)));
-                                                                           vert.mUV = texCoordsBuffer ? glm::make_vec2(&texCoordsBuffer[v * 2]) : glm::vec2(0.0f);
-                                                                           vert.mColor = glm::vec3(1.0f);
+                                                                           vert.mPosition     = glm::vec4(glm::make_vec3(&positionBuffer[v * 3]), 1.0f);
+                                                                           vert.mNormal       = glm::normalize(glm::vec3(normalsBuffer ? glm::make_vec3(&normalsBuffer[v * 3]) : glm::vec3(0.0f)));
+                                                                           vert.mUV           = texCoordsBuffer ? glm::make_vec2(&texCoordsBuffer[v * 2]) : glm::vec2(0.0f);
+                                                                           vert.mColor        = glm::vec3(1.0f);
                                                                            vert.mJointIndices = hasSkin ? glm::vec4(glm::make_vec4(&jointIndicesBuffer[v * 4])) : glm::vec4(0.0f);
                                                                            vert.mJointWeights = hasSkin ? glm::make_vec4(&jointWeightsBuffer[v * 4]) : glm::vec4(0.0f);
                                                                            inVertexBuffer.push_back(inVertexCallBack(vert));
@@ -348,9 +360,9 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
 
                                              /* Indices */
                                              {
-                                                            const tinygltf::Accessor& accessor = input.accessors[glTFPrimitive.indices];
+                                                            const tinygltf::Accessor& accessor     = input.accessors[glTFPrimitive.indices];
                                                             const tinygltf::BufferView& bufferView = input.bufferViews[accessor.bufferView];
-                                                            const tinygltf::Buffer& buffer = input.buffers[bufferView.buffer];
+                                                            const tinygltf::Buffer& buffer         = input.buffers[bufferView.buffer];
 
                                                             index_count += static_cast<uint32_t>(accessor.count);
 
@@ -386,8 +398,8 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                                                             }
                                              }
                                              Primitive primitive{};
-                                             primitive.mFirstIndex = first_index;
-                                             primitive.mIndexCount = index_count;
+                                             primitive.mFirstIndex    = first_index;
+                                             primitive.mIndexCount    = index_count;
                                              primitive.mMaterialIndex = glTFPrimitive.material;
                                              Node->mMesh.mPrimitives.push_back(primitive);
                               }
@@ -402,10 +414,10 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
 
 // POI: Traverse the node hierarchy to the top-most parent to get the local matrix of the given node
 glm::mat4 glTF_Model::GetNodeMatrix(glTF_Model::Node* inNode) {
-               glm::mat4 NodeMatrix = inNode->GetLocalMatrix();
+               glm::mat4 NodeMatrix            = inNode->GetLocalMatrix();
                glTF_Model::Node* CurrentParent = inNode->mParent;
                while (CurrentParent) {
-                              NodeMatrix = CurrentParent->GetLocalMatrix() * NodeMatrix;
+                              NodeMatrix    = CurrentParent->GetLocalMatrix() * NodeMatrix;
                               CurrentParent = CurrentParent->mParent;
                }
                return NodeMatrix;
@@ -416,8 +428,8 @@ void glTF_Model::UpdateJoints(glTF_Model::Node* inNode, UpdateJointsCallBack inC
                if (inNode->mSkin > -1) {
                               // Update the joint matrices
                               glm::mat4 inverseTransform = glm::inverse(GetNodeMatrix(inNode));
-                              Skin skin = mSkins[inNode->mSkin];
-                              size_t numJoints = (uint32_t)skin.mJoints.size();
+                              Skin skin                  = mSkins[inNode->mSkin];
+                              size_t numJoints           = (uint32_t)skin.mJoints.size();
                               std::vector<glm::mat4> jointMatrices(numJoints);
                               for (size_t i = 0; i < numJoints; i++) {
                                              jointMatrices[i] = GetNodeMatrix(skin.mJoints[i]) * skin.mInverseBindMatrices[i];
@@ -483,10 +495,10 @@ void glTF_Model::UpdateAnimation(float inDeltaTime, UpdateJointsCallBack inCallB
 
 void glTF_Model::Draw(glTF_Model::Node& inNode, PushCallBack inPushCallBack, DrawCallBack inDrawCallBack) {
                if (inNode.mMesh.mPrimitives.size() > 0) {
-                              glm::mat4 NodeMatrix = inNode.mMatrix;
+                              glm::mat4 NodeMatrix            = inNode.mMatrix;
                               glTF_Model::Node* CurrentParent = inNode.mParent;
                               while (CurrentParent) {
-                                             NodeMatrix = CurrentParent->mMatrix * NodeMatrix;
+                                             NodeMatrix    = CurrentParent->mMatrix * NodeMatrix;
                                              CurrentParent = CurrentParent->mParent;
                               }
                               inPushCallBack(NodeMatrix);

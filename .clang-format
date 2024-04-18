@@ -14,3 +14,4 @@ ContinuationIndentWidth: 10
 AlignAfterOpenBracket: Align
 #BreakTemplateDeclarations: Yes
 AccessModifierOffset: -8
+AlignConsecutiveAssignments : true

@@ -92,15 +92,15 @@ class glTF_Model {
                               s mName;
                               v<AnimationSampler> mSamplers;
                               v<AnimationChannel> mChannels;
-                              float mStart = std::numeric_limits<float>::max();
-                              float mEnd = std::numeric_limits<float>::max();
+                              float mStart       = std::numeric_limits<float>::max();
+                              float mEnd         = std::numeric_limits<float>::max();
                               float mCurrentTime = 0.0f;
                };
 
-               using FillVertexCallBack = std::function<Vertex3D(Vertex3DExt)>;
-               using FillIndexCallBack = std::function<ui(ui)>;
-               using PushCallBack = std::function<void(glm::mat4)>;
-               using DrawCallBack = std::function<void(ui, opt<Texture>)>;
+               using FillVertexCallBack   = std::function<Vertex3D(Vertex3DExt)>;
+               using FillIndexCallBack    = std::function<ui(ui)>;
+               using PushCallBack         = std::function<void(glm::mat4)>;
+               using DrawCallBack         = std::function<void(ui, opt<Texture>)>;
                using UpdateJointsCallBack = std::function<void(v<glm::mat4>&)>;
 
                GETTER GetFileName() const { return sv(mFileName); }
@@ -129,14 +129,9 @@ class glTF_Model {
                void Load(ui inInitialVertexOffset = 0);
                void Load(FillVertexCallBack inVertexCallback, FillIndexCallBack inIndexCallback);
                void Draw(glTF_Model::Node& inNode, PushCallBack inBindDataCallBack, DrawCallBack inDrawCallBack);
-
-               glTF_Model(const std::string_view inFileName) : mFileName(inFileName) {}
-
-       private:
                glm::mat4 GetNodeMatrix(glTF_Model::Node* inNode);
-               void UpdateJoints(glTF_Model::Node* inNode, UpdateJointsCallBack inCallback);
+               void UpdateJoints(glTF_Model::Node* inNode, UpdateJointsCallBack inCallback = [](v<glm::mat4>&) {});
                void UpdateAnimation(float inDeltaTime, UpdateJointsCallBack inCallback);
-
                void Load(const sv inFilePath, ui inInitialVertexOffset = 0);
                void LoadImages(tinygltf::Model& input);
                void LoadTextures(tinygltf::Model& input);
@@ -145,6 +140,7 @@ class glTF_Model {
                          const tinygltf::Node& inputNode,
                          const tinygltf::Model& input,
                          glTF_Model::Node* inParent,
+                         ui inNodeIndex,
                          v<ui>& indexBuffer,
                          v<Vertex3D>& vertexBuffer,
                          FillVertexCallBack inVertexCallback =
@@ -161,6 +157,9 @@ class glTF_Model {
                Node* FindNode(Node* inParent, ui inIndex);
                Node* NodeFromIndex(ui inIndex);
 
+               glTF_Model(const std::string_view inFileName) : mFileName(inFileName) {}
+
+       private:
                const std::string mFileName;
                v<ui> mIndexBuffer;
                v<Vertex3D> mVertexBuffer;

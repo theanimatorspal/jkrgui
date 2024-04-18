@@ -55,3 +55,10 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
                 ${DebugDirectory}/
     )
 endif()
+
+add_custom_command(
+    TARGET JkrLuaExe POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+            "${CMAKE_JKRGUI_DIR}/out/build/${CMAKE_PRESET_NAME}/compile_commands.json"
+            "${CMAKE_JKRGUI_DIR}/compile_commands.json"
+)

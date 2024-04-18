@@ -66,7 +66,9 @@ void CreateMiscBindings(sol::state& inState) {
                                            "Bind",
                                            &Uniform3D::Bind,
                                            "AddBuffer",
-                                           &Uniform3D::AddUniformBuffer);
+                                           &Uniform3D::AddUniformBuffer,
+                                           "UpdateByGLTFAnimation",
+                                           &Uniform3D::UpdateByGLTFAnimation);
 }
 
 } // namespace JkrEXE
