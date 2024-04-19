@@ -17,7 +17,7 @@
           "cmake.clearOutputBeforeBuild": true,
           /* EDITOR */
           "editor.matchBrackets": "near",
-          "editor.fontFamily": "JetBrains Mono",
+          "editor.fontFamily": "Sitka Text",
           "editor.fontWeight": "normal",
           "editor.fontSize": 24,
           "editor.tabSize": 10,

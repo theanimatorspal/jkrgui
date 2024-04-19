@@ -74,7 +74,7 @@ void ProcessCmdLine(auto& inCmdLineArg_Map) {
                               std::cout << "Current Directory:" << filesystem::current_path() << "\n";
                               std::cout << "SRC:" << src << "\n";
                               std::cout << "DEST:" << dest << "\n";
-                              filesystem::copy(src, dest, filesystem::copy_options::recursive | filesystem::copy_options::skip_existing);
+                              filesystem::copy(src, dest, filesystem::copy_options::recursive | filesystem::copy_options::update_existing);
                }
 }
 

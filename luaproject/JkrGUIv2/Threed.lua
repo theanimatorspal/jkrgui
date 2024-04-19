@@ -1,43 +1,41 @@
+require "JkrGUIv2.Basic"
 --[============================================================[
     CAMERA 3D
 ]============================================================]
 
-Jkr.CreateCamera3D = function(inCameraType)
+Jkr.CreateCamera3D = function()
     local o = {}
-    o.type = inCameraType
     o.mTarget = vec3(0)
     o.mRight = vec3(0)
     o.mEye = vec3(0)
     o.mUp = vec3(0, 1, 0)
     o.mCameraUp = vec3(0)
     o.mDirection = vec3(0)
-    function CreateMethods(o)
-        o.SetAttributes = function(inTarget_3f, inEye_3f)
-            if inTarget_3f then o.mTarget = inTarget_3f end
-            if inEye_3f then o.mEye = inEye_3f end
-            o.mDirection = Jmath.Normalize(o.mTarget - o.mEye)
-            o.mRight = Jmath.Normalize(Jmath.Cross(o.mUp, o.mDirection))
-            o.mCameraUp = Jmath.Cross(o.mDirection, o.mRight)
-        end
-        o.MoveForward = function(inFactor)
-            o.mEye = o.mEye + o.mDirection * inFactor
-        end
-        o.MoveBackward = function(inFactor)
-            o.mEye = o.mEye - o.mDirection * inFactor
-        end
-        o.MoveLeft = function(inFactor)
-            o.mEye = o.mEye - Jmath.Normalize(Jmath.Cross(o.mCameraUp, o.mDirection)) * inFactor
-        end
-        o.MoveRight = function(inFactor)
-            o.mEye = o.mEye + Jmath.Normalize(Jmath.Cross(o.mCameraUp, o.mDirection)) * inFactor
-        end
-        o.GetPerspective = function(inFov, inAspect, inNearZ, inFarZ)
-            local lookat = Jmath.LookAt(o.mEye, o.mTarget, o.mUp)
-            return Jmath.Perspective(inFov, inAspect, inNearZ, inFarZ) * lookat
-        end
+    o.mMatrix = Jmath.GetIdentityMatrix4x4()
+    o.SetAttributes = function(inTarget_3f, inEye_3f)
+        if inTarget_3f then o.mTarget = inTarget_3f end
+        if inEye_3f then o.mEye = inEye_3f end
+        o.mDirection = Jmath.Normalize(o.mTarget - o.mEye)
+        o.mRight = Jmath.Normalize(Jmath.Cross(o.mUp, o.mDirection))
+        o.mCameraUp = Jmath.Cross(o.mDirection, o.mRight)
+    end
+    o.MoveForward = function(inFactor)
+        o.mEye = o.mEye + o.mDirection * inFactor
+    end
+    o.MoveBackward = function(inFactor)
+        o.mEye = o.mEye - o.mDirection * inFactor
+    end
+    o.MoveLeft = function(inFactor)
+        o.mEye = o.mEye - Jmath.Normalize(Jmath.Cross(o.mCameraUp, o.mDirection)) * inFactor
+    end
+    o.MoveRight = function(inFactor)
+        o.mEye = o.mEye + Jmath.Normalize(Jmath.Cross(o.mCameraUp, o.mDirection)) * inFactor
+    end
+    o.SetPerspective = function(inFov, inAspect, inNearZ, inFarZ)
+        local lookat = Jmath.LookAt(o.mEye, o.mTarget, o.mUp)
+        o.mMatrix = Jmath.Perspective(inFov, inAspect, inNearZ, inFarZ) * lookat
     end
 
-    CreateMethods()
     return o
 end
 

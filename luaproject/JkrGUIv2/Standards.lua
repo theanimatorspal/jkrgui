@@ -30,13 +30,11 @@ Namespace.CreateCLASSNAME = function(inArgument1, inArgument2)
     o.mArgument1 = inArgument1
     o.Argument2 = inArgument2
 
-    function CreateMethods()
-        o.AFunction = function()
-            -- What the function does
-        end
+    o.AFunction = function()
+        -- What the function does
     end
 
-    CreateMethods()
+    return o
 end
 
 
