@@ -1,5 +1,6 @@
 #include "JkrLuaExe.hpp"
 #include <algorithm>
+#include <cstdlib>
 #include <filesystem>
 #include <format>
 #include <fstream>
@@ -60,11 +61,11 @@ string GetLuaLibraryDefaultString(const string_view inLibraryName) {
 #endif
 }
 
-string GetLuaCMakeListsDefaultString(const string_view inJkrguiPath, const string_view inBuildType, const string_view inLibraryName) {
+string GetLuaCMakeListsDefaultString(const string_view inLibraryName) {
 #ifdef ANDROID
                return " ";
 #else
-               return std::vformat(DefaultCMakeListsFile, std::make_format_args(inJkrguiPath, inLibraryName));
+               return std::vformat(DefaultCMakeListsFile, std::make_format_args(getenv("JKRGUI_DIR"), inLibraryName));
 #endif
 }
 
@@ -127,8 +128,8 @@ static void RenameFilesInDirectory(const fs::path& path, const std::string_view 
                }
 }
 
-void CreateAndroidEnvironment(const sv inAndroidAppName, const sv inAndroiAppDirectory, const sv inLibraryName, const sv inJkrGUIRepoDirectory) {
-               fs::path Src    = s(inJkrGUIRepoDirectory) + "/Android/";
+void CreateAndroidEnvironment(const sv inAndroidAppName, const sv inAndroiAppDirectory, const sv inLibraryName) {
+               fs::path Src    = s(getenv("JKRGUI_DIR")) + "/Android/";
                fs::path Target = "Android";
                if (not fs::exists(Target)) {
                               fs::create_directory(Target);
@@ -152,9 +153,9 @@ void CreateAndroidEnvironment(const sv inAndroidAppName, const sv inAndroiAppDir
                }
 }
 
-static void CreateLuaLibraryEnvironment(sv inLibraryName, sv inJkrGUIRepoDirectory, sv inNativeDestinationDirectory, sv inBuildType, bool inOverride) {
+static void CreateLuaLibraryEnvironment(sv inLibraryName, sv inNativeDestinationDirectory, bool inOverride) {
                fs::path CurrentPath                = fs::current_path();
-               fs::path JkrGuiRepoPath             = s(inJkrGUIRepoDirectory);
+               fs::path JkrGuiRepoPath             = s(getenv("JKRGUI_DIR"));
                fs::path NativeDestinationDirectory = s(inNativeDestinationDirectory);
 
                {
@@ -168,7 +169,7 @@ static void CreateLuaLibraryEnvironment(sv inLibraryName, sv inJkrGUIRepoDirecto
                               if (not fs::exists(cmakeListsFilePath) or inOverride) {
                                              std::ofstream cmakeListsFile(cmakeListsFilePath, std::fstream::out);
                                              if (cmakeListsFile.is_open()) {
-                                                            cmakeListsFile << GetLuaCMakeListsDefaultString(inJkrGUIRepoDirectory, inBuildType, inLibraryName);
+                                                            cmakeListsFile << GetLuaCMakeListsDefaultString(inLibraryName);
                                              } else {
                                                             std::cout << "Fuck, Files are not open";
                                              }

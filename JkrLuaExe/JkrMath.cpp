@@ -187,7 +187,9 @@ void CreateGLMBindings(sol::state& lua) {
                          "Normalize",
                          [](glm::vec3 invec) { return glm::normalize(invec); },
                          "Magnitude",
-                         [](glm::vec3 invec) { return glm::length(invec); });
+                         [](glm::vec3 invec) { return glm::length(invec); },
+                         "Cross",
+                         [](glm::vec3 inA, glm::vec3 inB) { return glm::cross(inA, inB); });
 }
 
 } // namespace JkrEXE

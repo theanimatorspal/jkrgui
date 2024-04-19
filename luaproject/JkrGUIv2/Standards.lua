@@ -7,8 +7,6 @@
 *factory function - These are the functions that are prefixed
     CreateXXXX, that means you are creating an object.
     *A table is returned by the factory function,
-    *all the local varia- bles in the factory function is
-        to be treated like private member variable in C++
 
 Notes:
 1. All the factory functions that is not in the namespace Jkr,
@@ -23,4 +21,23 @@ CODING STANDARDS
             use "m" prefix, like mNumber, mComplex
     -- if the argument type is a table make it plural
             like inNumbers, inKeyframes etc
+
+
+CREATING A FACTORY (CLASS PRODUCER)
+
+Namespace.CreateCLASSNAME = function(inArgument1, inArgument2)
+    local o = {}
+    o.mArgument1 = inArgument1
+    o.Argument2 = inArgument2
+
+    function CreateMethods()
+        o.AFunction = function()
+            -- What the function does
+        end
+    end
+
+    CreateMethods()
+end
+
+
 ]============================================================]

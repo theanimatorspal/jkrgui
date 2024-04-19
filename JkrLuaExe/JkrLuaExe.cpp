@@ -1,6 +1,8 @@
 ﻿#include "ksai_config.hpp"
 #include "lua.h"
+#include <cstdlib>
 #include <filesystem>
+#include <iterator>
 #define SOL_PRINT_ERRORS 1
 #define SOL_ALL_SAFETIES_ON 1
 #include "JkrLuaExe.hpp"
@@ -66,10 +68,13 @@ void ProcessCmdLine(auto& inCmdLineArg_Map) {
                               }
                }
                if (inCmdLineArg_Map.contains("--generate")) {
-                              filesystem::path src  = "../../../luaproject/";
-                              filesystem::path dest = "/";
+                              filesystem::path src = std::string(getenv("JKRGUI_DIR"));
+                              src /= "luaproject";
+                              filesystem::path dest = filesystem::current_path();
                               std::cout << "Current Directory:" << filesystem::current_path() << "\n";
-                              filesystem::copy_file(src, dest, filesystem::copy_options::recursive | filesystem::copy_options::skip_existing);
+                              std::cout << "SRC:" << src << "\n";
+                              std::cout << "DEST:" << dest << "\n";
+                              filesystem::copy(src, dest, filesystem::copy_options::recursive | filesystem::copy_options::skip_existing);
                }
 }
 
