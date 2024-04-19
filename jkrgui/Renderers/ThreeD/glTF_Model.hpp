@@ -11,6 +11,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+
 namespace Jkr::Renderer::_3D {
 using namespace ksai::kstd;
 using namespace ksai;
@@ -124,14 +125,11 @@ class glTF_Model {
                GETTER GetJointsCount(ui inIndex) { return mSkins[inIndex].mInverseBindMatrices.size(); }
                GETTER GetAnimationsSize() { return mAnimations.size(); }
                GETTER GetActiveAnimation() const { return mActiveAnimation; }
+               glm::mat4 GetNodeMatrix(glTF_Model::Node* inNode);
                SETTER SetActiveAnimation(ui inAnimation) { mActiveAnimation = inAnimation; };
 
                void Load(ui inInitialVertexOffset = 0);
                void Load(FillVertexCallBack inVertexCallback, FillIndexCallBack inIndexCallback);
-               void Draw(glTF_Model::Node& inNode, PushCallBack inBindDataCallBack, DrawCallBack inDrawCallBack);
-               glm::mat4 GetNodeMatrix(glTF_Model::Node* inNode);
-               void UpdateJoints(glTF_Model::Node* inNode, UpdateJointsCallBack inCallback = [](v<glm::mat4>&) {});
-               void UpdateAnimation(float inDeltaTime, UpdateJointsCallBack inCallback);
                void Load(const sv inFilePath, ui inInitialVertexOffset = 0);
                void LoadImages(tinygltf::Model& input);
                void LoadTextures(tinygltf::Model& input);
@@ -148,6 +146,8 @@ class glTF_Model {
                          FillIndexCallBack inIndexCallback = [](ui inIndex) { return inIndex; });
                void LoadSkins(tinygltf::Model& input);
                void LoadAnimations(tinygltf::Model& input);
+               void UpdateJoints(glTF_Model::Node* inNode, UpdateJointsCallBack inCallback = [](v<glm::mat4>&) {});
+               void UpdateAnimation(float inDeltaTime, UpdateJointsCallBack inCallback);
                void EraseVerticesAndIndices() {
                               mIndexBuffer.clear();
                               mIndexBuffer.shrink_to_fit();
@@ -156,6 +156,7 @@ class glTF_Model {
                }
                Node* FindNode(Node* inParent, ui inIndex);
                Node* NodeFromIndex(ui inIndex);
+               void Draw(glTF_Model::Node& inNode, PushCallBack inBindDataCallBack, DrawCallBack inDrawCallBack);
 
                glTF_Model(const std::string_view inFileName) : mFileName(inFileName) {}
 

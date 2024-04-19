@@ -1,5 +1,5 @@
 {
-          "workbench.colorTheme": "GitHub Light",
+          "workbench.colorTheme": "Quiet Light",
           "git.enableSmartCommit": true,
           "git.confirmSync": false,
           "gitlens.currentLine.enabled": false,
@@ -17,7 +17,7 @@
           "cmake.clearOutputBeforeBuild": true,
           /* EDITOR */
           "editor.matchBrackets": "near",
-          "editor.fontFamily": "Cambria",
+          "editor.fontFamily": "Sitka Text",
           "editor.fontWeight": "normal",
           "editor.fontSize": 24,
           "editor.tabSize": 10,

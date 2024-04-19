@@ -1,4 +1,5 @@
 ﻿#include "ksai_config.hpp"
+#include "lua.h"
 #include <filesystem>
 #define SOL_PRINT_ERRORS 1
 #define SOL_ALL_SAFETIES_ON 1
@@ -18,22 +19,22 @@ extern umap<s, v<s>> CommandLine(int ArgCount, char** ArgStrings); // TODO Compl
 extern void CreateMultiThreadingBindings(sol::state& inState);
 
 void CreateMainBindings(sol::state& s) {
-          s.open_libraries();
+               s.open_libraries();
 #ifdef _WIN32
-          s["_WIN32"] = true;
+               s["_WIN32"] = true;
 #elif APPLE
-          s["APPLE"] = true;
+               s["APPLE"] = true;
 #elif ANDROID
-          s["ANDROID"] = true;
+               s["ANDROID"] = true;
 #endif
-          CreateGLMBindings(s);
-          CreateKeyBindings(s);
-          CreateBasicBindings(s);
-          CreateRendererBindings(s);
-          CreateTextRendererBindings(s);
-          CreateMiscBindings(s);
-          CreateMultiThreadingBindings(s);
-          CreateRenderer3DBindings(s);
+               CreateGLMBindings(s);
+               CreateKeyBindings(s);
+               CreateBasicBindings(s);
+               CreateRendererBindings(s);
+               CreateTextRendererBindings(s);
+               CreateMiscBindings(s);
+               CreateMultiThreadingBindings(s);
+               CreateRenderer3DBindings(s);
 }
 } // namespace JkrEXE
 
@@ -42,42 +43,48 @@ static sol::state mainState;
 sol::state& GetMainStateRef() { return mainState; }
 
 void RunScript() {
-          CreateMainBindings(mainState);
-          mainState.set_exception_handler(&my_exception_handler);
-          sol::protected_function_result result = mainState.safe_script_file("app.lua", &sol::script_pass_on_error);
-          if (not result.valid()) {
-                    sol::error error = result;
-                    std::cout << error.what();
-                    ksai_print(error.what());
-          }
-}
-
-void ProcessCmdLine(auto& inCmdLineArg_Map) {
-          if (inCmdLineArg_Map.contains("--build")) {
-                    sol::state s;
-                    s.open_libraries();
-                    CreateBuildSystemBindings(s);
-                    sol::protected_function_result result = s.safe_script_file("build.lua", &sol::script_pass_on_error);
-                    if (not result.valid()) {
+               CreateMainBindings(mainState);
+               mainState.set_exception_handler(&my_exception_handler);
+               sol::protected_function_result result = mainState.safe_script_file("app.lua", &sol::script_pass_on_error);
+               if (not result.valid()) {
                               sol::error error = result;
                               std::cout << error.what();
                               ksai_print(error.what());
-                    }
-          }
+               }
+}
+
+void ProcessCmdLine(auto& inCmdLineArg_Map) {
+               if (inCmdLineArg_Map.contains("--build")) {
+                              sol::state s;
+                              s.open_libraries();
+                              CreateBuildSystemBindings(s);
+                              sol::protected_function_result result = s.safe_script_file("build.lua", &sol::script_pass_on_error);
+                              if (not result.valid()) {
+                                             sol::error error = result;
+                                             std::cout << error.what();
+                                             ksai_print(error.what());
+                              }
+               }
+               if (inCmdLineArg_Map.contains("--generate")) {
+                              filesystem::path src  = "../../../luaproject/";
+                              filesystem::path dest = "/";
+                              std::cout << "Current Directory:" << filesystem::current_path() << "\n";
+                              filesystem::copy_file(src, dest, filesystem::copy_options::recursive | filesystem::copy_options::skip_existing);
+               }
 }
 
 JKR_EXPORT int main(int ArgCount, char** ArgStrings) {
 #ifdef ANDROID
-          ksai_print("Main Function Entered");
-          std::filesystem::current_path("/data/data/com.AndroidApp/"); // TODO Do this in Lua, not in C++
+               ksai_print("Main Function Entered");
+               std::filesystem::current_path("/data/data/com.AndroidApp/"); // TODO Do this in Lua, not in C++
 #endif
 
 #ifndef ANDROID
-          auto CmdArg_Map = CommandLine(ArgCount, ArgStrings);
-          if (not CmdArg_Map.empty())
-                    ProcessCmdLine(CmdArg_Map);
-          else
+               auto CmdArg_Map = CommandLine(ArgCount, ArgStrings);
+               if (not CmdArg_Map.empty())
+                              ProcessCmdLine(CmdArg_Map);
+               else
 #endif
-                    RunScript();
-          return 0;
+                              RunScript();
+               return 0;
 }

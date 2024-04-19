@@ -41,7 +41,7 @@ void Uniform3D::UpdateByGLTFAnimation(Renderer::_3D::glTF_Model& inModel, float 
                inModel.SetActiveAnimation(inActiveAnimationIndex);
                inModel.UpdateAnimation(inDeltaTime, [&](v<glm::mat4>& inMatrices) {
                               void* data = inMatrices.data();
-                              UpdateStorageBuffer(inModel.GetSkinsSize() - 1, &data, inMatrices.size() * sizeof(glm::mat4));
+                              UpdateUniformBuffer(kstd::BindingIndex::Uniform::JointMatrix, &data, inMatrices.size() * sizeof(glm::mat4));
                });
 }
 
@@ -63,19 +63,20 @@ void Uniform3D::Build(Simple3D& inSimple3D, Renderer::_3D::glTF_Model& inModel, 
                Renderer::_3D::glTF_Model ModelCopy(inModel.GetFileName());
                if (inShouldSkin) {
                               v<kstd::JointInfluence> JointInfluence;
-                              ModelCopy.Load(
-                                        [&JointInfluence](kstd::Vertex3DExt inVertex) {
-                                                       JointInfluence.push_back(kstd::JointInfluence{.mJointIndices = inVertex.mJointIndices, .mJointWeights = inVertex.mJointWeights});
-                                                       return kstd::Vertex3D{.mPosition = inVertex.mPosition, .mNormal = inVertex.mNormal, .mUV = inVertex.mUV, .mColor = inVertex.mColor};
-                                        },
-                                        [](ui inIndex) { return inIndex; });
+                              auto FillJointInfluence = [&JointInfluence](kstd::Vertex3DExt inVertex) {
+                                             JointInfluence.push_back(kstd::JointInfluence{.mJointIndices = inVertex.mJointIndices, .mJointWeights = inVertex.mJointWeights});
+                                             return kstd::Vertex3D{.mPosition = inVertex.mPosition, .mNormal = inVertex.mNormal, .mUV = inVertex.mUV, .mColor = inVertex.mColor};
+                              };
+                              ModelCopy.Load(FillJointInfluence, [](ui inIndex) { return inIndex; });
+
                               this->AddStorageBuffer(BindingIndex, JointInfluence.size() * sizeof(kstd::JointInfluence));
                               void* data = JointInfluence.data();
                               this->UpdateStorageBuffer(BindingIndex, &data, JointInfluence.size() * sizeof(kstd::JointInfluence));
                               BindingIndex++;
 
                               if (inModel.GetSkinsSize() != 0) {
-                                             auto& Skins               = inModel.GetSkinsRef()[0]; // TODO inSkinIndex
+                                             auto& Skins = inModel.GetSkinsRef()[0]; // TODO
+                                                                                     // inSkinIndex
                                              auto& InverseBindMatrices = Skins.mInverseBindMatrices;
                                              void* Data                = InverseBindMatrices.data();
                                              this->AddUniformBuffer(BindingIndex, InverseBindMatrices.size() * sizeof(glm::mat4));

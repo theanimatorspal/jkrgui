@@ -48,7 +48,6 @@ void glTF_Model::Load(FillVertexCallBack inVertexCallback, FillIndexCallBack inI
                               this->LoadImages(glTFInput);
                               this->LoadMaterials(glTFInput);
                               this->LoadTextures(glTFInput);
-                              this->LoadSkins(glTFInput);
                               const tinygltf::Scene& scene = glTFInput.scenes[0]; // TODO Fix this
                               for (size_t i = 0; i < scene.nodes.size(); i++) {
                                              const tinygltf::Node node = glTFInput.nodes[scene.nodes[i]];
@@ -258,8 +257,8 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                           FillVertexCallBack inVertexCallBack,
                           FillIndexCallBack inIndexCallBack) {
                Up<glTF_Model::Node> Node = MakeUp<glTF_Model::Node>();
-               Node->mMatrix             = glm::mat4(1.0f);
                Node->mParent             = inParent;
+               Node->mMatrix             = glm::mat4(1.0f);
                Node->mIndex              = inNodeIndex;
                Node->mSkin               = inputNode.skin;
 
@@ -352,10 +351,19 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                                                                            vert.mNormal       = glm::normalize(glm::vec3(normalsBuffer ? glm::make_vec3(&normalsBuffer[v * 3]) : glm::vec3(0.0f)));
                                                                            vert.mUV           = texCoordsBuffer ? glm::make_vec2(&texCoordsBuffer[v * 2]) : glm::vec2(0.0f);
                                                                            vert.mColor        = glm::vec3(1.0f);
-                                                                           vert.mJointIndices = hasSkin ? glm::vec4(glm::make_vec4(&jointIndicesBuffer[v * 4])) : glm::vec4(0.0f);
+                                                                           vert.mJointIndices = hasSkin ? glm::vec4(static_cast<float>(jointIndicesBuffer[v * 4]),
+                                                                                                                    static_cast<float>(jointIndicesBuffer[v * 4 + 1]),
+                                                                                                                    static_cast<float>(jointIndicesBuffer[v * 4 + 2]),
+                                                                                                                    static_cast<float>(jointIndicesBuffer[v * 4 + 3]))
+                                                                                                        : glm::vec4(0.0f);
+                                                                           std::cout << "Vertex " << v << " " << vert.mJointIndices.x << " " << vert.mJointIndices.y << " " << vert.mJointIndices.z
+                                                                                     << " " << vert.mJointIndices.w << "\n";
                                                                            vert.mJointWeights = hasSkin ? glm::make_vec4(&jointWeightsBuffer[v * 4]) : glm::vec4(0.0f);
                                                                            inVertexBuffer.push_back(inVertexCallBack(vert));
                                                             }
+                                                            std::cout << "\n";
+                                                            std::cout << "\n";
+                                                            std::cout << "\n";
                                              }
 
                                              /* Indices */
@@ -475,10 +483,10 @@ void glTF_Model::UpdateAnimation(float inDeltaTime, UpdateJointsCallBack inCallB
                                                                            q1.w = sampler.mOutputsVec4[i].w;
 
                                                                            glm::quat q2;
-                                                                           q2.x = sampler.mOutputsVec4[i + 1].x;
-                                                                           q2.y = sampler.mOutputsVec4[i + 1].y;
-                                                                           q2.z = sampler.mOutputsVec4[i + 1].z;
-                                                                           q2.w = sampler.mOutputsVec4[i + 1].w;
+                                                                           q2.x                     = sampler.mOutputsVec4[i + 1].x;
+                                                                           q2.y                     = sampler.mOutputsVec4[i + 1].y;
+                                                                           q2.z                     = sampler.mOutputsVec4[i + 1].z;
+                                                                           q2.w                     = sampler.mOutputsVec4[i + 1].w;
 
                                                                            channel.mNode->mRotation = glm::normalize(glm::slerp(q1, q2, a));
                                                             }
