@@ -63,4 +63,4 @@
 #*.RTF   diff=astextplain
 *.h linguist-language=C++
 libs/* linguist-vendored
-ksaivulkan/Vendor/* linguist-vendored
+ksaivulkan/* linguist-vendored
