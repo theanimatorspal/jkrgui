@@ -1,5 +1,6 @@
 #include "JkrLuaExe.hpp"
 #include "Renderers/Generator.hpp"
+#include "Renderers/TwoD/Shape.hpp"
 
 namespace JkrEXE {
 
@@ -87,7 +88,9 @@ void CreateRendererBindings(sol::state& inState) {
                                                       "Update",
                                                       &Jkr::Renderer::Shape::Update,
                                                       "BindFillMode",
-                                                      &Jkr::Renderer::Shape::BindFillMode);
+                                                      &Jkr::Renderer::Shape::BindFillMode,
+                                                      "CopyToImage",
+                                                      sol::resolve<uint32_t, CustomPainterImage&>(&Jkr::Renderer::Shape::CopyToImage));
 
                Jkr.new_usertype<Jkr::Renderer::Line>(
                          "LineRenderer",

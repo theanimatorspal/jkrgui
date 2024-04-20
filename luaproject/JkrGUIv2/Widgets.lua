@@ -134,7 +134,7 @@ Jkr.CreateWidgetRenderer = function(i, w)
             if drawable.mDrawType == "STATIC_TEXT" then
                 o.s:BindShapes(w)
                 o.s:BindFillMode(Jkr.FillType.Image, w)
-                o.t:Draw(drawable.mId, w, drawable.mColor, o.UIMatrix)
+                o.t:Draw(drawable.mId, w, drawable.mColor, o.UIMatrix, Jkr.CmdParam.UI)
             end
         end
     end

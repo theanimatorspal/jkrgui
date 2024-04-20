@@ -1,5 +1,6 @@
 #include "JkrLuaExe.hpp"
 #include "PainterParameter.hpp"
+#include "Renderers/TwoD/Shape.hpp"
 #include "sol/sol.hpp"
 
 namespace JkrEXE {
@@ -28,7 +29,9 @@ void CreateMiscBindings(sol::state& inState) {
                                                                                   return mu<Jkr::Renderer::CustomPainterImage>(inInstance, inWindow, inWidth, inHeight);
                                                                    }),
                                                                    "GetImageToVector",
-                                                                   &Jkr::Renderer::CustomPainterImage::GetImageToVector);
+                                                                   &Jkr::Renderer::CustomPainterImage::GetImageToVector,
+                                                                   "Register",
+                                                                   &Jkr::Renderer::CustomPainterImage::Register);
 
                Jkr.new_usertype<DefaultCustomImagePainterPushConstant>("DefaultCustomImagePainterPushConstant",
                                                                        sol::call_constructor,

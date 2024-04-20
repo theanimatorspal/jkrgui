@@ -274,7 +274,7 @@ layout(set = 0, binding = 0, rgba8) uniform image2D storageImage;
         local InvocationLayout =
         [[
 
-layout(local_size_x = 1, local_size_y = 1, local_size_z =1) in;";
+layout(local_size_x = 1, local_size_y = 1, local_size_z =1) in;
 
 ]]
         if (inX) then
@@ -302,7 +302,7 @@ vec2 xy = vec2(x_cart, y_cart);
 
         local PushConstant = [[
 
-layout(std430, push_constant) pc {
+layout(std430, push_constant) uniform pc {
         vec4 mPosDimen;
         vec4  mColor;
         vec4 mParam;
@@ -395,6 +395,41 @@ Jkr.GetDefaultCache = function(inInstance, inRend)
         )
         return DefaultCaches["Shape"]
     end
+end
+
+Jkr.GetDefaultShapeRendererResources = function(inInstance)
+    local Resource = Jkr.ShapeRendererResources()
+    Resource:Add(
+        inInstance,
+        Jkr.FillType.Fill,
+        Jkr.PipelineProperties.Default,
+        "cache2/ShapeFillCache.glsl",
+        Jkr.GetDefaultResource("ShapeFill", "Vertex"),
+        Jkr.GetDefaultResource("ShapeFill", "Fragment"),
+        Jkr.GetDefaultResource(nil, "Compute"),
+        ShouldLoadCaches_b
+    )
+    Resource:Add(
+        inInstance,
+        Jkr.FillType.Image,
+        Jkr.PipelineProperties.Default,
+        "cache2/ShapeImageCache.glsl",
+        Jkr.GetDefaultResource("ShapeImage", "Vertex"),
+        Jkr.GetDefaultResource("ShapeImage", "Fragment"),
+        Jkr.GetDefaultResource(nil, "Compute"),
+        ShouldLoadCaches_b
+    )
+    Resource:Add(
+        inInstance,
+        Jkr.FillType.ContinousLine,
+        Jkr.PipelineProperties.Line,
+        "cache2/ShapeFillCache.glsl",
+        Jkr.GetDefaultResource("ShapeFill", "Vertex"),
+        Jkr.GetDefaultResource("ShapeFill", "Fragment"),
+        Jkr.GetDefaultResource(nil, "Compute"),
+        ShouldLoadCaches_b
+    )
+    return Resource
 end
 
 
@@ -510,6 +545,14 @@ Jkr.CreateShapeRenderer = function(inInstance, inCompatibleWindow, inShapeRender
         end
     end
 
+    o.AddImage = function(self, inWidth, inHeight)
+        return sr:AddImage(inWidth, inHeight)
+    end
+
+    o.AddImageByFileName = function(self, inFileName)
+        return sr:AddImage(inFileName)
+    end
+
     o.Remove = function(self, inId)
         recycleBin:Add(inId)
     end
@@ -520,14 +563,17 @@ Jkr.CreateShapeRenderer = function(inInstance, inCompatibleWindow, inShapeRender
     o.BindShapes = function(self, w)
         sr:BindShapes(w)
     end
-    o.BindFillMode = function(self, inFillMode, inWindow)
+    o.BindFillMode = function(self, inFillMode, inWindow, inCmdParam)
         sr:BindFillMode(inFillMode, inWindow, Jkr.CmdParam.UI)
     end
-    o.Draw = function(self, w, inColor_4f, inWindowW, inWindowH, inStartShapeId, inEndShapeId, inMatrix)
-        sr:Draw(w, inColor_4f, inWindowW, inWindowH, inStartShapeId, inEndShapeId, inMatrix)
+    o.Draw = function(self, w, inColor_4f, inWindowW, inWindowH, inStartShapeId, inEndShapeId, inMatrix, inCmdParam)
+        sr:Draw(w, inColor_4f, inWindowW, inWindowH, inStartShapeId, inEndShapeId, inMatrix, inCmdParam)
     end
     o.Dispatch = function(self, w)
         sr:Dispatch(w, Jkr.CmdParam.UI)
+    end
+    o.CopyToImage = function(self, inId, inCustomPainterImage) -- TODO Wrap This
+        sr:CopyToImage(inId, inCustomPainterImage)
     end
     return o
 end
@@ -564,8 +610,8 @@ Jkr.CreateTextRendererBestTextAlt = function(inInstance, inShapeRenderer)
     o.UpdatePosOnly = function(self, inTextImageId, inFontId, inPosition_3f, inText)
         tr:UpdatePosOnly(inTextImageId, inFontId, inPosition_3f, inText)
     end
-    o.Draw = function(self, inTextImageId, w, inColor, inMatrix)
-        tr:Draw(inTextImageId, w, inColor, inMatrix)
+    o.Draw = function(self, inTextImageId, w, inColor, inMatrix, inCmdParam)
+        tr:Draw(inTextImageId, w, inColor, inMatrix, inCmdParam)
     end
     return o
 end
@@ -585,26 +631,26 @@ end
 
 Jkr.CreateCustomImagePainter = function(inCacheFileName, inComputeShader)
     local o = {}
-    o.cp = CreateCustomImagePainter(inCacheFileName, inComputeShader)
+    o.handle = CreateCustomImagePainter(inCacheFileName, inComputeShader)
 
     o.Load = function(self, i, w)
-        o.cp:Load(i, w)
+        o.handle:Load(i, w)
     end
 
     o.Store = function(self, i, w)
-        o.cp:Store(i, w)
+        o.handle:Store(i, w)
     end
 
     o.Bind = function(self, w, inCmdParam)
-        o.cp:Bind(w, inCmdParam)
+        o.handle:Bind(w, inCmdParam)
     end
 
     o.BindImageFromImage = function(self, w, inCustomImagePainter, inCmdParam)
-        o.cp:BindImageFromImage(w, inCustomImagePainter, inCmdParam)
+        o.handle:BindImageFromImage(w, inCustomImagePainter, inCmdParam)
     end
 
     o.Draw = function(self, w, inPushConstant, inX, inY, inZ, inCmdParam)
-        o.cp:Draw(w, inPushConstant, inX, inY, inZ, inCmdParam)
+        o.handle:Draw(w, inPushConstant, inX, inY, inZ, inCmdParam)
     end
 
     return o
@@ -648,6 +694,10 @@ Jkr.DebugMainLoop = function(w, e, inUpdate, inDispatch, inDraw, inPostProcess, 
         WindowDimension = w:GetWindowDimension()
         w:EndUpdates()
 
+        w:BeginDispatches()
+        if (inDispatch) then inDispatch() end
+        w:EndDispatches()
+
         if (inMTDraw) then inMTDraw() end
         -- /* All UI Renders are Recordeed here*/
         w:BeginUIs()
@@ -655,9 +705,6 @@ Jkr.DebugMainLoop = function(w, e, inUpdate, inDispatch, inDraw, inPostProcess, 
         w:EndUIs()
 
         -- /* All ComputeShader Invocations are Done here*/
-        w:BeginDispatches()
-        if (inDispatch) then inDispatch() end
-        w:EndDispatches()
 
         -- /* All Draws (Main CmdBuffer Recording) is done here*/
         if inColor_4f then

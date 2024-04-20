@@ -17,7 +17,7 @@ void GlslMain()
 const sv gmain_function_null_fragment = R"""(
 void GlslMain()
 {
-	
+    
 }
 )""";
 
@@ -78,8 +78,15 @@ CustomImagePainter::CustomImagePainter(sv inName, sv inComputeShader) : mCustomP
                mVertexStream << gbefore_xyz;
                mVertexStream << gmain_function_null;
 
-               mFragmentStream << gbefore_xyz;
-               mFragmentStream << gmain_function_null;
+               mFragmentStream << R"""(
+#version 450
+layout(location = 0) out vec4 outColor;
+void GlslMain()
+{
+    outColor = vec4(0, 0, 0, 0);
+}
+
+               )""";
 }
 
 std::vector<int> CustomPainterImage::GetImageToVector(const Instance& inInstance, const Window& inWindow) {
