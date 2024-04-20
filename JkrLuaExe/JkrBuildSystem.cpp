@@ -190,7 +190,13 @@ static void CreateLuaLibraryEnvironment(sv inLibraryName, sv inNativeDestination
 }; // namespace BuildSystem
 
 static umap<s, int> CommandLineCommandsArgumentCount = {{"--build", 0}, {"--generate", 0}};
-int GetArgumentCount(sv inString) { return CommandLineCommandsArgumentCount[s(inString)]; }
+int GetArgumentCount(sv inString) {
+               if (CommandLineCommandsArgumentCount[s(inString)]) {
+                              return CommandLineCommandsArgumentCount[s(inString)];
+               } else {
+                              return 0;
+               }
+}
 
 umap<s, v<s>> CommandLine(int ArgCount, char** ArgStrings) {
                umap<s, v<s>> CommandLineStuff;

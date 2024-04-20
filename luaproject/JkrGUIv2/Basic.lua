@@ -39,7 +39,7 @@ ImportShared = function(inLibName)
     f()
 end
 
-GetDefaultResource = function(inRenderer, inShaderType)
+Jkr.GetDefaultResource = function(inRenderer, inShaderType, inX, inY, inZ)
     --[============================================================[
             DEFAULT COMPUTE SHADER
     ]============================================================]
@@ -261,6 +261,86 @@ void GlslMain()
             ]]
         end
     end
+    --[============================================================[
+        CustomImagePainter Resources
+    ]============================================================]
+    if inRenderer == "CustomImagePainter" then
+        local Header = [[
+
+#version 450
+layout(set = 0, binding = 0, rgba8) uniform image2D storageImage;
+
+        ]]
+        local InvocationLayout =
+        [[
+
+layout(local_size_x = 1, local_size_y = 1, local_size_z =1) in;";
+
+]]
+        if (inX) then
+            InvocationLayout = string.format([[
+
+layout(local_size_x = %d, local_size_y = %d, local_size_z = %d) in;
+
+        ]], inX, inY, inZ)
+        end
+
+        local Assist = [[
+
+uvec3 gID = gl_GlobalInvocationID;
+ivec2 image_size = ivec2(imageSize(storageImage));
+ivec2 to_draw_at = ivec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y);
+
+float x_cart = (float(gl_GlobalInvocationID.x) - float(image_size.x) / float(2)) / (float((image_size.x) / float(2)));
+float y_cart = (float(image_size.y) / float(2) - float(gl_GlobalInvocationID.y)) / (float(image_size.y) / float(2));
+
+float ColorValueX = x_cart;
+float ColorValueY = y_cart;
+vec2 xy = vec2(x_cart, y_cart);
+
+        ]]
+
+        local PushConstant = [[
+
+layout(std430, push_constant) pc {
+        vec4 mPosDimen;
+        vec4  mColor;
+        vec4 mParam;
+} push;
+
+        ]]
+
+        if inShaderType == "Header" then return Header end
+        if inShaderType == "Push" then return PushConstant end
+        if inShaderType == "Assist" then return Assist end
+        if inShaderType == "InvocationLayout" then return InvocationLayout end
+
+        if inShaderType == "RoundedRectangle" then
+            return Header .. InvocationLayout .. PushConstant .. [[
+
+void GlslMain()
+{
+
+]] .. Assist .. [[
+
+vec2 center = vec2(push.mPosDimen.x, push.mPosDimen.y);
+vec2 hw = vec2(push.mPosDimen.z, push.mPosDimen.w);
+float radius = push.mParam.x;
+vec2 Q = abs(xy - center) - hw;
+
+float color = distance(max(Q, vec2(0.0)), vec2(0.0)) + min(max(Q.x, Q.y), 0.0) - radius;
+color = smoothstep(-0.05, 0.05, -color);
+
+vec4 old_color = imageLoad(storageImage, to_draw_at);
+vec4 final_color = vec4(push.mColor.x * color, push.mColor.y * color, push.mColor.z * color, push.mColor.w * color);
+final_color = mix(final_color, old_color, push.mParam.w);
+
+imageStore(storageImage, to_draw_at, final_color);
+}
+
+]]
+        end
+    end
 end
 
 --[============================================================[
@@ -275,9 +355,9 @@ Jkr.GetDefaultCache = function(inInstance, inRend)
             DefaultCaches["Line"]:Load("cache2/LineRendererCache.glsl")
         else
             DefaultCaches["Line"]:Store("cache2/LineRendererCache.glsl",
-                GetDefaultResource("Line", "Vertex"),
-                GetDefaultResource("Line", "Fragment"),
-                GetDefaultResource(nil, "Compute")
+                Jkr.GetDefaultResource("Line", "Vertex"),
+                Jkr.GetDefaultResource("Line", "Fragment"),
+                Jkr.GetDefaultResource(nil, "Compute")
             )
         end
         return DefaultCaches["Line"]
@@ -288,9 +368,9 @@ Jkr.GetDefaultCache = function(inInstance, inRend)
             Jkr.FillType.Fill,
             Jkr.PipelineProperties.Default,
             "cache2/ShapeFillCache.glsl",
-            GetDefaultResource("ShapeFill", "Vertex"),
-            GetDefaultResource("ShapeFill", "Fragment"),
-            GetDefaultResource(nil, "Compute"),
+            Jkr.GetDefaultResource("ShapeFill", "Vertex"),
+            Jkr.GetDefaultResource("ShapeFill", "Fragment"),
+            Jkr.GetDefaultResource(nil, "Compute"),
             ShouldLoadCaches_b
         )
         DefaultCaches["Shape"]:Add(
@@ -298,9 +378,9 @@ Jkr.GetDefaultCache = function(inInstance, inRend)
             Jkr.FillType.Image,
             Jkr.PipelineProperties.Default,
             "cache2/ShapeImageCache.glsl",
-            GetDefaultResource("ShapeImage", "Vertex"),
-            GetDefaultResource("ShapeImage", "Fragment"),
-            GetDefaultResource(nil, "Compute"),
+            Jkr.GetDefaultResource("ShapeImage", "Vertex"),
+            Jkr.GetDefaultResource("ShapeImage", "Fragment"),
+            Jkr.GetDefaultResource(nil, "Compute"),
             ShouldLoadCaches_b
         )
         DefaultCaches["Shape"]:Add(
@@ -308,9 +388,9 @@ Jkr.GetDefaultCache = function(inInstance, inRend)
             Jkr.FillType.ContinousLine,
             Jkr.PipelineProperties.Line,
             "cache2/ShapeFillCache.glsl",
-            GetDefaultResource("ShapeFill", "Vertex"),
-            GetDefaultResource("ShapeFill", "Fragment"),
-            GetDefaultResource(nil, "Compute"),
+            Jkr.GetDefaultResource("ShapeFill", "Vertex"),
+            Jkr.GetDefaultResource("ShapeFill", "Fragment"),
+            Jkr.GetDefaultResource(nil, "Compute"),
             ShouldLoadCaches_b
         )
         return DefaultCaches["Shape"]
@@ -505,26 +585,26 @@ end
 
 Jkr.CreateCustomImagePainter = function(inCacheFileName, inComputeShader)
     local o = {}
-    local cp = CreateCustomImagePainter(inCacheFileName, inComputeShader)
+    o.cp = CreateCustomImagePainter(inCacheFileName, inComputeShader)
 
     o.Load = function(self, i, w)
-        cp:Load(i, w)
+        o.cp:Load(i, w)
     end
 
     o.Store = function(self, i, w)
-        cp:Store(i, w)
+        o.cp:Store(i, w)
     end
 
     o.Bind = function(self, w, inCmdParam)
-        cp:Bind(w, inCmdParam)
+        o.cp:Bind(w, inCmdParam)
     end
 
     o.BindImageFromImage = function(self, w, inCustomImagePainter, inCmdParam)
-        cp:BindImageFromImage(w, inCustomImagePainter, inCmdParam)
+        o.cp:BindImageFromImage(w, inCustomImagePainter, inCmdParam)
     end
 
     o.Draw = function(self, w, inPushConstant, inX, inY, inZ, inCmdParam)
-        cp:Draw(w, inPushConstant, inX, inY, inZ, inCmdParam)
+        o.cp:Draw(w, inPushConstant, inX, inY, inZ, inCmdParam)
     end
 
     return o

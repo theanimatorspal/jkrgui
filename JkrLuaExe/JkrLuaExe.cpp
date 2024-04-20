@@ -66,8 +66,9 @@ void ProcessCmdLine(auto& inCmdLineArg_Map) {
                                              std::cout << error.what();
                                              ksai_print(error.what());
                               }
+                              exit(0);
                }
-               if (inCmdLineArg_Map.contains("--generate")) {
+               auto Update = []() {
                               filesystem::path src = std::string(getenv("JKRGUI_DIR"));
                               src /= "luaproject";
                               filesystem::path dest = filesystem::current_path();
@@ -75,6 +76,13 @@ void ProcessCmdLine(auto& inCmdLineArg_Map) {
                               std::cout << "SRC:" << src << "\n";
                               std::cout << "DEST:" << dest << "\n";
                               filesystem::copy(src, dest, filesystem::copy_options::recursive | filesystem::copy_options::update_existing);
+               };
+               if (inCmdLineArg_Map.contains("--generate")) {
+                              Update();
+                              exit(0);
+               }
+               if (inCmdLineArg_Map.contains("--generate-run")) {
+                              Update();
                }
 }
 
@@ -86,10 +94,8 @@ JKR_EXPORT int main(int ArgCount, char** ArgStrings) {
 
 #ifndef ANDROID
                auto CmdArg_Map = CommandLine(ArgCount, ArgStrings);
-               if (not CmdArg_Map.empty())
-                              ProcessCmdLine(CmdArg_Map);
-               else
+               if (not CmdArg_Map.empty()) ProcessCmdLine(CmdArg_Map);
 #endif
-                              RunScript();
+               RunScript();
                return 0;
 }

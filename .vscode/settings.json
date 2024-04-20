@@ -17,7 +17,7 @@
           "cmake.clearOutputBeforeBuild": true,
           /* EDITOR */
           "editor.matchBrackets": "near",
-          "editor.fontFamily": "Sitka Text",
+          "editor.fontFamily": "Segoe Print",
           "editor.fontWeight": "normal",
           "editor.fontSize": 24,
           "editor.tabSize": 10,
@@ -77,6 +77,14 @@
           "[cpp]": {
                     "editor.wordBasedSuggestions": "allDocuments",
                     "editor.suggest.insertMode": "replace",
+                    "editor.semanticHighlighting.enabled": true,
+          },
+          "[lua]": {
+                    "editor.quickSuggestions": {
+                              "comments": "inline",
+                              "other": "on",
+                              "strings": "on"
+                    },
                     "editor.semanticHighlighting.enabled": true,
           },
           "[log][Log]": {
