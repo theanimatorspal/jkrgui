@@ -139,7 +139,7 @@ Jkr.CreateWidgetRenderer = function(i, w)
         end
     end
     o.Dispatch = function()
-        o.s:Dispatch(w)
+        o.s:Dispatch(w, Jkr.CmdParam.UI)
     end
     o.Event = function()
 

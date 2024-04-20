@@ -569,8 +569,8 @@ Jkr.CreateShapeRenderer = function(inInstance, inCompatibleWindow, inShapeRender
     o.Draw = function(self, w, inColor_4f, inWindowW, inWindowH, inStartShapeId, inEndShapeId, inMatrix, inCmdParam)
         sr:Draw(w, inColor_4f, inWindowW, inWindowH, inStartShapeId, inEndShapeId, inMatrix, inCmdParam)
     end
-    o.Dispatch = function(self, w)
-        sr:Dispatch(w, Jkr.CmdParam.UI)
+    o.Dispatch = function(self, w, inParam)
+        sr:Dispatch(w, inParam)
     end
     o.CopyToImage = function(self, inId, inCustomPainterImage) -- TODO Wrap This
         sr:CopyToImage(inId, inCustomPainterImage)
@@ -673,7 +673,7 @@ end
 
 function ConfigureMultiThreading(inMultiThreading)
     inMultiThreading:Inject("__MultiThreadingFetchInjected__", Jkr.MultiThreadingFetchInjected)
-    inMultiThreading:Inject("__GetDefaultResource__", GetDefaultResource)
+    inMultiThreading:Inject("__GetDefaultResource__", Jkr.GetDefaultResource)
     inMultiThreading:Inject("ImportShared", ImportShared)
 end
 
