@@ -32,7 +32,7 @@ Jkr.CreateCamera3D = function()
         o.mEye = o.mEye + Jmath.Normalize(Jmath.Cross(o.mCameraUp, o.mDirection)) * inFactor
     end
     o.SetPerspective = function(inFov, inAspect, inNearZ, inFarZ)
-        local lookat = Jmath.LookAt(o.mEye, o.mTarget, o.mUp)
+        local lookat = Jmath.LookAt(o.mEye, o.mTarget, o.mCameraUp)
         o.mMatrix = Jmath.Perspective(inFov, inAspect, inNearZ, inFarZ) * lookat
     end
 
