@@ -1,4 +1,5 @@
 #pragma once
+#include "SDL2/SDL_keycode.h"
 #include "Window.hpp"
 
 namespace Jkr {
@@ -12,8 +13,8 @@ class EventManager {
                EventManager() { mBoundRect2Ds.reserve(100); }
                void ProcessEvents() {
                               while (SDL_PollEvent(&mEvent)) {
+                                             mEventCallBack();
                                              mCurrentPushedMouseButton = SDL_GetMouseState(&mMousePos.x, &mMousePos.y);
-                                             mEventCallBack(nullptr);
                                              switch (mEvent.type) {
                                                             case SDL_QUIT:
                                                                            should_quit = true;
@@ -32,6 +33,8 @@ class EventManager {
                GETTER GetRelativeMousePos() const { return mRelativePos; }
                GETTER GetMouseButtonValue() const { return mCurrentPushedMouseButton; }
                GETTER IsKeyPressedContinous(int inScanCode) const { return (bool)mKeyboardState[inScanCode]; }
+               GETTER IsKeyReleased(SDL_Keycode inKey) { return mEvent.type == SDL_KEYUP && mEvent.key.keysym.sym == inKey; }
+               GETTER IsKeyPressed(SDL_Keycode inKey) { return mEvent.type == SDL_KEYDOWN && mEvent.key.keysym.sym == inKey; }
                GETTER IsLeftButtonPressed() const { return (SDL_BUTTON(SDL_BUTTON_LEFT) bitand this->GetMouseButtonValue()) != 0; }
                GETTER IsRightButtonPressed() const { return (SDL_BUTTON(SDL_BUTTON_RIGHT) bitand this->GetMouseButtonValue()) != 0; }
                void StartTextInput() { SDL_StartTextInput(); }
@@ -60,7 +63,7 @@ class EventManager {
                               auto br                           = BoundRect2D{.mXy = inXy, .mWh = inWh};
                               mBoundRect2Ds[inDepthValue][inId] = br;
                }
-               void SetEventCallBack(const std::function<void(void*)>& inEventCallBack) { mEventCallBack = inEventCallBack; }
+               void SetEventCallBack(const std::function<void()>& inEventCallBack) { mEventCallBack = inEventCallBack; }
 
        private:
                SDL_Event mEvent;
@@ -71,7 +74,7 @@ class EventManager {
                const uint8_t* mKeyboardState;
 
        private:
-               std::function<void(void*)> mEventCallBack = [](void*) {};
+               std::function<void()> mEventCallBack = []() {};
                std::unordered_map<uint32_t, std::vector<BoundRect2D>> mBoundRect2Ds;
 };
 } // namespace Jkr

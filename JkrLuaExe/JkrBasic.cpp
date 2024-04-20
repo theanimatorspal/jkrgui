@@ -1,3 +1,4 @@
+#include "EventManager.hpp"
 #include "JkrLuaExe.hpp"
 
 namespace JkrEXE {
@@ -87,6 +88,10 @@ void CreateBasicBindings(sol::state& s) {
                                                    &EventManager::IsLeftButtonPressed,
                                                    "IsRightButtonPressed",
                                                    &EventManager::IsRightButtonPressed,
+                                                   "IsKeyReleased",
+                                                   &EventManager::IsKeyReleased,
+                                                   "IsKeyPressed",
+                                                   &EventManager::IsKeyPressed,
                                                    "StartTextInput",
                                                    &EventManager::StartTextInput,
                                                    "StopTextInput",
@@ -102,7 +107,7 @@ void CreateBasicBindings(sol::state& s) {
                                                    "UpdateBoundRect",
                                                    &EventManager::UpdateBoundRect,
                                                    "SetEventCallBack",
-                                                   &EventManager::SetEventCallBack);
+                                                   [](Jkr::EventManager& inManager, sol::function inFunction) { inManager.SetEventCallBack([=]() { inFunction(); }); });
 
                auto PainterCacheTypeEnum =
                          Jkr.new_enum<false>("PainterType", "Default", PipelinePropertiesContext::Default, "Line", PipelinePropertiesContext::Line, "LineStrip", PipelinePropertiesContext::LineStrip);

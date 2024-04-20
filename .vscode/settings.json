@@ -15,6 +15,9 @@
           "cmake.options.statusBarVisibility": "compact",
           "cmake.parallelJobs": 8,
           "cmake.clearOutputBeforeBuild": true,
+          "cmake.debugConfig": {
+                    "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\SampraharReturns"
+          },
           /* EDITOR */
           "editor.matchBrackets": "near",
           "editor.fontFamily": "Segoe Print",
