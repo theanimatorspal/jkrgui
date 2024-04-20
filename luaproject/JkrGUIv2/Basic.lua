@@ -659,26 +659,6 @@ Jkr.CreateCustomImagePainter = function(inCacheFileName, inComputeShader)
     return o
 end
 
---[============================================================[
-    MultiThreading
-]============================================================]
-
-function Jkr.MultiThreadingInject(inMultiThreading, inTable)
-    if inTable then
-        for i = 1, #inTable, 1 do
-            inMultiThreading:Inject(inTable[i][1], inTable[i][2])
-        end
-    end
-end
-
-function InjectMultiThreading()
-end
-
-function ConfigureMultiThreading(inMultiThreading)
-    inMultiThreading:Inject("__MultiThreadingFetchInjected__", Jkr.MultiThreadingFetchInjected)
-    inMultiThreading:Inject("__GetDefaultResource__", Jkr.GetDefaultResource)
-    inMultiThreading:Inject("ImportShared", ImportShared)
-end
 
 --[============================================================[
     MAIN LOOPS

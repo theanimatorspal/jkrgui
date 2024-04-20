@@ -1,12 +1,4 @@
-﻿#include "ksai_config.hpp"
-#include "lua.h"
-#include <cstdlib>
-#include <filesystem>
-#include <iterator>
-#define SOL_PRINT_ERRORS 1
-#define SOL_ALL_SAFETIES_ON 1
-#include "JkrLuaExe.hpp"
-#include "sol/sol.hpp"
+﻿#include "JkrLuaExe.hpp"
 
 namespace JkrEXE {
 extern void CreateBasicBindings(sol::state& inState);
@@ -21,6 +13,7 @@ extern umap<s, v<s>> CommandLine(int ArgCount, char** ArgStrings); // TODO Compl
 extern void CreateMultiThreadingBindings(sol::state& inState);
 
 void CreateMainBindings(sol::state& s) {
+               s.set_exception_handler(&my_exception_handler);
                s.open_libraries();
 #ifdef _WIN32
                s["_WIN32"] = true;
@@ -46,7 +39,6 @@ sol::state& GetMainStateRef() { return mainState; }
 
 void RunScript() {
                CreateMainBindings(mainState);
-               mainState.set_exception_handler(&my_exception_handler);
                sol::protected_function_result result = mainState.safe_script_file("app.lua", &sol::script_pass_on_error);
                if (not result.valid()) {
                               sol::error error = result;

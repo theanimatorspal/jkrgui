@@ -156,9 +156,18 @@ function Jkr.CreateShapeRenderer3D(i, w)
 end
 
 --[============================================================[
-    Simple 3D Renderer
+    Simple 3D Pipeline
 ]============================================================]
 
-function Jkr.CreateSimple3DRenderer(i, w)
+function Jkr.CreateSimple3DPipeline(i, w)
     return Jkr.Simple3D(i, w)
+end
+
+function Jkr.CreateShapesHelper(inS)
+    local o = {}
+    o.AddDemoPlane = function()
+        local Plane = Jkr.Generator(Jkr.Shapes.Cube3D, vec3(10, 5, 10))
+        o.demoplane = inS:Add(Plane, vec3(0, 0, 0))
+    end
+    return o
 end

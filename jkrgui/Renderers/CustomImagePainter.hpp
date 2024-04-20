@@ -48,10 +48,10 @@ struct CustomImagePainter {
                               Image.CmdTransitionImageLayout(Cmd,
                                                              Image.GetInitialImageLayout(),
                                                              Image.GetInitialImageLayout(),
-                                                             vk::PipelineStageFlagBits::eAllCommands,
                                                              vk::PipelineStageFlagBits::eComputeShader,
-                                                             vk::AccessFlagBits::eNone,
-                                                             vk::AccessFlagBits::eMemoryWrite);
+                                                             vk::PipelineStageFlagBits::eFragmentShader,
+                                                             vk::AccessFlagBits::eMemoryWrite,
+                                                             vk::AccessFlagBits::eMemoryRead);
                }
                template <class T> void Draw(Window& inWindow, T inPushConstant, ui inX, ui inY, ui inZ, ComPar inPar = ComPar::None) {
                               mPainter->Dispatch_EXT<T>(inPushConstant, inX, inY, inZ, inPar);
