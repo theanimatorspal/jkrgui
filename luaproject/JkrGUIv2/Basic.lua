@@ -566,8 +566,8 @@ Jkr.CreateShapeRenderer = function(inInstance, inCompatibleWindow, inShapeRender
     o.BindFillMode = function(self, inFillMode, inWindow, inCmdParam)
         sr:BindFillMode(inFillMode, inWindow, Jkr.CmdParam.UI)
     end
-    o.Draw = function(self, w, inColor_4f, inWindowW, inWindowH, inStartShapeId, inEndShapeId, inMatrix, inCmdParam)
-        sr:Draw(w, inColor_4f, inWindowW, inWindowH, inStartShapeId, inEndShapeId, inMatrix, inCmdParam)
+    o.Draw = function(self, w, inColor_4f, inStartShapeId, inEndShapeId, inMatrix, inCmdParam)
+        sr:Draw(w, inColor_4f, inStartShapeId, inEndShapeId, inMatrix, inCmdParam)
     end
     o.Dispatch = function(self, w, inParam)
         sr:Dispatch(w, inParam)
