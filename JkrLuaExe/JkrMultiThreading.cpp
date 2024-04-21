@@ -161,8 +161,9 @@ inline sol::object MultiThreading::Copy(sol::object obj, sol::state& target) {
                                              return tcopy;
                               } break;
                               case sol::type::function: {
-                                             sol::function t = obj.as<sol::function>();
-                                             return sol::make_object(target, t);
+                                             sol::function t     = obj.as<sol::function>();
+                                             sol::object DumpedF = target.load(t.dump().as_string_view());
+                                             return sol::make_object(target, DumpedF);
                               } break;
                               case sol::type::userdata: {
                                              return getObjectByType<glm::vec2,

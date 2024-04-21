@@ -107,7 +107,16 @@ void CreateBasicBindings(sol::state& s) {
                                                    "UpdateBoundRect",
                                                    &EventManager::UpdateBoundRect,
                                                    "SetEventCallBack",
-                                                   [](Jkr::EventManager& inManager, sol::function inFunction) { inManager.SetEventCallBack([=]() { inFunction(); }); });
+                                                   [](Jkr::EventManager& inManager, sol::function inFunction) {
+                                                                  inManager.SetEventCallBack([=]() {
+                                                                                 auto result = inFunction();
+                                                                                 if (not result.valid()) {
+                                                                                                sol::error error = result;
+                                                                                                std::cout << error.what();
+                                                                                                ksai_print(error.what());
+                                                                                 }
+                                                                  });
+                                                   });
 
                auto PainterCacheTypeEnum =
                          Jkr.new_enum<false>("PainterType", "Default", PipelinePropertiesContext::Default, "Line", PipelinePropertiesContext::Line, "LineStrip", PipelinePropertiesContext::LineStrip);

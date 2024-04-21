@@ -33,8 +33,8 @@ class EventManager {
                GETTER GetRelativeMousePos() const { return mRelativePos; }
                GETTER GetMouseButtonValue() const { return mCurrentPushedMouseButton; }
                GETTER IsKeyPressedContinous(int inScanCode) const { return (bool)mKeyboardState[inScanCode]; }
-               GETTER IsKeyReleased(SDL_Keycode inKey) { return mEvent.type == SDL_KEYUP && mEvent.key.keysym.sym == inKey; }
-               GETTER IsKeyPressed(SDL_Keycode inKey) { return mEvent.type == SDL_KEYDOWN && mEvent.key.keysym.sym == inKey; }
+               GETTER IsKeyReleased(SDL_Keycode inKey) { return mEvent.type == SDL_KEYUP and mEvent.key.keysym.sym == inKey; }
+               GETTER IsKeyPressed(SDL_Keycode inKey) { return mEvent.type == SDL_KEYDOWN and mEvent.key.keysym.sym == inKey; }
                GETTER IsLeftButtonPressed() const { return (SDL_BUTTON(SDL_BUTTON_LEFT) bitand this->GetMouseButtonValue()) != 0; }
                GETTER IsRightButtonPressed() const { return (SDL_BUTTON(SDL_BUTTON_RIGHT) bitand this->GetMouseButtonValue()) != 0; }
                void StartTextInput() { SDL_StartTextInput(); }

@@ -3,7 +3,7 @@
 namespace JkrEXE {
 
 void CreateKeyBindings(sol::state& s) {
-               auto Key                       = s.new_enum<false>("Key");
+               auto Key                       = s.new_enum<false>("Keyboard");
                Key["SDLK_RETURN"]             = SDLK_RETURN;
                Key["SDLK_ESCAPE"]             = SDLK_ESCAPE;
                Key["SDLK_BACKSPACE"]          = SDLK_BACKSPACE;
