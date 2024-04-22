@@ -1,3 +1,4 @@
+#pragma once
 #include "Painter.hpp"
 #include "PainterParameter.hpp"
 #include <Renderers/ThreeD/Simple3D.hpp>

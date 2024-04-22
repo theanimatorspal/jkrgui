@@ -64,4 +64,4 @@
 *.h linguist-language=C++
 *.lua linguist-language=lua
 libs/* linguist-vendored=true
-ksaivulkan/Vendor/* linguist-vendored=true
+ksaivulkan/* linguist-vendored=true

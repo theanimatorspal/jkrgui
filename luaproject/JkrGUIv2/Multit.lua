@@ -10,7 +10,6 @@ function Jkr.ConfigureMultiThreading(inMultiThreading, inTable)
     inMultiThreading:Inject("mtMultiThreadingFetchInjected", Jkr.MultiThreadingFetchInjected)
     inMultiThreading:Inject("mtGetDefaultResource", Jkr.GetDefaultResource)
     inMultiThreading:Inject("mtCreateShapesHelper", Jkr.CreateShapesHelper)
-    inMultiThreading:Inject("mtCreateCamera3D", Jkr.CreateCamera3D)
     inMultiThreading:Inject("ImportShared", ImportShared)
     inMultiThreading:Inject("mtJkr", Jkrmt)
     if inTable then

@@ -18,6 +18,7 @@
 #include <Misc/RecycleBin.hpp>
 #include <Misc/ThreeD/Skybox.hpp>
 #include <Misc/ThreeD/Uniform3D.hpp>
+#include <Misc/ThreeD/World3D.hpp>
 #include <Renderers/BestText_Alt.hpp>
 #include <Renderers/ThreeD/Simple3D.hpp>
 #include <Renderers/ThreeD/glTF_Model.hpp>

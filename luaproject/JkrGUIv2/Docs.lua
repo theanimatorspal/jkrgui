@@ -37,5 +37,8 @@ Namespace.CreateCLASSNAME = function(inArgument1, inArgument2)
     return o
 end
 
+For Jkr Specific,
+If Supported for Multithreaded use Jkrmt
+If not use Jkr
 
 ]============================================================]

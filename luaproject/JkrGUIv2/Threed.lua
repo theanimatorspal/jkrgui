@@ -4,54 +4,6 @@ require "JkrGUIv2.Basic"
 ]============================================================]
 Jkrmt = {}
 
-Jkrmt.Camera3D = {
-    New = function(self)
-        local o = {}
-        setmetatable(o, self)
-        self.__index = self
-        o.mTarget = vec3(0)
-        o.mRight = vec3(0)
-        o.mEye = vec3(0)
-        o.mUp = vec3(0, 1, 0)
-        o.mCameraUp = vec3(0)
-        o.mDirection = vec3(0)
-        o.mFov = 0.45
-        o.mAspect = 16 / 9
-        o.mNearZ = 0.1
-        o.mFarZ = 100
-        o.mMatrix = Jmath.GetIdentityMatrix4x4()
-        return o
-    end,
-    SetAttributes = function(self, inTarget_3f, inEye_3f)
-        if inTarget_3f then self.mTarget = inTarget_3f end
-        if inEye_3f then self.mEye = inEye_3f end
-        self.mDirection = Jmath.Normalize(self.mTarget - self.mEye)
-        self.mRight = Jmath.Normalize(Jmath.Cross(self.mUp, self.mDirection))
-        self.mCameraUp = Jmath.Cross(self.mDirection, self.mRight)
-    end,
-    MoveForward = function(self, inFactor)
-        self.mEye = self.mEye + self.mDirection * inFactor
-    end,
-    MoveBackward = function(self, inFactor)
-        self.mEye = self.mEye - self.mDirection * inFactor
-    end,
-    MoveLeft = function(self, inFactor)
-        self.mEye = self.mEye - Jmath.Normalize(Jmath.Cross(self.mCameraUp, self.mDirection)) * inFactor
-    end,
-    MoveRight = function(self, inFactor)
-        self.mEye = self.mEye + Jmath.Normalize(Jmath.Cross(self.mCameraUp, self.mDirection)) * inFactor
-    end,
-    SetPerspective = function(self, inFov, inAspect, inNearZ, inFarZ)
-        if (inFov) then self.mFov = inFov end
-        if (inAspect) then self.mAspect = inAspect end
-        if (inNearZ) then self.mNearZ = inNearZ end
-        if (inFarZ) then self.mFarZ = inFarZ end
-
-        local lookat = Jmath.LookAt(self.mEye, self.mTarget, self.mCameraUp)
-        self.mMatrix = Jmath.Perspective(self.mFov, self.mAspect, self.mNearZ, self.mFarZ) * lookat
-    end
-}
-
 --[============================================================[
     GLTF Utils 3D
 ]============================================================]
@@ -184,3 +136,52 @@ function Jkr.CreateShapesHelper(inS)
     end
     return o
 end
+
+--[============================================================[
+   3D World
+]============================================================]
+
+Jkrmt.World3D = {
+    New = function(self, i, w)
+        local o = {}
+        o.mCameras = {}
+        o.mCameraType = {}
+        o.mObjects = {}
+        o.mLights = {}
+        o.mShapeRenderer = Jkr.CreateShapeRenderer3D(i, w)
+        o.mSimple3DPipelines = {}
+        o.CurrentCamera = 0
+        setmetatable(o, self)
+        self.__index = self
+
+        self:AddCameraAuto(o, w, "PERSPECTIVE")
+        return o
+    end,
+    AddCameraAuto = function(self, inWindow, inCameraType)
+        local camera = Jkrmt.Camera3D:New()
+        camera:SetAttributes(vec3(0, 0, 0), vec3(10, 10, 10))
+        local dimension = inWindow:GetWindowDimension()
+        camera:SetPerspective(0.45, dimension.x / dimension.y, 0.1, 1000)
+        self.mCameras[#self.mCameras + 1] = camera
+        self.mCameraType[#self.mCameraType + 1] = inCameraType
+    end,
+    CreateDemoScene = function(self)
+        local Plane = Jkr.Generator(Jkr.Shapes.Cube3D, vec3(100, 5, 100))
+        self.mObjects[#self.mObjects + 1] = self.mShapeRenderer:Add(Plane, vec3(0, 0, 0))
+    end,
+    DrawBackgrounds = function(self)
+        self.mShapeRenderer:Bind()
+    end,
+    DrawObjects = function(self)
+        self.mShapeRenderer:Bind()
+    end,
+    Event = function(self)
+
+    end,
+    Dispatch = function(self)
+
+    end,
+    Update = function(self)
+
+    end
+}
