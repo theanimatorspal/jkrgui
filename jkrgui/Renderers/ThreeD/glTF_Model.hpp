@@ -11,7 +11,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
 namespace Jkr::Renderer::_3D {
 using namespace ksai::kstd;
 using namespace ksai;
@@ -39,6 +38,7 @@ class glTF_Model {
 
                struct Mesh {
                               v<Primitive> mPrimitives;
+                              v<ui> mNodeIndex;
                };
 
                struct Node {
@@ -49,7 +49,7 @@ class glTF_Model {
                               v<Up<Node>> mChildren;
 
                               Mesh mMesh;
-                              glm::vec3 mTranslation;
+                              glm::vec3 mTranslation{};
                               glm::vec3 mScale{1.0f};
                               glm::quat mRotation{};
 
@@ -94,7 +94,7 @@ class glTF_Model {
                               v<AnimationSampler> mSamplers;
                               v<AnimationChannel> mChannels;
                               float mStart       = std::numeric_limits<float>::max();
-                              float mEnd         = std::numeric_limits<float>::max();
+                              float mEnd         = std::numeric_limits<float>::min();
                               float mCurrentTime = 0.0f;
                };
 
@@ -125,7 +125,9 @@ class glTF_Model {
                GETTER GetJointsCount(ui inIndex) { return mSkins[inIndex].mInverseBindMatrices.size(); }
                GETTER GetAnimationsSize() { return mAnimations.size(); }
                GETTER GetActiveAnimation() const { return mActiveAnimation; }
+               GETTER GetNodeIndexByMeshIndex(int inIndex) const { return mMeshes[inIndex].mNodeIndex; }
                glm::mat4 GetNodeMatrix(glTF_Model::Node* inNode);
+               glm::mat4 GetNodeMatrixByIndex(int inIndex);
                SETTER SetActiveAnimation(ui inAnimation) { mActiveAnimation = inAnimation; };
 
                void Load(ui inInitialVertexOffset = 0);
@@ -154,6 +156,7 @@ class glTF_Model {
                               mVertexBuffer.clear();
                               mVertexBuffer.shrink_to_fit();
                }
+               // TODO Shift these to GETTERS location
                Node* FindNode(Node* inParent, ui inIndex);
                Node* NodeFromIndex(ui inIndex);
                void Draw(glTF_Model::Node& inNode, PushCallBack inBindDataCallBack, DrawCallBack inDrawCallBack);
@@ -172,8 +175,7 @@ class glTF_Model {
                v<Animation> mAnimations;
                ui mActiveAnimation = 0;
 
-               tinygltf::Model glTFInput;
-               tinygltf::TinyGLTF gltfContext;
+               v<Mesh> mMeshes;
 };
 
 } // namespace Jkr::Renderer::_3D

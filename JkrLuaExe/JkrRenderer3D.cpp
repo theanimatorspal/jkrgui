@@ -1,4 +1,5 @@
 #include "JkrLuaExe.hpp"
+#include "Renderers/ThreeD/glTF_Model.hpp"
 #include "sol/sol.hpp"
 #include <string_view>
 
@@ -54,8 +55,12 @@ void CreateRenderer3DBindings(sol::state& s) {
                                                                 &Jkr::Renderer::_3D::glTF_Model::GetActiveAnimation,
                                                                 "GetJointsCount",
                                                                 &Jkr::Renderer::_3D::glTF_Model::GetJointsCount,
+                                                                "GetNodeMatrixByIndex",
+                                                                &Jkr::Renderer::_3D::glTF_Model::GetNodeMatrixByIndex,
                                                                 "SetActiveAnimation",
-                                                                &Jkr::Renderer::_3D::glTF_Model::SetActiveAnimation);
+                                                                &Jkr::Renderer::_3D::glTF_Model::SetActiveAnimation,
+                                                                "GetNodeIndexByMeshIndex",
+                                                                &Jkr::Renderer::_3D::glTF_Model::GetNodeIndexByMeshIndex);
                Jkr.new_usertype<Jkr::Renderer::_3D::Shape>(
                          "Shape3D",
                          sol::call_constructor,

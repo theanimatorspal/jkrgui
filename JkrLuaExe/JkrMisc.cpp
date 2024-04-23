@@ -1,6 +1,7 @@
 #include "JkrLuaExe.hpp"
 #include "Misc/ThreeD/World3D.hpp"
 #include "PainterParameter.hpp"
+#include "Renderers/ThreeD/Simple3D.hpp"
 #include "Renderers/TwoD/Shape.hpp"
 #include "sol/sol.hpp"
 
@@ -60,6 +61,8 @@ void CreateMiscBindings(sol::state& inState) {
                          &Jkr::Renderer::CustomImagePainter::Draw<DefaultCustomImagePainterPushConstant>);
 
                using Uniform3D = Jkr::Misc::_3D::Uniform3D;
+               using Simple3D  = Jkr::Renderer::_3D::Simple3D;
+               using namespace Jkr::Renderer::_3D;
                Jkr.new_usertype<Uniform3D>("Uniform3D",
                                            sol::call_constructor,
                                            sol::factories([](Jkr::Instance& inI, Jkr::Renderer::_3D::Simple3D& inSimple3D) { return mu<Uniform3D>(inI, inSimple3D); },
@@ -72,7 +75,15 @@ void CreateMiscBindings(sol::state& inState) {
                                            "AddBuffer",
                                            &Uniform3D::AddUniformBuffer,
                                            "UpdateByGLTFAnimation",
-                                           &Uniform3D::UpdateByGLTFAnimation);
+                                           &Uniform3D::UpdateByGLTFAnimation,
+                                           "Build",
+                                           sol::overload(sol::resolve<void(Jkr::Renderer::_3D::Simple3D&)>(&Uniform3D::Build), sol::resolve<void(Simple3D&, glTF_Model&, ui, bool)>(&Uniform3D::Build)),
+                                           "AddTextureToUniform3D",
+                                           &Uniform3D::AddTextureToUniform3D,
+                                           "AddUniformBufferToUniform3D",
+                                           &Uniform3D::AddUniformBufferToUniform3D,
+                                           "AddStorageBufferToUniform3D",
+                                           &Uniform3D::AddStorageBufferToUniform3D);
 
                using namespace Jkr::Misc::_3D;
                Jkr.new_usertype<Camera3D>("Camera3D",
@@ -110,8 +121,14 @@ void CreateMiscBindings(sol::state& inState) {
                                          &World3D::DrawBackgrounds,
                                          "AddSimple3D",
                                          &World3D::AddSimple3D,
+                                         "AddUniform3D",
+                                         &World3D::AddUniform3D,
+                                         "AddWorldInfoToUniform3D",
+                                         &World3D::AddWorldInfoToUniform3D,
                                          "DrawObjects",
                                          &World3D::DrawObjects,
+                                         "DrawObjectsUniformed3D",
+                                         &World3D::DrawObjectsUniformed3D,
                                          "Event",
                                          &World3D::Event,
                                          "Update",
@@ -122,12 +139,14 @@ void CreateMiscBindings(sol::state& inState) {
                                          &World3D::GetCurrentCamera,
                                          "GetGLTFModel",
                                          &World3D::GetGLTFModel,
-                                         "GetUniform",
-                                         &World3D::GetUniform,
+                                         "GetUniform3D",
+                                         &World3D::GetUniform3D,
                                          "GetSimple3D",
                                          &World3D::GetSimple3D,
                                          "SetCurrentCamera",
-                                         &World3D::SetCurrentCamera);
+                                         &World3D::SetCurrentCamera,
+                                         "SetObjectMatrix",
+                                         &World3D::SetObjectMatrix);
 }
 
 } // namespace JkrEXE

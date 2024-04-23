@@ -26,6 +26,9 @@ class Uniform3D {
                void AddTextureBindless(int inDstBinding, s inFileName); // TODO To be Implemented
                void AddUniformBuffer(int inDstBinding, size_t inSize);
                void AddStorageBuffer(int inDstBinding, size_t inSize);
+               void AddTextureToUniform3D(Uniform3D& inUniform3D, int inTextureId);
+               void AddUniformBufferToUniform3D(Uniform3D& inUniform3D, int inBufferId);
+               void AddStorageBufferToUniform3D(Uniform3D& inUniform3D, int inStorageId);
 
                template <typename T> void UpdateStorageBuffer(int inDstBinding, T inData);
                template <typename T> void UpdateUniformBuffer(int inDstBinding, T inData);

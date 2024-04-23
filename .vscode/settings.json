@@ -1,5 +1,5 @@
 {
-          "workbench.colorTheme": "Quiet Light",
+          "workbench.colorTheme": "Visual Studio Dark",
           "git.enableSmartCommit": true,
           "git.confirmSync": false,
           "gitlens.currentLine.enabled": false,
@@ -20,7 +20,7 @@
           },
           /* EDITOR */
           "editor.matchBrackets": "near",
-          "editor.fontFamily": "Segoe Print",
+          "editor.fontFamily": "Victor Mono",
           "editor.fontWeight": "normal",
           "editor.fontSize": 24,
           "editor.tabSize": 10,
@@ -30,7 +30,7 @@
                                         "scope": "keyword",
                                         "settings": {
                                                   "fontStyle": "italic",
-                                                  "foreground": "#80000f"
+                                                  "foreground": "#8850ff"
                                         }
                               },
                               {

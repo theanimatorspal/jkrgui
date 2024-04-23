@@ -47,14 +47,14 @@ set(DebugDirectory "${CMAKE_JKRGUI_DIR}/out/build/x64-debug/JkrLuaExe")
 message(STATUS "Copying from Src to DebugDirectory")
 message(STATUS "${SrcDirectory} to ${DebugDirectory}")
 
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    add_custom_command(
-        TARGET JkrLuaExe POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-                $<TARGET_FILE:JkrLuaExe>
-                ${DebugDirectory}/
-    )
-endif()
+# if(CMAKE_BUILD_TYPE STREQUAL "Release")
+#     add_custom_command(
+#         TARGET JkrLuaExe POST_BUILD
+#         COMMAND ${CMAKE_COMMAND} -E copy
+#                 $<TARGET_FILE:JkrLuaExe>
+#                 ${DebugDirectory}/
+#     )
+# endif()
 
 add_custom_command(
     TARGET JkrLuaExe POST_BUILD

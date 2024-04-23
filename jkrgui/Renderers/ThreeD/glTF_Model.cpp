@@ -5,10 +5,15 @@
 using namespace Jkr::Renderer::_3D;
 using namespace ksai;
 
-glm::mat4 glTF_Model::Node::GetLocalMatrix() { return glm::translate(glm::mat4(1.0f), mTranslation) * glm::mat4(mRotation) * glm::scale(glm::mat4(1.0f), mScale) * mMatrix; }
+glm::mat4 glTF_Model::Node::GetLocalMatrix() {
+               {};
+               return glm::translate(glm::mat4(1.0f), mTranslation) * glm::mat4(mRotation) * glm::scale(glm::mat4(1.0f), mScale) * mMatrix;
+}
 
 // TODO Merge these two functions
 void glTF_Model::Load(ui inInitialVertexOffset) {
+               tinygltf::Model glTFInput;
+               tinygltf::TinyGLTF gltfContext;
                s error, warning;
                bool file_loaded = gltfContext.LoadASCIIFromFile(&glTFInput, &error, &warning, s(mFileName));
                if (file_loaded) {
@@ -42,6 +47,8 @@ void glTF_Model::Load(ui inInitialVertexOffset) {
 }
 
 void glTF_Model::Load(FillVertexCallBack inVertexCallback, FillIndexCallBack inIndexCallback) {
+               tinygltf::Model glTFInput;
+               tinygltf::TinyGLTF gltfContext;
                s error, warning;
                bool file_loaded = gltfContext.LoadASCIIFromFile(&glTFInput, &error, &warning, s(mFileName));
                if (file_loaded) {
@@ -86,7 +93,11 @@ void glTF_Model::LoadImages(tinygltf::Model& input) {
                                                             rgb += 3;
                                              }
                               } else {
+                                             bufferSize = glTFImage.width * glTFImage.height * 4;
+                                             buffvec.resize(bufferSize);
+                                             buffer = buffvec.data();
                                              buffer = &glTFImage.image[0];
+                                             memcpy(buffvec.data(), &glTFImage.image[0], bufferSize);
                                              // bufferSize = glTFImage.image.size();
                               }
                               // TODO Make this local image
@@ -97,10 +108,10 @@ void glTF_Model::LoadImages(tinygltf::Model& input) {
                               //     glTFImage.height,
                               //     4);
                               Image Image;
-                              Image.mTextureImage = buffvec;
+                              Image.mTextureImage = std::move(buffvec);
                               Image.mWidth        = glTFImage.width;
                               Image.mHeight       = glTFImage.height;
-                              mImages.push_back(std::move(Image));
+                              mImages[i]          = std::move(Image);
                }
 }
 
@@ -264,15 +275,15 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
 
                /* Node Matrix is either made from translation, rotation, scale or a 4x4 matrix */
                if (inputNode.translation.size() == 3) {
-                              Node->mMatrix = glm::translate(Node->mMatrix, glm::vec3(glm::make_vec3(inputNode.translation.data())));
+                              Node->mTranslation = glm::make_vec3(inputNode.translation.data());
                }
 
                if (inputNode.rotation.size() == 4) {
-                              glm::quat q = glm::make_quat(inputNode.rotation.data());
-                              Node->mMatrix *= glm::mat4(q);
+                              glm::quat q     = glm::make_quat(inputNode.rotation.data());
+                              Node->mRotation = glm::mat4(q);
                }
                if (inputNode.scale.size() == 3) {
-                              Node->mMatrix = glm::scale(Node->mMatrix, glm::vec3(glm::make_vec3(inputNode.scale.data())));
+                              Node->mScale = glm::make_vec3(inputNode.scale.data());
                }
                if (inputNode.matrix.size() == 16) {
                               Node->mMatrix = glm::make_mat4x4(inputNode.matrix.data());
@@ -356,8 +367,6 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                                                                                                                     static_cast<float>(jointIndicesBuffer[v * 4 + 2]),
                                                                                                                     static_cast<float>(jointIndicesBuffer[v * 4 + 3]))
                                                                                                         : glm::vec4(0.0f);
-                                                                           std::cout << "Vertex " << v << " " << vert.mJointIndices.x << " " << vert.mJointIndices.y << " " << vert.mJointIndices.z
-                                                                                     << " " << vert.mJointIndices.w << "\n";
                                                                            vert.mJointWeights = hasSkin ? glm::make_vec4(&jointWeightsBuffer[v * 4]) : glm::vec4(0.0f);
                                                                            inVertexBuffer.push_back(inVertexCallBack(vert));
                                                             }
@@ -410,6 +419,8 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                                              primitive.mIndexCount    = index_count;
                                              primitive.mMaterialIndex = glTFPrimitive.material;
                                              Node->mMesh.mPrimitives.push_back(primitive);
+                                             Node->mMesh.mNodeIndex.push_back(Node->mIndex);
+                                             mMeshes.push_back(Node->mMesh);
                               }
                }
 
@@ -419,6 +430,8 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                               mNodes.push_back(std::move(Node));
                }
 }
+
+glm::mat4 glTF_Model::GetNodeMatrixByIndex(int inIndex) { return GetNodeMatrix(NodeFromIndex(inIndex)); }
 
 // POI: Traverse the node hierarchy to the top-most parent to get the local matrix of the given node
 glm::mat4 glTF_Model::GetNodeMatrix(glTF_Model::Node* inNode) {
@@ -514,9 +527,9 @@ void glTF_Model::Draw(glTF_Model::Node& inNode, PushCallBack inPushCallBack, Dra
                                              if (primitive.mIndexCount > 0) {
                                                             if (mMaterials.size() > 0) {
                                                                            glTF_Model::Texture texture = mTextures[mMaterials[primitive.mMaterialIndex].mBaseColorTextureIndex];
-                                                                           inDrawCallBack(0, texture);
+                                                                           inDrawCallBack(primitive.mIndexCount, texture);
                                                             } else {
-                                                                           inDrawCallBack(0, std::nullopt);
+                                                                           inDrawCallBack(primitive.mIndexCount, std::nullopt);
                                                             }
                                              }
                               }

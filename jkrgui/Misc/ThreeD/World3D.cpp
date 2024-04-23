@@ -1,5 +1,7 @@
 #include "World3D.hpp"
 #include "EventManager.hpp"
+#include "Global/Standards.hpp"
+#include "Misc/ThreeD/Uniform3D.hpp"
 #include "SDL2/SDL_scancode.h"
 using namespace Jkr::Misc::_3D;
 using namespace Jkr;
@@ -31,13 +33,18 @@ int World3D::AddGLTFModel(std::string_view inFileName) {
 
 int World3D::AddObject(int inId, int inAssociatedGLTFModel, int inAssociatedUniform, int inAssociatedSimple3D) {
                mObjects.push_back(Object3D{.mId = inId, .mAssociatedModel = inAssociatedGLTFModel, .mAssociatedUniform = inAssociatedUniform, .mAssociatedSimple3D = inAssociatedSimple3D});
-               mObjectToSimpleMap[mObjects.size() - 1] = inAssociatedSimple3D;
+               mObjectToSimpleMap[mObjects.size() - 1]  = inAssociatedSimple3D;
+               mObjectToUniformMap[mObjects.size() - 1] = inAssociatedUniform;
                return mObjects.size() - 1;
 }
 
 int World3D::AddSimple3D(Jkr::Instance& inInstance, Window& inWindow) {
                mSimple3Ds.emplace_back(mu<Simple3D>(inInstance, inWindow));
                return mSimple3Ds.size() - 1;
+}
+int World3D::AddUniform3D(Jkr::Instance& inInstance) {
+               mUniforms.emplace_back(mu<Uniform3D>(inInstance));
+               return mUniforms.size() - 1;
 }
 
 void World3D::DrawBackgrounds(Window& inWindow, Renderer::CmdParam inParam) {}
@@ -76,6 +83,25 @@ void World3D::DrawObjects(Window& inWindow, Renderer::CmdParam inParam) {
                }
 }
 
+void World3D::DrawObjectsUniformed3D(Window& inWindow, Renderer::CmdParam inParam) {
+               mShape.Bind(inWindow, inParam);
+               int SimpleIndex = 0;
+               for (auto& simple : mSimple3Ds) {
+                              simple->Bind(inWindow, inParam);
+                              for (int i = 0; i < mObjects.size(); ++i) {
+                                             int simpleIndex  = mObjectToSimpleMap[i];
+                                             int uniformIndex = mObjectToUniformMap[i];
+                                             if (simpleIndex == SimpleIndex) {
+                                                            mUniforms[uniformIndex]->Bind(inWindow, *simple, inParam);
+                                                            PushConstantDefault Push;
+                                                            Push.m1 = mObjects[i].mMatrix;
+                                                            mSimple3Ds[simpleIndex]->Draw<PushConstantDefault>(inWindow, mShape, Push, 0, mShape.GetIndexCount(mObjects[i].mId), 1, inParam);
+                                             }
+                              }
+                              ++SimpleIndex;
+               }
+}
+
 void World3D::Event(Jkr::EventManager& inEvent) {
                Camera3D& Currentcamera = mCameras[mCurrentCamera];
                bool ShouldUpdate       = false;
@@ -102,4 +128,17 @@ void World3D::Update(Jkr::EventManager& inEvent) {
                               Currentcamera.UpdateDirectionByAngles();
                }
                Currentcamera.SetPerspective();
+               UpdateWorldInfoToUniform3D(0);
+}
+void World3D::AddWorldInfoToUniform3D(int inId) {
+               mUniforms[inId]->AddUniformBuffer(kstd::BindingIndex::Uniform::WorldInfo, sizeof(WorldInfoUniform));
+               {};
+}
+void World3D::UpdateWorldInfoToUniform3D(int inId) {
+               WorldInfoUniform Uniform;
+               Uniform.mView           = GetCurrentCamera()->GetView();
+               Uniform.mProjection     = GetCurrentCamera()->GetProjection();
+               Uniform.mCameraPosition = GetCurrentCamera()->GetPosition();
+               Uniform.mLights[0]      = {1, 1, 1, 1};
+               mUniforms[inId]->UpdateUniformBuffer(kstd::BindingIndex::Uniform::WorldInfo, Uniform);
 }

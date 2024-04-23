@@ -189,7 +189,18 @@ void CreateGLMBindings(sol::state& lua) {
                          "Magnitude",
                          [](glm::vec3 invec) { return glm::length(invec); },
                          "Cross",
-                         [](glm::vec3 inA, glm::vec3 inB) { return glm::cross(inA, inB); });
+                         [](glm::vec3 inA, glm::vec3 inB) { return glm::cross(inA, inB); },
+                         "PrintMatrix",
+                         [](glm::mat4 inMatrix) {
+                                        for (int y = 0; y < 4; ++y) {
+                                                       for (int x = 0; x < 4; ++x) {
+                                                                      std::cout << inMatrix[x][y] << "\t";
+                                                       }
+                                                       std::cout << "\n";
+                                        }
+                         }
+
+               );
 }
 
 } // namespace JkrEXE

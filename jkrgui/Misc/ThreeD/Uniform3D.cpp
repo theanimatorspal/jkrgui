@@ -36,6 +36,18 @@ void Uniform3D::AddStorageBuffer(int inDstBinding, size_t inSize) {
                Buffer->RegisterCoherent(0, inDstBinding, 0, *mVulkanDescriptorSet);
                mStorageBuffers[inDstBinding] = mv(Buffer);
 }
+void Uniform3D::AddTextureToUniform3D(Uniform3D& inUniform3D, int inTextureId) {
+               mImages[inTextureId]->Register(0, inTextureId, 0, *inUniform3D.mVulkanDescriptorSet);
+               {};
+}
+void Uniform3D::AddUniformBufferToUniform3D(Uniform3D& inUniform3D, int inBufferId) {
+               mUniformBuffers[inBufferId]->Register(0, inBufferId, 0, *inUniform3D.mVulkanDescriptorSet);
+               {};
+}
+void Uniform3D::AddStorageBufferToUniform3D(Uniform3D& inUniform3D, int inStorageId) {
+               mStorageBuffers[inStorageId]->Register(0, inStorageId, 0, *inUniform3D.mVulkanDescriptorSet);
+               {};
+}
 
 void Uniform3D::UpdateByGLTFAnimation(Renderer::_3D::glTF_Model& inModel, float inDeltaTime, int inActiveAnimationIndex) {
                inModel.SetActiveAnimation(inActiveAnimationIndex);
@@ -56,7 +68,6 @@ void Uniform3D::Build(Simple3D& inSimple3D) {
 }
 
 void Uniform3D::Build(Simple3D& inSimple3D, Renderer::_3D::glTF_Model& inModel, ui inNodeIndex, bool inShouldSkin) {
-               ui BindingIndex = 0;
                if (not mVulkanDescriptorSet) {
                               Build(inSimple3D);
                }
@@ -69,31 +80,35 @@ void Uniform3D::Build(Simple3D& inSimple3D, Renderer::_3D::glTF_Model& inModel, 
                               };
                               ModelCopy.Load(FillJointInfluence, [](ui inIndex) { return inIndex; });
 
-                              this->AddStorageBuffer(BindingIndex, JointInfluence.size() * sizeof(kstd::JointInfluence));
+                              this->AddStorageBuffer(kstd::BindingIndex::Storage::JointInfluence, JointInfluence.size() * sizeof(kstd::JointInfluence));
                               void* data = JointInfluence.data();
-                              this->UpdateStorageBuffer(BindingIndex, &data, JointInfluence.size() * sizeof(kstd::JointInfluence));
-                              BindingIndex++;
+                              this->UpdateStorageBuffer(kstd::BindingIndex::Storage::JointInfluence, &data, JointInfluence.size() * sizeof(kstd::JointInfluence));
 
                               if (inModel.GetSkinsSize() != 0) {
                                              auto& Skins = inModel.GetSkinsRef()[0]; // TODO
                                                                                      // inSkinIndex
                                              auto& InverseBindMatrices = Skins.mInverseBindMatrices;
                                              void* Data                = InverseBindMatrices.data();
-                                             this->AddUniformBuffer(BindingIndex, InverseBindMatrices.size() * sizeof(glm::mat4));
-                                             BindingIndex++;
+                                             this->AddUniformBuffer(kstd::BindingIndex::Uniform::JointMatrix, InverseBindMatrices.size() * sizeof(glm::mat4));
                               }
                }
-               if (inModel.GetImagesSize() != 0) {
-                              inModel.Draw(
-                                        *inModel.GetNodesRef()[inNodeIndex].get(),
-                                        [](glm::mat4 inMat) {},
-                                        [&](ui inUI, opt<Renderer::_3D::glTF_Model::Texture> inTexture) {
-                                                       if (inTexture.has_value()) {
-                                                                      ui ImageIndex = inTexture.value().mImageIndex;
-                                                                      auto& Image   = inModel.GetImagesRef()[ImageIndex];
-                                                                      AddTextureByVector(BindingIndex, Image.mTextureImage, Image.mWidth, Image.mHeight);
-                                                                      BindingIndex++;
-                                                       }
-                                        });
+               ui BindingIndex = kstd::BindingIndex::Uniform::DiffuseImage;
+               for (auto& I : inModel.GetTexturesRef()) {
+                              auto& Image = inModel.GetImagesRef()[I.mImageIndex];
+                              AddTextureByVector(BindingIndex, Image.mTextureImage, Image.mWidth, Image.mHeight);
+                              BindingIndex++;
                }
+               //      if (inModel.GetImagesSize() != 0) {
+               //                     inModel.Draw(
+               //                               *inModel.NodeFromIndex(inNodeIndex),
+               //                               [](glm::mat4 inMat) {},
+               //                               [&](ui inUI, opt<Renderer::_3D::glTF_Model::Texture> inTexture) {
+               //                                              if (inTexture.has_value()) {
+               //                                                             ui ImageIndex = inTexture.value().mImageIndex;
+               //                                                             auto& Image   = inModel.GetImagesRef()[ImageIndex];
+               //                                                             AddTextureByVector(BindingIndex, Image.mTextureImage, Image.mWidth, Image.mHeight);
+               //                                                             BindingIndex++;
+               //                                              }
+               //                               });
+               //      }
 }
