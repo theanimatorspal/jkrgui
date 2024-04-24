@@ -209,6 +209,7 @@ layout(set = 0, binding = 0) uniform UBO {
 void GlslMain() {
     vec3 position = mat3(ubo.view * push.model) * inPosition.xyz;
     gl_Position = (ubo.proj * vec4(position, 0.0)).xyzz;
+//    gl_Position.y = -gl_Position.y;
     vVertUV = inPosition.xyz;
 }
    ]]
