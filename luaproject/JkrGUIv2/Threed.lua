@@ -184,6 +184,49 @@ layout(std140, set = 0, binding = 1) uniform JointMatrix {
    ]], inLoadedGLTF:GetJointsCount(inIndex))
 end
 
+Jkrmt.GetSkyboxVertexShader = function()
+    return [[
+layout(location = 0) in vec3 inPosition;
+layout(location = 1) in vec3 inNormal;
+layout(location = 2) in vec2 inUV;
+layout(location = 3) in vec3 inColor;
+
+layout (location = 0) out vec2 vUV;
+layout (location = 1) out vec3 vNormal;
+layout (location = 2) out vec3 vVertUV;
+layout(push_constant, std430) uniform pc {
+	mat4 model;
+    mat4 m2;
+} push;
+
+layout(set = 0, binding = 0) uniform UBO {
+   mat4 view;
+   mat4 proj;
+   vec3 campos;
+   vec4 lights[8];
+} ubo;
+
+void GlslMain() {
+    vec3 position = mat3(ubo.view * push.model) * inPosition.xyz;
+    gl_Position = (ubo.proj * vec4(position, 0.0)).xyzz;
+    vVertUV = inPosition.xyz;
+}
+   ]]
+end
+
+Jkrmt.GetSkyboxFragmentShader = function()
+    return [[
+layout (location = 2) in vec3 vVertUV;
+layout(set = 0, binding = 8) uniform samplerCube Cubemap;
+layout(location = 0) out vec4 frag_color;
+
+void GlslMain()
+{
+    frag_color = texture(Cubemap, vVertUV);
+}
+]]
+end
+
 Jkr.GetGLTFInfo = function(inLoadedGLTF, inShouldPrint)
     if (inShouldPrint) then
         io.write(string.format(
@@ -312,52 +355,3 @@ function Jkr.CreateShapesHelper(inS)
     end
     return o
 end
-
---[============================================================[
-   3D World
-]============================================================]
-
-Jkrmt.World3D = {
-    New = function(self, i, w)
-        local o = {}
-        o.mCameras = {}
-        o.mCameraType = {}
-        o.mObjects = {}
-        o.mLights = {}
-        o.mShapeRenderer = Jkr.CreateShapeRenderer3D(i, w)
-        o.mSimple3DPipelines = {}
-        o.CurrentCamera = 0
-        setmetatable(o, self)
-        self.__index = self
-
-        self:AddCameraAuto(o, w, "PERSPECTIVE")
-        return o
-    end,
-    AddCameraAuto = function(self, inWindow, inCameraType)
-        local camera = Jkrmt.Camera3D:New()
-        camera:SetAttributes(vec3(0, 0, 0), vec3(10, 10, 10))
-        local dimension = inWindow:GetWindowDimension()
-        camera:SetPerspective(0.45, dimension.x / dimension.y, 0.1, 1000)
-        self.mCameras[#self.mCameras + 1] = camera
-        self.mCameraType[#self.mCameraType + 1] = inCameraType
-    end,
-    CreateDemoScene = function(self)
-        local Plane = Jkr.Generator(Jkr.Shapes.Cube3D, vec3(100, 5, 100))
-        self.mObjects[#self.mObjects + 1] = self.mShapeRenderer:Add(Plane, vec3(0, 0, 0))
-    end,
-    DrawBackgrounds = function(self)
-        self.mShapeRenderer:Bind()
-    end,
-    DrawObjects = function(self)
-        self.mShapeRenderer:Bind()
-    end,
-    Event = function(self)
-
-    end,
-    Dispatch = function(self)
-
-    end,
-    Update = function(self)
-
-    end
-}

@@ -1,7 +1,7 @@
 BasedOnStyle: LLVM
-IndentWidth: 15
+IndentWidth: 4
 TabWidth: 1
-ColumnLimit: 200
+ColumnLimit: 100
 AllowShortIfStatementsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: true
 IndentCaseLabels: true
@@ -10,10 +10,10 @@ PointerAlignment: Left
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 BinPackArguments: false
 BinPackParameters: false
-ContinuationIndentWidth: 10
+ContinuationIndentWidth: 5
 AlignAfterOpenBracket: Align
 #BreakTemplateDeclarations: Yes
-AccessModifierOffset: -8
+AccessModifierOffset: -12
 AlignConsecutiveAssignments :
     Enabled: true
     AcrossEmptyLines: true

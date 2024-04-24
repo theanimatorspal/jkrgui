@@ -1,8 +1,10 @@
 #pragma once
 #include "PainterCache.hpp"
 #include "PainterParameter.hpp"
+#include "Pipeline/VulkanPipelineContext.hpp"
 #include "Primitive.hpp"
 #include "Window.hpp"
+#include "vulkan/vulkan_handles.hpp"
 
 namespace Jkr {
 
@@ -12,7 +14,7 @@ class Painter {
                using CmdParam = Window::ParameterContext;
 
        public:
-               Painter(const Instance& inInstance, const Window& inWindow, const PainterCache& inCache);
+               Painter(const Instance& inInstance, const Window& inWindow, const PainterCache& inCache, PipelineContext inPipelineContext = PipelineContext::Default);
                Painter(const Instance& inInstance, const Window& inWindow, const PainterCache& inCache, uint32_t inNoOfVariableDescriptorCount);
 
                template <class PushType> void Draw(const Primitive& inPrimitive, const vk::ArrayProxy<PushType> inPushConstants, const Window& inWindow, CmdParam inCmdParam = CmdParam::UI);
@@ -67,8 +69,10 @@ class Painter {
                const Instance& mInstance;
                const Window& mWindow;
                const PainterCache& mGUIPainterCache;
-               VulkanPipeline<2, PipelineContext::Default> mVulkanPipeline;
-               VulkanPipeline<1, PipelineContext::Compute> mVulkanComputePipeline;
+               VulkanPipelineBase mVulkanPipeline;
+               VulkanPipelineBase mVulkanComputePipeline;
+               //    VulkanPipeline<2, PipelineContext::Default> mVulkanPipeline;
+               //    VulkanPipeline<1, PipelineContext::Compute> mVulkanComputePipeline;
 
        private:
                VulkanDescriptorSet mComputeDescriptorSet;

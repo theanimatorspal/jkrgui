@@ -1,5 +1,5 @@
 {
-          "workbench.colorTheme": "Visual Studio Dark",
+          "workbench.colorTheme": "Red",
           "git.enableSmartCommit": true,
           "git.confirmSync": false,
           "gitlens.currentLine.enabled": false,
@@ -20,7 +20,7 @@
           },
           /* EDITOR */
           "editor.matchBrackets": "near",
-          "editor.fontFamily": "Victor Mono",
+          "editor.fontFamily": "Cascadia Code",
           "editor.fontWeight": "normal",
           "editor.fontSize": 24,
           "editor.tabSize": 10,
