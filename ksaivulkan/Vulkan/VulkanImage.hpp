@@ -1,11 +1,9 @@
 #pragma once
 #include "VulkanImageContext.hpp"
-#include "vulkan/vulkan_enums.hpp"
-namespace ksai {
-class VulkanCommandBuffer;
-}
+#include "VulkanQueue.hpp"
 
 namespace ksai {
+class VulkanCommandBuffer;
 class VulkanImageBase {
     public:
     GETTER& GetImageFormat() const { return mImageProperties.mImageFormat; }
