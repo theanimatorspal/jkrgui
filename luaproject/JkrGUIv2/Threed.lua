@@ -58,6 +58,7 @@ void GlslMain()
             jweight.w * jointMatrixUBO.mJointMatrix[int(jindex.w)];
 
 	gl_Position = ubo.proj * ubo.view * push.model * skinMat * vec4(inPosition, 1.0f);	
+    gl_Position.y = -gl_Position.y;
 	vUV = inUV;
 	vNormal = inNormal;
 }

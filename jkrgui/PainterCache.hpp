@@ -9,7 +9,7 @@ class ShaderModules {
                              const std::vector<uint32_t>& inVertexShaderSPIRV,
                              const std::vector<uint32_t>& inFragmentShaderSPIRV,
                              const std::vector<uint32_t>& inComputeShaderSPIRV);
-               ~ShaderModules() = default;
+               ~ShaderModules();
 
        public:
                GETTER& GetShaderModulesArray() const { return mVertexFragmentShaderModules; }
@@ -19,8 +19,8 @@ class ShaderModules {
 
        private:
                const VulkanDevice& mDevice;
-               std::array<VulkanShaderModule, 2> mVertexFragmentShaderModules;
-               std::array<VulkanShaderModule, 1> mComputeShaderModule;
+               std::vector<VulkanShaderModule> mVertexFragmentShaderModules;
+               std::vector<VulkanShaderModule> mComputeShaderModule;
 };
 } // namespace Jkr
 
@@ -59,19 +59,19 @@ class PainterCache {
                Up<VulkanPipelineCache> mPtrPipelineCache = nullptr;
 
        private:
-               using VertexFragmentDescriptorSetLayout = VulkanDescriptorSetLayout<2, ShaderModuleContext::Vertex, ShaderModuleContext::Fragment>;
+               using VertexFragmentDescriptorSetLayout                         = VulkanDescriptorSetLayout<2, ShaderModuleContext::Vertex, ShaderModuleContext::Fragment>;
                std::array<std::vector<uint32_t>, 2> mVertexFragmentShaderSPIRV = {};
                void StoreSPIRVsToFile(const std::string inFileName);
                void LoadSPIRVsFromFile(const std::string inFileName);
-               Up<VertexFragmentDescriptorSetLayout> mPtrVertexFragmentDescriptorSetLayout = nullptr;
+               Up<VertexFragmentDescriptorSetLayout> mPtrVertexFragmentDescriptorSetLayout     = nullptr;
                Up<VertexFragmentDescriptorSetLayout> mPtrVertexFragmentDescriptorSetLayout_EXT = nullptr;
-               Up<VulkanPipelineLayout<2>> mPtrVertexFragmentPipelineLayout = nullptr;
+               Up<VulkanPipelineLayout<2>> mPtrVertexFragmentPipelineLayout                    = nullptr;
 
        private:
-               using ComputeDescriptorSetLayout = VulkanDescriptorSetLayout<1, ShaderModuleContext::Compute>;
-               std::array<std::vector<uint32_t>, 1> mComputeShaderSPIRV = {};
-               Up<ComputeDescriptorSetLayout> mPtrComputeDescriptorSetLayout = nullptr;
+               using ComputeDescriptorSetLayout                                  = VulkanDescriptorSetLayout<1, ShaderModuleContext::Compute>;
+               std::array<std::vector<uint32_t>, 1> mComputeShaderSPIRV          = {};
+               Up<ComputeDescriptorSetLayout> mPtrComputeDescriptorSetLayout     = nullptr;
                Up<ComputeDescriptorSetLayout> mPtrComputeDescriptorSetLayout_EXT = nullptr;
-               Up<VulkanPipelineLayout<1>> mPtrComputePipelineLayout = nullptr;
+               Up<VulkanPipelineLayout<1>> mPtrComputePipelineLayout             = nullptr;
 };
 } // namespace Jkr

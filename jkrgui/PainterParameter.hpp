@@ -1,5 +1,6 @@
 #pragma once
 #include "PainterParameter_base.hpp"
+#include "VulkanImageContext.hpp"
 
 namespace Jkr {
 template <PainterParameterContext inContext> class PainterParameter : public PainterParameterBase {};
@@ -89,7 +90,7 @@ template <> class PainterParameter<PainterParameterContext::SkyboxImage> : publi
                GETTER& GetUniformImageSampler() const { return *mSampler; }
                void Setup(std::span<const sv> inFileNames) { PainterParameterBase::Setup(mSampler, mUniformImagePtr, inFileNames); }
                void Register(vk::DeviceSize inOffset, uint32_t inDstBinding, uint32_t inDstArrayElement, VulkanDescriptorSet& inDescriptorSet) {
-                              mVulkanDescriptorSetHandler.RW<ImageContext::Default>(inDescriptorSet, *mUniformImagePtr, *mSampler, inDstBinding, inDstArrayElement);
+                              mVulkanDescriptorSetHandler.RW<ImageContext::CubeCompatible>(inDescriptorSet, *mUniformImagePtr, *mSampler, inDstBinding, inDstArrayElement);
                }
 
                PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}

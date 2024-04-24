@@ -10,7 +10,7 @@ class VulkanDescriptorUpdateHandler {
                VulkanDescriptorUpdateHandler(const VulkanDevice& inDevice) : mDevice(inDevice) {}
                template <BufferContext inBufferContext>
                void RW(const VulkanDescriptorSet& inDescriptorSet, const VulkanBufferBase& inBuffer, vk::DeviceSize inOffset, uint32_t inDstBinding, uint32_t inDstArrayElement) {
-                              auto BufferInfo = vk::DescriptorBufferInfo(inBuffer.GetBufferHandle(), inOffset, inBuffer.GetBufferSize());
+                              auto BufferInfo     = vk::DescriptorBufferInfo(inBuffer.GetBufferHandle(), inOffset, inBuffer.GetBufferSize());
 
                               auto DescriptorType = vk::DescriptorType::eStorageBuffer;
                               if constexpr (inBufferContext == BufferContext::Storage)
@@ -33,7 +33,7 @@ class VulkanDescriptorUpdateHandler {
 
                template <ImageContext inImageContext>
                void RW(const VulkanDescriptorSet inDescriptorSet, const VulkanImageBase& inImage, const VulkanSampler& inSampler, uint32_t inDstBinding, uint32_t inDstArrayElement) {
-                              auto imageinfo = vk::DescriptorImageInfo(inSampler.GetSamplerHandle(), inImage.GetImageViewHandle(), inImage.GetInitialImageLayout());
+                              auto imageinfo      = vk::DescriptorImageInfo(inSampler.GetSamplerHandle(), inImage.GetImageViewHandle(), inImage.GetInitialImageLayout());
                               auto DescriptorType = vk::DescriptorType::eCombinedImageSampler;
                               if constexpr (inImageContext == ImageContext::Storage) DescriptorType = vk::DescriptorType::eStorageImage;
 
@@ -51,8 +51,8 @@ class VulkanDescriptorUpdateHandler {
                }
 
                void RW(const VulkanDescriptorSet& inDescriptorSet, const VulkanSampler& inSampler, uint32_t inDstBinding, uint32_t inDstArrayElement) {
-                              auto imageInfo = vk::DescriptorImageInfo(inSampler.GetSamplerHandle());
-                              auto DescriptorType = vk::DescriptorType::eSampler;
+                              auto imageInfo          = vk::DescriptorImageInfo(inSampler.GetSamplerHandle());
+                              auto DescriptorType     = vk::DescriptorType::eSampler;
                               auto DescriptorSetWrite = vk::WriteDescriptorSet()
                                                                   .setDescriptorCount(1)
                                                                   .setDstBinding(inDstBinding)
