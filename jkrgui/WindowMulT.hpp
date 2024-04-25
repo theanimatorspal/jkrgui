@@ -1,4 +1,5 @@
-﻿#include "MultiThreading.hpp"
+﻿#pragma once
+#include "MultiThreading.hpp"
 #include "Offscreen.hpp"
 #include "VulkanCommandBuffer.hpp"
 #include <Vendor/Tracy/tracy/TracyVulkan.hpp>
@@ -10,7 +11,7 @@ class WindowMulT : public Window {
 
     public:
     const VulkanCommandBufferArray& GetCommandBuffers(ParameterContext inParameter) const override;
-
+    GETTER& GetShadowPass() { return *mShadowPass; }
     void BuildShadowPass();
 
     void BeginUpdates();

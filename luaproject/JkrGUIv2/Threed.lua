@@ -28,6 +28,7 @@ layout(set = 0, binding = 0) uniform UBO {
    mat4 proj;
    vec3 campos;
    vec4 lights[8];
+   mat4 shadowMatrix;
 } ubo;
 
 ]]

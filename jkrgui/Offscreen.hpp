@@ -8,6 +8,7 @@ struct ShadowPass {
     using FrameBufferType = VulkanFrameBuffer<1, VulkanImageVMA<ImageContext::DepthImage>>;
     using DepthImageType  = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
     using RenderPassType  = VulkanRenderPass<RenderPassContext::Shadow>;
+    GETTER& GetRenderPass() { return *mRenderpass; }
 
     ShadowPass(const Instance& inInstance, ui inWidth, ui inHeight);
 

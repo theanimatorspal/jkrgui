@@ -16,6 +16,7 @@ struct World3D {
         alignas(16) glm::mat4 mProjection;
         glm::vec3 mCameraPosition;
         glm::vec4 mLights[8];
+        alignas(16) glm::mat4 mShadowMatrix;
     };
     struct Object3D {
         int mId;

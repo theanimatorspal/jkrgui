@@ -88,10 +88,9 @@ VulkanRenderPass<RenderPassContext::Shadow>::VulkanRenderPass(const VulkanDevice
               .setFinalLayout(vk::ImageLayout::eDepthStencilReadOnlyOptimal)
               .setLoadOp(vk::AttachmentLoadOp::eClear)
               .setStoreOp(vk::AttachmentStoreOp::eStore);
-    vk::AttachmentReference DepthAttachmentRef(1, vk::ImageLayout::eDepthStencilAttachmentOptimal);
+    vk::AttachmentReference DepthAttachmentRef(0, vk::ImageLayout::eDepthStencilAttachmentOptimal);
     vk::SubpassDescription SubPassDescription =
          vk::SubpassDescription(vk::SubpassDescriptionFlags(), vk::PipelineBindPoint::eGraphics)
-              .setColorAttachmentCount(1)
               .setPDepthStencilAttachment(&DepthAttachmentRef);
 
     std::vector<vk::SubpassDescription> SubpassDescriptions       = {SubPassDescription};

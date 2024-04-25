@@ -65,3 +65,4 @@
 *.lua linguist-language=lua
 libs/* linguist-vendored=true
 ksaivulkan/* linguist-vendored=true
+vendor/* linguist-vendored=true
