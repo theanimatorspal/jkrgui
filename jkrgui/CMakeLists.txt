@@ -15,4 +15,5 @@ else()
 	add_library(jkrgui STATIC ${app_SRC})
  endif()
 
- someFlags(jkrgui)
+PrecompileStdHeaders(jkrgui)
+someFlags(jkrgui)

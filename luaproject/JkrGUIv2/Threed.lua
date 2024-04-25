@@ -356,3 +356,7 @@ function Jkr.CreateShapesHelper(inS)
     end
     return o
 end
+
+Jkrmt.AddShaderToWorld = function(i, w,)
+
+end

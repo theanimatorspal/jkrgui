@@ -27,9 +27,7 @@ using UniformImageType   = VulkanImageVMA<ImageContext::Default>;
 using SkyboxImageType    = VulkanImageVMA<ImageContext::CubeCompatible>;
 using StorageBufferType  = VulkanBufferVMA<BufferContext::Storage, MemoryType::DeviceLocal>;
 using UniformSamplerType = VulkanSampler;
-} // namespace Jkr
 
-namespace Jkr {
 class PainterParameterBase {
     public:
     PainterParameterBase(const Instance& inInstance)
@@ -75,9 +73,7 @@ class PainterParameterBase {
                     Up<T>& inUniformImage,
                     std::vector<s> inFileNames);
 };
-} // namespace Jkr
 
-namespace Jkr {
 template <typename T>
 inline void PainterParameterBase::SetupImage(Up<VulkanSampler>& inUniformImageSampler,
                                              Up<T>& inUniformImage,

@@ -15,6 +15,28 @@ include_directories(${CMAKE_JKRGUI_DIR}/libs/)
 include_directories(${CMAKE_JKRGUI_DIR}/aJkrLua)
 include_directories(${CMAKE_JKRGUI_DIR}/vendor/lua)
 
+function(PrecompileStdHeaders TARGET_NAME)
+target_precompile_headers ( ${TARGET_NAME}
+    PRIVATE
+        <vector>
+        <format>
+        <map>
+        <unordered_map>
+        <array>
+        <optional>
+        <expected>
+        <fstream>
+        <filesystem>
+        <functional>
+        <concepts>
+        <memory>
+        <string>
+        <cstdint>
+        <sol/sol.hpp>
+        <vulkan/vulkan.hpp>
+)
+endfunction()
+
 # If building for Android, set specific compiler flags
 function(ExcludeSymbolsForAndroid)
 if(ANDROID)

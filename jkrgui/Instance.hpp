@@ -1,7 +1,7 @@
 #pragma once
-#include "ksai_thread.hpp"
 #include "Global/Standards.hpp"
 #include "TestUtils.hpp"
+#include "ksai_thread.hpp"
 #include <Vulkan/Pipeline/VulkanDescriptorPool.hpp>
 #include <Vulkan/Pipeline/VulkanDescriptorSet.hpp>
 #include <Vulkan/Pipeline/VulkanDescriptorUpdateHandler.hpp>
@@ -23,13 +23,12 @@
 #include <VulkanRenderPass.hpp>
 #include <VulkanSurface.hpp>
 #include <VulkanSwapChain.hpp>
-#include <chrono>
 
 namespace Jkr {
 using namespace ksai;
 static Timer time;
 class Instance {
-public:
+    public:
     Instance(uint32_t inNoOfDescriptors = 20, uint32_t inPoolSize = 10000);
     ~Instance() { SpirvHelper::Finalize(); }
     GETTER& GetVulkanInstance() const { return mInstance; }
@@ -38,14 +37,17 @@ public:
     GETTER& GetDevice() const { return mDevice; }
     GETTER& GetGraphicsQueue() const { return mGraphicsQueue; }
     GETTER& GetCommandPool() const { return mCommandPool; }
-    GETTER& GetUtilCommandBuffer() const { return mUtilCommandBuffer; } // TODO REMOVE THIS FROM HERE
+    GETTER& GetUtilCommandBuffer() const {
+        return mUtilCommandBuffer;
+    } // TODO REMOVE THIS FROM HERE
     GETTER& GetDescriptorPool() const { return mDescriptorPool; }
     GETTER& GetVMA() const { return mVmaAllocator; }
     GETTER& GetThreadPool() { return mThreadPool; }
 
-private:
+    private:
     static const int mMaxFramesInFlight = 2;
-private:
+
+    private:
     const VulkanInstance mInstance;
     const VulkanMessenger mMessenger;
     const VulkanPhysicalDevice mPhysicalDevice;
@@ -58,4 +60,4 @@ private:
     const VulkanVMA mVmaAllocator;
     ksai::ThreadPool mThreadPool;
 };
-}
+} // namespace Jkr

@@ -1,5 +1,4 @@
 include("../CMakeCommon.cmake")
-
 #if apple then no tracy
 if(APPLE OR ANDROID)
         file(GLOB_RECURSE app_SRC CONFIGURE_DEPENDS
@@ -50,5 +49,6 @@ else()
         add_library(ksaivulkan ${app_SRC} "ksai_image.hpp" "ksai_thread.hpp" "ksai_config.cpp" )
 endif()
 
+#PrecompileStdHeaders(ksaivulkan)
 someFlags(ksaivulkan)
 

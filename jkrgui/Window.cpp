@@ -68,3 +68,30 @@ void Jkr::Window::CmdCopySwapChainImageToBufferPostRendering(VulkanBufferBase& i
                                             vk::AccessFlagBits::eMemoryRead,
                                             vk::AccessFlagBits::eMemoryRead);
 }
+
+void Jkr::Window::SetScissor(int inX, int inY, int inW, int inH, ParameterContext inContext) {
+    GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setScissor(
+         0, vk::Rect2D{vk::Offset2D{inX, inY}, vk::Extent2D{(ui)inW, (ui)inH}});
+}
+
+void Jkr::Window::SetDefaultScissor(ParameterContext inContext) {
+    vk::Rect2D Rect(vk::Offset2D(0), mDepthImage.GetImageExtent());
+    this->GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setScissor(0, Rect);
+}
+
+void Jkr::Window::SetViewport(
+     int inX, int inY, int inW, int inH, float inMind, float inMaxD, ParameterContext inContext) {
+    GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setViewport(
+         0, vk::Viewport(inX, inY, inW, inH, inMind, inMaxD));
+}
+
+void Jkr::Window::SetDefaultViewport(ParameterContext inContext) {
+    auto extent = mDepthImage.GetImageExtent();
+    SetViewport(0.0f,
+                0.0f,
+                static_cast<float>(extent.width),
+                static_cast<float>(extent.height),
+                0.0f,
+                1.0f,
+                inContext);
+}
