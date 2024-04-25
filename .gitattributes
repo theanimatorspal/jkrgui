@@ -63,6 +63,7 @@
 #*.RTF   diff=astextplain
 #*.h linguist-language=C++
 *.lua linguist-language=lua
+*.h linguist-vendored
 libs/* linguist-vendored
 ksaivulkan/* linguist-vendored
 vendor/* linguist-vendored
