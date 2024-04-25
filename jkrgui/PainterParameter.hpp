@@ -7,13 +7,10 @@ template <PainterParameterContext inContext>
 class PainterParameter : public PainterParameterBase {};
 
 template <>
-class PainterParameter<PainterParameterContext::StorageBuffer>
-    : public PainterParameterBase {
+class PainterParameter<PainterParameterContext::StorageBuffer> : public PainterParameterBase {
     public:
     GETTER& GetStorageBuffer() const { return *mStorageBufferPtr; }
-    GETTER& GetStorageMappedMemoryRegion() {
-        return mStorageBufferCoherentMemoryMappedRegion;
-    }
+    GETTER& GetStorageMappedMemoryRegion() { return mStorageBufferCoherentMemoryMappedRegion; }
     void Setup(vk::DeviceSize inStorageBufferSize) {
         PainterParameterBase::Setup(mStorageBufferPtr, inStorageBufferSize);
     }
@@ -27,26 +24,20 @@ class PainterParameter<PainterParameterContext::StorageBuffer>
                   uint32_t inDstArrayElement,
                   VulkanDescriptorSet& inDescriptorSet) {
         mVulkanDescriptorSetHandler.RW<BufferContext::Storage>(
-             inDescriptorSet,
-             *mStorageBufferPtr,
-             inOffset,
-             inDstBinding,
-             inDstArrayElement);
+             inDescriptorSet, *mStorageBufferPtr, inOffset, inDstBinding, inDstArrayElement);
     }
     void RegisterCoherent(vk::DeviceSize inOffset,
                           uint32_t inDstBinding,
                           uint32_t inDstArrayElement,
                           VulkanDescriptorSet& inDescriptorSet) {
-        mVulkanDescriptorSetHandler.RW<BufferContext::Storage>(
-             inDescriptorSet,
-             *mStorageBufferCoherentPtr,
-             inOffset,
-             inDstBinding,
-             inDstArrayElement);
+        mVulkanDescriptorSetHandler.RW<BufferContext::Storage>(inDescriptorSet,
+                                                               *mStorageBufferCoherentPtr,
+                                                               inOffset,
+                                                               inDstBinding,
+                                                               inDstArrayElement);
     }
 
-    PainterParameter(const Instance& inInstance)
-        : PainterParameterBase(inInstance) {}
+    PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
 
     private:
     Up<StorageBufferType> mStorageBufferPtr;
@@ -55,18 +46,14 @@ class PainterParameter<PainterParameterContext::StorageBuffer>
 };
 
 template <>
-class PainterParameter<PainterParameterContext::UniformBuffer>
-    : public PainterParameterBase {
+class PainterParameter<PainterParameterContext::UniformBuffer> : public PainterParameterBase {
     public:
-    GETTER& GetUniformMappedMemoryRegion() {
-        return mUniformMappedMemoryRegion;
-    }
+    GETTER& GetUniformMappedMemoryRegion() { return mUniformMappedMemoryRegion; }
     GETTER& GetUniformBuffer() const { return *mUniformBufferPtr; }
     GETTER GetUniformBufferSize() const { return mSize; }
     void Setup(vk::DeviceSize inUniformBufferSize) {
-        PainterParameterBase::Setup(mUniformBufferPtr,
-                                    inUniformBufferSize,
-                                    &mUniformMappedMemoryRegion);
+        PainterParameterBase::Setup(
+             mUniformBufferPtr, inUniformBufferSize, &mUniformMappedMemoryRegion);
         mSize = inUniformBufferSize;
     }
     void Register(vk::DeviceSize inOffset,
@@ -74,15 +61,10 @@ class PainterParameter<PainterParameterContext::UniformBuffer>
                   uint32_t inDstArrayElement,
                   VulkanDescriptorSet& inDescriptorSet) {
         mVulkanDescriptorSetHandler.RW<BufferContext::Uniform>(
-             inDescriptorSet,
-             *mUniformBufferPtr,
-             inOffset,
-             inDstBinding,
-             inDstArrayElement);
+             inDescriptorSet, *mUniformBufferPtr, inOffset, inDstBinding, inDstArrayElement);
     }
 
-    PainterParameter(const Instance& inInstance)
-        : PainterParameterBase(inInstance) {}
+    PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
 
     private:
     sz mSize;
@@ -91,30 +73,23 @@ class PainterParameter<PainterParameterContext::UniformBuffer>
 };
 
 template <>
-class PainterParameter<PainterParameterContext::StorageImage>
-    : public PainterParameterBase {
+class PainterParameter<PainterParameterContext::StorageImage> : public PainterParameterBase {
     public:
     GETTER GetStorageImagePtr() const { return mStorageImagePtr.get(); }
     GETTER& GetStorageImage() const { return *mStorageImagePtr; }
     GETTER& GetStorageImageSampler() const { return *mSampler; }
     void Setup(uint32_t inWidth, uint32_t inHeight) {
-        PainterParameterBase::Setup(
-             mSampler, mStorageImagePtr, inWidth, inHeight);
+        PainterParameterBase::Setup(mSampler, mStorageImagePtr, inWidth, inHeight);
     }
     void Register(vk::DeviceSize inOffset,
                   uint32_t inDstBinding,
                   uint32_t inDstArrayElement,
                   VulkanDescriptorSet& inDescriptorSet) {
         mVulkanDescriptorSetHandler.RW<ImageContext::Storage>(
-             inDescriptorSet,
-             *mStorageImagePtr,
-             *mSampler,
-             inDstBinding,
-             inDstArrayElement);
+             inDescriptorSet, *mStorageImagePtr, *mSampler, inDstBinding, inDstArrayElement);
     }
 
-    PainterParameter(const Instance& inInstance)
-        : PainterParameterBase(inInstance) {}
+    PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
 
     private:
     Up<StorageImageType> mStorageImagePtr;
@@ -122,51 +97,49 @@ class PainterParameter<PainterParameterContext::StorageImage>
 };
 
 template <>
-class PainterParameter<PainterParameterContext::UniformImage>
-    : public PainterParameterBase {
+class PainterParameter<PainterParameterContext::UniformImage> : public PainterParameterBase {
     public:
     GETTER& GetUniformImage() const { return *mUniformImagePtr; }
+    GETTER& GetDepthImage() const { return *mDepthImagePtr; }
     GETTER& GetUniformImageSampler() const { return *mSampler; }
     void Setup(const std::string_view inFileName) {
         PainterParameterBase::Setup(mSampler, mUniformImagePtr, inFileName);
     }
-    void Setup(void** inData,
-               uint32_t inWidth,
-               uint32_t inHeight,
-               uint32_t inChannelCount) {
-        PainterParameterBase::Setup(mSampler,
-                                    mUniformImagePtr,
-                                    inData,
-                                    inWidth,
-                                    inHeight,
-                                    inChannelCount);
+    void Setup(void** inData, uint32_t inWidth, uint32_t inHeight, uint32_t inChannelCount) {
+        PainterParameterBase::Setup(
+             mSampler, mUniformImagePtr, inData, inWidth, inHeight, inChannelCount);
     }
     void Setup(std::vector<s> inFileNames) {
         PainterParameterBase::Setup(mSampler, mUniformImagePtr, inFileNames);
+    }
+    void SetupDepth(ui inWidth, ui inHeight) {
+        PainterParameterBase::Setup(mSampler, mDepthImagePtr, inWidth, inHeight);
     }
     void Register(vk::DeviceSize inOffset,
                   uint32_t inDstBinding,
                   uint32_t inDstArrayElement,
                   VulkanDescriptorSet& inDescriptorSet) {
         mVulkanDescriptorSetHandler.RW<ImageContext::Default>(
-             inDescriptorSet,
-             *mUniformImagePtr,
-             *mSampler,
-             inDstBinding,
-             inDstArrayElement);
+             inDescriptorSet, *mUniformImagePtr, *mSampler, inDstBinding, inDstArrayElement);
+    }
+    void RegisterDepth(vk::DeviceSize inOffset,
+                       uint32_t inDstBinding,
+                       uint32_t inDstArrayElement,
+                       VulkanDescriptorSet& inDescriptorSet) {
+        mVulkanDescriptorSetHandler.RW<ImageContext::Default>(
+             inDescriptorSet, *mDepthImagePtr, *mSampler, inDstBinding, inDstArrayElement);
     }
 
-    PainterParameter(const Instance& inInstance)
-        : PainterParameterBase(inInstance) {}
+    PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
 
     private:
     Up<UniformImageType> mUniformImagePtr;
+    Up<DepthImageType> mDepthImagePtr;
     Up<VulkanSampler> mSampler;
 };
 
 template <>
-class PainterParameter<PainterParameterContext::SkyboxImage>
-    : public PainterParameterBase {
+class PainterParameter<PainterParameterContext::SkyboxImage> : public PainterParameterBase {
     public:
     GETTER& GetUniformImage() const { return *mUniformImagePtr; }
     GETTER& GetUniformImageSampler() const { return *mSampler; }
@@ -178,15 +151,10 @@ class PainterParameter<PainterParameterContext::SkyboxImage>
                   uint32_t inDstArrayElement,
                   VulkanDescriptorSet& inDescriptorSet) {
         mVulkanDescriptorSetHandler.RW<ImageContext::CubeCompatible>(
-             inDescriptorSet,
-             *mUniformImagePtr,
-             *mSampler,
-             inDstBinding,
-             inDstArrayElement);
+             inDescriptorSet, *mUniformImagePtr, *mSampler, inDstBinding, inDstArrayElement);
     }
 
-    PainterParameter(const Instance& inInstance)
-        : PainterParameterBase(inInstance) {}
+    PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
 
     private:
     Up<SkyboxImageType> mUniformImagePtr;
@@ -194,14 +162,12 @@ class PainterParameter<PainterParameterContext::SkyboxImage>
 };
 
 template <>
-class PainterParameter<PainterParameterContext::UniformSampler>
-    : public PainterParameterBase {
+class PainterParameter<PainterParameterContext::UniformSampler> : public PainterParameterBase {
     public:
     void Setup() { mSampler = MakeUp<VulkanSampler>(mInstance.GetDevice()); }
     GETTER& GetSampler() const { return *mSampler; }
 
-    PainterParameter(const Instance& inInstance)
-        : PainterParameterBase(inInstance) {}
+    PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
 
     private:
     Up<VulkanSampler> mSampler;

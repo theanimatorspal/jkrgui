@@ -1,5 +1,5 @@
 ﻿#include "MultiThreading.hpp"
-#include "Renderers/Renderer_base.hpp"
+#include "Offscreen.hpp"
 #include "VulkanCommandBuffer.hpp"
 #include <Vendor/Tracy/tracy/TracyVulkan.hpp>
 
@@ -10,6 +10,8 @@ class WindowMulT : public Window {
 
     public:
     const VulkanCommandBufferArray& GetCommandBuffers(ParameterContext inParameter) const override;
+
+    void BuildShadowPass();
 
     void BeginUpdates();
     void EndUpdates();
@@ -39,9 +41,9 @@ class WindowMulT : public Window {
     private:
     optref<ksai::ThreadPool> mThreadPool;
     v<up<ThreadCommandBufferArray>> mThreadCommandBuffers;
-
     VulkanCommandPool mUICommandPool;
     VulkanCommandBufferArray mSecondaryCommandBuffersUI;
+    Up<ShadowPass> mShadowPass;
 };
 
 } // namespace Jkr

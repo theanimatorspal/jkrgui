@@ -2,7 +2,9 @@
 #include "PainterCache.hpp"
 #include "PainterParameter.hpp"
 #include "Pipeline/VulkanPipelineContext.hpp"
+#include "Pipeline/VulkanPipelineLayout.hpp"
 #include "Primitive.hpp"
+#include "VulkanRenderPass.hpp"
 #include "Window.hpp"
 #include "vulkan/vulkan_handles.hpp"
 
@@ -22,14 +24,16 @@ class Painter {
             const Window& inWindow,
             const PainterCache& inCache,
             uint32_t inNoOfVariableDescriptorCount);
+    Painter(const Instance& inInstance,
+            const VulkanRenderPassBase& inRenderPass,
+            const PainterCache& inCache,
+            PipelineContext inPipelineContext = PipelineContext::Default);
 
     template <class PushType>
     void Draw(const Primitive& inPrimitive,
               const vk::ArrayProxy<PushType> inPushConstants,
               const Window& inWindow,
               CmdParam inCmdParam = CmdParam::UI);
-    template <class PushType>
-    void Draw(const Primitive& inPrimitive, const vk::ArrayProxy<PushType> inPushConstants);
 
     void BindDrawParamters_EXT(const Primitive& inPrimitive,
                                const Window& inWindow,
@@ -58,17 +62,10 @@ class Painter {
                   uint32_t inFirstIndex,
                   uint32_t inFirstInstance,
                   CmdParam inCmdContext = CmdParam::UI);
-    template <class PushType>
-    void Draw_EXT(const Primitive& inPrimitive,
-                  const vk::ArrayProxy<PushType> inPushConstants,
-                  uint32_t inIndexCount,
-                  uint32_t inInstanceCount,
-                  uint32_t inFirstIndex,
-                  uint32_t inFirstInstance,
-                  CmdParam inCmdContext = CmdParam::UI);
 
     template <class PushType>
-    void Dispatch(const vk::ArrayProxy<PushType> inPushConstants,
+    void Dispatch(Window& inWindow,
+                  const vk::ArrayProxy<PushType> inPushConstants,
                   uint32_t inCountX,
                   uint32_t inCountY,
                   uint32_t inCountZ,
@@ -81,7 +78,8 @@ class Painter {
                                                 CmdParam inCmdContext = CmdParam::UI);
 
     template <class PushType>
-    void Dispatch_EXT(const vk::ArrayProxy<PushType> inPushConstants,
+    void Dispatch_EXT(Window& inWindow,
+                      const vk::ArrayProxy<PushType> inPushConstants,
                       uint32_t inCountX,
                       uint32_t inCountY,
                       uint32_t inCountZ,
@@ -106,12 +104,9 @@ class Painter {
                            const PainterParameter<PainterParameterContext::StorageImage>& inImage,
                            const Window& inWindow);
     const Instance& mInstance;
-    const Window& mWindow;
     const PainterCache& mGUIPainterCache;
     VulkanPipelineBase mVulkanPipeline;
     VulkanPipelineBase mVulkanComputePipeline;
-    //    VulkanPipeline<2, PipelineContext::Default> mVulkanPipeline;
-    //    VulkanPipeline<1, PipelineContext::Compute> mVulkanComputePipeline;
 
     private:
     VulkanDescriptorSet mComputeDescriptorSet;
@@ -120,12 +115,13 @@ class Painter {
 };
 
 template <class PushType>
-void Painter::Dispatch_EXT(const vk::ArrayProxy<PushType> inPushConstants,
+void Painter::Dispatch_EXT(Window& inWindow,
+                           const vk::ArrayProxy<PushType> inPushConstants,
                            uint32_t inCountX,
                            uint32_t inCountY,
                            uint32_t inCountZ,
                            CmdParam inCmdParam) {
-    auto& Cmd = mWindow.GetCommandBuffers(inCmdParam)[mWindow.GetCurrentFrame()];
+    auto& Cmd = inWindow.GetCommandBuffers(inCmdParam)[inWindow.GetCurrentFrame()];
     Cmd.PushConstants<PushType>(mGUIPainterCache.GetComputePipelineLayout(), inPushConstants);
     Cmd.GetCommandBufferHandle().dispatch(inCountX, inCountY, inCountZ);
 }
@@ -147,12 +143,13 @@ void Painter::Draw_EXT(const Primitive& inPrimitive,
 }
 
 template <class PushType>
-void Painter::Dispatch(const vk::ArrayProxy<PushType> inPushConstants,
+void Painter::Dispatch(Window& inWindow,
+                       const vk::ArrayProxy<PushType> inPushConstants,
                        uint32_t inCountX,
                        uint32_t inCountY,
                        uint32_t inCountZ,
                        CmdParam inCmdParam) {
-    auto& Cmd = mWindow.GetCommandBuffers(inCmdParam)[mWindow.GetCurrentFrame()];
+    auto& Cmd = inWindow.GetCommandBuffers(inCmdParam)[inWindow.GetCurrentFrame()];
     Cmd.GetCommandBufferHandle().bindDescriptorSets(
          vk::PipelineBindPoint::eCompute,
          mGUIPainterCache.GetComputePipelineLayout().GetPipelineLayoutHandle(),
@@ -166,16 +163,11 @@ void Painter::Dispatch(const vk::ArrayProxy<PushType> inPushConstants,
 }
 
 template <class PushType>
-void Painter::Draw(const Primitive& inPrimitive, const vk::ArrayProxy<PushType> inPushConstants) {
-    Draw(inPrimitive, inPushConstants, mWindow);
-}
-
-template <class PushType>
 void Painter::Draw(const Primitive& inPrimitive,
                    const vk::ArrayProxy<PushType> inPushConstants,
                    const Window& inWindow,
                    CmdParam inCmdParam) {
-    auto& Cmd = mWindow.GetCommandBuffers(inCmdParam)[inWindow.GetCurrentFrame()];
+    auto& Cmd = inWindow.GetCommandBuffers(inCmdParam)[inWindow.GetCurrentFrame()];
     inPrimitive.GetVertexBufferPtr()->Bind<BufferContext::Vertex>(Cmd);
     inPrimitive.GetIndexBufferPtr()->Bind<BufferContext::Index>(Cmd);
     Cmd.GetCommandBufferHandle().bindDescriptorSets(

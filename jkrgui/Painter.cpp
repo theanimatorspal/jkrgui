@@ -8,7 +8,6 @@ Jkr::Painter::Painter(const Instance& inInstance,
                       const PainterCache& inCache,
                       PipelineContext inPipelineContext)
     : mInstance(inInstance),
-      mWindow(inWindow),
       mGUIPainterCache(inCache),
       mVulkanPipeline(inInstance.GetDevice()),
       mVulkanComputePipeline(inInstance.GetDevice()),
@@ -38,7 +37,6 @@ Jkr::Painter::Painter(const Instance& inInstance,
                       const PainterCache& inCache,
                       uint32_t inNoOfVariableDescriptorCount)
     : mInstance(inInstance),
-      mWindow(inWindow),
       mGUIPainterCache(inCache),
       mVulkanPipeline(inInstance.GetDevice()),
       mVulkanComputePipeline(inInstance.GetDevice()),
@@ -63,6 +61,35 @@ Jkr::Painter::Painter(const Instance& inInstance,
                                          inWindow.GetRenderPass(),
                                          inCache.GetComputePipelineLayout(),
                                          inCache.GetComputePipelineModule(),
+                                         PipelineContext::Compute);
+}
+
+Jkr::Painter::Painter(const Instance& inInstance,
+                      const VulkanRenderPassBase& inRenderPass,
+                      const PainterCache& inCache,
+                      PipelineContext inPipelineContext)
+    : mInstance(inInstance),
+      mGUIPainterCache(inCache),
+      mVulkanPipeline(inInstance.GetDevice()),
+      mVulkanComputePipeline(inInstance.GetDevice()),
+      mComputeDescriptorSet(inInstance.GetDevice(),
+                            inInstance.GetDescriptorPool(),
+                            inCache.GetComputePipelineDescriptorSetLayout()),
+      mVertexFragmentDescriptorSet(inInstance.GetDevice(),
+                                   inInstance.GetDescriptorPool(),
+                                   inCache.GetVertexFragmentDescriptorSetLayout()),
+      mDescriptorUpdateHandler(mInstance.GetDevice()) {
+    mVulkanPipeline.BuildPipeline(inCache.GetPipelineCache(),
+                                  inCache.GetPipelineContext(),
+                                  inRenderPass,
+                                  inCache.GetVertexFragmentPipelineLayout(),
+                                  inCache.GetVertexFragmentShaderModulesArray(),
+                                  PipelineContext::Default);
+    mVulkanComputePipeline.BuildPipeline(inCache.GetPipelineCache(),
+                                         inCache.GetPipelineContext(),
+                                         inRenderPass,
+                                         inCache.GetVertexFragmentPipelineLayout(),
+                                         inCache.GetVertexFragmentShaderModulesArray(),
                                          PipelineContext::Compute);
 }
 
@@ -257,7 +284,7 @@ void Jkr::Painter::BindDispatchParametersPipelineOnly_EXT(const Window& inWindow
 void Painter::BindDrawParamters_EXT(const Primitive& inPrimitive,
                                     const Window& inWindow,
                                     CmdParam inParam) {
-    auto& Cmd = mWindow.GetCommandBuffers(inParam)[inWindow.GetCurrentFrame()];
+    auto& Cmd = inWindow.GetCommandBuffers(inParam)[inWindow.GetCurrentFrame()];
     inPrimitive.GetVertexBufferPtr()->Bind<BufferContext::Vertex>(Cmd);
     inPrimitive.GetIndexBufferPtr()->Bind<BufferContext::Index>(Cmd);
     Cmd.GetCommandBufferHandle().bindDescriptorSets(
@@ -272,7 +299,7 @@ void Painter::BindDrawParamters_EXT(const Primitive& inPrimitive,
 void Painter::BindDrawParamtersDescriptorsOnly_EXT(const Primitive& inPrimitive,
                                                    const Window& inWindow,
                                                    CmdParam inCmdParam) {
-    auto& Cmd = mWindow.GetCommandBuffers(inCmdParam)[inWindow.GetCurrentFrame()];
+    auto& Cmd = inWindow.GetCommandBuffers(inCmdParam)[inWindow.GetCurrentFrame()];
     Cmd.GetCommandBufferHandle().bindDescriptorSets(
          vk::PipelineBindPoint::eGraphics,
          mGUIPainterCache.GetVertexFragmentPipelineLayout().GetPipelineLayoutHandle(),

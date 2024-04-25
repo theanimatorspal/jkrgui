@@ -70,6 +70,7 @@ struct PushConstantDefault {
     glm::mat4 m2;
 };
 
+// TODO: Remove this
 // TODO: Take an Span of object Ids and render those
 void World3D::DrawObjects(Window& inWindow, Renderer::CmdParam inParam) {
     PushConstantDefault Push;
@@ -118,7 +119,7 @@ void World3D::DrawObjectsUniformed3D(Window& inWindow, Renderer::CmdParam inPara
             if (simpleIndex == SimpleIndex) {
                 mUniforms[uniformIndex]->Bind(inWindow, *simple, inParam);
                 PushConstantDefault Push;
-                Push.m1 = mObjects[i].mMatrix;
+                Push.m1 = mObjects[i].GetLocalMatrix();
                 mSimple3Ds[simpleIndex]->Draw<PushConstantDefault>(
                      inWindow,
                      mShape,
@@ -173,4 +174,22 @@ void World3D::UpdateWorldInfoToUniform3D(int inId) {
     Uniform.mCameraPosition = GetCurrentCamera()->GetPosition();
     Uniform.mLights[0]      = {1, 1, 1, 1};
     mUniforms[inId]->UpdateUniformBuffer(kstd::BindingIndex::Uniform::WorldInfo, Uniform);
+}
+
+void World3D::SetObjectDelPosition(int inId, glm::vec3 inDelPosition) {
+    mObjects[inId].mTranslation += inDelPosition;
+}
+void World3D::SetObjectDelRotation(int inId, glm::quat inDelRotation) {
+    mObjects[inId].mRotation += inDelRotation; // TODO Improve this
+}
+void World3D::SetObjectScale(int inId, glm::vec3 inScale) {
+    mObjects[inId].mScale.x *= inScale.x;
+    mObjects[inId].mScale.y *= inScale.y;
+    mObjects[inId].mScale.z *= inScale.z;
+}
+void World3D::ApplyObjectTransforms(int inId) {
+    mObjects[inId].mMatrix      = mObjects[inId].GetLocalMatrix();
+    mObjects[inId].mTranslation = {};
+    mObjects[inId].mRotation    = {};
+    mObjects[inId].mScale       = glm::vec3{1.0f};
 }

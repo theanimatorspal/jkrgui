@@ -1,4 +1,6 @@
 ﻿#include "WindowMulT.hpp"
+#include "Offscreen.hpp"
+#include "Renderers/Renderer_base.hpp"
 #include <Vendor/Tracy/tracy/Tracy.hpp>
 
 using namespace Jkr;
@@ -40,6 +42,11 @@ void Jkr::WindowMulT::Refresh() {
                                                    mDepthImage,
                                                    mSwapChainImages[i]);
     }
+
+    if (mShadowPass) {
+        // TODO Recreate Shadow pass
+    }
+
     mResizeFunction(nullptr);
 }
 
@@ -118,6 +125,7 @@ void WindowMulT::ExecuteUIs() {
     mCommandBuffers[mCurrentFrame].ExecuteCommands(mSecondaryCommandBuffersUI[mCurrentFrame]);
 }
 
+using namespace Jkr;
 void WindowMulT::ExecuteThreadCommandBuffer(int inThreadId) {
     auto& cmd = GetCommandBuffers((Renderer::CmdParam)inThreadId)[mCurrentFrame];
     mCommandBuffers[mCurrentFrame].ExecuteCommands(cmd);
@@ -133,5 +141,10 @@ void WindowMulT::BeginThreadCommandBuffer(int inThreadId) {
 
 void WindowMulT::EndThreadCommandBuffer(int inThreadId) {
     mThreadCommandBuffers[inThreadId]->mCommandBuffers[mCurrentFrame].End();
+}
+
+void WindowMulT::BuildShadowPass() {
+    mShadowPass = mu<ShadowPass>(
+         mInstance, mDepthImage.GetImageExtent().width, mDepthImage.GetImageExtent().height);
 }
 } // namespace Jkr

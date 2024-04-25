@@ -29,13 +29,11 @@ void CreateMiscBindings(sol::state& inState) {
     Jkr.new_usertype<Jkr::Renderer::CustomPainterImage>(
          "CustomPainterImage",
          sol::call_constructor,
-         sol::factories([](Jkr::Instance& inInstance,
-                           Jkr::Window& inWindow,
-                           int inWidth,
-                           int inHeight) {
-             return mu<Jkr::Renderer::CustomPainterImage>(
-                  inInstance, inWindow, inWidth, inHeight);
-         }),
+         sol::factories(
+              [](Jkr::Instance& inInstance, Jkr::Window& inWindow, int inWidth, int inHeight) {
+                  return mu<Jkr::Renderer::CustomPainterImage>(
+                       inInstance, inWindow, inWidth, inHeight);
+              }),
          "GetImageToVector",
          &Jkr::Renderer::CustomPainterImage::GetImageToVector,
          "Register",
@@ -44,8 +42,7 @@ void CreateMiscBindings(sol::state& inState) {
     Jkr.new_usertype<DefaultCustomImagePainterPushConstant>(
          "DefaultCustomImagePainterPushConstant",
          sol::call_constructor,
-         sol::factories(
-              []() { return DefaultCustomImagePainterPushConstant(); }),
+         sol::factories([]() { return DefaultCustomImagePainterPushConstant(); }),
          "x",
          &DefaultCustomImagePainterPushConstant::x,
          "y",
@@ -57,8 +54,7 @@ void CreateMiscBindings(sol::state& inState) {
          "CustomImagePainter",
          sol::call_constructor,
          sol::factories([](sv inCacheFileName, sv inComputeShader) {
-             return mu<Jkr::Renderer::CustomImagePainter>(inCacheFileName,
-                                                          inComputeShader);
+             return mu<Jkr::Renderer::CustomImagePainter>(inCacheFileName, inComputeShader);
          }),
          "Load",
          &Jkr::Renderer::CustomImagePainter::Load,
@@ -69,8 +65,7 @@ void CreateMiscBindings(sol::state& inState) {
          "BindImageFromImage",
          &Jkr::Renderer::CustomImagePainter::BindImageFromImage,
          "Draw",
-         &Jkr::Renderer::CustomImagePainter::Draw<
-              DefaultCustomImagePainterPushConstant>);
+         &Jkr::Renderer::CustomImagePainter::Draw<DefaultCustomImagePainterPushConstant>);
 
     using Uniform3D = Jkr::Misc::_3D::Uniform3D;
     using Simple3D  = Jkr::Renderer::_3D::Simple3D;
@@ -82,9 +77,7 @@ void CreateMiscBindings(sol::state& inState) {
               [](Jkr::Instance& inI, Jkr::Renderer::_3D::Simple3D& inSimple3D) {
                   return mu<Uniform3D>(inI, inSimple3D);
               },
-              [](Jkr::Instance& inInstance) {
-                  return mu<Uniform3D>(inInstance);
-              },
+              [](Jkr::Instance& inInstance) { return mu<Uniform3D>(inInstance); },
               &Uniform3D::CreateByGLTFNodeIndex),
          "AddTexture",
          &Uniform3D::AddTexture,
@@ -95,10 +88,8 @@ void CreateMiscBindings(sol::state& inState) {
          "UpdateByGLTFAnimation",
          &Uniform3D::UpdateByGLTFAnimation,
          "Build",
-         sol::overload(sol::resolve<void(Jkr::Renderer::_3D::Simple3D&)>(
-                            &Uniform3D::Build),
-                       sol::resolve<void(Simple3D&, glTF_Model&, ui, bool)>(
-                            &Uniform3D::Build)),
+         sol::overload(sol::resolve<void(Jkr::Renderer::_3D::Simple3D&)>(&Uniform3D::Build),
+                       sol::resolve<void(Simple3D&, glTF_Model&, ui, bool)>(&Uniform3D::Build)),
          "AddTextureToUniform3D",
          &Uniform3D::AddTextureToUniform3D,
          "AddUniformBufferToUniform3D",
@@ -122,8 +113,7 @@ void CreateMiscBindings(sol::state& inState) {
          "MoveRight",
          &Camera3D::MoveRight,
          "SetPerspective",
-         sol::overload(sol::resolve<void(float, float, float, float)>(
-                            &Camera3D::SetPerspective),
+         sol::overload(sol::resolve<void(float, float, float, float)>(&Camera3D::SetPerspective),
                        sol::resolve<void(void)>(&Camera3D::SetPerspective)),
          "GetMatrix",
          &Camera3D::GetMatrix);
@@ -171,6 +161,16 @@ void CreateMiscBindings(sol::state& inState) {
                               &World3D::SetCurrentCamera,
                               "SetObjectMatrix",
                               &World3D::SetObjectMatrix,
+
+                              "SetObjectDelPosition",
+                              &World3D::SetObjectDelPosition,
+                              "SetObjectDelRotation",
+                              &World3D::SetObjectDelRotation,
+                              "SetObjectScale",
+                              &World3D::SetObjectScale,
+                              "ApplyObjectTransforms",
+                              &World3D::ApplyObjectTransforms,
+
                               "AddSkyboxToUniform3D",
                               &World3D::AddSkyboxToUniform3D);
 }

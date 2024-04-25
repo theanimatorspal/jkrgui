@@ -4,7 +4,7 @@
 #include "VulkanSurface.hpp"
 namespace ksai {
 
-enum class RenderPassContext { Default, MSAA };
+enum class RenderPassContext { Default, MSAA, Shadow };
 
 class VulkanRenderPassBase {
     public:
@@ -23,6 +23,7 @@ class VulkanRenderPass : public VulkanRenderPassBase {
     VulkanRenderPass(const VulkanDevice& inDevice,
                      const VulkanSurface& inSurface,
                      const VulkanImage<ImageContext::DepthImage>& inDepthImage);
+    VulkanRenderPass(const VulkanDevice& inDevice, const VulkanImageBase& inDepthImage);
     VulkanRenderPass(const VulkanDevice& inDevice,
                      const VulkanSurface& inSurface,
                      const VulkanImage<ImageContext::ColorAttach>& inColorImageTarget,

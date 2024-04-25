@@ -1,13 +1,21 @@
 #pragma once
-#include <Global/Standards.hpp>
-#include <VulkanFrameBuffer.hpp>
-#include <VulkanImageContext.hpp>
+#include "PainterParameter.hpp"
+#include "PainterParameter_base.hpp"
 
 namespace Jkr {
 using namespace ksai;
-struct OffscreenPass {
-    using FrameBufferType = VulkanFrameBuffer<1, VulkanImage<ImageContext::DepthImage>>;
+struct ShadowPass {
+    using FrameBufferType = VulkanFrameBuffer<1, VulkanImageVMA<ImageContext::DepthImage>>;
+    using DepthImageType  = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
+    using RenderPassType  = VulkanRenderPass<RenderPassContext::Shadow>;
 
-    FrameBufferType mFrameBuffer;
+    ShadowPass(const Instance& inInstance, ui inWidth, ui inHeight);
+
+    private:
+    const Instance& mInstance;
+    Up<DepthImageType> mImage;
+    Up<RenderPassType> mRenderpass;
+    Up<FrameBufferType> mFrameBuffer;
 };
+
 } // namespace Jkr

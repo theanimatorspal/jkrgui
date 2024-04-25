@@ -25,6 +25,7 @@ using StorageAndUniform  = VulkanBufferVMA<BufferContext::Storage | BufferContex
 using StorageImageType   = VulkanImageVMA<ImageContext::Storage>;
 using UniformImageType   = VulkanImageVMA<ImageContext::Default>;
 using SkyboxImageType    = VulkanImageVMA<ImageContext::CubeCompatible>;
+using DepthImageType     = VulkanImageVMA<ImageContext::DepthImage>;
 using StorageBufferType  = VulkanBufferVMA<BufferContext::Storage, MemoryType::DeviceLocal>;
 using UniformSamplerType = VulkanSampler;
 
@@ -50,6 +51,10 @@ class PainterParameterBase {
     void Setup(Up<VulkanSampler>& inUniformImageSampler,
                Up<UniformImageType>& inUniformImage,
                const std::string_view inFileName);
+    void Setup(Up<VulkanSampler>& inDepthImageSampler,
+               Up<DepthImageType>& inDepthImage,
+               uint32_t inWidth,
+               uint32_t inHeight);
     void Setup(Up<VulkanSampler>& inUniformImageSampler,
                Up<UniformImageType>& inUniformImage,
                std::vector<s> inFileNames);

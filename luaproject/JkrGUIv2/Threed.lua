@@ -39,6 +39,7 @@ Jkrmt.GetPBRBasic_VertexShaderMain = function()
 void GlslMain()
 {
 	gl_Position = ubo.proj * ubo.view * push.model * vec4(inPosition, 1.0f);	
+    gl_Position.y = -gl_Position.y;
 	vUV = inUV;
 	vNormal = inNormal;
 }
@@ -47,6 +48,7 @@ end
 
 Jkrmt.GetPBRBasic_VertexShaderWithSkinningMain = function(inJointCounts)
     return [[
+
 void GlslMain()
 {
     vec4 jweight = inJointInfluence[gl_VertexIndex].mJointWeights;
@@ -61,6 +63,31 @@ void GlslMain()
     gl_Position.y = -gl_Position.y;
 	vUV = inUV;
 	vNormal = inNormal;
+}
+   ]]
+end
+
+Jkrmt.GetBasic_FragmentShader = function()
+    return [[
+layout(location = 0) in vec2 vUV;
+layout(location = 1) in vec3 vNormal;
+layout(location = 0) out vec4 out_color;
+
+layout(set = 0, binding = 0) uniform UBO {
+    mat4 view;
+    mat4 proj;
+    vec3 campos;
+    vec4 lights[8];
+} ubo;
+
+layout(push_constant, std430) uniform pc {
+    mat4 mvp;
+    mat4 m2;
+} push;
+
+void GlslMain()
+{
+    out_color = vec4(push.mvp[0][0], push.mvp[0][1], push.mvp[0][2], 1.0);
 }
    ]]
 end
@@ -355,8 +382,4 @@ function Jkr.CreateShapesHelper(inS)
         o.demoplane = inS:Add(Plane, vec3(0, 0, 0))
     end
     return o
-end
-
-Jkrmt.AddShaderToWorld = function(i, w,)
-
 end
