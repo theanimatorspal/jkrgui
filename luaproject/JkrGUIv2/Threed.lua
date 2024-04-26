@@ -43,6 +43,7 @@ Jkrmt.GetShadowMain = function()
 void GlslMain()
 {
     gl_Position = ubo.proj * ubo.shadowMatrix * push.model * vec4(inPosition, 1.0);
+    gl_Position.y = -gl_Position.y;
 }
 
    ]]
@@ -50,6 +51,7 @@ end
 
 Jkrmt.GetBasicShadowVertexShaderMain = function()
     return [[
+
 layout( location = 2 ) out vec3 vert_normal;
 layout( location = 3 ) out vec4 vert_shadowcoords;
 layout( location = 4 ) out vec3 vert_light;
@@ -69,10 +71,9 @@ void GlslMain()
 
     vert_normal = mat3(push.model) * inNormal;
     vert_light = normalize(ubo.lights[0].xyz - inPosition);
-    vert_view = -pos.xyz;			
-    vert_shadowcoords = (bias * ubo.shadowMatrix  * push.model) * vec4(inPosition, 1.0);
+    vert_view = -pos.xyz;
+    vert_shadowcoords = (bias * ubo.proj * ubo.shadowMatrix  * push.model) * vec4(inPosition.x, inPosition.y, inPosition.z, 1.0);
     vUV = inUV;
-
 }
 
 ]]
@@ -107,7 +108,7 @@ layout( location = 0 ) out vec4 frag_color;
 
 float LinearizeDepth(float depth)
 {
-  float n = 0.1;
+  float n = 0.1; // TODO Add an entry on uniform
   float f = 10000;
   float z = depth;
   return (2.0 * n) / (f + n - z * (f - n));	
@@ -128,18 +129,19 @@ float textureProj(vec4 shadowCoord, vec2 off)
 }
 
 void GlslMain() {
-    float shadow = textureProj(vert_shadowcoords / vert_shadowcoords.w, vec2(0.0));
+    vec4 shadowcoords_norm = vert_shadowcoords / vert_shadowcoords.w;
+    float shadow = textureProj(shadowcoords_norm, vec2(0.0));
 //    debugPrintfEXT("Shadow:%f, %f, %f, %f, %f", shadow, vert_shadowcoords.x, vert_shadowcoords.y, vert_shadowcoords.z, vert_shadowcoords.w);
+    debugPrintfEXT("Shadow:%f, %f, %f, %f, %f", shadow, shadowcoords_norm.x, shadowcoords_norm.y, shadowcoords_norm.z, shadowcoords_norm.w);
+
     vec3 N = normalize(vert_normal);
 	vec3 L = normalize(vert_light);
 	vec3 V = normalize(vert_view);
 	vec3 R = normalize(-reflect(L, N));
 
-//	vec3 diffuse = max(dot(N, L), ambient);
-    vec3 diffuse = vec3(1, 1, 1);
+	float diffuse = max(dot(N, L), ambient);
     float sc = LinearizeDepth(texture(ShadowMap, vUV).r);
-    debugPrintfEXT("Shadow:%f", sc);
-	frag_color = vec4(sc, sc, sc, 1.0);
+	frag_color = vec4(vec3(diffuse * shadow), 1.0);
 }
 
 ]]
@@ -193,7 +195,7 @@ void GlslMain()
             jweight.w * jointMatrixUBO.mJointMatrix[int(jindex.w)];
 
 	gl_Position = ubo.proj * ubo.shadowMatrix * push.model * skinMat * vec4(inPosition, 1.0f);	
-    gl_Position.y = -gl_Position.y;
+    // gl_Position.y = -gl_Position.y; // TODO Understand I don't why it worked without this
 	vUV = inUV;
 	vNormal = inNormal;
 }
