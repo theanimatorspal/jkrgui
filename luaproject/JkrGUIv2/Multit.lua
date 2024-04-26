@@ -11,7 +11,7 @@ function Jkr.ConfigureMultiThreading(inMultiThreading, inTable)
     inMultiThreading:Inject("mtGetDefaultResource", Jkr.GetDefaultResource)
     inMultiThreading:Inject("mtCreateShapesHelper", Jkr.CreateShapesHelper)
     inMultiThreading:Inject("ImportShared", ImportShared)
-    inMultiThreading:Inject("mtJkr", Jkrmt)
+    inMultiThreading:Inject("Jkrmt", Jkrmt)
     if inTable then
         for i = 1, #inTable, 1 do
             inMultiThreading:Inject(inTable[i][1], inTable[i][2])
