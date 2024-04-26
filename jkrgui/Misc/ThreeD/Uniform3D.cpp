@@ -48,7 +48,8 @@ void Uniform3D::AddUniformBufferToUniform3D(Uniform3D& inUniform3D, int inBuffer
     {};
 }
 void Uniform3D::AddStorageBufferToUniform3D(Uniform3D& inUniform3D, int inStorageId) {
-    mStorageBuffers[inStorageId]->Register(0, inStorageId, 0, *inUniform3D.mVulkanDescriptorSet);
+    mStorageBuffers[inStorageId]->RegisterCoherent(
+         0, inStorageId, 0, *inUniform3D.mVulkanDescriptorSet);
     {};
 }
 
@@ -88,7 +89,8 @@ void Uniform3D::Build(Simple3D& inSimple3D) {
 void Uniform3D::Build(Simple3D& inSimple3D,
                       Renderer::_3D::glTF_Model& inModel,
                       ui inNodeIndex,
-                      bool inShouldSkin) {
+                      bool inShouldSkin,
+                      bool inShouldTextures) {
     if (not mVulkanDescriptorSet) {
         Build(inSimple3D);
     }
@@ -122,33 +124,31 @@ void Uniform3D::Build(Simple3D& inSimple3D,
         }
     }
     ui BindingIndex = kstd::BindingIndex::Uniform::DiffuseImage;
-    for (auto& I : inModel.GetTexturesRef()) {
-        auto& Image = inModel.GetImagesRef()[I.mImageIndex];
-        AddTextureByVector(BindingIndex, Image.mTextureImage, Image.mWidth, Image.mHeight);
-        BindingIndex++;
+    if (inShouldTextures) {
+        for (auto& I : inModel.GetTexturesRef()) {
+            auto& Image = inModel.GetImagesRef()[I.mImageIndex];
+            AddTextureByVector(BindingIndex, Image.mTextureImage, Image.mWidth, Image.mHeight);
+            BindingIndex++;
+        }
     }
-    //      if (inModel.GetImagesSize() != 0) {
-    //                     inModel.Draw(
-    //                               *inModel.NodeFromIndex(inNodeIndex),
-    //                               [](glm::mat4 inMat) {},
-    //                               [&](ui inUI,
-    //                               opt<Renderer::_3D::glTF_Model::Texture>
-    //                               inTexture) {
-    //                                              if (inTexture.has_value()) {
-    //                                                             ui ImageIndex
-    //                                                             =
-    //                                                             inTexture.value().mImageIndex;
-    //                                                             auto& Image
-    //                                                             =
-    //                                                             inModel.GetImagesRef()[ImageIndex];
-    //                                                             AddTextureByVector(BindingIndex,
-    //                                                             Image.mTextureImage,
-    //                                                             Image.mWidth,
-    //                                                             Image.mHeight);
-    //                                                             BindingIndex++;
-    //                                              }
-    //                               });
-    //      }
+}
+
+void Uniform3D::AddBindingsToUniform3DGLTF(Uniform3D& modUniform3D,
+                                           bool inShouldSkin,
+                                           bool inShouldTexture) {
+    if (inShouldSkin) {
+        for (auto& u : mUniformBuffers) {
+            AddUniformBufferToUniform3D(modUniform3D, u.first);
+        }
+        for (auto& s : mStorageBuffers) {
+            AddStorageBufferToUniform3D(modUniform3D, s.first);
+        }
+    }
+    if (inShouldTexture) {
+        for (auto& t : mImages) {
+            AddTextureToUniform3D(modUniform3D, t.first);
+        }
+    }
 }
 
 void Uniform3D::UpdateUniformBuffer(int inDstBinding, void** inData, size_t inSize) {

@@ -88,14 +88,17 @@ void CreateMiscBindings(sol::state& inState) {
          "UpdateByGLTFAnimation",
          &Uniform3D::UpdateByGLTFAnimation,
          "Build",
-         sol::overload(sol::resolve<void(Jkr::Renderer::_3D::Simple3D&)>(&Uniform3D::Build),
-                       sol::resolve<void(Simple3D&, glTF_Model&, ui, bool)>(&Uniform3D::Build)),
+         sol::overload(
+              sol::resolve<void(Jkr::Renderer::_3D::Simple3D&)>(&Uniform3D::Build),
+              sol::resolve<void(Simple3D&, glTF_Model&, ui, bool, bool)>(&Uniform3D::Build)),
          "AddTextureToUniform3D",
          &Uniform3D::AddTextureToUniform3D,
          "AddUniformBufferToUniform3D",
          &Uniform3D::AddUniformBufferToUniform3D,
          "AddStorageBufferToUniform3D",
-         &Uniform3D::AddStorageBufferToUniform3D);
+         &Uniform3D::AddStorageBufferToUniform3D,
+         "AddBindingsToUniform3DGLTF",
+         &Uniform3D::AddBindingsToUniform3DGLTF);
 
     using namespace Jkr::Misc::_3D;
     Jkr.new_usertype<Camera3D>(

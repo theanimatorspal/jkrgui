@@ -2,6 +2,7 @@
 #include "Offscreen.hpp"
 #include "Renderers/Renderer_base.hpp"
 #include "VulkanCommandBuffer.hpp"
+#include "vulkan/vulkan_enums.hpp"
 #include <Vendor/Tracy/tracy/Tracy.hpp>
 
 using namespace Jkr;
@@ -136,7 +137,18 @@ void WindowMulT::BeginShadowPass(float ind) {
          mShadowPass->GetFrameBuffer(),
          {1.0f, 1.0f, 1.0f, 1.0f, ind});
 }
-void WindowMulT::EndShadowPass() { mCommandBuffers[mCurrentFrame].EndRenderPass(); }
+void WindowMulT::EndShadowPass() {
+
+    mCommandBuffers[mCurrentFrame].EndRenderPass();
+    mShadowPass->GetDepthImagePainterParameter().GetDepthImage().CmdTransitionImageLayout(
+         mCommandBuffers[mCurrentFrame],
+         vk::ImageLayout::eDepthStencilReadOnlyOptimal,
+         vk::ImageLayout::eGeneral,
+         vk::PipelineStageFlagBits::eLateFragmentTests,
+         vk::PipelineStageFlagBits::eFragmentShader,
+         vk::AccessFlagBits::eDepthStencilAttachmentWrite,
+         vk::AccessFlagBits::eShaderRead);
+}
 
 void WindowMulT::ExecuteThreadCommandBuffer(int inThreadId) {
     auto& cmd = GetCommandBuffers((Renderer::CmdParam)inThreadId)[mCurrentFrame];

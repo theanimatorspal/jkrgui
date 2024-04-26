@@ -218,7 +218,7 @@ void World3D::UpdateWorldInfoToUniform3D(int inId) {
     Uniform.mView           = GetCurrentCamera()->GetView();
     Uniform.mProjection     = GetCurrentCamera()->GetProjection();
     Uniform.mCameraPosition = GetCurrentCamera()->GetPosition();
-    Uniform.mLights[0]      = {1, 1, 1, 1};
+    Uniform.mLights[0]      = mLights[0].mPosition;
     Uniform.mShadowMatrix   = LightCamera.GetView();
     mUniforms[inId]->UpdateUniformBuffer(kstd::BindingIndex::Uniform::WorldInfo, Uniform);
 }

@@ -28,8 +28,9 @@ class Uniform3D {
     void Build(Simple3D& inSimple3D);
     void Build(Simple3D& inSimple3D,
                Renderer::_3D::glTF_Model& inModel,
-               ui inNodeIndex    = 0,
-               bool inShouldSkin = false);
+               ui inNodeIndex        = 0,
+               bool inShouldSkin     = false,
+               bool inShouldTextures = false);
 
     void AddTexture(int inDstBinding, s inFileName);
     void AddTextureByVector(int inDstBinding, v<uc>& inImageVector, ui inWidth, ui inHeight);
@@ -37,9 +38,12 @@ class Uniform3D {
                             s inFileName); // TODO To be Implemented
     void AddUniformBuffer(int inDstBinding, size_t inSize);
     void AddStorageBuffer(int inDstBinding, size_t inSize);
-    void AddTextureToUniform3D(Uniform3D& inUniform3D, int inTextureId);
-    void AddUniformBufferToUniform3D(Uniform3D& inUniform3D, int inBufferId);
-    void AddStorageBufferToUniform3D(Uniform3D& inUniform3D, int inStorageId);
+    void AddTextureToUniform3D(Uniform3D& modUniform3D, int inTextureId);
+    void AddUniformBufferToUniform3D(Uniform3D& modUniform3D, int inBufferId);
+    void AddStorageBufferToUniform3D(Uniform3D& modUniform3D, int inStorageId);
+    void AddBindingsToUniform3DGLTF(Uniform3D& modUniform3D,
+                                    bool inShouldSkin    = false,
+                                    bool inShouldTexture = false);
     void AddSkyboxImage(SkyboxImageType& inType,
                         int inDstBinding = kstd::BindingIndex::Uniform::CubeMapImage);
 

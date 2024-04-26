@@ -1,5 +1,6 @@
 #include "VulkanImage.hpp"
 #include "VulkanCommandBuffer.hpp"
+#include "vulkan/vulkan_enums.hpp"
 #include <VulkanBufferVMA.hpp>
 #include <iostream>
 
@@ -276,11 +277,13 @@ void VulkanImageBase::FillImageProperties(ImageContext inImageContext, uint32_t 
         mImageProperties.mImageFormatFeature  = vk::FormatFeatureFlagBits::eDepthStencilAttachment;
         mImageProperties.mImageType           = vk::ImageType::e2D;
         mImageProperties.mSampleCountFlagBits = vk::SampleCountFlagBits::e1;
-        mImageProperties.mImageUsage          = vk::ImageUsageFlagBits::eDepthStencilAttachment;
-        mImageProperties.mImageAspect         = vk::ImageAspectFlagBits::eDepth;
-        mImageProperties.mMemoryProperty      = vk::MemoryPropertyFlagBits::eDeviceLocal;
-        mImageProperties.mImageViewType       = vk::ImageViewType::e2D;
-        mImageProperties.mInitialImageLayout  = vk::ImageLayout::eDepthAttachmentOptimal;
+        mImageProperties.mImageUsage =
+             vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
+        mImageProperties.mImageAspect    = vk::ImageAspectFlagBits::eDepth;
+        mImageProperties.mMemoryProperty = vk::MemoryPropertyFlagBits::eDeviceLocal;
+        mImageProperties.mImageViewType  = vk::ImageViewType::e2D;
+        // mImageProperties.mInitialImageLayout = vk::ImageLayout::eDepthAttachmentOptimal;
+        mImageProperties.mInitialImageLayout = vk::ImageLayout::eGeneral;
     } else if (inImageContext == ImageContext::Storage) {
         mImageProperties.mImageUsage =
              vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eTransferSrc;
@@ -295,9 +298,7 @@ void VulkanImageBase::FillImageProperties(ImageContext inImageContext, uint32_t 
              vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst;
         mImageProperties.mImageViewType = vk::ImageViewType::eCube;
         mImageProperties.mImageFormat   = vk::Format::eB8G8R8A8Unorm;
-    }
-
-    else if (inImageContext == ImageContext::ColorAttach) {
+    } else if (inImageContext == ImageContext::ColorAttach) {
         mImageProperties.mImageUsage = vk::ImageUsageFlagBits::eColorAttachment |
                                        vk::ImageUsageFlagBits::eTransientAttachment;
         mImageProperties.mImageFormat = vk::Format::eB8G8R8A8Unorm; // This in on the surface, so

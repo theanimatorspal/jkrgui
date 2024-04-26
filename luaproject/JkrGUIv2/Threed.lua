@@ -39,17 +39,17 @@ Jkrmt.GetShadowMain = function()
 
 void GlslMain()
 {
-    gl_Position = ubo.proj * ubo.shadowMatrix * vec4(inPosition, 1.0);
+    gl_Position = ubo.proj * ubo.shadowMatrix * push.model * vec4(inPosition, 1.0);
 }
 
    ]]
 end
 
-Jkrmt.BasicShadowVertexShaderMain = function()
+Jkrmt.GetBasicShadowVertexShaderMain = function()
     return [[
-layout( location = 0 ) out vec3 vert_normal;
-layout( location = 1 ) out vec4 vert_texcoords;
-layout( location = 2 ) out vec3 vert_light;
+layout( location = 2 ) out vec3 vert_normal;
+layout( location = 3 ) out vec4 vert_texcoords;
+layout( location = 4 ) out vec3 vert_light;
 
 const mat4 bias = mat4(
     0.5, 0.0, 0.0, 0.0,
@@ -60,29 +60,29 @@ const mat4 bias = mat4(
 void GlslMain()
 {
     gl_Position = ubo.proj * ubo.view * push.model * vec4(inPosition, 1.0);
-
+    gl_Position.y = -gl_Position.y;
     vert_normal = mat3(ubo.view * push.model) * inNormal;
     vert_texcoords = bias * ubo.proj * ubo.shadowMatrix * vec4(inPosition, 1.0);
-    vert_light = (ubo.view * push.model * vec4(Light.Position.xyz, 0.0)).xyz;
+    vert_light = (ubo.view * push.model * vec4(ubo.lights[0].xyz, 0.0)).xyz;
 
 }
 
 ]]
 end
 
-Jkrmt.BasicShadowFragmentShaderMain = function()
+Jkrmt.GetBasicShadowFragmentShaderMain = function()
     return [[
 
 #version 450
-layout(location = 0) in vec3 vert_normal;
-layout(location = 1) in vec4 vert_texcoords;
-layout(location = 2) in vec3 vert_light;
+layout(location = 2) in vec3 vert_normal;
+layout(location = 3) in vec4 vert_texcoords;
+layout(location = 4) in vec3 vert_light;
 
 layout(set = 0, binding = 3) uniform sampler2D ShadowMap;
 
 layout( location = 0 ) out vec4 frag_color;
 
-void main() {
+void GlslMain() {
     float shadow = 1.0;
     vec4 shadow_coords = vert_texcoords / vert_texcoords.w;
     if(texture(ShadowMap, shadow_coords.xy).r < shadow_coords.z - 0.005 )
@@ -92,8 +92,13 @@ void main() {
     vec3 normal_vector = normalize(vert_normal);
     vec3 light_vector = normalize(vert_light);
     float diffuse_term = max(0.0, dot( normal_vector, light_vector));
-    frag_color = shadow * vec4(diffuse_term) + 0.1;
+
+
+//    frag_color = shadow * vec4(diffuse_term) + 0.1;
+//    frag_color = vec4(shadow, shadow, shadow, 1.0);
+        frag_color = texture(ShadowMap, shadow_coords.xy).r <
 }
+
 ]]
 end
 
@@ -130,6 +135,29 @@ void GlslMain()
 }
    ]]
 end
+
+Jkrmt.GetShadowSkinningMain = function()
+    return [[
+
+void GlslMain()
+{
+    vec4 jweight = inJointInfluence[gl_VertexIndex].mJointWeights;
+    vec4 jindex = inJointInfluence[gl_VertexIndex].mJointIndices;
+    mat4 skinMat  =
+            jweight.x * jointMatrixUBO.mJointMatrix[int(jindex.x)] +
+            jweight.y * jointMatrixUBO.mJointMatrix[int(jindex.y)] +
+            jweight.z * jointMatrixUBO.mJointMatrix[int(jindex.z)] +
+            jweight.w * jointMatrixUBO.mJointMatrix[int(jindex.w)];
+
+	gl_Position = ubo.proj * ubo.shadowMatrix * push.model * skinMat * vec4(inPosition, 1.0f);	
+    gl_Position.y = -gl_Position.y;
+	vUV = inUV;
+	vNormal = inNormal;
+}
+
+   ]]
+end
+
 
 Jkrmt.GetBasic_FragmentShader = function()
     return [[
