@@ -14,6 +14,9 @@ class WindowMulT : public Window {
     GETTER& GetShadowPass() { return *mShadowPass; }
     void BuildShadowPass();
 
+    void BeginShadowPass(float ind);
+    void EndShadowPass();
+
     void BeginUpdates();
     void EndUpdates();
     void BeginDispatches();
@@ -45,6 +48,7 @@ class WindowMulT : public Window {
     VulkanCommandPool mUICommandPool;
     VulkanCommandBufferArray mSecondaryCommandBuffersUI;
     Up<ShadowPass> mShadowPass;
+    glm::uvec2 mShadowPassSize;
 };
 
 } // namespace Jkr

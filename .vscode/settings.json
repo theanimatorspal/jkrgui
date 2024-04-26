@@ -1,5 +1,5 @@
 {
-          "workbench.colorTheme": "Red",
+          "workbench.colorTheme": "Material Theme Lighter",
           "git.enableSmartCommit": true,
           "git.confirmSync": false,
           "gitlens.currentLine.enabled": false,

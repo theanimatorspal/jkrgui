@@ -1,5 +1,6 @@
 #include "EventManager.hpp"
 #include "JkrLuaExe.hpp"
+#include "WindowMulT.hpp"
 
 namespace JkrEXE {
 
@@ -35,6 +36,12 @@ void CreateBasicBindings(sol::state& s) {
          }),
          "BuildShadowPass",
          &Jkr::WindowMulT::BuildShadowPass,
+
+         "BeginShadowPass",
+         &Jkr::WindowMulT::BeginShadowPass,
+         "EndShadowPass",
+         &Jkr::WindowMulT::EndShadowPass,
+
          "SetTitle",
          &Jkr::WindowMulT::SetTitle,
          "BeginUpdates",

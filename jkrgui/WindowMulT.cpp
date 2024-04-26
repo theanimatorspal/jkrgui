@@ -1,6 +1,7 @@
 ﻿#include "WindowMulT.hpp"
 #include "Offscreen.hpp"
 #include "Renderers/Renderer_base.hpp"
+#include "VulkanCommandBuffer.hpp"
 #include <Vendor/Tracy/tracy/Tracy.hpp>
 
 using namespace Jkr;
@@ -19,7 +20,9 @@ Jkr::WindowMulT::WindowMulT(const Instance& inInstance,
            VulkanCommandBuffer(
                 inInstance.GetDevice(), mUICommandPool, VulkanCommandBuffer::Type::Secondary),
            VulkanCommandBuffer(
-                inInstance.GetDevice(), mUICommandPool, VulkanCommandBuffer::Type::Secondary)} {
+                inInstance.GetDevice(), mUICommandPool, VulkanCommandBuffer::Type::Secondary)}
+
+{
     for (int i = 0; i < inNumThreads; i++) {
         mThreadCommandBuffers.emplace_back(mu<ThreadCommandBufferArray>(inInstance));
     }
@@ -86,7 +89,7 @@ void WindowMulT::BeginDraws(
     std::array<float, 5> ClearValues = {r, g, b, a, d};
     mCommandBuffers[mCurrentFrame]
          .BeginRenderPass<VulkanCommandBuffer::RenderPassBeginContext::SecondaryCommandBuffers>(
-              mRenderPass, mSurface, *mFrameBuffers[mAcquiredImageIndex], ClearValues);
+              mRenderPass, mSurface.GetExtent(), *mFrameBuffers[mAcquiredImageIndex], ClearValues);
 }
 
 void WindowMulT::EndDraws() { mCommandBuffers[mCurrentFrame].EndRenderPass(); }
@@ -126,6 +129,15 @@ void WindowMulT::ExecuteUIs() {
 }
 
 using namespace Jkr;
+void WindowMulT::BeginShadowPass(float ind) {
+    mCommandBuffers[mCurrentFrame].BeginRenderPass(
+         mShadowPass->GetRenderPass(),
+         vk::Extent2D(mShadowPassSize.x, mShadowPassSize.y),
+         mShadowPass->GetFrameBuffer(),
+         {1.0f, 1.0f, 1.0f, 1.0f, ind});
+}
+void WindowMulT::EndShadowPass() { mCommandBuffers[mCurrentFrame].EndRenderPass(); }
+
 void WindowMulT::ExecuteThreadCommandBuffer(int inThreadId) {
     auto& cmd = GetCommandBuffers((Renderer::CmdParam)inThreadId)[mCurrentFrame];
     mCommandBuffers[mCurrentFrame].ExecuteCommands(cmd);
@@ -146,5 +158,8 @@ void WindowMulT::EndThreadCommandBuffer(int inThreadId) {
 void WindowMulT::BuildShadowPass() {
     mShadowPass = mu<ShadowPass>(
          mInstance, mDepthImage.GetImageExtent().width, mDepthImage.GetImageExtent().height);
+    mShadowPassSize =
+         glm::uvec2(mDepthImage.GetImageExtent().width, mDepthImage.GetImageExtent().height);
 }
+
 } // namespace Jkr

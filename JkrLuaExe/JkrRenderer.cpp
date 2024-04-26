@@ -20,7 +20,7 @@ struct ShapeRendererResources {
 void CreateRendererBindings(sol::state& inState) {
     auto Jkr = inState["Jkr"].get_or_create<sol::table>();
     using namespace Jkr::Renderer;
-    auto CmdParamEnumType = Jkr.new_enum<false>("CmdParam",
+    auto CmdParamEnumType       = Jkr.new_enum<false>("CmdParam",
                                                 "UI",
                                                 CmdParam::UI,
                                                 "Background",
@@ -28,7 +28,7 @@ void CreateRendererBindings(sol::state& inState) {
                                                 "None",
                                                 CmdParam::None);
 
-    auto FillTypeEnum     = Jkr.new_enum<false>("FillType",
+    auto FillTypeEnum           = Jkr.new_enum<false>("FillType",
                                             "Fill",
                                             FillType::Fill,
                                             "Image",
@@ -36,14 +36,13 @@ void CreateRendererBindings(sol::state& inState) {
                                             "ContinousLine",
                                             FillType::ContinousLine);
 
-    auto PipelinePropertiesEnum =
-         Jkr.new_enum<false>("PipelineProperties",
-                             "Default",
-                             Jkr::PipelinePropertiesContext::Default,
-                             "Line",
-                             Jkr::PipelinePropertiesContext::Line,
-                             "LineStrip",
-                             Jkr::PipelinePropertiesContext::LineStrip);
+    auto PipelinePropertiesEnum = Jkr.new_enum<false>("PipelineProperties",
+                                                      "Default",
+                                                      Jkr::PipelinePropertiesContext::Default,
+                                                      "Line",
+                                                      Jkr::PipelinePropertiesContext::Line,
+                                                      "LineStrip",
+                                                      Jkr::PipelinePropertiesContext::LineStrip);
 
     Jkr.new_usertype<ShapeRendererResources>(
          "ShapeRendererResources",
@@ -81,31 +80,26 @@ void CreateRendererBindings(sol::state& inState) {
     Jkr.new_usertype<Jkr::Renderer::Generator>(
          "Generator",
          sol::call_constructor,
-         sol::factories(
-              []() { return Jkr::Renderer::Generator(); },
-              [](Jkr::Shapes inShape, Jkr::Generator::Arguments inArg) {
-                  return Jkr::Renderer::Generator(inShape, inArg);
-              }));
+         sol::factories([]() { return Jkr::Renderer::Generator(); },
+                        [](Jkr::Shapes inShape, Jkr::Generator::Arguments inArg) {
+                            return Jkr::Renderer::Generator(inShape, inArg);
+                        }));
     Jkr.new_usertype<Jkr::Renderer::Shape>(
          "ShapeRenderer",
          sol::call_constructor,
          sol::factories([](Jkr::Instance& inInstance,
                            Jkr::WindowMulT& inCompatibleWindow,
                            ShapeRendererResources& inResources) {
-             return mu<Jkr::Renderer::Shape>(
-                  inInstance, inCompatibleWindow, inResources.mCaches);
+             return mu<Jkr::Renderer::Shape>(inInstance, inCompatibleWindow, inResources.mCaches);
          }),
          "Add",
          &Jkr::Renderer::Shape::AddEXT,
          "Update",
          &Jkr::Renderer::Shape::UpdateEXT,
          "AddImage",
-         sol::overload(
-              sol::resolve<ui(const string_view)>(
-                   &Jkr::Renderer::Shape::AddImageEXT),
-              sol::resolve<ui(ui, ui)>(&Jkr::Renderer::Shape::AddImageEXT),
-              sol::resolve<ui(vector<uc>, ui, ui)>(
-                   &Jkr::Renderer::Shape::AddImageEXT)),
+         sol::overload(sol::resolve<ui(const string_view)>(&Jkr::Renderer::Shape::AddImageEXT),
+                       sol::resolve<ui(ui, ui)>(&Jkr::Renderer::Shape::AddImageEXT),
+                       sol::resolve<ui(vector<uc>, ui, ui)>(&Jkr::Renderer::Shape::AddImageEXT)),
          "BindShapes",
          &Jkr::Renderer::Shape::BindShapes,
          "BindImage",
@@ -119,17 +113,15 @@ void CreateRendererBindings(sol::state& inState) {
          "BindFillMode",
          &Jkr::Renderer::Shape::BindFillMode,
          "CopyToImage",
-         sol::resolve<uint32_t, CustomPainterImage&>(
-              &Jkr::Renderer::Shape::CopyToImage));
+         sol::resolve<uint32_t, CustomPainterImage&>(&Jkr::Renderer::Shape::CopyToImage));
 
     Jkr.new_usertype<Jkr::Renderer::Line>(
          "LineRenderer",
          sol::call_constructor,
-         sol::factories([](Jkr::Instance& inInstance,
-                           Jkr::WindowMulT& inWindow,
-                           Jkr::PainterCache& inCache) {
-             return mu<Jkr::Renderer::Line>(inInstance, inWindow, inCache);
-         }),
+         sol::factories(
+              [](Jkr::Instance& inInstance, Jkr::WindowMulT& inWindow, Jkr::PainterCache& inCache) {
+                  return mu<Jkr::Renderer::Line>(inInstance, inWindow, inCache);
+              }),
          "Add",
          &Jkr::Renderer::Line::AddEXT,
          "Update",

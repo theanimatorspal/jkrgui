@@ -220,6 +220,7 @@ void VulkanPipelineBase::BuildPipeline(VulkanPipelineCache& inCache,
 
         if (inPipelineContext == PipelineContext::Shadow) {
             PipelineShaderStageCreateInfos.resize(1); // Vertex Shader Only
+            PipelineMultisampleStateCreateInfo.setRasterizationSamples(vk::SampleCountFlagBits::e1);
         }
 
         auto GraphicsPipelineCreateInfo =

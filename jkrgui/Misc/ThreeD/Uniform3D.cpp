@@ -40,20 +40,15 @@ void Uniform3D::AddStorageBuffer(int inDstBinding, size_t inSize) {
     mStorageBuffers[inDstBinding] = mv(Buffer);
 }
 void Uniform3D::AddTextureToUniform3D(Uniform3D& inUniform3D, int inTextureId) {
-    mImages[inTextureId]->Register(
-         0, inTextureId, 0, *inUniform3D.mVulkanDescriptorSet);
+    mImages[inTextureId]->Register(0, inTextureId, 0, *inUniform3D.mVulkanDescriptorSet);
     {};
 }
-void Uniform3D::AddUniformBufferToUniform3D(Uniform3D& inUniform3D,
-                                            int inBufferId) {
-    mUniformBuffers[inBufferId]->Register(
-         0, inBufferId, 0, *inUniform3D.mVulkanDescriptorSet);
+void Uniform3D::AddUniformBufferToUniform3D(Uniform3D& inUniform3D, int inBufferId) {
+    mUniformBuffers[inBufferId]->Register(0, inBufferId, 0, *inUniform3D.mVulkanDescriptorSet);
     {};
 }
-void Uniform3D::AddStorageBufferToUniform3D(Uniform3D& inUniform3D,
-                                            int inStorageId) {
-    mStorageBuffers[inStorageId]->Register(
-         0, inStorageId, 0, *inUniform3D.mVulkanDescriptorSet);
+void Uniform3D::AddStorageBufferToUniform3D(Uniform3D& inUniform3D, int inStorageId) {
+    mStorageBuffers[inStorageId]->Register(0, inStorageId, 0, *inUniform3D.mVulkanDescriptorSet);
     {};
 }
 
@@ -73,12 +68,11 @@ void Uniform3D::UpdateByGLTFAnimation(Renderer::_3D::glTF_Model& inModel,
     });
 }
 
-Up<Uniform3D>
-Uniform3D::CreateByGLTFNodeIndex(const Instance& inInstance,
-                                 Simple3D& inSimple,
-                                 Renderer::_3D::glTF_Model& inLoadedModel,
-                                 ui inNodeIndex,
-                                 bool inShouldSkin) {
+Up<Uniform3D> Uniform3D::CreateByGLTFNodeIndex(const Instance& inInstance,
+                                               Simple3D& inSimple,
+                                               Renderer::_3D::glTF_Model& inLoadedModel,
+                                               ui inNodeIndex,
+                                               bool inShouldSkin) {
     auto Uniform = MakeUp<Uniform3D>(inInstance);
     Uniform->Build(inSimple, inLoadedModel, inNodeIndex, inShouldSkin);
     return mv(Uniform);
@@ -101,11 +95,9 @@ void Uniform3D::Build(Simple3D& inSimple3D,
     Renderer::_3D::glTF_Model ModelCopy(inModel.GetFileName());
     if (inShouldSkin) {
         v<kstd::JointInfluence> JointInfluence;
-        auto FillJointInfluence = [&JointInfluence](
-                                       kstd::Vertex3DExt inVertex) {
-            JointInfluence.push_back(
-                 kstd::JointInfluence{.mJointIndices = inVertex.mJointIndices,
-                                      .mJointWeights = inVertex.mJointWeights});
+        auto FillJointInfluence = [&JointInfluence](kstd::Vertex3DExt inVertex) {
+            JointInfluence.push_back(kstd::JointInfluence{.mJointIndices = inVertex.mJointIndices,
+                                                          .mJointWeights = inVertex.mJointWeights});
             return kstd::Vertex3D{.mPosition = inVertex.mPosition,
                                   .mNormal   = inVertex.mNormal,
                                   .mUV       = inVertex.mUV,
@@ -114,13 +106,11 @@ void Uniform3D::Build(Simple3D& inSimple3D,
         ModelCopy.Load(FillJointInfluence, [](ui inIndex) { return inIndex; });
 
         this->AddStorageBuffer(kstd::BindingIndex::Storage::JointInfluence,
-                               JointInfluence.size() *
-                                    sizeof(kstd::JointInfluence));
+                               JointInfluence.size() * sizeof(kstd::JointInfluence));
         void* data = JointInfluence.data();
         this->UpdateStorageBuffer(kstd::BindingIndex::Storage::JointInfluence,
                                   &data,
-                                  JointInfluence.size() *
-                                       sizeof(kstd::JointInfluence));
+                                  JointInfluence.size() * sizeof(kstd::JointInfluence));
 
         if (inModel.GetSkinsSize() != 0) {
             auto& Skins = inModel.GetSkinsRef()[0]; // TODO
@@ -128,15 +118,13 @@ void Uniform3D::Build(Simple3D& inSimple3D,
             auto& InverseBindMatrices = Skins.mInverseBindMatrices;
             void* Data                = InverseBindMatrices.data();
             this->AddUniformBuffer(kstd::BindingIndex::Uniform::JointMatrix,
-                                   InverseBindMatrices.size() *
-                                        sizeof(glm::mat4));
+                                   InverseBindMatrices.size() * sizeof(glm::mat4));
         }
     }
     ui BindingIndex = kstd::BindingIndex::Uniform::DiffuseImage;
     for (auto& I : inModel.GetTexturesRef()) {
         auto& Image = inModel.GetImagesRef()[I.mImageIndex];
-        AddTextureByVector(
-             BindingIndex, Image.mTextureImage, Image.mWidth, Image.mHeight);
+        AddTextureByVector(BindingIndex, Image.mTextureImage, Image.mWidth, Image.mHeight);
         BindingIndex++;
     }
     //      if (inModel.GetImagesSize() != 0) {
@@ -161,4 +149,22 @@ void Uniform3D::Build(Simple3D& inSimple3D,
     //                                              }
     //                               });
     //      }
+}
+
+void Uniform3D::UpdateUniformBuffer(int inDstBinding, void** inData, size_t inSize) {
+    void* memory = mUniformBuffers[inDstBinding]->GetUniformMappedMemoryRegion();
+    memcpy(memory, *inData, inSize);
+}
+
+void Uniform3D::UpdateStorageBuffer(int inDstBinding, void** inData, size_t inSize) {
+    void* memory = mStorageBuffers[inDstBinding]->GetStorageMappedMemoryRegion();
+    memcpy(memory, *inData, inSize);
+}
+
+void Uniform3D::Bind(Window& inWindow, Simple3D& inSimple3D, Window::ParameterContext inParam) {
+    const VulkanCommandBuffer& Cmd =
+         inWindow.GetCommandBuffers(inParam)[inWindow.GetCurrentFrame()];
+    mVulkanDescriptorSet->Bind(vk::PipelineBindPoint::eGraphics,
+                               Cmd,
+                               inSimple3D.GetPainterCache().GetVertexFragmentPipelineLayout());
 }

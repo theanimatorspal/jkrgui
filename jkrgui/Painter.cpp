@@ -84,12 +84,12 @@ Jkr::Painter::Painter(const Instance& inInstance,
                                   inRenderPass,
                                   inCache.GetVertexFragmentPipelineLayout(),
                                   inCache.GetVertexFragmentShaderModulesArray(),
-                                  PipelineContext::Default);
+                                  inPipelineContext);
     mVulkanComputePipeline.BuildPipeline(inCache.GetPipelineCache(),
                                          inCache.GetPipelineContext(),
                                          inRenderPass,
-                                         inCache.GetVertexFragmentPipelineLayout(),
-                                         inCache.GetVertexFragmentShaderModulesArray(),
+                                         inCache.GetComputePipelineLayout(),
+                                         inCache.GetComputePipelineModule(),
                                          PipelineContext::Compute);
 }
 

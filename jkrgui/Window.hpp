@@ -12,11 +12,7 @@ class Window : public SDLWindow {
                                                     VulkanImage<ImageContext::ColorAttach>,
                                                     VulkanImage<ImageContext::DepthImage>,
                                                     VulkanImage<ImageContext::ExternalHandled>>;
-    enum ParameterContext : int {
-        None       = -3,
-        UI         = -2,
-        Background = -1,
-    };
+    enum ParameterContext : int { None = -3, UI = -1, Background = -1 };
 
     public:
     virtual const std::array<VulkanCommandBuffer, 2U>&
