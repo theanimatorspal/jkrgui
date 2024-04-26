@@ -11,6 +11,9 @@ Jkrmt = {}
 Jkrmt.GetPBRBasic_VertexShaderLayout = function()
     return [[
 
+#version 450
+#extension GL_EXT_debug_printf : enable
+
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 inNormal;
 layout(location = 2) in vec2 inUV;
@@ -48,8 +51,9 @@ end
 Jkrmt.GetBasicShadowVertexShaderMain = function()
     return [[
 layout( location = 2 ) out vec3 vert_normal;
-layout( location = 3 ) out vec4 vert_texcoords;
+layout( location = 3 ) out vec4 vert_shadowcoords;
 layout( location = 4 ) out vec3 vert_light;
+layout(location = 5) out vec3 vert_view;
 
 const mat4 bias = mat4(
     0.5, 0.0, 0.0, 0.0,
@@ -59,11 +63,15 @@ const mat4 bias = mat4(
 
 void GlslMain()
 {
+    vec4 pos = push.model * vec4(inPosition, 1.0);
     gl_Position = ubo.proj * ubo.view * push.model * vec4(inPosition, 1.0);
     gl_Position.y = -gl_Position.y;
-    vert_normal = mat3(ubo.view * push.model) * inNormal;
-    vert_texcoords = bias * ubo.proj * ubo.shadowMatrix * vec4(inPosition, 1.0);
-    vert_light = (ubo.view * push.model * vec4(ubo.lights[0].xyz, 0.0)).xyz;
+
+    vert_normal = mat3(push.model) * inNormal;
+    vert_light = normalize(ubo.lights[0].xyz - inPosition);
+    vert_view = -pos.xyz;			
+    vert_shadowcoords = (bias * ubo.shadowMatrix  * push.model) * vec4(inPosition, 1.0);
+    vUV = inUV;
 
 }
 
@@ -74,29 +82,64 @@ Jkrmt.GetBasicShadowFragmentShaderMain = function()
     return [[
 
 #version 450
+#extension GL_EXT_debug_printf : enable
+
+layout (location = 0) in vec2 vUV;
+layout (location = 1) in vec3 vNormal;
 layout(location = 2) in vec3 vert_normal;
-layout(location = 3) in vec4 vert_texcoords;
+layout(location = 3) in vec4 vert_shadowcoords;
 layout(location = 4) in vec3 vert_light;
+layout(location = 5) in vec3 vert_view;
+
+layout(set = 0, binding = 0) uniform UBO {
+   mat4 view;
+   mat4 proj;
+   vec3 campos;
+   vec4 lights[8];
+   mat4 shadowMatrix;
+} ubo;
 
 layout(set = 0, binding = 3) uniform sampler2D ShadowMap;
 
 layout( location = 0 ) out vec4 frag_color;
 
+#define ambient 0.1
+
+float LinearizeDepth(float depth)
+{
+  float n = 0.1;
+  float f = 10000;
+  float z = depth;
+  return (2.0 * n) / (f + n - z * (f - n));	
+}
+
+float textureProj(vec4 shadowCoord, vec2 off)
+{
+	float shadow = 1.0;
+	if ( shadowCoord.z > -1.0 && shadowCoord.z < 1.0 )
+	{
+		float dist = LinearizeDepth(texture( ShadowMap, shadowCoord.st + off ).r);
+		if ( shadowCoord.w > 0.0 && dist < shadowCoord.z )
+		{
+			shadow = ambient;
+		}
+	}
+	return shadow;
+}
+
 void GlslMain() {
-    float shadow = 1.0;
-    vec4 shadow_coords = vert_texcoords / vert_texcoords.w;
-    if(texture(ShadowMap, shadow_coords.xy).r < shadow_coords.z - 0.005 )
-    {
-        shadow = 0.5;
-    }
-    vec3 normal_vector = normalize(vert_normal);
-    vec3 light_vector = normalize(vert_light);
-    float diffuse_term = max(0.0, dot( normal_vector, light_vector));
+    float shadow = textureProj(vert_shadowcoords / vert_shadowcoords.w, vec2(0.0));
+//    debugPrintfEXT("Shadow:%f, %f, %f, %f, %f", shadow, vert_shadowcoords.x, vert_shadowcoords.y, vert_shadowcoords.z, vert_shadowcoords.w);
+    vec3 N = normalize(vert_normal);
+	vec3 L = normalize(vert_light);
+	vec3 V = normalize(vert_view);
+	vec3 R = normalize(-reflect(L, N));
 
-
-//    frag_color = shadow * vec4(diffuse_term) + 0.1;
-//    frag_color = vec4(shadow, shadow, shadow, 1.0);
-        frag_color = texture(ShadowMap, shadow_coords.xy).r <
+//	vec3 diffuse = max(dot(N, L), ambient);
+    vec3 diffuse = vec3(1, 1, 1);
+    float sc = LinearizeDepth(texture(ShadowMap, vUV).r);
+    debugPrintfEXT("Shadow:%f", sc);
+	frag_color = vec4(sc, sc, sc, 1.0);
 }
 
 ]]
