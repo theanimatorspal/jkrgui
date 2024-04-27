@@ -29,15 +29,4 @@ class VulkanDescriptorSet {
     vk::DescriptorSet mVulkanDescriptorSetHandle;
 };
 
-inline void VulkanDescriptorSet::Bind(vk::PipelineBindPoint inBindPoint,
-                                      const VulkanCommandBuffer& inBuffer,
-                                      const VulkanPipelineLayoutBase& inPipelineLayout,
-                                      int inSet = 0) {
-    inBuffer.GetCommandBufferHandle().bindDescriptorSets(inBindPoint,
-                                                         inPipelineLayout.GetPipelineLayoutHandle(),
-                                                         0,
-                                                         mVulkanDescriptorSetHandle,
-                                                         {});
-}
-
 } // namespace ksai

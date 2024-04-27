@@ -23,18 +23,23 @@ class PainterParameter<PainterParameterContext::StorageBuffer> : public PainterP
                   uint32_t inDstBinding,
                   uint32_t inDstArrayElement,
                   VulkanDescriptorSet& inDescriptorSet) {
-        mVulkanDescriptorSetHandler.RW<BufferContext::Storage>(
-             inDescriptorSet, *mStorageBufferPtr, inOffset, inDstBinding, inDstArrayElement);
+        mVulkanDescriptorSetHandler.RW(BufferContext::Storage,
+                                       inDescriptorSet,
+                                       *mStorageBufferPtr,
+                                       inOffset,
+                                       inDstBinding,
+                                       inDstArrayElement);
     }
     void RegisterCoherent(vk::DeviceSize inOffset,
                           uint32_t inDstBinding,
                           uint32_t inDstArrayElement,
                           VulkanDescriptorSet& inDescriptorSet) {
-        mVulkanDescriptorSetHandler.RW<BufferContext::Storage>(inDescriptorSet,
-                                                               *mStorageBufferCoherentPtr,
-                                                               inOffset,
-                                                               inDstBinding,
-                                                               inDstArrayElement);
+        mVulkanDescriptorSetHandler.RW(BufferContext::Storage,
+                                       inDescriptorSet,
+                                       *mStorageBufferCoherentPtr,
+                                       inOffset,
+                                       inDstBinding,
+                                       inDstArrayElement);
     }
 
     PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
@@ -60,8 +65,12 @@ class PainterParameter<PainterParameterContext::UniformBuffer> : public PainterP
                   uint32_t inDstBinding,
                   uint32_t inDstArrayElement,
                   VulkanDescriptorSet& inDescriptorSet) {
-        mVulkanDescriptorSetHandler.RW<BufferContext::Uniform>(
-             inDescriptorSet, *mUniformBufferPtr, inOffset, inDstBinding, inDstArrayElement);
+        mVulkanDescriptorSetHandler.RW(BufferContext::Uniform,
+                                       inDescriptorSet,
+                                       *mUniformBufferPtr,
+                                       inOffset,
+                                       inDstBinding,
+                                       inDstArrayElement);
     }
 
     PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
@@ -85,8 +94,12 @@ class PainterParameter<PainterParameterContext::StorageImage> : public PainterPa
                   uint32_t inDstBinding,
                   uint32_t inDstArrayElement,
                   VulkanDescriptorSet& inDescriptorSet) {
-        mVulkanDescriptorSetHandler.RW<ImageContext::Storage>(
-             inDescriptorSet, *mStorageImagePtr, *mSampler, inDstBinding, inDstArrayElement);
+        mVulkanDescriptorSetHandler.RW(ImageContext::Storage,
+                                       inDescriptorSet,
+                                       *mStorageImagePtr,
+                                       *mSampler,
+                                       inDstBinding,
+                                       inDstArrayElement);
     }
 
     PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
@@ -119,15 +132,23 @@ class PainterParameter<PainterParameterContext::UniformImage> : public PainterPa
                   uint32_t inDstBinding,
                   uint32_t inDstArrayElement,
                   VulkanDescriptorSet& inDescriptorSet) {
-        mVulkanDescriptorSetHandler.RW<ImageContext::Default>(
-             inDescriptorSet, *mUniformImagePtr, *mSampler, inDstBinding, inDstArrayElement);
+        mVulkanDescriptorSetHandler.RW(ImageContext::Default,
+                                       inDescriptorSet,
+                                       *mUniformImagePtr,
+                                       *mSampler,
+                                       inDstBinding,
+                                       inDstArrayElement);
     }
     void RegisterDepth(vk::DeviceSize inOffset,
                        uint32_t inDstBinding,
                        uint32_t inDstArrayElement,
                        VulkanDescriptorSet& inDescriptorSet) {
-        mVulkanDescriptorSetHandler.RW<ImageContext::Default>(
-             inDescriptorSet, *mDepthImagePtr, *mSampler, inDstBinding, inDstArrayElement);
+        mVulkanDescriptorSetHandler.RW(ImageContext::Default,
+                                       inDescriptorSet,
+                                       *mDepthImagePtr,
+                                       *mSampler,
+                                       inDstBinding,
+                                       inDstArrayElement);
     }
 
     PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
@@ -150,8 +171,12 @@ class PainterParameter<PainterParameterContext::SkyboxImage> : public PainterPar
                   uint32_t inDstBinding,
                   uint32_t inDstArrayElement,
                   VulkanDescriptorSet& inDescriptorSet) {
-        mVulkanDescriptorSetHandler.RW<ImageContext::CubeCompatible>(
-             inDescriptorSet, *mUniformImagePtr, *mSampler, inDstBinding, inDstArrayElement);
+        mVulkanDescriptorSetHandler.RW(ImageContext::CubeCompatible,
+                                       inDescriptorSet,
+                                       *mUniformImagePtr,
+                                       *mSampler,
+                                       inDstBinding,
+                                       inDstArrayElement);
     }
 
     PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}

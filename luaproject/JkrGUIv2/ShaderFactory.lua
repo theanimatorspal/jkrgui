@@ -17,7 +17,7 @@ layout(push_constant, std430) uniform pc {
 ]]
   local Ubo                  = [[
 
-layout(set = 0, binding = 0) uniform UBO {
+layout(set = 1, binding = 0) uniform UBO {
    mat4 view;
    mat4 proj;
    vec3 campos;

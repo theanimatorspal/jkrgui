@@ -1,89 +1,51 @@
 #pragma once
 #include "VulkanShaderModule.hpp"
-#include <initializer_list>
-#include <tuple>
 
 namespace ksai {
 
 class VulkanDescriptorSetLayoutBase {
-       public:
-               VulkanDescriptorSetLayoutBase(const VulkanDevice& inDevice);
-               ~VulkanDescriptorSetLayoutBase();
-               void FillDescriptorLayoutBindings(const spirv_cross::ShaderResources& inResources,
-                                                 const spirv_cross::Compiler& inGlslComp,
-                                                 std::vector<vk::DescriptorSetLayoutBinding>& DescriptorSetLayoutBindings);
-               template <ShaderModuleContext Context>
-               void FillDescriptorLayoutBindings(const spirv_cross::ShaderResources& inVertexResources,
-                                                 const spirv_cross::Compiler& inGlslCompVertex,
-                                                 std::vector<vk::DescriptorSetLayoutBinding>& DescriptorSetLayoutBindings);
+    public:
+    VulkanDescriptorSetLayoutBase(const VulkanDevice& inDevice);
+    ~VulkanDescriptorSetLayoutBase();
+    void FillDescriptorLayoutBindings(
+         const spirv_cross::ShaderResources& inResources,
+         const spirv_cross::Compiler& inGlslComp,
+         std::vector<vk::DescriptorSetLayoutBinding>& DescriptorSetLayoutBindings,
+         int inSet = 0);
+    void FillDescriptorLayoutBindings(
+         ShaderModuleContext Context,
+         const spirv_cross::ShaderResources& inVertexResources,
+         const spirv_cross::Compiler& inGlslCompVertex,
+         std::vector<vk::DescriptorSetLayoutBinding>& DescriptorSetLayoutBindings,
+         int inSet = 0);
 
-       public:
-               GETTER& GetDescriptorLayoutHandle() const { return mDescriptorSetLayout; }
+    public:
+    GETTER& GetDescriptorLayoutHandle() const { return mDescriptorSetLayouts; }
 
-       protected:
-               void CheckAndPushBindings(std::vector<vk::DescriptorSetLayoutBinding>& DescriptorSetLayoutBindings, vk::DescriptorSetLayoutBinding inBinding);
+    protected:
+    void
+    CheckAndPushBindings(std::vector<vk::DescriptorSetLayoutBinding>& DescriptorSetLayoutBindings,
+                         vk::DescriptorSetLayoutBinding inBinding);
 
-       protected:
-               const vk::Device& mDevice;
-               vk::DescriptorSetLayout mDescriptorSetLayout;
+    protected:
+    const vk::Device& mDevice;
+    v<vk::DescriptorSetLayout> mDescriptorSetLayouts;
 };
 
 } // namespace ksai
 
 namespace ksai {
-template <size_t NoOfShaderModules, ShaderModuleContext... inContexts> class VulkanDescriptorSetLayout : public VulkanDescriptorSetLayoutBase {
-       public:
-               VulkanDescriptorSetLayout(const VulkanDevice& inDevice, const std::vector<VulkanShaderModule>& inModules);
-               VulkanDescriptorSetLayout(const VulkanDevice& inDevice, const std::vector<VulkanShaderModule>& inModules, uint32_t inVariableDescriptorsMaxCount);
-               ~VulkanDescriptorSetLayout() = default;
+template <size_t NoOfShaderModules, ShaderModuleContext... inContexts>
+class VulkanDescriptorSetLayout : public VulkanDescriptorSetLayoutBase {
+    public:
+    VulkanDescriptorSetLayout(const VulkanDevice& inDevice,
+                              const std::vector<VulkanShaderModule>& inModules);
+    VulkanDescriptorSetLayout(const VulkanDevice& inDevice,
+                              const std::vector<VulkanShaderModule>& inModules,
+                              uint32_t inVariableDescriptorsMaxCount);
+    ~VulkanDescriptorSetLayout() = default;
 
-       private:
-               const std::vector<VulkanShaderModule>& mModules;
+    private:
+    const std::vector<VulkanShaderModule>& mModules;
 };
-} // namespace ksai
-
-namespace ksai {
-template <ShaderModuleContext Context>
-inline void VulkanDescriptorSetLayoutBase::FillDescriptorLayoutBindings(const spirv_cross::ShaderResources& inResources,
-                                                                        const spirv_cross::Compiler& inGlslCompiler,
-                                                                        std::vector<vk::DescriptorSetLayoutBinding>& inDescriptorSetLayoutBindings) {
-               auto ShaderStageFlag = vk::ShaderStageFlagBits::eVertex;
-               if (Context == ShaderModuleContext::Vertex)
-                              ShaderStageFlag = vk::ShaderStageFlagBits::eVertex;
-               else if (Context == ShaderModuleContext::Fragment)
-                              ShaderStageFlag = vk::ShaderStageFlagBits::eFragment;
-               else if (Context == ShaderModuleContext::Compute)
-                              ShaderStageFlag = vk::ShaderStageFlagBits::eCompute;
-
-               for (auto& u : inResources.uniform_buffers) {
-                              // uint32_t set = inGlslCompiler.get_decoration(u.id, spv::DecorationDescriptorSet);
-                              uint32_t binding = inGlslCompiler.get_decoration(u.id, spv::DecorationBinding);
-                              auto dbinding    = vk::DescriptorSetLayoutBinding(binding, vk::DescriptorType::eUniformBuffer, 1, ShaderStageFlag, nullptr);
-                              CheckAndPushBindings(inDescriptorSetLayoutBindings, dbinding);
-               }
-               for (auto& u : inResources.sampled_images) {
-                              // uint32_t set = inGlslCompiler.get_decoration(u.id, spv::DecorationDescriptorSet);
-                              uint32_t binding = inGlslCompiler.get_decoration(u.id, spv::DecorationBinding);
-                              auto dbinding    = vk::DescriptorSetLayoutBinding(binding, vk::DescriptorType::eCombinedImageSampler, 1, ShaderStageFlag, nullptr);
-                              CheckAndPushBindings(inDescriptorSetLayoutBindings, dbinding);
-               }
-               for (auto& u : inResources.storage_buffers) {
-                              // uint32_t set = inGlslCompiler.get_decoration(u.id, spv::DecorationDescriptorSet);
-                              uint32_t binding = inGlslCompiler.get_decoration(u.id, spv::DecorationBinding);
-                              auto dbinding    = vk::DescriptorSetLayoutBinding(binding, vk::DescriptorType::eStorageBuffer, 1, ShaderStageFlag);
-                              CheckAndPushBindings(inDescriptorSetLayoutBindings, dbinding);
-               }
-               for (auto& u : inResources.storage_images) {
-                              // uint32_t set = inGlslCompiler.get_decoration(u.id, spv::DecorationDescriptorSet);
-                              uint32_t binding = inGlslCompiler.get_decoration(u.id, spv::DecorationBinding);
-                              auto dbinding    = vk::DescriptorSetLayoutBinding(binding, vk::DescriptorType::eStorageImage, 1, ShaderStageFlag, nullptr);
-                              CheckAndPushBindings(inDescriptorSetLayoutBindings, dbinding);
-               }
-               for (auto& u : inResources.separate_samplers) {
-                              //[[maybe_unused]]uint32_t set = inGlslCompiler.get_decoration(u.id, spv::DecorationDescriptorSet);
-                              uint32_t binding = inGlslCompiler.get_decoration(u.id, spv::DecorationBinding);
-                              auto dbinding    = vk::DescriptorSetLayoutBinding(binding, vk::DescriptorType::eSampler, 1, ShaderStageFlag, nullptr);
-                              CheckAndPushBindings(inDescriptorSetLayoutBindings, dbinding);
-               }
-}
 } // namespace ksai

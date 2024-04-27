@@ -129,18 +129,20 @@ void Painter::RegisterPainterParameter<PainterParameterContext::StorageBuffer>(
      uint32_t inDstArrayElement,
      RegisterMode inRegisterMode) {
     if (inRegisterMode != RegisterMode::ComputeOnly)
-        mDescriptorUpdateHandler.RW<BufferContext::Storage>(mVertexFragmentDescriptorSet,
-                                                            inPainterParameter.GetStorageBuffer(),
-                                                            inOffset,
-                                                            inDstBinding,
-                                                            inDstArrayElement);
+        mDescriptorUpdateHandler.RW(BufferContext::Storage,
+                                    mVertexFragmentDescriptorSet,
+                                    inPainterParameter.GetStorageBuffer(),
+                                    inOffset,
+                                    inDstBinding,
+                                    inDstArrayElement);
 
     if (inRegisterMode == RegisterMode::AllShaders or inRegisterMode == RegisterMode::ComputeOnly)
-        mDescriptorUpdateHandler.RW<BufferContext::Storage>(mComputeDescriptorSet,
-                                                            inPainterParameter.GetStorageBuffer(),
-                                                            inOffset,
-                                                            inDstBinding,
-                                                            inDstArrayElement);
+        mDescriptorUpdateHandler.RW(BufferContext::Storage,
+                                    mComputeDescriptorSet,
+                                    inPainterParameter.GetStorageBuffer(),
+                                    inOffset,
+                                    inDstBinding,
+                                    inDstArrayElement);
 }
 
 template <>
@@ -151,17 +153,19 @@ void Painter::RegisterPainterParameter<PainterParameterContext::UniformBuffer>(
      uint32_t inDstArrayElement,
      RegisterMode inRegisterMode) {
     if (inRegisterMode != RegisterMode::ComputeOnly)
-        mDescriptorUpdateHandler.RW<BufferContext::Uniform>(mVertexFragmentDescriptorSet,
-                                                            inPainterParameter.GetUniformBuffer(),
-                                                            inOffset,
-                                                            inDstBinding,
-                                                            inDstArrayElement);
+        mDescriptorUpdateHandler.RW(BufferContext::Uniform,
+                                    mVertexFragmentDescriptorSet,
+                                    inPainterParameter.GetUniformBuffer(),
+                                    inOffset,
+                                    inDstBinding,
+                                    inDstArrayElement);
     if (inRegisterMode == RegisterMode::AllShaders or inRegisterMode == RegisterMode::ComputeOnly)
-        mDescriptorUpdateHandler.RW<BufferContext::Uniform>(mComputeDescriptorSet,
-                                                            inPainterParameter.GetUniformBuffer(),
-                                                            inOffset,
-                                                            inDstBinding,
-                                                            inDstArrayElement);
+        mDescriptorUpdateHandler.RW(BufferContext::Uniform,
+                                    mComputeDescriptorSet,
+                                    inPainterParameter.GetUniformBuffer(),
+                                    inOffset,
+                                    inDstBinding,
+                                    inDstArrayElement);
 }
 
 template <>
@@ -172,19 +176,19 @@ void Painter::RegisterPainterParameter<PainterParameterContext::StorageImage>(
      uint32_t inDstArrayElement,
      RegisterMode inRegisterMode) {
     if (inRegisterMode != RegisterMode::ComputeOnly)
-        mDescriptorUpdateHandler.RW<ImageContext::Storage>(
-             mVertexFragmentDescriptorSet,
-             inPainterParameter.GetStorageImage(),
-             inPainterParameter.GetStorageImageSampler(),
-             inDstBinding,
-             inDstArrayElement);
+        mDescriptorUpdateHandler.RW(ImageContext::Storage,
+                                    mVertexFragmentDescriptorSet,
+                                    inPainterParameter.GetStorageImage(),
+                                    inPainterParameter.GetStorageImageSampler(),
+                                    inDstBinding,
+                                    inDstArrayElement);
     if (inRegisterMode == RegisterMode::AllShaders or inRegisterMode == RegisterMode::ComputeOnly)
-        mDescriptorUpdateHandler.RW<ImageContext::Storage>(
-             mComputeDescriptorSet,
-             inPainterParameter.GetStorageImage(),
-             inPainterParameter.GetStorageImageSampler(),
-             inDstBinding,
-             inDstArrayElement);
+        mDescriptorUpdateHandler.RW(ImageContext::Storage,
+                                    mComputeDescriptorSet,
+                                    inPainterParameter.GetStorageImage(),
+                                    inPainterParameter.GetStorageImageSampler(),
+                                    inDstBinding,
+                                    inDstArrayElement);
 }
 
 template <>
@@ -195,19 +199,19 @@ void Painter::RegisterPainterParameter<PainterParameterContext::UniformImage>(
      uint32_t inDstArrayElement,
      RegisterMode inRegisterMode) {
     if (inRegisterMode != RegisterMode::ComputeOnly)
-        mDescriptorUpdateHandler.RW<ImageContext::Default>(
-             mVertexFragmentDescriptorSet,
-             inPainterParameter.GetUniformImage(),
-             inPainterParameter.GetUniformImageSampler(),
-             inDstBinding,
-             inDstArrayElement);
+        mDescriptorUpdateHandler.RW(ImageContext::Default,
+                                    mVertexFragmentDescriptorSet,
+                                    inPainterParameter.GetUniformImage(),
+                                    inPainterParameter.GetUniformImageSampler(),
+                                    inDstBinding,
+                                    inDstArrayElement);
     if (inRegisterMode == RegisterMode::AllShaders or inRegisterMode == RegisterMode::ComputeOnly)
-        mDescriptorUpdateHandler.RW<ImageContext::Default>(
-             mComputeDescriptorSet,
-             inPainterParameter.GetUniformImage(),
-             inPainterParameter.GetUniformImageSampler(),
-             inDstBinding,
-             inDstArrayElement);
+        mDescriptorUpdateHandler.RW(ImageContext::Default,
+                                    mComputeDescriptorSet,
+                                    inPainterParameter.GetUniformImage(),
+                                    inPainterParameter.GetUniformImageSampler(),
+                                    inDstBinding,
+                                    inDstArrayElement);
 }
 
 template <>
@@ -218,19 +222,19 @@ void Painter::RegisterPainterParameter<PainterParameterContext::SkyboxImage>(
      uint32_t inDstArrayElement,
      RegisterMode inRegisterMode) {
     if (inRegisterMode != RegisterMode::ComputeOnly)
-        mDescriptorUpdateHandler.RW<ImageContext::Default>(
-             mVertexFragmentDescriptorSet,
-             inPainterParameter.GetUniformImage(),
-             inPainterParameter.GetUniformImageSampler(),
-             inDstBinding,
-             inDstArrayElement);
+        mDescriptorUpdateHandler.RW(ImageContext::Default,
+                                    mVertexFragmentDescriptorSet,
+                                    inPainterParameter.GetUniformImage(),
+                                    inPainterParameter.GetUniformImageSampler(),
+                                    inDstBinding,
+                                    inDstArrayElement);
     if (inRegisterMode == RegisterMode::AllShaders or inRegisterMode == RegisterMode::ComputeOnly)
-        mDescriptorUpdateHandler.RW<ImageContext::Default>(
-             mComputeDescriptorSet,
-             inPainterParameter.GetUniformImage(),
-             inPainterParameter.GetUniformImageSampler(),
-             inDstBinding,
-             inDstArrayElement);
+        mDescriptorUpdateHandler.RW(ImageContext::Default,
+                                    mComputeDescriptorSet,
+                                    inPainterParameter.GetUniformImage(),
+                                    inPainterParameter.GetUniformImageSampler(),
+                                    inDstBinding,
+                                    inDstArrayElement);
 }
 
 template <>

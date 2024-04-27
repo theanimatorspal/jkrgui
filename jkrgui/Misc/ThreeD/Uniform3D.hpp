@@ -54,7 +54,7 @@ class Uniform3D {
     void UpdateByGLTFAnimation(Renderer::_3D::glTF_Model& inModel,
                                float inDeltaTime          = 0.0f,
                                int inActiveAnimationIndex = 0);
-    void Bind(Window& inWindow, Simple3D& inSimple, Window::ParameterContext inParam);
+    void Bind(Window& inWindow, Simple3D& inSimple, int inSet, Window::ParameterContext inParam);
     void Print(); // TODO ChatGPT
 
     Uniform3D(const Instance& inInstance, Simple3D& inSimple3D) : mInstance(inInstance) {

@@ -161,10 +161,14 @@ void Uniform3D::UpdateStorageBuffer(int inDstBinding, void** inData, size_t inSi
     memcpy(memory, *inData, inSize);
 }
 
-void Uniform3D::Bind(Window& inWindow, Simple3D& inSimple3D, Window::ParameterContext inParam) {
+void Uniform3D::Bind(Window& inWindow,
+                     Simple3D& inSimple3D,
+                     int inSet,
+                     Window::ParameterContext inParam) {
     const VulkanCommandBuffer& Cmd =
          inWindow.GetCommandBuffers(inParam)[inWindow.GetCurrentFrame()];
     mVulkanDescriptorSet->Bind(vk::PipelineBindPoint::eGraphics,
                                Cmd,
-                               inSimple3D.GetPainterCache().GetVertexFragmentPipelineLayout());
+                               inSimple3D.GetPainterCache().GetVertexFragmentPipelineLayout(),
+                               inSet);
 }

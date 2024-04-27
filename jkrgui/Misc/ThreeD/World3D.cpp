@@ -95,7 +95,7 @@ void World3D::DrawObjects(Window& inWindow, Renderer::CmdParam inParam) {
     for (auto& simple : mSimple3Ds) {
         simple->Bind(inWindow, inParam);
         for (auto& uniform : mUniforms) {
-            uniform->Bind(inWindow, *simple, inParam);
+            uniform->Bind(inWindow, *simple, 0, inParam);
             for (int i = 0; i < mObjects.size(); ++i) {
                 int simple  = mObjectToSimpleMap[i];
                 int uniform = mObjectToUniformMap[i];
@@ -131,7 +131,7 @@ void World3D::DrawObjectsUniformed3D(Window& inWindow, Renderer::CmdParam inPara
             int simpleIndex  = mObjectToSimpleMap[i];
             int uniformIndex = mObjectToUniformMap[i];
             if (simpleIndex == SimpleIndex) {
-                mUniforms[uniformIndex]->Bind(inWindow, *simple, inParam);
+                mUniforms[uniformIndex]->Bind(inWindow, *simple, 0, inParam);
                 PushConstantDefault Push;
                 Push.m1 = mObjects[i].GetLocalMatrix();
                 mSimple3Ds[simpleIndex]->Draw<PushConstantDefault>(
@@ -151,6 +151,7 @@ void World3D::DrawObjectsUniformed3D(Window& inWindow, Renderer::CmdParam inPara
 void World3D::DrawObjectsExplicit(Window& inWindow,
                                   v<Object3D>& inExplicitObjects,
                                   Renderer::CmdParam inParam) {
+    mUniforms.front()->Bind(inWindow, *mSimple3Ds.front(), 1, inParam);
     mShape.Bind(inWindow, inParam);
     int SimpleIndex = 0;
     for (auto& simple : mSimple3Ds) {
@@ -160,7 +161,7 @@ void World3D::DrawObjectsExplicit(Window& inWindow,
             int simpleIndex  = inExplicitObjects[i].mAssociatedSimple3D;
             int uniformIndex = inExplicitObjects[i].mAssociatedUniform;
             if (simpleIndex == SimpleIndex) {
-                mUniforms[uniformIndex]->Bind(inWindow, *simple, inParam);
+                mUniforms[uniformIndex]->Bind(inWindow, *simple, 0, inParam);
                 PushConstantDefault Push;
                 Push.m1 = mObjects[index].GetLocalMatrix();
                 mSimple3Ds[simpleIndex]->Draw<PushConstantDefault>(
