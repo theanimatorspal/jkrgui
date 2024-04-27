@@ -131,8 +131,6 @@ float textureProj(vec4 shadowCoord, vec2 off)
 void GlslMain() {
     vec4 shadowcoords_norm = vert_shadowcoords / vert_shadowcoords.w;
     float shadow = textureProj(shadowcoords_norm, vec2(0.0));
-//    debugPrintfEXT("Shadow:%f, %f, %f, %f, %f", shadow, vert_shadowcoords.x, vert_shadowcoords.y, vert_shadowcoords.z, vert_shadowcoords.w);
-    debugPrintfEXT("Shadow:%f, %f, %f, %f, %f", shadow, shadowcoords_norm.x, shadowcoords_norm.y, shadowcoords_norm.z, shadowcoords_norm.w);
 
     vec3 N = normalize(vert_normal);
 	vec3 L = normalize(vert_light);
@@ -255,7 +253,6 @@ vec3 materialcolor()
 }
 
 // Normal Distribution Function
-
 float D_GGX(float dotNH, float roughness)
 {
     float alpha = roughness * roughness;
@@ -350,6 +347,7 @@ end
 
 Jkrmt.GetSkyboxVertexShader = function()
     return [[
+
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 inNormal;
 layout(location = 2) in vec2 inUV;

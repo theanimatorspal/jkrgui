@@ -63,7 +63,7 @@ void Uniform3D::UpdateByGLTFAnimation(Renderer::_3D::glTF_Model& inModel,
     inModel.SetActiveAnimation(inActiveAnimationIndex);
     inModel.UpdateAnimation(inDeltaTime, [&](v<glm::mat4>& inMatrices) {
         void* data = inMatrices.data();
-        UpdateUniformBuffer(kstd::BindingIndex::Uniform::JointMatrix,
+        UpdateStorageBuffer(kstd::BindingIndex::Storage::JointMatrix,
                             &data,
                             inMatrices.size() * sizeof(glm::mat4));
     });
@@ -119,7 +119,7 @@ void Uniform3D::Build(Simple3D& inSimple3D,
                                                     // inSkinIndex
             auto& InverseBindMatrices = Skins.mInverseBindMatrices;
             void* Data                = InverseBindMatrices.data();
-            this->AddUniformBuffer(kstd::BindingIndex::Uniform::JointMatrix,
+            this->AddStorageBuffer(kstd::BindingIndex::Storage::JointMatrix,
                                    InverseBindMatrices.size() * sizeof(glm::mat4));
         }
     }

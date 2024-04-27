@@ -30,8 +30,8 @@ layout(set = 0, binding = 0) uniform UBO {
 
 float LinearizeDepth(float depth, float near, float far)
 {
-  float n = 0.1; // TODO Add an entry on uniform
-  float f = 10000;
+  float n = near; // TODO Add an entry on uniform
+  float f = far;
   float z = depth;
   return (2.0 * n) / (f + n - z * (f - n));	
 }
@@ -54,7 +54,7 @@ float ShadowTextureProject(vec4 shadowCoord, vec2 off)
 }
 ]]
 
-  local JointInfluence       = [[
+  local inJointInfluence     = [[
 
 struct JointInfluence {
     vec4 mJointIndices;
@@ -67,12 +67,85 @@ layout(std140, set = 0, binding = 2) readonly buffer JointInfluenceSSBOIn {
 
 ]]
 
-  local JointMatrices        = [[
+  local inJointMatrices      = [[
 
 layout(std140, set = 0, binding = 1) readonly buffer JointMatrixSSBOIn {
-    mat4 JointMatrices[];
+    mat4 inJointMatrices[ ];
 };
           ]]
+  local BiasMatrix           = [[
+
+    const mat4 BiasMatrix = mat4(
+    0.5, 0.0, 0.0, 0.0,
+    0.0, 0.5, 0.0, 0.0,
+    0.0, 0.0, 1.0, 0.0,
+    0.5, 0.5, 0.0, 1.0 );
+    ]]
+
+  local D_GGX                = [[
+// Normal Distribution Function
+float D_GGX(float dotNH, float roughness)
+{
+    float alpha = roughness * roughness;
+    float alpha2 = alpha * alpha;
+    float denom = dotNH * dotNH * (alpha2 - 1.0) + 1.0;
+    return (alpha2)/ (PI * denom * denom);
+}
+
+    ]]
+
+  local G_SchlicksmithGGX    = [[
+// Geometric Shadowing Function
+float G_SchlicksmithGGX(float dotNL, float dotNV, float roughness)
+{
+    float r = roughness + 1.0;
+    float k = (r * r) / 8.0;
+    float GL = dotNL / (dotNL * (1.0 - k) + k);
+    float GV = dotNV / (dotNV * (1.0 - k) + k);
+    return GL * GV;
+}
+    ]]
+
+  local F_Schlick            = [[
+// Fresnel Function
+vec3 F_Schlick(float cosTheta, float metallic)
+{
+    vec3 F0 = mix(vec3(0.04), MaterialColor(), metallic); // material.specular
+    vec3 F = F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+    return F;
+}
+    ]]
+
+  local BRDF                 = [[
+// Specular BRDF composition
+vec3 BRDF(vec3 L, vec3 V, vec3 N, float metallic, float roughness)
+{
+    vec3 H = normalize(V + L);
+    float dotNV = clamp(dot(N, V), 0.0, 1.0);
+    float dotNL = clamp(dot(N, L), 0.0, 1.0);
+    float dotLH = clamp(dot(L, H), 0.0, 1.0);
+    float dotNH = clamp(dot(N, H), 0.0, 1.0);
+
+    // Light color fixed
+    vec3 lightColor = vec3(1.0);
+
+    vec3 color = vec3(0.0);
+
+    if (dotNL > 0.0)
+    {
+        float rroughness = max(0.05, roughness); // D = Normal distribution (Distribution of the microfacets)
+        float D = D_GGX(dotNH, roughness); // G = Geometric shadowing term (Microfacets shadowing)
+        float G = G_SchlicksmithGGX(dotNL, dotNV, rroughness); // F = Fresnel factor (Reflectance depending on angle of incidence)
+        vec3 F = F_Schlick(dotNV, metallic);
+
+        vec3 spec = D * F * G / (4.0 * dotNL * dotNV);
+
+        color += spec * dotNL * lightColor;
+    }
+
+    return color;
+}
+    ]]
 
   o.str                      = ""
 
@@ -163,6 +236,12 @@ layout(std140, set = 0, binding = 1) readonly buffer JointMatrixSSBOIn {
     return o.NewLine()
   end
 
+  o.uSamplerCubeMap          = function(inBinding, inName)
+    o.str = o.str ..
+        string.format("layout(set = 0, binding = %d) uniform samplerCube %s;", inBinding, inName)
+    return o.NewLine()
+  end
+
   o.LinearizeDepth           = function()
     o.NewLine()
     o.str = o.str .. LinearizeDepth
@@ -175,30 +254,76 @@ layout(std140, set = 0, binding = 1) readonly buffer JointMatrixSSBOIn {
     return o.NewLine()
   end
 
-  o.JointInfluence           = function()
-    o.Append(JointInfluence)
+  o.inJointInfluence         = function()
+    o.Append(inJointInfluence)
     return o.NewLine()
   end
 
-  o.JointMatrices            = function()
-    o.Append(JointMatrices)
+  o.inJointMatrices          = function()
+    o.Append(inJointMatrices)
     return o.NewLine()
+  end
+
+  o.BiasMatrix               = function()
+    o.Append(BiasMatrix)
+    return o.NewLine()
+  end
+
+  o.PI                       = function()
+    o.Append("const float PI = 3.14159;")
+    return o.NewLine()
+  end
+
+  o.D_GGX                    = function()
+    o.NewLine()
+    o.Append(D_GGX)
+    return o.NewLine()
+  end
+
+  o.G_SchlicksmithGGX        = function()
+    o.NewLine()
+    o.Append(G_SchlicksmithGGX)
+    return o.NewLine()
+  end
+
+  o.F_Schlick                = function()
+    o.NewLine()
+    o.Append(F_Schlick)
+    return o.NewLine()
+  end
+
+  o.BRDF                     = function()
+    o.NewLine()
+    o.Append(BRDF)
+    return o.NewLine()
+  end
+
+  o.MaterialColorBegin       = function()
+    o.str = o.str .. "vec3 MaterialColor()"
+    o.NewLine()
+    o.str = o.str .. "{"
+    return o.NewLine()
+  end
+
+  o.MaterialColorEnd         = function()
+    o.str = o.str .. "}"
+    return o.NewLine()
+  end
+
+  o.Define                   = function(inName, inValue)
+    o.str = o.str .. string.format("#define %s %s", inName, inValue)
+    return o.NewLine().NewLine()
+  end
+
+  o.Print                    = function()
+    local lineNumber = 1
+
+    for line in o.str:gmatch("[^\n]+") do
+      print(lineNumber .. ": " .. line)
+      lineNumber = lineNumber + 1
+    end
+    return o
   end
 
   return o
 end
-
-print(Jkrmt
-  .Shader()
-  .Header(450)
-  .NewLine()
-  .VLayout()
-  .Push()
-  .Ubo()
-  .GlslMainBegin()
-  .Indent()
-  .Append("gl_Position = Ubo.proj * Ubo.view * Push.model * vec4(inPosition, 1.0);")
-  .InvertY()
-  .GlslMainEnd()
-  .NewLine().str
-)
