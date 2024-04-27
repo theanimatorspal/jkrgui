@@ -33,8 +33,8 @@ struct World3D {
         int mAssociatedSimple3D;
         glm::vec3 mTranslation{};
         glm::vec3 mScale{1.0f};
-        glm::quat mRotation{};
-        glm::mat4 mMatrix = glm::identity<glm::mat4>();
+        glm::quat mRotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+        glm::mat4 mMatrix   = glm::identity<glm::mat4>();
         glm::mat4 GetLocalMatrix() {
             return glm::translate(glm::mat4(1.0f), mTranslation) * glm::mat4(mRotation) *
                    glm::scale(glm::mat4(1.0f), mScale) * mMatrix;
@@ -48,14 +48,6 @@ struct World3D {
     GETTER GetUniform3D(int inId) { return mUniforms[inId].get(); }
     GETTER GetSimple3D(int inId) { return mSimple3Ds[inId].get(); }
     SETTER SetCurrentCamera(int inId) { mCurrentCamera = inId; }
-
-    // TODO Remove These
-    SETTER SetObjectMatrix(int inId, glm::mat4 inMatrix) { mObjects[inId].mMatrix = inMatrix; }
-    void SetObjectDelPosition(int inId, glm::vec3 inDelPosition);
-    void SetObjectDelRotation(int inId, glm::quat inDelRotation);
-    void SetObjectScale(int inId, glm::vec3 inScale);
-    void ApplyObjectTransforms(int inId);
-    // TODO Add Apply each transform functions
 
     static Up<World3D> CreateWorld3D(Shape3D& inShape);
     void BuildBasic();

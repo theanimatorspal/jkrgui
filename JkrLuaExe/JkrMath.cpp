@@ -163,6 +163,54 @@ void CreateGLMBindings(sol::state& lua) {
 
     );
 
+    auto quat_multiply_overloads =
+         sol::overload([](const glm::quat& q1, const glm::quat& q2) { return q1 * q2; },
+                       [](const glm::quat& q, float scalar) { return q * scalar; },
+                       [](float scalar, const glm::quat& q) { return scalar * q; });
+
+    auto quat_divide_overloads =
+         sol::overload([](const glm::quat& q, float scalar) { return q / scalar; });
+
+    lua.new_usertype<glm::quat>(
+         "quat",
+         sol::call_constructor,
+         sol::constructors<glm::quat(), glm::quat(float, float, float, float)>(),
+         "x",
+         &glm::quat::x,
+         "y",
+         &glm::quat::y,
+         "z",
+         &glm::quat::z,
+         "w",
+         &glm::quat::w,
+         sol::meta_function::multiplication,
+         quat_multiply_overloads,
+         sol::meta_function::division,
+         quat_divide_overloads,
+         "Rotate",
+         [](glm::quat& inQuat, float inValue, glm::vec3 inAxis) {
+             float factor  = sin(inValue / 2.0f);
+             float x       = factor * inAxis.x;
+             float y       = factor * inAxis.y;
+             float z       = factor * inAxis.z;
+             float w       = cos(inValue / 2.0f);
+             glm::quat out = glm::normalize(glm::quat(w, x, y, z)) * inQuat;
+             return out;
+         },
+         "Rotate_deg",
+         [](glm::quat& inQuat, float inValue, glm::vec3 inAxis) {
+             float value   = glm::radians(inValue);
+             float factor  = sin(value / 2.0f);
+             float x       = factor * inAxis.x;
+             float y       = factor * inAxis.y;
+             float z       = factor * inAxis.z;
+             float w       = cos(value / 2.0f);
+             glm::quat out = glm::normalize(glm::quat(w, x, y, z)) * inQuat;
+             return out;
+         }
+
+    );
+
     auto mat4_multiply_overloads =
          sol::overload([](const glm::mat4& m1, const glm::vec4& v2) { return m1 * v2; },
                        [](const glm::mat4& m1, const glm::mat4& m2) { return m1 * m2; });
@@ -219,9 +267,9 @@ void CreateGLMBindings(sol::state& lua) {
              return glm::scale(inmatrix, invector);
          },
          "Rotate",
-         [](glm::mat4 inmatrix, float angle_rad, glm::vec3 invector) -> glm::mat4 {
+         sol::overload([](glm::mat4 inmatrix, float angle_rad, glm::vec3 invector) -> glm::mat4 {
              return glm::rotate(inmatrix, angle_rad, invector);
-         },
+         }),
          "Rotate_deg",
          [](glm::mat4 inmatrix, float angle_deg, glm::vec3 invector) -> glm::mat4 {
              return glm::rotate(inmatrix, glm::radians(angle_deg), invector);

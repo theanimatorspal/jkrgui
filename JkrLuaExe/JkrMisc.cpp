@@ -196,17 +196,6 @@ void CreateMiscBindings(sol::state& inState) {
                               &World3D::GetExplicitObjects,
                               "SetCurrentCamera",
                               &World3D::SetCurrentCamera,
-                              "SetObjectMatrix",
-                              &World3D::SetObjectMatrix,
-
-                              "SetObjectDelPosition",
-                              &World3D::SetObjectDelPosition,
-                              "SetObjectDelRotation",
-                              &World3D::SetObjectDelRotation,
-                              "SetObjectScale",
-                              &World3D::SetObjectScale,
-                              "ApplyObjectTransforms",
-                              &World3D::ApplyObjectTransforms,
 
                               "AddSkyboxToUniform3D",
                               &World3D::AddSkyboxToUniform3D);

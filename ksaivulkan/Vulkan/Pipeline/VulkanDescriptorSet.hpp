@@ -10,26 +10,34 @@
 
 namespace ksai {
 class VulkanDescriptorSet {
-      public:
-          VulkanDescriptorSet(const VulkanDevice& inDevice,
-                              const VulkanDescriptorPoolBase& inDescriptorPool,
-                              const VulkanDescriptorSetLayoutBase& inDescriptorSetLayout);
-          VulkanDescriptorSet(const VulkanDevice& inDevice,
-                              const VulkanDescriptorPoolBase& inDescriptorPool,
-                              const VulkanDescriptorSetLayoutBase& inDescriptorSetLayout,
-                              uint32_t inNoOfVarDescriptorSets);
-          void Bind(vk::PipelineBindPoint inBindPoint, const VulkanCommandBuffer& inBuffer, const VulkanPipelineLayoutBase& inBase);
-          GETTER& GetDescriptorSetHandle() const { return mVulkanDescriptorSetHandle; }
+    public:
+    VulkanDescriptorSet(const VulkanDevice& inDevice,
+                        const VulkanDescriptorPoolBase& inDescriptorPool,
+                        const VulkanDescriptorSetLayoutBase& inDescriptorSetLayout);
+    VulkanDescriptorSet(const VulkanDevice& inDevice,
+                        const VulkanDescriptorPoolBase& inDescriptorPool,
+                        const VulkanDescriptorSetLayoutBase& inDescriptorSetLayout,
+                        uint32_t inNoOfVarDescriptorSets);
+    void Bind(vk::PipelineBindPoint inBindPoint,
+              const VulkanCommandBuffer& inBuffer,
+              const VulkanPipelineLayoutBase& inBase,
+              int inSet = 0);
+    GETTER& GetDescriptorSetHandle() const { return mVulkanDescriptorSetHandle; }
 
-      private:
-          const vk::Device& mDevice;
-          vk::DescriptorSet mVulkanDescriptorSetHandle;
+    private:
+    const vk::Device& mDevice;
+    vk::DescriptorSet mVulkanDescriptorSetHandle;
 };
 
-inline void
-VulkanDescriptorSet::Bind(vk::PipelineBindPoint inBindPoint, const VulkanCommandBuffer& inBuffer, const VulkanPipelineLayoutBase& inPipelineLayout) {
-          inBuffer.GetCommandBufferHandle().bindDescriptorSets(
-           inBindPoint, inPipelineLayout.GetPipelineLayoutHandle(), 0, mVulkanDescriptorSetHandle, {});
+inline void VulkanDescriptorSet::Bind(vk::PipelineBindPoint inBindPoint,
+                                      const VulkanCommandBuffer& inBuffer,
+                                      const VulkanPipelineLayoutBase& inPipelineLayout,
+                                      int inSet = 0) {
+    inBuffer.GetCommandBufferHandle().bindDescriptorSets(inBindPoint,
+                                                         inPipelineLayout.GetPipelineLayoutHandle(),
+                                                         0,
+                                                         mVulkanDescriptorSetHandle,
+                                                         {});
 }
 
 } // namespace ksai

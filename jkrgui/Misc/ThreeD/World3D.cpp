@@ -222,21 +222,3 @@ void World3D::UpdateWorldInfoToUniform3D(int inId) {
     Uniform.mShadowMatrix   = LightCamera.GetView();
     mUniforms[inId]->UpdateUniformBuffer(kstd::BindingIndex::Uniform::WorldInfo, Uniform);
 }
-
-void World3D::SetObjectDelPosition(int inId, glm::vec3 inDelPosition) {
-    mObjects[inId].mTranslation += inDelPosition;
-}
-void World3D::SetObjectDelRotation(int inId, glm::quat inDelRotation) {
-    mObjects[inId].mRotation += inDelRotation; // TODO Improve this
-}
-void World3D::SetObjectScale(int inId, glm::vec3 inScale) {
-    mObjects[inId].mScale.x *= inScale.x;
-    mObjects[inId].mScale.y *= inScale.y;
-    mObjects[inId].mScale.z *= inScale.z;
-}
-void World3D::ApplyObjectTransforms(int inId) {
-    mObjects[inId].mMatrix      = mObjects[inId].GetLocalMatrix();
-    mObjects[inId].mTranslation = {};
-    mObjects[inId].mRotation    = {};
-    mObjects[inId].mScale       = glm::vec3{1.0f};
-}
