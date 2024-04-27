@@ -6,6 +6,8 @@
 using namespace Jkr::Misc::_3D;
 using namespace Jkr;
 
+constexpr int WorldInfoDescriptorSetIndex = 0;
+
 // TODO Bad name, change this
 void World3D::BuildBasic() {
     Camera3D Cam;
@@ -61,20 +63,21 @@ int World3D::AddLight3D(glm::vec4 inPosition, glm::vec4 inDirection) {
     return mLights.size() - 1;
 }
 
-void World3D::AddSkyboxToUniform3D(Instance& inInstance, sv inFolderPath, int inId) {
+void World3D::AddSkyboxToUniform3D(Instance& inInstance, sv inFolderPath, int inId, int inSet) {
     mSkyboxImage             = mu<SkyboxImageType>(inInstance);
     std::vector<s> FileNames = {"px", "nx", "py", "ny", "pz", "nz"}; // TODO Make this better
     for (auto& st : FileNames) {
         st = s(inFolderPath) + st + ".png";
     }
     mSkyboxImage->Setup(FileNames);
-    mUniforms[inId]->AddSkyboxImage(*mSkyboxImage);
+    mUniforms[inId]->AddSkyboxImage(
+         *mSkyboxImage, kstd::BindingIndex::Uniform::CubeMapImage, inSet);
 }
 
-void World3D::AddShadowMapToUniform3D(WindowMulT& inWindow, int inId) {
+void World3D::AddShadowMapToUniform3D(WindowMulT& inWindow, int inId, int inSet) {
     auto& DesSet   = mUniforms[inId]->GetVulkanDescriptorSet();
     auto& ImgParam = inWindow.GetShadowPass().GetDepthImagePainterParameter();
-    ImgParam.RegisterDepth(0, kstd::BindingIndex::Uniform::DiffuseImage, 0, DesSet);
+    ImgParam.RegisterDepth(0, kstd::BindingIndex::Uniform::DiffuseImage, 0, DesSet, inSet);
 }
 
 void World3D::DrawBackgrounds(Window& inWindow, Renderer::CmdParam inParam) {}
@@ -151,9 +154,9 @@ void World3D::DrawObjectsUniformed3D(Window& inWindow, Renderer::CmdParam inPara
 void World3D::DrawObjectsExplicit(Window& inWindow,
                                   v<Object3D>& inExplicitObjects,
                                   Renderer::CmdParam inParam) {
-    mUniforms.front()->Bind(inWindow, *mSimple3Ds.front(), 1, inParam);
     mShape.Bind(inWindow, inParam);
     int SimpleIndex = 0;
+    mUniforms.front()->Bind(inWindow, *mSimple3Ds.front(), WorldInfoDescriptorSetIndex, inParam);
     for (auto& simple : mSimple3Ds) {
         simple->Bind(inWindow, inParam);
         for (int i = 0; i < inExplicitObjects.size(); ++i) {
@@ -161,7 +164,7 @@ void World3D::DrawObjectsExplicit(Window& inWindow,
             int simpleIndex  = inExplicitObjects[i].mAssociatedSimple3D;
             int uniformIndex = inExplicitObjects[i].mAssociatedUniform;
             if (simpleIndex == SimpleIndex) {
-                mUniforms[uniformIndex]->Bind(inWindow, *simple, 0, inParam);
+                mUniforms[uniformIndex]->Bind(inWindow, *simple, 1, inParam);
                 PushConstantDefault Push;
                 Push.m1 = mObjects[index].GetLocalMatrix();
                 mSimple3Ds[simpleIndex]->Draw<PushConstantDefault>(
@@ -208,7 +211,8 @@ void World3D::Update(Jkr::EventManager& inEvent) {
 }
 void World3D::AddWorldInfoToUniform3D(int inId) {
     mUniforms[inId]->AddUniformBuffer(kstd::BindingIndex::Uniform::WorldInfo,
-                                      sizeof(WorldInfoUniform));
+                                      sizeof(WorldInfoUniform),
+                                      WorldInfoDescriptorSetIndex);
     {};
 }
 void World3D::UpdateWorldInfoToUniform3D(int inId) {

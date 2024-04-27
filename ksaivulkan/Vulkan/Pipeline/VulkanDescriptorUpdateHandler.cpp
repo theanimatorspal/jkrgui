@@ -5,7 +5,8 @@ void VulkanDescriptorUpdateHandler::RW(BufferContext inBufferContext,
                                        const VulkanBufferBase& inBuffer,
                                        vk::DeviceSize inOffset,
                                        uint32_t inDstBinding,
-                                       uint32_t inDstArrayElement) {
+                                       uint32_t inDstArrayElement,
+                                       uint32_t inDstSet) {
     auto BufferInfo =
          vk::DescriptorBufferInfo(inBuffer.GetBufferHandle(), inOffset, inBuffer.GetBufferSize());
 
@@ -21,7 +22,7 @@ void VulkanDescriptorUpdateHandler::RW(BufferContext inBufferContext,
                                    .setDstArrayElement(inDstArrayElement)
                                    .setBufferInfo(BufferInfo)
                                    .setDescriptorType(DescriptorType)
-                                   .setDstSet(inDescriptorSet.GetDescriptorSetHandle());
+                                   .setDstSet(inDescriptorSet.GetDescriptorSetHandle()[inDstSet]);
 
     mDescriptorWrites.push_back(DescriptorSetWrite);
     mDevice.GetDeviceHandle().updateDescriptorSets(mDescriptorWrites, {});
@@ -33,7 +34,8 @@ void VulkanDescriptorUpdateHandler::RW(ImageContext inImageContext,
                                        const VulkanImageBase& inImage,
                                        const VulkanSampler& inSampler,
                                        uint32_t inDstBinding,
-                                       uint32_t inDstArrayElement) {
+                                       uint32_t inDstArrayElement,
+                                       uint32_t inDstSet) {
     auto imageinfo      = vk::DescriptorImageInfo(inSampler.GetSamplerHandle(),
                                              inImage.GetImageViewHandle(),
                                              inImage.GetInitialImageLayout());
@@ -46,7 +48,7 @@ void VulkanDescriptorUpdateHandler::RW(ImageContext inImageContext,
                                    .setDstArrayElement(inDstArrayElement)
                                    .setImageInfo(imageinfo)
                                    .setDescriptorType(DescriptorType)
-                                   .setDstSet(inDescriptorSet.GetDescriptorSetHandle());
+                                   .setDstSet(inDescriptorSet.GetDescriptorSetHandle()[inDstSet]);
 
     mDescriptorWrites.push_back(DescriptorSetWrite);
     mDevice.GetDeviceHandle().updateDescriptorSets(mDescriptorWrites, {});
@@ -56,7 +58,8 @@ void VulkanDescriptorUpdateHandler::RW(ImageContext inImageContext,
 void VulkanDescriptorUpdateHandler::RW(const VulkanDescriptorSet& inDescriptorSet,
                                        const VulkanSampler& inSampler,
                                        uint32_t inDstBinding,
-                                       uint32_t inDstArrayElement) {
+                                       uint32_t inDstArrayElement,
+                                       uint32_t inDstSet) {
     auto imageInfo          = vk::DescriptorImageInfo(inSampler.GetSamplerHandle());
     auto DescriptorType     = vk::DescriptorType::eSampler;
     auto DescriptorSetWrite = vk::WriteDescriptorSet()
@@ -64,7 +67,7 @@ void VulkanDescriptorUpdateHandler::RW(const VulkanDescriptorSet& inDescriptorSe
                                    .setDstBinding(inDstBinding)
                                    .setDescriptorType(DescriptorType)
                                    .setDstArrayElement(inDstArrayElement)
-                                   .setDstSet(inDescriptorSet.GetDescriptorSetHandle())
+                                   .setDstSet(inDescriptorSet.GetDescriptorSetHandle()[inDstSet])
                                    .setImageInfo(imageInfo);
     mDescriptorWrites.push_back(DescriptorSetWrite); // TODO WTF is this
     mDevice.GetDeviceHandle().updateDescriptorSets(mDescriptorWrites, {});

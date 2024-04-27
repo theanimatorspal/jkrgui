@@ -22,11 +22,11 @@ class VulkanDescriptorSet {
               const VulkanCommandBuffer& inBuffer,
               const VulkanPipelineLayoutBase& inBase,
               int inSet = 0);
-    GETTER& GetDescriptorSetHandle() const { return mVulkanDescriptorSetHandle; }
+    GETTER& GetDescriptorSetHandle() const { return mVulkanDescriptorSetHandles; }
 
     private:
     const vk::Device& mDevice;
-    vk::DescriptorSet mVulkanDescriptorSetHandle;
+    std::vector<vk::DescriptorSet> mVulkanDescriptorSetHandles;
 };
 
 } // namespace ksai

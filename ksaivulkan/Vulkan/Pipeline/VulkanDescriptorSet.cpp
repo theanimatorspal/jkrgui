@@ -10,8 +10,8 @@ ksai::VulkanDescriptorSet::VulkanDescriptorSet(
     vk::DescriptorSetAllocateInfo DescriptorSetAllocateInfo(
          inDescriptorPool.GetDescriptorPoolHandle(),
          inDescriptorSetLayout.GetDescriptorLayoutHandle());
-    mVulkanDescriptorSetHandle =
-         inDevice.GetDeviceHandle().allocateDescriptorSets(DescriptorSetAllocateInfo).front();
+    mVulkanDescriptorSetHandles =
+         inDevice.GetDeviceHandle().allocateDescriptorSets(DescriptorSetAllocateInfo);
 }
 
 ksai::VulkanDescriptorSet::VulkanDescriptorSet(
@@ -30,10 +30,8 @@ ksai::VulkanDescriptorSet::VulkanDescriptorSet(
                        vk::DescriptorSetVariableDescriptorCountAllocateInfo>
          CreateInfoC(DescriptorSetAllocateInfo, VariableInfo);
 
-    mVulkanDescriptorSetHandle =
-         inDevice.GetDeviceHandle()
-              .allocateDescriptorSets(CreateInfoC.get<vk::DescriptorSetAllocateInfo>())
-              .front();
+    mVulkanDescriptorSetHandles = inDevice.GetDeviceHandle().allocateDescriptorSets(
+         CreateInfoC.get<vk::DescriptorSetAllocateInfo>());
 }
 
 void VulkanDescriptorSet::Bind(vk::PipelineBindPoint inBindPoint,
@@ -43,6 +41,6 @@ void VulkanDescriptorSet::Bind(vk::PipelineBindPoint inBindPoint,
     inBuffer.GetCommandBufferHandle().bindDescriptorSets(inBindPoint,
                                                          inPipelineLayout.GetPipelineLayoutHandle(),
                                                          inSet,
-                                                         mVulkanDescriptorSetHandle,
+                                                         mVulkanDescriptorSetHandles[inSet],
                                                          {});
 }

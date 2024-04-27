@@ -8,53 +8,52 @@ using namespace Jkr::Misc::_3D;
 using namespace Jkr;
 constexpr int JointMatricesReserveSize = 500;
 
-void Uniform3D::AddTexture(int inDstBinding, s inFileName) {
+void Uniform3D::AddTexture(int inDstBinding, s inFileName, ui inDestSet) {
     Up<ImageType> Image = MakeUp<ImageType>(mInstance);
     Image->Setup(inFileName);
-    Image->Register(0, inDstBinding, 0, *mVulkanDescriptorSet);
+    Image->Register(0, inDstBinding, 0, *mVulkanDescriptorSet, inDestSet);
     mImages[inDstBinding] = mv(Image);
 }
 
-void Uniform3D::AddTextureByVector(int inDstBinding,
-                                   v<uc>& inImageVector,
-                                   ui inWidth,
-                                   ui inHeight) {
+void Uniform3D::AddTextureByVector(
+     int inDstBinding, v<uc>& inImageVector, ui inWidth, ui inHeight, ui inDstSet) {
     Up<ImageType> Image = MakeUp<ImageType>(mInstance);
     void* data          = inImageVector.data();
     Image->Setup(&data, inWidth, inHeight, 4);
-    Image->Register(0, inDstBinding, 0, *mVulkanDescriptorSet);
+    Image->Register(0, inDstBinding, 0, *mVulkanDescriptorSet, inDstSet);
     mImages[inDstBinding] = mv(Image);
 }
 
-void Uniform3D::AddUniformBuffer(int inDstBinding, size_t inSize) {
+void Uniform3D::AddUniformBuffer(int inDstBinding, size_t inSize, ui inDstSet) {
     Up<UniformBufferType> Buffer = MakeUp<UniformBufferType>(mInstance);
     Buffer->Setup(inSize);
-    Buffer->Register(0, inDstBinding, 0, *mVulkanDescriptorSet);
+    Buffer->Register(0, inDstBinding, 0, *mVulkanDescriptorSet, inDstSet);
     mUniformBuffers[inDstBinding] = mv(Buffer);
 }
 
-void Uniform3D::AddStorageBuffer(int inDstBinding, size_t inSize) {
+void Uniform3D::AddStorageBuffer(int inDstBinding, size_t inSize, ui inDstSet) {
     Up<StorageBufferType> Buffer = MakeUp<StorageBufferType>(mInstance);
     Buffer->SetupCoherent(inSize);
-    Buffer->RegisterCoherent(0, inDstBinding, 0, *mVulkanDescriptorSet);
+    Buffer->RegisterCoherent(0, inDstBinding, 0, *mVulkanDescriptorSet, inDstSet);
     mStorageBuffers[inDstBinding] = mv(Buffer);
 }
-void Uniform3D::AddTextureToUniform3D(Uniform3D& inUniform3D, int inTextureId) {
-    mImages[inTextureId]->Register(0, inTextureId, 0, *inUniform3D.mVulkanDescriptorSet);
+void Uniform3D::AddTextureToUniform3D(Uniform3D& inUniform3D, int inTextureId, ui inDstSet) {
+    mImages[inTextureId]->Register(0, inTextureId, 0, *inUniform3D.mVulkanDescriptorSet, inDstSet);
     {};
 }
-void Uniform3D::AddUniformBufferToUniform3D(Uniform3D& inUniform3D, int inBufferId) {
-    mUniformBuffers[inBufferId]->Register(0, inBufferId, 0, *inUniform3D.mVulkanDescriptorSet);
+void Uniform3D::AddUniformBufferToUniform3D(Uniform3D& inUniform3D, int inBufferId, ui inDstSet) {
+    mUniformBuffers[inBufferId]->Register(
+         0, inBufferId, 0, *inUniform3D.mVulkanDescriptorSet, inDstSet);
     {};
 }
-void Uniform3D::AddStorageBufferToUniform3D(Uniform3D& inUniform3D, int inStorageId) {
+void Uniform3D::AddStorageBufferToUniform3D(Uniform3D& inUniform3D, int inStorageId, ui inDstSet) {
     mStorageBuffers[inStorageId]->RegisterCoherent(
-         0, inStorageId, 0, *inUniform3D.mVulkanDescriptorSet);
+         0, inStorageId, 0, *inUniform3D.mVulkanDescriptorSet, inDstSet);
     {};
 }
 
-void Uniform3D::AddSkyboxImage(SkyboxImageType& inType, int inDstBinding) {
-    inType.Register(0, inDstBinding, 0, *mVulkanDescriptorSet);
+void Uniform3D::AddSkyboxImage(SkyboxImageType& inType, int inDstBinding, ui inDstSet) {
+    inType.Register(0, inDstBinding, 0, *mVulkanDescriptorSet, inDstSet);
 }
 
 void Uniform3D::UpdateByGLTFAnimation(Renderer::_3D::glTF_Model& inModel,
@@ -135,18 +134,19 @@ void Uniform3D::Build(Simple3D& inSimple3D,
 
 void Uniform3D::AddBindingsToUniform3DGLTF(Uniform3D& modUniform3D,
                                            bool inShouldSkin,
-                                           bool inShouldTexture) {
+                                           bool inShouldTexture,
+                                           ui inSet) {
     if (inShouldSkin) {
         for (auto& u : mUniformBuffers) {
-            AddUniformBufferToUniform3D(modUniform3D, u.first);
+            AddUniformBufferToUniform3D(modUniform3D, u.first, inSet);
         }
         for (auto& s : mStorageBuffers) {
-            AddStorageBufferToUniform3D(modUniform3D, s.first);
+            AddStorageBufferToUniform3D(modUniform3D, s.first, inSet);
         }
     }
     if (inShouldTexture) {
         for (auto& t : mImages) {
-            AddTextureToUniform3D(modUniform3D, t.first);
+            AddTextureToUniform3D(modUniform3D, t.first, inSet);
         }
     }
 }

@@ -17,7 +17,7 @@ layout(push_constant, std430) uniform pc {
 ]]
   local Ubo                  = [[
 
-layout(set = 1, binding = 0) uniform UBO {
+layout(set = 0, binding = 0) uniform UBO {
    mat4 view;
    mat4 proj;
    vec3 campos;
@@ -61,7 +61,7 @@ struct JointInfluence {
     vec4 mJointWeights;
 };
 
-layout(std140, set = 0, binding = 2) readonly buffer JointInfluenceSSBOIn {
+layout(std140, set = 1, binding = 2) readonly buffer JointInfluenceSSBOIn {
    JointInfluence inJointInfluence[ ];
 };
 
@@ -69,7 +69,7 @@ layout(std140, set = 0, binding = 2) readonly buffer JointInfluenceSSBOIn {
 
   local inJointMatrices      = [[
 
-layout(std140, set = 0, binding = 1) readonly buffer JointMatrixSSBOIn {
+layout(std140, set = 1, binding = 1) readonly buffer JointMatrixSSBOIn {
     mat4 inJointMatrices[ ];
 };
           ]]
@@ -232,13 +232,13 @@ vec3 BRDF(vec3 L, vec3 V, vec3 N, float metallic, float roughness)
 
   o.uSampler2D               = function(inBinding, inName)
     o.str = o.str ..
-        string.format("layout(set = 0, binding = %d) uniform sampler2D %s;", inBinding, inName)
+        string.format("layout(set = 1, binding = %d) uniform sampler2D %s;", inBinding, inName)
     return o.NewLine()
   end
 
   o.uSamplerCubeMap          = function(inBinding, inName)
     o.str = o.str ..
-        string.format("layout(set = 0, binding = %d) uniform samplerCube %s;", inBinding, inName)
+        string.format("layout(set = 1, binding = %d) uniform samplerCube %s;", inBinding, inName)
     return o.NewLine()
   end
 

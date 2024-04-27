@@ -71,8 +71,8 @@ struct World3D {
     void Event(Jkr::EventManager& inEvent);
     void Update(Jkr::EventManager& inEvent);
     void AddWorldInfoToUniform3D(int inId);
-    void AddSkyboxToUniform3D(Instance& inInstance, sv inFolderPath, int inId);
-    void AddShadowMapToUniform3D(WindowMulT& inWindow, int inId);
+    void AddSkyboxToUniform3D(Instance& inInstance, sv inFolderPath, int inId, int inSet);
+    void AddShadowMapToUniform3D(WindowMulT& inWindow, int inId, int inSet);
 
     World3D(Shape3D& inShape) : mShape(inShape) {}
 

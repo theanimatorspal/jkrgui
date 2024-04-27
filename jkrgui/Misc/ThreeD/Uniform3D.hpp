@@ -32,20 +32,23 @@ class Uniform3D {
                bool inShouldSkin     = false,
                bool inShouldTextures = false);
 
-    void AddTexture(int inDstBinding, s inFileName);
-    void AddTextureByVector(int inDstBinding, v<uc>& inImageVector, ui inWidth, ui inHeight);
-    void AddTextureBindless(int inDstBinding,
-                            s inFileName); // TODO To be Implemented
-    void AddUniformBuffer(int inDstBinding, size_t inSize);
-    void AddStorageBuffer(int inDstBinding, size_t inSize);
-    void AddTextureToUniform3D(Uniform3D& modUniform3D, int inTextureId);
-    void AddUniformBufferToUniform3D(Uniform3D& modUniform3D, int inBufferId);
-    void AddStorageBufferToUniform3D(Uniform3D& modUniform3D, int inStorageId);
+    void AddTexture(int inDstBinding, s inFileName, ui inDstSet = 1);
+    void AddTextureByVector(
+         int inDstBinding, v<uc>& inImageVector, ui inWidth, ui inHeight, ui inDstSet = 1);
+    void
+    AddTextureBindless(int inDstBinding, s inFileName, ui inDstSet = 1); // TODO To be Implemented
+    void AddUniformBuffer(int inDstBinding, size_t inSize, ui inDstSet = 1);
+    void AddStorageBuffer(int inDstBinding, size_t inSize, ui inDstSet = 1);
+    void AddTextureToUniform3D(Uniform3D& modUniform3D, int inTextureId, ui inDstSet = 1);
+    void AddUniformBufferToUniform3D(Uniform3D& modUniform3D, int inBufferId, ui inDstSet = 1);
+    void AddStorageBufferToUniform3D(Uniform3D& modUniform3D, int inStorageId, ui inDstSet = 1);
     void AddBindingsToUniform3DGLTF(Uniform3D& modUniform3D,
                                     bool inShouldSkin    = false,
-                                    bool inShouldTexture = false);
+                                    bool inShouldTexture = false,
+                                    ui inDstSet          = 0);
     void AddSkyboxImage(SkyboxImageType& inType,
-                        int inDstBinding = kstd::BindingIndex::Uniform::CubeMapImage);
+                        int inDstBinding = kstd::BindingIndex::Uniform::CubeMapImage,
+                        ui inDstSet      = 0);
 
     template <typename T> void UpdateStorageBuffer(int inDstBinding, T inData);
     template <typename T> void UpdateUniformBuffer(int inDstBinding, T inData);
