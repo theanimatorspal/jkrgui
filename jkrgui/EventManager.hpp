@@ -1,5 +1,4 @@
 #pragma once
-#include "SDL2/SDL_keycode.h"
 #include "Window.hpp"
 
 namespace Jkr {

@@ -72,6 +72,7 @@ public class AndroidApp extends SDLActivity {
                     copyFileOrDir("cache2");
                     copyFileOrDir("JkrGUIv2");
                     copyFileOrDir("res");
+                    copyFileOrDir("src");
                     copyFileOrDir("app.lua");
                     copyFileOrDir("build.lua");
                     copyFileOrDir("font.ttf");

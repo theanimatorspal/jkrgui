@@ -42,7 +42,7 @@ void RunScript() {
 
 #ifdef ANDROID
     ksai_print("Main Function Entered");
-    std::filesystem::current_path("/data/data/com.AndroidApp/");
+    std::filesystem::current_path("/data/data/com.SampraharReturns/");
 #endif
 
     sol::protected_function_result result =

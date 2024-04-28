@@ -8,6 +8,13 @@
           "gitlens.blame.heatmap.location": "left",
           "explorer.decorations.colors": false,
           "explorer.decorations.badges": false,
+          "clangd.arguments": [
+                    "-header-insertion=never",
+                    "-j=8",
+                    "--malloc-trim",
+                    "--background-index",
+                    "--pch-storage=memory"
+          ],
           /*CMAKE*/
           "cmake.allowCommentsInPresetsFile": true,
           "cmake.useCMakePresets": "always",

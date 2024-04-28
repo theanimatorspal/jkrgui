@@ -7,7 +7,7 @@
 namespace ksai {
 enum class BufferContext { None, Vertex, Index, Storage, Uniform, Staging };
 
-inline consteval BufferContext operator|(BufferContext lhs, BufferContext rhs) {
+inline constexpr BufferContext operator|(BufferContext lhs, BufferContext rhs) {
     using T = std::underlying_type_t<BufferContext>;
     return static_cast<BufferContext>(static_cast<T>(lhs) | static_cast<T>(rhs));
 }
