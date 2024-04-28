@@ -38,7 +38,7 @@ class EventManager {
     bool IsMouseWithinAtTopOfStack(uint32_t inId, uint32_t inDepthValue);
     bool IsMouseWithin(uint32_t inId, uint32_t inDepthValue);
     uint32_t SetBoundedRect(glm::vec2 inXy, glm::vec2 inWh, uint32_t inDepthValue);
-    void UpdateBoundRect(uint32_t inId, glm::uvec2 inXy, glm::uvec2 inWh, uint32_t inDepthValue);
+    void UpdateBoundedRect(uint32_t inId, glm::vec2 inXy, glm::vec2 inWh, uint32_t inDepthValue);
     void SetEventCallBack(const std::function<void()>& inEventCallBack);
 
     private:

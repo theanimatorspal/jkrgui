@@ -125,10 +125,8 @@ void CreateBasicBindings(sol::state& s) {
                                         &EventManager::IsMouseWithin,
                                         "SetBoundedRect",
                                         &EventManager::SetBoundedRect,
-                                        "UpdateBoundRect",
-                                        &EventManager::UpdateBoundRect,
-                                        "UpdateBoundRect",
-                                        &EventManager::UpdateBoundRect,
+                                        "UpdateBoundedRect",
+                                        &EventManager::UpdateBoundedRect,
                                         "SetEventCallBack",
                                         [](Jkr::EventManager& inManager, sol::function inFunction) {
                                             inManager.SetEventCallBack([=]() {

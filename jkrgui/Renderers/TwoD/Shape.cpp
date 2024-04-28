@@ -39,7 +39,7 @@ Shape::Shape(const Instance& inInstance,
                                    sb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
 }
 
-void Shape::Add(Jkr::Generator& inShape, int inX, int inY, ui inZ, ui& outId) {
+void Shape::Add(Jkr::Generator& inShape, float inX, float inY, float inZ, ui& outId) {
     CheckAndResize(inShape);
     sb::Add(inShape, inX, inY, inZ, outId);
     const auto OffsetId = (ui)outId;
@@ -222,7 +222,7 @@ void Shape::CopyToImage(ui inId, ui inWidth, ui inHeight, CustomPainterImage& in
     });
 }
 
-void Shape::Update(ui inId, Jkr::Generator& inShape, int inX, int inY, ui inZ) {
+void Shape::Update(ui inId, Jkr::Generator& inShape, float inX, float inY, float inZ) {
     auto OffsetId = inId;
     sb::Update(inShape, inId, inX, inY, inZ);
 #ifndef JKR_NO_STAGING_BUFFERS
@@ -395,4 +395,65 @@ void Shape::CheckAndResize(const Jkr::Generator& inShape) {
                             sb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
 #endif
     }
+}
+
+ksai::ui Jkr::Renderer::Shape::AddEXT(Jkr::Generator& inShape, glm::vec3 inPosition) {
+    ui i;
+    Add(inShape, inPosition.x, inPosition.y, inPosition.z, i);
+    return i;
+}
+
+void Jkr::Renderer::Shape::CopyToImage(uint32_t inId, CustomPainterImage& inPainterImage) {
+    CopyToImage(inId,
+                inPainterImage.GetPainterParam().GetStorageImagePtr()->GetImageExtent().width,
+                inPainterImage.GetPainterParam().GetStorageImagePtr()->GetImageExtent().height,
+                inPainterImage);
+}
+
+ksai::ui Jkr::Renderer::Shape::AddImageEXT(const std::string_view inFileName) {
+    ui i;
+    AddImage(inFileName, i);
+    return i;
+}
+
+ksai::ui Jkr::Renderer::Shape::AddImageEXT(uint32_t inWidth, uint32_t inHeight) {
+    ui i;
+    AddImage(inWidth, inHeight, i);
+    return i;
+}
+
+ksai::ui Jkr::Renderer::Shape::AddImageEXT(v<uc> inImage, ui inWidth, ui inHeight) {
+    ui i;
+    AddImage(inImage, inWidth, inHeight, i);
+    return i;
+}
+
+void Jkr::Renderer::Shape::UpdateEXT(ui inId, Jkr::Generator& inShape, glm::vec3 inPosition) {
+    Update(inId, inShape, inPosition.x, inPosition.y, inPosition.z);
+}
+
+void Jkr::Renderer::Shape::DrawEXT(Window& inWindow,
+                                   glm::vec4 inColor,
+                                   ui inStartShapeId,
+                                   ui inEndShapeId,
+                                   glm::mat4 inMatrix,
+                                   CmdParam inParam) {
+    PushConstant Push;
+    Push.mColor  = inColor;
+    Push.mMatrix = inMatrix;
+
+#ifdef JKR_USE_VARIABLE_DES_INDEXING
+    Push.mParams.r = mCurrentImageIndex;
+#endif
+
+    mPainters[mCurrentFillMode]->Draw_EXT<PushConstant>(
+         *mPrimitive,
+         Push,
+         inWindow,
+         sb::GetEndIndexOffsetAbsolute(inEndShapeId) -
+              sb::GetIndexOffsetAbsolute(inStartShapeId), // TODO
+         1,
+         sb::GetIndexOffsetAbsolute(inStartShapeId),
+         0,
+         inParam);
 }

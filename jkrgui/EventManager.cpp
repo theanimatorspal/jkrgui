@@ -38,10 +38,10 @@ uint32_t Jkr::EventManager::SetBoundedRect(glm::vec2 inXy, glm::vec2 inWh, uint3
     return ret_val;
 }
 
-void Jkr::EventManager::UpdateBoundRect(uint32_t inId,
-                                        glm::uvec2 inXy,
-                                        glm::uvec2 inWh,
-                                        uint32_t inDepthValue) {
+void Jkr::EventManager::UpdateBoundedRect(uint32_t inId,
+                                          glm::vec2 inXy,
+                                          glm::vec2 inWh,
+                                          uint32_t inDepthValue) {
     auto br                           = BoundRect2D{.mXy = inXy, .mWh = inWh};
     mBoundRect2Ds[inDepthValue][inId] = br;
 }

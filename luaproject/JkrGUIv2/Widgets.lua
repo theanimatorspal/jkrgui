@@ -104,6 +104,9 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         return font
     end
 
+    --[============================================================[
+        TEXT LABEL
+    ]============================================================]
     -- Here for each widget we have to follow function(inPosition, inDimension) style
     o.CreateTextLabel = function(inPosition_3f, inDimension_3f, inFont, inText, inColor)
         local textLabel = {}
@@ -124,6 +127,11 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         return textLabel
     end
 
+    --[============================================================[
+        COMPUTE IMAGE
+        rendering onto an image using compute shaders,
+        can also create a button by Image.CreateButton() routine
+    ]============================================================]
     o.CreateComputeImage = function(inPosition_3f, inDimension_3f)
         local Image = {}
         Image.computeImage = Jkr.CreateCustomPainterImage(i, w, math.int(inDimension_3f.x), math.int(inDimension_3f.y))
@@ -133,15 +141,6 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         Image.DrawId = o.c.Push(Jkr.CreateDrawable(Image.imageViewRect, false, "IMAGE", Image.sampledImage,
             vec4(1, 1, 1, 1)))
 
-        Image.CreatePainter = function(inCacheFileName, inComputeShaderString, inShouldLoad)
-            local CustomPainter = Jkr.CreateCustomImagePainter(inCacheFileName, inComputeShaderString)
-            if inShouldLoad then
-                CustomPainter:Load(i, w)
-            else
-                CustomPainter:Store(i, w)
-            end
-            return CustomPainter
-        end
         Image.RegisterPainter = function(inPainter)
             Image.computeImage:Register(i, inPainter.handle)
         end
@@ -155,9 +154,31 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         Image.CopyToSampled = function()
             o.s:CopyToImage(Image.sampledImage, Image.computeImage)
         end
+        Image.CreateButton = function(inPosition_3f, inDimension_3f, inOnclickFunction)
+            Image.buttonBoundedRect = {}
+            Image.buttonBoundedRect.mDepthValue = math.int(inPosition_3f.z)
+            Image.buttonBoundedRect.mId = e:SetBoundedRect(vec2(inPosition_3f.x, inPosition_3f.y),
+                vec2(inDimension_3f.x, inDimension_3f.y), math.int(inPosition_3f.z))
+            Image.buttonBoundedRect.mPushId = o.c.Push(Jkr.CreateUpdatable(function()
+                local over = e:IsMouseWithinAtTopOfStack(Image.buttonBoundedRect.mId, Image.buttonBoundedRect
+                    .mDepthValue)
+                if e:IsLeftButtonPressed() and over then
+                    inOnclickFunction()
+                end
+            end))
+            Image.buttonBoundedRect.Update = function(inPosition_3f, inDimension_3f)
+                local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill,
+                    uvec2(inDimension_3f.x, inDimension_3f.y))
+                o.s:Update(Image.imageViewRect, Rectangle, inPosition_3f)
+                e:UpdateBoundedRect(Image.buttonBoundedRect.mId, vec2(inPosition_3f.x, inPosition_3f.y),
+                    vec2(inDimension_3f.x, inDimension_3f.y), Image.buttonBoundedRect.mDepthValue)
+            end
+            return Image.buttonBoundedRect
+        end
         return Image
     end
 
+    -- TODO move it to the text label
     o.CreateTextButton = function(inPosition_3f, inDimension_3f, inFont, inText, inTextColor, inBgColor)
         local textButton = {}
         textButton.mTextLabel = o.CreateTextLabel(inPosition_3f, inDimension_3f, inFont, inText, inTextColor)
@@ -171,9 +192,42 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         end
     end
 
+    --[========================================================]
+    --
+    --
+    --
+    --  DISPATCH UPDATE EVENT Stuffs
+    --
+    --
+    --
+    --[========================================================]
+    local cuf = 1 -- CurrentDispatchFrame
     o.Update = function()
         o.WindowDimension = w:GetWindowDimension()
         o.UIMatrix = Jmath.Ortho(0.0, o.WindowDimension.x, 0.0, o.WindowDimension.y, 1000, -1000)
+
+        --[========================================================]
+        -- UPDATE ONE TIMES
+        --[========================================================]
+        if o.c.mOneTimeUpdatables[cuf] then
+            local Length = #o.c.mOneTimeUpdatables[cuf]
+            for x = 1, Length, 1 do
+                o.c.mOneTimeUpdatables[cuf][x].mDispatch()
+                o.c.mOneTimeUpdatables[cuf][x] = nil
+            end
+            o.c.mOneTimeUpdatables[cuf] = nil
+            cuf = cuf + 1
+            if not o.c.mOneTimeUpdatables[cuf] then
+                cuf = 1
+            end
+        end
+
+        --[========================================================]
+        -- UPDATE
+        --[========================================================]
+        for i = 1, #o.c.mUpdatables, 1 do
+            o.c.mUpdatables[i].mUpdate()
+        end
     end
 
     o.Draw = function()
@@ -220,7 +274,12 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     end
 
     o.Event = function()
-
+        --[========================================================]
+        -- EVENT
+        --[========================================================]
+        for i = 1, #o.c.mEventables, 1 do
+            o.c.mEventables[i].mEvent()
+        end
     end
     return o
 end
