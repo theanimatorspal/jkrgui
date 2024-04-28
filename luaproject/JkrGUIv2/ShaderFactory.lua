@@ -1,5 +1,57 @@
 Jkrmt.Shader = function()
-  local o                    = {}
+  local o              = {}
+
+  o.uImage2D           = function()
+    o.NewLine()
+    o.Append([[
+
+layout(set = 0, binding = 0, rgba8) uniform image2D storageImage;
+    ]])
+    return o.NewLine()
+  end
+
+  o.CInvocationLayout  = function(inX, inY, inZ)
+    o.NewLine()
+    o.Append(
+      string.format("layout(local_size_x = %d, local_size_y = %d, local_size_z = %d) in;", inX, inY, inZ)
+    )
+    return o.NewLine()
+  end
+
+  o.ImagePainterPush   = function()
+    o.NewLine()
+    o.Append(
+      [[
+layout(std430, push_constant) uniform pc {
+        vec4 mPosDimen;
+        vec4  mColor;
+        vec4 mParam;
+} push;
+    ]]
+    )
+    return o.NewLine()
+  end
+
+  o.ImagePainterAssist = function()
+    o.NewLine()
+    o.Append(
+      [[
+uvec3 gID = gl_GlobalInvocationID;
+ivec2 image_size = ivec2(imageSize(storageImage));
+ivec2 to_draw_at = ivec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y);
+
+float x_cart = (float(gl_GlobalInvocationID.x) - float(image_size.x) / float(2)) / (float((image_size.x) / float(2)));
+float y_cart = (float(image_size.y) / float(2) - float(gl_GlobalInvocationID.y)) / (float(image_size.y) / float(2));
+
+float ColorValueX = x_cart;
+float ColorValueY = y_cart;
+vec2 xy = vec2(x_cart, y_cart);
+      ]]
+    )
+    return o.NewLine()
+  end
+
+
   local vLayout              = [[
 
 layout(location = 0) in vec3 inPosition;
@@ -21,6 +73,7 @@ layout(set = 0, binding = 0) uniform UBO {
    mat4 view;
    mat4 proj;
    vec3 campos;
+   vec4 nearFar;
    vec4 lights[8];
    mat4 shadowMatrix;
 } Ubo;

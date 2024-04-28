@@ -33,48 +33,14 @@ struct CustomImagePainter {
         mPainter->BindDispatchParametersPipelineOnly_EXT(inWindow, inPar);
     }
 
-    // TODO To be removed
-    void BindImage(const Window& inWindow, ComPar inPar = ComPar::None) {
-        mPainter->BindDispatchParametersDescriptorsOnly_EXT(inWindow, inPar);
-    }
     void BindImageFromImage(const Window& inWindow,
                             CustomPainterImage& inImage,
-                            ComPar inPar = ComPar::None) {
-        auto& Cmd = inWindow.GetCommandBuffers(inPar)[inWindow.GetCurrentFrame()];
-        Cmd.GetCommandBufferHandle().bindDescriptorSets(
-             vk::PipelineBindPoint::eCompute,
-             mCustomPainterCache->GetComputePipelineLayout().GetPipelineLayoutHandle(),
-             0,
-             inImage.mVulkanDescriptorSet->GetDescriptorSetHandle(),
-             {});
-        //   Cmd.GetCommandBufferHandle().pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader,
-        //                                                vk::PipelineStageFlagBits::eComputeShader,
-        //                                                vk::DependencyFlagBits::eByRegion,
-        //                                                vk::MemoryBarrier{vk::AccessFlagBits::eMemoryWrite,
-        //                                                vk::AccessFlagBits::eMemoryWrite},
-        //                                                {},
-        //                                                vk::ImageMemoryBarrier{vk::AccessFlagBits::eMemoryWrite,
-        //                                                vk::AccessFlagBits::eMemoryWrite, });
-        auto& Image = inImage.GetPainterParam().GetStorageImage();
-        Image.CmdTransitionImageLayout(Cmd,
-                                       Image.GetInitialImageLayout(),
-                                       Image.GetInitialImageLayout(),
-                                       vk::PipelineStageFlagBits::eComputeShader,
-                                       vk::PipelineStageFlagBits::eFragmentShader,
-                                       vk::AccessFlagBits::eMemoryWrite,
-                                       vk::AccessFlagBits::eMemoryRead);
-    }
+                            ComPar inPar = ComPar::None);
     template <class T>
     void
     Draw(Window& inWindow, T inPushConstant, ui inX, ui inY, ui inZ, ComPar inPar = ComPar::None) {
         mPainter->Dispatch_EXT<T>(inWindow, inPushConstant, inX, inY, inZ, inPar);
     }
-
-    // // TODO to be removed
-    // template <class T> void Draw(Window& inWindow, T inPushConstant, ComPar
-    // inPar = ComPar::None) { mPainter->Dispatch_EXT<T>(inPushConstant,
-    // mThreads.x, mThreads.y, mThreads.z, inPar);
-    // }
 
     GETTER& GetPainterCache() { return *mCustomPainterCache; }
 
@@ -87,22 +53,4 @@ struct CustomImagePainter {
     Up<PainterCache> mCustomPainterCache;
     Up<Painter> mPainter;
 };
-
-inline void Jkr::Renderer::CustomPainterImage::Register(const Instance& inInstance,
-                                                        CustomImagePainter& inPainter) {
-    mVulkanDescriptorSet = MakeUp<VulkanDescriptorSet>(
-         inInstance.GetDevice(),
-         inInstance.GetDescriptorPool(),
-         inPainter.GetPainterCache().GetComputePipelineDescriptorSetLayout());
-    mPainterParam->Register(0, 0, 0, *mVulkanDescriptorSet);
-}
-
-inline CustomPainterImage::CustomPainterImage(const Instance& inInstance,
-                                              const Window& inWindow,
-                                              ui inWidth,
-                                              ui inHeight) {
-    mPainterParam = mu<Image>(inInstance);
-    mPainterParam->Setup(inWidth, inHeight);
-    Painter::OptimizeParameter(inInstance, *mPainterParam, inWindow);
-}
 } // namespace Jkr::Renderer

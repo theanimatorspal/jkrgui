@@ -19,6 +19,7 @@ struct World3D {
         alignas(16) glm::mat4 mView;
         alignas(16) glm::mat4 mProjection;
         glm::vec3 mCameraPosition;
+        alignas(16) glm::vec4 mNearFar;
         alignas(16) glm::vec4 mLights[8];
         alignas(16) glm::mat4 mShadowMatrix;
     };

@@ -25,6 +25,7 @@ Jkr.CreateDrawable = function(inId, inBatchable, inDrawType, inImageId, inColor_
         o.mColor = vec4(1, 1, 1, 1)
     end
     o.mId = inId
+    o.mImageId = inImageId
     o.mDrawType = inDrawType -- LINE, SHAPE, TEXT
     return o
 end
@@ -89,12 +90,13 @@ Jkr.CreateCallExecutor = function(inCallBuffer)
     return o
 end
 
-Jkr.CreateWidgetRenderer = function(i, w)
+Jkr.CreateWidgetRenderer = function(i, w, e)
     local o = {}
     o.s = Jkr.CreateShapeRenderer(i, w)
     o.t = Jkr.CreateTextRendererBestTextAlt(i, o.s)
     o.c = Jkr.CreateCallBuffers()
     o.e = Jkr.CreateCallExecutor(o.c)
+    o.WindowDimension = w:GetWindowDimension()
 
     o.CreateFont = function(inFontFileName, inFontSize)
         local font = {}
@@ -108,7 +110,7 @@ Jkr.CreateWidgetRenderer = function(i, w)
         textLabel.mText = inText
         textLabel.mFont = inFont
         textLabel.mId = o.t:Add(inFont.mId, inPosition_3f, inText)
-        o.c.Push(Jkr.CreateDrawable(textLabel.mId, nil, "STATIC_TEXT", nil))
+        textLabel.PushId = o.c.Push(Jkr.CreateDrawable(textLabel.mId, nil, "TEXT", nil, inColor))
 
         textLabel.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText)
             if inFont then self.mFont = inFont end
@@ -117,9 +119,56 @@ Jkr.CreateWidgetRenderer = function(i, w)
         end
 
         textLabel.Remove = function(self)
-            -- TODO Remove function
+            -- TODO Implement Remove function
         end
         return textLabel
+    end
+
+    o.CreateComputeImage = function(inPosition_3f, inDimension_3f)
+        local Image = {}
+        Image.computeImage = Jkr.CreateCustomPainterImage(i, w, math.int(inDimension_3f.x), math.int(inDimension_3f.y))
+        Image.sampledImage = o.s:AddImage(inDimension_3f.x, inDimension_3f.y)
+        local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill, uvec2(inDimension_3f.x, inDimension_3f.y))
+        Image.imageViewRect = o.s:Add(Rectangle, inPosition_3f)
+        Image.DrawId = o.c.Push(Jkr.CreateDrawable(Image.imageViewRect, false, "IMAGE", Image.sampledImage,
+            vec4(1, 1, 1, 1)))
+
+        Image.CreatePainter = function(inCacheFileName, inComputeShaderString, inShouldLoad)
+            local CustomPainter = Jkr.CreateCustomImagePainter(inCacheFileName, inComputeShaderString)
+            if inShouldLoad then
+                CustomPainter:Load(i, w)
+            else
+                CustomPainter:Store(i, w)
+            end
+            return CustomPainter
+        end
+        Image.RegisterPainter = function(inPainter)
+            Image.computeImage:Register(i, inPainter.handle)
+        end
+        Image.BindPainter = function(inPainter)
+            inPainter:Bind(w, Jkr.CmdParam.None)
+            inPainter:BindImageFromImage(w, Image.computeImage, Jkr.CmdParam.None)
+        end
+        Image.DrawPainter = function(inPainter, inPushConstant, inX, inY, inZ)
+            inPainter:Draw(w, inPushConstant, inX, inY, inZ, Jkr.CmdParam.None)
+        end
+        Image.CopyToSampled = function()
+            o.s:CopyToImage(Image.sampledImage, Image.computeImage)
+        end
+        return Image
+    end
+
+    o.CreateTextButton = function(inPosition_3f, inDimension_3f, inFont, inText, inTextColor, inBgColor)
+        local textButton = {}
+        textButton.mTextLabel = o.CreateTextLabel(inPosition_3f, inDimension_3f, inFont, inText, inTextColor)
+        local Rect = Jkr.Generator(Jkr.Shapes.RectangleFill, uvec2(inDimension_3f.x))
+        textButton.mId = o.s:Add(Rect)
+
+        textButton.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inTextColor, inBgColor)
+            if (inFont) then textButton.mTextLabel.mFont = inFont end
+            if (inText) then textButton.mTextLabel.mText = inText end
+            -- TODO inTextColor and inBgColor
+        end
     end
 
     o.Update = function()
@@ -129,18 +178,47 @@ Jkr.CreateWidgetRenderer = function(i, w)
 
     o.Draw = function()
         -- Optimize this
+        o.s:BindShapes(w)
         for i = 1, #o.c.mDrawables, 1 do
             local drawable = o.c.mDrawables[i]
-            if drawable.mDrawType == "STATIC_TEXT" then
-                o.s:BindShapes(w)
-                o.s:BindFillMode(Jkr.FillType.Image, w, Jkr.CmdParam.UI)
+            o.s:BindFillMode(Jkr.FillType.Image, w, Jkr.CmdParam.UI)
+            if drawable.mDrawType == "TEXT" then
                 o.t:Draw(drawable.mId, w, drawable.mColor, o.UIMatrix, Jkr.CmdParam.UI)
+            end
+            if drawable.mDrawType == "IMAGE" then
+                o.s:BindImage(w, drawable.mImageId, Jkr.CmdParam.UI)
+                o.s:Draw(w, drawable.mColor, drawable.mId, drawable.mId, o.UIMatrix, Jkr.CmdParam.UI)
             end
         end
     end
+
+    local cdf = 1 -- CurrentDispatchFrame
     o.Dispatch = function()
-        o.s:Dispatch(w, Jkr.CmdParam.UI)
+        o.s:Dispatch(w, Jkr.CmdParam.None)
+        --[========================================================]
+        -- DISPATCH ONE TIMES
+        --[========================================================]
+        if o.c.mOneTimeDispatchables[cdf] then
+            local Length = #o.c.mOneTimeDispatchables[cdf]
+            for x = 1, Length, 1 do
+                o.c.mOneTimeDispatchables[cdf][x].mDispatch()
+                o.c.mOneTimeDispatchables[cdf][x] = nil
+            end
+            o.c.mOneTimeDispatchables[cdf] = nil
+            cdf = cdf + 1
+            if not o.c.mOneTimeDispatchables[cdf] then
+                cdf = 1
+            end
+        end
+
+        --[========================================================]
+        -- DISPATCH
+        --[========================================================]
+        for i = 1, #o.c.mDispatchables, 1 do
+            o.c.mDispatchables[i].mDispatch()
+        end
     end
+
     o.Event = function()
 
     end

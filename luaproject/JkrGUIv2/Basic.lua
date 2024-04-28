@@ -546,7 +546,7 @@ Jkr.CreateShapeRenderer = function(inInstance, inCompatibleWindow, inShapeRender
     end
 
     o.AddImage = function(self, inWidth, inHeight)
-        return sr:AddImage(inWidth, inHeight)
+        return sr:AddImage(math.int(inWidth), math.int(inHeight))
     end
 
     o.AddImageByFileName = function(self, inFileName)

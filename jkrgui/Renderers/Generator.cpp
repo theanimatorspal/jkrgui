@@ -50,9 +50,9 @@ Generator::Generator(Shapes inShape, Arguments inArgs) : mArgs(inArgs), mShape(i
     }
 }
 
-void Jkr::Generator::operator()(int inX,
-                                int inY,
-                                uint32_t inZ,
+void Jkr::Generator::operator()(float inX,
+                                float inY,
+                                float inZ,
                                 uint32_t inStartVertexIndex,
                                 uint32_t inStartIndexIndex,
                                 std::vector<kstd::Vertex>& modVertices,
