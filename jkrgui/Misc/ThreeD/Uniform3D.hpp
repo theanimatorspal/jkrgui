@@ -54,9 +54,7 @@ class Uniform3D {
     template <typename T> void UpdateUniformBuffer(int inDstBinding, T inData);
     void UpdateStorageBuffer(int inDstBinding, void** inData, size_t inSize);
     void UpdateUniformBuffer(int inDstBinding, void** inData, size_t inSize);
-    void UpdateByGLTFAnimation(Renderer::_3D::glTF_Model& inModel,
-                               float inDeltaTime          = 0.0f,
-                               int inActiveAnimationIndex = 0);
+    void UpdateByGLTFAnimation(Renderer::_3D::glTF_Model& inModel);
     void Bind(Window& inWindow, Simple3D& inSimple, int inSet, Window::ParameterContext inParam);
     void Print(); // TODO ChatGPT
 

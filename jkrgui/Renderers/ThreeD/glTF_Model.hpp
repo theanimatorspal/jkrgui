@@ -106,6 +106,8 @@ class glTF_Model {
     using DrawCallBack         = std::function<void(ui, opt<Texture>)>;
     using UpdateJointsCallBack = std::function<void(v<glm::mat4>&)>;
 
+    Node* FindNode(Node* inParent, ui inIndex);
+    Node* NodeFromIndex(ui inIndex);
     GETTER GetFileName() const { return sv(mFileName); }
     GETTER& GetVertices() const { return mVertexBuffer; }
     GETTER& GetIndices() const { return mIndexBuffer; }
@@ -158,10 +160,22 @@ class glTF_Model {
     void LoadAnimations(tinygltf::Model& input);
     void
     UpdateJoints(glTF_Model::Node* inNode, UpdateJointsCallBack inCallBack = [](v<glm::mat4>&) {});
-    void UpdateAnimation(float inDeltaTime, bool inShouldLoop = true);
-    void UpdateAnimationToArbritaryTime(float inDestinationTime,
-                                        ui inDestinationAnimationIndex,
-                                        float inBlendFactor);
+    void UpdateAnimation(ui inActiveAnimation, float inDeltaTime, bool inShouldLoop = true);
+    void BlendCombineAnimationToArbritaryTime(float inDestinationTime,
+                                              ui inDestinationAnimationIndex,
+                                              float inBlendFactor,
+                                              bool inShouldLoop = true);
+    void BlendCombineAnimationByOffset(float inDeltaTime,
+                                       ui inBaseAnimationIndex,
+                                       float inTargetAnimationOffsetTime,
+                                       ui inTargetAnimationIndex,
+                                       float inBlendFactor,
+                                       bool inShouldLoop = true);
+    void BlendCombineAnimation(float inDeltaTime,
+                               ui inBaseAnimationIndex,
+                               ui inTargetAnimationIndex,
+                               float inBlendFactor,
+                               bool inShouldLoop = true);
     void UpdateAllJoints(UpdateJointsCallBack inCallBack);
     void EraseVerticesAndIndices() {
         mIndexBuffer.clear();
@@ -169,9 +183,6 @@ class glTF_Model {
         mVertexBuffer.clear();
         mVertexBuffer.shrink_to_fit();
     }
-    // TODO Shift these to GETTERS location
-    Node* FindNode(Node* inParent, ui inIndex);
-    Node* NodeFromIndex(ui inIndex);
     void
     Draw(glTF_Model::Node& inNode, PushCallBack inBindDataCallBack, DrawCallBack inDrawCallBack);
 

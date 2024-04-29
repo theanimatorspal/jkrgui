@@ -56,11 +56,7 @@ void Uniform3D::AddSkyboxImage(SkyboxImageType& inType, int inDstBinding, ui inD
     inType.Register(0, inDstBinding, 0, *mVulkanDescriptorSet, inDstSet);
 }
 
-void Uniform3D::UpdateByGLTFAnimation(Renderer::_3D::glTF_Model& inModel,
-                                      float inDeltaTime,
-                                      int inActiveAnimationIndex) {
-    inModel.SetActiveAnimation(inActiveAnimationIndex);
-    inModel.UpdateAnimation(inDeltaTime);
+void Uniform3D::UpdateByGLTFAnimation(Renderer::_3D::glTF_Model& inModel) {
     inModel.UpdateAllJoints([&](v<glm::mat4>& inMatrices) {
         void* data = inMatrices.data();
         UpdateStorageBuffer(kstd::BindingIndex::Storage::JointMatrix,

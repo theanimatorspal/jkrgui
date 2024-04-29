@@ -331,12 +331,22 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
 
             /* Vertices */
             {
-                const float* positionBuffer        = nullptr;
-                const float* normalsBuffer         = nullptr;
-                const float* texCoordsBuffer       = nullptr;
-                const uint16_t* jointIndicesBuffer = nullptr;
-                const float* jointWeightsBuffer    = nullptr;
-                size_t vertexCount                 = 0;
+                const float* positionBuffer     = nullptr;
+                const float* normalsBuffer      = nullptr;
+                const float* texCoordsBuffer    = nullptr;
+                const float* texCoordsBuffer1   = nullptr;
+                const float* colorBuffer0       = nullptr;
+                const void* jointIndicesBuffer  = nullptr;
+                const float* jointWeightsBuffer = nullptr;
+                size_t vertexCount              = 0;
+
+                int posByteStride;
+                int normByteStride;
+                int uv0ByteStride;
+                int uv1ByteStride;
+                int color0ByteStride;
+                int jointByteStride;
+                int weightByteStride;
 
                 /*Get Buffer data for vertex Position*/
                 if (glTFPrimitive.attributes.find("POSITION") != glTFPrimitive.attributes.end()) {
@@ -345,7 +355,10 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                     const tinygltf::BufferView& view = input.bufferViews[accessor.bufferView];
                     positionBuffer                   = reinterpret_cast<const float*>(
                          &(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
-                    vertexCount = accessor.count;
+                    vertexCount   = accessor.count;
+                    posByteStride = accessor.ByteStride(view)
+                                         ? (accessor.ByteStride(view) / sizeof(float))
+                                         : tinygltf::GetNumComponentsInType(TINYGLTF_TYPE_VEC3);
                 }
 
                 /* Get Buffer Data From Vertex Normals */
@@ -355,6 +368,9 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                     const tinygltf::BufferView& view = input.bufferViews[accessor.bufferView];
                     normalsBuffer                    = reinterpret_cast<const float*>(
                          &(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
+                    normByteStride = accessor.ByteStride(view)
+                                          ? (accessor.ByteStride(view) / sizeof(float))
+                                          : tinygltf::GetNumComponentsInType(TINYGLTF_TYPE_VEC3);
                 }
 
                 /*Get Buffer Data From TexCoords*/
@@ -364,15 +380,50 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                     const tinygltf::BufferView& view = input.bufferViews[accessor.bufferView];
                     texCoordsBuffer                  = reinterpret_cast<const float*>(
                          &(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
+                    uv0ByteStride = accessor.ByteStride(view)
+                                         ? (accessor.ByteStride(view) / sizeof(float))
+                                         : tinygltf::GetNumComponentsInType(TINYGLTF_TYPE_VEC2);
                 }
+
+                if (glTFPrimitive.attributes.find("TEXCOORD_1") != glTFPrimitive.attributes.end()) {
+                    const tinygltf::Accessor& uvAccessor =
+                         input.accessors[glTFPrimitive.attributes.find("TEXCOORD_1")->second];
+                    const tinygltf::BufferView& uvView = input.bufferViews[uvAccessor.bufferView];
+                    texCoordsBuffer1                   = reinterpret_cast<const float*>(
+                         &(input.buffers[uvView.buffer]
+                                .data[uvAccessor.byteOffset + uvView.byteOffset]));
+                    uv1ByteStride = uvAccessor.ByteStride(uvView)
+                                         ? (uvAccessor.ByteStride(uvView) / sizeof(float))
+                                         : tinygltf::GetNumComponentsInType(TINYGLTF_TYPE_VEC2);
+                }
+
+                // Vertex colors
+                if (glTFPrimitive.attributes.find("COLOR_0") != glTFPrimitive.attributes.end()) {
+                    const tinygltf::Accessor& accessor =
+                         input.accessors[glTFPrimitive.attributes.find("COLOR_0")->second];
+                    const tinygltf::BufferView& view = input.bufferViews[accessor.bufferView];
+                    colorBuffer0                     = reinterpret_cast<const float*>(
+                         &(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
+                    color0ByteStride = accessor.ByteStride(view)
+                                            ? (accessor.ByteStride(view) / sizeof(float))
+                                            : tinygltf::GetNumComponentsInType(TINYGLTF_TYPE_VEC3);
+                }
+
                 // POI: Get buffer data required for vertex skinning
                 // Get vertex joint indices
+
+                int JointComponentType;
                 if (glTFPrimitive.attributes.find("JOINTS_0") != glTFPrimitive.attributes.end()) {
                     const tinygltf::Accessor& accessor =
                          input.accessors[glTFPrimitive.attributes.find("JOINTS_0")->second];
                     const tinygltf::BufferView& view = input.bufferViews[accessor.bufferView];
-                    jointIndicesBuffer               = reinterpret_cast<const uint16_t*>(
-                         &(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
+                    jointIndicesBuffer =
+                         &(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]);
+                    JointComponentType = accessor.componentType;
+                    jointByteStride    = accessor.ByteStride(view)
+                                              ? (accessor.ByteStride(view) /
+                                              tinygltf::GetComponentSizeInBytes(JointComponentType))
+                                              : tinygltf::GetNumComponentsInType(TINYGLTF_TYPE_VEC4);
                 }
                 // Get vertex joint weights
                 if (glTFPrimitive.attributes.find("WEIGHTS_0") != glTFPrimitive.attributes.end()) {
@@ -381,6 +432,9 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                     const tinygltf::BufferView& view = input.bufferViews[accessor.bufferView];
                     jointWeightsBuffer               = reinterpret_cast<const float*>(
                          &(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
+                    weightByteStride = accessor.ByteStride(view)
+                                            ? (accessor.ByteStride(view) / sizeof(float))
+                                            : tinygltf::GetNumComponentsInType(TINYGLTF_TYPE_VEC4);
                 }
 
                 hasSkin = (jointIndicesBuffer && jointWeightsBuffer);
@@ -388,25 +442,53 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                 /* Append data to Model's VertexBuffer */
                 for (size_t v = 0; v < vertexCount; v++) {
                     Vertex3DExt vert{};
-                    vert.mPosition = glm::vec4(glm::make_vec3(&positionBuffer[v * 3]), 1.0f);
-                    vert.mNormal   = glm::normalize(glm::vec3(
-                         normalsBuffer ? glm::make_vec3(&normalsBuffer[v * 3]) : glm::vec3(0.0f)));
-                    vert.mUV       = texCoordsBuffer ? glm::make_vec2(&texCoordsBuffer[v * 2])
-                                                     : glm::vec2(0.0f);
-                    vert.mColor    = glm::vec3(1.0f);
-                    vert.mJointIndices =
-                         hasSkin ? glm::vec4(static_cast<float>(jointIndicesBuffer[v * 4]),
-                                             static_cast<float>(jointIndicesBuffer[v * 4 + 1]),
-                                             static_cast<float>(jointIndicesBuffer[v * 4 + 2]),
-                                             static_cast<float>(jointIndicesBuffer[v * 4 + 3]))
-                                 : glm::vec4(0.0f);
+                    vert.mPosition =
+                         glm::vec4(glm::make_vec3(&positionBuffer[v * posByteStride]), 1.0f);
+                    vert.mNormal = glm::normalize(glm::vec3(
+                         normalsBuffer ? glm::make_vec3(&normalsBuffer[v * normByteStride])
+                                       : glm::vec3(0.0f)));
+                    vert.mUV = texCoordsBuffer ? glm::make_vec2(&texCoordsBuffer[v * uv0ByteStride])
+                                               : glm::vec2(0.0f);
+                    vert.mColor = colorBuffer0 ? glm::make_vec4(&colorBuffer0[v * color0ByteStride])
+                                               : glm::vec4(1.0f);
+
+                    if (hasSkin) {
+                        switch (JointComponentType) {
+                            case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT: {
+                                const uint16_t* buf =
+                                     static_cast<const uint16_t*>(jointIndicesBuffer);
+                                vert.mJointIndices =
+                                     glm::vec4(glm::make_vec4(&buf[v * jointByteStride]));
+                                break;
+                            }
+                            case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE: {
+                                const uint8_t* buf =
+                                     static_cast<const uint8_t*>(jointIndicesBuffer);
+                                vert.mJointIndices =
+                                     glm::vec4(glm::make_vec4(&buf[v * jointByteStride]));
+                                break;
+                            }
+                            default:
+                                // Not supported by spec
+                                std::cerr << "Joint component type " << JointComponentType
+                                          << " not supported!" << std::endl;
+                                break;
+                        }
+                    } else {
+                        vert.mJointIndices = glm::vec4(0.0f);
+                    }
+
                     vert.mJointWeights =
-                         hasSkin ? glm::make_vec4(&jointWeightsBuffer[v * 4]) : glm::vec4(0.0f);
+                         hasSkin ? glm::make_vec4(&jointWeightsBuffer[v * weightByteStride])
+                                 : glm::vec4(0.0f);
+
+                    // Fix for all zero weights
+                    if (glm::length(vert.mJointWeights) == 0.0f) {
+                        vert.mJointWeights = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
+                    }
+
                     inVertexBuffer.push_back(inVertexCallBack(vert));
                 }
-                std::cout << "\n";
-                std::cout << "\n";
-                std::cout << "\n";
             }
 
             /* Indices */
@@ -501,7 +583,8 @@ void glTF_Model::UpdateJoints(glTF_Model::Node* inNode, UpdateJointsCallBack inC
     }
 }
 
-void glTF_Model::UpdateAnimation(float inDeltaTime, bool inShouldLoop) {
+void glTF_Model::UpdateAnimation(ui inActiveAnimation, float inDeltaTime, bool inShouldLoop) {
+    SetActiveAnimation(inActiveAnimation);
     if (mActiveAnimation > static_cast<ui>(mAnimations.size() - 1)) {
         std::cout << "No animation with index " << mActiveAnimation << "\n";
         return;
@@ -522,7 +605,7 @@ void glTF_Model::UpdateAnimation(float inDeltaTime, bool inShouldLoop) {
     for (auto& channel : Animation.mChannels) {
         AnimationSampler& sampler = Animation.mSamplers[channel.mSamplerIndex];
         for (size_t i = 0; i < sampler.mInputs.size() - 1; i++) {
-            if (sampler.mInterpolation != "LINEAR") {
+            if (sampler.mInterpolation != "LINEAR" and sampler.mInterpolation != "STEP") {
                 std::cout << "Only Linear is Supported Yet"; // TODO Support Others
                 continue;
             }
@@ -531,6 +614,9 @@ void glTF_Model::UpdateAnimation(float inDeltaTime, bool inShouldLoop) {
                 (Animation.mCurrentTime <= sampler.mInputs[i + 1])) {
                 float a = (Animation.mCurrentTime - sampler.mInputs[i]) /
                           (sampler.mInputs[i + 1] - sampler.mInputs[i]);
+                if (sampler.mInterpolation == "STEP") {
+                    a = 1.0f;
+                }
                 if (channel.mPath == "translation") {
                     channel.mNode->mTranslation =
                          glm::mix(sampler.mOutputsVec4[i], sampler.mOutputsVec4[i + 1], a);
@@ -557,6 +643,93 @@ void glTF_Model::UpdateAnimation(float inDeltaTime, bool inShouldLoop) {
             }
         }
     }
+}
+
+void glTF_Model::BlendCombineAnimationToArbritaryTime(float inDestinationTime,
+                                                      ui inDestinationAnimationIndex,
+                                                      float inBlendFactor,
+                                                      bool inShouldLoop) {
+    Animation& Animation = mAnimations[inDestinationAnimationIndex];
+
+    if (inShouldLoop) {
+        if (inDestinationTime > Animation.mEnd) {
+            inDestinationTime -= Animation.mEnd;
+        }
+
+        if (inDestinationTime < Animation.mStart) {
+            inDestinationTime += Animation.mEnd; // TODO Warning this is being modified
+        }
+    }
+
+    for (auto& channel : Animation.mChannels) {
+        AnimationSampler& sampler = Animation.mSamplers[channel.mSamplerIndex];
+        for (size_t i = 0; i < sampler.mInputs.size() - 1; i++) {
+            if (sampler.mInterpolation != "LINEAR" and sampler.mInterpolation != "STEP") {
+                std::cout << "Only Linear is Supported Yet"; // TODO Support Others
+                continue;
+            }
+
+            if ((inDestinationTime >= sampler.mInputs[i]) &&
+                (inDestinationTime <= sampler.mInputs[i + 1])) {
+                float a = (inDestinationTime - sampler.mInputs[i]) /
+                          (sampler.mInputs[i + 1] - sampler.mInputs[i]);
+                if (sampler.mInterpolation == "STEP") {
+                    a = 1.0f;
+                }
+                if (channel.mPath == "translation") {
+                    glm::vec3 t = glm::mix(sampler.mOutputsVec4[i], sampler.mOutputsVec4[i + 1], a);
+                    channel.mNode->mTranslation =
+                         glm::mix(channel.mNode->mTranslation, t, inBlendFactor);
+                }
+                if (channel.mPath == "rotation") {
+                    glm::quat q1;
+                    q1.x = sampler.mOutputsVec4[i].x;
+                    q1.y = sampler.mOutputsVec4[i].y;
+                    q1.z = sampler.mOutputsVec4[i].z;
+                    q1.w = sampler.mOutputsVec4[i].w;
+
+                    glm::quat q2;
+                    q2.x        = sampler.mOutputsVec4[i + 1].x;
+                    q2.y        = sampler.mOutputsVec4[i + 1].y;
+                    q2.z        = sampler.mOutputsVec4[i + 1].z;
+                    q2.w        = sampler.mOutputsVec4[i + 1].w;
+
+                    glm::quat r = glm::normalize(glm::slerp(q1, q2, a));
+                    channel.mNode->mRotation =
+                         glm::normalize(glm::slerp(channel.mNode->mRotation, r, inBlendFactor));
+                }
+                if (channel.mPath == "scale") {
+                    glm::vec3 s = glm::mix(sampler.mOutputsVec4[i], sampler.mOutputsVec4[i + 1], a);
+                    channel.mNode->mScale = glm::mix(channel.mNode->mScale, s, inBlendFactor);
+                }
+            }
+        }
+    }
+}
+
+void glTF_Model::BlendCombineAnimationByOffset(float inDeltaTime,
+                                               ui inBaseAnimationIndex,
+                                               float inTargetAnimationOffsetTime,
+                                               ui inTargetAnimationIndex,
+                                               float inBlendFactor,
+                                               bool inShouldLoop) {
+    SetActiveAnimation(inBaseAnimationIndex);
+    UpdateAnimation(inDeltaTime, inShouldLoop);
+    BlendCombineAnimationToArbritaryTime(
+         inTargetAnimationOffsetTime, inTargetAnimationIndex, inBlendFactor, inShouldLoop);
+}
+
+void glTF_Model::BlendCombineAnimation(float inDeltaTime,
+                                       ui inBaseAnimationIndex,
+                                       ui inTargetAnimationIndex,
+                                       float inBlendFactor,
+                                       bool inShouldLoop) {
+    SetActiveAnimation(inBaseAnimationIndex);
+    UpdateAnimation(inDeltaTime, inShouldLoop);
+    BlendCombineAnimationToArbritaryTime(mAnimations[mActiveAnimation].mCurrentTime,
+                                         inTargetAnimationIndex,
+                                         inBlendFactor,
+                                         inShouldLoop);
 }
 
 void glTF_Model::UpdateAllJoints(UpdateJointsCallBack inCallBack) {

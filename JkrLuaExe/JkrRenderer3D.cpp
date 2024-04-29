@@ -97,8 +97,14 @@ void CreateRenderer3DBindings(sol::state& s) {
          &Jkr::Renderer::_3D::glTF_Model::GetJointsCount,
          "GetNodeMatrixByIndex",
          &Jkr::Renderer::_3D::glTF_Model::GetNodeMatrixByIndex,
-         "SetActiveAnimation",
-         &Jkr::Renderer::_3D::glTF_Model::SetActiveAnimation,
+         "UpdateAnimation",
+         &Jkr::Renderer::_3D::glTF_Model::UpdateAnimation,
+         "BlendCombineAnimationToArbritaryTime",
+         &Jkr::Renderer::_3D::glTF_Model::BlendCombineAnimationToArbritaryTime,
+         "BlendCombineAnimationByOffset",
+         &Jkr::Renderer::_3D::glTF_Model::BlendCombineAnimationByOffset,
+         "BlendCombineAnimation",
+         &Jkr::Renderer::_3D::glTF_Model::BlendCombineAnimation,
          "GetNodeIndexByMeshIndex",
          &Jkr::Renderer::_3D::glTF_Model::GetNodeIndexByMeshIndex);
     Jkr.new_usertype<Jkr::Renderer::_3D::Shape>(
