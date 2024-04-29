@@ -6,15 +6,6 @@
 namespace JkrEXE {
 extern void CreateMainBindings(sol::state& s);
 
-// TODO Remove this
-enum class AllTypes {
-    Window,
-    DefaultCustomImagePainterPushConstant,
-    Misc_RecycleBin,
-    Renderer_Line,
-    MultiThreading,
-};
-
 struct MultiThreading {
     MultiThreading(Jkr::Instance& inInstance);
     void Inject(std::string_view inVariable, sol::object inValue);
@@ -135,23 +126,6 @@ inline void MultiThreading::InjectScriptF(sol::function inFunction) {
     mConditionVariable.notify_all();
 }
 
-inline static sol::object
-GetObjectByType(sol::object obj, sol::state& target, AllTypes inType) noexcept {
-    if (inType == AllTypes::Window) {
-        return sol::make_object(target, std::ref(obj.as<Jkr::Window>()));
-    } else if (inType == AllTypes::DefaultCustomImagePainterPushConstant) {
-        return sol::make_object(target, std::ref(obj.as<DefaultCustomImagePainterPushConstant>()));
-    } else if (inType == AllTypes::Misc_RecycleBin) {
-        return sol::make_object(target, std::ref(obj.as<Jkr::Misc::RecycleBin<int>>()));
-    } else if (inType == AllTypes::Renderer_Line) {
-        return sol::make_object(target, std::ref(obj.as<Jkr::Renderer::Renderer::Line>()));
-    } else if (inType == AllTypes::MultiThreading) {
-        return sol::make_object(target, std::ref(obj.as<MultiThreading>()));
-    } else {
-        return {};
-    }
-}
-
 template <typename T, typename... Ts>
 inline static sol::object getObjectByType(sol::object& obj, sol::state& target) noexcept {
 
@@ -215,6 +189,8 @@ inline sol::object MultiThreading::Copy(sol::object obj, sol::state& target) {
                                    Jkr::Misc::RecycleBin<int>,
                                    Jkr::Misc::_3D::Camera3D,
                                    Jkr::Misc::_3D::World3D,
+                                   Jkr::Misc::_3D::World3D::Object3D,
+                                   std::vector<Jkr::Misc::_3D::World3D::Object3D>&,
                                    Jkr::Misc::_3D::Uniform3D,
 
                                    Jkr::Renderer::Line,
@@ -232,15 +208,7 @@ inline sol::object MultiThreading::Copy(sol::object obj, sol::state& target) {
 
 void CreateMultiThreadingBindings(sol::state& inState) {
     using namespace JkrEXE;
-    auto Jkr           = inState["Jkr"].get_or_create<sol::table>();
-
-    auto TypeEnum      = Jkr.new_enum<false>("AllTypes");
-    TypeEnum["Window"] = AllTypes::Window;
-    TypeEnum["DefaultCustomImagePainterPushConstant"] =
-         AllTypes::DefaultCustomImagePainterPushConstant;
-    TypeEnum["Misc_RecycleBin"] = AllTypes::Misc_RecycleBin;
-    TypeEnum["Renderer_Line"]   = AllTypes::Renderer_Line;
-    TypeEnum["MultiThreading"]  = AllTypes::MultiThreading;
+    auto Jkr = inState["Jkr"].get_or_create<sol::table>();
 
     Jkr.new_usertype<MultiThreading>(
          "MultiThreading",

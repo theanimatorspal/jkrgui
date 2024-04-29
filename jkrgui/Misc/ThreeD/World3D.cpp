@@ -16,13 +16,6 @@ void World3D::BuildBasic() {
     AddCamera(Cam);
 }
 
-void World3D::BuildDemo() {
-    Jkr::Generator Gen(Shapes::Cube3D, glm::vec3(1, 0.1, 1));
-    int Id                = mShape.AddEXT(Gen, glm::vec3(0, 0, 0));
-    mObjectToSimpleMap[0] = mObjects.size() - 1;
-    AddObject(Id, -1, -1, 0);
-}
-
 Up<World3D> World3D::CreateWorld3D(Shape3D& inShape) {
     auto O = mu<World3D>(inShape);
     return O;
@@ -31,19 +24,6 @@ Up<World3D> World3D::CreateWorld3D(Shape3D& inShape) {
 int World3D::AddGLTFModel(std::string_view inFileName) {
     mGLTFModels.emplace_back(mu<Renderer::_3D::glTF_Model>(inFileName));
     return mGLTFModels.size() - 1;
-}
-
-int World3D::AddObject(int inId,
-                       int inAssociatedGLTFModel,
-                       int inAssociatedUniform,
-                       int inAssociatedSimple3D) {
-    mObjects.push_back(Object3D{.mId                 = inId,
-                                .mAssociatedModel    = inAssociatedGLTFModel,
-                                .mAssociatedUniform  = inAssociatedUniform,
-                                .mAssociatedSimple3D = inAssociatedSimple3D});
-    mObjectToSimpleMap[mObjects.size() - 1]  = inAssociatedSimple3D;
-    mObjectToUniformMap[mObjects.size() - 1] = inAssociatedUniform;
-    return mObjects.size() - 1;
 }
 
 int World3D::AddSimple3D(Jkr::Instance& inInstance, Window& inWindow) {
@@ -80,104 +60,40 @@ void World3D::AddShadowMapToUniform3D(WindowMulT& inWindow, int inId, int inSet)
     ImgParam.RegisterDepth(0, kstd::BindingIndex::Uniform::DiffuseImage, 0, DesSet, inSet);
 }
 
-void World3D::DrawBackgrounds(Window& inWindow, Renderer::CmdParam inParam) {}
-
 struct PushConstantDefault {
     glm::mat4 m1;
     glm::mat4 m2;
 };
 
-// TODO: Remove this
-// TODO: Take an Span of object Ids and render those
-void World3D::DrawObjects(Window& inWindow, Renderer::CmdParam inParam) {
-    PushConstantDefault Push;
-    Push.m1         = GetCurrentCamera()->GetMatrix(); // TODO Change This
-    Push.m2         = GetCurrentCamera()->GetMatrix(); // TODO Change This
-    int SimpleIndex = 0;
-    mShape.Bind(inWindow, inParam);
-    for (auto& simple : mSimple3Ds) {
-        simple->Bind(inWindow, inParam);
-        for (auto& uniform : mUniforms) {
-            uniform->Bind(inWindow, *simple, 0, inParam);
-            for (int i = 0; i < mObjects.size(); ++i) {
-                int simple  = mObjectToSimpleMap[i];
-                int uniform = mObjectToUniformMap[i];
-                if (not(uniform == invalid) and not(simple == SimpleIndex)) {
-                    mSimple3Ds[simple]->Draw<PushConstantDefault>(
-                         inWindow,
-                         mShape,
-                         Push,
-                         0,
-                         mShape.GetIndexCount(mObjects[i].mId),
-                         1,
-                         inParam);
-                }
-            }
-        }
-        if (mUniforms.empty()) {
-            for (int i = 0; i < mObjects.size(); ++i) {
-                int simple = mObjectToSimpleMap[i];
-                mSimple3Ds[simple]->Draw<PushConstantDefault>(
-                     inWindow, mShape, Push, 0, mShape.GetIndexCount(mObjects[i].mId), 1, inParam);
-            }
-        }
-        ++SimpleIndex;
-    }
-}
-
-void World3D::DrawObjectsUniformed3D(Window& inWindow, Renderer::CmdParam inParam) {
-    mShape.Bind(inWindow, inParam);
-    int SimpleIndex = 0;
-    for (auto& simple : mSimple3Ds) {
-        simple->Bind(inWindow, inParam);
-        for (int i = 0; i < mObjects.size(); ++i) {
-            int simpleIndex  = mObjectToSimpleMap[i];
-            int uniformIndex = mObjectToUniformMap[i];
-            if (simpleIndex == SimpleIndex) {
-                mUniforms[uniformIndex]->Bind(inWindow, *simple, 0, inParam);
-                PushConstantDefault Push;
-                Push.m1 = mObjects[i].GetLocalMatrix();
-                mSimple3Ds[simpleIndex]->Draw<PushConstantDefault>(
-                     inWindow,
-                     mShape,
-                     Push,
-                     mShape.GetIndexOffsetAbsolute(mObjects[i].mId),
-                     mShape.GetIndexCount(mObjects[i].mId),
-                     1,
-                     inParam);
-            }
-        }
-        ++SimpleIndex;
-    }
-}
-
 void World3D::DrawObjectsExplicit(Window& inWindow,
                                   v<Object3D>& inExplicitObjects,
                                   Renderer::CmdParam inParam) {
     mShape.Bind(inWindow, inParam);
-    int SimpleIndex = 0;
     mUniforms.front()->Bind(inWindow, *mSimple3Ds.front(), WorldInfoDescriptorSetIndex, inParam);
-    for (auto& simple : mSimple3Ds) {
-        simple->Bind(inWindow, inParam);
-        for (int i = 0; i < inExplicitObjects.size(); ++i) {
-            int index        = i;
-            int simpleIndex  = inExplicitObjects[i].mAssociatedSimple3D;
-            int uniformIndex = inExplicitObjects[i].mAssociatedUniform;
-            if (simpleIndex == SimpleIndex) {
-                mUniforms[uniformIndex]->Bind(inWindow, *simple, 1, inParam);
-                PushConstantDefault Push;
-                Push.m1 = mObjects[index].GetLocalMatrix();
-                mSimple3Ds[simpleIndex]->Draw<PushConstantDefault>(
-                     inWindow,
-                     mShape,
-                     Push,
-                     mShape.GetIndexOffsetAbsolute(mObjects[i].mId),
-                     mShape.GetIndexCount(mObjects[i].mId),
-                     1,
-                     inParam);
-            }
+
+    int PreviousSimpleIndex = 0;
+    for (int i = 0; i < inExplicitObjects.size(); ++i) {
+        int index        = i;
+        int simpleIndex  = inExplicitObjects[i].mAssociatedSimple3D;
+        int uniformIndex = inExplicitObjects[i].mAssociatedUniform;
+
+        if (not(simpleIndex == PreviousSimpleIndex)) {
+            mSimple3Ds[simpleIndex]->Bind(inWindow, inParam);
+            PreviousSimpleIndex = simpleIndex;
         }
-        ++SimpleIndex;
+        if (uniformIndex != -1) {
+            mUniforms[uniformIndex]->Bind(inWindow, *mSimple3Ds[PreviousSimpleIndex], 1, inParam);
+        }
+        PushConstantDefault Push;
+        Push.m1 = inExplicitObjects[index].GetLocalMatrix();
+        mSimple3Ds[simpleIndex]->Draw<PushConstantDefault>(
+             inWindow,
+             mShape,
+             Push,
+             mShape.GetIndexOffsetAbsolute(inExplicitObjects[i].mId),
+             mShape.GetIndexCount(inExplicitObjects[i].mId),
+             1,
+             inParam);
     }
 }
 

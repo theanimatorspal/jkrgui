@@ -60,12 +60,15 @@ void Uniform3D::UpdateByGLTFAnimation(Renderer::_3D::glTF_Model& inModel,
                                       float inDeltaTime,
                                       int inActiveAnimationIndex) {
     inModel.SetActiveAnimation(inActiveAnimationIndex);
-    inModel.UpdateAnimation(inDeltaTime, [&](v<glm::mat4>& inMatrices) {
+    inModel.UpdateAnimation(inDeltaTime);
+    inModel.UpdateAllJoints([&](v<glm::mat4>& inMatrices) {
         void* data = inMatrices.data();
         UpdateStorageBuffer(kstd::BindingIndex::Storage::JointMatrix,
                             &data,
                             inMatrices.size() * sizeof(glm::mat4));
-    });
+    }
+
+    );
 }
 
 Up<Uniform3D> Uniform3D::CreateByGLTFNodeIndex(const Instance& inInstance,

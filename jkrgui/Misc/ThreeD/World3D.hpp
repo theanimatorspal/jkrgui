@@ -41,8 +41,7 @@ struct World3D {
                    glm::scale(glm::mat4(1.0f), mScale) * mMatrix;
         }
     };
-    GETTER GetExplicitShadowCastingObjects() { return &mExplicitShadowCastingObjects; }
-    GETTER GetExplicitObjects() { return &mObjects; }
+    GETTER MakeExplicitObjectsVector() -> v<Object3D> { return {}; }
     GETTER GetCamera(int inId) { return &mCameras[inId]; }
     GETTER GetCurrentCamera() { return &mCameras[mCurrentCamera]; }
     GETTER GetGLTFModel(int inId) { return mGLTFModels[inId].get(); }
@@ -52,20 +51,12 @@ struct World3D {
 
     static Up<World3D> CreateWorld3D(Shape3D& inShape);
     void BuildBasic();
-    void BuildDemo();
 
     void AddCamera(Camera3D& inCamera) { mCameras.push_back(inCamera); }
     int AddGLTFModel(std::string_view inFileName);
-    int AddObject(int inId,
-                  int inAssociatedGLTFModel,
-                  int inAssociatedUniform,
-                  int inAssociatedSimple3D);
     int AddSimple3D(Jkr::Instance& inInstance, Window& inWindow);
     int AddUniform3D(Jkr::Instance& inInstance);
     int AddLight3D(glm::vec4 inPosition, glm::vec4 inDirection);
-    void DrawBackgrounds(Window& inWindow, Renderer::CmdParam inParam);
-    void DrawObjects(Window& inWindow, Renderer::CmdParam inParam);
-    void DrawObjectsUniformed3D(Window& inWindow, Renderer::CmdParam inParam);
     void DrawObjectsExplicit(Window& inWindow,
                              v<Object3D>& inExplicitObjectIds,
                              Renderer::CmdParam inParam);
@@ -86,16 +77,11 @@ struct World3D {
     v<Up<Renderer::_3D::glTF_Model>> mGLTFModels;
     v<Up<Uniform3D>> mUniforms;
     v<Up<Simple3D>> mSimple3Ds;
-    v<Object3D> mObjects;
-    v<Object3D> mBackgroundObjects;
     v<Light3D> mLights;
 
-    umap<int, int> mObjectToSimpleMap;
-    umap<int, int> mObjectToUniformMap;
     const int invalid                = -1;
     float mCameraMovementSensitivity = 0.1f;
     float mCameraRotateSensitivity   = 0.1f;
-    v<Object3D> mExplicitShadowCastingObjects;
     Up<SkyboxImageType> mSkyboxImage;
 };
 } // namespace Jkr::Misc::_3D

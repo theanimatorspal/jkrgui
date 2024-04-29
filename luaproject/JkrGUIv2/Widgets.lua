@@ -81,6 +81,68 @@ Jkr.CreateCallBuffers = function() -- Similar to Comptable in JrkGUI v1
             end
         end
     end
+
+    local cdf = 1 -- CurrentDispatchFrame
+    o.Dispatch = function()
+        --[========================================================]
+        -- DISPATCH ONE TIMES
+        --[========================================================]
+        if o.mOneTimeDispatchables[cdf] then
+            local Length = #o.mOneTimeDispatchables[cdf]
+            for x = 1, Length, 1 do
+                o.mOneTimeDispatchables[cdf][x].mDispatch()
+                o.mOneTimeDispatchables[cdf][x] = nil
+            end
+            o.mOneTimeDispatchables[cdf] = nil
+            cdf = cdf + 1
+            if not o.mOneTimeDispatchables[cdf] then
+                cdf = 1
+            end
+        end
+
+        --[========================================================]
+        -- DISPATCH
+        --[========================================================]
+        for i = 1, #o.mDispatchables, 1 do
+            o.mDispatchables[i].mDispatch()
+        end
+    end
+
+    local cuf = 1 -- CurrentUpdateFrame
+    o.Update = function()
+        --[========================================================]
+        -- UPDATE ONE TIMES
+        --[========================================================]
+        if o.mOneTimeUpdatables[cuf] then
+            local Length = #o.mOneTimeUpdatables[cuf]
+            for x = 1, Length, 1 do
+                o.mOneTimeUpdatables[cuf][x].mDispatch()
+                o.mOneTimeUpdatables[cuf][x] = nil
+            end
+            o.mOneTimeUpdatables[cuf] = nil
+            cuf = cuf + 1
+            if not o.mOneTimeUpdatables[cuf] then
+                cuf = 1
+            end
+        end
+
+        --[========================================================]
+        -- UPDATE
+        --[========================================================]
+        for i = 1, #o.mUpdatables, 1 do
+            o.mUpdatables[i].mUpdate()
+        end
+    end
+
+    o.Event = function()
+        --[========================================================]
+        -- EVENT
+        --[========================================================]
+        for i = 1, #o.mEventables, 1 do
+            o.mEventables[i].mEvent()
+        end
+    end
+
     return o
 end
 
@@ -196,38 +258,15 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     --
     --
     --
-    --  DISPATCH UPDATE EVENT Stuffs
+    -- DRAW DISPATCH UPDATE EVENT Stuffs
     --
     --
     --
     --[========================================================]
-    local cuf = 1 -- CurrentDispatchFrame
     o.Update = function()
         o.WindowDimension = w:GetWindowDimension()
         o.UIMatrix = Jmath.Ortho(0.0, o.WindowDimension.x, 0.0, o.WindowDimension.y, 1000, -1000)
-
-        --[========================================================]
-        -- UPDATE ONE TIMES
-        --[========================================================]
-        if o.c.mOneTimeUpdatables[cuf] then
-            local Length = #o.c.mOneTimeUpdatables[cuf]
-            for x = 1, Length, 1 do
-                o.c.mOneTimeUpdatables[cuf][x].mDispatch()
-                o.c.mOneTimeUpdatables[cuf][x] = nil
-            end
-            o.c.mOneTimeUpdatables[cuf] = nil
-            cuf = cuf + 1
-            if not o.c.mOneTimeUpdatables[cuf] then
-                cuf = 1
-            end
-        end
-
-        --[========================================================]
-        -- UPDATE
-        --[========================================================]
-        for i = 1, #o.c.mUpdatables, 1 do
-            o.c.mUpdatables[i].mUpdate()
-        end
+        o.c.Update()
     end
 
     o.Draw = function()
@@ -246,40 +285,13 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         end
     end
 
-    local cdf = 1 -- CurrentDispatchFrame
     o.Dispatch = function()
         o.s:Dispatch(w, Jkr.CmdParam.None)
-        --[========================================================]
-        -- DISPATCH ONE TIMES
-        --[========================================================]
-        if o.c.mOneTimeDispatchables[cdf] then
-            local Length = #o.c.mOneTimeDispatchables[cdf]
-            for x = 1, Length, 1 do
-                o.c.mOneTimeDispatchables[cdf][x].mDispatch()
-                o.c.mOneTimeDispatchables[cdf][x] = nil
-            end
-            o.c.mOneTimeDispatchables[cdf] = nil
-            cdf = cdf + 1
-            if not o.c.mOneTimeDispatchables[cdf] then
-                cdf = 1
-            end
-        end
-
-        --[========================================================]
-        -- DISPATCH
-        --[========================================================]
-        for i = 1, #o.c.mDispatchables, 1 do
-            o.c.mDispatchables[i].mDispatch()
-        end
+        o.c.Dispatch()
     end
 
     o.Event = function()
-        --[========================================================]
-        -- EVENT
-        --[========================================================]
-        for i = 1, #o.c.mEventables, 1 do
-            o.c.mEventables[i].mEvent()
-        end
+        o.c.Event()
     end
     return o
 end

@@ -38,11 +38,11 @@ target_precompile_headers ( ${TARGET_NAME}
 endfunction()
 
 # If building for Android, set specific compiler flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wl,--exclude-libs,ALL")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
 
 # Define debug flags for Android builds
 if(ANDROID)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wl,--exclude-libs,ALL")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         add_definitions(-D_DEBUG)
         set(NDK_DEBUG true)

@@ -58,6 +58,17 @@ void CreateRenderer3DBindings(sol::state& s) {
                                "SetPipelineContext",
                                &Simple3D::SetPipelineContext);
 
+    Jkr.new_usertype<Jkr::Renderer::_3D::glTF_Model::Animation>(
+         "Animation",
+         sol::call_constructor,
+         sol::default_constructor,
+         "mStart",
+         &Jkr::Renderer::_3D::glTF_Model::Animation::mStart,
+         "mEnd",
+         &Jkr::Renderer::_3D::glTF_Model::Animation::mEnd,
+         "mCurrentTime",
+         &Jkr::Renderer::_3D::glTF_Model::Animation::mCurrentTime);
+
     Jkr.new_usertype<Jkr::Renderer::_3D::glTF_Model>(
          "glTF_Model",
          sol::call_constructor,
@@ -80,6 +91,8 @@ void CreateRenderer3DBindings(sol::state& s) {
          &Jkr::Renderer::_3D::glTF_Model::GetAnimationsSize,
          "GetActiveAnimation",
          &Jkr::Renderer::_3D::glTF_Model::GetActiveAnimation,
+         "GetAnimationById",
+         &Jkr::Renderer::_3D::glTF_Model::GetAnimationById,
          "GetJointsCount",
          &Jkr::Renderer::_3D::glTF_Model::GetJointsCount,
          "GetNodeMatrixByIndex",

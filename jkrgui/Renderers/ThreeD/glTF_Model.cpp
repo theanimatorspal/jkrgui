@@ -501,26 +501,29 @@ void glTF_Model::UpdateJoints(glTF_Model::Node* inNode, UpdateJointsCallBack inC
     }
 }
 
-void glTF_Model::UpdateAnimation(float inDeltaTime, UpdateJointsCallBack inCallBack) {
+void glTF_Model::UpdateAnimation(float inDeltaTime, bool inShouldLoop) {
     if (mActiveAnimation > static_cast<ui>(mAnimations.size() - 1)) {
         std::cout << "No animation with index " << mActiveAnimation << "\n";
         return;
     }
     Animation& Animation = mAnimations[mActiveAnimation];
     Animation.mCurrentTime += inDeltaTime;
-    if (Animation.mCurrentTime > Animation.mEnd) {
-        Animation.mCurrentTime -= Animation.mEnd;
-    }
 
-    if (Animation.mCurrentTime < Animation.mStart) {
-        Animation.mCurrentTime += Animation.mEnd;
+    if (inShouldLoop) {
+        if (Animation.mCurrentTime > Animation.mEnd) {
+            Animation.mCurrentTime -= Animation.mEnd;
+        }
+
+        if (Animation.mCurrentTime < Animation.mStart) {
+            Animation.mCurrentTime += Animation.mEnd;
+        }
     }
 
     for (auto& channel : Animation.mChannels) {
         AnimationSampler& sampler = Animation.mSamplers[channel.mSamplerIndex];
         for (size_t i = 0; i < sampler.mInputs.size() - 1; i++) {
             if (sampler.mInterpolation != "LINEAR") {
-                std::cout << "This sample only supports linear interpolations\n";
+                std::cout << "Only Linear is Supported Yet"; // TODO Support Others
                 continue;
             }
 
@@ -554,6 +557,9 @@ void glTF_Model::UpdateAnimation(float inDeltaTime, UpdateJointsCallBack inCallB
             }
         }
     }
+}
+
+void glTF_Model::UpdateAllJoints(UpdateJointsCallBack inCallBack) {
     for (auto& node : mNodes) {
         UpdateJoints(node.get(), inCallBack);
     }

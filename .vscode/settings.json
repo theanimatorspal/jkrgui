@@ -10,10 +10,6 @@
           "explorer.decorations.badges": false,
           "clangd.arguments": [
                     "-header-insertion=never",
-                    "-j=8",
-                    "--malloc-trim",
-                    "--background-index",
-                    "--pch-storage=memory"
           ],
           /*CMAKE*/
           "cmake.allowCommentsInPresetsFile": true,
