@@ -89,8 +89,6 @@ void CreateRenderer3DBindings(sol::state& s) {
          &Jkr::Renderer::_3D::glTF_Model::GetSkinsSize,
          "GetAnimationsSize",
          &Jkr::Renderer::_3D::glTF_Model::GetAnimationsSize,
-         "GetActiveAnimation",
-         &Jkr::Renderer::_3D::glTF_Model::GetActiveAnimation,
          "GetAnimationById",
          &Jkr::Renderer::_3D::glTF_Model::GetAnimationById,
          "GetJointsCount",

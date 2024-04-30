@@ -1,6 +1,11 @@
 #pragma once
 #include "Instance.hpp"
 #include "VulkanBuffer.hpp"
+#include <Vulkan/Pipeline/VulkanDescriptorUpdateHandler.hpp>
+#include <VulkanBufferVMA.hpp>
+#include <VulkanImageVMA.hpp>
+#include <VulkanSampler.hpp>
+
 extern "C" {
 #include <Vendor/stbi/stb_image.h>
 }

@@ -5,6 +5,8 @@
 using namespace Jkr::Renderer::_3D;
 using namespace ksai;
 
+constexpr float ErrorFactor = 0.05;
+
 glm::mat4 glTF_Model::Node::GetLocalMatrix() {
     {};
     return glm::translate(glm::mat4(1.0f), mTranslation) * glm::mat4(mRotation) *
@@ -584,12 +586,7 @@ void glTF_Model::UpdateJoints(glTF_Model::Node* inNode, UpdateJointsCallBack inC
 }
 
 void glTF_Model::UpdateAnimation(ui inActiveAnimation, float inDeltaTime, bool inShouldLoop) {
-    SetActiveAnimation(inActiveAnimation);
-    if (mActiveAnimation > static_cast<ui>(mAnimations.size() - 1)) {
-        std::cout << "No animation with index " << mActiveAnimation << "\n";
-        return;
-    }
-    Animation& Animation = mAnimations[mActiveAnimation];
+    Animation& Animation = mAnimations[inActiveAnimation];
     Animation.mCurrentTime += inDeltaTime;
 
     if (inShouldLoop) {
@@ -600,6 +597,9 @@ void glTF_Model::UpdateAnimation(ui inActiveAnimation, float inDeltaTime, bool i
         if (Animation.mCurrentTime < Animation.mStart) {
             Animation.mCurrentTime += Animation.mEnd;
         }
+    }
+    if (Animation.mCurrentTime < ErrorFactor) {
+        Animation.mCurrentTime = ErrorFactor;
     }
 
     for (auto& channel : Animation.mChannels) {
@@ -649,16 +649,20 @@ void glTF_Model::BlendCombineAnimationToArbritaryTime(float inDestinationTime,
                                                       ui inDestinationAnimationIndex,
                                                       float inBlendFactor,
                                                       bool inShouldLoop) {
-    Animation& Animation = mAnimations[inDestinationAnimationIndex];
-
+    Animation& Animation  = mAnimations[inDestinationAnimationIndex];
+    float DestinationTime = inDestinationTime;
     if (inShouldLoop) {
         if (inDestinationTime > Animation.mEnd) {
-            inDestinationTime -= Animation.mEnd;
+            DestinationTime -= Animation.mEnd;
         }
 
         if (inDestinationTime < Animation.mStart) {
-            inDestinationTime += Animation.mEnd; // TODO Warning this is being modified
+            DestinationTime += Animation.mEnd;
         }
+    }
+
+    if (DestinationTime < ErrorFactor) {
+        DestinationTime = ErrorFactor;
     }
 
     for (auto& channel : Animation.mChannels) {
@@ -669,9 +673,9 @@ void glTF_Model::BlendCombineAnimationToArbritaryTime(float inDestinationTime,
                 continue;
             }
 
-            if ((inDestinationTime >= sampler.mInputs[i]) &&
-                (inDestinationTime <= sampler.mInputs[i + 1])) {
-                float a = (inDestinationTime - sampler.mInputs[i]) /
+            if ((DestinationTime >= sampler.mInputs[i]) &&
+                (DestinationTime <= sampler.mInputs[i + 1])) {
+                float a = (DestinationTime - sampler.mInputs[i]) /
                           (sampler.mInputs[i + 1] - sampler.mInputs[i]);
                 if (sampler.mInterpolation == "STEP") {
                     a = 1.0f;
@@ -713,8 +717,7 @@ void glTF_Model::BlendCombineAnimationByOffset(float inDeltaTime,
                                                ui inTargetAnimationIndex,
                                                float inBlendFactor,
                                                bool inShouldLoop) {
-    SetActiveAnimation(inBaseAnimationIndex);
-    UpdateAnimation(inDeltaTime, inShouldLoop);
+    UpdateAnimation(inBaseAnimationIndex, inDeltaTime, inShouldLoop);
     BlendCombineAnimationToArbritaryTime(
          inTargetAnimationOffsetTime, inTargetAnimationIndex, inBlendFactor, inShouldLoop);
 }
@@ -724,9 +727,9 @@ void glTF_Model::BlendCombineAnimation(float inDeltaTime,
                                        ui inTargetAnimationIndex,
                                        float inBlendFactor,
                                        bool inShouldLoop) {
-    SetActiveAnimation(inBaseAnimationIndex);
-    UpdateAnimation(inDeltaTime, inShouldLoop);
-    BlendCombineAnimationToArbritaryTime(mAnimations[mActiveAnimation].mCurrentTime,
+    std::cout << "Destination Time: " << mAnimations[inBaseAnimationIndex].mCurrentTime << "\n";
+    UpdateAnimation(inBaseAnimationIndex, inDeltaTime, inShouldLoop);
+    BlendCombineAnimationToArbritaryTime(mAnimations[inBaseAnimationIndex].mCurrentTime,
                                          inTargetAnimationIndex,
                                          inBlendFactor,
                                          inShouldLoop);

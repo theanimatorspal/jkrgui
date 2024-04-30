@@ -241,4 +241,22 @@ void VulkanPipelineBase::BuildPipeline(VulkanPipelineCache& inCache,
     }
 }
 
+void VulkanPipelineBase::DrawIndexed(const VulkanCommandBuffer& inCmdBuffer,
+                                     int32_t inIndexCount,
+                                     int32_t inInstanceCount,
+                                     int32_t inFirstIndex,
+                                     int32_t inVertexOffset,
+                                     int32_t inFirstInstance) const {
+    inCmdBuffer.GetCommandBufferHandle().drawIndexed(
+         inIndexCount, inInstanceCount, inFirstIndex, inVertexOffset, inFirstIndex);
+}
+
+VulkanPipelineBase::~VulkanPipelineBase() {
+    mDevice.waitIdle();
+    mDevice.destroyPipeline(mPipeline);
+}
+
+VulkanPipelineBase::VulkanPipelineBase(const VulkanDevice& inDevice)
+    : mDevice(inDevice.GetDeviceHandle()) {}
+
 } // namespace ksai

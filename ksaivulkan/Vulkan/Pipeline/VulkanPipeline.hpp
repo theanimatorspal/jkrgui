@@ -5,7 +5,6 @@
 #include "VulkanPipelineLayout.hpp"
 #include "VulkanRenderPass.hpp"
 #include "VulkanShaderModule.hpp"
-#include "vulkan/vulkan.hpp"
 
 namespace ksai {
 
@@ -20,13 +19,13 @@ class VulkanPipelineBase {
                        const std::vector<VulkanShaderModule>& inModules,
                        PipelineContext inPipelineContext);
 
-    template <PipelineContext inContext> inline void Bind(const VulkanCommandBuffer& inCmdBuffer);
-    inline void DrawIndexed(const VulkanCommandBuffer& inCmdBuffer,
-                            int32_t inIndexCount,
-                            int32_t inInstanceCount,
-                            int32_t inFirstIndex,
-                            int32_t inVertexOffset,
-                            int32_t inFirstInstance) const;
+    template <PipelineContext inContext> void Bind(const VulkanCommandBuffer& inCmdBuffer);
+    void DrawIndexed(const VulkanCommandBuffer& inCmdBuffer,
+                     int32_t inIndexCount,
+                     int32_t inInstanceCount,
+                     int32_t inFirstIndex,
+                     int32_t inVertexOffset,
+                     int32_t inFirstInstance) const;
     void FillVertexInputDescriptions(
          const spirv_cross::ShaderResources& Resources,
          const spirv_cross::Compiler& comp,
@@ -53,9 +52,6 @@ class VulkanPipeline : public VulkanPipelineBase {
     ~VulkanPipeline() = default;
 };
 
-} // namespace ksai
-
-namespace ksai {
 template <PipelineContext inContext>
 inline void VulkanPipelineBase::Bind(const VulkanCommandBuffer& inCmdBuffer) {
     if constexpr (inContext == PipelineContext::Default)
@@ -65,23 +61,5 @@ inline void VulkanPipelineBase::Bind(const VulkanCommandBuffer& inCmdBuffer) {
         inCmdBuffer.GetCommandBufferHandle().bindPipeline(vk::PipelineBindPoint::eCompute,
                                                           mPipeline);
 }
-
-inline void VulkanPipelineBase::DrawIndexed(const VulkanCommandBuffer& inCmdBuffer,
-                                            int32_t inIndexCount,
-                                            int32_t inInstanceCount,
-                                            int32_t inFirstIndex,
-                                            int32_t inVertexOffset,
-                                            int32_t inFirstInstance) const {
-    inCmdBuffer.GetCommandBufferHandle().drawIndexed(
-         inIndexCount, inInstanceCount, inFirstIndex, inVertexOffset, inFirstIndex);
-}
-
-inline VulkanPipelineBase::~VulkanPipelineBase() {
-    mDevice.waitIdle();
-    mDevice.destroyPipeline(mPipeline);
-}
-
-inline VulkanPipelineBase::VulkanPipelineBase(const VulkanDevice& inDevice)
-    : mDevice(inDevice.GetDeviceHandle()) {}
 
 } // namespace ksai

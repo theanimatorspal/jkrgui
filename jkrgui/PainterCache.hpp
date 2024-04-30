@@ -1,6 +1,10 @@
 #pragma once
 #include "Instance.hpp"
+#include <Vulkan/Pipeline/VulkanDescriptorSetLayout.hpp>
+#include <Vulkan/Pipeline/VulkanPipeline.hpp>
 #include <Vulkan/Pipeline/VulkanPipelineCache.hpp>
+#include <Vulkan/Pipeline/VulkanPipelineContext.hpp>
+#include <Vulkan/Pipeline/VulkanShaderModule.hpp>
 
 namespace Jkr {
 class ShaderModules {

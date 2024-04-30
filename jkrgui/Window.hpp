@@ -1,8 +1,9 @@
 #pragma once
 #include "PainterParameter.hpp"
 #include "SDLWindow.hpp"
-#include "vulkan/vulkan.hpp"
-#include "vulkan/vulkan_structs.hpp"
+#include <VulkanCommandBuffer.hpp>
+#include <VulkanDevice.hpp>
+#include <VulkanSwapChain.hpp>
 
 namespace Jkr {
 class Window : public SDLWindow {

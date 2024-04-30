@@ -14,33 +14,76 @@
 namespace Jkr::Renderer::_3D {
 using namespace ksai::kstd;
 using namespace ksai;
-struct Material {
-    struct Prop {
-        float roughness;
-        float metalness;
-        glm::vec3 color;
-    } props;
-
-    Material() = default;
-    Material(const sv inN, glm::vec3 inC, float inRoughness, float inMetalness)
-        : mname(inN),
-          props(Prop{.roughness = inRoughness, .metalness = inMetalness, .color = inC}) {}
-    s mname;
-    glm::vec4 mBaseColorFactor = glm::vec4(1.0f);
-    ui mBaseColorTextureIndex;
-};
 
 class glTF_Model {
     public:
+    struct BoundingBox {
+        glm::vec3 min;
+        glm::vec3 max;
+        bool valid = false;
+        BoundingBox(){};                                 // TODO Yet To Implement
+        BoundingBox(glm::vec3 min, glm::vec3 max){};     // TODO Yet to implement
+        BoundingBox GetAABB(glm::mat4 m) { return {}; }; // TODO Yet to Implement
+    };
+
+    struct Texture {
+        uint32_t mWidth, mHeight;
+        uint32_t mMipLevels;
+        uint32_t mLayerCount;
+        int32_t mImageIndex;
+    };
+
+    struct Material {
+        enum class AlphaMode { Opaque, Mask, Blend };
+        AlphaMode mAlphaMode                   = AlphaMode::Opaque;
+        float mAlphaCutOff                     = -1.0f;
+        float mMetallicFactor                  = 1.0f;
+        float mRoughnessFactor                 = 1.0f;
+        glm::vec4 mBaseColorFactor             = glm::vec4(1.0f);
+        glm::vec4 mEmissiveFactor              = glm::vec4(1.0f);
+        int32_t mBaseColorTextureIndex         = -1;
+        int32_t mMetallicRoughnessTextureIndex = -1;
+        int32_t mNormalTextureIndex            = -1;
+        int32_t mOcclusionTextureIndex         = -1;
+        int32_t mEmissiveTextureIndex          = -1;
+        bool mDoubleSided                      = false;
+        struct TextureCoordinateSets {
+            uint8_t mBaseColor          = 0;
+            uint8_t mMetallicRoughness  = 0;
+            uint8_t mSpecularGlossiness = 0;
+            uint8_t mNormal             = 0;
+            uint8_t mOcclusion          = 0;
+            uint8_t mEmissive           = 0;
+        } mTextureCoordinateSets;
+        struct Extension {
+            int32_t mSpecularGlossinessTextureIndex = -1;
+            int32_t mDiffuseTextureIndex            = -1;
+            glm::vec4 mDiffuseFactor                = glm::vec4(1.0f);
+            glm::vec3 mSpecularFactor               = glm::vec3(0.0f);
+        } mExtension;
+        struct PbrWorkflows {
+            bool mMetallicRoughness  = true;
+            bool mSpecularGlossiness = false;
+        } mPbrWorkflows;
+        uint32_t mIndex        = 0;
+        bool unlit             = false;
+        float emissiveStrength = 1.0f;
+    };
+
     struct Primitive {
         ui mFirstIndex;
         ui mIndexCount;
-        int32_t mMaterialIndex;
+        ui mVertexCount;
+        int32_t mMaterialIndex = -1;
+        bool mHasIndices;
+        BoundingBox mBB;
     };
 
     struct Mesh {
         v<Primitive> mPrimitives;
         v<ui> mNodeIndex;
+        BoundingBox mBB;
+        BoundingBox mAABB;
     };
 
     struct Node {
@@ -57,10 +100,6 @@ class glTF_Model {
 
         int mSkin = -1;
         glm::mat4 mMatrix;
-    };
-
-    struct Texture {
-        int32_t mImageIndex;
     };
 
     struct Image {
@@ -129,11 +168,9 @@ class glTF_Model {
     GETTER GetSkinsSize() { return mSkins.size(); }
     GETTER GetJointsCount(ui inIndex) { return mSkins[inIndex].mInverseBindMatrices.size(); }
     GETTER GetAnimationsSize() { return mAnimations.size(); }
-    GETTER GetActiveAnimation() const { return mActiveAnimation; }
     GETTER GetNodeIndexByMeshIndex(int inIndex) const { return mMeshes[inIndex].mNodeIndex; }
     glm::mat4 GetNodeMatrix(glTF_Model::Node* inNode);
     glm::mat4 GetNodeMatrixByIndex(int inIndex);
-    SETTER SetActiveAnimation(ui inAnimation) { mActiveAnimation = inAnimation; };
 
     void Load(ui inInitialVertexOffset = 0);
     void Load(FillVertexCallBack inVertexCallback, FillIndexCallBack inIndexCallback);
@@ -198,7 +235,6 @@ class glTF_Model {
     v<Up<Node>> mNodes;
     v<Skin> mSkins;
     v<Animation> mAnimations;
-    ui mActiveAnimation = 0;
 
     v<Mesh> mMeshes;
 };

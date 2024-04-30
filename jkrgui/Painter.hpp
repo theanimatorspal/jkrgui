@@ -1,12 +1,11 @@
 #pragma once
 #include "PainterCache.hpp"
 #include "PainterParameter.hpp"
-#include "Pipeline/VulkanPipelineContext.hpp"
+#include "Pipeline/VulkanPipeline.hpp"
 #include "Pipeline/VulkanPipelineLayout.hpp"
 #include "Primitive.hpp"
 #include "VulkanRenderPass.hpp"
 #include "Window.hpp"
-#include "vulkan/vulkan_handles.hpp"
 
 namespace Jkr {
 
