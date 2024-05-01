@@ -53,11 +53,9 @@ using f32  = float_t;
 namespace BindingIndex {
 enum Storage : int { JointMatrix = 1, JointInfluence = 2 };
 enum Uniform : int {
-    WorldInfo     = 0,
-    DiffuseImage  = 3,
-    SpecularImage = 4,
-    NormalImage   = 5,
-    CubeMapImage  = 8
+    WorldInfo    = 0,
+    Images       = 3, // Upto 8 or After 8
+    CubeMapImage = 20
 };
 }; // namespace BindingIndex
 } // namespace ksai::kstd

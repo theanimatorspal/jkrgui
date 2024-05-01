@@ -92,18 +92,12 @@ void Uniform3D::Build(Simple3D& inSimple3D,
     if (not mVulkanDescriptorSet) {
         Build(inSimple3D);
     }
-    Renderer::_3D::glTF_Model ModelCopy(inModel.GetFileName());
     if (inShouldSkin) {
         v<kstd::JointInfluence> JointInfluence;
-        auto FillJointInfluence = [&JointInfluence](kstd::Vertex3DExt inVertex) {
-            JointInfluence.push_back(kstd::JointInfluence{.mJointIndices = inVertex.mJointIndices,
-                                                          .mJointWeights = inVertex.mJointWeights});
-            return kstd::Vertex3D{.mPosition = inVertex.mPosition,
-                                  .mNormal   = inVertex.mNormal,
-                                  .mUV       = inVertex.mUV,
-                                  .mColor    = inVertex.mColor};
-        };
-        ModelCopy.Load(FillJointInfluence, [](ui inIndex) { return inIndex; });
+        for (auto& u : inModel.GetVerticesExtRef()) {
+            JointInfluence.push_back(kstd::JointInfluence{.mJointIndices = u.mJointIndices,
+                                                          .mJointWeights = u.mJointWeights});
+        }
 
         this->AddStorageBuffer(kstd::BindingIndex::Storage::JointInfluence,
                                JointInfluence.size() * sizeof(kstd::JointInfluence));
@@ -121,7 +115,7 @@ void Uniform3D::Build(Simple3D& inSimple3D,
                                    InverseBindMatrices.size() * sizeof(glm::mat4));
         }
     }
-    ui BindingIndex = kstd::BindingIndex::Uniform::DiffuseImage;
+    ui BindingIndex = kstd::BindingIndex::Uniform::Images;
     if (inShouldTextures) {
         for (auto& I : inModel.GetTexturesRef()) {
             auto& Image = inModel.GetImagesRef()[I.mImageIndex];
@@ -170,4 +164,36 @@ void Uniform3D::Bind(Window& inWindow,
                                Cmd,
                                inSimple3D.GetPainterCache().GetVertexFragmentPipelineLayout(),
                                inSet);
+}
+
+void Uniform3D::BuildByGLTFPrimitive(Simple3D& inSimple3D,
+                                     Renderer::_3D::glTF_Model& inModel,
+                                     Renderer::_3D::glTF_Model::Primitive inPrimitive,
+                                     ui inDstSet) {
+    if (not mVulkanDescriptorSet) {
+        Build(inSimple3D);
+    }
+    ui BindingIndex    = kstd::BindingIndex::Uniform::Images;
+    auto FillByTexture = [&](int inIndex) {
+        auto& Image = inModel.GetImagesRef()[inModel.GetTexturesRef()[inIndex].mImageIndex];
+        AddTextureByVector(BindingIndex, Image.mTextureImage, Image.mWidth, Image.mHeight);
+        BindingIndex++;
+    };
+
+    auto& Material = inModel.GetMaterialsRef()[inPrimitive.mMaterialIndex];
+    if (Material.mBaseColorTextureIndex != -1) {
+        FillByTexture(Material.mBaseColorTextureIndex);
+    }
+    if (Material.mMetallicRoughnessTextureIndex != -1) {
+        FillByTexture(Material.mMetallicRoughnessTextureIndex);
+    }
+    if (Material.mNormalTextureIndex != -1) {
+        FillByTexture(Material.mNormalTextureIndex);
+    }
+    if (Material.mOcclusionTextureIndex != -1) {
+        FillByTexture(Material.mOcclusionTextureIndex);
+    }
+    if (Material.mEmissiveTextureIndex != -1) {
+        FillByTexture(Material.mEmissiveTextureIndex);
+    }
 }

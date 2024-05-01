@@ -54,7 +54,7 @@ inline VulkanBufferVMA<inBufferContext, inBufferStorageType>::VulkanBufferVMA(
                                                  inSize,
                                                  vk::BufferUsageFlagBits::eVertexBuffer |
                                                       vk::BufferUsageFlagBits::eTransferDst);
-    FillBufferUsage<inBufferContext, inBufferStorageType>(BufferCreateInfo);
+    FillBufferUsage(BufferCreateInfo, inBufferContext, inBufferStorageType);
     VkBufferCreateInfo BufferCreateInfo_C = BufferCreateInfo;
 
     auto AllocationCreateInfo_C           = VmaAllocationCreateInfo();

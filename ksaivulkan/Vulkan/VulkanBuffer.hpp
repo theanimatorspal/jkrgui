@@ -50,8 +50,9 @@ class VulkanBufferBase {
     template <BufferContext Context> void Bind(const VulkanCommandBuffer& inCmdBuffer) const;
 
     protected:
-    template <BufferContext inBufferContext, MemoryType inBufferStorageType>
-    constexpr void FillBufferUsage(vk::BufferCreateInfo& inInfo);
+    void FillBufferUsage(vk::BufferCreateInfo& inInfo,
+                         BufferContext inBufferContext,
+                         MemoryType inBufferStorageType);
     void GetMemoryTypeIndex(vk::MemoryPropertyFlags inFlag,
                             vk::Buffer inBuffer,
                             vk::DeviceSize& outSize,
@@ -85,27 +86,28 @@ class VulkanBuffer : public VulkanBufferBase {
 } // namespace ksai
 
 namespace ksai {
-template <BufferContext inBufferContext, MemoryType inBufferStorageType>
-inline constexpr void VulkanBufferBase::FillBufferUsage(vk::BufferCreateInfo& inInfo) {
-    if constexpr (inBufferContext == BufferContext::Vertex)
+inline void VulkanBufferBase::FillBufferUsage(vk::BufferCreateInfo& inInfo,
+                                              BufferContext inBufferContext,
+                                              MemoryType inBufferStorageType) {
+    if (inBufferContext == BufferContext::Vertex)
         inInfo.setUsage(vk::BufferUsageFlagBits::eVertexBuffer |
                         vk::BufferUsageFlagBits::eTransferDst);
-    else if constexpr (inBufferContext == BufferContext::Index)
+    else if (inBufferContext == BufferContext::Index)
         inInfo.setUsage(vk::BufferUsageFlagBits::eIndexBuffer |
                         vk::BufferUsageFlagBits::eTransferDst);
-    else if constexpr (inBufferContext == BufferContext::Uniform)
+    else if (inBufferContext == BufferContext::Uniform)
         inInfo.setUsage(vk::BufferUsageFlagBits::eUniformBuffer |
                         vk::BufferUsageFlagBits::eTransferDst);
-    else if constexpr (inBufferContext == BufferContext::Storage)
+    else if (inBufferContext == BufferContext::Storage)
         inInfo.setUsage(vk::BufferUsageFlagBits::eStorageBuffer |
                         vk::BufferUsageFlagBits::eTransferDst);
-    else if constexpr (inBufferContext == (BufferContext::Vertex | BufferContext::Storage))
+    else if (inBufferContext == (BufferContext::Vertex | BufferContext::Storage))
         inInfo.setUsage(vk::BufferUsageFlagBits::eStorageBuffer |
                         vk::BufferUsageFlagBits::eVertexBuffer |
                         vk::BufferUsageFlagBits::eTransferDst);
-    else if constexpr (inBufferContext == BufferContext::Staging)
+    else if (inBufferContext == BufferContext::Staging)
         inInfo.setUsage(vk::BufferUsageFlagBits::eTransferSrc);
-    else if constexpr (inBufferContext == (BufferContext::Uniform | BufferContext::Storage))
+    else if (inBufferContext == (BufferContext::Uniform | BufferContext::Storage))
         inInfo.setUsage(vk::BufferUsageFlagBits::eStorageBuffer |
                         vk::BufferUsageFlagBits::eUniformBuffer |
                         vk::BufferUsageFlagBits::eTransferDst);
@@ -147,7 +149,7 @@ inline VulkanBuffer<inBufferContext, inBufferStorageType>::VulkanBuffer(
         Usage = vk::BufferUsageFlagBits::eTransferSrc;
 
     auto BufferCreateInfo = vk::BufferCreateInfo(vk::BufferCreateFlags(), inSize, Usage);
-    FillBufferUsage<inBufferContext, inBufferStorageType>(BufferCreateInfo);
+    FillBufferUsage(BufferCreateInfo, inBufferContext, inBufferStorageType);
 
     mBufferHandle = mDevice.createBuffer(BufferCreateInfo);
 

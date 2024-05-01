@@ -31,6 +31,10 @@ class Uniform3D {
                ui inNodeIndex        = 0,
                bool inShouldSkin     = false,
                bool inShouldTextures = false);
+    void BuildByGLTFPrimitive(Simple3D& inSimple3D,
+                              Renderer::_3D::glTF_Model& inModel,
+                              Renderer::_3D::glTF_Model::Primitive inPrimitive,
+                              ui inDstSet = 1);
 
     void AddTexture(int inDstBinding, s inFileName, ui inDstSet = 1);
     void AddTextureByVector(

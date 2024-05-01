@@ -390,7 +390,7 @@ void GlslMain()
 ]]
 end
 
-Jkr.GetGLTFInfo = function(inLoadedGLTF, inShouldPrint)
+Jkrmt.GetGLTFInfo = function(inLoadedGLTF, inShouldPrint)
     if (inShouldPrint) then
         io.write(string.format(
             [[
@@ -403,7 +403,6 @@ Materials = %d,
 Nodes = %d,
 Skins = %d,
 Animations = %d,
-ActiveAnimation = %d,
                 ]],
             inLoadedGLTF:GetVerticesSize(),
             inLoadedGLTF:GetIndicesSize(),
@@ -412,8 +411,7 @@ ActiveAnimation = %d,
             inLoadedGLTF:GetMaterialsSize(),
             inLoadedGLTF:GetNodesSize(),
             inLoadedGLTF:GetSkinsSize(),
-            inLoadedGLTF:GetAnimationsSize(),
-            inLoadedGLTF:GetActiveAnimation()
+            inLoadedGLTF:GetAnimationsSize()
         ))
     end
 end

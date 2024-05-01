@@ -21,9 +21,9 @@ class glTF_Model {
         glm::vec3 min;
         glm::vec3 max;
         bool valid = false;
-        BoundingBox(){};                                 // TODO Yet To Implement
-        BoundingBox(glm::vec3 min, glm::vec3 max){};     // TODO Yet to implement
-        BoundingBox GetAABB(glm::mat4 m) { return {}; }; // TODO Yet to Implement
+        BoundingBox();
+        BoundingBox(glm::vec3 min, glm::vec3 max);
+        BoundingBox GetAABB(glm::mat4 m);
     };
 
     struct Texture {
@@ -31,6 +31,27 @@ class glTF_Model {
         uint32_t mMipLevels;
         uint32_t mLayerCount;
         int32_t mImageIndex;
+    };
+
+    struct TextureCoordinateSets {
+        uint8_t mBaseColor          = 0;
+        uint8_t mMetallicRoughness  = 0;
+        uint8_t mSpecularGlossiness = 0;
+        uint8_t mNormal             = 0;
+        uint8_t mOcclusion          = 0;
+        uint8_t mEmissive           = 0;
+    };
+
+    struct Extension {
+        int32_t mSpecularGlossinessTextureIndex = -1;
+        int32_t mDiffuseTextureIndex            = -1;
+        glm::vec4 mDiffuseFactor                = glm::vec4(1.0f);
+        glm::vec3 mSpecularFactor               = glm::vec3(0.0f);
+    };
+
+    struct PbrWorkflows {
+        bool mMetallicRoughness  = true;
+        bool mSpecularGlossiness = false;
     };
 
     struct Material {
@@ -47,24 +68,9 @@ class glTF_Model {
         int32_t mOcclusionTextureIndex         = -1;
         int32_t mEmissiveTextureIndex          = -1;
         bool mDoubleSided                      = false;
-        struct TextureCoordinateSets {
-            uint8_t mBaseColor          = 0;
-            uint8_t mMetallicRoughness  = 0;
-            uint8_t mSpecularGlossiness = 0;
-            uint8_t mNormal             = 0;
-            uint8_t mOcclusion          = 0;
-            uint8_t mEmissive           = 0;
-        } mTextureCoordinateSets;
-        struct Extension {
-            int32_t mSpecularGlossinessTextureIndex = -1;
-            int32_t mDiffuseTextureIndex            = -1;
-            glm::vec4 mDiffuseFactor                = glm::vec4(1.0f);
-            glm::vec3 mSpecularFactor               = glm::vec3(0.0f);
-        } mExtension;
-        struct PbrWorkflows {
-            bool mMetallicRoughness  = true;
-            bool mSpecularGlossiness = false;
-        } mPbrWorkflows;
+        TextureCoordinateSets mTextureCoordinateSets;
+        Extension mExtension;
+        PbrWorkflows mPbrWorkflows;
         uint32_t mIndex        = 0;
         bool unlit             = false;
         float emissiveStrength = 1.0f;
@@ -150,6 +156,7 @@ class glTF_Model {
     GETTER GetFileName() const { return sv(mFileName); }
     GETTER& GetVertices() const { return mVertexBuffer; }
     GETTER& GetIndices() const { return mIndexBuffer; }
+    GETTER& GetVerticesExtRef() { return mVertexBufferExt; }
     GETTER& GetVerticesRef() { return mVertexBuffer; }
     GETTER& GetIndicesRef() { return mIndexBuffer; }
     GETTER& GetImagesRef() { return mImages; }
@@ -229,6 +236,7 @@ class glTF_Model {
     const std::string mFileName;
     v<ui> mIndexBuffer;
     v<Vertex3D> mVertexBuffer;
+    v<Vertex3DExt> mVertexBufferExt;
     v<Image> mImages;
     v<Texture> mTextures;
     v<Material> mMaterials;

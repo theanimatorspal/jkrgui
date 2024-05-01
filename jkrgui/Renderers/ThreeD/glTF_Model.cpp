@@ -13,6 +13,36 @@ glm::mat4 glTF_Model::Node::GetLocalMatrix() {
            glm::scale(glm::mat4(1.0f), mScale) * mMatrix;
 }
 
+glTF_Model::BoundingBox::BoundingBox(){};
+
+glTF_Model::BoundingBox::BoundingBox(glm::vec3 min, glm::vec3 max) : min(min), max(max){};
+
+glTF_Model::BoundingBox glTF_Model::BoundingBox::GetAABB(glm::mat4 m) {
+    glm::vec3 min = glm::vec3(m[3]);
+    glm::vec3 max = min;
+    glm::vec3 v0, v1;
+
+    glm::vec3 right = glm::vec3(m[0]);
+    v0              = right * this->min.x;
+    v1              = right * this->max.x;
+    min += glm::min(v0, v1);
+    max += glm::max(v0, v1);
+
+    glm::vec3 up = glm::vec3(m[1]);
+    v0           = up * this->min.y;
+    v1           = up * this->max.y;
+    min += glm::min(v0, v1);
+    max += glm::max(v0, v1);
+
+    glm::vec3 back = glm::vec3(m[2]);
+    v0             = back * this->min.z;
+    v1             = back * this->max.z;
+    min += glm::min(v0, v1);
+    max += glm::max(v0, v1);
+
+    return BoundingBox(min, max);
+}
+
 // TODO Merge these two functions
 void glTF_Model::Load(ui inInitialVertexOffset) {
     tinygltf::Model glTFInput;
@@ -111,15 +141,7 @@ void glTF_Model::LoadImages(tinygltf::Model& input) {
             buffer = buffvec.data();
             buffer = &glTFImage.image[0];
             memcpy(buffvec.data(), &glTFImage.image[0], bufferSize);
-            // bufferSize = glTFImage.image.size();
         }
-        // TODO Make this local image
-        // Load texture from image buffer
-        // an_image.mTextureImage = MakeUp<ImageType>(mInstance);
-        // an_image.mTextureImage->Setup(reinterpret_cast<void**>(&buffer),
-        //     glTFImage.width,
-        //     glTFImage.height,
-        //     4);
         Image Image;
         Image.mTextureImage = std::move(buffvec);
         Image.mWidth        = glTFImage.width;
@@ -135,22 +157,114 @@ void glTF_Model::LoadTextures(tinygltf::Model& input) {
     }
 }
 
-void glTF_Model::LoadMaterials(tinygltf::Model& input) {
-    mMaterials.resize(input.materials.size());
-    for (size_t i = 0; i < input.materials.size(); i++) {
-        // We only read the most basic properties required for our sample
-        tinygltf::Material glTFMaterial = input.materials[i];
-        // Get the base color factor
-        if (glTFMaterial.values.find("baseColorFactor") != glTFMaterial.values.end()) {
-            mMaterials[i].mBaseColorFactor =
-                 glm::make_vec4(glTFMaterial.values["baseColorFactor"].ColorFactor().data());
+void glTF_Model::LoadMaterials(tinygltf::Model& gltfModel) {
+    for (tinygltf::Material& mat : gltfModel.materials) {
+        glTF_Model::Material material{};
+        material.mDoubleSided = mat.doubleSided;
+        if (mat.values.find("baseColorTexture") != mat.values.end()) {
+            material.mBaseColorTextureIndex = mat.values["baseColorTexture"].TextureIndex();
+            material.mTextureCoordinateSets.mBaseColor =
+                 mat.values["baseColorTexture"].TextureTexCoord();
         }
-        // Get base color texture index
-        if (glTFMaterial.values.find("baseColorTexture") != glTFMaterial.values.end()) {
-            mMaterials[i].mBaseColorTextureIndex =
-                 glTFMaterial.values["baseColorTexture"].TextureIndex();
+        if (mat.values.find("metallicRoughnessTexture") != mat.values.end()) {
+            material.mMetallicRoughnessTextureIndex =
+                 mat.values["metallicRoughnessTexture"].TextureIndex();
+            material.mTextureCoordinateSets.mMetallicRoughness =
+                 mat.values["metallicRoughnessTexture"].TextureTexCoord();
         }
+        if (mat.values.find("roughnessFactor") != mat.values.end()) {
+            material.mRoughnessFactor = static_cast<float>(mat.values["roughnessFactor"].Factor());
+        }
+        if (mat.values.find("metallicFactor") != mat.values.end()) {
+            material.mMetallicFactor = static_cast<float>(mat.values["metallicFactor"].Factor());
+        }
+        if (mat.values.find("baseColorFactor") != mat.values.end()) {
+            material.mBaseColorFactor =
+                 glm::make_vec4(mat.values["baseColorFactor"].ColorFactor().data());
+        }
+        if (mat.additionalValues.find("normalTexture") != mat.additionalValues.end()) {
+            material.mNormalTextureIndex = mat.additionalValues["normalTexture"].TextureIndex();
+            material.mTextureCoordinateSets.mNormal =
+                 mat.additionalValues["normalTexture"].TextureTexCoord();
+        }
+        if (mat.additionalValues.find("emissiveTexture") != mat.additionalValues.end()) {
+            material.mEmissiveTextureIndex = mat.additionalValues["emissiveTexture"].TextureIndex();
+            material.mTextureCoordinateSets.mEmissive =
+                 mat.additionalValues["emissiveTexture"].TextureTexCoord();
+        }
+        if (mat.additionalValues.find("occlusionTexture") != mat.additionalValues.end()) {
+            material.mOcclusionTextureIndex =
+                 mat.additionalValues["occlusionTexture"].TextureIndex();
+            material.mTextureCoordinateSets.mOcclusion =
+                 mat.additionalValues["occlusionTexture"].TextureTexCoord();
+        }
+        if (mat.additionalValues.find("alphaMode") != mat.additionalValues.end()) {
+            tinygltf::Parameter param = mat.additionalValues["alphaMode"];
+            if (param.string_value == "BLEND") {
+                material.mAlphaMode = Material::AlphaMode::Blend;
+            }
+            if (param.string_value == "MASK") {
+                material.mAlphaCutOff = 0.5f;
+                material.mAlphaMode   = Material::AlphaMode::Mask;
+            }
+        }
+        if (mat.additionalValues.find("alphaCutoff") != mat.additionalValues.end()) {
+            material.mAlphaCutOff =
+                 static_cast<float>(mat.additionalValues["alphaCutoff"].Factor());
+        }
+        if (mat.additionalValues.find("emissiveFactor") != mat.additionalValues.end()) {
+            material.mEmissiveFactor = glm::vec4(
+                 glm::make_vec3(mat.additionalValues["emissiveFactor"].ColorFactor().data()), 1.0);
+        }
+
+        if (mat.extensions.find("KHR_materials_pbrSpecularGlossiness") != mat.extensions.end()) {
+            auto ext = mat.extensions.find("KHR_materials_pbrSpecularGlossiness");
+            if (ext->second.Has("specularGlossinessTexture")) {
+                auto index = ext->second.Get("specularGlossinessTexture").Get("index");
+                material.mExtension.mSpecularGlossinessTextureIndex = index.Get<int>();
+                auto texCoordSet = ext->second.Get("specularGlossinessTexture").Get("texCoord");
+                material.mTextureCoordinateSets.mSpecularGlossiness = texCoordSet.Get<int>();
+                material.mPbrWorkflows.mSpecularGlossiness          = true;
+            }
+            if (ext->second.Has("diffuseTexture")) {
+                auto index = ext->second.Get("diffuseTexture").Get("index");
+                material.mExtension.mDiffuseTextureIndex = index.Get<int>();
+            }
+            if (ext->second.Has("diffuseFactor")) {
+                auto factor = ext->second.Get("diffuseFactor");
+                for (uint32_t i = 0; i < factor.ArrayLen(); i++) {
+                    auto val = factor.Get(i);
+                    material.mExtension.mDiffuseFactor[i] =
+                         val.IsNumber() ? (float)val.Get<double>() : (float)val.Get<int>();
+                }
+            }
+            if (ext->second.Has("specularFactor")) {
+                auto factor = ext->second.Get("specularFactor");
+                for (uint32_t i = 0; i < factor.ArrayLen(); i++) {
+                    auto val = factor.Get(i);
+                    material.mExtension.mSpecularFactor[i] =
+                         val.IsNumber() ? (float)val.Get<double>() : (float)val.Get<int>();
+                }
+            }
+        }
+
+        if (mat.extensions.find("KHR_materials_unlit") != mat.extensions.end()) {
+            material.unlit = true;
+        }
+
+        if (mat.extensions.find("KHR_materials_emissive_strength") != mat.extensions.end()) {
+            auto ext = mat.extensions.find("KHR_materials_emissive_strength");
+            if (ext->second.Has("emissiveStrength")) {
+                auto value                = ext->second.Get("emissiveStrength");
+                material.emissiveStrength = (float)value.Get<double>();
+            }
+        }
+
+        material.mIndex = static_cast<uint32_t>(mMaterials.size());
+        mMaterials.push_back(material);
     }
+    // Push a default material at the end of the list for meshes with no material assigned
+    mMaterials.push_back(Material());
 }
 
 glTF_Model::Node* glTF_Model::FindNode(Node* inParent, ui inIndex) {
@@ -330,6 +444,9 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
             uint32_t vertex_start                    = static_cast<uint32_t>(inVertexBuffer.size());
             uint32_t index_count                     = 0;
             bool hasSkin                             = false;
+            glm::vec3 PosMin                         = glm::vec3{0};
+            glm::vec3 PosMax                         = glm::vec3{0};
+            bool hasIndices                          = glTFPrimitive.indices > -1;
 
             /* Vertices */
             {
@@ -361,6 +478,12 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                     posByteStride = accessor.ByteStride(view)
                                          ? (accessor.ByteStride(view) / sizeof(float))
                                          : tinygltf::GetNumComponentsInType(TINYGLTF_TYPE_VEC3);
+                    PosMin        = glm::vec3(
+                         accessor.minValues[0], accessor.minValues[1], accessor.minValues[2]);
+                    PosMax = glm::vec3(
+                         accessor.maxValues[0], accessor.maxValues[1], accessor.maxValues[2]);
+                } else {
+                    std::cout << "No POSITION in GLTF File \n";
                 }
 
                 /* Get Buffer Data From Vertex Normals */
@@ -490,6 +613,7 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                     }
 
                     inVertexBuffer.push_back(inVertexCallBack(vert));
+                    mVertexBufferExt.push_back(vert);
                 }
             }
 
@@ -537,10 +661,21 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
             primitive.mFirstIndex    = first_index;
             primitive.mIndexCount    = index_count;
             primitive.mMaterialIndex = glTFPrimitive.material;
+            primitive.mBB.min        = PosMin;
+            primitive.mBB.max        = PosMax;
+            primitive.mBB.valid      = true;
             Node->mMesh.mPrimitives.push_back(primitive);
-            Node->mMesh.mNodeIndex.push_back(Node->mIndex);
-            mMeshes.push_back(Node->mMesh);
+            Node->mMesh.mNodeIndex.push_back(Node->mIndex); // TODO Might need a cleanup
         }
+        for (auto& p : Node->mMesh.mPrimitives) {
+            if (p.mBB.valid and not Node->mMesh.mBB.valid) {
+                Node->mMesh.mBB       = p.mBB;
+                Node->mMesh.mBB.valid = true;
+            }
+            Node->mMesh.mBB.min = glm::min(Node->mMesh.mBB.min, p.mBB.min);
+            Node->mMesh.mBB.max = glm::max(Node->mMesh.mBB.max, p.mBB.max);
+        }
+        mMeshes.push_back(Node->mMesh);
     }
 
     if (inParent) {
@@ -727,7 +862,6 @@ void glTF_Model::BlendCombineAnimation(float inDeltaTime,
                                        ui inTargetAnimationIndex,
                                        float inBlendFactor,
                                        bool inShouldLoop) {
-    std::cout << "Destination Time: " << mAnimations[inBaseAnimationIndex].mCurrentTime << "\n";
     UpdateAnimation(inBaseAnimationIndex, inDeltaTime, inShouldLoop);
     BlendCombineAnimationToArbritaryTime(mAnimations[inBaseAnimationIndex].mCurrentTime,
                                          inTargetAnimationIndex,

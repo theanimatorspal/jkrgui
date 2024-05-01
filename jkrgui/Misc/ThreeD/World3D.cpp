@@ -57,7 +57,7 @@ void World3D::AddSkyboxToUniform3D(Instance& inInstance, sv inFolderPath, int in
 void World3D::AddShadowMapToUniform3D(WindowMulT& inWindow, int inId, int inSet) {
     auto& DesSet   = mUniforms[inId]->GetVulkanDescriptorSet();
     auto& ImgParam = inWindow.GetShadowPass().GetDepthImagePainterParameter();
-    ImgParam.RegisterDepth(0, kstd::BindingIndex::Uniform::DiffuseImage, 0, DesSet, inSet);
+    ImgParam.RegisterDepth(0, kstd::BindingIndex::Uniform::Images, 0, DesSet, inSet);
 }
 
 struct PushConstantDefault {
@@ -73,9 +73,12 @@ void World3D::DrawObjectsExplicit(Window& inWindow,
 
     int PreviousSimpleIndex = 0;
     for (int i = 0; i < inExplicitObjects.size(); ++i) {
-        int index        = i;
-        int simpleIndex  = inExplicitObjects[i].mAssociatedSimple3D;
-        int uniformIndex = inExplicitObjects[i].mAssociatedUniform;
+        auto& ExplicitObject = inExplicitObjects[i];
+        int simpleIndex      = ExplicitObject.mAssociatedSimple3D;
+        int uniformIndex     = ExplicitObject.mAssociatedUniform;
+        int indicesCount     = ExplicitObject.mIndicesCount == -1
+                                    ? mShape.GetIndexCount(ExplicitObject.mId)
+                                    : ExplicitObject.mIndicesCount;
 
         if (not(simpleIndex == PreviousSimpleIndex)) {
             mSimple3Ds[simpleIndex]->Bind(inWindow, inParam);
@@ -85,13 +88,14 @@ void World3D::DrawObjectsExplicit(Window& inWindow,
             mUniforms[uniformIndex]->Bind(inWindow, *mSimple3Ds[PreviousSimpleIndex], 1, inParam);
         }
         PushConstantDefault Push;
-        Push.m1 = inExplicitObjects[index].GetLocalMatrix();
+        Push.m1 = ExplicitObject.GetLocalMatrix();
         mSimple3Ds[simpleIndex]->Draw<PushConstantDefault>(
              inWindow,
              mShape,
              Push,
-             mShape.GetIndexOffsetAbsolute(inExplicitObjects[i].mId),
-             mShape.GetIndexCount(inExplicitObjects[i].mId),
+             mShape.GetIndexOffsetAbsolute(inExplicitObjects[i].mId) +
+                  inExplicitObjects[i].mFirstIndex,
+             indicesCount,
              1,
              inParam);
     }
@@ -125,25 +129,29 @@ void World3D::Update(Jkr::EventManager& inEvent) {
     Currentcamera.SetPerspective();
     UpdateWorldInfoToUniform3D(0);
 }
+
 void World3D::AddWorldInfoToUniform3D(int inId) {
     mUniforms[inId]->AddUniformBuffer(kstd::BindingIndex::Uniform::WorldInfo,
                                       sizeof(WorldInfoUniform),
                                       WorldInfoDescriptorSetIndex);
     {};
 }
+
 void World3D::UpdateWorldInfoToUniform3D(int inId) {
     WorldInfoUniform Uniform;
     Camera3D LightCamera;
+    auto CurrentCamera = GetCurrentCamera();
     LightCamera.SetAttributes(mLights[0].mDirection + mLights[0].mPosition, mLights[0].mPosition);
     LightCamera.SetPerspectiveTargeted();
+
     Uniform.mView           = GetCurrentCamera()->GetView();
     Uniform.mProjection     = GetCurrentCamera()->GetProjection();
     Uniform.mCameraPosition = GetCurrentCamera()->GetPosition();
     Uniform.mLights[0]      = mLights[0].mPosition;
-    Uniform.mNearFar        = glm::vec4(LightCamera.GetNearZ(),
-                                 LightCamera.GetFarZ(),
-                                 LightCamera.GetNearZ(),
-                                 LightCamera.GetFarZ());
+    Uniform.mNearFar        = glm::vec4(CurrentCamera->GetNearZ(),
+                                 CurrentCamera->GetFarZ(),
+                                 CurrentCamera->GetNearZ(),
+                                 CurrentCamera->GetFarZ());
     Uniform.mShadowMatrix   = LightCamera.GetView();
     mUniforms[inId]->UpdateUniformBuffer(kstd::BindingIndex::Uniform::WorldInfo, Uniform);
 }

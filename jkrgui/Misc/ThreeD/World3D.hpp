@@ -22,6 +22,7 @@ struct World3D {
         alignas(16) glm::vec4 mNearFar;
         alignas(16) glm::vec4 mLights[8];
         alignas(16) glm::mat4 mShadowMatrix;
+        alignas(16) glm::mat4 mLightsDirections[8];
     };
     struct Light3D {
         glm::vec4 mPosition{0.0f};
@@ -32,6 +33,8 @@ struct World3D {
         int mAssociatedModel;
         int mAssociatedUniform;
         int mAssociatedSimple3D;
+        int mIndicesCount = -1;
+        int mFirstIndex   = 0;
         glm::vec3 mTranslation{};
         glm::vec3 mScale{1.0f};
         glm::quat mRotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);

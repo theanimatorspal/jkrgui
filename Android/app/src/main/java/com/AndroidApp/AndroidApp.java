@@ -48,18 +48,21 @@ public class AndroidApp extends SDLActivity {
                               in = assetManager.open(filename);
                               String newFileName = "/data/data/" + this.getPackageName() + "/" + filename;
                               Log.e("KSAI::", filename + ", to : " + newFileName);
-                              out = new FileOutputStream(newFileName);
+                              File FileExists = new File(newFileName);
+                              if (!FileExists.exists()) {
+                                        out = new FileOutputStream(newFileName);
 
-                              byte[] buffer = new byte[1024];
-                              int read;
-                              while ((read = in.read(buffer)) != -1) {
-                                        out.write(buffer, 0, read);
+                                        byte[] buffer = new byte[1024];
+                                        int read;
+                                        while ((read = in.read(buffer)) != -1) {
+                                                  out.write(buffer, 0, read);
+                                        }
+                                        in.close();
+                                        in = null;
+                                        out.flush();
+                                        out.close();
+                                        out = null;
                               }
-                              in.close();
-                              in = null;
-                              out.flush();
-                              out.close();
-                              out = null;
                     } catch (Exception e) {
                               Log.e("tag", e.getMessage());
                     }

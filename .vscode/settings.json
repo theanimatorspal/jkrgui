@@ -1,5 +1,5 @@
 {
-          "workbench.colorTheme": "Red",
+          "workbench.colorTheme": "GitHub Light",
           "git.enableSmartCommit": true,
           "git.confirmSync": false,
           "gitlens.currentLine.enabled": false,
@@ -25,7 +25,7 @@
           "editor.matchBrackets": "near",
           "editor.fontFamily": "Cascadia Code",
           "editor.fontWeight": "normal",
-          "editor.fontSize": 24,
+          "editor.fontSize": 18,
           "editor.tabSize": 10,
           "editor.tokenColorCustomizations": {
                     "textMateRules": [

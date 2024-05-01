@@ -69,6 +69,85 @@ void CreateRenderer3DBindings(sol::state& s) {
          "mCurrentTime",
          &Jkr::Renderer::_3D::glTF_Model::Animation::mCurrentTime);
 
+    Jkr.new_enum<glTF_Model::Material::AlphaMode>(
+         "AlphaMode",
+         {{"Opaque", glTF_Model::Material::AlphaMode::Opaque},
+          {"Mask", glTF_Model::Material::AlphaMode::Mask},
+          {"Blend", glTF_Model::Material::AlphaMode::Blend}});
+
+    // Bind TextureCoordinateSets struct
+    Jkr.new_usertype<glTF_Model::TextureCoordinateSets>(
+         "TextureCoordinateSets",
+         "mBaseColor",
+         &glTF_Model::TextureCoordinateSets::mBaseColor,
+         "mMetallicRoughness",
+         &glTF_Model::TextureCoordinateSets::mMetallicRoughness,
+         "mSpecularGlossiness",
+         &glTF_Model::TextureCoordinateSets::mSpecularGlossiness,
+         "mNormal",
+         &glTF_Model::TextureCoordinateSets::mNormal,
+         "mOcclusion",
+         &glTF_Model::TextureCoordinateSets::mOcclusion,
+         "mEmissive",
+         &glTF_Model::TextureCoordinateSets::mEmissive);
+
+    // Bind Extension struct
+    Jkr.new_usertype<glTF_Model::Extension>("Extension",
+                                            "mSpecularGlossinessTextureIndex",
+                                            &glTF_Model::Extension::mSpecularGlossinessTextureIndex,
+                                            "mDiffuseTextureIndex",
+                                            &glTF_Model::Extension::mDiffuseTextureIndex,
+                                            "mDiffuseFactor",
+                                            &glTF_Model::Extension::mDiffuseFactor,
+                                            "mSpecularFactor",
+                                            &glTF_Model::Extension::mSpecularFactor);
+
+    // Bind PbrWorkflows struct
+    Jkr.new_usertype<glTF_Model::PbrWorkflows>("PbrWorkflows",
+                                               "mMetallicRoughness",
+                                               &glTF_Model::PbrWorkflows::mMetallicRoughness,
+                                               "mSpecularGlossiness",
+                                               &glTF_Model::PbrWorkflows::mSpecularGlossiness);
+
+    // Bind Material struct
+    Jkr.new_usertype<glTF_Model::Material>("Material",
+                                           "mAlphaMode",
+                                           &glTF_Model::Material::mAlphaMode,
+                                           "mAlphaCutOff",
+                                           &glTF_Model::Material::mAlphaCutOff,
+                                           "mMetallicFactor",
+                                           &glTF_Model::Material::mMetallicFactor,
+                                           "mRoughnessFactor",
+                                           &glTF_Model::Material::mRoughnessFactor,
+                                           "mBaseColorFactor",
+                                           &glTF_Model::Material::mBaseColorFactor,
+                                           "mEmissiveFactor",
+                                           &glTF_Model::Material::mEmissiveFactor,
+                                           "mBaseColorTextureIndex",
+                                           &glTF_Model::Material::mBaseColorTextureIndex,
+                                           "mMetallicRoughnessTextureIndex",
+                                           &glTF_Model::Material::mMetallicRoughnessTextureIndex,
+                                           "mNormalTextureIndex",
+                                           &glTF_Model::Material::mNormalTextureIndex,
+                                           "mOcclusionTextureIndex",
+                                           &glTF_Model::Material::mOcclusionTextureIndex,
+                                           "mEmissiveTextureIndex",
+                                           &glTF_Model::Material::mEmissiveTextureIndex,
+                                           "mDoubleSided",
+                                           &glTF_Model::Material::mDoubleSided,
+                                           "mTextureCoordinateSets",
+                                           &glTF_Model::Material::mTextureCoordinateSets,
+                                           "mExtension",
+                                           &glTF_Model::Material::mExtension,
+                                           "mPbrWorkflows",
+                                           &glTF_Model::Material::mPbrWorkflows,
+                                           "mIndex",
+                                           &glTF_Model::Material::mIndex,
+                                           "unlit",
+                                           &glTF_Model::Material::unlit,
+                                           "emissiveStrength",
+                                           &glTF_Model::Material::emissiveStrength);
+
     Jkr.new_usertype<Jkr::Renderer::_3D::glTF_Model>(
          "glTF_Model",
          sol::call_constructor,
@@ -104,7 +183,9 @@ void CreateRenderer3DBindings(sol::state& s) {
          "BlendCombineAnimation",
          &Jkr::Renderer::_3D::glTF_Model::BlendCombineAnimation,
          "GetNodeIndexByMeshIndex",
-         &Jkr::Renderer::_3D::glTF_Model::GetNodeIndexByMeshIndex);
+         &Jkr::Renderer::_3D::glTF_Model::GetNodeIndexByMeshIndex,
+         "GetMaterialsRef",
+         &Jkr::Renderer::_3D::glTF_Model::GetMaterialsRef);
     Jkr.new_usertype<Jkr::Renderer::_3D::Shape>(
          "Shape3D",
          sol::call_constructor,
