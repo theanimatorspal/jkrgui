@@ -167,11 +167,9 @@ void WindowMulT::EndThreadCommandBuffer(int inThreadId) {
     mThreadCommandBuffers[inThreadId]->mCommandBuffers[mCurrentFrame].End();
 }
 
-void WindowMulT::BuildShadowPass() {
-    mShadowPass = mu<ShadowPass>(
-         mInstance, mDepthImage.GetImageExtent().width, mDepthImage.GetImageExtent().height);
-    mShadowPassSize =
-         glm::uvec2(mDepthImage.GetImageExtent().width, mDepthImage.GetImageExtent().height);
+void WindowMulT::BuildShadowPass(ui inWidth, ui inHeight) {
+    mShadowPass     = mu<ShadowPass>(mInstance, inWidth, inHeight);
+    mShadowPassSize = glm::uvec2(inWidth, inHeight);
 }
 
 } // namespace Jkr

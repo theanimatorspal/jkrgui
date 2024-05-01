@@ -76,9 +76,9 @@ void World3D::DrawObjectsExplicit(Window& inWindow,
         auto& ExplicitObject = inExplicitObjects[i];
         int simpleIndex      = ExplicitObject.mAssociatedSimple3D;
         int uniformIndex     = ExplicitObject.mAssociatedUniform;
-        int indicesCount     = ExplicitObject.mIndicesCount == -1
+        int indicesCount     = ExplicitObject.mIndexCount == -1
                                     ? mShape.GetIndexCount(ExplicitObject.mId)
-                                    : ExplicitObject.mIndicesCount;
+                                    : ExplicitObject.mIndexCount;
 
         if (not(simpleIndex == PreviousSimpleIndex)) {
             mSimple3Ds[simpleIndex]->Bind(inWindow, inParam);
@@ -93,8 +93,7 @@ void World3D::DrawObjectsExplicit(Window& inWindow,
              inWindow,
              mShape,
              Push,
-             mShape.GetIndexOffsetAbsolute(inExplicitObjects[i].mId) +
-                  inExplicitObjects[i].mFirstIndex,
+             mShape.GetIndexOffsetAbsolute(ExplicitObject.mId) + ExplicitObject.mFirstIndex,
              indicesCount,
              1,
              inParam);
@@ -106,29 +105,7 @@ void World3D::Event(Jkr::EventManager& inEvent) {
     bool ShouldUpdate       = false;
 }
 
-void World3D::Update(Jkr::EventManager& inEvent) {
-    Camera3D& Currentcamera = mCameras[mCurrentCamera];
-    if (inEvent.IsKeyPressedContinous(SDL_SCANCODE_W)) {
-        Currentcamera.MoveForward(mCameraMovementSensitivity);
-    } else if (inEvent.IsKeyPressedContinous(SDL_SCANCODE_S)) {
-        Currentcamera.MoveBackward(mCameraMovementSensitivity);
-    } else if (inEvent.IsKeyPressedContinous(SDL_SCANCODE_A)) {
-        Currentcamera.MoveLeft(mCameraMovementSensitivity);
-    } else if (inEvent.IsKeyPressedContinous(SDL_SCANCODE_D)) {
-        Currentcamera.MoveRight(mCameraMovementSensitivity);
-    }
-    if (inEvent.IsLeftButtonPressed()) {
-        auto RelMousePos = inEvent.GetRelativeMousePos();
-        glm::vec2 Pos    = glm::vec2(RelMousePos);
-        if (glm::abs(Pos.x) > 2.0f or glm::abs(Pos.y) > 2.0f) {
-            Currentcamera.Yaw(-static_cast<float>(RelMousePos.x) * mCameraRotateSensitivity);
-            Currentcamera.Pitch(static_cast<float>(RelMousePos.y) * mCameraRotateSensitivity);
-        }
-        Currentcamera.UpdateDirectionByAngles();
-    }
-    Currentcamera.SetPerspective();
-    UpdateWorldInfoToUniform3D(0);
-}
+void World3D::Update(Jkr::EventManager& inEvent) { UpdateWorldInfoToUniform3D(0); }
 
 void World3D::AddWorldInfoToUniform3D(int inId) {
     mUniforms[inId]->AddUniformBuffer(kstd::BindingIndex::Uniform::WorldInfo,

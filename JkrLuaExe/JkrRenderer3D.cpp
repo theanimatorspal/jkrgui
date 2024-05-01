@@ -58,6 +58,45 @@ void CreateRenderer3DBindings(sol::state& s) {
                                "SetPipelineContext",
                                &Simple3D::SetPipelineContext);
 
+    Jkr.new_usertype<Jkr::Renderer::_3D::glTF_Model::BoundingBox>(
+         "BoundingBox",
+         sol::call_constructor,
+         sol::default_constructor,
+         "min",
+         &Jkr::Renderer::_3D::glTF_Model::BoundingBox::min,
+         "max",
+         &Jkr::Renderer::_3D::glTF_Model::BoundingBox::max);
+
+    Jkr.new_usertype<Jkr::Renderer::_3D::glTF_Model::Primitive>(
+         "Primitive",
+         sol::call_constructor,
+         sol::default_constructor,
+         "mFirstIndex",
+         &Jkr::Renderer::_3D::glTF_Model::Primitive::mFirstIndex,
+         "mIndexCount",
+         &Jkr::Renderer::_3D::glTF_Model::Primitive::mIndexCount,
+         "mVertexCount",
+         &Jkr::Renderer::_3D::glTF_Model::Primitive::mVertexCount,
+         "mMaterialIndex",
+         &Jkr::Renderer::_3D::glTF_Model::Primitive::mMaterialIndex,
+         "mHasIndices",
+         &Jkr::Renderer::_3D::glTF_Model::Primitive::mHasIndices,
+         "mBB",
+         &Jkr::Renderer::_3D::glTF_Model::Primitive::mBB);
+
+    Jkr.new_usertype<Jkr::Renderer::_3D::glTF_Model::Mesh>(
+         "Mesh",
+         sol::call_constructor,
+         sol::default_constructor,
+         "mPrimitives",
+         &Jkr::Renderer::_3D::glTF_Model::Mesh::mPrimitives,
+         "mNodeIndex",
+         &Jkr::Renderer::_3D::glTF_Model::Mesh::mNodeIndex,
+         "mBB",
+         &Jkr::Renderer::_3D::glTF_Model::Mesh::mBB,
+         "mAABB",
+         &Jkr::Renderer::_3D::glTF_Model::Mesh::mAABB);
+
     Jkr.new_usertype<Jkr::Renderer::_3D::glTF_Model::Animation>(
          "Animation",
          sol::call_constructor,
@@ -184,6 +223,8 @@ void CreateRenderer3DBindings(sol::state& s) {
          &Jkr::Renderer::_3D::glTF_Model::BlendCombineAnimation,
          "GetNodeIndexByMeshIndex",
          &Jkr::Renderer::_3D::glTF_Model::GetNodeIndexByMeshIndex,
+         "GetMeshesRef",
+         &Jkr::Renderer::_3D::glTF_Model::GetMeshesRef,
          "GetMaterialsRef",
          &Jkr::Renderer::_3D::glTF_Model::GetMaterialsRef);
     Jkr.new_usertype<Jkr::Renderer::_3D::Shape>(

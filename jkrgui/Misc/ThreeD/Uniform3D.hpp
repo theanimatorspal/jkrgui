@@ -3,6 +3,7 @@
 #include "Painter.hpp"
 #include "PainterParameter.hpp"
 #include <Renderers/ThreeD/Simple3D.hpp>
+#include <Renderers/TwoD/Shape.hpp>
 #include <cstring>
 
 namespace Jkr::Misc::_3D {
@@ -31,10 +32,9 @@ class Uniform3D {
                ui inNodeIndex        = 0,
                bool inShouldSkin     = false,
                bool inShouldTextures = false);
-    void BuildByGLTFPrimitive(Simple3D& inSimple3D,
-                              Renderer::_3D::glTF_Model& inModel,
-                              Renderer::_3D::glTF_Model::Primitive inPrimitive,
-                              ui inDstSet = 1);
+    void Build(Simple3D& inSimple3D,
+               Renderer::_3D::glTF_Model& inModel,
+               Renderer::_3D::glTF_Model::Primitive& inPrimitive);
 
     void AddTexture(int inDstBinding, s inFileName, ui inDstSet = 1);
     void AddTextureByVector(
@@ -53,6 +53,10 @@ class Uniform3D {
     void AddSkyboxImage(SkyboxImageType& inType,
                         int inDstBinding = kstd::BindingIndex::Uniform::CubeMapImage,
                         ui inDstSet      = 0);
+    void AddTextureFromShapeImage(Jkr::Renderer::Shape& inShapeRenderer,
+                                  int inShapeImageId,
+                                  int inDstImageBinding = kstd::BindingIndex::Uniform::Images,
+                                  int inDstSet          = 0);
 
     template <typename T> void UpdateStorageBuffer(int inDstBinding, T inData);
     template <typename T> void UpdateUniformBuffer(int inDstBinding, T inData);

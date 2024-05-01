@@ -165,6 +165,7 @@ class glTF_Model {
     GETTER& GetNodesRef() { return mNodes; }
     GETTER& GetSkinsRef() { return mSkins; }
     GETTER& GetAnimationsRef() { return mAnimations; }
+    GETTER& GetMeshesRef() { return mMeshes; }
     GETTER& GetAnimationById(int inId) { return mAnimations[inId]; }
     GETTER GetVerticesSize() { return mVertexBuffer.size(); }
     GETTER GetIndicesSize() { return mIndexBuffer.size(); }

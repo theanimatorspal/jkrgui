@@ -90,7 +90,9 @@ void CreateMiscBindings(sol::state& inState) {
          "Build",
          sol::overload(
               sol::resolve<void(Jkr::Renderer::_3D::Simple3D&)>(&Uniform3D::Build),
-              sol::resolve<void(Simple3D&, glTF_Model&, ui, bool, bool)>(&Uniform3D::Build)),
+              sol::resolve<void(Simple3D&, glTF_Model&, ui, bool, bool)>(&Uniform3D::Build),
+              sol::resolve<void(Simple3D&, glTF_Model&, glTF_Model::Primitive&)>(
+                   &Uniform3D::Build)),
          "AddTextureToUniform3D",
          &Uniform3D::AddTextureToUniform3D,
          "AddUniformBufferToUniform3D",
@@ -98,7 +100,9 @@ void CreateMiscBindings(sol::state& inState) {
          "AddStorageBufferToUniform3D",
          &Uniform3D::AddStorageBufferToUniform3D,
          "AddBindingsToUniform3DGLTF",
-         &Uniform3D::AddBindingsToUniform3DGLTF);
+         &Uniform3D::AddBindingsToUniform3DGLTF,
+         "AddTextureFromShapeImage",
+         &Uniform3D::AddTextureFromShapeImage);
 
     using namespace Jkr::Misc::_3D;
     Jkr.new_usertype<Camera3D>(
@@ -133,8 +137,8 @@ void CreateMiscBindings(sol::state& inState) {
                                         &World3D::Object3D::mAssociatedUniform,
                                         "mAssociatedSimple3D",
                                         &World3D::Object3D::mAssociatedSimple3D,
-                                        "mIndicesCount",
-                                        &World3D::Object3D::mIndicesCount,
+                                        "mIndexCount",
+                                        &World3D::Object3D::mIndexCount,
                                         "mFirstIndex",
                                         &World3D::Object3D::mFirstIndex,
                                         "mTranslation",
@@ -174,8 +178,8 @@ void CreateMiscBindings(sol::state& inState) {
                               &World3D::Event,
                               "Update",
                               &World3D::Update,
-                              "GetCamera",
-                              &World3D::GetCamera,
+                              "GetCamera3D",
+                              &World3D::GetCamera3D,
                               "GetCurrentCamera",
                               &World3D::GetCurrentCamera,
                               "GetGLTFModel",

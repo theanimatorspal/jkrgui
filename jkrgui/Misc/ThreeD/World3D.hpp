@@ -33,8 +33,8 @@ struct World3D {
         int mAssociatedModel;
         int mAssociatedUniform;
         int mAssociatedSimple3D;
-        int mIndicesCount = -1;
-        int mFirstIndex   = 0;
+        int mIndexCount = -1;
+        int mFirstIndex = 0;
         glm::vec3 mTranslation{};
         glm::vec3 mScale{1.0f};
         glm::quat mRotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
@@ -45,7 +45,7 @@ struct World3D {
         }
     };
     GETTER MakeExplicitObjectsVector() -> v<Object3D> { return {}; }
-    GETTER GetCamera(int inId) { return &mCameras[inId]; }
+    GETTER GetCamera3D(int inId) { return &mCameras[inId]; }
     GETTER GetCurrentCamera() { return &mCameras[mCurrentCamera]; }
     GETTER GetGLTFModel(int inId) { return mGLTFModels[inId].get(); }
     GETTER GetUniform3D(int inId) { return mUniforms[inId].get(); }

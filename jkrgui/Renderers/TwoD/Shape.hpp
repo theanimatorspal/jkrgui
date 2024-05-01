@@ -16,6 +16,8 @@ class Shape : public Shape_base, Renderer_base {
          const ksai::VulkanCommandBuffer&, ksai::VulkanImageBase&, ksai::VulkanImageBase&)>;
 
     public:
+    GETTER& GetImages() { return mImages; }
+
     Shape(const Instance& inInstance,
           std::unordered_map<FillType, Up<PainterCache>>& inPainterCaches)
         : mInstance(inInstance), mPainterCaches(inPainterCaches) {}

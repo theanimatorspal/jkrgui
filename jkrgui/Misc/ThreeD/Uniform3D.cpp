@@ -56,6 +56,14 @@ void Uniform3D::AddSkyboxImage(SkyboxImageType& inType, int inDstBinding, ui inD
     inType.Register(0, inDstBinding, 0, *mVulkanDescriptorSet, inDstSet);
 }
 
+void Uniform3D::AddTextureFromShapeImage(Jkr::Renderer::Shape& inShapeRenderer,
+                                         int inShapeImageId,
+                                         int inDstImageBinding,
+                                         int inDstSet) {
+    inShapeRenderer.GetImages()[inShapeImageId]->Register(
+         0, inDstImageBinding, 0, *mVulkanDescriptorSet, inDstSet);
+}
+
 void Uniform3D::UpdateByGLTFAnimation(Renderer::_3D::glTF_Model& inModel) {
     inModel.UpdateAllJoints([&](v<glm::mat4>& inMatrices) {
         void* data = inMatrices.data();
@@ -166,10 +174,9 @@ void Uniform3D::Bind(Window& inWindow,
                                inSet);
 }
 
-void Uniform3D::BuildByGLTFPrimitive(Simple3D& inSimple3D,
-                                     Renderer::_3D::glTF_Model& inModel,
-                                     Renderer::_3D::glTF_Model::Primitive inPrimitive,
-                                     ui inDstSet) {
+void Uniform3D::Build(Simple3D& inSimple3D,
+                      Renderer::_3D::glTF_Model& inModel,
+                      Renderer::_3D::glTF_Model::Primitive& inPrimitive) {
     if (not mVulkanDescriptorSet) {
         Build(inSimple3D);
     }

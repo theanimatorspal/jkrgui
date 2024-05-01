@@ -12,7 +12,7 @@ class WindowMulT : public Window {
     public:
     const VulkanCommandBufferArray& GetCommandBuffers(ParameterContext inParameter) const override;
     GETTER& GetShadowPass() { return *mShadowPass; }
-    void BuildShadowPass();
+    void BuildShadowPass(ui inWidth, ui inHeight);
 
     void BeginShadowPass(float ind);
     void EndShadowPass();

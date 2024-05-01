@@ -17,6 +17,7 @@ struct MultiThreading {
     void AddJobF(sol::function inFunction);
     void AddJobToThreadF(sol::function inFunction, int inThreadIndex);
     sol::object Get(std::string_view inVariable);
+    sol::object GetFromThread(std::string_view inVariable, int inThreadIndex);
 
     void Wait();
 
@@ -27,6 +28,7 @@ struct MultiThreading {
     sol::object Copy(sol::object obj, sol::state& inTarget);
     ksai::ThreadPool mPool;
     std::vector<sol::state> mStates;
+    sol::state mGateState;
 };
 
 inline MultiThreading::MultiThreading(Jkr::Instance& inInstance) { // TODO Get Thread Count
@@ -38,6 +40,7 @@ inline MultiThreading::MultiThreading(Jkr::Instance& inInstance) { // TODO Get T
         CreateMainBindings(state);
         state["StateId"] = i++;
     }
+    CreateMainBindings(mGateState);
 }
 
 inline void MultiThreading::Inject(std::string_view inVariable, sol::object inValue) {
@@ -47,7 +50,8 @@ inline void MultiThreading::Inject(std::string_view inVariable, sol::object inVa
     for (auto& state : mStates) {
         state[inVariable] = Copy(inValue, state);
     }
-    mIsInjecting = false;
+    mGateState[inVariable] = Copy(inValue, mGateState);
+    mIsInjecting           = false;
     mConditionVariable.notify_all();
 }
 void MultiThreading::InjectToThread(std::string_view inVariable,
@@ -62,7 +66,13 @@ void MultiThreading::InjectToThread(std::string_view inVariable,
 }
 
 inline sol::object MultiThreading::Get(std::string_view inVariable) {
-    return Copy(mStates.front()[inVariable], GetMainStateRef());
+    while (mIsInjecting) {
+    }
+    return Copy(mGateState[inVariable], GetMainStateRef());
+}
+
+inline sol::object MultiThreading::GetFromThread(std::string_view inVariable, int inThreadIndex) {
+    return Copy(mStates[inThreadIndex][inVariable], GetMainStateRef());
 }
 
 inline void MultiThreading::InjectScript(std::string inView) {
@@ -135,7 +145,6 @@ inline void MultiThreading::AddJobToThreadF(sol::function inFunction, int inThre
 
 template <typename T, typename... Ts>
 inline static sol::object getObjectByType(sol::object& obj, sol::state& target) noexcept {
-
     if constexpr (not(sizeof...(Ts) == 0)) {
         if (obj.is<T>()) {
             return sol::make_object(target, std::ref(obj.as<T>()));
@@ -227,13 +236,15 @@ void CreateMultiThreadingBindings(sol::state& inState) {
          &MultiThreading::InjectToThread,
          "Get",
          &MultiThreading::Get,
+         "GetFromThread",
+         &MultiThreading::GetFromThread,
          "InjectScript",
          &MultiThreading::InjectScript,
          "AddJob",
          &MultiThreading::AddJob,
          "AddJobF",
          &MultiThreading::AddJobF,
-         "AddJobToThread",
+         "AddJobToThreadF",
          &MultiThreading::AddJobToThreadF,
          "InjectScriptF",
          &MultiThreading::InjectScriptF,
