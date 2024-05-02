@@ -116,7 +116,7 @@ Jkr.CreateCallBuffers = function() -- Similar to Comptable in JrkGUI v1
         if o.mOneTimeUpdatables[cuf] then
             local Length = #o.mOneTimeUpdatables[cuf]
             for x = 1, Length, 1 do
-                o.mOneTimeUpdatables[cuf][x].mDispatch()
+                o.mOneTimeUpdatables[cuf][x].mUpdate()
                 o.mOneTimeUpdatables[cuf][x] = nil
             end
             o.mOneTimeUpdatables[cuf] = nil

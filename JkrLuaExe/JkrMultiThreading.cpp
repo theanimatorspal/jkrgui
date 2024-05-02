@@ -66,9 +66,13 @@ void MultiThreading::InjectToThread(std::string_view inVariable,
 }
 
 inline sol::object MultiThreading::Get(std::string_view inVariable) {
-    while (mIsInjecting) {
-    }
-    return Copy(mGateState[inVariable], GetMainStateRef());
+    std::unique_lock<std::mutex> Lock(mMutex);
+    mConditionVariable.wait(Lock, [this]() { return (not mIsInjecting); });
+    mIsInjecting = true;
+    auto obj     = Copy(mGateState[inVariable], GetMainStateRef());
+    mIsInjecting = false;
+    mConditionVariable.notify_all();
+    return obj;
 }
 
 inline sol::object MultiThreading::GetFromThread(std::string_view inVariable, int inThreadIndex) {

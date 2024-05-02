@@ -96,7 +96,6 @@ inline void PainterParameterBase::SetupImage(Up<VulkanSampler>& inUniformImageSa
     Datas.reserve(inFileNames.size());
     std::vector<void**> Datas_ptr;
     Datas_ptr.reserve(inFileNames.size());
-    stbi_set_flip_vertically_on_load(true);
     for (int i = 0; auto& u : inFileNames) {
         Datas.push_back(stbi_load(u.data(), &Width, &Height, &Channels, STBI_rgb_alpha));
         Datas_ptr.push_back(&Datas[i]);

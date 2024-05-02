@@ -214,7 +214,7 @@ void VulkanPipelineBase::BuildPipeline(VulkanPipelineCache& inCache,
 
         if (inPipelineContext == PipelineContext::Skybox) {
             PipelineColorBlendAttachmentState.setBlendEnable(false);
-            PipelineRasterizationStateCreateInfo.setCullMode(vk::CullModeFlagBits::eFront)
+            PipelineRasterizationStateCreateInfo.setCullMode(vk::CullModeFlagBits::eNone)
                  .setFrontFace(vk::FrontFace::eCounterClockwise);
         }
 
