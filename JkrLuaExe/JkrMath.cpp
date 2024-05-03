@@ -1,4 +1,5 @@
 #include "JkrLuaExe.hpp"
+#include <glm/gtx/matrix_decompose.hpp>
 
 namespace JkrEXE {
 
@@ -215,11 +216,42 @@ void CreateGLMBindings(sol::state& lua) {
          sol::overload([](const glm::mat4& m1, const glm::vec4& v2) { return m1 * v2; },
                        [](const glm::mat4& m1, const glm::mat4& m2) { return m1 * m2; });
 
-    lua.new_usertype<glm::mat4>("mat4",
-                                sol::call_constructor,
-                                sol::constructors<glm::mat4(float)>(),
-                                sol::meta_function::multiplication,
-                                mat4_multiply_overloads);
+    lua.new_usertype<glm::mat4>(
+         "mat4",
+         sol::call_constructor,
+         sol::constructors<glm::mat4(float)>(),
+         sol::meta_function::multiplication,
+         mat4_multiply_overloads,
+         "GetTranslationComponent",
+         [](glm::mat4& inMatrix) {
+             glm::vec3 scale;
+             glm::quat rotation;
+             glm::vec3 translation;
+             glm::vec3 skew;
+             glm::vec4 perspective;
+             glm::decompose(inMatrix, scale, rotation, translation, skew, perspective);
+             return translation;
+         },
+         "GetRotationComponent",
+         [](glm::mat4& inMatrix) {
+             glm::vec3 scale;
+             glm::quat rotation;
+             glm::vec3 translation;
+             glm::vec3 skew;
+             glm::vec4 perspective;
+             glm::decompose(inMatrix, scale, rotation, translation, skew, perspective);
+             return rotation; // Check if the quaternions are correct
+         },
+         "GetScaleComponent",
+         [](glm::mat4& inMatrix) {
+             glm::vec3 scale;
+             glm::quat rotation;
+             glm::vec3 translation;
+             glm::vec3 skew;
+             glm::vec4 perspective;
+             glm::decompose(inMatrix, scale, rotation, translation, skew, perspective);
+             return scale;
+         });
 
     lua.set_function("std_vector_vec3", []() -> std::vector<glm::vec3> { return {}; });
     lua.set_function("std_vector_vec4", []() -> std::vector<glm::vec4> { return {}; });

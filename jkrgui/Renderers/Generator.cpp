@@ -28,6 +28,12 @@ Generator::Generator(Shapes inShape, Arguments inArgs) : mArgs(inArgs), mShape(i
             mIndexCount  = 36;
             break;
         case Shapes::Sphere3D: {
+            const glm::vec4 r_s2d_s3d = std::get<glm::vec4>(mArgs);
+            const float r             = r_s2d_s3d.x;
+            const ui s2d              = static_cast<ui>(r_s2d_s3d.y);
+            const ui s3d              = static_cast<ui>(r_s2d_s3d.z);
+            mVertexCount              = 2 + s2d * s3d;
+            mIndexCount               = 3 * s2d + s2d * s3d * 6;
         } break;
         case Shapes::Cylinder3D: {
             const glm::vec3 rh     = std::get<glm::vec3>(mArgs);
@@ -230,7 +236,7 @@ void Jkr::Generator::operator()(float inX,
             constexpr float pi         = 3.14159; // TODO increase precision
             const float DelTheta       = 2 * pi / static_cast<float>(s2d);
             const float DelPhi         = pi / static_cast<float>(s3d);
-            ui vIndex                  = inStartVertexIndex;
+            ui vIndex                  = 0;
             ui iIndex                  = inStartIndexIndex;
             kstd::Vertex3D UpperCenter = {.mPosition = glm::vec3(0, topPlaneY, 0),
                                           .mNormal   = glm::vec3(0, 0, 0),
@@ -276,14 +282,14 @@ void Jkr::Generator::operator()(float inX,
                     }
 
                     if (xzseg == 0) {
-                        int FirstVIndex      = vIndex - 3;
+                        int FirstVIndex      = vIndex + inStartVertexIndex - 3;
                         modIndices[iIndex++] = FirstVIndex + 0;
                         modIndices[iIndex++] = FirstVIndex + 1;
                         modIndices[iIndex++] = FirstVIndex + 2;
                     } else if (xzseg == s3d - 1) {
 
                     } else {
-                        int FirstVIndex      = vIndex - 4;
+                        int FirstVIndex      = vIndex + inStartVertexIndex - 4;
                         modIndices[iIndex++] = FirstVIndex + 0;
                         modIndices[iIndex++] = FirstVIndex + 2;
                         modIndices[iIndex++] = FirstVIndex + 3;
@@ -305,7 +311,7 @@ void Jkr::Generator::operator()(float inX,
             const int SegmentCount     = static_cast<ui>(rh.z);
             constexpr float pi         = 3.14159; // TODO increase precision
             const float DelTheta       = 2 * pi / static_cast<float>(SegmentCount);
-            ui vIndex                  = inStartVertexIndex;
+            ui vIndex                  = 0;
             ui iIndex                  = inStartIndexIndex;
 
             constexpr int topPlaneY    = -1;

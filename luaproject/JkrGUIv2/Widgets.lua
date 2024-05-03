@@ -45,6 +45,7 @@ Jkr.CreateCallBuffers = function() -- Similar to Comptable in JrkGUI v1
     o.mOneTimeDrawables = {}
     o.mOneTimeDispatchables = {}
     o.mOneTimeUpdatables = {}
+
     o.Push = function(inCall)
         if inCall.mDrawType then
             o.mDrawables[#o.mDrawables + 1] = inCall

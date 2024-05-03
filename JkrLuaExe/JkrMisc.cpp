@@ -150,8 +150,12 @@ void CreateMiscBindings(sol::state& inState) {
                                         "mMatrix",
                                         &World3D::Object3D::mMatrix,
 
+                                        "SetParent",
+                                        &World3D::Object3D::SetParent,
                                         "GetLocalMatrix",
-                                        &World3D::Object3D::GetLocalMatrix);
+                                        &World3D::Object3D::GetLocalMatrix,
+                                        "GetMatrix",
+                                        &World3D::Object3D::GetMatrix);
 
     Jkr.new_usertype<World3D>("World3D",
                               sol::call_constructor,

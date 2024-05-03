@@ -39,9 +39,18 @@ struct World3D {
         glm::vec3 mScale{1.0f};
         glm::quat mRotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
         glm::mat4 mMatrix   = glm::identity<glm::mat4>();
+        Object3D* mParent;
+        void SetParent(Object3D* inParent) { mParent = inParent; }
+        glm::mat4 GetMatrix() { return glm::mat4(mMatrix); }
         glm::mat4 GetLocalMatrix() {
-            return glm::translate(glm::mat4(1.0f), mTranslation) * glm::mat4(mRotation) *
-                   glm::scale(glm::mat4(1.0f), mScale) * mMatrix;
+            if (not mParent) {
+                return glm::translate(glm::mat4(1.0f), mTranslation) * glm::mat4(mRotation) *
+                       glm::scale(glm::mat4(1.0f), mScale) * mMatrix;
+            } else {
+                return mParent->GetLocalMatrix() *
+                       (glm::translate(glm::mat4(1.0f), mTranslation) * glm::mat4(mRotation) *
+                        glm::scale(glm::mat4(1.0f), mScale) * mMatrix);
+            }
         }
     };
     GETTER MakeExplicitObjectsVector() -> v<Object3D> { return {}; }
