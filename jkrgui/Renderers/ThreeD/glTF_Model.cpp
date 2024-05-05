@@ -732,7 +732,15 @@ void glTF_Model::UpdateAnimation(ui inActiveAnimation, float inDeltaTime, bool i
         if (Animation.mCurrentTime < Animation.mStart) {
             Animation.mCurrentTime += Animation.mEnd;
         }
+    } else {
+        if (Animation.mCurrentTime > Animation.mEnd) {
+            Animation.mCurrentTime = Animation.mEnd;
+        }
+        if (Animation.mCurrentTime < Animation.mStart) {
+            Animation.mCurrentTime = Animation.mStart;
+        }
     }
+
     if (Animation.mCurrentTime < ErrorFactor) {
         Animation.mCurrentTime = ErrorFactor;
     }
@@ -780,6 +788,85 @@ void glTF_Model::UpdateAnimation(ui inActiveAnimation, float inDeltaTime, bool i
     }
 }
 
+void glTF_Model::UpdateBlendCombineAnimation(float inDelTime,
+                                             ui inDestinationAnimationIndex,
+                                             float inBlendFactor,
+                                             bool inShouldLoop,
+                                             bool inShouldResetByBlendFactor) {
+    Animation& Animation = mAnimations[inDestinationAnimationIndex];
+    Animation.mCurrentTime += inDelTime;
+
+    if (inShouldResetByBlendFactor) {
+        if (inBlendFactor == 0.0f) Animation.mCurrentTime = Animation.mStart;
+    }
+
+    if (inShouldLoop) {
+        if (Animation.mCurrentTime > Animation.mEnd) {
+            Animation.mCurrentTime -= Animation.mEnd;
+        }
+
+        if (Animation.mCurrentTime < Animation.mStart) {
+            Animation.mCurrentTime += Animation.mEnd;
+        }
+    } else {
+        if (Animation.mCurrentTime > Animation.mEnd) {
+            Animation.mCurrentTime = Animation.mEnd;
+        }
+        if (Animation.mCurrentTime < Animation.mStart) {
+            Animation.mCurrentTime = Animation.mStart;
+        }
+    }
+
+    if (Animation.mCurrentTime < ErrorFactor) {
+        Animation.mCurrentTime = ErrorFactor;
+    }
+
+    for (auto& channel : Animation.mChannels) {
+        AnimationSampler& sampler = Animation.mSamplers[channel.mSamplerIndex];
+        for (size_t i = 0; i < sampler.mInputs.size() - 1; i++) {
+            if (sampler.mInterpolation != "LINEAR" and sampler.mInterpolation != "STEP") {
+                std::cout << "Only Linear is Supported Yet"; // TODO Support Others
+                continue;
+            }
+
+            if ((Animation.mCurrentTime >= sampler.mInputs[i]) &&
+                (Animation.mCurrentTime <= sampler.mInputs[i + 1])) {
+                float a = (Animation.mCurrentTime - sampler.mInputs[i]) /
+                          (sampler.mInputs[i + 1] - sampler.mInputs[i]);
+                if (sampler.mInterpolation == "STEP") {
+                    a = 1.0f;
+                }
+                if (channel.mPath == "translation") {
+                    glm::vec3 t = glm::mix(sampler.mOutputsVec4[i], sampler.mOutputsVec4[i + 1], a);
+                    channel.mNode->mTranslation =
+                         glm::mix(channel.mNode->mTranslation, t, inBlendFactor);
+                }
+                if (channel.mPath == "rotation") {
+                    glm::quat q1;
+                    q1.x = sampler.mOutputsVec4[i].x;
+                    q1.y = sampler.mOutputsVec4[i].y;
+                    q1.z = sampler.mOutputsVec4[i].z;
+                    q1.w = sampler.mOutputsVec4[i].w;
+
+                    glm::quat q2;
+                    q2.x        = sampler.mOutputsVec4[i + 1].x;
+                    q2.y        = sampler.mOutputsVec4[i + 1].y;
+                    q2.z        = sampler.mOutputsVec4[i + 1].z;
+                    q2.w        = sampler.mOutputsVec4[i + 1].w;
+
+                    glm::quat r = glm::normalize(glm::slerp(q1, q2, a));
+                    channel.mNode->mRotation =
+                         glm::normalize(glm::slerp(channel.mNode->mRotation, r, inBlendFactor));
+                }
+                if (channel.mPath == "scale") {
+                    glm::vec3 s = glm::mix(sampler.mOutputsVec4[i], sampler.mOutputsVec4[i + 1], a);
+                    channel.mNode->mScale = glm::mix(channel.mNode->mScale, s, inBlendFactor);
+                }
+            }
+        }
+    }
+}
+
 void glTF_Model::BlendCombineAnimationToArbritaryTime(float inDestinationTime,
                                                       ui inDestinationAnimationIndex,
                                                       float inBlendFactor,
@@ -793,6 +880,13 @@ void glTF_Model::BlendCombineAnimationToArbritaryTime(float inDestinationTime,
 
         if (inDestinationTime < Animation.mStart) {
             DestinationTime += Animation.mEnd;
+        }
+    } else {
+        if (Animation.mCurrentTime > Animation.mEnd) {
+            Animation.mCurrentTime = Animation.mEnd;
+        }
+        if (Animation.mCurrentTime < Animation.mStart) {
+            Animation.mCurrentTime = Animation.mStart;
         }
     }
 
@@ -844,29 +938,6 @@ void glTF_Model::BlendCombineAnimationToArbritaryTime(float inDestinationTime,
             }
         }
     }
-}
-
-void glTF_Model::BlendCombineAnimationByOffset(float inDeltaTime,
-                                               ui inBaseAnimationIndex,
-                                               float inTargetAnimationOffsetTime,
-                                               ui inTargetAnimationIndex,
-                                               float inBlendFactor,
-                                               bool inShouldLoop) {
-    UpdateAnimation(inBaseAnimationIndex, inDeltaTime, inShouldLoop);
-    BlendCombineAnimationToArbritaryTime(
-         inTargetAnimationOffsetTime, inTargetAnimationIndex, inBlendFactor, inShouldLoop);
-}
-
-void glTF_Model::BlendCombineAnimation(float inDeltaTime,
-                                       ui inBaseAnimationIndex,
-                                       ui inTargetAnimationIndex,
-                                       float inBlendFactor,
-                                       bool inShouldLoop) {
-    UpdateAnimation(inBaseAnimationIndex, inDeltaTime, inShouldLoop);
-    BlendCombineAnimationToArbritaryTime(mAnimations[inBaseAnimationIndex].mCurrentTime,
-                                         inTargetAnimationIndex,
-                                         inBlendFactor,
-                                         inShouldLoop);
 }
 
 void glTF_Model::UpdateAllJoints(UpdateJointsCallBack inCallBack) {

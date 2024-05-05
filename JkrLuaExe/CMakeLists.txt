@@ -9,6 +9,7 @@
     "JkrRenderer.cpp"
     "JkrRenderer3D.cpp"
     "JkrBasic.cpp"
+    "JkrAudio.cpp"
     "JkrTextRenderers.cpp"
     "JkrMultiThreading.cpp"
 )

@@ -9,6 +9,7 @@ extern void CreateRendererBindings(sol::state& inState);
 extern void CreateTextRendererBindings(sol::state& inState);
 extern void CreateBuildSystemBindings(sol::state& inS);
 extern void CreateRenderer3DBindings(sol::state& s);
+extern void CreateAudioBindings(sol::state& inState);
 extern umap<s, v<s>> CommandLine(int ArgCount, char** ArgStrings); // TODO Complete This
 extern void CreateMultiThreadingBindings(sol::state& inState);
 
@@ -30,6 +31,7 @@ void CreateMainBindings(sol::state& s) {
     CreateMiscBindings(s);
     CreateMultiThreadingBindings(s);
     CreateRenderer3DBindings(s);
+    CreateAudioBindings(s);
 }
 } // namespace JkrEXE
 

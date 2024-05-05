@@ -153,6 +153,137 @@ Jkr.CreateCallExecutor = function(inCallBuffer)
     return o
 end
 
+Jkr.HLayout = {
+    mComponents = nil,
+    mRatioTable = nil,
+    mPadding = nil,
+    mPosition_3f = nil,
+    mDimension_3f = nil,
+
+    New = function(self, inPadding)
+        local Obj = {
+            mPadding = inPadding
+        }
+        setmetatable(Obj, self)
+        self.__index = self
+
+        return Obj
+    end,
+    AddComponents = function(self, inComponentListTable, inRatioTable)
+        self.mComponents = inComponentListTable
+        self.mRatioTable = inRatioTable
+    end,
+    Update = function(self, inPosition_3f, inDimension_3f)
+        local position = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z)
+        local dimension = vec3(inDimension_3f.x, inDimension_3f.y, inDimension_3f.z)
+        self.mPosition_3f = inPosition_3f
+        self.mDimension_3f = inDimension_3f
+
+        local paddingX = self.mPadding
+
+        if self.mRatioTable then
+            for index, value in ipairs(self.mComponents) do
+                value:Update(vec3(position.x, position.y, position.z),
+                    vec3(dimension.x * self.mRatioTable[index],
+                        dimension.y, dimension.z),
+                    self.mComponents[index].mText)
+                position.x = position.x +
+                    dimension.x * self.mRatioTable[index] + paddingX
+            end
+        end
+    end,
+    GetComponentPosition = function(self)
+        local position = vec3(self.mPosition_3f.x, self.mPosition_3f.y, self.mPosition_3f.z)
+        local dimension = vec3(self.mDimension_3f.x, self.mDimension_3f.y, self.mDimension_3f.z)
+        local ComponentsPosition = {}
+        for index, value in ipairs(self.mComponents) do
+            ComponentsPosition[index] = vec3(position.x, position.y, position.z)
+            position.x = position.x + dimension.x * self.mRatioTable[index] +
+                self.mPadding
+        end
+        return ComponentsPosition
+    end
+}
+
+Jkr.VLayout = {
+    mComponents = nil,
+    mRatioTable = nil,
+    mPadding = nil,
+    mPosition_3f = nil,
+    mDimension_3f = nil,
+
+    New = function(self, inPadding)
+        local Obj = {
+            mPadding = inPadding
+        }
+        setmetatable(Obj, self)
+        self.__index = self
+        return Obj
+    end,
+    AddComponents = function(self, inComponentListTable, inRatioTable)
+        self.mComponents = inComponentListTable
+        self.mRatioTable = inRatioTable
+    end,
+    Update = function(self, inPosition_3f, inDimension_3f)
+        local position = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z)
+        local dimension = vec3(inDimension_3f.x, inDimension_3f.y, inDimension_3f.z)
+        self.mPosition_3f = vec3(position.x, position.y, position.z)
+        self.mDimension_3f = vec3(dimension.x, dimension.y, dimension.z)
+        local paddingY = self.mPadding
+        if self.mRatioTable then
+            for index, value in ipairs(self.mComponents) do
+                value:Update(vec3(position.x, position.y, position.z),
+                    vec3(dimension.x,
+                        dimension.y *
+                        self.mRatioTable[index],
+                        dimension.z),
+                    self.mComponents[index].mText)
+                position.y = position.y +
+                    dimension.y * self.mRatioTable[index] + paddingY
+            end
+        end
+    end,
+    GetComponentPosition = function(self)
+        local position = vec3(self.mPosition_3f.x, self.mPosition_3f.y, self.mPosition_3f.z)
+        local dimension = vec3(self.mDimension_3f.x, self.mDimension_3f.y, self.mDimension_3f.z)
+        local ComponentsPosition = {}
+        for index, value in ipairs(self.mComponents) do
+            ComponentsPosition[index] = vec3(position.x, position.y, position.z)
+            position.y = position.y + dimension.y * self.mRatioTable[index] +
+                self.mPadding
+        end
+        return ComponentsPosition
+    end
+}
+
+Jkr.StackLayout = {
+    mComponents = nil,
+    New = function(self, inChangingZvalue)
+        local Obj = {
+            mChangingZvalue = inChangingZvalue
+        }
+        setmetatable(Obj, self)
+        self.__index = self
+        return Obj
+    end,
+    AddComponents = function(self, inComponentListTable)
+        self.mComponents = inComponentListTable
+    end,
+    Update = function(self, inPosition_3f, inDimension_3f)
+        local position = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z)
+        local dimension = vec3(inDimension_3f.x, inDimension_3f.y, inDimension_3f.z)
+        self.mPosition_3f = inPosition_3f
+        self.mDimension_3f = inDimension_3f
+        for index, value in ipairs(self.mComponents) do
+            value:Update(vec3(position.x, position.y, position.z),
+                vec3(dimension.x, dimension.y, dimension.z),
+                self.mComponents[index].mText)
+            position.z = position.z - self.mChangingZvalue
+        end
+    end
+}
+
+
 Jkr.CreateWidgetRenderer = function(i, w, e)
     local o = {}
     o.s = Jkr.CreateShapeRenderer(i, w)
@@ -195,14 +326,16 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         rendering onto an image using compute shaders,
         can also create a button by Image.CreateButton() routine
     ]============================================================]
-    o.CreateComputeImage = function(inPosition_3f, inDimension_3f)
+    o.CreateComputeImage = function(inPosition_3f, inDimension_3f, inNoDraw)
         local Image = {}
         Image.computeImage = Jkr.CreateCustomPainterImage(i, w, math.int(inDimension_3f.x), math.int(inDimension_3f.y))
         Image.sampledImage = o.s:AddImage(inDimension_3f.x, inDimension_3f.y)
         local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill, uvec2(inDimension_3f.x, inDimension_3f.y))
         Image.imageViewRect = o.s:Add(Rectangle, inPosition_3f)
-        Image.DrawId = o.c.Push(Jkr.CreateDrawable(Image.imageViewRect, false, "IMAGE", Image.sampledImage,
-            vec4(1, 1, 1, 1)))
+        if (not inNoDraw) then
+            Image.DrawId = o.c.Push(Jkr.CreateDrawable(Image.imageViewRect, false, "IMAGE", Image.sampledImage,
+                vec4(1, 1, 1, 1)))
+        end
 
         Image.RegisterPainter = function(inPainter)
             Image.computeImage:Register(i, inPainter.handle)
@@ -241,7 +374,6 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         return Image
     end
 
-    -- TODO move it to the text label
     o.CreateTextButton = function(inPosition_3f, inDimension_3f, inFont, inText, inTextColor, inBgColor)
         local textButton = {}
         textButton.mTextLabel = o.CreateTextLabel(inPosition_3f, inDimension_3f, inFont, inText, inTextColor)

@@ -210,17 +210,13 @@ class glTF_Model {
                                               ui inDestinationAnimationIndex,
                                               float inBlendFactor,
                                               bool inShouldLoop = true);
-    void BlendCombineAnimationByOffset(float inDeltaTime,
-                                       ui inBaseAnimationIndex,
-                                       float inTargetAnimationOffsetTime,
-                                       ui inTargetAnimationIndex,
-                                       float inBlendFactor,
-                                       bool inShouldLoop = true);
-    void BlendCombineAnimation(float inDeltaTime,
-                               ui inBaseAnimationIndex,
-                               ui inTargetAnimationIndex,
-                               float inBlendFactor,
-                               bool inShouldLoop = true);
+
+    void UpdateBlendCombineAnimation(float inDelTime,
+                                     ui inDestinationAnimationIndex,
+                                     float inBlendFactor,
+                                     bool inShouldLoop               = true,
+                                     bool inShouldResetByBlendFactor = false);
+
     void UpdateAllJoints(UpdateJointsCallBack inCallBack);
     void EraseVerticesAndIndices() {
         mIndexBuffer.clear();
