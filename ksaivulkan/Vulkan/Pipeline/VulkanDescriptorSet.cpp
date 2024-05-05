@@ -1,6 +1,7 @@
 #include "VulkanDescriptorSet.hpp"
 
 using namespace ksai;
+static std::mutex mMutex;
 
 ksai::VulkanDescriptorSet::VulkanDescriptorSet(
      const VulkanDevice& inDevice,
@@ -10,8 +11,11 @@ ksai::VulkanDescriptorSet::VulkanDescriptorSet(
     vk::DescriptorSetAllocateInfo DescriptorSetAllocateInfo(
          inDescriptorPool.GetDescriptorPoolHandle(),
          inDescriptorSetLayout.GetDescriptorLayoutHandle());
-    mVulkanDescriptorSetHandles =
-         inDevice.GetDeviceHandle().allocateDescriptorSets(DescriptorSetAllocateInfo);
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mVulkanDescriptorSetHandles =
+             inDevice.GetDeviceHandle().allocateDescriptorSets(DescriptorSetAllocateInfo);
+    }
 }
 
 ksai::VulkanDescriptorSet::VulkanDescriptorSet(
@@ -30,8 +34,11 @@ ksai::VulkanDescriptorSet::VulkanDescriptorSet(
                        vk::DescriptorSetVariableDescriptorCountAllocateInfo>
          CreateInfoC(DescriptorSetAllocateInfo, VariableInfo);
 
-    mVulkanDescriptorSetHandles = inDevice.GetDeviceHandle().allocateDescriptorSets(
-         CreateInfoC.get<vk::DescriptorSetAllocateInfo>());
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mVulkanDescriptorSetHandles = inDevice.GetDeviceHandle().allocateDescriptorSets(
+             CreateInfoC.get<vk::DescriptorSetAllocateInfo>());
+    }
 }
 
 void VulkanDescriptorSet::Bind(vk::PipelineBindPoint inBindPoint,

@@ -149,6 +149,8 @@ void CreateMiscBindings(sol::state& inState) {
                                         &World3D::Object3D::mRotation,
                                         "mMatrix",
                                         &World3D::Object3D::mMatrix,
+                                        "mColor",
+                                        &World3D::Object3D::mColor,
 
                                         "SetParent",
                                         &World3D::Object3D::SetParent,

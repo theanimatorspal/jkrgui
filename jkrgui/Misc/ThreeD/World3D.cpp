@@ -89,6 +89,10 @@ void World3D::DrawObjectsExplicit(Window& inWindow,
         }
         PushConstantDefault Push;
         Push.m1 = ExplicitObject.GetLocalMatrix();
+        Push.m2 = glm::mat4(ExplicitObject.mColor,
+                            ExplicitObject.mColor,
+                            ExplicitObject.mColor,
+                            ExplicitObject.mColor);
         mSimple3Ds[simpleIndex]->Draw<PushConstantDefault>(
              inWindow,
              mShape,

@@ -8,6 +8,7 @@ extern void CreateMainBindings(sol::state& s);
 
 struct MultiThreading {
     MultiThreading(Jkr::Instance& inInstance);
+    ~MultiThreading();
     void Inject(std::string_view inVariable, sol::object inValue);
     void InjectToThread(std::string_view inVariable, sol::object inValue, int inThreadIndex);
     void InjectScript(std::string inView);
@@ -43,6 +44,14 @@ inline MultiThreading::MultiThreading(Jkr::Instance& inInstance) { // TODO Get T
     CreateMainBindings(mGateState);
 }
 
+inline MultiThreading::~MultiThreading() {
+    std::unique_lock<std::mutex> Lock(mMutex);
+    mConditionVariable.wait(Lock, [this]() { return (not mIsInjecting); });
+    mIsInjecting = true;
+    mIsInjecting = false;
+    mConditionVariable.notify_one();
+}
+
 inline void MultiThreading::Inject(std::string_view inVariable, sol::object inValue) {
     std::unique_lock<std::mutex> Lock(mMutex);
     mConditionVariable.wait(Lock, [this]() { return (not mIsInjecting); });
@@ -52,7 +61,7 @@ inline void MultiThreading::Inject(std::string_view inVariable, sol::object inVa
     }
     mGateState[inVariable] = Copy(inValue, mGateState);
     mIsInjecting           = false;
-    mConditionVariable.notify_all();
+    mConditionVariable.notify_one();
 }
 void MultiThreading::InjectToThread(std::string_view inVariable,
                                     sol::object inValue,
@@ -62,7 +71,7 @@ void MultiThreading::InjectToThread(std::string_view inVariable,
     mIsInjecting                       = true;
     mStates[inThreadIndex][inVariable] = Copy(inValue, mStates[inThreadIndex]);
     mIsInjecting                       = false;
-    mConditionVariable.notify_all();
+    mConditionVariable.notify_one();
 }
 
 inline sol::object MultiThreading::Get(std::string_view inVariable) {
@@ -71,7 +80,7 @@ inline sol::object MultiThreading::Get(std::string_view inVariable) {
     mIsInjecting = true;
     auto obj     = Copy(mGateState[inVariable], GetMainStateRef());
     mIsInjecting = false;
-    mConditionVariable.notify_all();
+    mConditionVariable.notify_one();
     return obj;
 }
 
@@ -92,7 +101,7 @@ inline void MultiThreading::InjectScript(std::string inView) {
         }
     }
     mIsInjecting = false;
-    mConditionVariable.notify_all();
+    mConditionVariable.notify_one();
 }
 
 inline void MultiThreading::AddJob(std::string inView) {
@@ -136,7 +145,7 @@ inline void MultiThreading::InjectScriptF(sol::function inFunction) {
         }
     }
     mIsInjecting = false;
-    mConditionVariable.notify_all();
+    mConditionVariable.notify_one();
 }
 
 inline void MultiThreading::Wait() { mPool.Wait(); }
@@ -182,11 +191,7 @@ inline sol::object MultiThreading::Copy(sol::object obj, sol::state& target) {
                 auto [key, val] = *it;
                 auto tableKey   = Copy(key, target);
                 auto tableValue = Copy(val, target);
-                if (tableValue.get_type() != sol::type::function) {
-                    tcopy[tableKey] = tableValue;
-                } else {
-                    tcopy[tableKey].set_function(tableValue);
-                }
+                tcopy[tableKey] = tableValue;
             }
             return tcopy;
         } break;

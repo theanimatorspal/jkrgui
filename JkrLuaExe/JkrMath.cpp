@@ -267,14 +267,6 @@ void CreateGLMBindings(sol::state& lua) {
                      sol::overload([](glm::vec2& a, glm::vec2& b) { return glm::distance(a, b); },
                                    [](glm::vec3& a, glm::vec3& b) { return glm::distance(a, b); },
                                    [](glm::vec4& a, glm::vec4& b) { return glm::distance(a, b); }));
-    lua.set_function("Lerp", [](float a, float b, float t) { return std::lerp(a, b, t); });
-    lua.set_function(
-         "Clamp",
-         sol::overload(
-              [](float value, float min, float max) { return std::clamp(value, min, max); },
-              [](double value, double min, double max) { return std::clamp(value, min, max); },
-              [](int value, int min, int max) { return std::clamp(value, min, max); }));
-
     lua.create_named_table(
          "Jmath",
          "GetIdentityMatrix4x4",
@@ -324,6 +316,15 @@ void CreateGLMBindings(sol::state& lua) {
          }
 
     );
+
+    auto Jmath = lua["Jmath"].get_or_create<sol::table>();
+    Jmath.set_function("Lerp", [](float a, float b, float t) { return std::lerp(a, b, t); });
+    Jmath.set_function(
+         "Clamp",
+         sol::overload(
+              [](float value, float min, float max) { return std::clamp(value, min, max); },
+              [](double value, double min, double max) { return std::clamp(value, min, max); },
+              [](int value, int min, int max) { return std::clamp(value, min, max); }));
 }
 
 } // namespace JkrEXE

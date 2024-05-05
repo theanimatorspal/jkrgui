@@ -26,11 +26,17 @@ class EventManager {
     GETTER IsKeyPressed(SDL_Keycode inKey) {
         return mEvent.type == SDL_KEYDOWN and mEvent.key.keysym.sym == inKey;
     }
-    GETTER IsLeftButtonPressed() const {
+    GETTER IsLeftButtonPressedContinous() const {
         return (SDL_BUTTON(SDL_BUTTON_LEFT) bitand this->GetMouseButtonValue()) != 0;
     }
-    GETTER IsRightButtonPressed() const {
+    GETTER IsRightButtonPressedContinous() const {
         return (SDL_BUTTON(SDL_BUTTON_RIGHT) bitand this->GetMouseButtonValue()) != 0;
+    }
+    GETTER IsLeftButtonPressed() const {
+        return (mEvent.type == SDL_MOUSEBUTTONDOWN) && (mEvent.button.button == SDL_BUTTON_LEFT);
+    }
+    GETTER IsRightButtonPressed() const {
+        return (mEvent.type == SDL_MOUSEBUTTONDOWN) && (mEvent.button.button == SDL_BUTTON_RIGHT);
     }
     void StartTextInput() { SDL_StartTextInput(); }
     void StopTextInput() { SDL_StopTextInput(); }

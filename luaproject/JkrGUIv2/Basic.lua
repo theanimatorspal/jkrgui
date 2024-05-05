@@ -674,7 +674,6 @@ Jkr.DebugMainLoop = function(w, e, inUpdate, inDispatch, inDraw, inPostProcess, 
         -- /* All Updates are done here*/
         w:BeginUpdates()
         if (inUpdate) then inUpdate() end
-        WindowDimension = w:GetWindowDimension()
         w:EndUpdates()
 
         w:BeginDispatches()

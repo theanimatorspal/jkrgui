@@ -39,6 +39,7 @@ struct World3D {
         glm::vec3 mScale{1.0f};
         glm::quat mRotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
         glm::mat4 mMatrix   = glm::identity<glm::mat4>();
+        glm::vec4 mColor    = glm::vec4(1.0f);
         Object3D* mParent;
         void SetParent(Object3D* inParent) { mParent = inParent; }
         glm::mat4 GetMatrix() { return glm::mat4(mMatrix); }

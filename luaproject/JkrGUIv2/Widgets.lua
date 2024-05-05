@@ -1,4 +1,39 @@
 require "JkrGUIv2.Basic"
+
+local lerp = function(a, b, t)
+    return (a * (1 - t) + t * b) * (1 - t) + b * t
+end
+
+local lerp_3f = function(a, b, t)
+    return vec3(lerp(a.x, b.x, t), lerp(a.y, b.y, t), lerp(a.z, b.z, t))
+end
+
+Jkr.CreateAnimationPosDimen = function(inCallBuffer, inFrom, inTo, inComponent, inInverseSpeed)
+    local InverseSpeed = 0.01
+    local t = 0
+    if inInverseSpeed then
+        InverseSpeed = inInverseSpeed
+    end
+
+    local Frame = 1
+    while t <= 1 do
+        local from_pos      = inFrom.mPosition_3f
+        local to_pos        = inTo.mPosition_3f
+        local from_dimen    = inFrom.mDimension_3f
+        local to_dimen      = inTo.mDimension_3f
+        local current_pos   = lerp_3f(from_pos, to_pos, t)
+        local current_dimen = lerp_3f(from_dimen, to_dimen, t)
+        inCallBuffer.PushOneTime(Jkr.CreateUpdatable(
+            function()
+                inComponent:Update(current_pos, current_dimen)
+            end
+        ), Frame)
+        t = t + InverseSpeed
+        Frame = Frame + 1
+    end
+    return Frame
+end
+
 --[============================================================[
     JKR CALL TYPES
 ]============================================================]
@@ -321,21 +356,39 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         return textLabel
     end
 
+    o.CreateSampledImageLabel = function(inPosition_3f, inDimension_3f, inNoDraw, inColor)
+        local Image = {}
+        Image.mId = o.s:AddImage(inDimension_3f.x, inDimension_3f.y)
+        local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill, uvec2(inDimension_3f.x, inDimension_3f.y))
+        Image.imageViewRect = o.s:Add(Rectangle, inPosition_3f)
+        print("Position:", inPosition_3f.x, inPosition_3f.y, inPosition_3f.z)
+        Image.mColor = vec4(1, 1, 1, 1)
+        if (inColor) then
+            Image.mColor = inColor
+        end
+
+        if (not inNoDraw) then
+            Image.DrawId = o.c.Push(Jkr.CreateDrawable(Image.imageViewRect, false, "IMAGE", Image.mId,
+                Image.mColor))
+        end
+
+        Image.Update = function(self, inPosition_3f, inDimension_3f)
+            local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill,
+                uvec2(inDimension_3f.x, inDimension_3f.y))
+            o.s:Update(Image.imageViewRect, Rectangle, inPosition_3f)
+        end
+        return Image
+    end
+
     --[============================================================[
         COMPUTE IMAGE
         rendering onto an image using compute shaders,
         can also create a button by Image.CreateButton() routine
     ]============================================================]
-    o.CreateComputeImage = function(inPosition_3f, inDimension_3f, inNoDraw)
+    o.CreateComputeImageLabel = function(inPosition_3f, inDimension_3f, inNoDraw)
         local Image = {}
         Image.computeImage = Jkr.CreateCustomPainterImage(i, w, math.int(inDimension_3f.x), math.int(inDimension_3f.y))
-        Image.sampledImage = o.s:AddImage(inDimension_3f.x, inDimension_3f.y)
-        local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill, uvec2(inDimension_3f.x, inDimension_3f.y))
-        Image.imageViewRect = o.s:Add(Rectangle, inPosition_3f)
-        if (not inNoDraw) then
-            Image.DrawId = o.c.Push(Jkr.CreateDrawable(Image.imageViewRect, false, "IMAGE", Image.sampledImage,
-                vec4(1, 1, 1, 1)))
-        end
+        Image.sampledImage = o.CreateSampledImageLabel(inPosition_3f, inDimension_3f, inNoDraw)
 
         Image.RegisterPainter = function(inPainter)
             Image.computeImage:Register(i, inPainter.handle)
@@ -348,7 +401,10 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             inPainter:Draw(w, inPushConstant, inX, inY, inZ, Jkr.CmdParam.None)
         end
         Image.CopyToSampled = function()
-            o.s:CopyToImage(Image.sampledImage, Image.computeImage)
+            o.s:CopyToImage(Image.sampledImage.mId, Image.computeImage)
+        end
+        Image.CopyToSampledEXT = function(inComputeImage)
+            o.s:CopyToImage(Image.sampledImage.mId, inComputeImage)
         end
         Image.CreateButton = function(inPosition_3f, inDimension_3f, inOnclickFunction)
             Image.buttonBoundedRect = {}
@@ -363,9 +419,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
                 end
             end))
             Image.buttonBoundedRect.Update = function(inPosition_3f, inDimension_3f)
-                local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill,
-                    uvec2(inDimension_3f.x, inDimension_3f.y))
-                o.s:Update(Image.imageViewRect, Rectangle, inPosition_3f)
+                Image.sampledImage:Update(inPosition_3f, inDimension_3f)
                 e:UpdateBoundedRect(Image.buttonBoundedRect.mId, vec2(inPosition_3f.x, inPosition_3f.y),
                     vec2(inDimension_3f.x, inDimension_3f.y), Image.buttonBoundedRect.mDepthValue)
             end
@@ -374,17 +428,34 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         return Image
     end
 
-    o.CreateTextButton = function(inPosition_3f, inDimension_3f, inFont, inText, inTextColor, inBgColor)
-        local textButton = {}
-        textButton.mTextLabel = o.CreateTextLabel(inPosition_3f, inDimension_3f, inFont, inText, inTextColor)
-        local Rect = Jkr.Generator(Jkr.Shapes.RectangleFill, uvec2(inDimension_3f.x))
-        textButton.mId = o.s:Add(Rect)
-
-        textButton.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inTextColor, inBgColor)
-            if (inFont) then textButton.mTextLabel.mFont = inFont end
-            if (inText) then textButton.mTextLabel.mText = inText end
-            -- TODO inTextColor and inBgColor
+    o.CreateButton = function(inPosition_3f, inDimension_3f, inOnClickFunction)
+        local Button = {}
+        Button.mBoundedRect = {}
+        Button.mBoundedRect.mDepthValue = math.int(inPosition_3f.z)
+        Button.mBoundedRect.mId = e:SetBoundedRect(vec2(inPosition_3f.x, inPosition_3f.y),
+            vec2(inDimension_3f.x, inDimension_3f.y), math.int(inPosition_3f.z))
+        Button.mOnClickFunction = function() end
+        Button.mOnHoverFunction = function() end
+        if (inOnClickFunction) then
+            Button.mOnClickFunction = inOnClickFunction
         end
+        Button.mBoundedRect.mPushId = o.c.Push(Jkr.CreateEventable(
+            function()
+                local over = e:IsMouseWithinAtTopOfStack(
+                    Button.mBoundedRect.mId,
+                    Button.mBoundedRect.mDepthValue
+                )
+                if e:IsLeftButtonPressed() and over then
+                    Button.mOnClickFunction()
+                end
+            end
+        ))
+        Button.Update = function(self, inPosition_3f, inDimension_3f)
+            Button.mBoundedRect.mDepthValue = math.int(inPosition_3f.z)
+            e:UpdateBoundedRect(Button.mBoundedRect.mId, vec2(inPosition_3f.x, inPosition_3f.y),
+                vec2(inDimension_3f.x, inDimension_3f.y), Button.mBoundedRect.mDepthValue)
+        end
+        return Button
     end
 
     --[========================================================]
