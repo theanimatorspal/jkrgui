@@ -52,27 +52,3 @@ void Simple3D::CompileForShadowOffscreen(Jkr::Instance& inInstance,
                            *mPainterCache,
                            mPipelineContext);
 }
-
-void Shape::Bind(Window& inWindow, ComPar inCompar) {
-    Painter::BindDrawParamtersVertexAndIndexBuffersOnly_EXT(
-         mInstance, *mPrimitive, inWindow, inCompar);
-}
-
-static std::mutex AddMutex;
-ui Shape::AddEXT(Generator& inGenerator, glm::vec3 inPosition) {
-    ui i;
-    {
-        std::lock_guard<std::mutex> Guard(AddMutex);
-        Add(inGenerator, inPosition, i);
-    }
-    return i;
-}
-
-ui Shape::AddEXT(glTF_Model& inModel) {
-    ui i;
-    {
-        std::lock_guard<std::mutex> Guard(AddMutex);
-        Add(inModel, i);
-    }
-    return i;
-}

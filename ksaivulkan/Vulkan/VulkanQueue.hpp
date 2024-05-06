@@ -10,7 +10,7 @@ class VulkanSwapChain;
 class VulkanQueueBase {
     public:
     VulkanQueueBase(const VulkanQueueContext& inQueueContext, const VulkanDevice& inDevice);
-    void Wait() const { mQueue.waitIdle(); }
+    void Wait() const;
     GETTER& GetQueueHandle() const { return mQueue; }
 
     protected:

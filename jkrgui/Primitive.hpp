@@ -28,7 +28,7 @@ class Primitive {
     Primitive(const Instance& inInstance,
               vk::DeviceSize inVertexBufferSizeInBytes,
               vk::DeviceSize inIndexBufferSizeInBytes);
-    ~Primitive() = default;
+    ~Primitive();
 
     public:
     GETTER& GetVertexBufferPtr() const { return mVertexBufferPtr; }

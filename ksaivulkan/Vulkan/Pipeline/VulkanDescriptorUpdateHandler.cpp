@@ -1,5 +1,6 @@
 #include "VulkanDescriptorUpdateHandler.hpp"
 using namespace ksai;
+static std::mutex DescMutex;
 void VulkanDescriptorUpdateHandler::RW(BufferContext inBufferContext,
                                        const VulkanDescriptorSet& inDescriptorSet,
                                        const VulkanBufferBase& inBuffer,
@@ -24,13 +25,14 @@ void VulkanDescriptorUpdateHandler::RW(BufferContext inBufferContext,
                                    .setDescriptorType(DescriptorType)
                                    .setDstSet(inDescriptorSet.GetDescriptorSetHandle()[inDstSet]);
 
+    std::lock_guard<std::mutex> Lock(DescMutex);
     mDescriptorWrites.push_back(DescriptorSetWrite);
     mDevice.GetDeviceHandle().updateDescriptorSets(mDescriptorWrites, {});
     mDescriptorWrites.clear();
 }
 
 void VulkanDescriptorUpdateHandler::RW(ImageContext inImageContext,
-                                       const VulkanDescriptorSet inDescriptorSet,
+                                       const VulkanDescriptorSet& inDescriptorSet,
                                        const VulkanImageBase& inImage,
                                        const VulkanSampler& inSampler,
                                        uint32_t inDstBinding,
@@ -50,6 +52,7 @@ void VulkanDescriptorUpdateHandler::RW(ImageContext inImageContext,
                                    .setDescriptorType(DescriptorType)
                                    .setDstSet(inDescriptorSet.GetDescriptorSetHandle()[inDstSet]);
 
+    std::lock_guard<std::mutex> Lock(DescMutex);
     mDescriptorWrites.push_back(DescriptorSetWrite);
     mDevice.GetDeviceHandle().updateDescriptorSets(mDescriptorWrites, {});
     mDescriptorWrites.clear();
@@ -72,6 +75,7 @@ void VulkanDescriptorUpdateHandler::RW(const VulkanDescriptorSet& inDescriptorSe
     mDescriptorWrites.push_back(DescriptorSetWrite); // TODO WTF is this
     mDevice.GetDeviceHandle().updateDescriptorSets(mDescriptorWrites, {});
 
+    std::lock_guard<std::mutex> Lock(DescMutex);
     // mDescriptorWrites.push_back(DescriptorSetWrite);
     // mDevice.GetDeviceHandle().updateDescriptorSets(mDescriptorWrites, {});
     mDescriptorWrites.clear();

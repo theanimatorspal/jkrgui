@@ -28,7 +28,7 @@ class Instance {
     GETTER& GetPhysicalDevice() const { return *mPhysicalDevice; }
     GETTER& GetQueueContext() const { return *mQueueContext; }
     GETTER& GetDevice() const { return *mDevice; }
-    GETTER& GetGraphicsQueue() const { return *mGraphicsQueue; }
+    GETTER& GetGraphicsQueue() const { return *mGraphicsPresentQueue; };
     GETTER& GetCommandPool() const { return *mCommandPool; }
     GETTER& GetUtilCommandBuffer() const { return *mUtilCommandBuffer; }
     GETTER& GetDescriptorPool() const { return *mDescriptorPool; }
@@ -44,7 +44,7 @@ class Instance {
     Up<VulkanPhysicalDevice> mPhysicalDevice;
     Up<VulkanQueueContext> mQueueContext;
     Up<VulkanDevice> mDevice;
-    Up<VulkanQueue<QueueContext::Graphics>> mGraphicsQueue;
+    Up<VulkanQueue<QueueContext::Graphics>> mGraphicsPresentQueue;
     Up<VulkanCommandPool> mCommandPool;
     Up<VulkanCommandBuffer> mUtilCommandBuffer;
     Up<VulkanDescriptorPool> mDescriptorPool;

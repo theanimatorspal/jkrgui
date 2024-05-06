@@ -1,13 +1,18 @@
 #include "VulkanQueue.hpp"
 #include "VulkanCommandBuffer.hpp"
 #include "VulkanSwapChain.hpp"
+
 using namespace ksai;
+static std::mutex SubmitMutex;
+
+void ksai::VulkanQueueBase::Wait() const {
+    std::lock_guard<std::mutex> Lock(SubmitMutex);
+    mQueue.waitIdle();
+}
 
 ksai::VulkanQueueBase::VulkanQueueBase(const VulkanQueueContext& inQueueContext,
                                        const VulkanDevice& inDevice)
     : mDevice(inDevice.GetDeviceHandle()), mQueueContext(inQueueContext) {}
-
-using namespace ksai;
 
 /* Color Attachment */
 template <>
@@ -23,6 +28,7 @@ void VulkanQueue<QueueContext::Graphics>::Submit<SubmitContext::ColorAttachment>
                           WaitFlags,
                           inCommandBuffer.GetCommandBufferHandle(),
                           inRenderFinishedSemaphore.GetSemaphoreHandle());
+    std::lock_guard<std::mutex> Lock(SubmitMutex);
     mQueue.submit(info, inFlightFence.GetFenceHandle());
 }
 
@@ -32,6 +38,7 @@ template <>
 void VulkanQueue<QueueContext::Graphics>::Submit<SubmitContext::SingleTime>(
      const VulkanCommandBuffer& inCommandBuffer) const {
     vk::SubmitInfo SubmitInfo({}, {}, inCommandBuffer.GetCommandBufferHandle(), {});
+    std::lock_guard<std::mutex> Lock(SubmitMutex);
     mQueue.submit(SubmitInfo);
     mQueue.waitIdle();
 }
@@ -45,6 +52,7 @@ ui VulkanQueue<QueueContext::Graphics>::Present<SubmitContext::ColorAttachment>(
     auto PresentInfoKHR = vk::PresentInfoKHR(inRenderFinishedSemaphore.GetSemaphoreHandle(),
                                              inSwapChain.GetSwapChainHandle(),
                                              inImageIndex);
-    vk::Result Result   = mQueue.presentKHR(PresentInfoKHR);
+    std::lock_guard<std::mutex> Lock(SubmitMutex);
+    vk::Result Result = mQueue.presentKHR(PresentInfoKHR);
     return static_cast<ui>(Result);
 }

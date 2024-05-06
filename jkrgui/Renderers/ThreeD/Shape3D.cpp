@@ -5,19 +5,17 @@
 #include <filesystem>
 
 using namespace Jkr::Renderer::_3D;
+static std::mutex AddMutex;
 
-Shape::Shape(const Instance& inInstance, Window& inCompatibleWindow)
-    : mInstance(inInstance) {
+Shape::Shape(const Instance& inInstance, Window& inCompatibleWindow) : mInstance(inInstance) {
 #ifndef JKR_NO_STAGING_BUFFERS
-    rb::CreateStagingBuffers(
-         inInstance,
-         gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
-         gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
+    rb::CreateStagingBuffers(inInstance,
+                             gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
+                             gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
 #endif
-    mPrimitive = MakeUp<Primitive>(
-         inInstance,
-         gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
-         gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
+    mPrimitive = MakeUp<Primitive>(inInstance,
+                                   gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
+                                   gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
     mPrimitive->SetIndexCount(mTotalNoOfIndicesRendererCanHold);
 
 #ifndef JKR_NO_STAGING_BUFFERS
@@ -27,31 +25,30 @@ Shape::Shape(const Instance& inInstance, Window& inCompatibleWindow)
 
 void Shape::CopyToPrimitive(ui inOffsetId, ui inModelId) {
 #ifndef JKR_NO_STAGING_BUFFERS
-    rb::CopyToStagingBuffers(
-         gb::GetVertexBufferData(),
-         gb::GetIndexBufferData(),
-         gb::VertexCountToBytes(gb::GetVertexOffsetAbsolute(inOffsetId)),
-         gb::IndexCountToBytes(gb::GetIndexOffsetAbsolute(inOffsetId)),
-         gb::VertexCountToBytes(gb::GetVertexCount(inModelId)),
-         gb::IndexCountToBytes(gb::GetIndexCount(inModelId)));
+    rb::CopyToStagingBuffers(gb::GetVertexBufferData(),
+                             gb::GetIndexBufferData(),
+                             gb::VertexCountToBytes(gb::GetVertexOffsetAbsolute(inOffsetId)),
+                             gb::IndexCountToBytes(gb::GetIndexOffsetAbsolute(inOffsetId)),
+                             gb::VertexCountToBytes(gb::GetVertexCount(inModelId)),
+                             gb::IndexCountToBytes(gb::GetIndexCount(inModelId)));
     rb::RegisterBufferCopyRegionToPrimitiveFromStaging(
          gb::VertexCountToBytes(gb::GetVertexOffsetAbsolute(inOffsetId)),
          gb::IndexCountToBytes(gb::GetIndexOffsetAbsolute(inOffsetId)),
          gb::VertexCountToBytes(gb::GetVertexCount(inModelId)),
          gb::IndexCountToBytes(gb::GetIndexCount(inModelId)));
 #else
-    rb::CopyToPrimitive(
-         *mPrimitive,
-         gb::GetVertexBufferData(),
-         gb::GetIndexBufferData(),
-         gb::VertexCountToBytes(gb::GetVertexOffsetAbsolute(inOffsetId)),
-         gb::IndexCountToBytes(gb::GetIndexOffsetAbsolute(inOffsetId)),
-         gb::VertexCountToBytes(gb::GetVertexCount(inModelId)),
-         gb::IndexCountToBytes(gb::GetIndexCount(inModelId)));
+    rb::CopyToPrimitive(*mPrimitive,
+                        gb::GetVertexBufferData(),
+                        gb::GetIndexBufferData(),
+                        gb::VertexCountToBytes(gb::GetVertexOffsetAbsolute(inOffsetId)),
+                        gb::IndexCountToBytes(gb::GetIndexOffsetAbsolute(inOffsetId)),
+                        gb::VertexCountToBytes(gb::GetVertexCount(inModelId)),
+                        gb::IndexCountToBytes(gb::GetIndexCount(inModelId)));
 #endif
 }
 
 void Shape::Add(glTF_Model& inModel, uint32_t& outId) {
+    std::scoped_lock<std::mutex> Guard(AddMutex);
     inModel.Load(gb::GetCurrentVertexOffset());
     CheckAndResize(inModel);
     gb::Add(inModel.GetVerticesRef(), inModel.GetIndicesRef(), outId);
@@ -61,6 +58,7 @@ void Shape::Add(glTF_Model& inModel, uint32_t& outId) {
 }
 
 void Shape::Add(Generator& inGenerator, glm::vec3 inPosition, ui& outId) {
+    std::scoped_lock<std::mutex> Guard(AddMutex);
     v<ui> Indices;
     v<Vertex3D> Vertices;
     inGenerator(inPosition.x,
@@ -90,18 +88,16 @@ void Shape::Dispatch(Window& inWindow) {
 #endif
 }
 
+static std::mutex CheckAndResizeMutex;
 void Shape::CheckAndResize(size_t inIndicesSize, size_t inVerticesSize) {
     bool ResizeRequired = false;
     while (true) {
-        bool ResizeRequiredi = (inIndicesSize + gb::GetCurrentIndexOffset() >=
-                                mTotalNoOfIndicesRendererCanHold) or
-                               (inVerticesSize + gb::GetCurrentVertexOffset() >=
-                                mTotalNoOfVerticesRendererCanHold);
+        bool ResizeRequiredi =
+             (inIndicesSize + gb::GetCurrentIndexOffset() >= mTotalNoOfIndicesRendererCanHold) or
+             (inVerticesSize + gb::GetCurrentVertexOffset() >= mTotalNoOfVerticesRendererCanHold);
         if (ResizeRequiredi) {
-            mTotalNoOfVerticesRendererCanHold *=
-                 rb::RendererCapacityResizeFactor;
-            mTotalNoOfIndicesRendererCanHold *=
-                 rb::RendererCapacityResizeFactor;
+            mTotalNoOfVerticesRendererCanHold *= rb::RendererCapacityResizeFactor;
+            mTotalNoOfIndicesRendererCanHold *= rb::RendererCapacityResizeFactor;
             ResizeRequired = true;
         } else {
             break;
@@ -109,42 +105,38 @@ void Shape::CheckAndResize(size_t inIndicesSize, size_t inVerticesSize) {
     }
 
     if (ResizeRequired) {
+        std::scoped_lock<std::mutex> Guard(CheckAndResizeMutex);
         mPrimitive.reset();
-        mPrimitive = MakeUp<Primitive>(
-             mInstance,
-             gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
-             gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
+        mPrimitive = MakeUp<Primitive>(mInstance,
+                                       gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
+                                       gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
         mPrimitive->SetIndexCount(mTotalNoOfIndicesRendererCanHold);
 
-        gb::Resize(mTotalNoOfVerticesRendererCanHold,
-                   mTotalNoOfIndicesRendererCanHold);
+        gb::Resize(mTotalNoOfVerticesRendererCanHold, mTotalNoOfIndicesRendererCanHold);
 
 #ifndef JKR_NO_STAGING_BUFFERS
-        rb::ResizeStagingBuffer(
-             mInstance,
-             gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
-             gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
-        rb::CopyToStagingBuffers(
-             gb::GetVertexBufferData(),
-             gb::GetIndexBufferData(),
-             gb::VertexCountToBytes(0),
-             gb::IndexCountToBytes(0),
-             gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
-             gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
+        rb::ResizeStagingBuffer(mInstance,
+                                gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
+                                gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
+        rb::CopyToStagingBuffers(gb::GetVertexBufferData(),
+                                 gb::GetIndexBufferData(),
+                                 gb::VertexCountToBytes(0),
+                                 gb::IndexCountToBytes(0),
+                                 gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
+                                 gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
         rb::RegisterBufferCopyRegionToPrimitiveFromStaging(
              gb::VertexCountToBytes(0),
              gb::IndexCountToBytes(0),
              gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
              gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
 #else
-        rb::CopyToPrimitive(
-             *mPrimitive,
-             gb::GetVertexBufferData(),
-             gb::GetIndexBufferData(),
-             gb::VertexCountToBytes(0),
-             gb::IndexCountToBytes(0),
-             gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
-             gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
+        rb::CopyToPrimitive(*mPrimitive,
+                            gb::GetVertexBufferData(),
+                            gb::GetIndexBufferData(),
+                            gb::VertexCountToBytes(0),
+                            gb::IndexCountToBytes(0),
+                            gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
+                            gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
 #endif
     }
 }
@@ -154,4 +146,21 @@ void Shape::Update(ui inId, Generator& inGenerator, glm::vec3 inPosition) {
 
 void Shape::CheckAndResize(const glTF_Model& inModel) {
     CheckAndResize(inModel.GetIndices().size(), inModel.GetVertices().size());
+}
+
+void Shape::Bind(Window& inWindow, ComPar inCompar) {
+    Painter::BindDrawParamtersVertexAndIndexBuffersOnly_EXT(
+         mInstance, *mPrimitive, inWindow, inCompar);
+}
+
+ui Shape::AddEXT(Generator& inGenerator, glm::vec3 inPosition) {
+    ui i;
+    { Add(inGenerator, inPosition, i); }
+    return i;
+}
+
+ui Shape::AddEXT(glTF_Model& inModel) {
+    ui i;
+    { Add(inModel, i); }
+    return i;
 }

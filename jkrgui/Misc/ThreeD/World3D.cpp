@@ -23,7 +23,7 @@ Up<World3D> World3D::CreateWorld3D(Shape3D& inShape) {
 static std::mutex AddGltfMutex;
 int World3D::AddGLTFModel(std::string_view inFileName) {
     {
-        std::lock_guard<std::mutex> Guard(AddGltfMutex);
+        std::scoped_lock<std::mutex> Guard(AddGltfMutex);
         mGLTFModels.emplace_back(mu<Renderer::_3D::glTF_Model>(inFileName));
         return mGLTFModels.size() - 1;
     }
@@ -78,12 +78,12 @@ void World3D::DrawObjectsExplicit(Window& inWindow,
     for (int i = 0; i < inExplicitObjects.size(); ++i) {
         auto& ExplicitObject = inExplicitObjects[i];
         int simpleIndex      = ExplicitObject.mAssociatedSimple3D;
-        int uniformIndex     = ExplicitObject.mAssociatedUniform;
-        int indicesCount     = ExplicitObject.mIndexCount == -1
-                                    ? mShape.GetIndexCount(ExplicitObject.mId)
-                                    : ExplicitObject.mIndexCount;
-
         if (simpleIndex == -1) continue;
+        int uniformIndex = ExplicitObject.mAssociatedUniform;
+        int indicesCount = ExplicitObject.mIndexCount == -1
+                                ? mShape.GetIndexCount(ExplicitObject.mId)
+                                : ExplicitObject.mIndexCount;
+
         if (not(simpleIndex == PreviousSimpleIndex)) {
             mSimple3Ds[simpleIndex]->Bind(inWindow, inParam);
             PreviousSimpleIndex = simpleIndex;

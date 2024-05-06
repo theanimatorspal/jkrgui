@@ -1,12 +1,17 @@
 #include "Primitive.hpp"
 
+// TODO Make these thread safe
+static std::mutex PriMutex;
+
 Jkr::Primitive::Primitive(const Instance& inInstance) : mInstance(inInstance) {}
+Jkr::Primitive::~Primitive() { std::scoped_lock<std::mutex> Lock(PriMutex); }
 
 #ifndef JKR_NO_STAGING_BUFFERS
 Jkr::Primitive::Primitive(const Instance& inInstance,
                           const vk::ArrayProxyNoTemporaries<kstd::Vertex>& inVertices,
                           const vk::ArrayProxyNoTemporaries<kstd::ui32>& inIndices)
     : mInstance(inInstance), mIndexCount(inIndices.size()) {
+    std::scoped_lock<std::mutex> Lock(PriMutex);
     mVertexBufferPtr = MakeUp<VulkanBufferVMA<BufferContext::Vertex, MemoryType::DeviceLocal>>(
          inInstance.GetVMA(),
          mInstance.GetDevice(),
@@ -29,6 +34,7 @@ Jkr::Primitive::Primitive(const Instance& inInstance,
                           const vk::ArrayProxyNoTemporaries<kstd::ui32>& inIndices,
                           int inExtParameter_DoesNotDoAnything)
     : mInstance(inInstance), mIndexCount(inIndices.size()) {
+    std::scoped_lock<std::mutex> Lock(PriMutex);
     mVertexBufferPtr = MakeUp<VulkanBufferVMA<BufferContext::Vertex, MemoryType::DeviceLocal>>(
          inInstance.GetVMA(),
          mInstance.GetDevice(),
@@ -50,6 +56,7 @@ Jkr::Primitive::Primitive(const Instance& inInstance,
                           vk::DeviceSize inVertexBufferSizeInBytes,
                           vk::DeviceSize inIndexBufferSizeInBytes)
     : mInstance(inInstance), mIndexCount(0) {
+    std::scoped_lock<std::mutex> Lock(PriMutex);
     mVertexBufferPtr = MakeUp<VulkanBufferVMA<BufferContext::Vertex, MemoryType::DeviceLocal>>(
          inInstance.GetVMA(), mInstance.GetDevice(), inVertexBufferSizeInBytes);
     mIndexBufferPtr = MakeUp<VulkanBufferVMA<BufferContext::Index, MemoryType::DeviceLocal>>(
@@ -60,6 +67,7 @@ Jkr::Primitive::Primitive(const Instance& inInstance,
                           const vk::ArrayProxyNoTemporaries<kstd::Vertex>& inVertices,
                           const vk::ArrayProxyNoTemporaries<kstd::ui32>& inIndices)
     : mInstance(inInstance), mIndexCount(inIndices.size()) {
+    std::scoped_lock<std::mutex> Lock(PriMutex);
     mVertexBufferPtr =
          MakeUp<VulkanBufferVMA<BufferContext::Vertex, MemoryType::HostVisibleAndHostCached>>(
               inInstance.GetVMA(),
@@ -86,6 +94,7 @@ Jkr::Primitive::Primitive(const Instance& inInstance,
                           const vk::ArrayProxyNoTemporaries<kstd::ui32>& inIndices,
                           int inExtParameter_DoesNotDoAnything)
     : mInstance(inInstance), mIndexCount(inIndices.size()) {
+    std::scoped_lock<std::mutex> Lock(PriMutex);
     mVertexBufferPtr =
          MakeUp<VulkanBufferVMA<BufferContext::Vertex, MemoryType::HostVisibleAndHostCached>>(
               inInstance.GetVMA(),
@@ -111,6 +120,7 @@ Jkr::Primitive::Primitive(const Instance& inInstance,
                           vk::DeviceSize inVertexBufferSizeInBytes,
                           vk::DeviceSize inIndexBufferSizeInBytes)
     : mInstance(inInstance), mIndexCount(0) {
+    std::scoped_lock<std::mutex> Lock(PriMutex);
     mVertexBufferPtr =
          MakeUp<VulkanBufferVMA<BufferContext::Vertex, MemoryType::HostVisibleAndHostCached>>(
               inInstance.GetVMA(), mInstance.GetDevice(), inVertexBufferSizeInBytes);

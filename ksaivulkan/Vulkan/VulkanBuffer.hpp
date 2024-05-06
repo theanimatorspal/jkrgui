@@ -18,7 +18,6 @@ class VulkanBufferBase {
     public:
     VulkanBufferBase(const VulkanDevice& inDevice);
     virtual ~VulkanBufferBase() = default;
-    // TODO Create Separate Command Pool and Do these things
     void SubmitImmediateCmdCopyFrom(const VulkanQueue<QueueContext::Graphics>& inQueue,
                                     const VulkanCommandBuffer& inCmdBuffer,
                                     void* inData);
@@ -60,6 +59,7 @@ class VulkanBufferBase {
     vk::PhysicalDeviceMemoryProperties GetMemoryProperties() const;
 
     protected:
+    const VulkanDevice& mVulkanDevice;
     const vk::Device& mDevice;
     const vk::PhysicalDevice& mPhysicalDevice;
     vk::Buffer mBufferHandle;
@@ -80,8 +80,6 @@ class VulkanBuffer : public VulkanBufferBase {
     public:
     VulkanBuffer(const VulkanDevice& inDevice, size_t inSize);
     ~VulkanBuffer();
-
-    public:
 };
 } // namespace ksai
 
@@ -115,15 +113,13 @@ inline void VulkanBufferBase::FillBufferUsage(vk::BufferCreateInfo& inInfo,
 
 template <BufferContext Context>
 inline void VulkanBufferBase::Bind(const VulkanCommandBuffer& inCmdBuffer) const {
-    if constexpr (Context == BufferContext::Vertex)
+    if (Context == BufferContext::Vertex)
         inCmdBuffer.GetCommandBufferHandle().bindVertexBuffers(0, mBufferHandle, 0.0f);
-    else if constexpr (Context == BufferContext::Index)
+    else if (Context == BufferContext::Index)
         inCmdBuffer.GetCommandBufferHandle().bindIndexBuffer(
              mBufferHandle, 0, vk::IndexType::eUint32);
 }
-} // namespace ksai
 
-namespace ksai {
 template <BufferContext inBufferContext, MemoryType inBufferStorageType>
 inline constexpr void
 VulkanBuffer<inBufferContext, inBufferStorageType>::MapMemoryRegion(void** outMappedMemoryRegion)
@@ -145,8 +141,7 @@ inline VulkanBuffer<inBufferContext, inBufferStorageType>::VulkanBuffer(
     mSize      = inSize;
     auto Usage = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
 
-    if constexpr (inBufferContext == BufferContext::Staging)
-        Usage = vk::BufferUsageFlagBits::eTransferSrc;
+    if (inBufferContext == BufferContext::Staging) Usage = vk::BufferUsageFlagBits::eTransferSrc;
 
     auto BufferCreateInfo = vk::BufferCreateInfo(vk::BufferCreateFlags(), inSize, Usage);
     FillBufferUsage(BufferCreateInfo, inBufferContext, inBufferStorageType);
@@ -157,9 +152,9 @@ inline VulkanBuffer<inBufferContext, inBufferStorageType>::VulkanBuffer(
     vk::DeviceSize MemorySize;
     vk::MemoryPropertyFlags MemoryPropertyFlagBits;
 
-    if constexpr (inBufferStorageType == MemoryType::DeviceLocal)
+    if (inBufferStorageType == MemoryType::DeviceLocal)
         MemoryPropertyFlagBits = vk::MemoryPropertyFlagBits::eDeviceLocal;
-    else if constexpr (inBufferStorageType == MemoryType::HostVisibleAndCoherenet)
+    else if (inBufferStorageType == MemoryType::HostVisibleAndCoherenet)
         MemoryPropertyFlagBits =
              vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
 
@@ -170,9 +165,10 @@ inline VulkanBuffer<inBufferContext, inBufferStorageType>::VulkanBuffer(
 
 template <BufferContext inBufferContext, MemoryType inBufferStorageType>
 inline VulkanBuffer<inBufferContext, inBufferStorageType>::~VulkanBuffer() {
-    if constexpr (inBufferStorageType == MemoryType::HostVisibleAndCoherenet)
+    if (inBufferStorageType == MemoryType::HostVisibleAndCoherenet) {
         mDevice.unmapMemory(mBufferMemory);
-    mDevice.waitIdle();
+    }
+    // mVulkanDevice.Wait();
     mDevice.destroyBuffer(mBufferHandle);
     mDevice.freeMemory(mBufferMemory);
 }

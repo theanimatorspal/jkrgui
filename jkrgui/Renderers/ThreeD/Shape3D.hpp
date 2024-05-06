@@ -32,9 +32,10 @@ class Shape : public Renderer_base, public Shape_base {
     ui AddEXT(Generator& inGenerator, glm::vec3 inPosition);
     ui AddEXT(glTF_Model& inModel);
 
+    void CheckAndResize(size_t inIndicesSize, size_t inVerticesSize);
+
     private:
     void CheckAndResize(const glTF_Model& inModel);
-    void CheckAndResize(size_t inIndicesSize, size_t inVerticesSize);
     void CopyToPrimitive(ui inOffsetId, ui inModelId);
     Up<Primitive> mPrimitive;
 

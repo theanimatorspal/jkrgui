@@ -17,7 +17,7 @@ class VulkanDescriptorUpdateHandler {
             uint32_t inDstSet = 0);
 
     void RW(ImageContext inImageContext,
-            const VulkanDescriptorSet inDescriptorSet,
+            const VulkanDescriptorSet& inDescriptorSet,
             const VulkanImageBase& inImage,
             const VulkanSampler& inSampler,
             uint32_t inDstBinding,

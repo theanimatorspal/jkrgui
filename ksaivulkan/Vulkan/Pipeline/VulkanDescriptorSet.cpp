@@ -12,7 +12,7 @@ ksai::VulkanDescriptorSet::VulkanDescriptorSet(
          inDescriptorPool.GetDescriptorPoolHandle(),
          inDescriptorSetLayout.GetDescriptorLayoutHandle());
     {
-        std::lock_guard<std::mutex> lock(mMutex);
+        std::scoped_lock<std::mutex> lock(mMutex);
         mVulkanDescriptorSetHandles =
              inDevice.GetDeviceHandle().allocateDescriptorSets(DescriptorSetAllocateInfo);
     }
@@ -35,7 +35,7 @@ ksai::VulkanDescriptorSet::VulkanDescriptorSet(
          CreateInfoC(DescriptorSetAllocateInfo, VariableInfo);
 
     {
-        std::lock_guard<std::mutex> lock(mMutex);
+        std::scoped_lock<std::mutex> lock(mMutex);
         mVulkanDescriptorSetHandles = inDevice.GetDeviceHandle().allocateDescriptorSets(
              CreateInfoC.get<vk::DescriptorSetAllocateInfo>());
     }

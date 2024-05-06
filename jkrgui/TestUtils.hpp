@@ -30,34 +30,16 @@ class TestWindow {
     SDL_Window* mWindow;
 };
 
-} // namespace Jkr
-
-namespace Jkr {
 class ShaderCompiler {
     public:
     ShaderCompiler(const std::string& inVertexShaderString,
                    const std::string& inFragmentShaderString,
                    std::vector<uint32_t>& outVertexShaderModule,
-                   std::vector<uint32_t>& outFragmentShaderModule) {
-        bool success = SpirvHelper::GLSLtoSPV(
-             vk::ShaderStageFlagBits::eVertex, inVertexShaderString.c_str(), outVertexShaderModule);
-        if (!success) assert("VertexShader Failed" && false);
-        success = SpirvHelper::GLSLtoSPV(vk::ShaderStageFlagBits::eFragment,
-                                         inFragmentShaderString.c_str(),
-                                         outFragmentShaderModule);
-        if (!success) assert("FragmentShader failed" && false);
-    }
+                   std::vector<uint32_t>& outFragmentShaderModule);
     ShaderCompiler(const std::string& inComputeShaderString,
-                   std::vector<uint32_t>& outComputeShaderModule) {
-        bool success = SpirvHelper::GLSLtoSPV(vk::ShaderStageFlagBits::eCompute,
-                                              inComputeShaderString.c_str(),
-                                              outComputeShaderModule);
-        if (!success) assert("ComputeShader failed" && false);
-    }
+                   std::vector<uint32_t>& outComputeShaderModule);
 };
-} // namespace Jkr
 
-namespace Jkr {
 class Timer {
     private:
     // Type aliases to make accessing nested type easier

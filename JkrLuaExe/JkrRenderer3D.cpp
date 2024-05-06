@@ -240,6 +240,8 @@ void CreateRenderer3DBindings(sol::state& s) {
          "GetVertexCount",
          &Jkr::Renderer::_3D::Shape::GetVertexCount,
          "GetIndexCount",
-         &Jkr::Renderer::_3D::Shape::GetIndexCount);
+         &Jkr::Renderer::_3D::Shape::GetIndexCount,
+         "CheckAndResize",
+         sol::resolve<void(size_t, size_t)>(&Jkr::Renderer::_3D::Shape::CheckAndResize));
 }
 } // namespace JkrEXE

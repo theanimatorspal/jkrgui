@@ -13,11 +13,12 @@ struct MultiThreading {
     void InjectToGate(std::string_view inVariable, sol::object inValue);
     void AddJobF(sol::function inFunction);
     sol::object GetFromGate(std::string_view inVariable);
+    sol::object GetFromGateToThread(std::string_view inVariable, int inThreadId);
 
     void Wait();
 
     private:
-    std::mutex mMutex;
+    std::mutex mGateMutex;
     std::deque<std::mutex> mMutexes;
     std::condition_variable mConditionVariable;
     bool mIsInjecting = false;
@@ -25,6 +26,7 @@ struct MultiThreading {
     ksai::ThreadPool mPool;
     std::vector<sol::state> mStates;
     sol::state mGateState;
+    sol::state mGateStateTarget;
 };
 
 inline MultiThreading::MultiThreading(Jkr::Instance& inInstance) { // TODO Get Thread Count
@@ -38,14 +40,10 @@ inline MultiThreading::MultiThreading(Jkr::Instance& inInstance) { // TODO Get T
         state["StateId"] = i++;
     }
     CreateMainBindings(mGateState);
+    CreateMainBindings(mGateStateTarget);
 }
 
 inline MultiThreading::~MultiThreading() { Wait(); }
-
-inline void MultiThreading::InjectToGate(std::string_view inVariable, sol::object inValue) {
-    std::scoped_lock<std::mutex> Lock(mMutex);
-    mGateState[inVariable] = Copy(inValue, mGateState);
-}
 
 inline void MultiThreading::Inject(std::string_view inVariable, sol::object inValue) {
     for (int i = 0; i < mStates.size(); ++i) {
@@ -54,19 +52,35 @@ inline void MultiThreading::Inject(std::string_view inVariable, sol::object inVa
     }
 }
 
+inline void MultiThreading::InjectToGate(std::string_view inVariable, sol::object inValue) {
+    std::scoped_lock<std::mutex> Lock(mGateMutex);
+    mGateState[inVariable] = Copy(inValue, mGateState);
+}
+
 inline sol::object MultiThreading::GetFromGate(std::string_view inVariable) {
-    std::scoped_lock<std::mutex> Lock(mMutex);
-    auto obj = Copy(mGateState[inVariable], GetMainStateRef());
+    std::scoped_lock<std::mutex> Lock(mGateMutex);
+    auto obj = Copy(mGateState[inVariable], mGateStateTarget);
+    return obj;
+}
+
+inline sol::object MultiThreading::GetFromGateToThread(std::string_view inVariable,
+                                                       int inThreadId) {
+    std::scoped_lock<std::mutex> Lock(mGateMutex);
+    sol::object obj;
+    if (inThreadId != -1) {
+        obj = Copy(mGateState[inVariable], mStates[inThreadId]);
+    } else {
+        obj = Copy(mGateState[inVariable], GetMainStateRef());
+    }
     return obj;
 }
 
 inline void MultiThreading::AddJobF(sol::function inFunction) {
-    std::scoped_lock<std::mutex> Lock(mMutex);
     int ThreadIndex = mPool.GetThreadIndex();
-    auto& state     = mStates[ThreadIndex];
     auto f          = inFunction.dump();
-    mPool.Add_Job([=, &state, this]() {
+    mPool.Add_Job([=, this]() {
         std::scoped_lock<std::mutex> Lock2(mMutexes[ThreadIndex]);
+        auto& state = mStates[ThreadIndex];
         auto result = state.safe_script(f.as_string_view(), &sol::script_pass_on_error);
         if (not result.valid()) {
             sol::error error = result;
@@ -167,6 +181,8 @@ void CreateMultiThreadingBindings(sol::state& inState) {
          &MultiThreading::InjectToGate,
          "GetFromGate",
          &MultiThreading::GetFromGate,
+         "GetFromGateToThread",
+         &MultiThreading::GetFromGateToThread,
          "Wait",
          &MultiThreading::Wait,
          "AddJobF",
