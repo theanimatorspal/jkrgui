@@ -44,20 +44,4 @@ class Shape : public Renderer_base, public Shape_base {
     ui mTotalNoOfIndicesRendererCanHold  = rb::InitialRendererElementArraySize;
 };
 
-inline void Shape::Bind(Window& inWindow, ComPar inCompar) {
-    Painter::BindDrawParamtersVertexAndIndexBuffersOnly_EXT(
-         mInstance, *mPrimitive, inWindow, inCompar);
-}
-
-inline ui Shape::AddEXT(Generator& inGenerator, glm::vec3 inPosition) {
-    ui i;
-    Add(inGenerator, inPosition, i);
-    return i;
-}
-
-inline ui Shape::AddEXT(glTF_Model& inModel) {
-    ui i;
-    Add(inModel, i);
-    return i;
-}
 } // namespace Jkr::Renderer::_3D

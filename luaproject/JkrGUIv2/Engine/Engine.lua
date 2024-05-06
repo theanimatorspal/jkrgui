@@ -9,5 +9,4 @@ Engine.Load = function(self)
           self.i = Jkr.CreateInstance()
           self.e = Jkr.CreateEventManager()
           self.mt = Jkr.MultiThreading(self.i)
-          self.mt:Inject("Engine", self)
 end

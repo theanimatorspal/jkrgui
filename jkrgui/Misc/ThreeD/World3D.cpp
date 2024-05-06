@@ -20,10 +20,13 @@ Up<World3D> World3D::CreateWorld3D(Shape3D& inShape) {
     auto O = mu<World3D>(inShape);
     return O;
 }
-
+static std::mutex AddGltfMutex;
 int World3D::AddGLTFModel(std::string_view inFileName) {
-    mGLTFModels.emplace_back(mu<Renderer::_3D::glTF_Model>(inFileName));
-    return mGLTFModels.size() - 1;
+    {
+        std::lock_guard<std::mutex> Guard(AddGltfMutex);
+        mGLTFModels.emplace_back(mu<Renderer::_3D::glTF_Model>(inFileName));
+        return mGLTFModels.size() - 1;
+    }
 }
 
 int World3D::AddSimple3D(Jkr::Instance& inInstance, Window& inWindow) {
@@ -80,6 +83,7 @@ void World3D::DrawObjectsExplicit(Window& inWindow,
                                     ? mShape.GetIndexCount(ExplicitObject.mId)
                                     : ExplicitObject.mIndexCount;
 
+        if (simpleIndex == -1) continue;
         if (not(simpleIndex == PreviousSimpleIndex)) {
             mSimple3Ds[simpleIndex]->Bind(inWindow, inParam);
             PreviousSimpleIndex = simpleIndex;

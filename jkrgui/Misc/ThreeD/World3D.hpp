@@ -29,12 +29,12 @@ struct World3D {
         glm::vec4 mDirection{0.0f};
     };
     struct Object3D {
-        int mId;
-        int mAssociatedModel;
-        int mAssociatedUniform;
-        int mAssociatedSimple3D;
-        int mIndexCount = -1;
-        int mFirstIndex = 0;
+        int mId                 = -1;
+        int mAssociatedModel    = -1;
+        int mAssociatedUniform  = -1;
+        int mAssociatedSimple3D = -1;
+        int mIndexCount         = -1;
+        int mFirstIndex         = 0;
         glm::vec3 mTranslation{};
         glm::vec3 mScale{1.0f};
         glm::quat mRotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
