@@ -230,6 +230,7 @@ class glTF_Model {
     glTF_Model(const std::string_view inFileName) : mFileName(inFileName) {}
 
     private:
+    std::mutex mUpdateMutex;
     const std::string mFileName;
     v<ui> mIndexBuffer;
     v<Vertex3D> mVertexBuffer;

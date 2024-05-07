@@ -5,7 +5,6 @@
 #include <filesystem>
 
 using namespace Jkr::Renderer::_3D;
-static std::mutex AddMutex;
 
 Shape::Shape(const Instance& inInstance, Window& inCompatibleWindow) : mInstance(inInstance) {
 #ifndef JKR_NO_STAGING_BUFFERS
@@ -48,7 +47,6 @@ void Shape::CopyToPrimitive(ui inOffsetId, ui inModelId) {
 }
 
 void Shape::Add(glTF_Model& inModel, uint32_t& outId) {
-    std::scoped_lock<std::mutex> Guard(AddMutex);
     inModel.Load(gb::GetCurrentVertexOffset());
     CheckAndResize(inModel);
     gb::Add(inModel.GetVerticesRef(), inModel.GetIndicesRef(), outId);
@@ -58,7 +56,6 @@ void Shape::Add(glTF_Model& inModel, uint32_t& outId) {
 }
 
 void Shape::Add(Generator& inGenerator, glm::vec3 inPosition, ui& outId) {
-    std::scoped_lock<std::mutex> Guard(AddMutex);
     v<ui> Indices;
     v<Vertex3D> Vertices;
     inGenerator(inPosition.x,
@@ -88,7 +85,6 @@ void Shape::Dispatch(Window& inWindow) {
 #endif
 }
 
-static std::mutex CheckAndResizeMutex;
 void Shape::CheckAndResize(size_t inIndicesSize, size_t inVerticesSize) {
     bool ResizeRequired = false;
     while (true) {
@@ -105,7 +101,6 @@ void Shape::CheckAndResize(size_t inIndicesSize, size_t inVerticesSize) {
     }
 
     if (ResizeRequired) {
-        std::scoped_lock<std::mutex> Guard(CheckAndResizeMutex);
         mPrimitive.reset();
         mPrimitive = MakeUp<Primitive>(mInstance,
                                        gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
@@ -154,13 +149,15 @@ void Shape::Bind(Window& inWindow, ComPar inCompar) {
 }
 
 ui Shape::AddEXT(Generator& inGenerator, glm::vec3 inPosition) {
+    std::scoped_lock<std::mutex> Guard(mAddMutex);
     ui i;
-    { Add(inGenerator, inPosition, i); }
+    Add(inGenerator, inPosition, i);
     return i;
 }
 
 ui Shape::AddEXT(glTF_Model& inModel) {
+    std::scoped_lock<std::mutex> Guard(mAddMutex);
     ui i;
-    { Add(inModel, i); }
+    Add(inModel, i);
     return i;
 }

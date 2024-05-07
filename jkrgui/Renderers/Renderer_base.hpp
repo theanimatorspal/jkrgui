@@ -4,7 +4,6 @@
 #include "Window.hpp"
 #include <Vulkan/VulkanBufferVMA.hpp>
 
-
 namespace Jkr::Renderer {
 
 using CmdParam = Window::ParameterContext;
@@ -79,6 +78,9 @@ class Renderer_base {
                          size_t inIndexOffset,
                          size_t inVertexSize,
                          size_t inIndexSize);
+
+    private:
+    std::mutex mCopyMutex;
 #endif
 };
 } // namespace Jkr::Renderer

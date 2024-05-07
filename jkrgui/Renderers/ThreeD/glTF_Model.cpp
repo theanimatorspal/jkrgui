@@ -45,6 +45,7 @@ glTF_Model::BoundingBox glTF_Model::BoundingBox::GetAABB(glm::mat4 m) {
 
 // TODO Merge these two functions
 void glTF_Model::Load(ui inInitialVertexOffset) {
+    std::scoped_lock<std::mutex> Lock(mUpdateMutex);
     tinygltf::Model glTFInput;
     tinygltf::TinyGLTF gltfContext;
     s error, warning;
@@ -83,6 +84,7 @@ void glTF_Model::Load(ui inInitialVertexOffset) {
 }
 
 void glTF_Model::Load(FillVertexCallBack inVertexCallback, FillIndexCallBack inIndexCallback) {
+    std::scoped_lock<std::mutex> Lock(mUpdateMutex);
     tinygltf::Model glTFInput;
     tinygltf::TinyGLTF gltfContext;
     s error, warning;
@@ -941,6 +943,7 @@ void glTF_Model::BlendCombineAnimationToArbritaryTime(float inDestinationTime,
 }
 
 void glTF_Model::UpdateAllJoints(UpdateJointsCallBack inCallBack) {
+    std::scoped_lock<std::mutex> Lock(mUpdateMutex);
     for (auto& node : mNodes) {
         UpdateJoints(node.get(), inCallBack);
     }

@@ -168,7 +168,7 @@ inline VulkanBuffer<inBufferContext, inBufferStorageType>::~VulkanBuffer() {
     if (inBufferStorageType == MemoryType::HostVisibleAndCoherenet) {
         mDevice.unmapMemory(mBufferMemory);
     }
-    // mVulkanDevice.Wait();
+    mVulkanDevice.Wait();
     mDevice.destroyBuffer(mBufferHandle);
     mDevice.freeMemory(mBufferMemory);
 }

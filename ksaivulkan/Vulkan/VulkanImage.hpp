@@ -19,11 +19,13 @@ class VulkanImageBase {
     void SubmitImmediateCmdCopyFromData(const VulkanQueue<QueueContext::Graphics>& inQueue,
                                         const VulkanCommandBuffer& inCmdBuffer,
                                         const VulkanDevice& inDevice,
+                                        const VulkanFence& inFence,
                                         void** inData,
                                         vk::DeviceSize inSize);
     void SubmitImmediateCmdCopyFromData(const VulkanQueue<QueueContext::Graphics>& inQueue,
                                         const VulkanCommandBuffer& inCmdBuffer,
                                         const VulkanDevice& inDevice,
+                                        const VulkanFence& inFence,
                                         vk::DeviceSize inSize,
                                         std::span<void**> inLayerImageDatas);
     void CmdCopyImageFromImageAfterStage(const VulkanQueue<QueueContext::Graphics>& inQueue,

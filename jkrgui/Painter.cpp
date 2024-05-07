@@ -97,12 +97,13 @@ void Painter::OptimizeParameter(
      const Instance& inInstance,
      const PainterParameter<PainterParameterContext::StorageImage>& inImage,
      const Window& inWindow) {
-    auto& Cmd = inInstance.GetUtilCommandBuffer().GetCommandBufferHandle();
-    Cmd.begin(vk::CommandBufferBeginInfo());
+    inInstance.GetUtilCommandBufferFence().Wait();
+    inInstance.GetUtilCommandBufferFence().Reset();
+    inInstance.GetUtilCommandBuffer().Begin();
     OptimizeImageParameter(inInstance, inInstance.GetUtilCommandBuffer(), inImage, inWindow);
-    Cmd.end();
+    inInstance.GetUtilCommandBuffer().End();
     inInstance.GetGraphicsQueue().Submit<SubmitContext::SingleTime>(
-         inInstance.GetUtilCommandBuffer());
+         inInstance.GetUtilCommandBuffer(), inInstance.GetUtilCommandBufferFence());
 }
 
 void Jkr::Painter::OptimizeImageParameter(

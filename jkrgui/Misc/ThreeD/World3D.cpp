@@ -79,6 +79,7 @@ void World3D::DrawObjectsExplicit(Window& inWindow,
         auto& ExplicitObject = inExplicitObjects[i];
         int simpleIndex      = ExplicitObject.mAssociatedSimple3D;
         if (simpleIndex == -1) continue;
+        if (ExplicitObject.mId == -1) continue;
         int uniformIndex = ExplicitObject.mAssociatedUniform;
         int indicesCount = ExplicitObject.mIndexCount == -1
                                 ? mShape.GetIndexCount(ExplicitObject.mId)
@@ -92,19 +93,16 @@ void World3D::DrawObjectsExplicit(Window& inWindow,
             mUniforms[uniformIndex]->Bind(inWindow, *mSimple3Ds[PreviousSimpleIndex], 1, inParam);
         }
         PushConstantDefault Push;
-        Push.m1 = ExplicitObject.GetLocalMatrix();
-        Push.m2 = glm::mat4(ExplicitObject.mColor,
+        Push.m1    = ExplicitObject.GetLocalMatrix();
+        Push.m2    = glm::mat4(ExplicitObject.mColor,
                             ExplicitObject.mColor,
                             ExplicitObject.mColor,
                             ExplicitObject.mColor);
+
+        int Offset = mShape.GetIndexOffsetAbsolute(ExplicitObject.mId) + ExplicitObject.mFirstIndex;
+        std::cout << Offset << "\n";
         mSimple3Ds[simpleIndex]->Draw<PushConstantDefault>(
-             inWindow,
-             mShape,
-             Push,
-             mShape.GetIndexOffsetAbsolute(ExplicitObject.mId) + ExplicitObject.mFirstIndex,
-             indicesCount,
-             1,
-             inParam);
+             inWindow, mShape, Push, Offset, indicesCount, 1, inParam);
     }
 }
 

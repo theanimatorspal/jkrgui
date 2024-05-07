@@ -53,11 +53,17 @@ void Jkr::PainterParameterBase::Setup(Up<VulkanSampler>& inUniformImageSampler,
          mInstance.GetVMA(), mInstance.GetDevice(), Width, Height);
     inUniformImageSampler = MakeUp<VulkanSampler>(mInstance.GetDevice());
 
+    VulkanCommandPool Pool(mInstance.GetDevice(), mInstance.GetGraphicsQueue().GetQueueContext());
+    VulkanCommandBuffer Cmd(mInstance.GetDevice(), Pool);
+    VulkanFence Fence(mInstance.GetDevice()); // TODO Remove this
+
     inUniformImage->SubmitImmediateCmdCopyFromData(mInstance.GetGraphicsQueue(),
-                                                   mInstance.GetUtilCommandBuffer(),
+                                                   Cmd,
                                                    mInstance.GetDevice(),
+                                                   Fence,
                                                    &data,
                                                    4 * Width * Height);
+    mInstance.GetDevice().Wait();
     stbi_image_free(data);
 }
 
@@ -70,11 +76,18 @@ void Jkr::PainterParameterBase::Setup(Up<VulkanSampler>& inUniformImageSampler,
     inUniformImage = MakeUp<VulkanImageVMA<ImageContext::Default>>(
          mInstance.GetVMA(), mInstance.GetDevice(), inWidth, inHeight, inChannelCount);
     inUniformImageSampler = MakeUp<VulkanSampler>(mInstance.GetDevice());
+
+    VulkanCommandPool Pool(mInstance.GetDevice(), mInstance.GetGraphicsQueue().GetQueueContext());
+    VulkanCommandBuffer Cmd(mInstance.GetDevice(), Pool);
+    VulkanFence Fence(mInstance.GetDevice());
+
     inUniformImage->SubmitImmediateCmdCopyFromData(mInstance.GetGraphicsQueue(),
-                                                   mInstance.GetUtilCommandBuffer(),
+                                                   Cmd,
                                                    mInstance.GetDevice(),
+                                                   Fence,
                                                    inData,
                                                    inWidth * inHeight * inChannelCount);
+    mInstance.GetDevice().Wait();
 }
 
 void Jkr::PainterParameterBase::Setup(Up<VulkanSampler>& inUniformImageSampler,

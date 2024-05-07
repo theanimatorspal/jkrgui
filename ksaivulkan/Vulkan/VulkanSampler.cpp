@@ -13,7 +13,4 @@ VulkanSampler::VulkanSampler(const VulkanDevice& inDevice, ImageContext inImageC
     mSampler = mDevice.createSampler(VulkanSamplerCreateInfo);
 }
 
-VulkanSampler::~VulkanSampler() {
-    mDevice.waitIdle();
-    mDevice.destroySampler(mSampler);
-}
+VulkanSampler::~VulkanSampler() { mDevice.destroySampler(mSampler); }

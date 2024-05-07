@@ -52,8 +52,8 @@ class Timer {
     inline void reset() { m_beg = Clock::now(); }
 
     inline void elapsed(const std::string inString) const {
-        std::cout << "In Func: " << inString << " : "
-                  << std::chrono::duration_cast<Second>(Clock::now() - m_beg).count() << "s\n";
+        // std::cout << "In Func: " << inString << " : "
+        //           << std::chrono::duration_cast<Second>(Clock::now() - m_beg).count() << "s\n";
     }
 
     inline auto elapsed() const {

@@ -1,5 +1,4 @@
--- True : Will compile and store caches
--- False: Will load caches instead of compiling the shaders
+-- True : Will compile and store cachesC-- False: Will load caches instead of compiling the shaders
 local ShouldLoadCaches_b = false
 
 --[============================================================[
@@ -438,11 +437,11 @@ end
 ]============================================================]
 
 
-Jkr.CreateInstance = function(inVarDesSet, inPoolSize, inThreadsCount)
+Jkr.CreateInstance = function(inEnableValidation, inVarDesSet, inPoolSize, inThreadsCount)
     if not inVarDesSet then inVarDesSet = 1000 end
     if not inPoolSize then inPoolSize = 1000 end
     if not inThreadsCount then inThreadsCount = 7 end
-    return Jkr.Instance(inVarDesSet, inPoolSize)
+    return Jkr.Instance(inVarDesSet, inPoolSize, inEnableValidation)
 end
 
 --[============================================================[

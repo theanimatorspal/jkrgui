@@ -12,6 +12,7 @@ class VulkanQueueBase {
     VulkanQueueBase(const VulkanQueueContext& inQueueContext, const VulkanDevice& inDevice);
     void Wait() const;
     GETTER& GetQueueHandle() const { return mQueue; }
+    GETTER& GetQueueContext() { return mQueueContext; }
 
     protected:
     const vk::Device& mDevice;
@@ -32,6 +33,9 @@ template <QueueContext inContext> class VulkanQueue : public VulkanQueueBase {
 
     template <SubmitContext inSubmitContext>
     void Submit(const VulkanCommandBuffer& inCommandBuffer) const;
+
+    template <SubmitContext inSubmitContext>
+    void Submit(const VulkanCommandBuffer& inCommandBuffer, const VulkanFence& inFence) const;
 
     template <SubmitContext inSubmitContext>
     ui Present(const VulkanSwapChain& inSwapChain,

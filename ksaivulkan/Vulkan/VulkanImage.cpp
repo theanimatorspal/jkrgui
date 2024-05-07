@@ -19,6 +19,7 @@ void ksai::VulkanImageBase::SubmitImmediateCmdCopyFromData(
      const VulkanQueue<QueueContext::Graphics>& inQueue,
      const VulkanCommandBuffer& inCmdBuffer,
      const VulkanDevice& inDevice,
+     const VulkanFence& inFence,
      void** inData,
      vk::DeviceSize inSize) {
     VulkanBuffer<BufferContext::Staging, MemoryType::HostVisibleAndCoherenet> StagingBuffer(
@@ -27,7 +28,9 @@ void ksai::VulkanImageBase::SubmitImmediateCmdCopyFromData(
     StagingBuffer.MapMemoryRegion(&MapRegion);
     std::memcpy(MapRegion, *inData, inSize);
     const vk::CommandBuffer& Cmd = inCmdBuffer.GetCommandBufferHandle();
-    Cmd.begin(vk::CommandBufferBeginInfo());
+    inFence.Reset();
+    inFence.Wait();
+    inCmdBuffer.Begin();
     vk::ImageSubresourceLayers ImageSubResourceLayer(
          mImageProperties.mImageAspect, 0, 0, mImageProperties.mArrayLayers);
     vk::BufferImageCopy Copy(0,
@@ -52,8 +55,8 @@ void ksai::VulkanImageBase::SubmitImmediateCmdCopyFromData(
                              vk::PipelineStageFlagBits::eBottomOfPipe,
                              vk::AccessFlagBits::eTransferWrite,
                              vk::AccessFlagBits::eNone);
-    Cmd.end();
-    inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer);
+    inCmdBuffer.End();
+    inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer, inFence);
     //	inQueue.Wait();
 }
 
@@ -61,6 +64,7 @@ void VulkanImageBase::SubmitImmediateCmdCopyFromData(
      const VulkanQueue<QueueContext::Graphics>& inQueue,
      const VulkanCommandBuffer& inCmdBuffer,
      const VulkanDevice& inDevice,
+     const VulkanFence& inFence,
      vk::DeviceSize inSize,
      std::span<void**> inLayerImageDatas) {
     vk::DeviceSize size = inLayerImageDatas.size() * inSize;
@@ -72,7 +76,9 @@ void VulkanImageBase::SubmitImmediateCmdCopyFromData(
         std::memcpy((char*)MapRegion + i * inSize, *inLayerImageDatas[i], inSize);
     }
     const vk::CommandBuffer& Cmd = inCmdBuffer.GetCommandBufferHandle();
-    Cmd.begin(vk::CommandBufferBeginInfo());
+    inFence.Reset();
+    inFence.Wait();
+    inCmdBuffer.Begin();
     vk::ImageSubresourceLayers ImageSubResourceLayer(
          mImageProperties.mImageAspect, 0, 0, mImageProperties.mArrayLayers);
     vk::BufferImageCopy Copy(0,
@@ -97,8 +103,8 @@ void VulkanImageBase::SubmitImmediateCmdCopyFromData(
                              vk::PipelineStageFlagBits::eBottomOfPipe,
                              vk::AccessFlagBits::eTransferWrite,
                              vk::AccessFlagBits::eNone);
-    Cmd.end();
-    inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer);
+    inCmdBuffer.End();
+    inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer, inFence);
 }
 
 void ksai::VulkanImageBase::CmdTransitionImageLayout(const VulkanCommandBuffer& inBuffer,

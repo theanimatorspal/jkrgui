@@ -45,6 +45,16 @@ void VulkanQueue<QueueContext::Graphics>::Submit<SubmitContext::SingleTime>(
 
 template <>
 template <>
+void VulkanQueue<QueueContext::Graphics>::Submit<SubmitContext::SingleTime>(
+     const VulkanCommandBuffer& inCommandBuffer, const VulkanFence& inFence) const {
+    vk::SubmitInfo SubmitInfo({}, {}, inCommandBuffer.GetCommandBufferHandle(), {});
+    std::lock_guard<std::mutex> Lock(SubmitMutex);
+    mQueue.submit(SubmitInfo, inFence.GetFenceHandle());
+    // mQueue.waitIdle();
+}
+
+template <>
+template <>
 ui VulkanQueue<QueueContext::Graphics>::Present<SubmitContext::ColorAttachment>(
      const VulkanSwapChain& inSwapChain,
      const VulkanSemaphore& inRenderFinishedSemaphore,

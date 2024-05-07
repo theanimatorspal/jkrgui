@@ -14,6 +14,7 @@ class VulkanCommandPool;
 class VulkanCommandBuffer;
 class VulkanDescriptorPool;
 class VulkanVMA;
+class VulkanFence;
 } // namespace ksai
 
 namespace Jkr {
@@ -22,7 +23,9 @@ static Timer time;
 
 class Instance {
     public:
-    Instance(uint32_t inNoOfDescriptors = 20, uint32_t inPoolSize = 10000);
+    Instance(uint32_t inNoOfDescriptors = 20,
+             uint32_t inPoolSize        = 10000,
+             bool inEnableValidation    = false);
     ~Instance();
     GETTER& GetVulkanInstance() const { return *mInstance; }
     GETTER& GetPhysicalDevice() const { return *mPhysicalDevice; }
@@ -31,6 +34,7 @@ class Instance {
     GETTER& GetGraphicsQueue() const { return *mGraphicsPresentQueue; };
     GETTER& GetCommandPool() const { return *mCommandPool; }
     GETTER& GetUtilCommandBuffer() const { return *mUtilCommandBuffer; }
+    GETTER& GetUtilCommandBufferFence() const { return *mUtilCommandBufferFence; }
     GETTER& GetDescriptorPool() const { return *mDescriptorPool; }
     GETTER& GetVMA() const { return *mVmaAllocator; }
     GETTER& GetThreadPool() { return mThreadPool; }
@@ -47,6 +51,7 @@ class Instance {
     Up<VulkanQueue<QueueContext::Graphics>> mGraphicsPresentQueue;
     Up<VulkanCommandPool> mCommandPool;
     Up<VulkanCommandBuffer> mUtilCommandBuffer;
+    Up<VulkanFence> mUtilCommandBufferFence;
     Up<VulkanDescriptorPool> mDescriptorPool;
     Up<VulkanVMA> mVmaAllocator;
     ksai::ThreadPool mThreadPool;

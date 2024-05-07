@@ -35,6 +35,8 @@ class Shape : public Renderer_base, public Shape_base {
     void CheckAndResize(size_t inIndicesSize, size_t inVerticesSize);
 
     private:
+    std::mutex mAddMutex;
+
     void CheckAndResize(const glTF_Model& inModel);
     void CopyToPrimitive(ui inOffsetId, ui inModelId);
     Up<Primitive> mPrimitive;

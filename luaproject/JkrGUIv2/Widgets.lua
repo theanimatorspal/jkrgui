@@ -361,7 +361,6 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         Image.mId = o.s:AddImage(inDimension_3f.x, inDimension_3f.y)
         local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill, uvec2(inDimension_3f.x, inDimension_3f.y))
         Image.imageViewRect = o.s:Add(Rectangle, inPosition_3f)
-        print("Position:", inPosition_3f.x, inPosition_3f.y, inPosition_3f.z)
         Image.mColor = vec4(1, 1, 1, 1)
         if (inColor) then
             Image.mColor = inColor

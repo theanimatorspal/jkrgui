@@ -6,12 +6,13 @@ namespace JkrEXE {
 
 void CreateBasicBindings(sol::state& s) {
     auto Jkr = s["Jkr"].get_or_create<sol::table>();
-    Jkr.new_usertype<Jkr::Instance>("Instance",
-                                    sol::call_constructor,
-                                    sol::factories([](int inDescriptorSize, int inPoolSize) {
-                                        return std::make_unique<Jkr::Instance>(inDescriptorSize,
-                                                                               inPoolSize);
-                                    }));
+    Jkr.new_usertype<Jkr::Instance>(
+         "Instance",
+         sol::call_constructor,
+         sol::factories([](int inDescriptorSize, int inPoolSize, bool inEnableValidation) {
+             return std::make_unique<Jkr::Instance>(
+                  inDescriptorSize, inPoolSize, inEnableValidation);
+         }));
     Jkr.new_usertype<Jkr::Window>("WindowBase");
     Jkr.new_usertype<Jkr::WindowMulT>(
          "Window",

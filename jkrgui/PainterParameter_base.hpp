@@ -102,12 +102,17 @@ inline void PainterParameterBase::SetupImage(Up<VulkanSampler>& inUniformImageSa
         i++;
     }
 
+    VulkanCommandPool Pool(mInstance.GetDevice(), mInstance.GetGraphicsQueue().GetQueueContext());
+    VulkanCommandBuffer Cmd(mInstance.GetDevice(), Pool);
+    VulkanFence Fence(mInstance.GetDevice()); // TODO Remove this
+
     inUniformImage =
          MakeUp<T>(mInstance.GetVMA(), mInstance.GetDevice(), Width, Height, 4, inFileNames.size());
     inUniformImageSampler = MakeUp<VulkanSampler>(mInstance.GetDevice());
     inUniformImage->SubmitImmediateCmdCopyFromData(mInstance.GetGraphicsQueue(),
-                                                   mInstance.GetUtilCommandBuffer(),
+                                                   Cmd,
                                                    mInstance.GetDevice(),
+                                                   Fence,
                                                    Channels * Height * Width,
                                                    Datas_ptr);
 
