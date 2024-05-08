@@ -1,9 +1,21 @@
 #include "JkrLuaExe.hpp"
+#include "Misc/RecycleBin.hpp"
 #include "Misc/ThreeD/World3D.hpp"
+#include "Renderers/Generator.hpp"
+#include "Renderers/Renderer_base.hpp"
+#include "Renderers/TwoD/Line.hpp"
+#include "Renderers/TwoD/Shape.hpp"
+#include "WindowMulT.hpp"
 #include "sol/sol.hpp"
+#include <Misc/RecycleBin.hpp>
+#include <Misc/ThreeD/World3D.hpp>
+#include <Renderers/TwoD/Shape.hpp>
+#include <WindowMulT.hpp>
 #include <mutex>
 
+extern sol::state& GetMainStateRef();
 namespace JkrEXE {
+using namespace Jkr;
 extern void CreateMainBindings(sol::state& s);
 
 struct MultiThreading {

@@ -1,32 +1,9 @@
 ﻿#pragma once
 #define SOL_PRINT_ERRORS 1
 #define SOL_ALL_SAFETIES_ON 1
-#include "Pipeline/VulkanPipelineContext.hpp"
-#include "Pipeline/VulkanShaderModule.hpp"
-#include "Renderers/Renderer_base.hpp"
-#include "Renderers/ThreeD/Shape3D.hpp"
-#include "Renderers/TwoD/Line.hpp"
-#include "Renderers/TwoD/Shape.hpp"
-#include "Window.hpp"
-#include "glm/fwd.hpp"
+#include "glm/glm.hpp"
 #include "ksai_config.hpp"
-#include "ksai_thread.hpp"
-#include <EventManager.hpp>
-#include <Instance.hpp>
-#include <Misc/RecycleBin.hpp>
-#include <Misc/ThreeD/Uniform3D.hpp>
-#include <Misc/ThreeD/World3D.hpp>
-#include <Renderers/BestText_Alt.hpp>
-#include <Renderers/ThreeD/Simple3D.hpp>
-#include <Renderers/ThreeD/glTF_Model.hpp>
-#include <Renderers/TwoD/Shape.hpp>
-#include <WindowMulT.hpp>
-#include <filesystem>
-#include <functional>
-#include <glm/gtc/matrix_transform.hpp>
-#include <memory>
 #include <sol/sol.hpp>
-#include <vector>
 
 #ifdef ANDROID
 #define JKR_EXPORT __attribute__((visibility("default")))
@@ -35,6 +12,9 @@
 #endif
 
 sol::state& GetMainStateRef();
+struct DefaultCustomImagePainterPushConstant {
+    glm::vec4 x, y, z;
+};
 
 using namespace std;
 using namespace ksai;
@@ -57,8 +37,4 @@ static auto my_exception_handler(lua_State* L,
         std::cout << std::endl;
     }
     return sol::stack::push(L, description);
-};
-
-struct DefaultCustomImagePainterPushConstant {
-    glm::vec4 x, y, z;
 };

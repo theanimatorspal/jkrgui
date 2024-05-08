@@ -1,9 +1,14 @@
-#include "JkrLuaExe.hpp"
+#include "Pipeline/VulkanPipelineContext.hpp"
 #include "Renderers/Generator.hpp"
+#include "Renderers/Renderer_base.hpp"
+#include "Renderers/TwoD/Line.hpp"
 #include "Renderers/TwoD/Shape.hpp"
+#include <Misc/RecycleBin.hpp>
+#include <Renderers/TwoD/Shape.hpp>
+#include <WindowMulT.hpp>
 
 namespace JkrEXE {
-
+using namespace std;
 using namespace Jkr::Renderer;
 struct ShapeRendererResources {
     void Add(Jkr::Instance& inInstance,

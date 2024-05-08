@@ -100,7 +100,6 @@ void World3D::DrawObjectsExplicit(Window& inWindow,
                             ExplicitObject.mColor);
 
         int Offset = mShape.GetIndexOffsetAbsolute(ExplicitObject.mId) + ExplicitObject.mFirstIndex;
-        std::cout << Offset << "\n";
         mSimple3Ds[simpleIndex]->Draw<PushConstantDefault>(
              inWindow, mShape, Push, Offset, indicesCount, 1, inParam);
     }

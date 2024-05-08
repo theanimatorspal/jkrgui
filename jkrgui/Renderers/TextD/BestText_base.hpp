@@ -15,101 +15,136 @@
 #include <unordered_map>
 #include <vector>
 #include FT_FREETYPE_H
+#include "ksai_thread.hpp"
 #include <Global/Standards.hpp>
+#include <Vendor/Tracy/tracy/Tracy.hpp>
 #include <glm/glm.hpp>
 #include <harfbuzz/hb-ft.h>
 #include <harfbuzz/hb.h>
-#include "ksai_thread.hpp"
-#include <Vendor/Tracy/tracy/Tracy.hpp>
 
 namespace Jkr::Renderer {
 using namespace ksai;
 class BestText_base {
-public:
+    public:
     struct TextDimensions {
         size_t mWidth;
         size_t mHeight;
+        int mYBearing;
     };
-    enum class AlignH { Center,
-        Left,
-        Right };
-    enum class AlignV { Center,
-        Top,
-        Bottom };
+    enum class AlignH { Center, Left, Right };
+    enum class AlignV { Center, Top, Bottom };
     struct TextProperty {
         AlignH H = AlignH::Left;
         AlignV V = AlignV::Bottom;
     };
 
-public:
+    public:
     BestText_base();
     ~BestText_base();
-    void AddFontFace(const std::string_view inFontFilePathName, size_t inFontSize, uint32_t& outFontId);
-    TextDimensions GetTextDimensions(const std::string_view inString, uint32_t inFontShapeId, optref<int> outYOff = std::nullopt);
+    void
+    AddFontFace(const std::string_view inFontFilePathName, size_t inFontSize, uint32_t& outFontId);
+    TextDimensions GetTextDimensions(const std::string_view inString, uint32_t inFontShapeId);
     void SetTextProperty(TextProperty inProp) { mCurrentTextProp = inProp; };
     GETTER GetTextProperty() const { return mCurrentTextProp; };
 
-    glm::vec2 GetTextDimensionsEXT(const std::string_view inString, uint32_t inFontShapeId);
+    glm::vec4 GetTextDimensionsEXT(const std::string_view inString, uint32_t inFontShapeId);
     ui AddFontFaceEXT(const std::string_view inFontFilePathName, size_t inFontSize);
 
-protected:
-    TextDimensions GetTextDimensions(const std::string_view inString, uint32_t inFontShapeId, hb_glyph_info_t* info, hb_glyph_position_t* pos, uint32_t len, optref<int> outYbearing = std::nullopt);
-    TextDimensions AddText(uint32_t inX, uint32_t inY, const std::string_view inString, uint32_t inFontShapeId, uint32_t inDepthValue, std::vector<uint32_t>& outCodePoints, uint32_t& outIdt);
-    TextDimensions RenderTextToImage(std::string_view inString, uint32_t inFontShapeId, std::vector<uc>& outImage, ksai::optref<ksai::ThreadPool> inThreadpool = std::nullopt, ksai::optref<int> outYoff = std::nullopt);
+    protected:
+    TextDimensions GetTextDimensions(const std::string_view inString,
+                                     uint32_t inFontShapeId,
+                                     hb_glyph_info_t* info,
+                                     hb_glyph_position_t* pos,
+                                     uint32_t len);
+    TextDimensions AddText(uint32_t inX,
+                           uint32_t inY,
+                           const std::string_view inString,
+                           uint32_t inFontShapeId,
+                           uint32_t inDepthValue,
+                           std::vector<uint32_t>& outCodePoints,
+                           uint32_t& outIdt);
+    TextDimensions RenderTextToImage(std::string_view inString,
+                                     uint32_t inFontShapeId,
+                                     std::vector<uc>& outImage,
+                                     ksai::optref<ksai::ThreadPool> inThreadpool = std::nullopt,
+                                     ksai::optref<int> outYoff                   = std::nullopt);
 
-public:
-    [[nodiscard]]inline v<uc> RenderTextToImage(ui inFontShapeId, sv inStringView, TextDimensions& outDimens, ksai::optref<ksai::ThreadPool> inThreadPool = std::nullopt, ksai::optref<int> outYoff = std::nullopt)
-    {
+    public:
+    [[nodiscard]] inline v<uc>
+    RenderTextToImage(ui inFontShapeId,
+                      sv inStringView,
+                      TextDimensions& outDimens,
+                      ksai::optref<ksai::ThreadPool> inThreadPool = std::nullopt,
+                      ksai::optref<int> outYoff                   = std::nullopt) {
         ZoneScoped;
         v<uc> img;
         outDimens = RenderTextToImage(inStringView, inFontShapeId, img, inThreadPool, outYoff);
         return img;
     }
 
-protected:
-    TextDimensions UpdateText(uint32_t inX, uint32_t inY, uint32_t inId, const std::string_view inString, uint32_t inFontShapeId, uint32_t inDepthValue, std::vector<uint32_t>& outCodePoints);
-    void FillTextureIndexDataInVertexBufferAt(uint32_t inTextureId, uint32_t inAtIndex)
-    {
-        mVertices[inAtIndex].mIvec3 = { inTextureId, inTextureId, inTextureId };
+    protected:
+    TextDimensions UpdateText(uint32_t inX,
+                              uint32_t inY,
+                              uint32_t inId,
+                              const std::string_view inString,
+                              uint32_t inFontShapeId,
+                              uint32_t inDepthValue,
+                              std::vector<uint32_t>& outCodePoints);
+    void FillTextureIndexDataInVertexBufferAt(uint32_t inTextureId, uint32_t inAtIndex) {
+        mVertices[inAtIndex].mIvec3 = {inTextureId, inTextureId, inTextureId};
     }
-    GETTER CharCountToVertexBytes(size_t inCharCount) { return 4 * sizeof(ksai::kstd::VertexEXT) * inCharCount; }
+    GETTER CharCountToVertexBytes(size_t inCharCount) {
+        return 4 * sizeof(ksai::kstd::VertexEXT) * inCharCount;
+    }
     GETTER CharCountToIndexBytes(size_t inCharCount) { return 6 * sizeof(uint32_t) * inCharCount; }
     GETTER GetCurrentCharOffsetAbsolute() const { return mCharQuadGlyphCount; }
     GETTER GetVertexBufferData() { return reinterpret_cast<void*>(mVertices.data()); }
     GETTER GetIndexBufferData() { return reinterpret_cast<void*>(mIndices.data()); }
-    void Resize(uint32_t inNewSize)
-    {
+    void Resize(uint32_t inNewSize) {
         mVertices.reserve(CharCountToVertexBytes(inNewSize));
         mIndices.reserve(CharCountToIndexBytes(inNewSize));
     }
-    GETTER GetGlyphTextureData(uint32_t inFaceId, uint32_t inCodePoint, uint32_t& outWidth, uint32_t& outHeight, uint32_t& outChannelCount)
-    {
-        CharacterKey key { .mFontShapeId = inFaceId, .mGlyphCodePoint = inCodePoint };
-        outWidth = mCharacterBitmapSet[key].first.mBitmapWidth;
-        outHeight = mCharacterBitmapSet[key].first.mBitmapRows;
+    GETTER GetGlyphTextureData(uint32_t inFaceId,
+                               uint32_t inCodePoint,
+                               uint32_t& outWidth,
+                               uint32_t& outHeight,
+                               uint32_t& outChannelCount) {
+        CharacterKey key{.mFontShapeId = inFaceId, .mGlyphCodePoint = inCodePoint};
+        outWidth        = mCharacterBitmapSet[key].first.mBitmapWidth;
+        outHeight       = mCharacterBitmapSet[key].first.mBitmapRows;
         outChannelCount = mImageChannelCount;
         return mCharacterBitmapSet[key].second.data();
     }
 
-private:
-    std::vector<ksai::kstd::VertexEXT> mVertices; // Todo Extra eight bytes needed to be removed out for ivec3
+    private:
+    std::vector<ksai::kstd::VertexEXT>
+         mVertices; // Todo Extra eight bytes needed to be removed out for ivec3
     std::vector<uint32_t> mIndices;
-    TextProperty mCurrentTextProp = { .H = AlignH::Left, .V = AlignV::Bottom };
+    TextProperty mCurrentTextProp = {.H = AlignH::Left, .V = AlignV::Bottom};
 
-private:
-    void AddRespectiveVerticesAndIndicesAt(unsigned int len, uint32_t inStartIndex, uint32_t inDepthValue, const uint32_t& inFontShapeId, hb_glyph_info_t* info, int inOffsetX, int inOffsetY);
-    void LoadTextToKeyMap(unsigned int len, const uint32_t& inFontShapeId, hb_glyph_info_t* info, hb_glyph_position_t* pos);
+    private:
+    void AddRespectiveVerticesAndIndicesAt(unsigned int len,
+                                           uint32_t inStartIndex,
+                                           uint32_t inDepthValue,
+                                           const uint32_t& inFontShapeId,
+                                           hb_glyph_info_t* info,
+                                           int inOffsetX,
+                                           int inOffsetY);
+    void LoadTextToKeyMap(unsigned int len,
+                          const uint32_t& inFontShapeId,
+                          hb_glyph_info_t* info,
+                          hb_glyph_position_t* pos);
     [[nodiscard]] constexpr size_t ToPixels(size_t inSize) { return inSize >> 6; }
     [[nodiscard]] constexpr size_t ToFontUnits(size_t inSize) { return inSize << 6; }
     FT_Library mFtLibrary;
 
-private:
+    private:
     std::vector<FT_Face> mFaces;
     std::vector<hb_font_t*> mHbFonts;
-    int mFontFaceCount = 0;
+    int mFontFaceCount           = 0;
     uint32_t mCharQuadGlyphCount = 0;
 
-private:
+    private:
     struct CharacterInfo {
         hb_glyph_position_t mGlyphPos;
         hb_glyph_info_t mGlyphInfo;
@@ -124,33 +159,18 @@ private:
         bool operator==(const CharacterKey&) const = default;
     };
     struct CharacterKeyHash {
-        std::size_t operator()(const CharacterKey& inS) const noexcept
-        {
-            std::size_t h1 = std::hash<uint32_t> {}(inS.mFontShapeId);
-            std::size_t h2 = std::hash<uint32_t> {}(inS.mGlyphCodePoint);
+        std::size_t operator()(const CharacterKey& inS) const noexcept {
+            std::size_t h1 = std::hash<uint32_t>{}(inS.mFontShapeId);
+            std::size_t h2 = std::hash<uint32_t>{}(inS.mGlyphCodePoint);
             return h1 ^ (h2 << 1);
         }
     };
-    std::unordered_map<
-        CharacterKey,
-        std::pair<CharacterInfo, std::vector<uint8_t>>,
-        CharacterKeyHash>
-        mCharacterBitmapSet;
+    std::unordered_map<CharacterKey,
+                       std::pair<CharacterInfo, std::vector<uint8_t>>,
+                       CharacterKeyHash>
+         mCharacterBitmapSet;
 
-private:
+    private:
     const uint32_t mImageChannelCount = 4;
 };
-}
-
-inline glm::vec2 Jkr::Renderer::BestText_base::GetTextDimensionsEXT(const std::string_view inString, uint32_t inFontShapeId)
-{
-    TextDimensions dimen = GetTextDimensions(inString, inFontShapeId);
-    return glm::vec2(dimen.mWidth, dimen.mHeight);
-}
-
-inline ksai::ui Jkr::Renderer::BestText_base::AddFontFaceEXT(const std::string_view inFontFilePathName, size_t inFontSize)
-{
-    ui i;
-    AddFontFace(inFontFilePathName, inFontSize, i);
-    return i;
-}
+} // namespace Jkr::Renderer

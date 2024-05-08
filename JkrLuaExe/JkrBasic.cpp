@@ -1,9 +1,10 @@
 #include "EventManager.hpp"
-#include "JkrLuaExe.hpp"
+#include "Painter.hpp"
 #include "WindowMulT.hpp"
 
 namespace JkrEXE {
-
+using namespace std;
+using namespace Jkr;
 void CreateBasicBindings(sol::state& s) {
     auto Jkr = s["Jkr"].get_or_create<sol::table>();
     Jkr.new_usertype<Jkr::Instance>(

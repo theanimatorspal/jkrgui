@@ -1,11 +1,9 @@
-#include "JkrLuaExe.hpp"
-#include "Pipeline/VulkanPipelineLayout.hpp"
-#include "Renderers/ThreeD/glTF_Model.hpp"
 #include "sol/sol.hpp"
-#include <string_view>
+#include <Misc/ThreeD/World3D.hpp>
+#include <Renderers/ThreeD/Simple3D.hpp>
 
 namespace JkrEXE {
-
+using namespace std;
 struct DefaultPushConstant3D {
     glm::mat4 m1;
     glm::mat4 m2;

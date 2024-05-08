@@ -1,16 +1,19 @@
-#include "JkrLuaExe.hpp"
+#include "ksai_config.hpp"
 #include <algorithm>
 #include <cstdlib>
 #include <filesystem>
 #include <format>
 #include <fstream>
 #include <functional>
+#include <glm/glm.hpp>
 #include <sol/sol.hpp>
 #include <string>
 #include <string_view>
 #include <type_traits>
 #include <unordered_map>
 
+using namespace ksai;
+using namespace std;
 const string_view DefaultCMakeListsFile = R"CmakeListsFile(cmake_minimum_required(VERSION 3.27)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

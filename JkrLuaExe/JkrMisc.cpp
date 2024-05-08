@@ -1,9 +1,9 @@
 #include "JkrLuaExe.hpp"
 #include "Misc/ThreeD/World3D.hpp"
-#include "PainterParameter.hpp"
 #include "Renderers/ThreeD/Simple3D.hpp"
 #include "Renderers/TwoD/Shape.hpp"
 #include "sol/sol.hpp"
+#include <Misc/RecycleBin.hpp>
 
 namespace JkrEXE {
 extern void CreateMainBindings(sol::state& s);
