@@ -3,7 +3,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
-
 namespace JkrEXE {
 
 void CreateGLMBindings(sol::state& lua) {
@@ -27,23 +26,24 @@ void CreateGLMBindings(sol::state& lua) {
          [](const glm::vec2& v1, float value) -> glm::vec2 { return v1 - value; },
          [](float value, const glm::vec2& v1) -> glm::vec2 { return v1 - value; });
 
-    lua.new_usertype<glm::vec2>("vec2",
-                                sol::call_constructor,
-                                sol::constructors<glm::vec2(float), glm::vec2(float, float)>(),
-                                "x",
-                                &glm::vec2::x,
-                                "y",
-                                &glm::vec2::y,
-                                sol::meta_function::multiplication,
-                                vec2_multiply_overloads,
-                                sol::meta_function::division,
-                                vec2_divide_overloads,
-                                sol::meta_function::addition,
-                                vec2_addition_overloads,
-                                sol::meta_function::subtraction,
-                                vec2_subtraction_overloads,
-                                "length",
-                                [](const glm::vec2& v) { return glm::length(v); });
+    lua.new_usertype<glm::vec2>(
+         "vec2",
+         sol::call_constructor,
+         sol::constructors<glm::vec2(float), glm::vec2(float, float), glm::vec2(glm::vec2)>(),
+         "x",
+         &glm::vec2::x,
+         "y",
+         &glm::vec2::y,
+         sol::meta_function::multiplication,
+         vec2_multiply_overloads,
+         sol::meta_function::division,
+         vec2_divide_overloads,
+         sol::meta_function::addition,
+         vec2_addition_overloads,
+         sol::meta_function::subtraction,
+         vec2_subtraction_overloads,
+         "length",
+         [](const glm::vec2& v) { return glm::length(v); });
 
     auto vec3_multiply_overloads =
          sol::overload([](const glm::vec3& v1, const glm::vec3& v2) { return v1 * v2; },
@@ -65,24 +65,25 @@ void CreateGLMBindings(sol::state& lua) {
                        [](const glm::vec3& v1, float value) { return v1 - value; },
                        [](float value, const glm::vec3& v1) { return v1 - value; });
 
-    lua.new_usertype<glm::vec3>(
-         "vec3",
-         sol::call_constructor,
-         sol::constructors<glm::vec3(float), glm::vec3(float, float, float)>(),
-         "x",
-         &glm::vec3::x,
-         "y",
-         &glm::vec3::y,
-         "z",
-         &glm::vec3::z,
-         sol::meta_function::multiplication,
-         vec3_multiply_overloads,
-         sol::meta_function::division,
-         vec3_divide_overloads,
-         sol::meta_function::addition,
-         vec3_addition_overloads,
-         sol::meta_function::subtraction,
-         vec3_subtraction_overloads);
+    lua.new_usertype<glm::vec3>("vec3",
+                                sol::call_constructor,
+                                sol::constructors<glm::vec3(float),
+                                                  glm::vec3(float, float, float),
+                                                  glm::vec3(glm::vec3)>(),
+                                "x",
+                                &glm::vec3::x,
+                                "y",
+                                &glm::vec3::y,
+                                "z",
+                                &glm::vec3::z,
+                                sol::meta_function::multiplication,
+                                vec3_multiply_overloads,
+                                sol::meta_function::division,
+                                vec3_divide_overloads,
+                                sol::meta_function::addition,
+                                vec3_addition_overloads,
+                                sol::meta_function::subtraction,
+                                vec3_subtraction_overloads);
 
     auto vec4_multiply_overloads =
          sol::overload([](const glm::vec4& v1, const glm::vec4& v2) { return v1 * v2; },
@@ -104,26 +105,27 @@ void CreateGLMBindings(sol::state& lua) {
                        [](const glm::vec4& v1, float value) { return v1 - value; },
                        [](float value, const glm::vec4& v1) { return v1 - value; });
 
-    lua.new_usertype<glm::vec4>(
-         "vec4",
-         sol::call_constructor,
-         sol::constructors<glm::vec4(float), glm::vec4(float, float, float, float)>(),
-         "x",
-         &glm::vec4::x,
-         "y",
-         &glm::vec4::y,
-         "z",
-         &glm::vec4::z,
-         "w",
-         &glm::vec4::w,
-         sol::meta_function::multiplication,
-         vec4_multiply_overloads,
-         sol::meta_function::division,
-         vec4_divide_overloads,
-         sol::meta_function::addition,
-         vec4_addition_overloads,
-         sol::meta_function::subtraction,
-         vec4_subtraction_overloads
+    lua.new_usertype<glm::vec4>("vec4",
+                                sol::call_constructor,
+                                sol::constructors<glm::vec4(float),
+                                                  glm::vec4(float, float, float, float),
+                                                  glm::vec4(glm::vec4)>(),
+                                "x",
+                                &glm::vec4::x,
+                                "y",
+                                &glm::vec4::y,
+                                "z",
+                                &glm::vec4::z,
+                                "w",
+                                &glm::vec4::w,
+                                sol::meta_function::multiplication,
+                                vec4_multiply_overloads,
+                                sol::meta_function::division,
+                                vec4_divide_overloads,
+                                sol::meta_function::addition,
+                                vec4_addition_overloads,
+                                sol::meta_function::subtraction,
+                                vec4_subtraction_overloads
 
     );
 
@@ -151,7 +153,8 @@ void CreateGLMBindings(sol::state& lua) {
                                  sol::call_constructor,
                                  sol::constructors<glm::uvec2(uint32_t),
                                                    glm::uvec2(uint32_t, uint32_t),
-                                                   glm::uvec2(float, float)>(),
+                                                   glm::uvec2(float, float),
+                                                   glm::uvec2(glm::uvec2)>(),
                                  "x",
                                  &glm::uvec2::x,
                                  "y",
@@ -167,10 +170,11 @@ void CreateGLMBindings(sol::state& lua) {
 
     );
 
-    auto quat_multiply_overloads =
-         sol::overload([](const glm::quat& q1, const glm::quat& q2) { return q1 * q2; },
-                       [](const glm::quat& q, float scalar) { return q * scalar; },
-                       [](float scalar, const glm::quat& q) { return scalar * q; });
+    auto quat_multiply_overloads = sol::overload(
+         [](const glm::quat& q1, const glm::quat& q2) { return q1 * q2; },
+         [](const glm::quat& q, float scalar) { return q * scalar; },
+         [](float scalar, const glm::quat& q) { return scalar * q; },
+         [](const glm::vec3& inVec, const glm::quat& q) -> glm::quat { return inVec * q; });
 
     auto quat_divide_overloads =
          sol::overload([](const glm::quat& q, float scalar) { return q / scalar; });
@@ -178,7 +182,10 @@ void CreateGLMBindings(sol::state& lua) {
     lua.new_usertype<glm::quat>(
          "quat",
          sol::call_constructor,
-         sol::constructors<glm::quat(), glm::quat(float, float, float, float)>(),
+         sol::constructors<glm::quat(),
+                           glm::quat(float, float, float, float),
+                           glm::quat(glm::vec3),
+                           glm::quat(glm::quat)>(),
          "x",
          &glm::quat::x,
          "y",
@@ -211,7 +218,9 @@ void CreateGLMBindings(sol::state& lua) {
              float w       = cos(value / 2.0f);
              glm::quat out = glm::normalize(glm::quat(w, x, y, z)) * inQuat;
              return out;
-         }
+         },
+         "GetMatrix3x3",
+         [](glm::quat& inQuat) { return glm::mat3_cast(inQuat); }
 
     );
 
@@ -219,10 +228,13 @@ void CreateGLMBindings(sol::state& lua) {
          sol::overload([](const glm::mat4& m1, const glm::vec4& v2) { return m1 * v2; },
                        [](const glm::mat4& m1, const glm::mat4& m2) { return m1 * m2; });
 
+    using namespace glm;
     lua.new_usertype<glm::mat4>(
          "mat4",
          sol::call_constructor,
-         sol::constructors<glm::mat4(float)>(),
+         sol::constructors<glm::mat4(float),
+                           glm::mat4(const vec4&, const vec4&, const vec4&, const vec4&),
+                           glm::mat4(glm::mat4)>(),
          sol::meta_function::multiplication,
          mat4_multiply_overloads,
          "GetTranslationComponent",
@@ -255,6 +267,18 @@ void CreateGLMBindings(sol::state& lua) {
              glm::decompose(inMatrix, scale, rotation, translation, skew, perspective);
              return scale;
          });
+
+    auto mat3_multiply_overloads = sol::overload(
+         [](const glm::mat3& m1, const glm::vec3& v2) -> glm::vec3 { return m1 * v2; },
+         [](const glm::mat3& m1, const glm::mat3& m2) { return m1 * m2; });
+
+    lua.new_usertype<glm::mat3>("mat3",
+                                sol::call_constructor,
+                                sol::constructors<glm::mat3(float),
+                                                  glm::mat3(const vec3&, const vec3&, const vec3&),
+                                                  glm::mat3(glm::mat3)>(),
+                                sol::meta_function::multiplication,
+                                mat3_multiply_overloads);
 
     lua.set_function("std_vector_vec3", []() -> std::vector<glm::vec3> { return {}; });
     lua.set_function("std_vector_vec4", []() -> std::vector<glm::vec4> { return {}; });
@@ -328,6 +352,13 @@ void CreateGLMBindings(sol::state& lua) {
               [](float value, float min, float max) { return std::clamp(value, min, max); },
               [](double value, double min, double max) { return std::clamp(value, min, max); },
               [](int value, int min, int max) { return std::clamp(value, min, max); }));
+
+    Jmath.set_function("Inverse",
+                       sol::overload([](const glm::mat4& inMat) { return glm::inverse(inMat); },
+                                     [](const glm::mat3& inMat) { return glm::inverse(inMat); }));
+    Jmath.set_function("Transpose",
+                       sol::overload([](const glm::mat4& inMat) { return glm::transpose(inMat); },
+                                     [](const glm::mat3& inMat) { return glm::transpose(inMat); }));
 }
 
 } // namespace JkrEXE

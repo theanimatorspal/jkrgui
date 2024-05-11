@@ -15,6 +15,8 @@ local ShouldLoadCaches_b = false
 -- For no error squiggles in VSCode
 Jkr = Jkr
 Jmath = Jmath
+mat3 = mat3
+mat4 = mat4
 vec3 = vec3
 vec4 = vec4
 vec2 = vec2
@@ -614,6 +616,9 @@ Jkr.CreateTextRendererBestTextAlt = function(inInstance, inShapeRenderer)
     end
     o.Draw = function(self, inTextImageId, w, inColor, inMatrix, inCmdParam)
         tr:Draw(inTextImageId, w, inColor, inMatrix, inCmdParam)
+    end
+    o.GetTextDimensions = function(self, inText, inFontShapeId)
+        return bt:GetTextDimensions(inText, inFontShapeId)
     end
     return o
 end

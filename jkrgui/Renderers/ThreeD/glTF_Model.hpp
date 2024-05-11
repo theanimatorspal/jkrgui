@@ -17,6 +17,7 @@ using namespace ksai;
 
 class glTF_Model {
     public:
+    // TODO Make this consistent, Change BoundingBox::min  to mMin
     struct BoundingBox {
         glm::vec3 min;
         glm::vec3 max;
@@ -24,6 +25,7 @@ class glTF_Model {
         BoundingBox();
         BoundingBox(glm::vec3 min, glm::vec3 max);
         BoundingBox GetAABB(glm::mat4 m);
+        bool IsPointInside(glm::vec3 inVec);
     };
 
     struct Texture {

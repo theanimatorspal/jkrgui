@@ -56,6 +56,7 @@ void CreateRenderer3DBindings(sol::state& s) {
                                "SetPipelineContext",
                                &Simple3D::SetPipelineContext);
 
+    // TODO Make this consistent, Change BoundingBox::min  to mMin
     Jkr.new_usertype<Jkr::Renderer::_3D::glTF_Model::BoundingBox>(
          "BoundingBox",
          sol::call_constructor,
@@ -63,7 +64,9 @@ void CreateRenderer3DBindings(sol::state& s) {
          "min",
          &Jkr::Renderer::_3D::glTF_Model::BoundingBox::min,
          "max",
-         &Jkr::Renderer::_3D::glTF_Model::BoundingBox::max);
+         &Jkr::Renderer::_3D::glTF_Model::BoundingBox::max,
+         "GetAABB",
+         &Jkr::Renderer::_3D::glTF_Model::BoundingBox::GetAABB);
 
     Jkr.new_usertype<Jkr::Renderer::_3D::glTF_Model::Primitive>(
          "Primitive",

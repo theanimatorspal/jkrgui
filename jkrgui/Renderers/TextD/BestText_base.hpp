@@ -30,6 +30,7 @@ class BestText_base {
         size_t mWidth;
         size_t mHeight;
         int mYBearing;
+        int mDelY;
     };
     enum class AlignH { Center, Left, Right };
     enum class AlignV { Center, Top, Bottom };

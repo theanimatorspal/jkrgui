@@ -295,7 +295,8 @@ bb::TextDimensions bb::GetTextDimensions(
     //     outYOff.value().get() = (maxY - minY) - maxYBearing;
     // }
 
-    return TextDimensions{.mWidth = width, .mHeight = height, .mYBearing = maxYBearing};
+    return TextDimensions{
+         .mWidth = width, .mHeight = height, .mYBearing = maxYBearing, .mDelY = maxY - minY};
 }
 
 void bb::AddRespectiveVerticesAndIndicesAt(unsigned int len,
@@ -436,7 +437,7 @@ bb::TextDimensions bb::GetTextDimensions(const sv inString, ui inFontShapeId) {
 glm::vec4 Jkr::Renderer::BestText_base::GetTextDimensionsEXT(const std::string_view inString,
                                                              uint32_t inFontShapeId) {
     TextDimensions dimen = GetTextDimensions(inString, inFontShapeId);
-    return glm::vec4(dimen.mWidth, dimen.mHeight, dimen.mYBearing, 0);
+    return glm::vec4(dimen.mWidth, dimen.mHeight, dimen.mYBearing, dimen.mDelY);
 }
 
 ksai::ui Jkr::Renderer::BestText_base::AddFontFaceEXT(const std::string_view inFontFilePathName,

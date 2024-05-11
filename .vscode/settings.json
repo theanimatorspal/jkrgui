@@ -1,5 +1,5 @@
 {
-          "workbench.colorTheme": "Red",
+          "workbench.colorTheme": "GitHub Light",
           "git.enableSmartCommit": true,
           "git.confirmSync": false,
           "gitlens.currentLine.enabled": false,
@@ -19,13 +19,14 @@
           "cmake.parallelJobs": 8,
           "cmake.clearOutputBeforeBuild": true,
           "cmake.debugConfig": {
-                    "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\SampraharReturns"
+                    "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\SampraharReturns",
+                    "visualizerFile": "${workspaceFolder}/Visualizers/glm.natvis"
           },
           /* EDITOR */
           "editor.matchBrackets": "near",
           "editor.fontFamily": "Cascadia Code",
           "editor.fontWeight": "normal",
-          "editor.fontSize": 18,
+          "editor.fontSize": 16,
           "editor.tabSize": 10,
           "editor.tokenColorCustomizations": {
                     "textMateRules": [
@@ -109,4 +110,8 @@
           "notebook.output.fontSize": 10,
           "workbench.layoutControl.enabled": false,
           "workbench.panel.defaultLocation": "right",
+          "Lua.format.defaultConfig": {
+                    "indent_style": "space",
+                    "indent_size": "10"
+          }
 }

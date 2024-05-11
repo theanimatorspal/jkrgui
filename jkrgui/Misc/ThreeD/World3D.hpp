@@ -3,11 +3,13 @@
 #include "EventManager.hpp"
 #include "Global/Standards.hpp"
 #include "Instance.hpp"
+#include "Object3D.hpp"
 #include "PainterParameter.hpp"
 #include "PainterParameter_base.hpp"
 #include "Renderers/Renderer_base.hpp"
 #include "Uniform3D.hpp"
 #include "WindowMulT.hpp"
+
 
 // TODO Refactor, Make a world base (Or however) with Object, Lights and Cameras Only
 namespace Jkr::Misc::_3D {
@@ -15,6 +17,8 @@ using Simple3D = Renderer::_3D::Simple3D;
 using Shape3D  = Renderer::_3D::Shape;
 
 struct World3D {
+    using Object3D    = Jkr::Misc::_3D::Object3D;
+    using BoundingBox = Renderer::_3D::glTF_Model::BoundingBox;
     struct WorldInfoUniform {
         alignas(16) glm::mat4 mView;
         alignas(16) glm::mat4 mProjection;
@@ -27,32 +31,6 @@ struct World3D {
     struct Light3D {
         glm::vec4 mPosition{0.0f};
         glm::vec4 mDirection{0.0f};
-    };
-    struct Object3D {
-        int mId                 = -1;
-        int mAssociatedModel    = -1;
-        int mAssociatedUniform  = -1;
-        int mAssociatedSimple3D = -1;
-        int mIndexCount         = -1;
-        int mFirstIndex         = 0;
-        glm::vec3 mTranslation{};
-        glm::vec3 mScale{1.0f};
-        glm::quat mRotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-        glm::mat4 mMatrix   = glm::identity<glm::mat4>();
-        glm::vec4 mColor    = glm::vec4(1.0f);
-        Object3D* mParent;
-        void SetParent(Object3D* inParent) { mParent = inParent; }
-        glm::mat4 GetMatrix() { return glm::mat4(mMatrix); }
-        glm::mat4 GetLocalMatrix() {
-            if (not mParent) {
-                return glm::translate(glm::mat4(1.0f), mTranslation) * glm::mat4(mRotation) *
-                       glm::scale(glm::mat4(1.0f), mScale) * mMatrix;
-            } else {
-                return mParent->GetLocalMatrix() *
-                       (glm::translate(glm::mat4(1.0f), mTranslation) * glm::mat4(mRotation) *
-                        glm::scale(glm::mat4(1.0f), mScale) * mMatrix);
-            }
-        }
     };
     GETTER MakeExplicitObjectsVector() -> v<Object3D> { return {}; }
     GETTER GetCamera3D(int inId) { return &mCameras[inId]; }

@@ -43,6 +43,11 @@ glTF_Model::BoundingBox glTF_Model::BoundingBox::GetAABB(glm::mat4 m) {
     return BoundingBox(min, max);
 }
 
+bool glTF_Model::BoundingBox::IsPointInside(glm::vec3 inVec) {
+    return inVec.x >= min.x and inVec.x <= max.x and inVec.y >= min.y and inVec.y <= max.y and
+           inVec.z >= min.z and inVec.z <= max.z;
+}
+
 // TODO Merge these two functions
 void glTF_Model::Load(ui inInitialVertexOffset) {
     std::scoped_lock<std::mutex> Lock(mUpdateMutex);
