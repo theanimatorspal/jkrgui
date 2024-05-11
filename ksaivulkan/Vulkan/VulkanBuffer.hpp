@@ -11,9 +11,7 @@ inline constexpr BufferContext operator|(BufferContext lhs, BufferContext rhs) {
     using T = std::underlying_type_t<BufferContext>;
     return static_cast<BufferContext>(static_cast<T>(lhs) | static_cast<T>(rhs));
 }
-} // namespace ksai
 
-namespace ksai {
 class VulkanBufferBase {
     public:
     VulkanBufferBase(const VulkanDevice& inDevice);
@@ -67,17 +65,19 @@ class VulkanBufferBase {
     vk::DeviceSize mSize;
 };
 
-template <BufferContext inBufferContext, MemoryType inBufferStorageType>
 class VulkanBuffer : public VulkanBufferBase {
     public:
-    constexpr void MapMemoryRegion(void** outMappedMemoryRegion)
-        requires(inBufferStorageType == MemoryType::HostVisibleAndCoherenet);
-    constexpr void UnMapMemoryRegion()
-        requires(inBufferStorageType == MemoryType::HostVisibleAndCoherenet);
+    void MapMemoryRegion(void** outMappedMemoryRegion);
+    void UnMapMemoryRegion();
 
-    public:
-    VulkanBuffer(const VulkanDevice& inDevice, size_t inSize);
+    VulkanBuffer(const VulkanDevice& inDevice,
+                 size_t inSize,
+                 BufferContext inBufferContext,
+                 MemoryType inBufferStorageType);
     ~VulkanBuffer();
+
+    private:
+    bool mIsMemoryMapped = false;
 };
 
 template <BufferContext Context>
@@ -87,59 +87,6 @@ inline void VulkanBufferBase::Bind(const VulkanCommandBuffer& inCmdBuffer) const
     else if (Context == BufferContext::Index)
         inCmdBuffer.GetCommandBufferHandle().bindIndexBuffer(
              mBufferHandle, 0, vk::IndexType::eUint32);
-}
-
-template <BufferContext inBufferContext, MemoryType inBufferStorageType>
-inline constexpr void
-VulkanBuffer<inBufferContext, inBufferStorageType>::MapMemoryRegion(void** outMappedMemoryRegion)
-    requires(inBufferStorageType == MemoryType::HostVisibleAndCoherenet)
-{
-    *outMappedMemoryRegion =
-         static_cast<void*>(mDevice.mapMemory(mBufferMemory, 0, GetBufferSize()));
-}
-template <BufferContext inBufferContext, MemoryType inBufferStorageType>
-inline constexpr void VulkanBuffer<inBufferContext, inBufferStorageType>::UnMapMemoryRegion()
-    requires(inBufferStorageType == MemoryType::HostVisibleAndCoherenet)
-{
-    mDevice.unmapMemory(mBufferMemory);
-}
-template <BufferContext inBufferContext, MemoryType inBufferStorageType>
-inline VulkanBuffer<inBufferContext, inBufferStorageType>::VulkanBuffer(
-     const VulkanDevice& inDevice, size_t inSize)
-    : VulkanBufferBase(inDevice) {
-    mSize      = inSize;
-    auto Usage = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
-
-    if (inBufferContext == BufferContext::Staging) Usage = vk::BufferUsageFlagBits::eTransferSrc;
-
-    auto BufferCreateInfo = vk::BufferCreateInfo(vk::BufferCreateFlags(), inSize, Usage);
-    FillBufferUsage(BufferCreateInfo, inBufferContext, inBufferStorageType);
-
-    mBufferHandle = mDevice.createBuffer(BufferCreateInfo);
-
-    uint32_t MemoryTypeIndex;
-    vk::DeviceSize MemorySize;
-    vk::MemoryPropertyFlags MemoryPropertyFlagBits;
-
-    if (inBufferStorageType == MemoryType::DeviceLocal)
-        MemoryPropertyFlagBits = vk::MemoryPropertyFlagBits::eDeviceLocal;
-    else if (inBufferStorageType == MemoryType::HostVisibleAndCoherenet)
-        MemoryPropertyFlagBits =
-             vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
-
-    GetMemoryTypeIndex(MemoryPropertyFlagBits, mBufferHandle, MemorySize, MemoryTypeIndex);
-    mBufferMemory = mDevice.allocateMemory(vk::MemoryAllocateInfo(MemorySize, MemoryTypeIndex));
-    mDevice.bindBufferMemory(mBufferHandle, mBufferMemory, 0);
-}
-
-template <BufferContext inBufferContext, MemoryType inBufferStorageType>
-inline VulkanBuffer<inBufferContext, inBufferStorageType>::~VulkanBuffer() {
-    if (inBufferStorageType == MemoryType::HostVisibleAndCoherenet) {
-        mDevice.unmapMemory(mBufferMemory);
-    }
-    mVulkanDevice.Wait();
-    mDevice.destroyBuffer(mBufferHandle);
-    mDevice.freeMemory(mBufferMemory);
 }
 
 } // namespace ksai

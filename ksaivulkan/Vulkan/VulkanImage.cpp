@@ -22,8 +22,8 @@ void ksai::VulkanImageBase::SubmitImmediateCmdCopyFromData(
      const VulkanFence& inFence,
      void** inData,
      vk::DeviceSize inSize) {
-    VulkanBuffer<BufferContext::Staging, MemoryType::HostVisibleAndCoherenet> StagingBuffer(
-         inDevice, inSize);
+    VulkanBuffer StagingBuffer(
+         inDevice, inSize, BufferContext::Staging, MemoryType::HostVisibleAndCoherenet);
     void* MapRegion;
     StagingBuffer.MapMemoryRegion(&MapRegion);
     std::memcpy(MapRegion, *inData, inSize);
@@ -68,8 +68,8 @@ void VulkanImageBase::SubmitImmediateCmdCopyFromData(
      vk::DeviceSize inSize,
      std::span<void**> inLayerImageDatas) {
     vk::DeviceSize size = inLayerImageDatas.size() * inSize;
-    VulkanBuffer<BufferContext::Staging, MemoryType::HostVisibleAndCoherenet> StagingBuffer(
-         inDevice, size);
+    VulkanBuffer StagingBuffer(
+         inDevice, size, BufferContext::Staging, MemoryType::HostVisibleAndCoherenet);
     void* MapRegion;
     StagingBuffer.MapMemoryRegion(&MapRegion);
     for (int i = 0; i < inLayerImageDatas.size(); i++) {

@@ -13,12 +13,10 @@
 namespace Jkr::Renderer::_3D {
 
 class Shape : public Renderer_base, public Shape_base {
-    using gb = Shape_base;
-    using rb = Renderer_base;
-    using StagingBufferType =
-         VulkanBuffer<BufferContext::Staging, MemoryType::HostVisibleAndCoherenet>;
-
-    using ComPar = Window::ParameterContext;
+    using gb                = Shape_base;
+    using rb                = Renderer_base;
+    using StagingBufferType = VulkanBuffer;
+    using ComPar            = Window::ParameterContext;
 
     public:
     GETTER& GetPrimitive() { return *mPrimitive; }

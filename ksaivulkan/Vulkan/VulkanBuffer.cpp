@@ -156,3 +156,53 @@ void VulkanBufferBase::FillBufferUsage(vk::BufferCreateInfo& inInfo,
                         vk::BufferUsageFlagBits::eUniformBuffer |
                         vk::BufferUsageFlagBits::eTransferDst);
 }
+
+void VulkanBuffer::MapMemoryRegion(void** outMappedMemoryRegion) {
+    *outMappedMemoryRegion =
+         static_cast<void*>(mDevice.mapMemory(mBufferMemory, 0, GetBufferSize()));
+    mIsMemoryMapped = true;
+}
+void VulkanBuffer::UnMapMemoryRegion() {
+    mDevice.unmapMemory(mBufferMemory);
+
+    mIsMemoryMapped = false;
+}
+
+VulkanBuffer::VulkanBuffer(const VulkanDevice& inDevice,
+                           size_t inSize,
+                           BufferContext inBufferContext,
+                           MemoryType inBufferMemoryType)
+    : VulkanBufferBase(inDevice) {
+    mSize      = inSize;
+    auto Usage = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
+
+    if (inBufferContext == BufferContext::Staging) Usage = vk::BufferUsageFlagBits::eTransferSrc;
+
+    auto BufferCreateInfo = vk::BufferCreateInfo(vk::BufferCreateFlags(), inSize, Usage);
+    FillBufferUsage(BufferCreateInfo, inBufferContext, inBufferMemoryType);
+
+    mBufferHandle = mDevice.createBuffer(BufferCreateInfo);
+
+    uint32_t MemoryTypeIndex;
+    vk::DeviceSize MemorySize;
+    vk::MemoryPropertyFlags MemoryPropertyFlagBits;
+
+    if (inBufferMemoryType == MemoryType::DeviceLocal)
+        MemoryPropertyFlagBits = vk::MemoryPropertyFlagBits::eDeviceLocal;
+    else if (inBufferMemoryType == MemoryType::HostVisibleAndCoherenet)
+        MemoryPropertyFlagBits =
+             vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
+
+    GetMemoryTypeIndex(MemoryPropertyFlagBits, mBufferHandle, MemorySize, MemoryTypeIndex);
+    mBufferMemory = mDevice.allocateMemory(vk::MemoryAllocateInfo(MemorySize, MemoryTypeIndex));
+    mDevice.bindBufferMemory(mBufferHandle, mBufferMemory, 0);
+}
+
+VulkanBuffer::~VulkanBuffer() {
+    if (mIsMemoryMapped) {
+        mDevice.unmapMemory(mBufferMemory);
+    }
+    mVulkanDevice.Wait();
+    mDevice.destroyBuffer(mBufferHandle);
+    mDevice.freeMemory(mBufferMemory);
+}
