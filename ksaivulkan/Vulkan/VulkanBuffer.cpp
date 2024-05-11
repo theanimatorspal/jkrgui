@@ -1,5 +1,7 @@
 #include "VulkanBuffer.hpp"
 
+using namespace ksai;
+
 ksai::VulkanBufferBase::VulkanBufferBase(const VulkanDevice& inDevice)
     : mVulkanDevice(inDevice),
       mDevice(inDevice.GetDeviceHandle()),
@@ -126,4 +128,31 @@ void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFromImage(
                                      vk::AccessFlagBits::eMemoryRead);
     Cmd.end();
     inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer);
+}
+
+void VulkanBufferBase::FillBufferUsage(vk::BufferCreateInfo& inInfo,
+                                       BufferContext inBufferContext,
+                                       MemoryType inBufferStorageType) {
+    if (inBufferContext == BufferContext::Vertex)
+        inInfo.setUsage(vk::BufferUsageFlagBits::eVertexBuffer |
+                        vk::BufferUsageFlagBits::eTransferDst);
+    else if (inBufferContext == BufferContext::Index)
+        inInfo.setUsage(vk::BufferUsageFlagBits::eIndexBuffer |
+                        vk::BufferUsageFlagBits::eTransferDst);
+    else if (inBufferContext == BufferContext::Uniform)
+        inInfo.setUsage(vk::BufferUsageFlagBits::eUniformBuffer |
+                        vk::BufferUsageFlagBits::eTransferDst);
+    else if (inBufferContext == BufferContext::Storage)
+        inInfo.setUsage(vk::BufferUsageFlagBits::eStorageBuffer |
+                        vk::BufferUsageFlagBits::eTransferDst);
+    else if (inBufferContext == (BufferContext::Vertex | BufferContext::Storage))
+        inInfo.setUsage(vk::BufferUsageFlagBits::eStorageBuffer |
+                        vk::BufferUsageFlagBits::eVertexBuffer |
+                        vk::BufferUsageFlagBits::eTransferDst);
+    else if (inBufferContext == BufferContext::Staging)
+        inInfo.setUsage(vk::BufferUsageFlagBits::eTransferSrc);
+    else if (inBufferContext == (BufferContext::Uniform | BufferContext::Storage))
+        inInfo.setUsage(vk::BufferUsageFlagBits::eStorageBuffer |
+                        vk::BufferUsageFlagBits::eUniformBuffer |
+                        vk::BufferUsageFlagBits::eTransferDst);
 }

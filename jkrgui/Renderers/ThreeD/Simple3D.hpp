@@ -40,10 +40,11 @@ class Simple3D {
               ui inIndexCount,
               ui inInstanceCount,
               CmdParam inParam);
-    template <typename T> void Dispatch(Jkr::Window& inWindow, Shape& inShape3D, T inPush) {}
     void Bind(Window& inWindow, CmdParam inParam);
-
-    Simple3D(Jkr::Instance& inInstance, Jkr::Window& inCompatibleWindow);
+    void BindCompute(Window& inWindow, CmdParam inParam);
+    template <typename T>
+    void Dispatch(Jkr::Window& inWindow, Shape& inShape3D, T inPush, int inX, int inY, int inZ);
+    Simple3D(Jkr::Instance& inInstance, Jkr::Window& inCompatibleWindow) {}
 
     private:
     PipelineContext mPipelineContext = PipelineContext::Default;
@@ -51,7 +52,11 @@ class Simple3D {
     Up<PainterCache> mPainterCache;
 };
 
-inline Simple3D::Simple3D(Jkr::Instance& inInstance, Jkr::Window& inCompatibleWindow) {}
+template <typename T>
+inline void
+Simple3D::Dispatch(Jkr::Window& inWindow, Shape& inShape3D, T inPush, int inX, int inY, int inZ) {
+    mPainter->Dispatch_EXT<T>(inWindow, inPush, inX, inY, inZ);
+}
 
 template <typename T>
 inline void Simple3D::Draw(Jkr::Window& inWindow,

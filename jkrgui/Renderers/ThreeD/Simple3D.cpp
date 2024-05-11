@@ -7,6 +7,10 @@ void Simple3D::Bind(Window& inWindow, CmdParam inParam) {
     mPainter->BindDrawParamtersPipelineOnly_EXT(inWindow, inParam);
 }
 
+void Simple3D::BindCompute(Window& inWindow, CmdParam inParam) {
+    mPainter->BindDispatchParametersPipelineOnly_EXT(inWindow, inParam);
+}
+
 void Simple3D::Compile(Jkr::Instance& inInstance,
                        Jkr::Window& inCompatibleWindow,
                        std::string_view inFileName,

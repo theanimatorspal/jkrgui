@@ -66,9 +66,7 @@ class VulkanBufferBase {
     vk::DeviceMemory mBufferMemory;
     vk::DeviceSize mSize;
 };
-} // namespace ksai
 
-namespace ksai {
 template <BufferContext inBufferContext, MemoryType inBufferStorageType>
 class VulkanBuffer : public VulkanBufferBase {
     public:
@@ -81,35 +79,6 @@ class VulkanBuffer : public VulkanBufferBase {
     VulkanBuffer(const VulkanDevice& inDevice, size_t inSize);
     ~VulkanBuffer();
 };
-} // namespace ksai
-
-namespace ksai {
-inline void VulkanBufferBase::FillBufferUsage(vk::BufferCreateInfo& inInfo,
-                                              BufferContext inBufferContext,
-                                              MemoryType inBufferStorageType) {
-    if (inBufferContext == BufferContext::Vertex)
-        inInfo.setUsage(vk::BufferUsageFlagBits::eVertexBuffer |
-                        vk::BufferUsageFlagBits::eTransferDst);
-    else if (inBufferContext == BufferContext::Index)
-        inInfo.setUsage(vk::BufferUsageFlagBits::eIndexBuffer |
-                        vk::BufferUsageFlagBits::eTransferDst);
-    else if (inBufferContext == BufferContext::Uniform)
-        inInfo.setUsage(vk::BufferUsageFlagBits::eUniformBuffer |
-                        vk::BufferUsageFlagBits::eTransferDst);
-    else if (inBufferContext == BufferContext::Storage)
-        inInfo.setUsage(vk::BufferUsageFlagBits::eStorageBuffer |
-                        vk::BufferUsageFlagBits::eTransferDst);
-    else if (inBufferContext == (BufferContext::Vertex | BufferContext::Storage))
-        inInfo.setUsage(vk::BufferUsageFlagBits::eStorageBuffer |
-                        vk::BufferUsageFlagBits::eVertexBuffer |
-                        vk::BufferUsageFlagBits::eTransferDst);
-    else if (inBufferContext == BufferContext::Staging)
-        inInfo.setUsage(vk::BufferUsageFlagBits::eTransferSrc);
-    else if (inBufferContext == (BufferContext::Uniform | BufferContext::Storage))
-        inInfo.setUsage(vk::BufferUsageFlagBits::eStorageBuffer |
-                        vk::BufferUsageFlagBits::eUniformBuffer |
-                        vk::BufferUsageFlagBits::eTransferDst);
-}
 
 template <BufferContext Context>
 inline void VulkanBufferBase::Bind(const VulkanCommandBuffer& inCmdBuffer) const {
