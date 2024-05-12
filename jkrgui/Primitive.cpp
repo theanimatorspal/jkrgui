@@ -12,11 +12,11 @@ Jkr::Primitive::Primitive(const Instance& inInstance,
                           const vk::ArrayProxyNoTemporaries<kstd::ui32>& inIndices)
     : mInstance(inInstance), mIndexCount(inIndices.size()) {
     std::scoped_lock<std::mutex> Lock(PriMutex);
-    mVertexBufferPtr = MakeUp<VulkanBufferVMA<BufferContext::Vertex, MemoryType::DeviceLocal>>(
+    mVertexBufferPtr = MakeUp<VertexBufferType
          inInstance.GetVMA(),
          mInstance.GetDevice(),
          vk::DeviceSize(sizeof(inVertices.front()) * inVertices.size()));
-    mIndexBufferPtr = MakeUp<VulkanBufferVMA<BufferContext::Index, MemoryType::DeviceLocal>>(
+    mIndexBufferPtr = MakeUp<IndexBufferType
          inInstance.GetVMA(),
          mInstance.GetDevice(),
          vk::DeviceSize(sizeof(uint32_t) * inIndices.size()));
@@ -35,11 +35,11 @@ Jkr::Primitive::Primitive(const Instance& inInstance,
                           int inExtParameter_DoesNotDoAnything)
     : mInstance(inInstance), mIndexCount(inIndices.size()) {
     std::scoped_lock<std::mutex> Lock(PriMutex);
-    mVertexBufferPtr = MakeUp<VulkanBufferVMA<BufferContext::Vertex, MemoryType::DeviceLocal>>(
+    mVertexBufferPtr = MakeUp<VertexBufferType
          inInstance.GetVMA(),
          mInstance.GetDevice(),
          vk::DeviceSize(sizeof(inVertices.front()) * inVertices.size()));
-    mIndexBufferPtr = MakeUp<VulkanBufferVMA<BufferContext::Index, MemoryType::DeviceLocal>>(
+    mIndexBufferPtr = MakeUp<IndexBufferType
          inInstance.GetVMA(),
          mInstance.GetDevice(),
          vk::DeviceSize(sizeof(uint32_t) * inIndices.size()));
@@ -57,10 +57,12 @@ Jkr::Primitive::Primitive(const Instance& inInstance,
                           vk::DeviceSize inIndexBufferSizeInBytes)
     : mInstance(inInstance), mIndexCount(0) {
     std::scoped_lock<std::mutex> Lock(PriMutex);
-    mVertexBufferPtr = MakeUp<VulkanBufferVMA<BufferContext::Vertex, MemoryType::DeviceLocal>>(
-         inInstance.GetVMA(), mInstance.GetDevice(), inVertexBufferSizeInBytes);
-    mIndexBufferPtr = MakeUp<VulkanBufferVMA<BufferContext::Index, MemoryType::DeviceLocal>>(
-         inInstance.GetVMA(), mInstance.GetDevice(), inIndexBufferSizeInBytes);
+    mVertexBufferPtr = MakeUp < VulkanBufferVMA<VertexBufferType>(inInstance.GetVMA(),
+                                                                  mInstance.GetDevice(),
+                                                                  inVertexBufferSizeInBytes);
+    mIndexBufferPtr =
+         MakeUp <
+         IndexBufferType(inInstance.GetVMA(), mInstance.GetDevice(), inIndexBufferSizeInBytes);
 }
 #else
 Jkr::Primitive::Primitive(const Instance& inInstance,
@@ -69,15 +71,12 @@ Jkr::Primitive::Primitive(const Instance& inInstance,
     : mInstance(inInstance), mIndexCount(inIndices.size()) {
     std::scoped_lock<std::mutex> Lock(PriMutex);
     mVertexBufferPtr =
-         MakeUp<VulkanBufferVMA<BufferContext::Vertex, MemoryType::HostVisibleAndHostCached>>(
-              inInstance.GetVMA(),
-              mInstance.GetDevice(),
-              vk::DeviceSize(sizeof(inVertices.front()) * inVertices.size()));
-    mIndexBufferPtr =
-         MakeUp<VulkanBufferVMA<BufferContext::Index, MemoryType::HostVisibleAndHostCached>>(
-              inInstance.GetVMA(),
-              mInstance.GetDevice(),
-              vk::DeviceSize(sizeof(uint32_t) * inIndices.size()));
+         MakeUp<VertexBufferType>(inInstance.GetVMA(),
+                                  mInstance.GetDevice(),
+                                  vk::DeviceSize(sizeof(inVertices.front()) * inVertices.size()));
+    mIndexBufferPtr = MakeUp<IndexBufferType>(inInstance.GetVMA(),
+                                              mInstance.GetDevice(),
+                                              vk::DeviceSize(sizeof(uint32_t) * inIndices.size()));
     mVertexBufferPtr->SubmitImmediateCmdCopyFrom(mInstance.GetGraphicsQueue(),
                                                  mInstance.GetUtilCommandBuffer(),
                                                  reinterpret_cast<void*>(inVertices.data()));
@@ -96,15 +95,12 @@ Jkr::Primitive::Primitive(const Instance& inInstance,
     : mInstance(inInstance), mIndexCount(inIndices.size()) {
     std::scoped_lock<std::mutex> Lock(PriMutex);
     mVertexBufferPtr =
-         MakeUp<VulkanBufferVMA<BufferContext::Vertex, MemoryType::HostVisibleAndHostCached>>(
-              inInstance.GetVMA(),
-              mInstance.GetDevice(),
-              vk::DeviceSize(sizeof(inVertices.front()) * inVertices.size()));
-    mIndexBufferPtr =
-         MakeUp<VulkanBufferVMA<BufferContext::Index, MemoryType::HostVisibleAndHostCached>>(
-              inInstance.GetVMA(),
-              mInstance.GetDevice(),
-              vk::DeviceSize(sizeof(uint32_t) * inIndices.size()));
+         MakeUp<VertexBufferType>(inInstance.GetVMA(),
+                                  mInstance.GetDevice(),
+                                  vk::DeviceSize(sizeof(inVertices.front()) * inVertices.size()));
+    mIndexBufferPtr = MakeUp<IndexBufferType>(inInstance.GetVMA(),
+                                              mInstance.GetDevice(),
+                                              vk::DeviceSize(sizeof(uint32_t) * inIndices.size()));
     mVertexBufferPtr->SubmitImmediateCmdCopyFrom(mInstance.GetGraphicsQueue(),
                                                  mInstance.GetUtilCommandBuffer(),
                                                  reinterpret_cast<void*>(inVertices.data()));
@@ -121,12 +117,10 @@ Jkr::Primitive::Primitive(const Instance& inInstance,
                           vk::DeviceSize inIndexBufferSizeInBytes)
     : mInstance(inInstance), mIndexCount(0) {
     std::scoped_lock<std::mutex> Lock(PriMutex);
-    mVertexBufferPtr =
-         MakeUp<VulkanBufferVMA<BufferContext::Vertex, MemoryType::HostVisibleAndHostCached>>(
-              inInstance.GetVMA(), mInstance.GetDevice(), inVertexBufferSizeInBytes);
-    mIndexBufferPtr =
-         MakeUp<VulkanBufferVMA<BufferContext::Index, MemoryType::HostVisibleAndHostCached>>(
-              inInstance.GetVMA(), mInstance.GetDevice(), inIndexBufferSizeInBytes);
+    mVertexBufferPtr = MakeUp<VertexBufferType>(
+         inInstance.GetVMA(), mInstance.GetDevice(), inVertexBufferSizeInBytes);
+    mIndexBufferPtr = MakeUp<IndexBufferType>(
+         inInstance.GetVMA(), mInstance.GetDevice(), inIndexBufferSizeInBytes);
     mVertexBufferPtr->MapMemoryRegion(&mVertexBufferMappedMemory);
     mIndexBufferPtr->MapMemoryRegion(&mIndexBufferMappedMemory);
 }

@@ -4,18 +4,12 @@
 #include <glm/glm.hpp>
 
 namespace Jkr {
-struct Vertex {
-    glm::vec3 mPosition;
-    glm::vec2 mTextureCorrdinate;
-};
-struct Quad {
-    std::array<Vertex, 4> mVertices;
-    std::array<uint32_t, 6> mIndex;
-};
-} // namespace Jkr
-
-namespace Jkr {
 class Primitive {
+    using VertexBufferType = VulkanBufferVMA<BufferContext::Vertex | BufferContext::Storage,
+                                             MemoryType::HostVisibleAndHostCached>;
+    using IndexBufferType  = VulkanBufferVMA<BufferContext::Index | BufferContext::Storage,
+                                             MemoryType::HostVisibleAndHostCached>;
+
     public:
     Primitive(const Instance& inInstance);
     Primitive(const Instance& inInstance,
@@ -51,12 +45,10 @@ class Primitive {
     GETTER& GetIndexMemoryMapPtr() { return mIndexBufferMappedMemory; }
 
     private:
-    Up<VulkanBufferVMA<BufferContext::Vertex, MemoryType::HostVisibleAndHostCached>>
-         mVertexBufferPtr = nullptr;
-    Up<VulkanBufferVMA<BufferContext::Index, MemoryType::HostVisibleAndHostCached>>
-         mIndexBufferPtr            = nullptr;
-    void* mVertexBufferMappedMemory = nullptr;
-    void* mIndexBufferMappedMemory  = nullptr;
+    Up<VertexBufferType> mVertexBufferPtr = nullptr;
+    Up<IndexBufferType> mIndexBufferPtr   = nullptr;
+    void* mVertexBufferMappedMemory       = nullptr;
+    void* mIndexBufferMappedMemory        = nullptr;
 #endif
 };
 } // namespace Jkr

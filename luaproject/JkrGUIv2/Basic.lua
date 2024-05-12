@@ -21,6 +21,7 @@ vec3 = vec3
 vec4 = vec4
 vec2 = vec2
 uvec2 = uvec2
+quat = quat
 
 --[============================================================[
     UTILITY FUNCTIONS

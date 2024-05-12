@@ -155,6 +155,11 @@ void VulkanBufferBase::FillBufferUsage(vk::BufferCreateInfo& inInfo,
         inInfo.setUsage(vk::BufferUsageFlagBits::eStorageBuffer |
                         vk::BufferUsageFlagBits::eUniformBuffer |
                         vk::BufferUsageFlagBits::eTransferDst);
+
+    if (inBufferContext == (BufferContext::Staging | BufferContext::Index)) {
+        inInfo.setUsage(vk::BufferUsageFlagBits::eIndexBuffer |
+                        vk::BufferUsageFlagBits::eStorageBuffer);
+    }
 }
 
 void VulkanBuffer::MapMemoryRegion(void** outMappedMemoryRegion) {
