@@ -1,4 +1,5 @@
 ﻿#include "JkrLuaExe.hpp"
+#include <SDLWindow.hpp>
 
 namespace JkrEXE {
 extern void CreateBasicBindings(sol::state& inState);
@@ -45,6 +46,8 @@ void RunScript() {
 #ifdef ANDROID
     ksai_print("Main Function Entered");
     std::filesystem::current_path("/data/data/com.SampraharReturns/");
+    std::filesystem::current_path("/storage/emulated/0/Download/jkrgui");
+
 #endif
 
     sol::protected_function_result result =

@@ -1,6 +1,8 @@
 #include "PainterParameter_base.hpp"
 #include "PainterParameter.hpp"
 
+std::mutex Jkr::PainterParameterBase::mMutex;
+
 void Jkr::PainterParameterBase::Setup(Up<StorageBufferType>& inStorageBuffer,
                                       vk::DeviceSize inDeviceSize) {
     inStorageBuffer =
@@ -53,14 +55,17 @@ void Jkr::PainterParameterBase::Setup(Up<VulkanSampler>& inUniformImageSampler,
          mInstance.GetVMA(), mInstance.GetDevice(), Width, Height);
     inUniformImageSampler = MakeUp<VulkanSampler>(mInstance.GetDevice());
 
-    VulkanCommandPool Pool(mInstance.GetDevice(), mInstance.GetGraphicsQueue().GetQueueContext());
-    VulkanCommandBuffer Cmd(mInstance.GetDevice(), Pool);
-    VulkanFence Fence(mInstance.GetDevice()); // TODO Remove this
+    std::scoped_lock<std::mutex> Lock(mMutex);
+
+    //     VulkanCommandPool Pool(mInstance.GetDevice(),
+    //     mInstance.GetGraphicsQueue().GetQueueContext()); VulkanCommandBuffer
+    //     Cmd(mInstance.GetDevice(), Pool);
+    //     Remove this
 
     inUniformImage->SubmitImmediateCmdCopyFromData(mInstance.GetGraphicsQueue(),
-                                                   Cmd,
+                                                   mInstance.GetUtilCommandBuffer(),
                                                    mInstance.GetDevice(),
-                                                   Fence,
+                                                   mInstance.GetUtilCommandBufferFence(),
                                                    &data,
                                                    4 * Width * Height);
     mInstance.GetDevice().Wait();
@@ -77,14 +82,15 @@ void Jkr::PainterParameterBase::Setup(Up<VulkanSampler>& inUniformImageSampler,
          mInstance.GetVMA(), mInstance.GetDevice(), inWidth, inHeight, inChannelCount);
     inUniformImageSampler = MakeUp<VulkanSampler>(mInstance.GetDevice());
 
-    VulkanCommandPool Pool(mInstance.GetDevice(), mInstance.GetGraphicsQueue().GetQueueContext());
-    VulkanCommandBuffer Cmd(mInstance.GetDevice(), Pool);
-    VulkanFence Fence(mInstance.GetDevice());
+    std::scoped_lock<std::mutex> Lock(mMutex);
+    //     VulkanCommandPool Pool(mInstance.GetDevice(),
+    //     mInstance.GetGraphicsQueue().GetQueueContext()); VulkanCommandBuffer
+    //     Cmd(mInstance.GetDevice(), Pool); VulkanFence Fence(mInstance.GetDevice());
 
     inUniformImage->SubmitImmediateCmdCopyFromData(mInstance.GetGraphicsQueue(),
-                                                   Cmd,
+                                                   mInstance.GetUtilCommandBuffer(),
                                                    mInstance.GetDevice(),
-                                                   Fence,
+                                                   mInstance.GetUtilCommandBufferFence(),
                                                    inData,
                                                    inWidth * inHeight * inChannelCount);
     mInstance.GetDevice().Wait();

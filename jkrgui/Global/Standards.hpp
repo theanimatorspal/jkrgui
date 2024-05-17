@@ -51,7 +51,12 @@ using ui32 = uint32_t;
 using f32  = float_t;
 
 namespace BindingIndex {
-enum Storage : int { JointMatrix = 1, JointInfluence = 2 };
+enum Storage : int {
+    JointMatrix       = 1,
+    JointInfluence    = 2,
+    WorldVertexBuffer = 12,
+    WorldIndexBuffer  = 13
+};
 enum Uniform : int {
     WorldInfo    = 0,
     Images       = 3, // Upto 8 or After 8

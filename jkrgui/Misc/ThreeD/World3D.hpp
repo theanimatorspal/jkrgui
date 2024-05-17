@@ -10,7 +10,6 @@
 #include "Uniform3D.hpp"
 #include "WindowMulT.hpp"
 
-
 // TODO Refactor, Make a world base (Or however) with Object, Lights and Cameras Only
 namespace Jkr::Misc::_3D {
 using Simple3D = Renderer::_3D::Simple3D;
@@ -56,6 +55,7 @@ struct World3D {
     void AddWorldInfoToUniform3D(int inId);
     void AddSkyboxToUniform3D(Instance& inInstance, sv inFolderPath, int inId, int inSet);
     void AddShadowMapToUniform3D(WindowMulT& inWindow, int inId, int inSet);
+    void AddWorldPrimitiveToUniform3D(Instance& inInstance, Uniform3D& inUniform3D, int inId);
 
     World3D(Shape3D& inShape) : mShape(inShape) {}
 

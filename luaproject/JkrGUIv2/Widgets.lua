@@ -427,7 +427,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         return Image
     end
 
-    o.CreateButton = function(inPosition_3f, inDimension_3f, inOnClickFunction)
+    o.CreateButton = function(inPosition_3f, inDimension_3f, inOnClickFunction, inContinous)
         local Button = {}
         Button.mBoundedRect = {}
         Button.mBoundedRect.mDepthValue = math.int(inPosition_3f.z)
@@ -438,17 +438,31 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         if (inOnClickFunction) then
             Button.mOnClickFunction = inOnClickFunction
         end
-        Button.mBoundedRect.mPushId = o.c.Push(Jkr.CreateEventable(
-            function()
-                local over = e:IsMouseWithinAtTopOfStack(
-                    Button.mBoundedRect.mId,
-                    Button.mBoundedRect.mDepthValue
-                )
-                if e:IsLeftButtonPressed() and over then
-                    Button.mOnClickFunction()
+        if inContinous then
+            Button.mBoundedRect.mPushId = o.c.Push(Jkr.CreateUpdatable(
+                function()
+                    local over = e:IsMouseWithinAtTopOfStack(
+                        Button.mBoundedRect.mId,
+                        Button.mBoundedRect.mDepthValue
+                    )
+                    if e:IsLeftButtonPressedContinous() and over then
+                        Button.mOnClickFunction()
+                    end
                 end
-            end
-        ))
+            ))
+        else
+            Button.mBoundedRect.mPushId = o.c.Push(Jkr.CreateEventable(
+                function()
+                    local over = e:IsMouseWithinAtTopOfStack(
+                        Button.mBoundedRect.mId,
+                        Button.mBoundedRect.mDepthValue
+                    )
+                    if e:IsLeftButtonPressed() and over then
+                        Button.mOnClickFunction()
+                    end
+                end
+            ))
+        end
         Button.Update = function(self, inPosition_3f, inDimension_3f)
             Button.mBoundedRect.mDepthValue = math.int(inPosition_3f.z)
             e:UpdateBoundedRect(Button.mBoundedRect.mId, vec2(inPosition_3f.x, inPosition_3f.y),

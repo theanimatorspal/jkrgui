@@ -7,6 +7,9 @@
 
 namespace Jkr {
 class Window : public SDLWindow {
+    protected:
+    static const int mMaxFramesInFlight = 2;
+
     public:
     using SwapChainVulkanImages = std::vector<VulkanImage<ImageContext::ExternalHandled>>;
     using FrameBufferType       = VulkanFrameBuffer<3,
@@ -16,7 +19,7 @@ class Window : public SDLWindow {
     enum ParameterContext : int { None = -3, UI = -1, Background = -1 };
 
     public:
-    virtual const std::array<VulkanCommandBuffer, 2U>&
+    virtual const std::array<VulkanCommandBuffer, mMaxFramesInFlight>&
     GetCommandBuffers(ParameterContext inParameter) const {
         return mCommandBuffers;
     }
@@ -43,9 +46,8 @@ class Window : public SDLWindow {
     ~Window() { mInstance.GetDevice().Wait(); }
 
     protected:
-    static const int mMaxFramesInFlight = 2;
-    uint32_t mCurrentFrame              = 0;
-    uint32_t mAcquiredImageIndex        = 0;
+    uint32_t mCurrentFrame       = 0;
+    uint32_t mAcquiredImageIndex = 0;
     const Instance& mInstance;
     VulkanSurface mSurface;
     VulkanSwapChain mSwapChain;

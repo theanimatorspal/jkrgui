@@ -390,31 +390,6 @@ void GlslMain()
 ]]
 end
 
-Jkrmt.GetGLTFInfo = function(inLoadedGLTF, inShouldPrint)
-    if (inShouldPrint) then
-        io.write(string.format(
-            [[
-GLTF:-
-Vertices = %d,
-Indices = %d,
-Images = %d,
-Textures = %d,
-Materials = %d,
-Nodes = %d,
-Skins = %d,
-Animations = %d,
-                ]],
-            inLoadedGLTF:GetVerticesSize(),
-            inLoadedGLTF:GetIndicesSize(),
-            inLoadedGLTF:GetImagesSize(),
-            inLoadedGLTF:GetTexturesSize(),
-            inLoadedGLTF:GetMaterialsSize(),
-            inLoadedGLTF:GetNodesSize(),
-            inLoadedGLTF:GetSkinsSize(),
-            inLoadedGLTF:GetAnimationsSize()
-        ))
-    end
-end
 
 Jkr.GetGLTFShaderLayoutString = function(inLoadedGLTF)
     local BindingIndex = 0

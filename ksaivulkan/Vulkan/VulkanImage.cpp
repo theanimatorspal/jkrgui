@@ -28,8 +28,8 @@ void ksai::VulkanImageBase::SubmitImmediateCmdCopyFromData(
     StagingBuffer.MapMemoryRegion(&MapRegion);
     std::memcpy(MapRegion, *inData, inSize);
     const vk::CommandBuffer& Cmd = inCmdBuffer.GetCommandBufferHandle();
-    inFence.Reset();
     inFence.Wait();
+    inFence.Reset();
     inCmdBuffer.Begin();
     vk::ImageSubresourceLayers ImageSubResourceLayer(
          mImageProperties.mImageAspect, 0, 0, mImageProperties.mArrayLayers);
@@ -76,8 +76,8 @@ void VulkanImageBase::SubmitImmediateCmdCopyFromData(
         std::memcpy((char*)MapRegion + i * inSize, *inLayerImageDatas[i], inSize);
     }
     const vk::CommandBuffer& Cmd = inCmdBuffer.GetCommandBufferHandle();
-    inFence.Reset();
     inFence.Wait();
+    inFence.Reset();
     inCmdBuffer.Begin();
     vk::ImageSubresourceLayers ImageSubResourceLayer(
          mImageProperties.mImageAspect, 0, 0, mImageProperties.mArrayLayers);
@@ -293,21 +293,21 @@ void VulkanImageBase::FillImageProperties(ImageContext inImageContext, uint32_t 
     } else if (inImageContext == ImageContext::Storage) {
         mImageProperties.mImageUsage =
              vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eTransferSrc;
-        mImageProperties.mImageFormat = vk::Format::eB8G8R8A8Unorm;
+        mImageProperties.mImageFormat = vk::Format::eR8G8B8A8Unorm;
     } else if (inImageContext == ImageContext::Default) {
         mImageProperties.mImageUsage =
              vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst;
-        mImageProperties.mImageFormat = vk::Format::eB8G8R8A8Unorm;
+        mImageProperties.mImageFormat = vk::Format::eR8G8B8A8Unorm;
     } else if (inImageContext == ImageContext::CubeCompatible) {
         mImageProperties.mFlags = vk::ImageCreateFlagBits::eCubeCompatible;
         mImageProperties.mImageUsage =
              vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst;
         mImageProperties.mImageViewType = vk::ImageViewType::eCube;
-        mImageProperties.mImageFormat   = vk::Format::eB8G8R8A8Unorm;
+        mImageProperties.mImageFormat   = vk::Format::eR8G8B8A8Unorm;
     } else if (inImageContext == ImageContext::ColorAttach) {
         mImageProperties.mImageUsage = vk::ImageUsageFlagBits::eColorAttachment |
                                        vk::ImageUsageFlagBits::eTransientAttachment;
-        mImageProperties.mImageFormat = vk::Format::eB8G8R8A8Unorm; // This in on the surface, so
+        mImageProperties.mImageFormat = vk::Format::eR8G8B8A8Unorm; // This in on the surface, so
     }
 
     switch (inNumSamples) {

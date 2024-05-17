@@ -344,8 +344,13 @@ void CreateGLMBindings(sol::state& lua) {
 
     );
 
+    using namespace glm;
     auto Jmath = lua["Jmath"].get_or_create<sol::table>();
-    Jmath.set_function("Lerp", [](float a, float b, float t) { return std::lerp(a, b, t); });
+    Jmath.set_function("Lerp",
+                       sol::overload(sol::resolve<float(float, float, float)>(&mix),
+                                     sol::resolve<vec3(const vec3&, const vec3&, float)>(&mix),
+                                     sol::resolve<quat(const quat&, const quat&, float)>(&slerp),
+                                     sol::resolve<vec4(const vec4&, const vec4&, float)>(&mix)));
     Jmath.set_function(
          "Clamp",
          sol::overload(

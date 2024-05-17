@@ -11,7 +11,6 @@ void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFrom(
      const VulkanQueue<QueueContext::Graphics>& inQueue,
      const VulkanCommandBuffer& inCmdBuffer,
      void* inData) {
-    // TODO Abstract with your own APIs
     uint32_t MemoryIndex;
     vk::DeviceSize MemorySize;
     GetMemoryTypeIndex(vk::MemoryPropertyFlagBits::eHostVisible |
@@ -133,33 +132,37 @@ void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFromImage(
 void VulkanBufferBase::FillBufferUsage(vk::BufferCreateInfo& inInfo,
                                        BufferContext inBufferContext,
                                        MemoryType inBufferStorageType) {
-    if (inBufferContext == BufferContext::Vertex)
-        inInfo.setUsage(vk::BufferUsageFlagBits::eVertexBuffer |
-                        vk::BufferUsageFlagBits::eTransferDst);
-    else if (inBufferContext == BufferContext::Index)
-        inInfo.setUsage(vk::BufferUsageFlagBits::eIndexBuffer |
-                        vk::BufferUsageFlagBits::eTransferDst);
-    else if (inBufferContext == BufferContext::Uniform)
-        inInfo.setUsage(vk::BufferUsageFlagBits::eUniformBuffer |
-                        vk::BufferUsageFlagBits::eTransferDst);
-    else if (inBufferContext == BufferContext::Storage)
-        inInfo.setUsage(vk::BufferUsageFlagBits::eStorageBuffer |
-                        vk::BufferUsageFlagBits::eTransferDst);
-    else if (inBufferContext == (BufferContext::Vertex | BufferContext::Storage))
-        inInfo.setUsage(vk::BufferUsageFlagBits::eStorageBuffer |
-                        vk::BufferUsageFlagBits::eVertexBuffer |
-                        vk::BufferUsageFlagBits::eTransferDst);
-    else if (inBufferContext == BufferContext::Staging)
-        inInfo.setUsage(vk::BufferUsageFlagBits::eTransferSrc);
-    else if (inBufferContext == (BufferContext::Uniform | BufferContext::Storage))
-        inInfo.setUsage(vk::BufferUsageFlagBits::eStorageBuffer |
-                        vk::BufferUsageFlagBits::eUniformBuffer |
-                        vk::BufferUsageFlagBits::eTransferDst);
+    // if (inBufferContext == BufferContext::Vertex)
+    //     inInfo.setUsage(vk::BufferUsageFlagBits::eVertexBuffer |
+    //                     vk::BufferUsageFlagBits::eTransferDst);
+    // else if (inBufferContext == BufferContext::Index)
+    //     inInfo.setUsage(vk::BufferUsageFlagBits::eIndexBuffer |
+    //                     vk::BufferUsageFlagBits::eTransferDst);
+    // else if (inBufferContext == BufferContext::Uniform)
+    //     inInfo.setUsage(vk::BufferUsageFlagBits::eUniformBuffer |
+    //                     vk::BufferUsageFlagBits::eTransferDst);
+    // else if (inBufferContext == BufferContext::Storage)
+    //     inInfo.setUsage(vk::BufferUsageFlagBits::eStorageBuffer |
+    //                     vk::BufferUsageFlagBits::eTransferDst);
+    // else if (inBufferContext == (BufferContext::Vertex | BufferContext::Storage))
+    //     inInfo.setUsage(vk::BufferUsageFlagBits::eStorageBuffer |
+    //                     vk::BufferUsageFlagBits::eVertexBuffer |
+    //                     vk::BufferUsageFlagBits::eTransferDst);
+    // else if (inBufferContext == BufferContext::Staging)
+    //     inInfo.setUsage(vk::BufferUsageFlagBits::eTransferSrc);
+    // else if (inBufferContext == (BufferContext::Uniform | BufferContext::Storage))
+    //     inInfo.setUsage(vk::BufferUsageFlagBits::eStorageBuffer |
+    //                     vk::BufferUsageFlagBits::eUniformBuffer |
+    //                     vk::BufferUsageFlagBits::eTransferDst);
 
-    if (inBufferContext == (BufferContext::Staging | BufferContext::Index)) {
-        inInfo.setUsage(vk::BufferUsageFlagBits::eIndexBuffer |
-                        vk::BufferUsageFlagBits::eStorageBuffer);
-    }
+    // if (inBufferContext == (BufferContext::Staging | BufferContext::Index)) {
+    //     inInfo.setUsage(vk::BufferUsageFlagBits::eIndexBuffer |
+    //                     vk::BufferUsageFlagBits::eStorageBuffer);
+    // }
+    inInfo.setUsage(vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndexBuffer |
+                    vk::BufferUsageFlagBits::eStorageBuffer |
+                    vk::BufferUsageFlagBits::eUniformBuffer |
+                    vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst);
 }
 
 void VulkanBuffer::MapMemoryRegion(void** outMappedMemoryRegion) {

@@ -137,3 +137,21 @@ void World3D::UpdateWorldInfoToUniform3D(int inId) {
     Uniform.mShadowMatrix   = LightCamera.GetView();
     mUniforms[inId]->UpdateUniformBuffer(kstd::BindingIndex::Uniform::WorldInfo, Uniform);
 }
+
+void World3D::AddWorldPrimitiveToUniform3D(Instance& inInstance, Uniform3D& inUniform3D, int inId) {
+    VulkanDescriptorUpdateHandler Handler(inInstance.GetDevice());
+    Handler.RW(BufferContext::Storage,
+               inUniform3D.GetVulkanDescriptorSet(),
+               *mShape.GetPrimitive().GetVertexBufferPtr(),
+               0,
+               kstd::BindingIndex::Storage::WorldVertexBuffer,
+               0,
+               1);
+    Handler.RW(BufferContext::Storage,
+               inUniform3D.GetVulkanDescriptorSet(),
+               *mShape.GetPrimitive().GetIndexBufferPtr(),
+               0,
+               kstd::BindingIndex::Storage::WorldIndexBuffer,
+               0,
+               1);
+}

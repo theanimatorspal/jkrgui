@@ -23,20 +23,7 @@ PrecompileStdHeaders(JkrLuaExe)
 target_link_libraries(JkrLuaExe ksaivulkan jkrgui)
 configure_target(JkrLuaExe)
 
-set(SrcDirectory "${CMAKE_JKRGUI_DIR}/out/build/${CMAKE_PRESET_NAME}")
-set(DebugDirectory "${CMAKE_JKRGUI_DIR}/out/build/x64-debug/JkrLuaExe")
-
-message(STATUS "Copying from Src to DebugDirectory")
-message(STATUS "${SrcDirectory} to ${DebugDirectory}")
-
-# if(CMAKE_BUILD_TYPE STREQUAL "Release")
-#     add_custom_command(
-#         TARGET JkrLuaExe POST_BUILD
-#         COMMAND ${CMAKE_COMMAND} -E copy
-#                 $<TARGET_FILE:JkrLuaExe>
-#                 ${DebugDirectory}/
-#     )
-# endif()
+set_target_properties(JkrLuaExe PROPERTIES LINK_FLAGS "-Wl,--export-dynamic-symbol=main")
 
 add_custom_command(
     TARGET JkrLuaExe POST_BUILD

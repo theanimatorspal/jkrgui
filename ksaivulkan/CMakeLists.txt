@@ -28,6 +28,8 @@ if(APPLE OR ANDROID)
         "Vendor/TinyGLTF/*.hpp"
         "Vendor/VulkanMemoryAllocator/vma.cpp"
         "Vendor/Eigen/*.*"
+        "ksaiSandBox/glslHelper.cpp"
+        "ksaiSandBox/glslHelper.hpp"
         "ksai_config.hpp"
         "ksai_image.hpp"
         "ksai_thread.hpp"

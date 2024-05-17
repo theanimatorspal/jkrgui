@@ -76,6 +76,7 @@ class PainterParameterBase {
     protected:
     const Instance& mInstance;
     VulkanDescriptorUpdateHandler mVulkanDescriptorSetHandler;
+    static std::mutex mMutex;
 
     private:
     template <typename T>
@@ -102,17 +103,20 @@ inline void PainterParameterBase::SetupImage(Up<VulkanSampler>& inUniformImageSa
         i++;
     }
 
-    VulkanCommandPool Pool(mInstance.GetDevice(), mInstance.GetGraphicsQueue().GetQueueContext());
-    VulkanCommandBuffer Cmd(mInstance.GetDevice(), Pool);
-    VulkanFence Fence(mInstance.GetDevice()); // TODO Remove this
+    // VulkanCommandPool Pool(mInstance.GetDevice(),
+    // mInstance.GetGraphicsQueue().GetQueueContext()); VulkanCommandBuffer
+    // Cmd(mInstance.GetDevice(), Pool); VulkanFence Fence(mInstance.GetDevice()); // TODO Remove
+    // this
+
+    std::scoped_lock<std::mutex> Lock(mMutex);
 
     inUniformImage =
          MakeUp<T>(mInstance.GetVMA(), mInstance.GetDevice(), Width, Height, 4, inFileNames.size());
     inUniformImageSampler = MakeUp<VulkanSampler>(mInstance.GetDevice());
     inUniformImage->SubmitImmediateCmdCopyFromData(mInstance.GetGraphicsQueue(),
-                                                   Cmd,
+                                                   mInstance.GetUtilCommandBuffer(),
                                                    mInstance.GetDevice(),
-                                                   Fence,
+                                                   mInstance.GetUtilCommandBufferFence(),
                                                    Channels * Height * Width,
                                                    Datas_ptr);
 
