@@ -1,6 +1,8 @@
 ﻿#include "JkrLuaExe.hpp"
 #include <SDLWindow.hpp>
 
+extern void LuaShowToastNotification(const std::string_view inMessage);
+
 namespace JkrEXE {
 extern void CreateBasicBindings(sol::state& inState);
 extern void CreateGLMBindings(sol::state& inState);
@@ -11,6 +13,7 @@ extern void CreateTextRendererBindings(sol::state& inState);
 extern void CreateBuildSystemBindings(sol::state& inS);
 extern void CreateRenderer3DBindings(sol::state& s);
 extern void CreateAudioBindings(sol::state& inState);
+extern void CreatePlatformBindings(sol::state& inS);
 extern umap<s, v<s>> CommandLine(int ArgCount, char** ArgStrings); // TODO Complete This
 extern void CreateMultiThreadingBindings(sol::state& inState);
 
@@ -33,6 +36,7 @@ void CreateMainBindings(sol::state& s) {
     CreateMultiThreadingBindings(s);
     CreateRenderer3DBindings(s);
     CreateAudioBindings(s);
+    CreatePlatformBindings(s);
 }
 } // namespace JkrEXE
 
@@ -56,6 +60,7 @@ void RunScript() {
         sol::error error = result;
         std::cout << error.what();
         ksai_print(error.what());
+        LuaShowToastNotification(error.what());
     }
 }
 

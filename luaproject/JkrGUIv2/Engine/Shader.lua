@@ -716,15 +716,15 @@ PBR.Skybox3dF = Engine.Shader()
     .GlslMainBegin()
     .Indent()
     .Append([[
-          vec3 Color = texture(samplerCubeMap, vVertUV).rgb;
+        vec3 Color = texture(samplerCubeMap, vVertUV).rgb;
           // Tone mapping
           // 0.5 = exposure
-	color = Uncharted2Tonemap(color * 0.5);
-	color = color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
+	Color = Uncharted2Tonemap(Color * 0.5);
+	Color = Color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
 	// Gamma correction
           // 2.2 = gamma
-	color = pow(color, vec3(1.0f / 0.3));
-	outFragColor = vec4(color, 1.0);
+	Color = pow(Color, vec3(1.0f / 0.3));
+	outFragColor = vec4(Color, 1.0);
         ]])
     .GlslMainEnd()
     .NewLine().str
@@ -765,14 +765,15 @@ PBR.IBLV = Engine.Shader()
     .Out(1, "vec3", "vNormal")
     .Out(2, "vec3", "vWorldPos")
     .Ubo()
+    .Push()
     .GlslMainBegin()
     .Append [[
-          vec3 locPos = vec3(ubo.model * vec4(inPos, 1.0));
-	outWorldPos = locPos + pushConsts.objPos;
-	outNormal = mat3(ubo.model) * inNormal;
-	outUV = inUV;
-	outUV.t = 1.0 - inUV.t;
-	gl_Position =  ubo.projection * ubo.view * vec4(outWorldPos, 1.0);
+    vec3 locPos = vec3(Push.model * vec4(inPosition, 1.0));
+	vWorldPos = locPos;// + pushConsts.objPos;
+	vNormal = mat3(Push.model) * inNormal;
+	vUV = inUV;
+	vUV.t = 1.0 - inUV.t;
+	gl_Position =  ubo.projection * ubo.view * vec4(vWorldPos, 1.0);
     ]]
     .GlslMainEnd()
     .str
@@ -883,7 +884,7 @@ PBR.IrradianceCubeF = Engine.Shader()
     .GlslMainBegin()
     .outFragColor()
     .Append [[
-	vec3 N = normalize(inPos);
+	vec3 N = normalize(inPosition);
 	vec3 up = vec3(0.0, 1.0, 0.0);
 	vec3 right = normalize(cross(up, N));
 	up = cross(N, right);
@@ -915,3 +916,40 @@ PBR.GenBrdfLutV = Engine.Shader()
 	gl_Position = vec4(outUV * 2.0f - 1.0f, 0.0f, 1.0f);
     ]]
     .GlslMainEnd()
+    .str
+
+PBR.GenBrdfLutF = Engine.Shader()
+    .Header(450)
+    .VLayout()
+    .In(0, "vec2", "vUV")
+    .Append "const uint NUM_SAMPLES = 1024u;"
+    .NewLine()
+    .PI()
+    .Random()
+    .Hammerslay2d()
+    .ImportanceSample_GGX()
+    .G_SchlicksmithGGX()
+    .BRDF()
+    .GlslMainBegin()
+    .Append [[
+        vUV = inUV;
+        outFragColor = vec4(BRDF(vUV.s, vUV.t), 0.0, 1.0);
+    ]]
+    .GlslMainEnd()
+
+
+PBR.FilterCubeV = Engine.Shader()
+    .Header(450)
+    .VLayout()
+    .Push()
+    .Out(0, "vec2", "vUV")
+    .GlslMainBegin()
+    .Append [[
+
+    ]]
+    .GlslMainEnd()
+
+PBR.BasicCompute = Engine.Shader()
+    .Header(450)
+    .GlslMainBegin()
+    .GlslMainEnd().str

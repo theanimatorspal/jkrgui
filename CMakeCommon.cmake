@@ -10,7 +10,6 @@ include_directories(${CMAKE_JKRGUI_DIR}/ksaivulkan)
 include_directories(${CMAKE_JKRGUI_DIR}/ksaivulkan/Vulkan)
 include_directories(${CMAKE_JKRGUI_DIR}/ksaivulkan/Vendor)
 include_directories(${CMAKE_JKRGUI_DIR}/ksaivulkan/Vendor/stbi)
-#include_directories(${SPIRV-Headers_SOURCE_DIR}/include})
 include_directories(${CMAKE_JKRGUI_DIR}/libs/)
 include_directories(${CMAKE_JKRGUI_DIR}/aJkrLua)
 include_directories(${CMAKE_JKRGUI_DIR}/vendor/lua)
@@ -100,6 +99,7 @@ endif()
 if(APPLE)
 elseif(ANDROID)
     include_directories("${CMAKE_JKRGUI_DIR}/libs/AndroidInclude/SDL2")
+    include_directories(${JNI_INCLUDE_DIRS})
 else()
     include_directories(ksaivulkan/Vendor/Tracy/tracy)
 endif()
@@ -164,9 +164,10 @@ elseif(ANDROID)
 function(configure_target TARGET_NAME)
    target_link_libraries(${TARGET_NAME}
         vulkan # IDK Why ${Vulkan_LIBRARIES are not working}
-	  android
-	  log
-	  brotlicommon-static
+        android
+        log
+        # jnigraphics
+        brotlicommon-static
 		brotlidec-static
 		brotlienc-static
 		bz2
@@ -275,217 +276,6 @@ function(configure_target TARGET_NAME)
 endfunction()
 
 endif()
-
-
-
-
-
-if(APPLE)
-elseif(DONTDOTHIS)
-function(configure_llvm TARGET_NAME)
-        target_link_libraries(${TARGET_NAME}
-            LLVMWindowsManifest
-            LLVMXRay
-            LLVMLibDriver
-            LLVMDlltoolDriver
-            LLVMCoverage
-            LLVMLineEditor
-            LLVMXCoreDisassembler
-            LLVMXCoreCodeGen
-            LLVMXCoreDesc
-            LLVMXCoreInfo
-            LLVMX86TargetMCA
-            LLVMX86Disassembler
-            LLVMX86AsmParser
-            LLVMX86CodeGen
-            LLVMX86Desc
-            LLVMX86Info
-            LLVMWebAssemblyDisassembler
-            LLVMWebAssemblyAsmParser
-            LLVMWebAssemblyCodeGen
-            LLVMWebAssemblyUtils
-            LLVMWebAssemblyDesc
-            LLVMWebAssemblyInfo
-            LLVMVEDisassembler
-            LLVMVEAsmParser
-            LLVMVECodeGen
-            LLVMVEDesc
-            LLVMVEInfo
-            LLVMSystemZDisassembler
-            LLVMSystemZAsmParser
-            LLVMSystemZCodeGen
-            LLVMSystemZDesc
-            LLVMSystemZInfo
-            LLVMSparcDisassembler
-            LLVMSparcAsmParser
-            LLVMSparcCodeGen
-            LLVMSparcDesc
-            LLVMSparcInfo
-            LLVMRISCVTargetMCA
-            LLVMRISCVDisassembler
-            LLVMRISCVAsmParser
-            LLVMRISCVCodeGen
-            LLVMRISCVDesc
-            LLVMRISCVInfo
-            LLVMPowerPCDisassembler
-            LLVMPowerPCAsmParser
-            LLVMPowerPCCodeGen
-            LLVMPowerPCDesc
-            LLVMPowerPCInfo
-            LLVMNVPTXCodeGen
-            LLVMNVPTXDesc
-            LLVMNVPTXInfo
-            LLVMMSP430Disassembler
-            LLVMMSP430AsmParser
-            LLVMMSP430CodeGen
-            LLVMMSP430Desc
-            LLVMMSP430Info
-            LLVMMipsDisassembler
-            LLVMMipsAsmParser
-            LLVMMipsCodeGen
-            LLVMMipsDesc
-            LLVMMipsInfo
-            LLVMLoongArchDisassembler
-            LLVMLoongArchAsmParser
-            LLVMLoongArchCodeGen
-            LLVMLoongArchDesc
-            LLVMLoongArchInfo
-            LLVMLanaiDisassembler
-            LLVMLanaiCodeGen
-            LLVMLanaiAsmParser
-            LLVMLanaiDesc
-            LLVMLanaiInfo
-            LLVMHexagonDisassembler
-            LLVMHexagonCodeGen
-            LLVMHexagonAsmParser
-            LLVMHexagonDesc
-            LLVMHexagonInfo
-            LLVMBPFDisassembler
-            LLVMBPFAsmParser
-            LLVMBPFCodeGen
-            LLVMBPFDesc
-            LLVMBPFInfo
-            LLVMAVRDisassembler
-            LLVMAVRAsmParser
-            LLVMAVRCodeGen
-            LLVMAVRDesc
-            LLVMAVRInfo
-            LLVMARMDisassembler
-            LLVMARMAsmParser
-            LLVMARMCodeGen
-            LLVMARMDesc
-            LLVMARMUtils
-            LLVMARMInfo
-            LLVMAMDGPUTargetMCA
-            LLVMAMDGPUDisassembler
-            LLVMAMDGPUAsmParser
-            LLVMAMDGPUCodeGen
-            LLVMAMDGPUDesc
-            LLVMAMDGPUUtils
-            LLVMAMDGPUInfo
-            LLVMAArch64Disassembler
-            LLVMAArch64AsmParser
-            LLVMAArch64CodeGen
-            LLVMAArch64Desc
-            LLVMAArch64Utils
-            LLVMAArch64Info
-            LLVMOrcJIT
-            LLVMWindowsDriver
-            LLVMMCJIT
-            LLVMJITLink
-            LLVMInterpreter
-            LLVMExecutionEngine
-            LLVMRuntimeDyld
-            LLVMOrcTargetProcess
-            LLVMOrcShared
-            LLVMDWP
-            LLVMDebugInfoLogicalView
-            LLVMDebugInfoGSYM
-            LLVMOption
-            LLVMObjectYAML
-            LLVMObjCopy
-            LLVMMCA
-            LLVMMCDisassembler
-            LLVMLTO
-            LLVMPasses
-            LLVMCFGuard
-            LLVMCoroutines
-            LLVMipo
-            LLVMVectorize
-            LLVMLinker
-            LLVMInstrumentation
-            LLVMFrontendOpenMP
-            LLVMFrontendOpenACC
-            LLVMFrontendHLSL
-            LLVMExtensions
-            LLVMDWARFLinkerParallel
-            LLVMDWARFLinker
-            LLVMGlobalISel
-            LLVMMIRParser
-            LLVMAsmPrinter
-            LLVMSelectionDAG
-            LLVMCodeGen
-            LLVMTarget
-            LLVMObjCARCOpts
-            LLVMCodeGenTypes
-            LLVMIRPrinter
-            LLVMInterfaceStub
-            LLVMFileCheck
-            LLVMFuzzMutate
-            LLVMScalarOpts
-            LLVMInstCombine
-            LLVMAggressiveInstCombine
-            LLVMTransformUtils
-            LLVMBitWriter
-            LLVMAnalysis
-            LLVMProfileData
-            LLVMSymbolize
-            LLVMDebugInfoBTF
-            LLVMDebugInfoPDB
-            LLVMDebugInfoMSF
-            LLVMDebugInfoDWARF
-            LLVMObject
-            LLVMTextAPI
-            LLVMMCParser
-            LLVMIRReader
-            LLVMAsmParser
-            LLVMMC
-            LLVMDebugInfoCodeView
-            LLVMBitReader
-            LLVMFuzzerCLI
-            LLVMCore
-            LLVMRemarks
-            LLVMBitstreamReader
-            LLVMBinaryFormat
-            LLVMTargetParser
-            LLVMTableGen
-            LLVMSupport
-            LLVMDemangle
-        )
-endfunction()
-endif()
-
-
-function(copyToDestination cpyName)
-  if(ANDROID)
-    # add_custom_command(TARGET ${cpyName} POST_BUILD
-    #   COMMAND ${CMAKE_COMMAND} -E copy
-    #   ${CMAKE_CURRENT_BINARY_DIR}/lib${cpyName}.so
-    #   ${CMAKE_JKRGUI_DIR}/libs/Android/lib${cpyName}.so
-    # )
-    # add_custom_command(TARGET ${cpyName} POST_BUILD
-    #   COMMAND ${CMAKE_COMMAND} -E copy
-    #   ${CMAKE_CURRENT_BINARY_DIR}/lib${cpyName}.so
-    #   ${CMAKE_JKRGUI_DIR}/SDL4droid/aJkrLua_app/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI}/lib${cpyName}.so
-    # )
-
-    # add_custom_command(TARGET ${cpyName} POST_BUILD
-    #   COMMAND ${CMAKE_COMMAND} -E copy
-    #   ${CMAKE_JKRGUI_DIR}/libs/Android/liblua.so
-    #   ${CMAKE_JKRGUI_DIR}/SDL4droid/aJkrLua_app/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI}/liblua.so
-    # )
-  endif()
-endfunction()
 
 function(someFlags inName)
      set_property(TARGET ${inName} PROPERTY INTERPROCEDURAL_OPTIMIZATION True)

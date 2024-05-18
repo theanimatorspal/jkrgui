@@ -4,9 +4,8 @@ include("CMakeConfig.cmake")
 include("CMakeCommon.cmake")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-
 project("jkrengine")
-# Additional include directories based on platform
+find_package(JNI REQUIRED)
 
 # Add subdirectories for building
 add_subdirectory(vendor/lua)

@@ -142,6 +142,7 @@ bool SpirvHelper::GLSLtoSPV(const vk::ShaderStageFlagBits shader_type,
     if (!shader.parse(&Resources, 450, false, messages)) {
         puts(shader.getInfoLog());
         puts(shader.getInfoDebugLog());
+        fflush(stdout);
         return false; // something didn't work
     }
 

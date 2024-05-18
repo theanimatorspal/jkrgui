@@ -324,14 +324,32 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         return new SDLSurface(context);
     }
 
+    public void RunMain() {
+        // Initialize state
+        setContentView(mLayout);
+
+        setWindowStyle(false);
+
+        getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(this);
+
+        // Get filename from "Open with" of another application
+        Intent intent = getIntent();
+        if (intent != null && intent.getData() != null) {
+            String filename = intent.getData().getPath();
+            if (filename != null) {
+                Log.e(TAG, "Got filename: " + filename);
+                SDLActivity.onNativeDropFile(filename);
+            }
+        }
+    }
+
     // Setup
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         Log.e(TAG, "Device: " + Build.DEVICE);
         Log.e(TAG, "Model: " + Build.MODEL);
         Log.e(TAG, "onCreate()");
-        super.onCreate(savedInstanceState);
-
         try {
             Thread.currentThread().setName("SDLActivity");
         } catch (Exception e) {
@@ -390,8 +408,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
         // Set up JNI
         SDL.setupJNI();
-
-        // Initialize state
         SDL.initialize();
 
         // So we can call stuff from static callbacks
@@ -422,21 +438,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         } catch (Exception ignored) {
         }
 
-        setContentView(mLayout);
-
-        setWindowStyle(false);
-
-        getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(this);
-
-        // Get filename from "Open with" of another application
-        Intent intent = getIntent();
-        if (intent != null && intent.getData() != null) {
-            String filename = intent.getData().getPath();
-            if (filename != null) {
-                Log.e(TAG, "Got filename: " + filename);
-                SDLActivity.onNativeDropFile(filename);
-            }
-        }
     }
 
     protected void pauseNativeThread() {
