@@ -168,6 +168,12 @@ vec3 F_Schlick(float cosTheta, float metallic)
     vec3 F = F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
     return F;
 }
+
+vec3 F_Schlick(float cosTheta, vec3 F0)
+{
+	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
     ]]
 
     local F_SchlickR            = [[
@@ -362,6 +368,10 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
         return o.NewLine()
     end
 
+    o.DontAppend               = function(inStr)
+        return o -- do nothing
+    end
+
     o.Clear                    = function()
         o.str = ""
         return o
@@ -381,6 +391,7 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
         o.str = o.str .. string.format("#version %d", inVersion)
         o.NewLine()
         o.str = o.str .. "#extension GL_EXT_debug_printf : enable"
+        o.NewLine()
         return o.NewLine()
     end
 
@@ -773,7 +784,7 @@ PBR.IBLV = Engine.Shader()
 	vNormal = mat3(Push.model) * inNormal;
 	vUV = inUV;
 	vUV.t = 1.0 - inUV.t;
-	gl_Position =  ubo.projection * ubo.view * vec4(vWorldPos, 1.0);
+	gl_Position =  Ubo.proj * Ubo.view * vec4(vWorldPos, 1.0);
     ]]
     .GlslMainEnd()
     .str
@@ -787,82 +798,87 @@ PBR.IBLF = Engine.Shader()
     .Ubo()
     .Push()
     .Append [[
-struct PushConsts {
-          float roughness;
-          float metallic;
-          float specular;
-          float r;
-          float g;
-          float b;
-} material;
+    struct PushConsts {
+              float roughness;
+              float metallic;
+              float specular;
+              float r;
+              float g;
+              float b;
+    } material;
 
-material.roughness = Push.m2[0][0];
-material.metallic = Push.m2[0][1];
-material.specular = Push.m2[0][2];
-material.r = Push.m2[1][0];
-material.g = Push.m2[1][1];
-material.b = Push.m2[1][2];
-    ]]
+        ]]
     .uSamplerCubeMap(20, "samplerIrradiance")
     .uSampler2D(3, "samplerBRDFLUT")
     .uSamplerCubeMap(21, "prefilteredMap")
     .outFragColor()
     .PI()
-    .Append "#define ALBEDO vec3(material.r, material.g, material.b);"
+    .Append "#define ALBEDO vec3(material.r, material.g, material.b)"
+    .NewLine()
+    .Append "vec3 MaterialColor() {return vec3(material.r, material.g, material.b);}"
     .NewLine()
     .Uncharted2Tonemap()
     .D_GGX()
     .G_SchlicksmithGGX()
     .F_SchlickR()
+    .F_Schlick()
     .PrefilteredReflection()
     .SpecularContribution()
     .GlslMainBegin()
     .Append [[
-	vec3 N = normalize(inNormal);
-	vec3 V = normalize(ubo.camPos - vWorldPos);
-	vec3 R = reflect(-V, N);
 
-	float metallic = material.metallic;
-	float roughness = material.roughness;
+    material.roughness = Push.m2[0].x;
+    material.metallic = Push.m2[0].y;
+    material.specular = Push.m2[0].z;
+    material.r = Push.m2[1].x;
+    material.g = Push.m2[1].y;
+    material.b = Push.m2[1].z;
 
-	vec3 F0 = vec3(0.04);
-	F0 = mix(F0, ALBEDO, metallic);
+    vec3 N = normalize(vNormal);
+    vec3 V = normalize(Ubo.campos - vWorldPos);
+    vec3 R = reflect(-V, N);
 
-	vec3 Lo = vec3(0.0);
-	for(int i = 0; i < Ubo.lights.length(); i++) {
-		vec3 L = normalize(uboParams.lights[i].xyz - vWorldPos);
-		Lo += specularContribution(L, V, N, F0, metallic, roughness);
-	}
-	
-	vec2 brdf = texture(samplerBRDFLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
-	vec3 reflection = prefilteredReflection(R, roughness).rgb;	
-	vec3 irradiance = texture(samplerIrradiance, N).rgb;
+    float metallic = material.metallic;
+    float roughness = material.roughness;
 
-	// Diffuse based on irradiance
-	vec3 diffuse = irradiance * ALBEDO;	
+    vec3 F0 = vec3(0.04);
+    F0 = mix(F0, ALBEDO, metallic);
 
-	vec3 F = F_SchlickR(max(dot(N, V), 0.0), F0, roughness);
+    vec3 Lo = vec3(0.0);
+    for(int i = 0; i < Ubo.lights.length(); i++) {
+    	vec3 L = normalize(Ubo.lights[i].xyz - vWorldPos);
+    	Lo += SpecularContribution(L, V, N, F0, metallic, roughness);
+    }
 
-	// Specular reflectance
-	vec3 specular = reflection * (F * brdf.x + brdf.y);
+    vec2 brdf = texture(samplerBRDFLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+    vec3 reflection = PrefilteredReflection(R, roughness).rgb;	
+    vec3 irradiance = texture(samplerIrradiance, N).rgb;
 
-	// Ambient part
-	vec3 kD = 1.0 - F;
-	kD *= 1.0 - metallic;	
-	vec3 ambient = (kD * diffuse + specular);
-	
-	vec3 color = ambient + Lo;
+    // Diffuse based on irradiance
+    vec3 diffuse = irradiance * ALBEDO;	
 
-	// Tone mapping -- exposure = 0.5
-	color = Uncharted2Tonemap(color * 0.5);
-	color = color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
+    vec3 F = F_SchlickR(max(dot(N, V), 0.0), F0, roughness);
 
-	// Gamma correction gamma = 3.3
-	color = pow(color, vec3(1.0f / 3.3));
+    // Specular reflectance
+    vec3 specular = reflection * (F * brdf.x + brdf.y);
 
-	outFragColor = vec4(color, 1.0);
+    // Ambient part
+    vec3 kD = 1.0 - F;
+    kD *= 1.0 - metallic;	
+    vec3 ambient = (kD * diffuse + specular);
+
+    vec3 color = ambient + Lo;
+
+    // Tone mapping -- exposure = 0.5
+    color = Uncharted2Tonemap(color * 0.5);
+    color = color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
+
+    // Gamma correction gamma = 3.3
+    color = pow(color, vec3(1.0f / 3.3));
+
+    outFragColor = vec4(color, 1.0);
     ]]
-    .GlslMainEnd()
+    .GlslMainEnd().Print()
     .str
 
 
