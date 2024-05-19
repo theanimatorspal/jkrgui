@@ -32,6 +32,14 @@ class Simple3D {
                                    bool inShouldLoad
 
     );
+    void CompileWithCustomRenderPass(Jkr::Instance& inInstance,
+                                     Jkr::WindowMulT& inCompatibleWindow,
+                                     Jkr::VulkanRenderPassBase& inRenderPass,
+                                     std::string_view inFilename,
+                                     std::string_view inVertexShader,
+                                     std::string_view inFragmentShader,
+                                     std::string_view inComputeShader,
+                                     bool inShouldLoad);
     template <typename T>
     void Draw(Jkr::Window& inWindow,
               Shape& inShape3D,

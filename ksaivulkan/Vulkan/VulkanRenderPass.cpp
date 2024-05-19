@@ -212,3 +212,50 @@ VulkanRenderPass<RenderPassContext::MSAA>::VulkanRenderPass(const VulkanDevice& 
                                                 .setDependencyCount(SubpassDependencies.size())
                                                 .setDependencies(SubpassDependencies));
 }
+
+template <>
+VulkanRenderPass<RenderPassContext::BRDFLookUp>::VulkanRenderPass(const VulkanDevice& inDevice,
+                                                                  const VulkanImage& inColorImage)
+    : mDevice(inDevice.GetDeviceHandle()) {
+    vk::AttachmentDescription ColorAttachment =
+         vk::AttachmentDescription(vk::AttachmentDescriptionFlags(), inColorImage.GetImageFormat())
+              .setInitialLayout(vk::ImageLayout::eUndefined)
+              .setFinalLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
+              .setLoadOp(vk::AttachmentLoadOp::eClear)
+              .setStoreOp(vk::AttachmentStoreOp::eStore)
+              .setSamples(vk::SampleCountFlagBits::e1);
+    vk::AttachmentReference ColorAttachmentRef(0, vk::ImageLayout::eColorAttachmentOptimal);
+
+    vk::SubpassDescription SubPassDescription =
+         vk::SubpassDescription(vk::SubpassDescriptionFlags(), vk::PipelineBindPoint::eGraphics)
+              .setColorAttachmentCount(1)
+              .setPColorAttachments(&ColorAttachmentRef);
+    std::vector<vk::SubpassDependency> SubpassDependencies = {
+         vk::SubpassDependency()
+              .setSrcSubpass(VK_SUBPASS_EXTERNAL)
+              .setDstSubpass(0)
+              .setSrcStageMask(vk::PipelineStageFlagBits::eBottomOfPipe)
+              .setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
+              .setSrcAccessMask(vk::AccessFlagBits::eMemoryRead)
+              .setDstAccessMask(vk::AccessFlagBits::eColorAttachmentRead |
+                                vk::AccessFlagBits::eColorAttachmentWrite)
+              .setDependencyFlags(vk::DependencyFlagBits::eByRegion),
+
+         vk::SubpassDependency()
+              .setSrcSubpass(0)
+              .setDstSubpass(VK_SUBPASS_EXTERNAL)
+              .setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
+              .setDstStageMask(vk::PipelineStageFlagBits::eBottomOfPipe)
+              .setSrcAccessMask(vk::AccessFlagBits::eColorAttachmentRead |
+                                vk::AccessFlagBits::eColorAttachmentWrite)
+              .setDstAccessMask(vk::AccessFlagBits::eMemoryRead)
+              .setDependencyFlags(vk::DependencyFlagBits::eByRegion),
+    };
+    std::vector<vk::SubpassDescription> SubpassDescriptions       = {SubPassDescription};
+    std::vector<vk::AttachmentDescription> AttachmentDescriptions = {ColorAttachment};
+
+    mRenderPass = mDevice.createRenderPass(vk::RenderPassCreateInfo()
+                                                .setAttachments(AttachmentDescriptions)
+                                                .setSubpasses(SubpassDescriptions)
+                                                .setDependencies(SubpassDependencies));
+}

@@ -31,6 +31,7 @@ void Simple3D::Compile(Jkr::Instance& inInstance,
     mPainter = mu<Painter>(inInstance, inCompatibleWindow, *mPainterCache, mPipelineContext);
 }
 
+// TODO Remove this, and use the thing down below
 void Simple3D::CompileForShadowOffscreen(Jkr::Instance& inInstance,
                                          Jkr::WindowMulT& inCompatibleWindow,
                                          std::string_view inFilename,
@@ -40,8 +41,26 @@ void Simple3D::CompileForShadowOffscreen(Jkr::Instance& inInstance,
                                          bool inShouldLoad
 
 ) {
-    mPipelineContext = PipelineContext::Shadow;
-    mPainterCache    = mu<PainterCache>(inInstance);
+    mPipelineContext = ksai::PipelineContext::Shadow;
+    CompileWithCustomRenderPass(inInstance,
+                                inCompatibleWindow,
+                                inCompatibleWindow.GetShadowPass().GetRenderPass(),
+                                inFilename,
+                                inVertexShader,
+                                inFragmentShader,
+                                inComputeShader,
+                                inShouldLoad);
+}
+
+void Simple3D::CompileWithCustomRenderPass(Jkr::Instance& inInstance,
+                                           Jkr::WindowMulT& inCompatibleWindow,
+                                           Jkr::VulkanRenderPassBase& inRenderPass,
+                                           std::string_view inFilename,
+                                           std::string_view inVertexShader,
+                                           std::string_view inFragmentShader,
+                                           std::string_view inComputeShader,
+                                           bool inShouldLoad) {
+    mPainterCache = mu<PainterCache>(inInstance);
     using namespace std;
     if (not inShouldLoad) {
         mPainterCache->Store(string(inFilename),
@@ -51,8 +70,5 @@ void Simple3D::CompileForShadowOffscreen(Jkr::Instance& inInstance,
     } else {
         mPainterCache->Load(string(inFilename));
     }
-    mPainter = mu<Painter>(inInstance,
-                           inCompatibleWindow.GetShadowPass().GetRenderPass(),
-                           *mPainterCache,
-                           mPipelineContext);
+    mPainter = mu<Painter>(inInstance, inRenderPass, *mPainterCache, mPipelineContext);
 }

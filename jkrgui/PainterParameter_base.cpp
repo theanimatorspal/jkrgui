@@ -108,14 +108,15 @@ void Jkr::PainterParameterBase::SetupUniformImage(Up<VulkanSampler>& inUniformIm
     //     VulkanCommandPool Pool(mInstance.GetDevice(),
     //     mInstance.GetGraphicsQueue().GetQueueContext()); VulkanCommandBuffer
     //     Cmd(mInstance.GetDevice(), Pool); VulkanFence Fence(mInstance.GetDevice());
-
-    inUniformImage->SubmitImmediateCmdCopyFromData(mInstance.GetGraphicsQueue(),
-                                                   mInstance.GetUtilCommandBuffer(),
-                                                   mInstance.GetDevice(),
-                                                   mInstance.GetUtilCommandBufferFence(),
-                                                   inData,
-                                                   inWidth * inHeight * inChannelCount);
-    mInstance.GetDevice().Wait();
+    if (inData) {
+        inUniformImage->SubmitImmediateCmdCopyFromData(mInstance.GetGraphicsQueue(),
+                                                       mInstance.GetUtilCommandBuffer(),
+                                                       mInstance.GetDevice(),
+                                                       mInstance.GetUtilCommandBufferFence(),
+                                                       inData,
+                                                       inWidth * inHeight * inChannelCount);
+        mInstance.GetDevice().Wait();
+    }
 }
 
 void Jkr::PainterParameterBase::SetupUniformImage(Up<VulkanSampler>& inUniformImageSampler,
