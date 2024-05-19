@@ -12,12 +12,12 @@ class PainterParameter<PainterParameterContext::StorageBuffer> : public PainterP
     GETTER& GetStorageBuffer() const { return *mStorageBufferPtr; }
     GETTER& GetStorageMappedMemoryRegion() { return mStorageBufferCoherentMemoryMappedRegion; }
     void Setup(vk::DeviceSize inStorageBufferSize) {
-        PainterParameterBase::Setup(mStorageBufferPtr, inStorageBufferSize);
+        PainterParameterBase::SetupStorageBuffer(mStorageBufferPtr, inStorageBufferSize);
     }
     void SetupCoherent(vk::DeviceSize inStorageBufferSize) {
-        PainterParameterBase::Setup(mStorageBufferCoherentPtr,
-                                    inStorageBufferSize,
-                                    &mStorageBufferCoherentMemoryMappedRegion);
+        PainterParameterBase::SetupStorageBufferCoherent(mStorageBufferCoherentPtr,
+                                                         inStorageBufferSize,
+                                                         &mStorageBufferCoherentMemoryMappedRegion);
     }
     void Register(vk::DeviceSize inOffset,
                   uint32_t inDstBinding,
@@ -61,7 +61,7 @@ class PainterParameter<PainterParameterContext::UniformBuffer> : public PainterP
     GETTER& GetUniformBuffer() const { return *mUniformBufferPtr; }
     GETTER GetUniformBufferSize() const { return mSize; }
     void Setup(vk::DeviceSize inUniformBufferSize) {
-        PainterParameterBase::Setup(
+        PainterParameterBase::SetupUniformBuffer(
              mUniformBufferPtr, inUniformBufferSize, &mUniformMappedMemoryRegion);
         mSize = inUniformBufferSize;
     }

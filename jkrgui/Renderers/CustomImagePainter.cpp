@@ -99,8 +99,11 @@ std::vector<int> CustomPainterImage::GetImageToVector(const Instance& inInstance
     auto ImageExtent = mPainterParam->GetStorageImage().GetImageExtent();
     auto Size        = ImageChannels * ImageExtent.width * ImageExtent.height;
     uint32_t size    = ImageChannels * ImageExtent.width * ImageExtent.height;
-    VulkanBufferVMA<BufferContext::Storage, MemoryType::HostVisibleAndCoherenet> Buffer(
-         inInstance.GetVMA(), inInstance.GetDevice(), size);
+    VulkanBufferVMA Buffer(inInstance.GetVMA(),
+                           inInstance.GetDevice(),
+                           size,
+                           BufferContext::Storage,
+                           MemoryType::HostVisibleAndCoherenet);
     Buffer.SubmitImmediateCmdCopyFromImage(
          inInstance.GetGraphicsQueue(),
          inWindow.GetCommandBuffers(Jkr::Window::None)[inWindow.GetCurrentFrame()],

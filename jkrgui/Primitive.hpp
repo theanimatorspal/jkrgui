@@ -5,10 +5,8 @@
 
 namespace Jkr {
 class Primitive {
-    using VertexBufferType =
-         VulkanBufferVMA<BufferContext::Vertex, MemoryType::HostVisibleAndHostCached>;
-    using IndexBufferType =
-         VulkanBufferVMA<BufferContext::Index, MemoryType::HostVisibleAndHostCached>;
+    using VertexBufferType = VulkanBufferVMA;
+    using IndexBufferType  = VulkanBufferVMA;
 
     public:
     Primitive(const Instance& inInstance);

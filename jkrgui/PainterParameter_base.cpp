@@ -3,25 +3,35 @@
 
 std::mutex Jkr::PainterParameterBase::mMutex;
 
-void Jkr::PainterParameterBase::Setup(Up<StorageBufferType>& inStorageBuffer,
-                                      vk::DeviceSize inDeviceSize) {
-    inStorageBuffer =
-         MakeUp<StorageBufferType>(mInstance.GetVMA(), mInstance.GetDevice(), inDeviceSize);
+void Jkr::PainterParameterBase::SetupStorageBuffer(Up<StorageBufferType>& inStorageBuffer,
+                                                   vk::DeviceSize inDeviceSize) {
+    inStorageBuffer = MakeUp<StorageBufferType>(mInstance.GetVMA(),
+                                                mInstance.GetDevice(),
+                                                inDeviceSize,
+                                                ksai::BufferContext::Storage,
+                                                ksai::MemoryType::DeviceLocal);
 }
 
-void Jkr::PainterParameterBase::Setup(Up<UniformBufferType>& inUniformBuffer,
-                                      vk::DeviceSize inDeviceSize,
-                                      void** inMappedMemoryRegion) {
-    inUniformBuffer =
-         MakeUp<UniformBufferType>(mInstance.GetVMA(), mInstance.GetDevice(), inDeviceSize);
+void Jkr::PainterParameterBase::SetupUniformBuffer(Up<UniformBufferType>& inUniformBuffer,
+                                                   vk::DeviceSize inDeviceSize,
+                                                   void** inMappedMemoryRegion) {
+    inUniformBuffer = MakeUp<UniformBufferType>(mInstance.GetVMA(),
+                                                mInstance.GetDevice(),
+                                                inDeviceSize,
+                                                ksai::BufferContext::Uniform,
+                                                ksai::MemoryType::HostVisibleAndCoherenet);
     inUniformBuffer->MapMemoryRegion(inMappedMemoryRegion);
 }
 
-void Jkr::PainterParameterBase::Setup(Up<StorageBufferTypeCoherent>& inStorageBuffer,
-                                      vk::DeviceSize inDeviceSize,
-                                      void** inMappedMemoryRegion) {
-    inStorageBuffer =
-         MakeUp<StorageBufferTypeCoherent>(mInstance.GetVMA(), mInstance.GetDevice(), inDeviceSize);
+void Jkr::PainterParameterBase::SetupStorageBufferCoherent(
+     Up<StorageBufferTypeCoherent>& inStorageBuffer,
+     vk::DeviceSize inDeviceSize,
+     void** inMappedMemoryRegion) {
+    inStorageBuffer = MakeUp<StorageBufferTypeCoherent>(mInstance.GetVMA(),
+                                                        mInstance.GetDevice(),
+                                                        inDeviceSize,
+                                                        ksai::BufferContext::Storage,
+                                                        ksai::MemoryType::HostVisibleAndCoherenet);
     inStorageBuffer->MapMemoryRegion(inMappedMemoryRegion);
 }
 

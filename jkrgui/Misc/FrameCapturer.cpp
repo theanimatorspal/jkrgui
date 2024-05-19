@@ -6,8 +6,11 @@ void FrameCapturer::Refresh() {
     ui ImageChannels    = 4;
     auto ImageExtent    = mWindow.GetSwapChainImages().front().GetImageExtent();
     auto Size           = ImageChannels * ImageExtent.width * ImageExtent.height;
-    mMousePickingBuffer = MakeUp<MousePickingBufferType>(
-         mWindow.GetInstance().GetVMA(), mWindow.GetInstance().GetDevice(), Size);
+    mMousePickingBuffer = MakeUp<MousePickingBufferType>(mWindow.GetInstance().GetVMA(),
+                                                         mWindow.GetInstance().GetDevice(),
+                                                         Size,
+                                                         ksai::BufferContext::Storage,
+                                                         ksai::MemoryType::HostVisibleAndCoherenet);
     mMousePickingBuffer->MapMemoryRegion(&mMappedMemory);
 }
 

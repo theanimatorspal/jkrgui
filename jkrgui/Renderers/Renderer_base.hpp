@@ -17,8 +17,7 @@ class Renderer_base {
     const ui RendererCapacityResizeFactor    = 2;
 
     public:
-    using StagingBuffer =
-         Jkr::VulkanBufferVMA<BufferContext::Staging, MemoryType::HostVisibleAndHostCached>;
+    using StagingBuffer = Jkr::VulkanBufferVMA;
 #ifndef JKR_NO_STAGING_BUFFERS
     private:
     Up<StagingBuffer> mStagingVertexBuffer;

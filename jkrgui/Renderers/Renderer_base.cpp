@@ -4,8 +4,11 @@
 void Jkr::Renderer::Renderer_base::CreateStagingBuffers(const Instance& inInstance,
                                                         size_t inVertexStagingBufferSizeInBytes,
                                                         size_t inIndexStagingBufferSizeInBytes) {
-    mStagingVertexBuffer = MakeUp<StagingBuffer>(
-         inInstance.GetVMA(), inInstance.GetDevice(), inVertexStagingBufferSizeInBytes);
+    mStagingVertexBuffer = MakeUp<StagingBuffer>(inInstance.GetVMA(),
+                                                 inInstance.GetDevice(),
+                                                 inVertexStagingBufferSizeInBytes,
+                                                 ksai::BufferContext::Staging,
+                                                 ksai::MemoryType::HostVisibleAndHostCached);
     mStagingVertexBuffer->MapMemoryRegion(&mVertexStagingBufferMemoryMapPtr);
     mStagingIndexBuffer = MakeUp<StagingBuffer>(
          inInstance.GetVMA(), inInstance.GetDevice(), inIndexStagingBufferSizeInBytes);

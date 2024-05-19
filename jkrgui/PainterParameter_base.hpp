@@ -20,19 +20,16 @@ enum class PainterParameterContext {
     UniformSampler
 };
 
-using StorageBufferType = VulkanBufferVMA<BufferContext::Storage, MemoryType::DeviceLocal>;
-using StorageBufferTypeCoherent =
-     VulkanBufferVMA<BufferContext::Storage, MemoryType::HostVisibleAndCoherenet>;
-using UniformBufferType =
-     VulkanBufferVMA<BufferContext::Uniform, MemoryType::HostVisibleAndCoherenet>;
-using StorageAndUniform  = VulkanBufferVMA<BufferContext::Storage | BufferContext::Uniform,
-                                           MemoryType::HostVisibleAndCoherenet>;
-using StorageImageType   = VulkanImageVMA<ImageContext::Storage>;
-using UniformImageType   = VulkanImageVMA<ImageContext::Default>;
-using SkyboxImageType    = VulkanImageVMA<ImageContext::CubeCompatible>;
-using DepthImageType     = VulkanImageVMA<ImageContext::DepthImage>;
-using StorageBufferType  = VulkanBufferVMA<BufferContext::Storage, MemoryType::DeviceLocal>;
-using UniformSamplerType = VulkanSampler;
+using StorageBufferType         = VulkanBufferVMA;
+using StorageBufferTypeCoherent = VulkanBufferVMA;
+using UniformBufferType         = VulkanBufferVMA;
+using StorageAndUniform         = VulkanBufferVMA;
+using StorageImageType          = VulkanImageVMA<ImageContext::Storage>;
+using UniformImageType          = VulkanImageVMA<ImageContext::Default>;
+using SkyboxImageType           = VulkanImageVMA<ImageContext::CubeCompatible>;
+using DepthImageType            = VulkanImageVMA<ImageContext::DepthImage>;
+using StorageBufferType         = VulkanBufferVMA;
+using UniformSamplerType        = VulkanSampler;
 
 class PainterParameterBase {
     public:
@@ -42,13 +39,13 @@ class PainterParameterBase {
     PainterParameterBase(PainterParameterBase&& inParam) = default;
 
     public:
-    void Setup(Up<StorageBufferType>& inStorageBuffer, vk::DeviceSize inDeviceSize);
-    void Setup(Up<UniformBufferType>& inUniformBuffer,
-               vk::DeviceSize inDeviceSize,
-               void** inMappedMemoryRegion);
-    void Setup(Up<StorageBufferTypeCoherent>& inUniformBuffer,
-               vk::DeviceSize inDeviceSize,
-               void** inMappedMemoryRegion);
+    void SetupStorageBuffer(Up<StorageBufferType>& inStorageBuffer, vk::DeviceSize inDeviceSize);
+    void SetupUniformBuffer(Up<UniformBufferType>& inUniformBuffer,
+                            vk::DeviceSize inDeviceSize,
+                            void** inMappedMemoryRegion);
+    void SetupStorageBufferCoherent(Up<StorageBufferTypeCoherent>& inUniformBuffer,
+                                    vk::DeviceSize inDeviceSize,
+                                    void** inMappedMemoryRegion);
     void Setup(Up<VulkanSampler>& inStorageImageSampler,
                Up<StorageImageType>& inStorageImage,
                uint32_t inWidth,
