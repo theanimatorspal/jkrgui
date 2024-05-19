@@ -48,7 +48,7 @@ class VulkanSwapChainBase {
 } // namespace ksai
 
 namespace ksai {
-using VulkanImages = VulkanImage<ImageContext::ExternalHandled>;
+using VulkanImages = VulkanImageExternalHandled;
 class VulkanSwapChain : public VulkanSwapChainBase {
     public:
     VulkanSwapChain(const VulkanDevice& inDevice,

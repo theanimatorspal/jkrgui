@@ -3,6 +3,7 @@
 #include "VulkanQueue.hpp"
 
 namespace ksai {
+
 class VulkanCommandBuffer;
 class VulkanImageBase {
     public:
@@ -64,26 +65,27 @@ class VulkanImageBase {
     ImageProperties mImageProperties;
     bool mDestroyImageView = true;
 };
-} // namespace ksai
 
-namespace ksai {
-template <ImageContext inImageContext> class VulkanImage : public VulkanImageBase {
+class VulkanImage : public VulkanImageBase {
     public:
     VulkanImage& operator=(VulkanImage&& Other) noexcept {
         ExplicitDestroy();
         MoveMembers(Other);
         return *this;
     }
-    void MoveMembers(ksai::VulkanImage<inImageContext>& Other);
-    VulkanImage();
+    void MoveMembers(ksai::VulkanImage& Other);
     ~VulkanImage() { ExplicitDestroy(); }
-    VulkanImage(const VulkanDevice& inDevice);
-    VulkanImage(const VulkanDevice& inDevice, ui inWidth, ui inHeight);
-    VulkanImage(const VulkanDevice& inDevice, const VulkanSurface& inSurface, ui inMSAASamples = 1);
+    VulkanImage(const VulkanDevice& inDevice, ImageContext inImageContext);
+    VulkanImage(const VulkanDevice& inDevice, ui inWidth, ui inHeight, ImageContext inImageContext);
+    VulkanImage(const VulkanDevice& inDevice,
+                const VulkanSurface& inSurface,
+                ui inMSAASamples            = 1,
+                ImageContext inImageContext = ImageContext::Default);
     VulkanImage(const VulkanDevice& inDevice,
                 const VulkanSurface& inSurface,
                 const vk::Image& inImage,
-                vk::ImageView& inImageView);
+                vk::ImageView& inImageView,
+                ImageContext inImageContext);
 
     private:
     void ExplicitDestroy();
@@ -91,97 +93,14 @@ template <ImageContext inImageContext> class VulkanImage : public VulkanImageBas
     private:
     vk::DeviceMemory mDeviceMemory;
 };
-} // namespace ksai
 
-namespace ksai {
-// TODO Rethink This
-template <> class VulkanImage<ImageContext::ExternalHandled> : public VulkanImageBase {
+class VulkanImageExternalHandled : public VulkanImageBase {
     public:
-    VulkanImage(const VulkanDevice& inDevice,
-                const VulkanSurface& inSurface,
-                vk::Image inImage,
-                vk::ImageView inImageView);
-    ~VulkanImage() = default;
+    VulkanImageExternalHandled(const VulkanDevice& inDevice,
+                               const VulkanSurface& inSurface,
+                               vk::Image inImage,
+                               vk::ImageView inImageView);
+    ~VulkanImageExternalHandled() = default;
 };
-} // namespace ksai
 
-namespace ksai {
-template <ImageContext inImageContext>
-inline void VulkanImage<inImageContext>::MoveMembers(ksai::VulkanImage<inImageContext>& Other) {
-    mImage                   = std::move(Other.mImage);
-    mImageView               = std::move(Other.mImageView);
-    mDeviceMemory            = std::move(Other.mDeviceMemory);
-    mImageProperties.mExtent = std::move(Other.mImageProperties.mExtent);
-    Other.mImage             = nullptr;
-    Other.mImageView         = nullptr;
-    Other.mDeviceMemory      = nullptr;
-}
-template <ImageContext inImageContext> inline VulkanImage<inImageContext>::VulkanImage() {}
-
-template <ImageContext inImageContext>
-inline VulkanImage<inImageContext>::VulkanImage(const VulkanDevice& inDevice)
-    : VulkanImageBase(inDevice) {
-    FillImageProperties(inImageContext);
-    CreateImageAndBindMemory(mImage, mDeviceMemory);
-    CreateImageView(mImage);
-}
-
-template <ImageContext inImageContext>
-inline VulkanImage<inImageContext>::VulkanImage(const VulkanDevice& inDevice,
-                                                ui inWidth,
-                                                ui inHeight)
-    : VulkanImageBase(inDevice) {
-    FillImageProperties(inImageContext);
-    mImageProperties.mExtent.width  = inWidth;
-    mImageProperties.mExtent.height = inHeight;
-    CreateImageAndBindMemory(mImage, mDeviceMemory);
-    CreateImageView(mImage);
-}
-
-template <ImageContext inImageContext>
-inline VulkanImage<inImageContext>::VulkanImage(const VulkanDevice& inDevice,
-                                                const VulkanSurface& inSurface,
-                                                ui inMSAASamples)
-    : VulkanImageBase(inDevice) {
-    FillImageProperties(inImageContext, inMSAASamples);
-    mImageProperties.mExtent = inSurface.GetExtent();
-    CreateImageAndBindMemory(mImage, mDeviceMemory);
-    CreateImageView(mImage);
-}
-
-template <ImageContext inImageContext>
-inline VulkanImage<inImageContext>::VulkanImage(const VulkanDevice& inDevice,
-                                                const VulkanSurface& inSurface,
-                                                const vk::Image& inImage,
-                                                vk::ImageView& inImageView)
-    : VulkanImageBase(inDevice) {
-    mImageProperties.mExtent = inSurface.GetExtent();
-    mImage                   = inImage;
-    mImageView               = inImageView;
-}
-
-template <ImageContext inImageContext> inline void VulkanImage<inImageContext>::ExplicitDestroy() {
-    if (mImage) {
-        mDevice.waitIdle();
-        mDevice.destroyImage(mImage);
-        mDevice.destroyImageView(mImageView);
-        mDevice.freeMemory(mDeviceMemory);
-        mImage        = nullptr;
-        mImageView    = nullptr;
-        mDeviceMemory = nullptr;
-    }
-}
-
-} // namespace ksai
-
-namespace ksai {
-inline VulkanImage<ImageContext::ExternalHandled>::VulkanImage(const VulkanDevice& inDevice,
-                                                               const VulkanSurface& inSurface,
-                                                               vk::Image inImage,
-                                                               vk::ImageView inImageView)
-    : VulkanImageBase(inDevice, false) {
-    mImageProperties.mExtent = inSurface.GetExtent();
-    mImage                   = inImage;
-    mImageView               = inImageView;
-}
 } // namespace ksai

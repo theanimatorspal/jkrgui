@@ -22,12 +22,12 @@ class VulkanRenderPass : public VulkanRenderPassBase {
     VulkanRenderPass(const VulkanDevice& inDevice) : mDevice(inDevice.GetDeviceHandle()) {}
     VulkanRenderPass(const VulkanDevice& inDevice,
                      const VulkanSurface& inSurface,
-                     const VulkanImage<ImageContext::DepthImage>& inDepthImage);
+                     const VulkanImage& inDepthImage);
     VulkanRenderPass(const VulkanDevice& inDevice, const VulkanImageBase& inDepthImage);
     VulkanRenderPass(const VulkanDevice& inDevice,
                      const VulkanSurface& inSurface,
-                     const VulkanImage<ImageContext::ColorAttach>& inColorImageTarget,
-                     const VulkanImage<ImageContext::DepthImage>& inDepthImage,
+                     const VulkanImage& inColorImageTarget,
+                     const VulkanImage& inDepthImage,
                      vk::SampleCountFlagBits inMSAASamples);
     ~VulkanRenderPass() { mDevice.destroyRenderPass(mRenderPass); }
 

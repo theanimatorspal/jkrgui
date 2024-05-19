@@ -322,3 +322,76 @@ void VulkanImageBase::FillImageProperties(ImageContext inImageContext, uint32_t 
             break;
     }
 }
+
+void VulkanImage::MoveMembers(ksai::VulkanImage& Other) {
+    mImage                   = std::move(Other.mImage);
+    mImageView               = std::move(Other.mImageView);
+    mDeviceMemory            = std::move(Other.mDeviceMemory);
+    mImageProperties.mExtent = std::move(Other.mImageProperties.mExtent);
+    Other.mImage             = nullptr;
+    Other.mImageView         = nullptr;
+    Other.mDeviceMemory      = nullptr;
+}
+
+VulkanImage::VulkanImage(const VulkanDevice& inDevice, ImageContext inImageContext)
+    : VulkanImageBase(inDevice) {
+    FillImageProperties(inImageContext);
+    CreateImageAndBindMemory(mImage, mDeviceMemory);
+    CreateImageView(mImage);
+}
+
+VulkanImage::VulkanImage(const VulkanDevice& inDevice,
+                         ui inWidth,
+                         ui inHeight,
+                         ImageContext inImageContext)
+    : VulkanImageBase(inDevice) {
+    FillImageProperties(inImageContext);
+    mImageProperties.mExtent.width  = inWidth;
+    mImageProperties.mExtent.height = inHeight;
+    CreateImageAndBindMemory(mImage, mDeviceMemory);
+    CreateImageView(mImage);
+}
+
+VulkanImage::VulkanImage(const VulkanDevice& inDevice,
+                         const VulkanSurface& inSurface,
+                         ui inMSAASamples,
+                         ImageContext inImageContext)
+    : VulkanImageBase(inDevice) {
+    FillImageProperties(inImageContext, inMSAASamples);
+    mImageProperties.mExtent = inSurface.GetExtent();
+    CreateImageAndBindMemory(mImage, mDeviceMemory);
+    CreateImageView(mImage);
+}
+
+VulkanImage::VulkanImage(const VulkanDevice& inDevice,
+                         const VulkanSurface& inSurface,
+                         const vk::Image& inImage,
+                         vk::ImageView& inImageView,
+                         ImageContext inImageContext)
+    : VulkanImageBase(inDevice) {
+    mImageProperties.mExtent = inSurface.GetExtent();
+    mImage                   = inImage;
+    mImageView               = inImageView;
+}
+
+void VulkanImage::ExplicitDestroy() {
+    if (mImage) {
+        mDevice.waitIdle();
+        mDevice.destroyImage(mImage);
+        mDevice.destroyImageView(mImageView);
+        mDevice.freeMemory(mDeviceMemory);
+        mImage        = nullptr;
+        mImageView    = nullptr;
+        mDeviceMemory = nullptr;
+    }
+}
+
+VulkanImageExternalHandled::VulkanImageExternalHandled(const VulkanDevice& inDevice,
+                                                       const VulkanSurface& inSurface,
+                                                       vk::Image inImage,
+                                                       vk::ImageView inImageView)
+    : VulkanImageBase(inDevice, false) {
+    mImageProperties.mExtent = inSurface.GetExtent();
+    mImage                   = inImage;
+    mImageView               = inImageView;
+}

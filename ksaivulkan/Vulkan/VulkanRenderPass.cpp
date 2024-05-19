@@ -6,10 +6,9 @@ template <RenderPassContext T> using vr = VulkanRenderPass<T>;
 
 // TODO Uniformize Parameters in these functions
 template <>
-VulkanRenderPass<RenderPassContext::Default>::VulkanRenderPass(
-     const VulkanDevice& inDevice,
-     const VulkanSurface& inSurface,
-     const VulkanImage<ImageContext::DepthImage>& inDepthImage)
+VulkanRenderPass<RenderPassContext::Default>::VulkanRenderPass(const VulkanDevice& inDevice,
+                                                               const VulkanSurface& inSurface,
+                                                               const VulkanImage& inDepthImage)
     : mDevice(inDevice.GetDeviceHandle()) {
     vk::Format SurfaceSwapChainFormat = inSurface.GetSurfaceImageFormat();
     vk::Format DepthImageFormat       = inDepthImage.GetImageFormat();
@@ -126,12 +125,11 @@ VulkanRenderPass<RenderPassContext::Shadow>::VulkanRenderPass(const VulkanDevice
 }
 
 template <>
-VulkanRenderPass<RenderPassContext::MSAA>::VulkanRenderPass(
-     const VulkanDevice& inDevice,
-     const VulkanSurface& inSurface,
-     const VulkanImage<ImageContext::ColorAttach>& inColorImageTarget,
-     const VulkanImage<ImageContext::DepthImage>& inDepthImage,
-     vk::SampleCountFlagBits inMSAASamples)
+VulkanRenderPass<RenderPassContext::MSAA>::VulkanRenderPass(const VulkanDevice& inDevice,
+                                                            const VulkanSurface& inSurface,
+                                                            const VulkanImage& inColorImageTarget,
+                                                            const VulkanImage& inDepthImage,
+                                                            vk::SampleCountFlagBits inMSAASamples)
     : mDevice(inDevice.GetDeviceHandle()) {
     vk::Format SurfaceSwapChainFormat = inSurface.GetSurfaceImageFormat();
     vk::Format DepthImageFormat       = inDepthImage.GetImageFormat();

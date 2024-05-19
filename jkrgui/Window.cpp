@@ -8,8 +8,8 @@ Jkr::Window::Window(const Instance& inInstance, std::string_view inTitle, int in
                  mInstance.GetQueueContext(),
                  mSurface.ProcessCurrentSurfaceConditions(mInstance.GetPhysicalDevice())
                       .ProcessCurrentSurfaceExtents(mInstance.GetPhysicalDevice())),
-      mColorImageRenderTarget(mInstance.GetDevice(), mSurface, 4),
-      mDepthImage(mInstance.GetDevice(), mSurface, 4) // Here
+      mColorImageRenderTarget(mInstance.GetDevice(), mSurface, 4, ImageContext::ColorAttach),
+      mDepthImage(mInstance.GetDevice(), mSurface, 4, ImageContext::DepthImage) // Here
       ,
       mRenderPass(mInstance.GetDevice(),
                   mSurface,

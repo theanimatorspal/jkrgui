@@ -47,7 +47,7 @@ v<VulkanImages> VulkanSwapChain::GetVulkanImages(const VulkanDevice& inDevice,
                                                  const VulkanSurface& inSurface) {
     v<VulkanImages> Vectors;
     for (int i = 0; i < mSwapChainImageViews.size(); i++) {
-        auto Image = VulkanImage<ImageContext::ExternalHandled>(
+        auto Image = VulkanImageExternalHandled(
              inDevice, inSurface, mSwapChainImages[i], mSwapChainImageViews[i]);
         Vectors.push_back(std::move(Image));
     }

@@ -11,11 +11,9 @@ class Window : public SDLWindow {
     static const int mMaxFramesInFlight = 2;
 
     public:
-    using SwapChainVulkanImages = std::vector<VulkanImage<ImageContext::ExternalHandled>>;
-    using FrameBufferType       = VulkanFrameBuffer<3,
-                                                    VulkanImage<ImageContext::ColorAttach>,
-                                                    VulkanImage<ImageContext::DepthImage>,
-                                                    VulkanImage<ImageContext::ExternalHandled>>;
+    using SwapChainVulkanImages = std::vector<ksai::VulkanImageExternalHandled>;
+    using FrameBufferType =
+         VulkanFrameBuffer<3, VulkanImage, VulkanImage, VulkanImageExternalHandled>;
     enum ParameterContext : int { None = -3, UI = -1, Background = -1 };
 
     public:
@@ -51,8 +49,8 @@ class Window : public SDLWindow {
     const Instance& mInstance;
     VulkanSurface mSurface;
     VulkanSwapChain mSwapChain;
-    VulkanImage<ImageContext::ColorAttach> mColorImageRenderTarget;
-    VulkanImage<ImageContext::DepthImage> mDepthImage;
+    VulkanImage mColorImageRenderTarget;
+    VulkanImage mDepthImage;
     VulkanRenderPass<RenderPassContext::MSAA> mRenderPass;
     SwapChainVulkanImages mSwapChainImages;
     std::vector<up<FrameBufferType>> mFrameBuffers;

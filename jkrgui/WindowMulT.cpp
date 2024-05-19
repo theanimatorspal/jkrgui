@@ -36,8 +36,8 @@ void Jkr::WindowMulT::Refresh() {
          VulkanSwapChain(mInstance.GetDevice(), mInstance.GetQueueContext(), mSurface, mSwapChain);
     mSwapChainImages = mSwapChain.GetVulkanImages(mInstance.GetDevice(), mSurface);
     mColorImageRenderTarget =
-         VulkanImage<ImageContext::ColorAttach>(mInstance.GetDevice(), mSurface, 4);
-    mDepthImage = VulkanImage<ImageContext::DepthImage>(mInstance.GetDevice(), mSurface, 4);
+         VulkanImage(mInstance.GetDevice(), mSurface, 4, ImageContext::ColorAttach);
+    mDepthImage = VulkanImage(mInstance.GetDevice(), mSurface, 4, ImageContext::DepthImage);
 
     for (int i = 0; i < mSwapChainImages.size(); i++) {
         mFrameBuffers[i] = MakeUp<FrameBufferType>(mInstance.GetDevice(),
