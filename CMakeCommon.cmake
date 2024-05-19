@@ -33,6 +33,10 @@ target_precompile_headers ( ${TARGET_NAME}
         <cstdint>
         <sol/sol.hpp>
         <vulkan/vulkan.hpp>
+        <glm/glm.hpp>
+        <glm/fwd.hpp>
+        <glm/gtc/matrix_transform.hpp>
+        <glm/gtx/matrix_decompose.hpp>
 )
 endfunction()
 
