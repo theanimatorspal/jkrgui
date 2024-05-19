@@ -24,10 +24,10 @@ using StorageBufferType         = VulkanBufferVMA;
 using StorageBufferTypeCoherent = VulkanBufferVMA;
 using UniformBufferType         = VulkanBufferVMA;
 using StorageAndUniform         = VulkanBufferVMA;
-using StorageImageType          = VulkanImageVMA<ImageContext::Storage>;
-using UniformImageType          = VulkanImageVMA<ImageContext::Default>;
-using SkyboxImageType           = VulkanImageVMA<ImageContext::CubeCompatible>;
-using DepthImageType            = VulkanImageVMA<ImageContext::DepthImage>;
+using StorageImageType          = VulkanImageVMA;
+using UniformImageType          = VulkanImageVMA;
+using SkyboxImageType           = VulkanImageVMA;
+using DepthImageType            = VulkanImageVMA;
 using StorageBufferType         = VulkanBufferVMA;
 using UniformSamplerType        = VulkanSampler;
 
@@ -46,29 +46,29 @@ class PainterParameterBase {
     void SetupStorageBufferCoherent(Up<StorageBufferTypeCoherent>& inUniformBuffer,
                                     vk::DeviceSize inDeviceSize,
                                     void** inMappedMemoryRegion);
-    void Setup(Up<VulkanSampler>& inStorageImageSampler,
-               Up<StorageImageType>& inStorageImage,
-               uint32_t inWidth,
-               uint32_t inHeight);
-    void Setup(Up<VulkanSampler>& inUniformImageSampler,
-               Up<UniformImageType>& inUniformImage,
-               const std::string_view inFileName);
-    void Setup(Up<VulkanSampler>& inDepthImageSampler,
-               Up<DepthImageType>& inDepthImage,
-               uint32_t inWidth,
-               uint32_t inHeight);
-    void Setup(Up<VulkanSampler>& inUniformImageSampler,
-               Up<UniformImageType>& inUniformImage,
-               std::vector<s> inFileNames);
-    void Setup(Up<VulkanSampler>& inUniformImageSampler,
-               Up<UniformImageType>& inUniformImage,
-               void** inData,
-               uint32_t inWidth,
-               uint32_t inHeight,
-               uint32_t inChannelCount);
-    void Setup(Up<VulkanSampler>& inUnifromImageSampler,
-               Up<SkyboxImageType>& inSkyboxImage,
-               std::vector<s> inFileNames);
+    void SetupStorageImage(Up<VulkanSampler>& inStorageImageSampler,
+                           Up<StorageImageType>& inStorageImage,
+                           uint32_t inWidth,
+                           uint32_t inHeight);
+    void SetupUniformImage(Up<VulkanSampler>& inUniformImageSampler,
+                           Up<UniformImageType>& inUniformImage,
+                           const std::string_view inFileName);
+    void SetupDepthImage(Up<VulkanSampler>& inDepthImageSampler,
+                         Up<DepthImageType>& inDepthImage,
+                         uint32_t inWidth,
+                         uint32_t inHeight);
+    void SetupUniformImage(Up<VulkanSampler>& inUniformImageSampler,
+                           Up<UniformImageType>& inUniformImage,
+                           std::vector<s> inFileNames);
+    void SetupUniformImage(Up<VulkanSampler>& inUniformImageSampler,
+                           Up<UniformImageType>& inUniformImage,
+                           void** inData,
+                           uint32_t inWidth,
+                           uint32_t inHeight,
+                           uint32_t inChannelCount);
+    void SetupSkyboxImage(Up<VulkanSampler>& inUnifromImageSampler,
+                          Up<SkyboxImageType>& inSkyboxImage,
+                          std::vector<s> inFileNames);
 
     protected:
     const Instance& mInstance;
@@ -76,49 +76,10 @@ class PainterParameterBase {
     static std::mutex mMutex;
 
     private:
-    template <typename T>
     void SetupImage(Up<VulkanSampler>& inUniformImageSampler,
-                    Up<T>& inUniformImage,
-                    std::vector<s> inFileNames);
+                    Up<VulkanImageVMA>& inUniformImage,
+                    std::vector<s> inFileNames,
+                    ImageContext inImageContext);
 };
 
-template <typename T>
-inline void PainterParameterBase::SetupImage(Up<VulkanSampler>& inUniformImageSampler,
-                                             Up<T>& inUniformImage,
-                                             std::vector<s> inFileNames) {
-    int Width;
-    int Height;
-    int Channels;
-
-    std::vector<void*> Datas;
-    Datas.reserve(inFileNames.size());
-    std::vector<void**> Datas_ptr;
-    Datas_ptr.reserve(inFileNames.size());
-    for (int i = 0; auto& u : inFileNames) {
-        Datas.push_back(stbi_load(u.data(), &Width, &Height, &Channels, STBI_rgb_alpha));
-        Datas_ptr.push_back(&Datas[i]);
-        i++;
-    }
-
-    // VulkanCommandPool Pool(mInstance.GetDevice(),
-    // mInstance.GetGraphicsQueue().GetQueueContext()); VulkanCommandBuffer
-    // Cmd(mInstance.GetDevice(), Pool); VulkanFence Fence(mInstance.GetDevice()); // TODO Remove
-    // this
-
-    std::scoped_lock<std::mutex> Lock(mMutex);
-
-    inUniformImage =
-         MakeUp<T>(mInstance.GetVMA(), mInstance.GetDevice(), Width, Height, 4, inFileNames.size());
-    inUniformImageSampler = MakeUp<VulkanSampler>(mInstance.GetDevice());
-    inUniformImage->SubmitImmediateCmdCopyFromData(mInstance.GetGraphicsQueue(),
-                                                   mInstance.GetUtilCommandBuffer(),
-                                                   mInstance.GetDevice(),
-                                                   mInstance.GetUtilCommandBufferFence(),
-                                                   Channels * Height * Width,
-                                                   Datas_ptr);
-
-    for (void* u : Datas) {
-        stbi_image_free(u);
-    }
-}
 } // namespace Jkr

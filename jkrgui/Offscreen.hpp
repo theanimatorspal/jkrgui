@@ -5,7 +5,7 @@
 namespace Jkr {
 using namespace ksai;
 struct ShadowPass {
-    using FrameBufferType = VulkanFrameBuffer<1, VulkanImageVMA<ImageContext::DepthImage>>;
+    using FrameBufferType = VulkanFrameBuffer<1, VulkanImageVMA>;
     using DepthImageType  = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
     using RenderPassType  = VulkanRenderPass<RenderPassContext::Shadow>;
     GETTER& GetRenderPass() { return *mRenderpass; }
