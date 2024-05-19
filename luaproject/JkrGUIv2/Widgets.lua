@@ -488,7 +488,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
 
     o.Draw = function()
         -- Optimize this
-        o.s:BindShapes(w)
+        o.s:BindShapes(w, Jkr.CmdParam.UI)
         for i = 1, #o.c.mDrawables, 1 do
             local drawable = o.c.mDrawables[i]
             o.s:BindFillMode(Jkr.FillType.Image, w, Jkr.CmdParam.UI)

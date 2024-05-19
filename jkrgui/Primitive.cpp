@@ -145,3 +145,9 @@ Jkr::Primitive::Primitive(const Instance& inInstance,
     mIndexBufferPtr->MapMemoryRegion(&mIndexBufferMappedMemory);
 }
 #endif
+
+void Jkr::Primitive::Bind(const Instance& inInstance, const Window& inWindow, CmdParam inCmdParam) {
+    auto& Cmd = inWindow.GetCommandBuffers(inCmdParam)[inWindow.GetCurrentFrame()];
+    GetVertexBufferPtr()->Bind<BufferContext::Vertex>(Cmd);
+    GetIndexBufferPtr()->Bind<BufferContext::Index>(Cmd);
+}

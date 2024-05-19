@@ -562,8 +562,8 @@ Jkr.CreateShapeRenderer = function(inInstance, inCompatibleWindow, inShapeRender
     o.Update = function(self, inId, inGenerator, inPosition_3f)
         sr:Update(inId, inGenerator, inPosition_3f.x, inPosition_3f.y, inPosition_3f.z) -- TODO Improve this
     end
-    o.BindShapes = function(self, w)
-        sr:BindShapes(w)
+    o.BindShapes = function(self, w, inCmdParam)
+        sr:BindShapes(w, inCmdParam)
     end
     o.BindFillMode = function(self, inFillMode, inWindow, inCmdParam)
         sr:BindFillMode(inFillMode, inWindow, inCmdParam)

@@ -29,7 +29,7 @@ class Shape : public Shape_base, Renderer_base {
     void Update(uint32_t inId, Jkr::Generator& inShape, float inX, float inY, float inZ);
     void Dispatch(Window& inWindow, CmdParam inParam = CmdParam::None);
     void BindFillMode(FillType inType, Window& inWindow, CmdParam inParam = CmdParam::UI);
-    void BindShapes(Window& inWindow);
+    void BindShapes(Window& inWindow, CmdParam inParam = CmdParam::UI);
     void Draw(Window& inWindow,
               glm::vec4 inColor,
               uint32_t inWindowW,

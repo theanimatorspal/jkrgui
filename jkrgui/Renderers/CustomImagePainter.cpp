@@ -158,11 +158,4 @@ void CustomImagePainter::BindImageFromImage(const Window& inWindow,
                                    vk::PipelineStageFlagBits::eComputeShader,
                                    vk::AccessFlagBits::eShaderWrite,
                                    vk::AccessFlagBits::eShaderWrite);
-    // Image.CmdTransitionImageLayout(Cmd,
-    //                                Image.GetInitialImageLayout(),
-    //                                Image.GetInitialImageLayout(),
-    //                                vk::PipelineStageFlagBits::eComputeShader,
-    //                                vk::PipelineStageFlagBits::eFragmentShader,
-    //                                vk::AccessFlagBits::eShaderWrite,
-    //                                vk::AccessFlagBits::eShaderRead);
 }

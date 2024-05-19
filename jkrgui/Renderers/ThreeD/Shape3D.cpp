@@ -144,8 +144,7 @@ void Shape::CheckAndResize(const glTF_Model& inModel) {
 }
 
 void Shape::Bind(Window& inWindow, ComPar inCompar) {
-    Painter::BindDrawParamtersVertexAndIndexBuffersOnly_EXT(
-         mInstance, *mPrimitive, inWindow, inCompar);
+    mPrimitive->Bind(mInstance, inWindow, inCompar);
 }
 
 ui Shape::AddEXT(Generator& inGenerator, glm::vec3 inPosition) {

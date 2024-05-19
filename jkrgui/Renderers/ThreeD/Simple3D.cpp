@@ -4,11 +4,11 @@
 using namespace Jkr::Renderer::_3D;
 
 void Simple3D::Bind(Window& inWindow, CmdParam inParam) {
-    mPainter->BindDrawParamtersPipelineOnly_EXT(inWindow, inParam);
+    mPainter->BindDrawPipeline(inWindow, inParam);
 }
 
 void Simple3D::BindCompute(Window& inWindow, CmdParam inParam) {
-    mPainter->BindDispatchParametersPipelineOnly_EXT(inWindow, inParam);
+    mPainter->BindComputePipeline(inWindow, inParam);
 }
 
 void Simple3D::Compile(Jkr::Instance& inInstance,

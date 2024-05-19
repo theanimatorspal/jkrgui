@@ -13,6 +13,7 @@ struct CustomPainterImage {
     std::vector<int> GetImageToVector(const Instance& inInstance, const Window& inWindow);
 
     GETTER& GetPainterParam() { return *mPainterParam; }
+    GETTER& GetDescriptorSet() { return *mVulkanDescriptorSet; }
     up<VulkanDescriptorSet> mVulkanDescriptorSet;
     up<Image> mPainterParam;
 };
@@ -26,11 +27,11 @@ struct CustomImagePainter {
     void Load(const Instance& inInstance, Window& inWindow);
     void Store(const Instance& inInstance, Window& inWindow);
     void RegisterImage(const Instance& inInstance, Window& inWindow, CustomPainterImage& inImage) {
-        mPainter->RegisterPainterParameter(
-             inImage.GetPainterParam(), 0, 0, 0, Jkr::RegisterMode::ComputeOnly);
+        VulkanDescriptorUpdateHandler Handler(inInstance.GetDevice());
+        inImage.GetPainterParam().Register(0, 0, 0, inImage.GetDescriptorSet());
     }
     void Bind(const Window& inWindow, ComPar inPar = ComPar::None) {
-        mPainter->BindDispatchParametersPipelineOnly_EXT(inWindow, inPar);
+        mPainter->BindComputePipeline(inWindow, inPar);
     }
 
     void BindImageFromImage(const Window& inWindow,

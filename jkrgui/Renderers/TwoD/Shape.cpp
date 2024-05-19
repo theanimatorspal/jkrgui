@@ -288,7 +288,7 @@ void Shape::BindFillMode(FillType inFillType, Window& inWindow, CmdParam inParam
          mVarDesVulkanDescriptorSet->GetDescriptorSetHandle(),
          {});
 #endif
-    mPainters[inFillType]->BindDrawParamtersPipelineOnly_EXT(*mPrimitive, inWindow);
+    mPainters[inFillType]->BindDrawPipeline(*mPrimitive, inWindow);
     mCurrentFillMode = inFillType;
 }
 
@@ -311,8 +311,8 @@ void Shape::BindImage(Window& inWindow, ui inImageId, CmdParam inParam) {
     }
 }
 
-void Shape::BindShapes(Window& inWindow) {
-    Painter::BindDrawParamtersVertexAndIndexBuffersOnly_EXT(mInstance, *mPrimitive, inWindow);
+void Shape::BindShapes(Window& inWindow, CmdParam inParam) {
+    mPrimitive->Bind(mInstance, inWindow, inParam);
 }
 
 void Shape::Draw(Window& inWindow,
