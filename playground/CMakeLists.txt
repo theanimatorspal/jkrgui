@@ -5,7 +5,7 @@
 add_executable(playground ${PLAYGROUND_SRC})
 
 PrecompileStdHeaders(playground)
-# target_link_libraries(playground ksaivulkan jkrgui)
+target_link_libraries(playground ksaivulkan jkrgui)
 configure_target(playground)
 
 
@@ -21,3 +21,5 @@ set(PLAYGROUND2_SRC
 )
 
 add_executable(playground1 ${PLAYGROUND2_SRC})
+target_link_libraries(playground1 ksaivulkan jkrgui)
+configure_target(playground1)

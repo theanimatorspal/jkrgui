@@ -62,12 +62,19 @@
 using namespace Jkr;
 int main() {
     Network::ServerInterface Server(60000);
-    Server.Start([](sp<Network::Connection> client) {
-        Network::Message Msg;
-        Msg.mHeader.mId = 2;
-        client->Send(Msg);
-        return true;
-    });
+    Network::ServerInterface::OnClientConnectionFunctionType OnClientConnectionFunction =
+         [](sp<Network::Connection> client) {
+             Network::Message Msg;
+             Msg.mHeader.mId = 2;
+             client->Send(Msg);
+             return true;
+         };
+
+    Network::ServerInterface::OnClientValidationFunctionType OnClientValidationFunction =
+         [](sp<Network::Connection> client) {
+
+         };
+    Server.Start(OnClientValidationFunction, OnClientConnectionFunction);
     Network::ServerInterface::OnMessageFunctionType OnMessage =
          [](sp<Network::Connection> inConnection, Network::Message& msg) {
              switch (msg.mHeader.mId) {

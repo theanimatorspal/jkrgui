@@ -19,12 +19,18 @@ template <typename T> class TsQueue {
 
     void push_back(const T& inItem) {
         std::scoped_lock<std::mutex> lock(mQueueMutex);
-        return mQueue.push_back(std::move(inItem));
+        mQueue.push_back(std::move(inItem));
+
+        std::unique_lock<std::mutex> ul(mBlockingMutex);
+        mCVBlocking.notify_one();
     }
 
     void push_front(const T& inItem) {
         std::scoped_lock<std::mutex> lock(mQueueMutex);
-        return mQueue.push_front(std::move(inItem));
+        mQueue.push_front(std::move(inItem));
+
+        std::unique_lock<std::mutex> ul(mBlockingMutex);
+        mCVBlocking.notify_one();
     }
 
     bool empty() {
@@ -56,7 +62,16 @@ template <typename T> class TsQueue {
         return t;
     }
 
+    void wait() {
+        while (empty()) {
+            std::unique_lock<std::mutex> ul(mBlockingMutex);
+            mCVBlocking.wait(ul);
+        }
+    }
+
     protected:
+    std::condition_variable mCVBlocking;
+    std::mutex mBlockingMutex;
     std::mutex mQueueMutex;
     std::deque<T> mQueue;
 };
