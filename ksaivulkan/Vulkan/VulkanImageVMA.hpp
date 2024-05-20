@@ -10,9 +10,11 @@ class VulkanImageVMA : public VulkanImageBase {
                    ui inWidth,
                    ui inHeight,
                    ImageContext inImageContext,
-                   ui inChannel    = 4,
-                   ui inLayerCount = 1,
-                   ui inSamples    = 1);
+                   ui inChannel                            = 4,
+                   ui inLayerCount                         = 1,
+                   ui inSamples                            = 1,
+                   ui inMips                               = 1,
+                   opt<vk::ImageUsageFlagBits> inUsageBits = std::nullopt);
     ~VulkanImageVMA();
 
     private:

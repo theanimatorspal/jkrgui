@@ -8,12 +8,18 @@ VulkanImageVMA::VulkanImageVMA(const VulkanVMA& inVMA,
                                ImageContext inImageContext,
                                ui inChannel,
                                ui inLayerCount,
-                               ui inSamples)
+                               ui inSamples,
+                               ui inMips,
+                               opt<vk::ImageUsageFlagBits> inBits)
     : VulkanImageBase(inDevice), mVMA(inVMA) {
     FillImageProperties(inImageContext, inSamples);
     mImageProperties.mArrayLayers   = inLayerCount;
     mImageProperties.mExtent.width  = inWidth;
     mImageProperties.mExtent.height = inHeight;
+    mImageProperties.mMipLevels     = inMips;
+    if (inBits.has_value()) {
+        mImageProperties.mImageUsage |= inBits.value();
+    }
     vk::ImageTiling Tiling;
     GetImageTiling(mImageProperties.mImageFormat, mImageProperties.mImageFormatFeature, Tiling);
     auto ImageCreateInfo       = vk::ImageCreateInfo(mImageProperties.mFlags,

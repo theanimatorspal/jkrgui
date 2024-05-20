@@ -10,6 +10,7 @@ include_directories(${CMAKE_JKRGUI_DIR}/ksaivulkan)
 include_directories(${CMAKE_JKRGUI_DIR}/ksaivulkan/Vulkan)
 include_directories(${CMAKE_JKRGUI_DIR}/ksaivulkan/Vendor)
 include_directories(${CMAKE_JKRGUI_DIR}/ksaivulkan/Vendor/stbi)
+include_directories(${CMAKE_JKRGUI_DIR}/ksaivulkan/Vendor/asio)
 include_directories(${CMAKE_JKRGUI_DIR}/libs/)
 include_directories(${CMAKE_JKRGUI_DIR}/aJkrLua)
 include_directories(${CMAKE_JKRGUI_DIR}/vendor/lua)
@@ -129,6 +130,8 @@ if(APPLE)
     link_directories("/opt/homebrew/lib/")
     link_directories("/usr/local/lib/")
 endif()
+
+add_definitions(-DWIN32_LEAN_AND_MEAN)
 
 # Define a function to set up the target based on the build type
 if(APPLE)

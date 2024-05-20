@@ -30,6 +30,7 @@ class Painter {
                           const Window& inWindow,
                           CmdParam inCmdContext = CmdParam::UI);
     void BindDrawPipeline(const Window& inWindow, CmdParam inCmdContext = CmdParam::UI);
+    void BindDrawPipeline(VulkanCommandBuffer& inBuffer);
 
     template <class PushType>
     void Draw_EXT(const Primitive& inPrimitive,
@@ -41,7 +42,17 @@ class Painter {
                   uint32_t inFirstInstance,
                   CmdParam inCmdContext = CmdParam::UI);
 
+    template <class PushType>
+    void Draw_EXT(const Primitive& inPrimitive,
+                  const vk::ArrayProxy<PushType> inPushConstants,
+                  VulkanCommandBuffer& inCmdBuffer,
+                  uint32_t inIndexCount,
+                  uint32_t inInstanceCount,
+                  uint32_t inFirstIndex,
+                  uint32_t inFirstInstance);
+
     void BindComputePipeline(const Window& inWindow, CmdParam inCmdContext = CmdParam::UI);
+    void BindComputePipeline(VulkanCommandBuffer& inBuffer);
 
     template <class PushType>
     void Dispatch_EXT(Window& inWindow,
@@ -50,6 +61,13 @@ class Painter {
                       uint32_t inCountY,
                       uint32_t inCountZ,
                       CmdParam inCmdContext = CmdParam::UI);
+
+    template <class PushType>
+    void Dispatch_EXT(VulkanCommandBuffer& inCmdBuffer,
+                      const vk::ArrayProxy<PushType> inPushConstants,
+                      uint32_t inCountX,
+                      uint32_t inCountY,
+                      uint32_t inCountZ);
 
     static void
     OptimizeParameter(const Instance& inInstance,
@@ -94,6 +112,32 @@ void Painter::Draw_EXT(const Primitive& inPrimitive,
                                 inPushConstants);
     mVulkanPipeline.DrawIndexed(
          Cmd, inIndexCount, inInstanceCount, inFirstIndex, 0, inFirstInstance);
+}
+
+template <class PushType>
+void Painter::Draw_EXT(const Primitive& inPrimitive,
+                       const vk::ArrayProxy<PushType> inPushConstants,
+                       VulkanCommandBuffer& inCmdBuffer,
+                       uint32_t inIndexCount,
+                       uint32_t inInstanceCount,
+                       uint32_t inFirstIndex,
+                       uint32_t inFirstInstance) {
+
+    inCmdBuffer.PushConstants<PushType>(mGUIPainterCache.GetVertexFragmentPipelineLayout(),
+                                        inPushConstants);
+    mVulkanPipeline.DrawIndexed(
+         inCmdBuffer, inIndexCount, inInstanceCount, inFirstIndex, 0, inFirstInstance);
+}
+
+template <class PushType>
+void Painter::Dispatch_EXT(VulkanCommandBuffer& inCmdBuffer,
+                           const vk::ArrayProxy<PushType> inPushConstants,
+                           uint32_t inCountX,
+                           uint32_t inCountY,
+                           uint32_t inCountZ) {
+    inCmdBuffer.PushConstants<PushType>(mGUIPainterCache.GetComputePipelineLayout(),
+                                        inPushConstants);
+    inCmdBuffer.GetCommandBufferHandle().dispatch(inCountX, inCountY, inCountZ);
 }
 
 } // namespace Jkr

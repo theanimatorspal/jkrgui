@@ -216,7 +216,11 @@ void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(
      const VulkanDevice& inDevice,
      VulkanImageBase& inImage,
      vk::PipelineStageFlags inAfterStage,
-     vk::AccessFlags inAfterStageAccessflags) {
+     vk::AccessFlags inAfterStageAccessflags,
+     int inFromMipLevel,
+     int inFromBaseArrayLayer,
+     int inToMipLevel,
+     int inToBaseArrayLayer) {
     // TODO This has to be checked
     auto& SrcVulkanImage = inImage;
     auto& DstVulkanImage = *this;
@@ -227,10 +231,12 @@ void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(
     auto SrcImageProp    = SrcVulkanImage.mImageProperties;
     auto DstImageProp    = DstVulkanImage.mImageProperties;
     auto& Cmd            = inCmdBuffer.GetCommandBufferHandle();
-    vk::ImageSubresourceLayers SrcSubResource(
-         SrcImageProp.mImageAspect, 0, 0, SrcImageProp.mArrayLayers);
+    vk::ImageSubresourceLayers SrcSubResource(SrcImageProp.mImageAspect,
+                                              inFromMipLevel,
+                                              inFromBaseArrayLayer,
+                                              SrcImageProp.mArrayLayers);
     vk::ImageSubresourceLayers DstSubResource(
-         DstImageProp.mImageAspect, 0, 0, DstImageProp.mArrayLayers);
+         DstImageProp.mImageAspect, inToMipLevel, inToBaseArrayLayer, DstImageProp.mArrayLayers);
     vk::ImageSubresourceRange SrcSubResourceRange(
          SrcSubResource.aspectMask, 0, 0, 0, SrcImageProp.mArrayLayers);
     vk::ImageSubresourceRange DstSubResourceRange(

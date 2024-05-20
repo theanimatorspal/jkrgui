@@ -1,5 +1,5 @@
 {
-          "workbench.colorTheme": "GitHub Dark",
+          "workbench.colorTheme": "Gruvbox Dark (Medium)",
           "git.enableSmartCommit": true,
           "git.confirmSync": false,
           "gitlens.currentLine.enabled": false,

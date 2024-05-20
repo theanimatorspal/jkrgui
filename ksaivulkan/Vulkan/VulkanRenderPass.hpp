@@ -4,7 +4,7 @@
 #include "VulkanSurface.hpp"
 namespace ksai {
 
-enum class RenderPassContext { Default, MSAA, Shadow, BRDFLookUp };
+enum class RenderPassContext { Default, MSAA, Shadow, SingleColorAttachment };
 
 class VulkanRenderPassBase {
     public:

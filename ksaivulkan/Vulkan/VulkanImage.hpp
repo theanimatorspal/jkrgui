@@ -34,7 +34,11 @@ class VulkanImageBase {
                                          const VulkanDevice& inDevice,
                                          VulkanImageBase& inImage,
                                          vk::PipelineStageFlags inAfterStage,
-                                         vk::AccessFlags inAfterStageAccessFlags);
+                                         vk::AccessFlags inAfterStageAccessFlags,
+                                         int inFromMipLevel       = 0,
+                                         int inFromBaseArrayLayer = 0,
+                                         int inToMipLevel         = 0,
+                                         int inToBaseArrayLayer   = 0);
     void CmdTransitionImageLayout(const VulkanCommandBuffer& inBuffer,
                                   vk::ImageLayout inOldImageLayout,
                                   vk::ImageLayout inNewImageLayout,

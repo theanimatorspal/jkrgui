@@ -1,7 +1,10 @@
 #include "VulkanSampler.hpp"
 
 using namespace ksai;
-VulkanSampler::VulkanSampler(const VulkanDevice& inDevice, ImageContext inImageContext)
+VulkanSampler::VulkanSampler(const VulkanDevice& inDevice,
+                             ImageContext inImageContext,
+                             float inMinLod,
+                             float inMaxLod)
     : mDevice(inDevice.GetDeviceHandle()) {
     vk::SamplerCreateInfo VulkanSamplerCreateInfo = vk::SamplerCreateInfo();
     VulkanSamplerCreateInfo.setMinFilter(vk::Filter::eLinear);
@@ -10,6 +13,7 @@ VulkanSampler::VulkanSampler(const VulkanDevice& inDevice, ImageContext inImageC
              .setAddressModeW(vk::SamplerAddressMode::eClampToEdge)
              .setAddressModeV(vk::SamplerAddressMode::eClampToEdge);
     }
+    VulkanSamplerCreateInfo.setMinLod(inMinLod).setMaxLod(inMaxLod);
     mSampler = mDevice.createSampler(VulkanSamplerCreateInfo);
 }
 

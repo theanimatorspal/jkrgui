@@ -214,8 +214,8 @@ VulkanRenderPass<RenderPassContext::MSAA>::VulkanRenderPass(const VulkanDevice& 
 }
 
 template <>
-VulkanRenderPass<RenderPassContext::BRDFLookUp>::VulkanRenderPass(const VulkanDevice& inDevice,
-                                                                  const VulkanImage& inColorImage)
+VulkanRenderPass<RenderPassContext::SingleColorAttachment>::VulkanRenderPass(
+     const VulkanDevice& inDevice, const VulkanImage& inColorImage)
     : mDevice(inDevice.GetDeviceHandle()) {
     vk::AttachmentDescription ColorAttachment =
          vk::AttachmentDescription(vk::AttachmentDescriptionFlags(), inColorImage.GetImageFormat())

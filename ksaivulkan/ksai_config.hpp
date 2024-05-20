@@ -65,8 +65,10 @@ template <typename T> inline void ksai_print(T inT) {
     __android_log_print(6, "KSAI::%s", "=================================");
     __android_log_print(6, "KSAI::%s", (char*)inT);
 #else
-    // printf(inT.data(), t...);
-    // printf("\n");
+    std::cout << inT << "\n";
+    // printf(inT);
+    //  printf(inT.data(), t...);
+    //  printf("\n");
 #endif // ANDROID
 }
 
