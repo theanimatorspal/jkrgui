@@ -15,7 +15,7 @@ int main() {
     };
 
     bool Quit = false;
-    int i     = 0;
+    int i     = 1;
     while (not Quit) {
         if (i % 10000000 == 0) {
             PingServer();
@@ -35,10 +35,12 @@ int main() {
                         break;
                 }
             }
+
         } else {
             ksai_print("Server Down");
             Quit = true;
         }
+
         i++;
     }
     return 0;

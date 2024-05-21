@@ -9,20 +9,19 @@ void Connection::ConnectToServer(OnClientValidationFunctionType& inFunction,
              mSocket, inEndPoints, [&, this](std::error_code ec, asio::ip::tcp::endpoint endpoint) {
                  if (not ec) {
                      ReadValidation(inFunction);
-                     ReadHeader();
+                     //  ReadHeader();
                  }
              });
     }
 }
 
 void Connection::ConnectToClient(OnClientValidationFunctionType& inOnClientValidationFunction,
-                                 ServerInterface* inServer,
                                  uint32_t inUid) {
     if (mOwnerType == Owner::Server) {
         if (mSocket.is_open()) {
             mId = inUid;
             WriteValidation();
-            ReadValidation(inOnClientValidationFunction, inServer);
+            ReadValidation(inOnClientValidationFunction);
         }
     }
 }
@@ -127,9 +126,10 @@ void Connection::Send(const Message& msg) {
 }
 
 uint64_t Connection::Scramble(uint64_t inInput) {
-    uint64_t out = inInput ^ 0xDEABCEDEF;
-    out          = (out & 0xF0F0F0F0F0) >> 4 | (out & 0xF0F0F0F0) << 4;
-    return out ^ 0xC0DEFACE1234;
+    //     uint64_t out = inInput ^ 0xDEABCEDEF;
+    //     out          = (out & 0xF0F0F0F0F0) >> 4 | (out & 0xF0F0F0F0) << 4;
+    //     return out ^ 0xC0DEFACE1234;
+    return inInput;
 }
 
 Connection::Connection(Owner inParent,
@@ -161,17 +161,16 @@ void Connection::WriteValidation() {
                       });
 }
 
-void Connection::ReadValidation(OnClientValidationFunctionType& inOnClientValidated,
-                                ServerInterface* inServer) {
+void Connection::ReadValidation(OnClientValidationFunctionType& inOnClientValidated) {
+
     asio::async_read(mSocket,
                      asio::buffer(&mHandShakeIn, sizeof(uint64_t)),
-                     [&, this, inServer](std::error_code ec, std::size_t length) {
+                     [this, &inOnClientValidated](std::error_code ec, std::size_t length) {
                          if (not ec) {
                              if (mOwnerType == Owner::Server) {
                                  if (mHandShakeIn == mHandshakeCheck) {
                                      ksai_print("Client Validated");
                                      inOnClientValidated(this->shared_from_this());
-
                                      ReadHeader();
                                  } else {
                                      ksai_print("Client Disconnected (Failed Validation)");

@@ -33,9 +33,8 @@ void ServerInterface::WaitForClientConnection(
                  Connection::Owner::Server, mAsioContext, std::move(socket), mQMessagesIn);
 
             if (inOnClientConnectFunction(newCon)) {
-                mQConnections.push_back(newCon);
-                mQConnections.back()->ConnectToClient(
-                     inOnClientValidationFunction, this, mIdCounter++);
+                mQConnections.push_back(std::move(newCon));
+                mQConnections.back()->ConnectToClient(inOnClientValidationFunction, mIdCounter++);
                 ksai_print((s("[") + std::to_string(mQConnections.back()->GetId()) +
                             s("] Connection Approved"))
                                 .c_str());

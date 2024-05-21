@@ -12,7 +12,6 @@ class Connection : public std::enable_shared_from_this<Connection> {
     void ConnectToServer(OnClientValidationFunctionType& inFunction,
                          asio::ip::tcp::resolver::results_type& inEndPoints);
     void ConnectToClient(OnClientValidationFunctionType& inOnClientValidationFunction,
-                         ServerInterface* inServer,
                          uint32_t inUid = 0);
     void ReadHeader();
     void ReadBody();
@@ -24,8 +23,7 @@ class Connection : public std::enable_shared_from_this<Connection> {
     void Send(const Message& msg);
     uint64_t Scramble(uint64_t inInput);
     void WriteValidation();
-    void ReadValidation(OnClientValidationFunctionType& inFunction,
-                        ServerInterface* inInterface = nullptr);
+    void ReadValidation(OnClientValidationFunctionType& inFunction);
 
     Connection(Owner inParent,
                asio::io_context& inAsioContext,
