@@ -228,6 +228,36 @@ vec3 BRDF(vec3 L, vec3 V, vec3 N, float metallic, float roughness)
 }
     ]]
 
+    local BRDF_LUT             = [[
+vec2 BRDF(float NoV, float roughness)
+{
+	// Normal always points along z-axis for the 2D lookup
+	const vec3 N = vec3(0.0, 0.0, 1.0);
+	vec3 V = vec3(sqrt(1.0 - NoV*NoV), 0.0, NoV);
+
+	vec2 LUT = vec2(0.0);
+	for(uint i = 0u; i < NUM_SAMPLES; i++) {
+		vec2 Xi = Hammersley2d(i, NUM_SAMPLES);
+		vec3 H = ImportanceSample_GGX(Xi, roughness, N);
+		vec3 L = 2.0 * dot(V, H) * H - V;
+
+		float dotNL = max(dot(N, L), 0.0);
+		float dotNV = max(dot(N, V), 0.0);
+		float dotVH = max(dot(V, H), 0.0);
+		float dotNH = max(dot(H, N), 0.0);
+
+		if (dotNL > 0.0) {
+			float G = G_SchlicksmithGGX(dotNL, dotNV, roughness);
+			float G_Vis = (G * dotVH) / (dotNH * dotNV);
+			float Fc = pow(1.0 - dotVH, 5.0);
+			LUT += vec2((1.0 - Fc) * G_Vis, Fc * G_Vis);
+		}
+	}
+	return LUT / float(NUM_SAMPLES);
+}
+
+    ]]
+
     local Uncharted2Tonemap    =
     [[
         // From http://filmicworlds.com/blog/filmic-tonemapping-operators/
@@ -278,7 +308,7 @@ vec3 ImportanceSample_GGX(vec2 Xi, float roughness, vec3 normal)
 {
 	// Maps a 2D point to a hemisphere with spread based on roughness
 	float alpha = roughness * roughness;
-	float phi = 2.0 * PI * Xi.x + random(normal.xz) * 0.1;
+	float phi = 2.0 * PI * Xi.x + Random(normal.xz) * 0.1;
 	float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (alpha*alpha - 1.0) * Xi.y));
 	float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
 	vec3 H = vec3(sinTheta * cos(phi), sinTheta * sin(phi), cosTheta);
@@ -565,6 +595,12 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
         return o.NewLine()
     end
 
+    o.BRDF_LUT                 = function()
+        o.NewLine()
+        o.Append(BRDF_LUT)
+        return o.NewLine()
+    end
+
     o.MaterialColorBegin       = function()
         o.str = o.str .. "vec3 MaterialColor()"
         o.NewLine()
@@ -727,9 +763,9 @@ PBR.Skybox3dF = Engine.Shader()
     .GlslMainBegin()
     .Indent()
     .Append([[
-        vec3 Color = texture(samplerCubeMap, vVertUV).rgb;
-          // Tone mapping
-          // 0.5 = exposure
+    vec3 Color = texture(samplerCubeMap, vVertUV).rgb;
+    // Tone mapping
+    // 0.5 = exposure
 	Color = Uncharted2Tonemap(Color * 0.5);
 	Color = Color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
 	// Gamma correction
@@ -740,33 +776,6 @@ PBR.Skybox3dF = Engine.Shader()
     .GlslMainEnd()
     .NewLine().str
 
-PBR.PreFilterEnvMapF = Engine.Shader()
-    .Header(450)
-    .NewLine()
-    .In(0, "vec3", "inPos")
-    .Push()
-    .Append [[
-    struct {
-          float roughness;
-          uint numSamples;
-    } consts;
-    consts.roughness = Push.m2[0][0];
-    consts.numSamples = uint(Push.m2[1][0]);
-    ]]
-    .outFragColor()
-    .uSamplerCubeMap(20, "samplerEnv")
-    .Random()
-    .Hammerslay2d()
-    .ImportanceSample_GGX()
-    .D_GGX()
-    .PrefilterEnvMap()
-    .GlslMainBegin()
-    .Append [[
-         	vec3 N = normalize(inPos);
-	outColor = vec4(PrefilterEnvMap(N, consts.roughness), 1.0);
-    ]]
-    .GlslMainEnd()
-    .str
 
 PBR.IBLV = Engine.Shader()
     .Header(450)
@@ -878,7 +887,7 @@ PBR.IBLF = Engine.Shader()
 
     outFragColor = vec4(color, 1.0);
     ]]
-    .GlslMainEnd().Print()
+    .GlslMainEnd()
     .str
 
 
@@ -928,15 +937,15 @@ PBR.GenBrdfLutV = Engine.Shader()
     .Out(0, "vec2", "vUV")
     .GlslMainBegin()
     .Append [[
-    	outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
-	gl_Position = vec4(outUV * 2.0f - 1.0f, 0.0f, 1.0f);
+    	vUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+        gl_Position = vec4(vUV * 2.0f - 1.0f, 0.0f, 1.0f);
     ]]
     .GlslMainEnd()
     .str
 
 PBR.GenBrdfLutF = Engine.Shader()
     .Header(450)
-    .VLayout()
+    .outFragColor()
     .In(0, "vec2", "vUV")
     .Append "const uint NUM_SAMPLES = 1024u;"
     .NewLine()
@@ -945,25 +954,58 @@ PBR.GenBrdfLutF = Engine.Shader()
     .Hammerslay2d()
     .ImportanceSample_GGX()
     .G_SchlicksmithGGX()
-    .BRDF()
+    .BRDF_LUT()
     .GlslMainBegin()
     .Append [[
-        vUV = inUV;
         outFragColor = vec4(BRDF(vUV.s, vUV.t), 0.0, 1.0);
     ]]
-    .GlslMainEnd()
+    .GlslMainEnd().str
 
 
 PBR.FilterCubeV = Engine.Shader()
     .Header(450)
     .VLayout()
+    .Ubo()
     .Push()
-    .Out(0, "vec2", "vUV")
+    .Out(0, "vec3", "vUVW")
     .GlslMainBegin()
     .Append [[
+    vUVW = inPosition;
+    gl_Position = Ubo.proj * Ubo.view * Push.model * vec4(inPosition, 1.0);
+    ]]
+    .GlslMainEnd().str
+
+PBR.PreFilterEnvMapF = Engine.Shader()
+    .Header(450)
+    .NewLine()
+    .PI()
+    .In(0, "vec3", "inPos")
+    .Push()
+    .Append [[
+
+    struct ConstantStruct {
+          float roughness;
+          uint numSamples;
+    } consts;
 
     ]]
-    .GlslMainEnd()
+    .outFragColor()
+    .uSamplerCubeMap(20, "samplerEnv")
+    .Random()
+    .Hammerslay2d()
+    .ImportanceSample_GGX()
+    .D_GGX()
+    .PrefilterEnvMap()
+    .GlslMainBegin()
+    .Append [[
+    consts.roughness = Push.m2[0].x;
+    consts.numSamples = uint(Push.m2[0].y);
+    vec3 N = normalize(inPos);
+	outFragColor = vec4(PrefilterEnvMap(N, consts.roughness), 1.0);
+    ]]
+    .GlslMainEnd().Print()
+    .str
+
 
 PBR.BasicCompute = Engine.Shader()
     .Header(450)

@@ -113,13 +113,8 @@ void Jkr::Renderer::Line::Draw(Window& inWindow,
     Push.mColor  = inColor;
     Push.mMatrix = Matrix;
 
-    mPainter->Draw_EXT<PushConstant>(*mPrimitive,
-                                     Push,
-                                     inWindow,
-                                     2 * (inEndLineId - inStartLineId + 1),
-                                     1,
-                                     inStartLineId * 2,
-                                     0);
+    mPainter->Draw_EXT<PushConstant>(
+         Push, inWindow, 2 * (inEndLineId - inStartLineId + 1), 1, inStartLineId * 2, 0);
 }
 
 void Jkr::Renderer::Line::CheckAndResize(const Instance& inInstance, uint32_t inNewSizeNeeded) {

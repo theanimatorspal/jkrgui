@@ -4,7 +4,6 @@
 namespace Jkr::Network {
 class ClientInterface {
     public:
-    using OnClientValidationFunctionType = Connection::OnClientValidationFunctionType;
     ClientInterface() : mSocket(mContext) {}
     ~ClientInterface() { Disconnect(); }
     bool Connect(OnClientValidationFunctionType& inFunction,

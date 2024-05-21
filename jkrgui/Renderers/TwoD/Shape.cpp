@@ -338,7 +338,6 @@ void Shape::Draw(Window& inWindow,
 #endif
 
     mPainters[mCurrentFillMode]->Draw_EXT<PushConstant>(
-         *mPrimitive,
          Push,
          inWindow,
          sb::GetEndIndexOffsetAbsolute(inEndShapeId) -
@@ -447,7 +446,6 @@ void Jkr::Renderer::Shape::DrawEXT(Window& inWindow,
 #endif
 
     mPainters[mCurrentFillMode]->Draw_EXT<PushConstant>(
-         *mPrimitive,
          Push,
          inWindow,
          sb::GetEndIndexOffsetAbsolute(inEndShapeId) -

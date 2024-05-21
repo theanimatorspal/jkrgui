@@ -6,7 +6,6 @@ namespace Jkr::Network {
 class ServerInterface;
 class Connection : public std::enable_shared_from_this<Connection> {
     public:
-    using OnClientValidationFunctionType = std::function<void(sp<Connection>)>;
     enum class Owner { Server, Client };
     GETTER GetId() { return mId; }
     void ConnectToServer(OnClientValidationFunctionType& inFunction,

@@ -125,8 +125,7 @@ void Jkr::Renderer::FastText::Draw(Window& inWindow,
     Push.mColor  = inColor;
     Push.mMatrix = Matrix;
 
-    mPainter->Draw_EXT<PushConstant>(
-         *mPrimitive, Push, inWindow, 6 * inNoOfChars, 1, inStartTextId * 6, 0);
+    mPainter->Draw_EXT<PushConstant>(Push, inWindow, 6 * inNoOfChars, 1, inStartTextId * 6, 0);
 }
 
 void Jkr::Renderer::FastText::CheckAndResize(size_t inNewSize) {

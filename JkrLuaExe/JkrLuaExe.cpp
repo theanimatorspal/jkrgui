@@ -16,6 +16,7 @@ extern void CreateAudioBindings(sol::state& inState);
 extern void CreatePlatformBindings(sol::state& inS);
 extern umap<s, v<s>> CommandLine(int ArgCount, char** ArgStrings); // TODO Complete This
 extern void CreateMultiThreadingBindings(sol::state& inState);
+extern void CreateNetworkBindings(sol::state& s);
 
 void CreateMainBindings(sol::state& s) {
     s.set_exception_handler(&my_exception_handler);
@@ -37,6 +38,7 @@ void CreateMainBindings(sol::state& s) {
     CreateRenderer3DBindings(s);
     CreateAudioBindings(s);
     CreatePlatformBindings(s);
+    CreateNetworkBindings(s);
 }
 } // namespace JkrEXE
 

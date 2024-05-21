@@ -84,14 +84,8 @@ inline void Simple3D::Draw(Jkr::Window& inWindow,
                            ui inIndexCount,
                            ui inInstanceCount,
                            CmdParam inParam) {
-    mPainter->Draw_EXT<T>(inShape3D.GetPrimitive(),
-                          inPush,
-                          inWindow,
-                          inIndexCount,
-                          inInstanceCount,
-                          inFirstIndex,
-                          0,
-                          inParam);
+    mPainter->Draw_EXT<T>(
+         inPush, inWindow, inIndexCount, inInstanceCount, inFirstIndex, 0, inParam);
 }
 
 template <typename T>
@@ -102,13 +96,7 @@ inline void Simple3D::DrawByCommandBuffer(VulkanCommandBuffer& inCommandBuffer,
                                           ui inIndexCount,
                                           ui inInstanceCount) {
 
-    mPainter->Draw_EXT<T>(inShape3D.GetPrimitive(),
-                          inPush,
-                          inCommandBuffer,
-                          inIndexCount,
-                          inInstanceCount,
-                          inFirstIndex,
-                          0);
+    mPainter->Draw_EXT<T>(inPush, inCommandBuffer, inIndexCount, inInstanceCount, inFirstIndex, 0);
 }
 
 } // namespace Jkr::Renderer::_3D

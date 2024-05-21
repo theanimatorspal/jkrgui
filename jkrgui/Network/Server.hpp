@@ -6,10 +6,6 @@
 namespace Jkr::Network {
 class ServerInterface {
     public:
-    using OnClientConnectionFunctionType    = std::function<bool(sp<Connection>)>;
-    using OnClientDisConnectionFunctionType = std::function<void(sp<Connection>)>;
-    using OnMessageFunctionType             = std::function<void(sp<Connection>, Message&)>;
-    using OnClientValidationFunctionType    = Connection::OnClientValidationFunctionType;
     ServerInterface(uint16_t inPort)
         : mAsioAcceptor(mAsioContext, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), inPort)) {}
     ~ServerInterface() { Stop(); }

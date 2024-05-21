@@ -61,29 +61,28 @@
 #include <Network/Server.hpp>
 using namespace Jkr;
 int main() {
+    using namespace Network;
     Network::ServerInterface Server(60000);
-    Network::ServerInterface::OnClientConnectionFunctionType OnClientConnectionFunction =
-         [](sp<Network::Connection> client) {
-             Network::Message Msg;
-             Msg.mHeader.mId = 2;
-             client->Send(Msg);
-             return true;
-         };
+    OnClientConnectionFunctionType OnClientConnectionFunction = [](sp<Network::Connection> client) {
+        Network::Message Msg;
+        Msg.mHeader.mId = 2;
+        client->Send(Msg);
+        return true;
+    };
 
-    Network::ServerInterface::OnClientValidationFunctionType OnClientValidationFunction =
-         [](sp<Network::Connection> client) {
+    OnClientValidationFunctionType OnClientValidationFunction = [](sp<Network::Connection> client) {
 
-         };
+    };
     Server.Start(OnClientValidationFunction, OnClientConnectionFunction);
-    Network::ServerInterface::OnMessageFunctionType OnMessage =
-         [](sp<Network::Connection> inConnection, Network::Message& msg) {
-             switch (msg.mHeader.mId) {
-                 case 1:
-                     ksai_print(s("[") + std::to_string(inConnection->GetId()) + "]: Server Ping");
-                     inConnection->Send(msg);
-                     break;
-             }
-         };
+    OnMessageFunctionType OnMessage = [](sp<Network::Connection> inConnection,
+                                         Network::Message& msg) {
+        switch (msg.mHeader.mId) {
+            case 1:
+                ksai_print(s("[") + std::to_string(inConnection->GetId()) + "]: Server Ping");
+                inConnection->Send(msg);
+                break;
+        }
+    };
     while (true) {
         Server.Update(OnMessage);
     }

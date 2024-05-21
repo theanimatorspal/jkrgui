@@ -3,7 +3,7 @@
 using namespace Jkr;
 int main() {
     Network::ClientInterface Client;
-    Network::Connection::OnClientValidationFunctionType OnClientValidationFunction =
+    Network::OnClientValidationFunctionType OnClientValidationFunction =
          [](sp<Network::Connection>) {};
     Client.Connect(OnClientValidationFunction, "192.168.56.1", 60000);
     auto PingServer = [&]() {

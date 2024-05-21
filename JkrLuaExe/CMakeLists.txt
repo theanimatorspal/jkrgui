@@ -13,6 +13,7 @@
     "JkrTextRenderers.cpp"
     "JkrMultiThreading.cpp"
     "JkrLuaPlatform.cpp"
+    "JkrNetwork.cpp"
 )
 if(ANDROID)
      add_library(JkrLuaExe SHARED ${JKR_SOURCES})

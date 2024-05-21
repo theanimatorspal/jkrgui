@@ -33,8 +33,7 @@ class Painter {
     void BindDrawPipeline(VulkanCommandBuffer& inBuffer);
 
     template <class PushType>
-    void Draw_EXT(const Primitive& inPrimitive,
-                  const vk::ArrayProxy<PushType> inPushConstants,
+    void Draw_EXT(const vk::ArrayProxy<PushType> inPushConstants,
                   const Window& inWindow,
                   uint32_t inIndexCount,
                   uint32_t inInstanceCount,
@@ -43,8 +42,7 @@ class Painter {
                   CmdParam inCmdContext = CmdParam::UI);
 
     template <class PushType>
-    void Draw_EXT(const Primitive& inPrimitive,
-                  const vk::ArrayProxy<PushType> inPushConstants,
+    void Draw_EXT(const vk::ArrayProxy<PushType> inPushConstants,
                   VulkanCommandBuffer& inCmdBuffer,
                   uint32_t inIndexCount,
                   uint32_t inInstanceCount,
@@ -99,8 +97,7 @@ void Painter::Dispatch_EXT(Window& inWindow,
 }
 
 template <class PushType>
-void Painter::Draw_EXT(const Primitive& inPrimitive,
-                       const vk::ArrayProxy<PushType> inPushConstants,
+void Painter::Draw_EXT(const vk::ArrayProxy<PushType> inPushConstants,
                        const Window& inWindow,
                        uint32_t inIndexCount,
                        uint32_t inInstanceCount,
@@ -115,8 +112,7 @@ void Painter::Draw_EXT(const Primitive& inPrimitive,
 }
 
 template <class PushType>
-void Painter::Draw_EXT(const Primitive& inPrimitive,
-                       const vk::ArrayProxy<PushType> inPushConstants,
+void Painter::Draw_EXT(const vk::ArrayProxy<PushType> inPushConstants,
                        VulkanCommandBuffer& inCmdBuffer,
                        uint32_t inIndexCount,
                        uint32_t inInstanceCount,

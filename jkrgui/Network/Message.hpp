@@ -12,6 +12,13 @@ struct Message {
     MessageHeader mHeader;
     std::vector<uint8_t> mBody;
     size_t size() const { return mBody.size(); }
+    template <typename DataType> void Insert(const DataType& inData) { *this << inData; }
+    template <typename DataType> DataType Get() {
+        DataType type;
+        *this >> type;
+        return type;
+    }
+
     friend std::ostream& operator<<(std::ostream& os, const Message& msg) {
         os << "ID:" << int(msg.mHeader.mId) << " Size:" << msg.mHeader.mSize;
         return os;
