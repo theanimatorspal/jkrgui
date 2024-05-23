@@ -1,5 +1,5 @@
 #include "JkrLuaExe.hpp"
-#include "Misc/ThreeD/World3D.hpp"
+#include "Renderers/ThreeD/World3D.hpp"
 #include "Renderers/ThreeD/Simple3D.hpp"
 #include "Renderers/TwoD/Shape.hpp"
 #include "sol/sol.hpp"
@@ -67,7 +67,7 @@ void CreateMiscBindings(sol::state& inState) {
          "Draw",
          &Jkr::Renderer::CustomImagePainter::Draw<DefaultCustomImagePainterPushConstant>);
 
-    using Uniform3D = Jkr::Misc::_3D::Uniform3D;
+    using Uniform3D = Jkr::Renderer::_3D::Uniform3D;
     using Simple3D  = Jkr::Renderer::_3D::Simple3D;
     using namespace Jkr::Renderer::_3D;
     Jkr.new_usertype<Uniform3D>(
@@ -102,9 +102,15 @@ void CreateMiscBindings(sol::state& inState) {
          "AddBindingsToUniform3DGLTF",
          &Uniform3D::AddBindingsToUniform3DGLTF,
          "AddTextureFromShapeImage",
-         &Uniform3D::AddTextureFromShapeImage);
+         &Uniform3D::AddTextureFromShapeImage,
+         "AddGenerateBRDFLookupTable",
+         &Uniform3D::AddGenerateBRDFLookupTable,
+         "AddGenerateIrradianceCube",
+         &Uniform3D::AddGenerateIrradianceCube,
+         "AddGeneratePrefilteredCube",
+         &Uniform3D::AddGeneratePrefilteredCube);
 
-    using namespace Jkr::Misc::_3D;
+    using namespace Jkr::Renderer::_3D;
     Jkr.new_usertype<Camera3D>(
          "Camera3D",
          sol::call_constructor,
@@ -228,6 +234,11 @@ void CreateMiscBindings(sol::state& inState) {
                               &World3D::GetUniform3D,
                               "GetSimple3D",
                               &World3D::GetSimple3D,
+                              "GetSkyboxImageBase",
+                              &World3D::GetSkyboxImageBase,
+                              "GetWorldInfo",
+                              &World3D::GetWorldInfo,
+
                               "MakeExplicitObjectsVector",
                               &World3D::MakeExplicitObjectsVector,
                               "SetCurrentCamera",

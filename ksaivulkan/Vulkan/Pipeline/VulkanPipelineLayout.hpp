@@ -2,7 +2,14 @@
 #include "VulkanDescriptorSetLayout.hpp"
 
 namespace ksai {
-enum class PipelineContext { Default, DefaultWithGeometry, Skybox, Compute, Shadow };
+enum class PipelineContext {
+    Default,
+    DefaultSingleSampled,
+    DefaultWithGeometry,
+    Skybox,
+    Compute,
+    Shadow
+};
 }
 
 namespace ksai {

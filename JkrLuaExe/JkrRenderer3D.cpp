@@ -1,5 +1,5 @@
 #include "sol/sol.hpp"
-#include <Misc/ThreeD/World3D.hpp>
+#include <Renderers/ThreeD/World3D.hpp>
 #include <Renderers/ThreeD/Simple3D.hpp>
 
 namespace JkrEXE {

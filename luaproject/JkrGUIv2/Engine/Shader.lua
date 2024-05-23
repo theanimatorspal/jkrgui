@@ -749,7 +749,7 @@ PBR.Skybox3dV = Engine.Shader()
         ]]).InvertY()
     .NewLine()
     .GlslMainEnd()
-    .NewLine().str
+    .NewLine()
 
 PBR.Skybox3dF = Engine.Shader()
     .Header(450)
@@ -774,7 +774,7 @@ PBR.Skybox3dF = Engine.Shader()
 	outFragColor = vec4(Color, 1.0);
         ]])
     .GlslMainEnd()
-    .NewLine().str
+    .NewLine()
 
 
 PBR.IBLV = Engine.Shader()
@@ -796,7 +796,7 @@ PBR.IBLV = Engine.Shader()
 	gl_Position =  Ubo.proj * Ubo.view * vec4(vWorldPos, 1.0);
     ]]
     .GlslMainEnd()
-    .str
+
 
 PBR.IBLF = Engine.Shader()
     .Header(450)
@@ -888,49 +888,9 @@ PBR.IBLF = Engine.Shader()
     outFragColor = vec4(color, 1.0);
     ]]
     .GlslMainEnd()
-    .str
 
 
-PBR.IrradianceCubeF = Engine.Shader()
-    .Header(450)
-    .VLayout()
-    .Ubo()
-    .Push()
-    .Append [[
-    struct {
-          float deltaPhi;
-          float deltaTheta;
-    } consts;
-    consts.deltaPhi = Push.m2[0].x;
-    consts.deltaTheta = Push.m2[0].y;
-    ]]
-    .uSamplerCubeMap(20, "samplerEnv")
-    .PI()
-    .GlslMainBegin()
-    .outFragColor()
-    .Append [[
-	vec3 N = normalize(inPosition);
-	vec3 up = vec3(0.0, 1.0, 0.0);
-	vec3 right = normalize(cross(up, N));
-	up = cross(N, right);
 
-	const float TWO_PI = PI * 2.0;
-	const float HALF_PI = PI * 0.5;
-
-	vec3 color = vec3(0.0);
-	uint sampleCount = 0u;
-	for (float phi = 0.0; phi < TWO_PI; phi += consts.deltaPhi) {
-		for (float theta = 0.0; theta < HALF_PI; theta += consts.deltaTheta) {
-			vec3 tempVec = cos(phi) * right + sin(phi) * up;
-			vec3 sampleVector = cos(theta) * N + sin(theta) * tempVec;
-			color += texture(samplerEnv, sampleVector).rgb * cos(theta) * sin(theta);
-			sampleCount++;
-		}
-	}
-	outFragColor = vec4(PI * color / float(sampleCount), 1.0);
-    ]]
-    .GlslMainEnd()
-    .str
 
 PBR.GenBrdfLutV = Engine.Shader()
     .Header(450)
@@ -941,7 +901,7 @@ PBR.GenBrdfLutV = Engine.Shader()
         gl_Position = vec4(vUV * 2.0f - 1.0f, 0.0f, 1.0f);
     ]]
     .GlslMainEnd()
-    .str
+
 
 PBR.GenBrdfLutF = Engine.Shader()
     .Header(450)
@@ -959,7 +919,7 @@ PBR.GenBrdfLutF = Engine.Shader()
     .Append [[
         outFragColor = vec4(BRDF(vUV.s, vUV.t), 0.0, 1.0);
     ]]
-    .GlslMainEnd().str
+    .GlslMainEnd()
 
 
 PBR.FilterCubeV = Engine.Shader()
@@ -973,7 +933,7 @@ PBR.FilterCubeV = Engine.Shader()
     vUVW = inPosition;
     gl_Position = Ubo.proj * Ubo.view * Push.model * vec4(inPosition, 1.0);
     ]]
-    .GlslMainEnd().str
+    .GlslMainEnd()
 
 PBR.PreFilterEnvMapF = Engine.Shader()
     .Header(450)
@@ -1003,11 +963,53 @@ PBR.PreFilterEnvMapF = Engine.Shader()
     vec3 N = normalize(inPos);
 	outFragColor = vec4(PrefilterEnvMap(N, consts.roughness), 1.0);
     ]]
-    .GlslMainEnd().Print()
-    .str
+    .GlslMainEnd()
+
+
+PBR.IrradianceCubeF = Engine.Shader()
+    .Header(450)
+    .outFragColor()
+    .Push()
+    .In(0, "vec3", "vUVW")
+    .Append [[
+    struct {
+          float deltaPhi;
+          float deltaTheta;
+    } consts;
+    ]]
+    .uSamplerCubeMap(20, "samplerEnv")
+    .PI()
+    .GlslMainBegin()
+    .Append [[
+    consts.deltaPhi = Push.m2[0].x;
+    consts.deltaTheta = Push.m2[0].y;
+
+	vec3 N = normalize(vUVW);
+	vec3 up = vec3(0.0, 1.0, 0.0);
+	vec3 right = normalize(cross(up, N));
+	up = cross(N, right);
+
+	const float TWO_PI = PI * 2.0;
+	const float HALF_PI = PI * 0.5;
+
+	vec3 color = vec3(0.0);
+	uint sampleCount = 0u;
+	for (float phi = 0.0; phi < TWO_PI; phi += consts.deltaPhi) {
+		for (float theta = 0.0; theta < HALF_PI; theta += consts.deltaTheta) {
+			vec3 tempVec = cos(phi) * right + sin(phi) * up;
+			vec3 sampleVector = cos(theta) * N + sin(theta) * tempVec;
+			color += texture(samplerEnv, sampleVector).rgb * cos(theta) * sin(theta);
+			sampleCount++;
+		}
+	}
+	outFragColor = vec4(PI * color / float(sampleCount), 1.0);
+    ]]
+    .GlslMainEnd()
 
 
 PBR.BasicCompute = Engine.Shader()
     .Header(450)
     .GlslMainBegin()
-    .GlslMainEnd().str
+    .GlslMainEnd()
+
+-- TODO Remove str form everywhere

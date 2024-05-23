@@ -1,5 +1,5 @@
 {
-          "workbench.colorTheme": "GitHub Light",
+          "workbench.colorTheme": "Gruvbox Dark (Hard)",
           "git.enableSmartCommit": true,
           "git.confirmSync": false,
           "gitlens.currentLine.enabled": false,
@@ -19,12 +19,12 @@
           "cmake.parallelJobs": 8,
           "cmake.clearOutputBeforeBuild": true,
           "cmake.debugConfig": {
-                    "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\PBR",
+                    "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\SampraharReturns",
                     "visualizerFile": "${workspaceFolder}/Visualizers/glm.natvis"
           },
           /* EDITOR */
           "editor.matchBrackets": "near",
-          "editor.fontFamily": "Cascadia Code",
+          "editor.fontFamily": "Victor Mono",
           "editor.fontWeight": "normal",
           "editor.fontSize": 16,
           "editor.tabSize": 10,
@@ -60,7 +60,7 @@
                               {
                                         "scope": "entity.name.function",
                                         "settings": {
-                                                  "fontStyle": "italic bold",
+                                                  "fontStyle": "italic",
                                                   "foreground": "#0f89ff"
                                         }
                               }

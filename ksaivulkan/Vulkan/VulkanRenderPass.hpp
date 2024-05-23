@@ -29,7 +29,6 @@ class VulkanRenderPass : public VulkanRenderPassBase {
                      const VulkanImage& inColorImageTarget,
                      const VulkanImage& inDepthImage,
                      vk::SampleCountFlagBits inMSAASamples);
-    VulkanRenderPass(const VulkanDevice& inDevice, const VulkanImage& inColorImage);
     ~VulkanRenderPass() { mDevice.destroyRenderPass(mRenderPass); }
 
     private:

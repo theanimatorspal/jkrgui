@@ -48,9 +48,10 @@ class PainterParameter<PainterParameterContext::StorageBuffer> : public PainterP
 
     PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
 
-    private:
     Up<StorageBufferType> mStorageBufferPtr;
     Up<StorageBufferTypeCoherent> mStorageBufferCoherentPtr;
+
+    private:
     void* mStorageBufferCoherentMemoryMappedRegion;
 };
 
@@ -81,9 +82,10 @@ class PainterParameter<PainterParameterContext::UniformBuffer> : public PainterP
 
     PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
 
+    Up<UniformBufferType> mUniformBufferPtr;
+
     private:
     sz mSize;
-    Up<UniformBufferType> mUniformBufferPtr;
     void* mUniformMappedMemoryRegion;
 };
 
@@ -112,7 +114,6 @@ class PainterParameter<PainterParameterContext::StorageImage> : public PainterPa
 
     PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
 
-    private:
     Up<StorageImageType> mStorageImagePtr;
     Up<VulkanSampler> mSampler;
 };
@@ -165,7 +166,6 @@ class PainterParameter<PainterParameterContext::UniformImage> : public PainterPa
 
     PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
 
-    private:
     Up<UniformImageType> mUniformImagePtr;
     Up<DepthImageType> mDepthImagePtr;
     Up<VulkanSampler> mSampler;
@@ -195,7 +195,6 @@ class PainterParameter<PainterParameterContext::SkyboxImage> : public PainterPar
 
     PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
 
-    private:
     Up<SkyboxImageType> mUniformImagePtr;
     Up<VulkanSampler> mSampler;
 };
@@ -208,7 +207,6 @@ class PainterParameter<PainterParameterContext::UniformSampler> : public Painter
 
     PainterParameter(const Instance& inInstance) : PainterParameterBase(inInstance) {}
 
-    private:
     Up<VulkanSampler> mSampler;
 };
 

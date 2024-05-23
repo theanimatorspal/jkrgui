@@ -1,6 +1,6 @@
 #include "Renderers/ThreeD/glTF_Model.hpp"
 
-namespace Jkr::Misc::_3D {
+namespace Jkr::Renderer::_3D {
 using namespace glm;
 struct Object3D {
     using BoundingBox = Jkr::Renderer::_3D::glTF_Model::BoundingBox;
@@ -41,4 +41,4 @@ struct Object3D {
     private:
     Object3D* mParent;
 };
-} // namespace Jkr::Misc::_3D
+} // namespace Jkr::Renderer::_3D

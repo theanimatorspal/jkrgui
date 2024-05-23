@@ -11,26 +11,24 @@
 #include "WindowMulT.hpp"
 
 // TODO Refactor, Make a world base (Or however) with Object, Lights and Cameras Only
-namespace Jkr::Misc::_3D {
+namespace Jkr::Renderer::_3D {
 using Simple3D = Renderer::_3D::Simple3D;
 using Shape3D  = Renderer::_3D::Shape;
+using namespace ksai::kstd;
 
 struct World3D {
-    using Object3D    = Jkr::Misc::_3D::Object3D;
+    using Object3D    = Jkr::Renderer::_3D::Object3D;
     using BoundingBox = Renderer::_3D::glTF_Model::BoundingBox;
-    struct WorldInfoUniform {
-        alignas(16) glm::mat4 mView;
-        alignas(16) glm::mat4 mProjection;
-        glm::vec3 mCameraPosition;
-        alignas(16) glm::vec4 mNearFar;
-        alignas(16) glm::vec4 mLights[8];
-        alignas(16) glm::mat4 mShadowMatrix;
-        alignas(16) glm::mat4 mLightsDirections[8];
-    };
     struct Light3D {
         glm::vec4 mPosition{0.0f};
         glm::vec4 mDirection{0.0f};
     };
+
+    /* ============================================================
+
+        GETTERs
+
+    ============================================================== */
     GETTER MakeExplicitObjectsVector() -> v<Object3D> { return {}; }
     GETTER GetCamera3D(int inId) { return &mCameras[inId]; }
     GETTER GetCurrentCamera() { return &mCameras[mCurrentCamera]; }
@@ -38,9 +36,25 @@ struct World3D {
     GETTER GetUniform3D(int inId) { return mUniforms[inId].get(); }
     GETTER GetSimple3D(int inId) { return mSimple3Ds[inId].get(); }
     SETTER SetCurrentCamera(int inId) { mCurrentCamera = inId; }
+    GETTER GetSkyboxImageBase(int inId) -> VulkanImageBase& {
+        return mSkyboxImages[inId]->GetUniformImage();
+    }
+    WorldInfoUniform GetWorldInfo();
+
+    /* ============================================================
+
+        BuildBasic
+
+    ============================================================== */
 
     static Up<World3D> CreateWorld3D(Shape3D& inShape);
     void BuildBasic();
+
+    /* ============================================================
+
+        Modification Routines
+
+    ============================================================== */
 
     void AddCamera(Camera3D& inCamera) { mCameras.push_back(inCamera); }
     int AddGLTFModel(std::string_view inFileName);
@@ -52,11 +66,18 @@ struct World3D {
                              Renderer::CmdParam inParam);
     void Event(Jkr::EventManager& inEvent);
     void Update(Jkr::EventManager& inEvent);
+
+    /* ============================================================
+
+        Utility Routines
+
+    ============================================================== */
     void AddWorldInfoToUniform3D(int inId);
     void AddSkyboxToUniform3D(Instance& inInstance, sv inFolderPath, int inId, int inSet);
     void AddShadowMapToUniform3D(WindowMulT& inWindow, int inId, int inSet);
     void AddWorldPrimitiveToUniform3D(Instance& inInstance, Uniform3D& inUniform3D, int inId);
 
+    /* PBR Routines */
     World3D(Shape3D& inShape) : mShape(inShape) {}
 
     private:
@@ -73,6 +94,6 @@ struct World3D {
     const int invalid                = -1;
     float mCameraMovementSensitivity = 0.1f;
     float mCameraRotateSensitivity   = 0.1f;
-    Up<SkyboxImageType> mSkyboxImage;
+    std::vector<Up<SkyboxImageType>> mSkyboxImages;
 };
-} // namespace Jkr::Misc::_3D
+} // namespace Jkr::Renderer::_3D

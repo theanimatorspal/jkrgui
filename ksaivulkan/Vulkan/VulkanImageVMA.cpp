@@ -10,7 +10,7 @@ VulkanImageVMA::VulkanImageVMA(const VulkanVMA& inVMA,
                                ui inLayerCount,
                                ui inSamples,
                                ui inMips,
-                               opt<vk::ImageUsageFlagBits> inBits)
+                               opt<vk::ImageUsageFlags> inBits)
     : VulkanImageBase(inDevice), mVMA(inVMA) {
     FillImageProperties(inImageContext, inSamples);
     mImageProperties.mArrayLayers   = inLayerCount;

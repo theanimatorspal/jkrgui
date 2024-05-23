@@ -6,7 +6,7 @@
 #include <Renderers/TwoD/Shape.hpp>
 #include <cstring>
 
-namespace Jkr::Misc::_3D {
+namespace Jkr::Renderer::_3D {
 using Simple3D = Renderer::_3D::Simple3D;
 class Uniform3D {
     public:
@@ -15,10 +15,22 @@ class Uniform3D {
     using UniformBufferType = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformBuffer>;
     using StorageBufferType = Jkr::PainterParameter<Jkr::PainterParameterContext::StorageBuffer>;
 
+    /* ============================================================
+
+        GETTER
+
+    ============================================================== */
+
     GETTER& GetImagesRef() { return mImages; }
     GETTER& GetUniformBuffersRef() { return mUniformBuffers; }
     GETTER& GetStorageBuffersRef() { return mStorageBuffers; }
     GETTER& GetVulkanDescriptorSet() { return *mVulkanDescriptorSet; }
+
+    /* ============================================================
+
+        Creator/Builder Pattern
+
+    ============================================================== */
 
     static Up<Uniform3D> CreateByGLTFNodeIndex(const Instance& inInstance,
                                                Simple3D& inSimple3D,
@@ -35,6 +47,12 @@ class Uniform3D {
     void Build(Simple3D& inSimple3D,
                Renderer::_3D::glTF_Model& inModel,
                Renderer::_3D::glTF_Model::Primitive& inPrimitive);
+
+    /* ============================================================
+
+        Modification Routines
+
+    ============================================================== */
 
     void AddTexture(int inDstBinding, s inFileName, ui inDstSet = 1);
     void AddTextureByVector(
@@ -57,6 +75,44 @@ class Uniform3D {
                                   int inShapeImageId,
                                   int inDstImageBinding = kstd::BindingIndex::Uniform::Images,
                                   int inDstSet          = 0);
+
+    void AddGenerateBRDFLookupTable(Instance& inInstance,
+                                    WindowMulT& inWindow,
+                                    std::string_view inFileName,
+                                    std::string_view inVertexShader,
+                                    std::string_view inFragmentShader,
+                                    std::string_view inComputeShader,
+                                    bool inShouldLoad,
+                                    int inDstBinding = kstd::BindingIndex::Uniform::Images,
+                                    int inDstSet     = 1);
+
+    void AddGenerateIrradianceCube(Instance& inInstance,
+                                   WindowMulT& inWindow,
+                                   Renderer::_3D::Shape& inShape,
+                                   int inSkyboxModelIndex,
+                                   VulkanImageBase& inEnvironmentCubeMap,
+                                   kstd::WorldInfoUniform inWorldInfo,
+                                   std::string_view inFileName,
+                                   std::string_view inVertexShader,
+                                   std::string_view inFragmentShader,
+                                   std::string_view inComputeShader,
+                                   bool inShouldLoad,
+                                   int inDstBinding = kstd::BindingIndex::Uniform::CubeMapImage,
+                                   int inDstSet     = 1);
+
+    void AddGeneratePrefilteredCube(Instance& inInstance,
+                                    WindowMulT& inWindow,
+                                    Renderer::_3D::Shape& inShape,
+                                    int inSkyboxModelIndex,
+                                    VulkanImageBase& inEnvironmentCubeMap,
+                                    kstd::WorldInfoUniform inWorldInfo,
+                                    std::string_view inFileName,
+                                    std::string_view inVertexShader,
+                                    std::string_view inFragmentShader,
+                                    std::string_view inComputeShader,
+                                    bool inShouldLoad,
+                                    int inDstBinding = kstd::BindingIndex::Uniform::CubeMapImage,
+                                    int inDstSet     = 1);
 
     template <typename T> void UpdateStorageBuffer(int inDstBinding, T inData);
     template <typename T> void UpdateUniformBuffer(int inDstBinding, T inData);
@@ -91,4 +147,4 @@ template <typename T> inline void Uniform3D::UpdateStorageBuffer(int inDstBindin
     memcpy(memory, &data, sizeof(T));
 }
 
-} // namespace Jkr::Misc::_3D
+} // namespace Jkr::Renderer::_3D

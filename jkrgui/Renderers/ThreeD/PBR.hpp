@@ -10,7 +10,7 @@
 namespace Jkr::Renderer {
 using namespace ksai;
 using namespace Jkr;
-class PBR {
+struct PBR {
     static Up<VulkanImageVMA> GenerateBRDFLookupTable(Instance& inInstance,
                                                       WindowMulT& inWindow,
                                                       std::string_view inFileName,
@@ -21,24 +21,24 @@ class PBR {
     static Up<VulkanImageVMA> GenerateIrradianceCube(Instance& inInstance,
                                                      WindowMulT& inWindow,
                                                      _3D::Shape& inShape,
-                                                     int inSkyboxIndex,
                                                      int inSkyboxModelIndex,
                                                      VulkanImageBase& inEnvironmentCubeMap,
                                                      std::string_view inFileName,
                                                      std::string_view inVertexShader,
                                                      std::string_view inFragmentShader,
                                                      std::string_view inComputeShader,
-                                                     bool inShouldLoad);
+                                                     bool inShouldLoad,
+                                                     kstd::WorldInfoUniform inUniform);
     static Up<VulkanImageVMA> GeneratePrefilteredCube(Instance& inInstance,
                                                       WindowMulT& inWindow,
                                                       _3D::Shape& inShape,
-                                                      int inSkyboxIndex,
                                                       int inSkyboxModelIndex,
                                                       VulkanImageBase& inEnvironmentCubeMap,
                                                       std::string_view inFileName,
                                                       std::string_view inVertexShader,
                                                       std::string_view inFragmentShader,
                                                       std::string_view inComputeShader,
-                                                      bool inShouldLoad);
+                                                      bool inShouldLoad,
+                                                      kstd::WorldInfoUniform inUniform);
 };
 } // namespace Jkr::Renderer

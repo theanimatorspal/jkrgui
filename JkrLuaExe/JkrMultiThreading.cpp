@@ -1,6 +1,6 @@
 #include "JkrLuaExe.hpp"
 #include "Misc/RecycleBin.hpp"
-#include "Misc/ThreeD/World3D.hpp"
+#include "Renderers/ThreeD/World3D.hpp"
 #include "Renderers/Generator.hpp"
 #include "Renderers/Renderer_base.hpp"
 #include "Renderers/TwoD/Line.hpp"
@@ -8,7 +8,7 @@
 #include "WindowMulT.hpp"
 #include "sol/sol.hpp"
 #include <Misc/RecycleBin.hpp>
-#include <Misc/ThreeD/World3D.hpp>
+#include <Renderers/ThreeD/World3D.hpp>
 #include <Renderers/TwoD/Shape.hpp>
 #include <WindowMulT.hpp>
 #include <mutex>
@@ -160,11 +160,11 @@ inline sol::object MultiThreading::Copy(sol::object obj, sol::state& target) {
 
                                    DefaultCustomImagePainterPushConstant,
                                    Jkr::Misc::RecycleBin<int>,
-                                   Jkr::Misc::_3D::Camera3D,
-                                   Jkr::Misc::_3D::World3D,
-                                   Jkr::Misc::_3D::World3D::Object3D,
-                                   std::vector<Jkr::Misc::_3D::World3D::Object3D>&,
-                                   Jkr::Misc::_3D::Uniform3D,
+                                   Jkr::Renderer::_3D::Camera3D,
+                                   Jkr::Renderer::_3D::World3D,
+                                   Jkr::Renderer::_3D::World3D::Object3D,
+                                   std::vector<Jkr::Renderer::_3D::World3D::Object3D>&,
+                                   Jkr::Renderer::_3D::Uniform3D,
 
                                    Jkr::Renderer::Line,
                                    Jkr::Renderer::_3D::Shape,

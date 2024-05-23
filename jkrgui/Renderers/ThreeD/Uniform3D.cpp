@@ -2,11 +2,10 @@
 #include "Global/Standards.hpp"
 #include "Renderers/ThreeD/glTF_Model.hpp"
 #include "TestUtils.hpp"
-#include "VulkanBuffer.hpp"
+#include <Renderers/ThreeD/PBR.hpp>
 
-using namespace Jkr::Misc::_3D;
+using namespace Jkr::Renderer::_3D;
 using namespace Jkr;
-constexpr int JointMatricesReserveSize = 500;
 
 void Uniform3D::AddTexture(int inDstBinding, s inFileName, ui inDestSet) {
     Up<ImageType> Image = MakeUp<ImageType>(mInstance);
@@ -205,4 +204,90 @@ void Uniform3D::Build(Simple3D& inSimple3D,
     if (Material.mEmissiveTextureIndex != -1) {
         FillByTexture(Material.mEmissiveTextureIndex);
     }
+}
+
+void Uniform3D::AddGenerateBRDFLookupTable(Instance& inInstance,
+                                           WindowMulT& inWindow,
+                                           std::string_view inFileName,
+                                           std::string_view inVertexShader,
+                                           std::string_view inFragmentShader,
+                                           std::string_view inComputeShader,
+                                           bool inShouldLoad,
+                                           int inDstBinding,
+                                           int inDstSet) {
+    auto VMAimage                           = Renderer::PBR::GenerateBRDFLookupTable(inInstance,
+                                                           inWindow,
+                                                           inFileName,
+                                                           inVertexShader,
+                                                           inFragmentShader,
+                                                           inComputeShader,
+                                                           inShouldLoad);
+
+    mImages[inDstBinding]                   = MakeUp<ImageType>(inInstance);
+    mImages[inDstBinding]->mUniformImagePtr = mv(VMAimage);
+    mImages[inDstBinding]->mSampler =
+         MakeUp<VulkanSampler>(inInstance.GetDevice(), ImageContext::CubeCompatible);
+    mImages[inDstBinding]->Register(0, inDstBinding, 0, *mVulkanDescriptorSet);
+}
+
+void Uniform3D::AddGenerateIrradianceCube(Instance& inInstance,
+                                          WindowMulT& inWindow,
+                                          Renderer::_3D::Shape& inShape,
+                                          int inSkyboxModelIndex,
+                                          VulkanImageBase& inEnvironmentCubeMap,
+                                          kstd::WorldInfoUniform inWorldInfoUniform,
+                                          std::string_view inFileName,
+                                          std::string_view inVertexShader,
+                                          std::string_view inFragmentShader,
+                                          std::string_view inComputeShader,
+                                          bool inShouldLoad,
+                                          int inDstBinding,
+                                          int inDstSet) {
+    auto VMAimage                           = Renderer::PBR::GenerateIrradianceCube(inInstance,
+                                                          inWindow,
+                                                          inShape,
+                                                          inSkyboxModelIndex,
+                                                          inEnvironmentCubeMap,
+                                                          inFileName,
+                                                          inVertexShader,
+                                                          inFragmentShader,
+                                                          inComputeShader,
+                                                          inShouldLoad,
+                                                          inWorldInfoUniform);
+    mImages[inDstBinding]                   = MakeUp<ImageType>(inInstance);
+    mImages[inDstBinding]->mUniformImagePtr = mv(VMAimage);
+    mImages[inDstBinding]->mSampler =
+         MakeUp<VulkanSampler>(inInstance.GetDevice(), ImageContext::CubeCompatible);
+    mImages[inDstBinding]->Register(0, inDstBinding, 0, *mVulkanDescriptorSet);
+}
+
+void Uniform3D::AddGeneratePrefilteredCube(Instance& inInstance,
+                                           WindowMulT& inWindow,
+                                           Renderer::_3D::Shape& inShape,
+                                           int inSkyboxModelIndex,
+                                           VulkanImageBase& inEnvironmentCubeMap,
+                                           kstd::WorldInfoUniform inWorldInfo,
+                                           std::string_view inFileName,
+                                           std::string_view inVertexShader,
+                                           std::string_view inFragmentShader,
+                                           std::string_view inComputeShader,
+                                           bool inShouldLoad,
+                                           int inDstBinding,
+                                           int inDstSet) {
+    auto VMAimage                           = Renderer::PBR::GeneratePrefilteredCube(inInstance,
+                                                           inWindow,
+                                                           inShape,
+                                                           inSkyboxModelIndex,
+                                                           inEnvironmentCubeMap,
+                                                           inFileName,
+                                                           inVertexShader,
+                                                           inFragmentShader,
+                                                           inComputeShader,
+                                                           inShouldLoad,
+                                                           inWorldInfo);
+    mImages[inDstBinding]                   = MakeUp<ImageType>(inInstance);
+    mImages[inDstBinding]->mUniformImagePtr = mv(VMAimage);
+    mImages[inDstBinding]->mSampler =
+         MakeUp<VulkanSampler>(inInstance.GetDevice(), ImageContext::CubeCompatible);
+    mImages[inDstBinding]->Register(0, inDstBinding, 0, *mVulkanDescriptorSet);
 }

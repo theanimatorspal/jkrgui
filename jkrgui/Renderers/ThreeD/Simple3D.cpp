@@ -64,7 +64,9 @@ void Simple3D::CompileWithCustomRenderPass(Jkr::Instance& inInstance,
                                            std::string_view inFragmentShader,
                                            std::string_view inComputeShader,
                                            bool inShouldLoad) {
-    mPainterCache = mu<PainterCache>(inInstance);
+
+    mPipelineContext = ksai::PipelineContext::DefaultSingleSampled;
+    mPainterCache    = mu<PainterCache>(inInstance);
     using namespace std;
     if (not inShouldLoad) {
         mPainterCache->Store(string(inFilename),

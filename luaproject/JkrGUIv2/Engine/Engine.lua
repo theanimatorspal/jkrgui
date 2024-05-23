@@ -10,7 +10,9 @@ Engine = {}
 Engine.Load = function(self, inEnableValidation)
     self.i = Jkr.CreateInstance(inEnableValidation)
     self.e = Jkr.CreateEventManager()
+    print("INSTANCE:: ", self.i)
     self.mt = Jkr.MultiThreading(self.i)
+    print("SHIT")
 end
 
 Engine.GravitationalForce = 10
@@ -316,4 +318,20 @@ Jkrmt.CreateObjectByGLTFPrimitiveAndUniform = function(inWorld3d,
     Object3D.mMatrix = gltf:GetNodeMatrixByIndex(NodeIndices[1])
 
     return Object3D
+end
+
+
+Engine.AddObject = function(modObjectsVector, inId, inAssociatedModel, inUniformIndex, inSimple3dIndex, inGLTFHandle,
+                            inMeshIndex)
+    local Object = Jkr.Object3D()
+    if inId then Object.mId = inId end
+    if inAssociatedModel then Object.mAssociatedModel = inAssociatedModel end
+    if inUniformIndex then Object.mAssociatedUniform = inUniformIndex end
+    if inSimple3dIndex then Object.mAssociatedSimple3D = inSimple3dIndex end
+    if (inGLTFHandle) then
+        local NodeIndices = inGLTFHandle:GetNodeIndexByMeshIndex(inMeshIndex)
+        Object.mMatrix = inGLTFHandle:GetNodeMatrixByIndex(NodeIndices[1])
+    end
+    modObjectsVector:add(Object)
+    return #modObjectsVector
 end

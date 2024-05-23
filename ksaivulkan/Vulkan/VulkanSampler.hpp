@@ -8,7 +8,7 @@ class VulkanSampler {
     // TODO Make this better
     VulkanSampler(const VulkanDevice& inDevice,
                   ImageContext inImageContext = ImageContext::Default,
-                  float inMinLod              = 1.0f,
+                  float inMinLod              = 0.0f,
                   float inMaxLoad             = 1.0f);
     ~VulkanSampler();
     GETTER& GetSamplerHandle() const { return mSampler; }

@@ -1,10 +1,10 @@
 #include "World3D.hpp"
 #include "EventManager.hpp"
 #include "Global/Standards.hpp"
-#include "Misc/ThreeD/Uniform3D.hpp"
-#include "SDL2/SDL_scancode.h"
-using namespace Jkr::Misc::_3D;
+#include "Renderers/ThreeD/Uniform3D.hpp"
+using namespace Jkr::Renderer::_3D;
 using namespace Jkr;
+using namespace ksai::kstd;
 
 constexpr int WorldInfoDescriptorSetIndex = 0;
 
@@ -47,14 +47,14 @@ int World3D::AddLight3D(glm::vec4 inPosition, glm::vec4 inDirection) {
 }
 
 void World3D::AddSkyboxToUniform3D(Instance& inInstance, sv inFolderPath, int inId, int inSet) {
-    mSkyboxImage             = mu<SkyboxImageType>(inInstance);
+    auto SkyboxImage         = mu<SkyboxImageType>(inInstance);
     std::vector<s> FileNames = {"px", "nx", "py", "ny", "pz", "nz"}; // TODO Make this better
     for (auto& st : FileNames) {
         st = s(inFolderPath) + st + ".png";
     }
-    mSkyboxImage->Setup(FileNames);
-    mUniforms[inId]->AddSkyboxImage(
-         *mSkyboxImage, kstd::BindingIndex::Uniform::CubeMapImage, inSet);
+    SkyboxImage->Setup(FileNames);
+    mUniforms[inId]->AddSkyboxImage(*SkyboxImage, kstd::BindingIndex::Uniform::CubeMapImage, inSet);
+    mSkyboxImages.push_back(mv(SkyboxImage));
 }
 
 void World3D::AddShadowMapToUniform3D(WindowMulT& inWindow, int inId, int inSet) {
@@ -119,7 +119,7 @@ void World3D::AddWorldInfoToUniform3D(int inId) {
     {};
 }
 
-void World3D::UpdateWorldInfoToUniform3D(int inId) {
+WorldInfoUniform World3D::GetWorldInfo() {
     WorldInfoUniform Uniform;
     Camera3D LightCamera;
     auto CurrentCamera = GetCurrentCamera();
@@ -135,7 +135,11 @@ void World3D::UpdateWorldInfoToUniform3D(int inId) {
                                  CurrentCamera->GetNearZ(),
                                  CurrentCamera->GetFarZ());
     Uniform.mShadowMatrix   = LightCamera.GetView();
-    mUniforms[inId]->UpdateUniformBuffer(kstd::BindingIndex::Uniform::WorldInfo, Uniform);
+    return Uniform;
+}
+
+void World3D::UpdateWorldInfoToUniform3D(int inId) {
+    mUniforms[inId]->UpdateUniformBuffer(kstd::BindingIndex::Uniform::WorldInfo, GetWorldInfo());
 }
 
 void World3D::AddWorldPrimitiveToUniform3D(Instance& inInstance, Uniform3D& inUniform3D, int inId) {

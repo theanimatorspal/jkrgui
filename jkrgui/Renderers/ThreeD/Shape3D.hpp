@@ -25,6 +25,7 @@ class Shape : public Renderer_base, public Shape_base {
     void Add(Generator& inGenerator, glm::vec3 inPosition, ui& outId);
     void Update(ui inId, Generator& inGenerator, glm::vec3 inPosition);
     void Bind(Window& inWindow, ComPar inCompar);
+    void BindByCommandBuffer(VulkanCommandBuffer& inCmdBuffer);
     void Dispatch(Window& inWindow);
 
     ui AddEXT(Generator& inGenerator, glm::vec3 inPosition);

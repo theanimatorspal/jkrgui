@@ -57,9 +57,6 @@ void VulkanPipelineBase::FillVertexInputDescriptions(
                  location, bindingIndex, format, AttributeOffset);
             AttributeOffset += AttributeSize;
         }
-        // std::ranges::sort(InputAttrDescription, {},
-        // &vk::VertexInputAttributeDescription::location);
-
         std::sort(InputAttrDescription.begin(),
                   InputAttrDescription.end(),
                   [](const auto& lhs, const auto& rhs) { return lhs.location < rhs.location; });
@@ -72,8 +69,10 @@ void VulkanPipelineBase::FillVertexInputDescriptions(
 
         const auto InputBindingWholeSize = AttributeOffset;
         const auto FirstBindingIndex     = 0;
-        VertexInputBindingDesp.push_back(
-             vk::VertexInputBindingDescription(FirstBindingIndex, InputBindingWholeSize));
+        if (Resources.stage_inputs.size() > 0) {
+            VertexInputBindingDesp.push_back(
+                 vk::VertexInputBindingDescription(FirstBindingIndex, InputBindingWholeSize));
+        }
     }
 }
 
@@ -220,6 +219,10 @@ void VulkanPipelineBase::BuildPipeline(VulkanPipelineCache& inCache,
 
         if (inPipelineContext == PipelineContext::Shadow) {
             PipelineShaderStageCreateInfos.resize(1); // Vertex Shader Only
+            PipelineMultisampleStateCreateInfo.setRasterizationSamples(vk::SampleCountFlagBits::e1);
+        }
+
+        if (inPipelineContext == PipelineContext::DefaultSingleSampled) {
             PipelineMultisampleStateCreateInfo.setRasterizationSamples(vk::SampleCountFlagBits::e1);
         }
 

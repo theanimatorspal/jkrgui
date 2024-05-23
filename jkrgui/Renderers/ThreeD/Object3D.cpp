@@ -1,6 +1,6 @@
 #include "Object3D.hpp"
 
-using namespace Jkr::Misc::_3D;
+using namespace Jkr::Renderer::_3D;
 
 bool Object3D::IsCollidingWith(Object3D& inObject) {
     const auto AABB1 = inObject.mBoundingBox.GetAABB(inObject.GetLocalMatrix());

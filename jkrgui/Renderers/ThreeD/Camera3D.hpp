@@ -9,7 +9,7 @@
 #include "glm/geometric.hpp"
 #include "glm/trigonometric.hpp"
 
-namespace Jkr::Misc::_3D {
+namespace Jkr::Renderer::_3D {
 using Simple3D = Renderer::_3D::Simple3D;
 using Shape3D  = Renderer::_3D::Shape;
 
@@ -89,4 +89,4 @@ struct Camera3D {
 
     glm::quat mQuaternion = glm::quat(0, 0, 0, -1);
 };
-} // namespace Jkr::Misc::_3D
+} // namespace Jkr::Renderer::_3D

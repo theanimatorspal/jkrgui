@@ -12,7 +12,16 @@ Up<VulkanImageVMA> PBR::GenerateBRDFLookupTable(Instance& inInstance,
                                                 bool inShouldLoad) {
     const int Dim                              = 512;
     Up<VulkanImageVMA> ColorAttachmentImagePtr = MakeUp<VulkanImageVMA>(
-         inInstance.GetVMA(), inInstance.GetDevice(), Dim, Dim, ImageContext::ColorAttach);
+         inInstance.GetVMA(),
+         inInstance.GetDevice(),
+         Dim,
+         Dim,
+         ImageContext::Default,
+         4,
+         1,
+         1,
+         1,
+         vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment);
     VulkanRenderPass<RenderPassContext::SingleColorAttachment> RenderPass(inInstance.GetDevice(),
                                                                           *ColorAttachmentImagePtr);
     VulkanFrameBuffer<1, VulkanImageVMA> FrameBuffer(
@@ -39,6 +48,9 @@ Up<VulkanImageVMA> PBR::GenerateBRDFLookupTable(Instance& inInstance,
     CommandBuffer.BeginRenderPass(
          RenderPass, vk::Extent2D{Dim, Dim}, FrameBuffer, std::array<float, 5>{1, 1, 1, 1, 1});
 
+    //     vk::Buffer Buffer = VK_NULL_HANDLE;
+    //     CommandBuffer.GetCommandBufferHandle().bindVertexBuffers(0, Buffer, {0});
+
     Simple3D.BindByCommandBuffer(CommandBuffer);
     CommandBuffer.GetCommandBufferHandle().draw(3, 1, 0, 0);
 
@@ -52,14 +64,14 @@ Up<VulkanImageVMA> PBR::GenerateBRDFLookupTable(Instance& inInstance,
 Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance& inInstance,
                                                WindowMulT& inWindow,
                                                _3D::Shape& inShape,
-                                               int inSkyboxIndex,
                                                int inSkyboxModelIndex,
                                                VulkanImageBase& inEnvironmentCubeMap,
                                                std::string_view inFileName,
                                                std::string_view inVertexShader,
                                                std::string_view inFragmentShader,
                                                std::string_view inComputeShader,
-                                               bool inShouldLoad) {
+                                               bool inShouldLoad,
+                                               kstd::WorldInfoUniform inWorldInfo) {
     const uint32_t Dim     = 64;
     const uint32_t NumMips = static_cast<uint32_t>(floor(log2(Dim))) + 1;
     auto IrradianceCubeMap = MakeUp<VulkanImageVMA>(inInstance.GetVMA(),
@@ -77,12 +89,13 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance& inInstance,
                                          inInstance.GetDevice(),
                                          Dim,
                                          Dim,
-                                         ImageContext::ColorAttach,
+                                         ImageContext::Default,
                                          4,
                                          1,
                                          1,
                                          1,
-                                         vk::ImageUsageFlagBits::eTransferSrc);
+                                         vk::ImageUsageFlagBits::eTransferSrc |
+                                              vk::ImageUsageFlagBits::eColorAttachment);
     VulkanRenderPass<RenderPassContext::SingleColorAttachment> RenderPass(inInstance.GetDevice(),
                                                                           OffscreenFBufferImage);
     VulkanFrameBuffer<1, VulkanImageVMA> FrameBuffer(
@@ -98,7 +111,7 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance& inInstance,
                                          inComputeShader,
                                          inShouldLoad);
 
-    VulkanDescriptorPool DescriptorPool(inInstance.GetDevice(), 1, 1);
+    VulkanDescriptorPool DescriptorPool(inInstance.GetDevice(), 10, 10);
     VulkanDescriptorSet DescriptorSet(
          inInstance.GetDevice(),
          DescriptorPool,
@@ -113,6 +126,12 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance& inInstance,
                kstd::BindingIndex::Uniform::CubeMapImage,
                0,
                1);
+
+    VulkanBufferVMA WorldInfo(inInstance.GetVMA(),
+                              inInstance.GetDevice(),
+                              sizeof(kstd::WorldInfoUniform),
+                              BufferContext::Uniform,
+                              MemoryType::HostVisibleAndCoherenet);
 
     using namespace glm;
     float DeltaPhi   = (2.0f * float(M_PI)) / 180.0f;
@@ -170,10 +189,18 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance& inInstance,
                                 std::array<float, 5>{0.0f, 0.0f, 0.2f, 0.0f});
 
             PushBlock.mvp = glm::perspective((float)(M_PI / 2.0), 1.0f, 0.1f, 512.0f) * matrices[f];
+            inShape.GetPrimitive().GetVertexBufferPtr()->Bind<BufferContext::Vertex>(Cmd);
+            inShape.GetPrimitive().GetIndexBufferPtr()->Bind<BufferContext::Index>(Cmd);
             Simple3D.BindByCommandBuffer(Cmd);
+
             DescriptorSet.Bind(vk::PipelineBindPoint::eGraphics,
                                Cmd,
-                               Simple3D.GetPainterCache().GetVertexFragmentPipelineLayout());
+                               Simple3D.GetPainterCache().GetVertexFragmentPipelineLayout(),
+                               0);
+            DescriptorSet.Bind(vk::PipelineBindPoint::eGraphics,
+                               Cmd,
+                               Simple3D.GetPainterCache().GetVertexFragmentPipelineLayout(),
+                               1);
             Simple3D.DrawByCommandBuffer(
                  Cmd, inShape, PushBlock, 0, inShape.GetIndexCount(inSkyboxModelIndex), 1);
             Cmd.EndRenderPass();
@@ -201,14 +228,14 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance& inInstance,
 Up<VulkanImageVMA> PBR::GeneratePrefilteredCube(Instance& inInstance,
                                                 WindowMulT& inWindow,
                                                 _3D::Shape& inShape,
-                                                int inSkyboxIndex,
                                                 int inSkyboxModelIndex,
                                                 VulkanImageBase& inEnvironmentCubeMap,
                                                 std::string_view inFileName,
                                                 std::string_view inVertexShader,
                                                 std::string_view inFragmentShader,
                                                 std::string_view inComputeShader,
-                                                bool inShouldLoad) {
+                                                bool inShouldLoad,
+                                                kstd::WorldInfoUniform inWorldInfo) {
     const int32_t Dim            = 512;
     const uint32_t NumMips       = static_cast<uint32_t>(floor(log2(Dim))) + 1;
     auto PrefilteredCubeMapImage = MakeUp<VulkanImageVMA>(inInstance.GetVMA(),

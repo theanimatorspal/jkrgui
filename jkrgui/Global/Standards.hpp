@@ -63,4 +63,20 @@ enum Uniform : int {
     CubeMapImage = 20
 };
 }; // namespace BindingIndex
+
+/* ============================================================
+
+    World Info Uniform
+
+============================================================== */
+struct WorldInfoUniform {
+    alignas(16) glm::mat4 mView;
+    alignas(16) glm::mat4 mProjection;
+    glm::vec3 mCameraPosition;
+    alignas(16) glm::vec4 mNearFar;
+    alignas(16) glm::vec4 mLights[8];
+    alignas(16) glm::mat4 mShadowMatrix;
+    alignas(16) glm::mat4 mLightsDirections[8];
+};
+
 } // namespace ksai::kstd
