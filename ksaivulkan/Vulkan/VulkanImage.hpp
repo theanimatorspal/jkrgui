@@ -14,6 +14,7 @@ class VulkanImageBase {
     GETTER GetInitialImageLayout() const { return mImageProperties.mInitialImageLayout; }
     GETTER GetAspect() const { return mImageProperties.mImageAspect; }
     GETTER GetImageProperty() const { return mImageProperties; }
+    GETTER& GetImagePropertyRef() { return mImageProperties; }
 
     VulkanImageBase(const VulkanDevice& inDevice, bool inDestroyImageView = true);
     ~VulkanImageBase();
@@ -29,16 +30,18 @@ class VulkanImageBase {
                                         const VulkanFence& inFence,
                                         vk::DeviceSize inSize,
                                         std::span<void**> inLayerImageDatas);
-    void CmdCopyImageFromImageAfterStage(const VulkanQueue<QueueContext::Graphics>& inQueue,
-                                         const VulkanCommandBuffer& inCmdBuffer,
+    void CmdCopyImageFromImageAfterStage(const VulkanCommandBuffer& inCmdBuffer,
                                          const VulkanDevice& inDevice,
                                          VulkanImageBase& inImage,
                                          vk::PipelineStageFlags inAfterStage,
                                          vk::AccessFlags inAfterStageAccessFlags,
-                                         int inFromMipLevel       = 0,
-                                         int inFromBaseArrayLayer = 0,
-                                         int inToMipLevel         = 0,
-                                         int inToBaseArrayLayer   = 0);
+                                         int inWidth                 = -1,
+                                         int inHeight                = -1,
+                                         int inFromMipLevel          = 0,
+                                         int inFromBaseArrayLayer    = 0,
+                                         int inToMipLevel            = 0,
+                                         int inToBaseArrayLayer      = 0,
+                                         int inArrayLayersToBeCopied = 1);
     void CmdTransitionImageLayout(const VulkanCommandBuffer& inBuffer,
                                   vk::ImageLayout inOldImageLayout,
                                   vk::ImageLayout inNewImageLayout,

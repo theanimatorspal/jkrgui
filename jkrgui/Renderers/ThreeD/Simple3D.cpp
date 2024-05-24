@@ -35,7 +35,6 @@ void Simple3D::Compile(Jkr::Instance& inInstance,
     mPainter = mu<Painter>(inInstance, inCompatibleWindow, *mPainterCache, mPipelineContext);
 }
 
-// TODO Remove this, and use the thing down below
 void Simple3D::CompileForShadowOffscreen(Jkr::Instance& inInstance,
                                          Jkr::WindowMulT& inCompatibleWindow,
                                          std::string_view inFilename,
@@ -53,7 +52,8 @@ void Simple3D::CompileForShadowOffscreen(Jkr::Instance& inInstance,
                                 inVertexShader,
                                 inFragmentShader,
                                 inComputeShader,
-                                inShouldLoad);
+                                inShouldLoad,
+                                mPipelineContext);
 }
 
 void Simple3D::CompileWithCustomRenderPass(Jkr::Instance& inInstance,
@@ -63,9 +63,10 @@ void Simple3D::CompileWithCustomRenderPass(Jkr::Instance& inInstance,
                                            std::string_view inVertexShader,
                                            std::string_view inFragmentShader,
                                            std::string_view inComputeShader,
-                                           bool inShouldLoad) {
+                                           bool inShouldLoad,
+                                           PipelineContext inPipelineContext) {
 
-    mPipelineContext = ksai::PipelineContext::DefaultSingleSampled;
+    mPipelineContext = inPipelineContext;
     mPainterCache    = mu<PainterCache>(inInstance);
     using namespace std;
     if (not inShouldLoad) {

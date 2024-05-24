@@ -73,6 +73,7 @@ struct World3D {
 
     ============================================================== */
     void AddWorldInfoToUniform3D(int inId);
+    void AddWorldInfoToUniform3DEXT(Uniform3D& inUniform);
     void AddSkyboxToUniform3D(Instance& inInstance, sv inFolderPath, int inId, int inSet);
     void AddShadowMapToUniform3D(WindowMulT& inWindow, int inId, int inSet);
     void AddWorldPrimitiveToUniform3D(Instance& inInstance, Uniform3D& inUniform3D, int inId);

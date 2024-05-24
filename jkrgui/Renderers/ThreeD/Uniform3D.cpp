@@ -2,7 +2,9 @@
 #include "Global/Standards.hpp"
 #include "Renderers/ThreeD/glTF_Model.hpp"
 #include "TestUtils.hpp"
-#include <Renderers/ThreeD/PBR.hpp>
+#include "PBR.hpp"
+// TODO Correct this
+#include "PBR.cpp"
 
 using namespace Jkr::Renderer::_3D;
 using namespace Jkr;
@@ -88,6 +90,13 @@ void Uniform3D::Build(Simple3D& inSimple3D) {
     mVulkanDescriptorSet = MakeUp<VulkanDescriptorSet>(
          mInstance.GetDevice(),
          mInstance.GetDescriptorPool(),
+         inSimple3D.GetPainterCache().GetVertexFragmentDescriptorSetLayout());
+}
+
+void Uniform3D::Build(Simple3D& inSimple3D, VulkanDescriptorPool& inPool) {
+    mVulkanDescriptorSet = MakeUp<VulkanDescriptorSet>(
+         mInstance.GetDevice(),
+         inPool,
          inSimple3D.GetPainterCache().GetVertexFragmentDescriptorSetLayout());
 }
 
@@ -235,7 +244,7 @@ void Uniform3D::AddGenerateIrradianceCube(Instance& inInstance,
                                           Renderer::_3D::Shape& inShape,
                                           int inSkyboxModelIndex,
                                           VulkanImageBase& inEnvironmentCubeMap,
-                                          kstd::WorldInfoUniform inWorldInfoUniform,
+                                          Renderer::_3D::World3D& inWorld,
                                           std::string_view inFileName,
                                           std::string_view inVertexShader,
                                           std::string_view inFragmentShader,
@@ -253,7 +262,7 @@ void Uniform3D::AddGenerateIrradianceCube(Instance& inInstance,
                                                           inFragmentShader,
                                                           inComputeShader,
                                                           inShouldLoad,
-                                                          inWorldInfoUniform);
+                                                          inWorld);
     mImages[inDstBinding]                   = MakeUp<ImageType>(inInstance);
     mImages[inDstBinding]->mUniformImagePtr = mv(VMAimage);
     mImages[inDstBinding]->mSampler =
@@ -266,7 +275,7 @@ void Uniform3D::AddGeneratePrefilteredCube(Instance& inInstance,
                                            Renderer::_3D::Shape& inShape,
                                            int inSkyboxModelIndex,
                                            VulkanImageBase& inEnvironmentCubeMap,
-                                           kstd::WorldInfoUniform inWorldInfo,
+                                           Renderer::_3D::World3D& inWorld,
                                            std::string_view inFileName,
                                            std::string_view inVertexShader,
                                            std::string_view inFragmentShader,
@@ -284,7 +293,7 @@ void Uniform3D::AddGeneratePrefilteredCube(Instance& inInstance,
                                                            inFragmentShader,
                                                            inComputeShader,
                                                            inShouldLoad,
-                                                           inWorldInfo);
+                                                           inWorld);
     mImages[inDstBinding]                   = MakeUp<ImageType>(inInstance);
     mImages[inDstBinding]->mUniformImagePtr = mv(VMAimage);
     mImages[inDstBinding]->mSampler =

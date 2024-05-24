@@ -1,5 +1,4 @@
 #pragma once
-#include "Simple3D.hpp"
 #include <Renderers/ThreeD/Shape3D.hpp>
 #include <Instance.hpp>
 #include <Painter.hpp>
@@ -8,6 +7,11 @@
 #include <VulkanRenderPass.hpp>
 
 namespace Jkr::Renderer {
+
+namespace _3D {
+class World3D;
+}
+
 using namespace ksai;
 using namespace Jkr;
 struct PBR {
@@ -28,7 +32,7 @@ struct PBR {
                                                      std::string_view inFragmentShader,
                                                      std::string_view inComputeShader,
                                                      bool inShouldLoad,
-                                                     kstd::WorldInfoUniform inUniform);
+                                                     _3D::World3D& inWorld);
     static Up<VulkanImageVMA> GeneratePrefilteredCube(Instance& inInstance,
                                                       WindowMulT& inWindow,
                                                       _3D::Shape& inShape,
@@ -39,6 +43,7 @@ struct PBR {
                                                       std::string_view inFragmentShader,
                                                       std::string_view inComputeShader,
                                                       bool inShouldLoad,
-                                                      kstd::WorldInfoUniform inUniform);
+                                                      _3D::World3D& inUniform);
 };
+
 } // namespace Jkr::Renderer

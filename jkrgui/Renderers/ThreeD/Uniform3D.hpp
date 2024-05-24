@@ -1,13 +1,12 @@
 #pragma once
 #include "Global/Standards.hpp"
-#include "Painter.hpp"
 #include "PainterParameter.hpp"
 #include <Renderers/ThreeD/Simple3D.hpp>
 #include <Renderers/TwoD/Shape.hpp>
-#include <cstring>
 
 namespace Jkr::Renderer::_3D {
 using Simple3D = Renderer::_3D::Simple3D;
+class World3D;
 class Uniform3D {
     public:
     using SkyboxImageType   = Jkr::PainterParameter<PainterParameterContext::SkyboxImage>;
@@ -39,6 +38,7 @@ class Uniform3D {
                                                bool inShouldSkin = false);
 
     void Build(Simple3D& inSimple3D);
+    void Build(Simple3D& inSimple3D, VulkanDescriptorPool& inPool);
     void Build(Simple3D& inSimple3D,
                Renderer::_3D::glTF_Model& inModel,
                ui inNodeIndex        = 0,
@@ -91,7 +91,7 @@ class Uniform3D {
                                    Renderer::_3D::Shape& inShape,
                                    int inSkyboxModelIndex,
                                    VulkanImageBase& inEnvironmentCubeMap,
-                                   kstd::WorldInfoUniform inWorldInfo,
+                                   Renderer::_3D::World3D& inWorld,
                                    std::string_view inFileName,
                                    std::string_view inVertexShader,
                                    std::string_view inFragmentShader,
@@ -105,7 +105,7 @@ class Uniform3D {
                                     Renderer::_3D::Shape& inShape,
                                     int inSkyboxModelIndex,
                                     VulkanImageBase& inEnvironmentCubeMap,
-                                    kstd::WorldInfoUniform inWorldInfo,
+                                    Renderer::_3D::World3D& inWorld,
                                     std::string_view inFileName,
                                     std::string_view inVertexShader,
                                     std::string_view inFragmentShader,

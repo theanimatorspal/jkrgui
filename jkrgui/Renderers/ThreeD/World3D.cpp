@@ -116,7 +116,12 @@ void World3D::AddWorldInfoToUniform3D(int inId) {
     mUniforms[inId]->AddUniformBuffer(kstd::BindingIndex::Uniform::WorldInfo,
                                       sizeof(WorldInfoUniform),
                                       WorldInfoDescriptorSetIndex);
-    {};
+}
+
+void World3D::AddWorldInfoToUniform3DEXT(Uniform3D& inUniform) {
+    inUniform.AddUniformBuffer(kstd::BindingIndex::Uniform::WorldInfo,
+                               sizeof(WorldInfoUniform),
+                               WorldInfoDescriptorSetIndex);
 }
 
 WorldInfoUniform World3D::GetWorldInfo() {

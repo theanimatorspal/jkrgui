@@ -1,7 +1,8 @@
 #include "PBR.hpp"
-using namespace Jkr::Renderer;
-using namespace ksai;
-using namespace Jkr;
+#include "Uniform3D.hpp"
+#include "World3D.hpp"
+
+namespace Jkr::Renderer {
 
 Up<VulkanImageVMA> PBR::GenerateBRDFLookupTable(Instance& inInstance,
                                                 WindowMulT& inWindow,
@@ -48,9 +49,6 @@ Up<VulkanImageVMA> PBR::GenerateBRDFLookupTable(Instance& inInstance,
     CommandBuffer.BeginRenderPass(
          RenderPass, vk::Extent2D{Dim, Dim}, FrameBuffer, std::array<float, 5>{1, 1, 1, 1, 1});
 
-    //     vk::Buffer Buffer = VK_NULL_HANDLE;
-    //     CommandBuffer.GetCommandBufferHandle().bindVertexBuffers(0, Buffer, {0});
-
     Simple3D.BindByCommandBuffer(CommandBuffer);
     CommandBuffer.GetCommandBufferHandle().draw(3, 1, 0, 0);
 
@@ -71,7 +69,7 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance& inInstance,
                                                std::string_view inFragmentShader,
                                                std::string_view inComputeShader,
                                                bool inShouldLoad,
-                                               kstd::WorldInfoUniform inWorldInfo) {
+                                               _3D::World3D& inWorld3D) {
     const uint32_t Dim     = 64;
     const uint32_t NumMips = static_cast<uint32_t>(floor(log2(Dim))) + 1;
     auto IrradianceCubeMap = MakeUp<VulkanImageVMA>(inInstance.GetVMA(),
@@ -112,26 +110,21 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance& inInstance,
                                          inShouldLoad);
 
     VulkanDescriptorPool DescriptorPool(inInstance.GetDevice(), 10, 10);
-    VulkanDescriptorSet DescriptorSet(
-         inInstance.GetDevice(),
-         DescriptorPool,
-         Simple3D.GetPainterCache().GetVertexFragmentDescriptorSetLayout());
+    _3D::Uniform3D Uniform(inInstance);
+    Uniform.Build(Simple3D, DescriptorPool);
+    inWorld3D.AddWorldInfoToUniform3DEXT(Uniform);
+
     VulkanDescriptorUpdateHandler Handler(inInstance.GetDevice());
     VulkanSampler Sampler(
          inInstance.GetDevice(), ImageContext::Default, 0.0f, static_cast<float>(NumMips));
+
     Handler.RW(ImageContext::Default,
-               DescriptorSet,
+               Uniform.GetVulkanDescriptorSet(),
                inEnvironmentCubeMap,
                Sampler,
                kstd::BindingIndex::Uniform::CubeMapImage,
                0,
                1);
-
-    VulkanBufferVMA WorldInfo(inInstance.GetVMA(),
-                              inInstance.GetDevice(),
-                              sizeof(kstd::WorldInfoUniform),
-                              BufferContext::Uniform,
-                              MemoryType::HostVisibleAndCoherenet);
 
     using namespace glm;
     float DeltaPhi   = (2.0f * float(M_PI)) / 180.0f;
@@ -164,14 +157,14 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance& inInstance,
 
     VulkanCommandBuffer Cmd(inInstance.GetDevice(), inInstance.GetCommandPool());
     Cmd.Begin();
-    IrradianceCubeMap->CmdTransitionImageLayout(
-         Cmd,
-         vk::ImageLayout::eUndefined,
-         vk::ImageLayout::eTransferDstOptimal,
-         vk::PipelineStageFlagBits::eAllCommands,
-         vk::PipelineStageFlagBits::eAllCommands, // TODO Improve this
-         vk::AccessFlagBits::eNone,
-         vk::AccessFlagBits::eNone);
+    //     IrradianceCubeMap->CmdTransitionImageLayout(
+    //          Cmd,
+    //          vk::ImageLayout::eUndefined,
+    //          vk::ImageLayout::eTransferDstOptimal,
+    //          vk::PipelineStageFlagBits::eAllCommands,
+    //          vk::PipelineStageFlagBits::eAllCommands, // TODO Improve this
+    //          vk::AccessFlagBits::eNone,
+    //          vk::AccessFlagBits::eNone);
 
     vk::Viewport Viewport((float)Dim, (float)Dim, 0.0f, 1.0f);
     vk::Rect2D Scissor(vk::Offset2D{0}, vk::Extent2D{Dim, Dim});
@@ -193,29 +186,38 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance& inInstance,
             inShape.GetPrimitive().GetIndexBufferPtr()->Bind<BufferContext::Index>(Cmd);
             Simple3D.BindByCommandBuffer(Cmd);
 
-            DescriptorSet.Bind(vk::PipelineBindPoint::eGraphics,
-                               Cmd,
-                               Simple3D.GetPainterCache().GetVertexFragmentPipelineLayout(),
-                               0);
-            DescriptorSet.Bind(vk::PipelineBindPoint::eGraphics,
-                               Cmd,
-                               Simple3D.GetPainterCache().GetVertexFragmentPipelineLayout(),
-                               1);
+            Uniform.GetVulkanDescriptorSet().Bind(
+                 vk::PipelineBindPoint::eGraphics,
+                 Cmd,
+                 Simple3D.GetPainterCache().GetVertexFragmentPipelineLayout(),
+                 0);
+            Uniform.GetVulkanDescriptorSet().Bind(
+                 vk::PipelineBindPoint::eGraphics,
+                 Cmd,
+                 Simple3D.GetPainterCache().GetVertexFragmentPipelineLayout(),
+                 1);
             Simple3D.DrawByCommandBuffer(
                  Cmd, inShape, PushBlock, 0, inShape.GetIndexCount(inSkyboxModelIndex), 1);
             Cmd.EndRenderPass();
 
+            IrradianceCubeMap->GetImagePropertyRef().mInitialImageLayout =
+                 vk::ImageLayout::eUndefined;
+            OffscreenFBufferImage.GetImagePropertyRef().mInitialImageLayout =
+                 vk::ImageLayout::eUndefined;
+
             IrradianceCubeMap->CmdCopyImageFromImageAfterStage(
-                 inInstance.GetGraphicsQueue(),
                  Cmd,
                  inInstance.GetDevice(),
                  OffscreenFBufferImage,
                  vk::PipelineStageFlagBits::eFragmentShader,
                  vk::AccessFlagBits::eNone,
+                 static_cast<int>(Viewport.width),
+                 static_cast<int>(Viewport.height),
                  0,
                  0,
                  m,
-                 f);
+                 f,
+                 1);
         }
     }
 
@@ -235,7 +237,7 @@ Up<VulkanImageVMA> PBR::GeneratePrefilteredCube(Instance& inInstance,
                                                 std::string_view inFragmentShader,
                                                 std::string_view inComputeShader,
                                                 bool inShouldLoad,
-                                                kstd::WorldInfoUniform inWorldInfo) {
+                                                _3D::World3D& inUniform) {
     const int32_t Dim            = 512;
     const uint32_t NumMips       = static_cast<uint32_t>(floor(log2(Dim))) + 1;
     auto PrefilteredCubeMapImage = MakeUp<VulkanImageVMA>(inInstance.GetVMA(),
@@ -356,7 +358,6 @@ Up<VulkanImageVMA> PBR::GeneratePrefilteredCube(Instance& inInstance,
             Simple3D.DrawByCommandBuffer(
                  Cmd, inShape, PushBlock, 0, inShape.GetIndexCount(inSkyboxModelIndex), 1);
             PrefilteredCubeMapImage->CmdCopyImageFromImageAfterStage(
-                 inInstance.GetGraphicsQueue(),
                  Cmd,
                  inInstance.GetDevice(),
                  OffscreenImage,
@@ -373,3 +374,5 @@ Up<VulkanImageVMA> PBR::GeneratePrefilteredCube(Instance& inInstance,
 
     return mv(PrefilteredCubeMapImage);
 }
+//
+} // namespace Jkr::Renderer

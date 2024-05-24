@@ -236,8 +236,6 @@ void CreateMiscBindings(sol::state& inState) {
                               &World3D::GetSimple3D,
                               "GetSkyboxImageBase",
                               &World3D::GetSkyboxImageBase,
-                              "GetWorldInfo",
-                              &World3D::GetWorldInfo,
 
                               "MakeExplicitObjectsVector",
                               &World3D::MakeExplicitObjectsVector,

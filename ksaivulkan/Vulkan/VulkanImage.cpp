@@ -210,45 +210,51 @@ void ksai::VulkanImageBase::CreateImageView(vk::Image& inImage) {
     mImageView = mDevice.createImageView(ImageViewCreateInfo);
 }
 
-void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(
-     const VulkanQueue<QueueContext::Graphics>& inQueue,
-     const VulkanCommandBuffer& inCmdBuffer,
-     const VulkanDevice& inDevice,
-     VulkanImageBase& inImage,
-     vk::PipelineStageFlags inAfterStage,
-     vk::AccessFlags inAfterStageAccessflags,
-     int inFromMipLevel,
-     int inFromBaseArrayLayer,
-     int inToMipLevel,
-     int inToBaseArrayLayer) {
+void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(const VulkanCommandBuffer& inCmdBuffer,
+                                                            const VulkanDevice& inDevice,
+                                                            VulkanImageBase& inImage,
+                                                            vk::PipelineStageFlags inAfterStage,
+                                                            vk::AccessFlags inAfterStageAccessflags,
+                                                            int inImageWidth,
+                                                            int inImageHeight,
+                                                            int inFromMipLevel,
+                                                            int inFromBaseArrayLayer,
+                                                            int inToMipLevel,
+                                                            int inToBaseArrayLayer,
+                                                            int inArrayLayersToBeCopied) {
     // TODO This has to be checked
     auto& SrcVulkanImage = inImage;
     auto& DstVulkanImage = *this;
     auto& SrcImageHandle = SrcVulkanImage.GetImageHandle();
-    auto& DstImageHandle = SrcVulkanImage.GetImageHandle();
+    auto& DstImageHandle = DstVulkanImage.GetImageHandle();
     auto SrcImageLayout  = SrcVulkanImage.GetInitialImageLayout();
     auto DstImageLayout  = DstVulkanImage.GetInitialImageLayout();
     auto SrcImageProp    = SrcVulkanImage.mImageProperties;
     auto DstImageProp    = DstVulkanImage.mImageProperties;
     auto& Cmd            = inCmdBuffer.GetCommandBufferHandle();
-    vk::ImageSubresourceLayers SrcSubResource(SrcImageProp.mImageAspect,
-                                              inFromMipLevel,
-                                              inFromBaseArrayLayer,
-                                              SrcImageProp.mArrayLayers);
+    vk::ImageSubresourceLayers SrcSubResource(
+         SrcImageProp.mImageAspect, inFromMipLevel, inFromBaseArrayLayer, inArrayLayersToBeCopied);
     vk::ImageSubresourceLayers DstSubResource(
-         DstImageProp.mImageAspect, inToMipLevel, inToBaseArrayLayer, DstImageProp.mArrayLayers);
+         DstImageProp.mImageAspect, inToMipLevel, inToBaseArrayLayer, inArrayLayersToBeCopied);
     vk::ImageSubresourceRange SrcSubResourceRange(
-         SrcSubResource.aspectMask, 0, 0, 0, SrcImageProp.mArrayLayers);
+         SrcSubResource.aspectMask, 0, 0, 0, inArrayLayersToBeCopied);
     vk::ImageSubresourceRange DstSubResourceRange(
-         DstSubResource.aspectMask, 0, 0, 0, DstImageProp.mArrayLayers);
+         DstSubResource.aspectMask, 0, 0, 0, inArrayLayersToBeCopied);
     vk::ImageCopy CopyRegion(SrcSubResource,
                              vk::Offset3D{},
                              DstSubResource,
                              vk::Offset3D{},
-                             vk::Extent3D(SrcVulkanImage.GetImageExtent(), 0));
+                             vk::Extent3D(SrcVulkanImage.GetImageExtent(), 1));
+
+    if (inImageWidth != -1) {
+        CopyRegion.extent.width = inImageWidth;
+    }
+    if (inImageHeight != -1) {
+        CopyRegion.extent.height = inImageHeight;
+    }
 
     DstVulkanImage.CmdTransitionImageLayout(inCmdBuffer,
-                                            DstImageLayout,
+                                            vk::ImageLayout::eUndefined,
                                             vk::ImageLayout::eTransferDstOptimal,
                                             inAfterStage,
                                             vk::PipelineStageFlagBits::eTransfer,
@@ -256,18 +262,22 @@ void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(
                                             vk::AccessFlagBits::eMemoryWrite);
 
     SrcVulkanImage.CmdTransitionImageLayout(inCmdBuffer,
-                                            SrcImageLayout,
+                                            vk::ImageLayout::eUndefined,
                                             vk::ImageLayout::eTransferSrcOptimal,
                                             inAfterStage,
                                             vk::PipelineStageFlagBits::eTransfer,
                                             inAfterStageAccessflags,
                                             vk::AccessFlagBits::eMemoryRead);
 
-    Cmd.copyImage(SrcImageHandle, SrcImageLayout, DstImageHandle, DstImageLayout, CopyRegion);
+    Cmd.copyImage(SrcImageHandle,
+                  vk::ImageLayout::eTransferSrcOptimal,
+                  DstImageHandle,
+                  vk::ImageLayout::eTransferDstOptimal,
+                  CopyRegion);
 
     DstVulkanImage.CmdTransitionImageLayout(inCmdBuffer,
                                             vk::ImageLayout::eTransferDstOptimal,
-                                            DstImageLayout,
+                                            vk::ImageLayout::eGeneral,
                                             vk::PipelineStageFlagBits::eTransfer,
                                             vk::PipelineStageFlagBits::eFragmentShader,
                                             vk::AccessFlagBits::eMemoryWrite,
@@ -275,7 +285,7 @@ void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(
 
     SrcVulkanImage.CmdTransitionImageLayout(inCmdBuffer,
                                             vk::ImageLayout::eTransferSrcOptimal,
-                                            SrcImageLayout,
+                                            vk::ImageLayout::eGeneral,
                                             vk::PipelineStageFlagBits::eTransfer,
                                             vk::PipelineStageFlagBits::eFragmentShader,
                                             vk::AccessFlagBits::eMemoryRead,
