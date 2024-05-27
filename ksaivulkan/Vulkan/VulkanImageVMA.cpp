@@ -11,7 +11,7 @@ VulkanImageVMA::VulkanImageVMA(const VulkanVMA& inVMA,
                                ui inSamples,
                                ui inMips,
                                opt<vk::ImageUsageFlags> inBits,
-                               opt<vk::Format> inFormat)
+                               opt<vk::ImageLayout> inFormat)
     : VulkanImageBase(inDevice), mVMA(inVMA) {
     FillImageProperties(inImageContext, inSamples);
     mImageProperties.mArrayLayers   = inLayerCount;
@@ -22,11 +22,12 @@ VulkanImageVMA::VulkanImageVMA(const VulkanVMA& inVMA,
         mImageProperties.mImageUsage |= inBits.value();
     }
     if (inFormat.has_value()) {
-        mImageProperties.mImageFormat = inFormat.value();
+        mImageProperties.mCurrentImageLayout = inFormat.value();
+        mImageProperties.mInitialImageLayout = inFormat.value();
     }
     vk::ImageTiling Tiling;
     GetImageTiling(mImageProperties.mImageFormat, mImageProperties.mImageFormatFeature, Tiling);
-    auto ImageCreateInfo       = vk::ImageCreateInfo(mImageProperties.mFlags,
+    auto ImageCreateInfo = vk::ImageCreateInfo(mImageProperties.mFlags,
                                                mImageProperties.mImageType,
                                                mImageProperties.mImageFormat,
                                                vk::Extent3D(mImageProperties.mExtent, 1),
@@ -34,7 +35,8 @@ VulkanImageVMA::VulkanImageVMA(const VulkanVMA& inVMA,
                                                mImageProperties.mArrayLayers,
                                                mImageProperties.mSampleCountFlagBits,
                                                mImageProperties.mTiling,
-                                               mImageProperties.mImageUsage);
+                                               mImageProperties.mImageUsage)
+                                .setInitialLayout(vk::ImageLayout::eUndefined);
 
     auto AllocationCreateInfo  = VmaAllocationCreateInfo();
     AllocationCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;

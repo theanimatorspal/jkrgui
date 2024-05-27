@@ -77,6 +77,7 @@ layout(set = 0, binding = 0) uniform UBO {
    vec4 nearFar;
    vec4 lights[8];
    mat4 shadowMatrix;
+   vec4 lightDirections[8];
 } Ubo;
 ]]
 
@@ -900,7 +901,7 @@ PBR.GenBrdfLutV = Engine.Shader()
     .Append [[
     	vUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
         gl_Position = vec4(vUV * 2.0f - 1.0f, 0.0f, 1.0f);
-    ]]
+    ]].InvertY()
     .GlslMainEnd()
 
 
@@ -933,7 +934,7 @@ PBR.FilterCubeV = Engine.Shader()
     .Append [[
     vUVW = inPosition;
     gl_Position = Ubo.proj * Ubo.view * Push.model * vec4(inPosition, 1.0);
-    ]]
+    ]].InvertY()
     .GlslMainEnd()
 
 PBR.PreFilterEnvMapF = Engine.Shader()

@@ -225,17 +225,23 @@ void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(
      int inToBaseArrayLayer,
      int inArrayLayersToBeCopied,
      vk::ImageLayout inSrcImageLayoutTobeSetTo,
-     vk::ImageLayout inDstImageLayoutTobeSetTo) {
+     vk::ImageLayout inDstImageLayoutTobeSetTo,
+     opt<vk::ImageLayout> inSrcImageLayoutFrom,
+     opt<vk::ImageLayout> inDstImageLayoutFrom) {
     // TODO This has to be checked
-    auto& SrcVulkanImage = inImage;
-    auto& DstVulkanImage = *this;
-    auto& SrcImageHandle = SrcVulkanImage.GetImageHandle();
-    auto& DstImageHandle = DstVulkanImage.GetImageHandle();
-    auto SrcImageLayout  = SrcVulkanImage.GetInitialImageLayout();
-    auto DstImageLayout  = DstVulkanImage.GetInitialImageLayout();
-    auto SrcImageProp    = SrcVulkanImage.mImageProperties;
-    auto DstImageProp    = DstVulkanImage.mImageProperties;
-    auto& Cmd            = inCmdBuffer.GetCommandBufferHandle();
+    auto& SrcVulkanImage    = inImage;
+    auto& DstVulkanImage    = *this;
+    auto& SrcImageHandle    = SrcVulkanImage.GetImageHandle();
+    auto& DstImageHandle    = DstVulkanImage.GetImageHandle();
+    auto SrcImageLayoutFrom = inSrcImageLayoutFrom.has_value()
+                                   ? inSrcImageLayoutFrom.value()
+                                   : SrcVulkanImage.GetCurrentImageLayout();
+    auto DstImageLayoutFrom = inDstImageLayoutFrom.has_value()
+                                   ? inDstImageLayoutFrom.value()
+                                   : DstVulkanImage.GetCurrentImageLayout();
+    auto SrcImageProp       = SrcVulkanImage.mImageProperties;
+    auto DstImageProp       = DstVulkanImage.mImageProperties;
+    auto& Cmd               = inCmdBuffer.GetCommandBufferHandle();
     vk::ImageSubresourceLayers SrcSubResource(
          SrcImageProp.mImageAspect, inFromMipLevel, inFromBaseArrayLayer, inArrayLayersToBeCopied);
     vk::ImageSubresourceLayers DstSubResource(
@@ -258,7 +264,7 @@ void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(
     }
 
     DstVulkanImage.CmdTransitionImageLayout(inCmdBuffer,
-                                            GetCurrentImageLayout(),
+                                            DstImageLayoutFrom,
                                             vk::ImageLayout::eTransferDstOptimal,
                                             inAfterStage,
                                             vk::PipelineStageFlagBits::eTransfer,
@@ -266,7 +272,7 @@ void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(
                                             vk::AccessFlagBits::eMemoryWrite);
 
     SrcVulkanImage.CmdTransitionImageLayout(inCmdBuffer,
-                                            GetCurrentImageLayout(),
+                                            SrcImageLayoutFrom,
                                             vk::ImageLayout::eTransferSrcOptimal,
                                             inAfterStage,
                                             vk::PipelineStageFlagBits::eTransfer,
@@ -286,7 +292,6 @@ void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(
                                             vk::PipelineStageFlagBits::eFragmentShader,
                                             vk::AccessFlagBits::eMemoryWrite,
                                             vk::AccessFlagBits::eMemoryRead);
-    DstVulkanImage.mImageProperties.mCurrentImageLayout = vk::ImageLayout::eGeneral;
 
     SrcVulkanImage.CmdTransitionImageLayout(inCmdBuffer,
                                             vk::ImageLayout::eTransferSrcOptimal,
@@ -295,7 +300,6 @@ void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(
                                             vk::PipelineStageFlagBits::eFragmentShader,
                                             vk::AccessFlagBits::eMemoryRead,
                                             vk::AccessFlagBits::eMemoryRead);
-    DstVulkanImage.mImageProperties.mCurrentImageLayout = vk::ImageLayout::eGeneral;
 }
 
 void VulkanImageBase::FillImageProperties(ImageContext inImageContext, uint32_t inNumSamples) {

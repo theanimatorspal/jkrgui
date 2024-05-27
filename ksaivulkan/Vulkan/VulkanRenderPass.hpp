@@ -23,7 +23,7 @@ class VulkanRenderPass : public VulkanRenderPassBase {
     VulkanRenderPass(const VulkanDevice& inDevice,
                      const VulkanSurface& inSurface,
                      const VulkanImage& inDepthImage);
-    VulkanRenderPass(const VulkanDevice& inDevice, const VulkanImageBase& inDepthImage);
+    VulkanRenderPass(const VulkanDevice& inDevice, VulkanImageBase& inDepthImage);
     VulkanRenderPass(const VulkanDevice& inDevice,
                      const VulkanSurface& inSurface,
                      const VulkanImage& inColorImageTarget,

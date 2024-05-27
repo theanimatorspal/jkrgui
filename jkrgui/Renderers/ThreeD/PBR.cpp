@@ -38,11 +38,6 @@ Up<VulkanImageVMA> PBR::GenerateBRDFLookupTable(Instance& inInstance,
                                          inComputeShader,
                                          inShouldLoad);
 
-    VulkanDescriptorSet DescriptorSet(
-         inInstance.GetDevice(),
-         inInstance.GetDescriptorPool(),
-         Simple3D.GetPainterCache().GetVertexFragmentDescriptorSetLayout());
-
     VulkanCommandBuffer CommandBuffer(inInstance.GetDevice(), inInstance.GetCommandPool());
 
     CommandBuffer.Begin();
@@ -55,15 +50,12 @@ Up<VulkanImageVMA> PBR::GenerateBRDFLookupTable(Instance& inInstance,
     CommandBuffer.EndRenderPass();
 
     BRDFLUTImage->CmdTransitionImageLayout(CommandBuffer,
-                                           BRDFLUTImage->GetCurrentImageLayout(),
                                            vk::ImageLayout::eShaderReadOnlyOptimal,
+                                           vk::ImageLayout::eGeneral,
                                            vk::PipelineStageFlagBits::eAllCommands,
-                                           vk::PipelineStageFlagBits::eAllCommands,
+                                           vk::PipelineStageFlagBits::eBottomOfPipe,
                                            vk::AccessFlagBits::eNone,
                                            vk::AccessFlagBits::eNone);
-
-    BRDFLUTImage->GetImagePropertyRef().mInitialImageLayout =
-         vk::ImageLayout::eShaderReadOnlyOptimal;
 
     CommandBuffer.End();
     inInstance.GetGraphicsQueue().Submit<SubmitContext::SingleTime>(CommandBuffer);
@@ -93,7 +85,8 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance& inInstance,
                                                     6,
                                                     1,
                                                     NumMips,
-                                                    vk::ImageUsageFlagBits::eTransferDst);
+                                                    vk::ImageUsageFlagBits::eTransferDst,
+                                                    vk::ImageLayout::eUndefined);
 
     VulkanImageVMA OffscreenFBufferImage(inInstance.GetVMA(),
                                          inInstance.GetDevice(),
@@ -105,7 +98,8 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance& inInstance,
                                          1,
                                          1,
                                          vk::ImageUsageFlagBits::eTransferSrc |
-                                              vk::ImageUsageFlagBits::eColorAttachment);
+                                              vk::ImageUsageFlagBits::eColorAttachment,
+                                         vk::ImageLayout::eUndefined);
     VulkanRenderPass<RenderPassContext::SingleColorAttachment> RenderPass(inInstance.GetDevice(),
                                                                           OffscreenFBufferImage);
     VulkanFrameBuffer<1, VulkanImageVMA> FrameBuffer(
@@ -113,18 +107,18 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance& inInstance,
 
     VulkanCommandBuffer Cmd(inInstance.GetDevice(), inInstance.GetCommandPool());
 
-    Cmd.Begin();
-    OffscreenFBufferImage.CmdTransitionImageLayout(
-         Cmd,
-         OffscreenFBufferImage.GetCurrentImageLayout(),
-         vk::ImageLayout::eColorAttachmentOptimal,
-         vk::PipelineStageFlagBits::eAllCommands,
-         vk::PipelineStageFlagBits::eAllCommands, // TODO Improve this
-         vk::AccessFlagBits::eNone,
-         vk::AccessFlagBits::eNone);
-    Cmd.End();
-    inInstance.GetGraphicsQueue().Submit<SubmitContext::SingleTime>(Cmd);
-    inInstance.GetGraphicsQueue().Wait();
+    //     Cmd.Begin();
+    //     OffscreenFBufferImage.CmdTransitionImageLayout(
+    //          Cmd,
+    //          OffscreenFBufferImage.GetCurrentImageLayout(),
+    //          vk::ImageLayout::eColorAttachmentOptimal,
+    //          vk::PipelineStageFlagBits::eAllCommands,
+    //          vk::PipelineStageFlagBits::eAllCommands, // TODO Improve this
+    //          vk::AccessFlagBits::eNone,
+    //          vk::AccessFlagBits::eNone);
+    //     Cmd.End();
+    //     inInstance.GetGraphicsQueue().Submit<SubmitContext::SingleTime>(Cmd);
+    //     inInstance.GetGraphicsQueue().Wait();
 
     _3D::Simple3D Simple3D(inInstance, inWindow);
     Simple3D.CompileWithCustomRenderPass(inInstance,
@@ -169,23 +163,25 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance& inInstance,
     PushBlock.m2[0].y               = DeltaTheta;
 
     std::vector<glm::mat4> matrices = {
-         // POSITIVE_X
-         glm::rotate(glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
-                     glm::radians(180.0f),
-                     glm::vec3(1.0f, 0.0f, 0.0f)),
          // NEGATIVE_X
          glm::rotate(
               glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
               glm::radians(180.0f),
               glm::vec3(1.0f, 0.0f, 0.0f)),
-         // POSITIVE_Y
-         glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
+         // POSITIVE_X
+         glm::rotate(glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
+                     glm::radians(180.0f),
+                     glm::vec3(1.0f, 0.0f, 0.0f)),
+
          // NEGATIVE_Y
          glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
-         // POSITIVE_Z
-         glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
+         // POSITIVE_Y
+         glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
+
          // NEGATIVE_Z
          glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+         // POSITIVE_Z
+         glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
     };
 
     inWorld3D.UpdateWorldInfoToUniform3D(Uniform);
@@ -243,7 +239,10 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance& inInstance,
                  0,
                  m,
                  f,
-                 1);
+                 1,
+                 vk::ImageLayout::eGeneral,
+                 vk::ImageLayout::eGeneral,
+                 vk::ImageLayout::eShaderReadOnlyOptimal);
         }
     }
 
@@ -251,7 +250,7 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance& inInstance,
                                                 IrradianceCubeMap->GetCurrentImageLayout(),
                                                 vk::ImageLayout::eShaderReadOnlyOptimal,
                                                 vk::PipelineStageFlagBits::eAllCommands,
-                                                vk::PipelineStageFlagBits::eAllCommands,
+                                                vk::PipelineStageFlagBits::eBottomOfPipe,
                                                 vk::AccessFlagBits::eNone,
                                                 vk::AccessFlagBits::eNone);
 
@@ -286,7 +285,8 @@ Up<VulkanImageVMA> PBR::GeneratePrefilteredCube(Instance& inInstance,
                                                           6,
                                                           1,
                                                           NumMips,
-                                                          vk::ImageUsageFlagBits::eTransferDst);
+                                                          vk::ImageUsageFlagBits::eTransferDst,
+                                                          vk::ImageLayout::eUndefined);
 
     VulkanImageVMA OffscreenImage(inInstance.GetVMA(),
                                   inInstance.GetDevice(),
@@ -298,7 +298,8 @@ Up<VulkanImageVMA> PBR::GeneratePrefilteredCube(Instance& inInstance,
                                   1,
                                   1,
                                   vk::ImageUsageFlagBits::eColorAttachment |
-                                       vk::ImageUsageFlagBits::eTransferSrc);
+                                       vk::ImageUsageFlagBits::eTransferSrc,
+                                  vk::ImageLayout::eUndefined);
     VulkanRenderPass<RenderPassContext::SingleColorAttachment> RenderPass(inInstance.GetDevice(),
                                                                           OffscreenImage);
     VulkanFrameBuffer<1, VulkanImageVMA> FrameBuffer(
@@ -309,10 +310,10 @@ Up<VulkanImageVMA> PBR::GeneratePrefilteredCube(Instance& inInstance,
     Cmd.Begin();
     OffscreenImage.CmdTransitionImageLayout(
          Cmd,
-         OffscreenImage.GetCurrentImageLayout(),
+         vk::ImageLayout::eUndefined,
          vk::ImageLayout::eColorAttachmentOptimal,
          vk::PipelineStageFlagBits::eAllCommands,
-         vk::PipelineStageFlagBits::eAllCommands, // TODO Improve this
+         vk::PipelineStageFlagBits::eBottomOfPipe, // TODO Improve this
          vk::AccessFlagBits::eNone,
          vk::AccessFlagBits::eNone);
     Cmd.End();
@@ -356,23 +357,25 @@ Up<VulkanImageVMA> PBR::GeneratePrefilteredCube(Instance& inInstance,
     using namespace glm;
 
     std::vector<glm::mat4> Matrices = {
-         // POSITIVE_X
-         glm::rotate(glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
-                     glm::radians(180.0f),
-                     glm::vec3(1.0f, 0.0f, 0.0f)),
          // NEGATIVE_X
          glm::rotate(
               glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
               glm::radians(180.0f),
               glm::vec3(1.0f, 0.0f, 0.0f)),
-         // POSITIVE_Y
-         glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
+         // POSITIVE_X
+         glm::rotate(glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
+                     glm::radians(180.0f),
+                     glm::vec3(1.0f, 0.0f, 0.0f)),
+
          // NEGATIVE_Y
          glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
-         // POSITIVE_Z
-         glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
+         // POSITIVE_Y
+         glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
+
          // NEGATIVE_Z
          glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+         // POSITIVE_Z
+         glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
     };
 
     inWorld3D.UpdateWorldInfoToUniform3D(Uniform);
@@ -431,7 +434,10 @@ Up<VulkanImageVMA> PBR::GeneratePrefilteredCube(Instance& inInstance,
                  0,
                  m,
                  f,
-                 1);
+                 1,
+                 vk::ImageLayout::eGeneral,
+                 vk::ImageLayout::eGeneral,
+                 vk::ImageLayout::eShaderReadOnlyOptimal);
         }
     }
 
@@ -444,9 +450,8 @@ Up<VulkanImageVMA> PBR::GeneratePrefilteredCube(Instance& inInstance,
          vk::AccessFlagBits::eNone,
          vk::AccessFlagBits::eNone);
 
-    //     PrefilteredCubeMapImage->GetImagePropertyRef().mInitialImageLayout =
-    //          vk::ImageLayout::eShaderReadOnlyOptimal;
-
+    // PrefilteredCubeMapImage->GetImagePropertyRef().mInitialImageLayout =
+    //   vk::ImageLayout::eShaderReadOnlyOptimal;
     Cmd.End();
     inInstance.GetGraphicsQueue().Submit<SubmitContext::SingleTime>(Cmd);
 

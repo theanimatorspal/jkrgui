@@ -15,6 +15,7 @@ class VulkanImageBase {
     GETTER GetAspect() const { return mImageProperties.mImageAspect; }
     GETTER GetImageProperty() const { return mImageProperties; }
     GETTER GetCurrentImageLayout() const { return mImageProperties.mCurrentImageLayout; }
+    GETTER& GetCurrentImageLayoutRef() { return mImageProperties.mCurrentImageLayout; }
     GETTER& GetImagePropertyRef() { return mImageProperties; }
 
     VulkanImageBase(const VulkanDevice& inDevice, bool inDestroyImageView = true);
@@ -45,7 +46,9 @@ class VulkanImageBase {
          int inToBaseArrayLayer                    = 0,
          int inArrayLayersToBeCopied               = 1,
          vk::ImageLayout inSrcImageLayoutTobeSetTo = vk::ImageLayout::eGeneral,
-         vk::ImageLayout inDstImageLayoutTobeSetTo = vk::ImageLayout::eGeneral);
+         vk::ImageLayout inDstImageLayoutTobeSetTo = vk::ImageLayout::eGeneral,
+         opt<vk::ImageLayout> inSrcImageLayoutFrom = std::nullopt,
+         opt<vk::ImageLayout> inDstImageLayoutFrom = std::nullopt);
     void CmdTransitionImageLayout(const VulkanCommandBuffer& inBuffer,
                                   vk::ImageLayout inOldImageLayout,
                                   vk::ImageLayout inNewImageLayout,

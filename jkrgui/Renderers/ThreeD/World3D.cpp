@@ -132,7 +132,7 @@ WorldInfoUniform World3D::GetWorldInfo() {
     Uniform.mProjection     = GetCurrentCamera()->GetProjection();
     Uniform.mCameraPosition = GetCurrentCamera()->GetPosition();
 
-    for (int i = 0; i < kstd::LightCount; i++) {
+    for (int i = 0; i < mLights.size(); i++) {
         Uniform.mLights[i]           = mLights[i].mPosition;
         Uniform.mLightsDirections[i] = mLights[i].mDirection;
     }

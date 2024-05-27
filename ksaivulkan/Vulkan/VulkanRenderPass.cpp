@@ -78,7 +78,7 @@ VulkanRenderPass<RenderPassContext::Default>::VulkanRenderPass(const VulkanDevic
 
 template <>
 VulkanRenderPass<RenderPassContext::Shadow>::VulkanRenderPass(const VulkanDevice& inDevice,
-                                                              const VulkanImageBase& inDepthImage)
+                                                              VulkanImageBase& inDepthImage)
     : mDevice(inDevice.GetDeviceHandle()) {
     vk::Format DepthImageFormat = inDepthImage.GetImageFormat();
     vk::AttachmentDescription DepthAttachment =
@@ -213,9 +213,11 @@ VulkanRenderPass<RenderPassContext::MSAA>::VulkanRenderPass(const VulkanDevice& 
                                                 .setDependencies(SubpassDependencies));
 }
 
+// TODO change currentImageLayouts of aboves as well
+
 template <>
 VulkanRenderPass<RenderPassContext::SingleColorAttachment>::VulkanRenderPass(
-     const VulkanDevice& inDevice, const VulkanImageBase& inColorImage)
+     const VulkanDevice& inDevice, VulkanImageBase& inColorImage)
     : mDevice(inDevice.GetDeviceHandle()) {
     vk::AttachmentDescription ColorAttachment =
          vk::AttachmentDescription(vk::AttachmentDescriptionFlags(), inColorImage.GetImageFormat())
