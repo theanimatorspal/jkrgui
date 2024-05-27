@@ -74,7 +74,7 @@ void World3D::DrawObjectsExplicit(Window& inWindow,
     mShape.Bind(inWindow, inParam);
     mUniforms.front()->Bind(inWindow, *mSimple3Ds.front(), WorldInfoDescriptorSetIndex, inParam);
 
-    int PreviousSimpleIndex = 0;
+    int PreviousSimpleIndex = -1;
     for (int i = 0; i < inExplicitObjects.size(); ++i) {
         auto& ExplicitObject = inExplicitObjects[i];
         int simpleIndex      = ExplicitObject.mAssociatedSimple3D;
@@ -94,10 +94,7 @@ void World3D::DrawObjectsExplicit(Window& inWindow,
         }
         PushConstantDefault Push;
         Push.m1    = ExplicitObject.GetLocalMatrix();
-        Push.m2    = glm::mat4(ExplicitObject.mColor,
-                            ExplicitObject.mColor,
-                            ExplicitObject.mColor,
-                            ExplicitObject.mColor);
+        Push.m2    = ExplicitObject.mMatrix2;
 
         int Offset = mShape.GetIndexOffsetAbsolute(ExplicitObject.mId) + ExplicitObject.mFirstIndex;
         mSimple3Ds[simpleIndex]->Draw<PushConstantDefault>(
@@ -134,17 +131,26 @@ WorldInfoUniform World3D::GetWorldInfo() {
     Uniform.mView           = GetCurrentCamera()->GetView();
     Uniform.mProjection     = GetCurrentCamera()->GetProjection();
     Uniform.mCameraPosition = GetCurrentCamera()->GetPosition();
-    Uniform.mLights[0]      = mLights[0].mPosition;
-    Uniform.mNearFar        = glm::vec4(CurrentCamera->GetNearZ(),
+
+    for (int i = 0; i < kstd::LightCount; i++) {
+        Uniform.mLights[i]           = mLights[i].mPosition;
+        Uniform.mLightsDirections[i] = mLights[i].mDirection;
+    }
+
+    Uniform.mNearFar      = glm::vec4(CurrentCamera->GetNearZ(),
                                  CurrentCamera->GetFarZ(),
                                  CurrentCamera->GetNearZ(),
                                  CurrentCamera->GetFarZ());
-    Uniform.mShadowMatrix   = LightCamera.GetView();
+    Uniform.mShadowMatrix = LightCamera.GetView();
     return Uniform;
 }
 
 void World3D::UpdateWorldInfoToUniform3D(int inId) {
     mUniforms[inId]->UpdateUniformBuffer(kstd::BindingIndex::Uniform::WorldInfo, GetWorldInfo());
+}
+
+void World3D::UpdateWorldInfoToUniform3D(Uniform3D& inUniform) {
+    inUniform.UpdateUniformBuffer(kstd::BindingIndex::Uniform::WorldInfo, GetWorldInfo());
 }
 
 void World3D::AddWorldPrimitiveToUniform3D(Instance& inInstance, Uniform3D& inUniform3D, int inId) {

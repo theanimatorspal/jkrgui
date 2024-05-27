@@ -11,6 +11,12 @@
 namespace ksai {
 class VulkanDescriptorSet {
     public:
+    void Bind(vk::PipelineBindPoint inBindPoint,
+              const VulkanCommandBuffer& inBuffer,
+              const VulkanPipelineLayoutBase& inBase,
+              int inSet = 0);
+    GETTER& GetDescriptorSetHandle() const { return mVulkanDescriptorSetHandles; }
+
     VulkanDescriptorSet(const VulkanDevice& inDevice,
                         const VulkanDescriptorPoolBase& inDescriptorPool,
                         const VulkanDescriptorSetLayoutBase& inDescriptorSetLayout);
@@ -18,14 +24,10 @@ class VulkanDescriptorSet {
                         const VulkanDescriptorPoolBase& inDescriptorPool,
                         const VulkanDescriptorSetLayoutBase& inDescriptorSetLayout,
                         uint32_t inNoOfVarDescriptorSets);
-    void Bind(vk::PipelineBindPoint inBindPoint,
-              const VulkanCommandBuffer& inBuffer,
-              const VulkanPipelineLayoutBase& inBase,
-              int inSet = 0);
-    GETTER& GetDescriptorSetHandle() const { return mVulkanDescriptorSetHandles; }
 
     private:
     const vk::Device& mDevice;
+    const VulkanDescriptorPoolBase& mDescriptorPool;
     std::vector<vk::DescriptorSet> mVulkanDescriptorSetHandles;
 };
 

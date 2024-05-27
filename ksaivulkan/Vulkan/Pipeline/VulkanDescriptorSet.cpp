@@ -7,7 +7,7 @@ ksai::VulkanDescriptorSet::VulkanDescriptorSet(
      const VulkanDevice& inDevice,
      const VulkanDescriptorPoolBase& inDescriptorPool,
      const VulkanDescriptorSetLayoutBase& inDescriptorSetLayout)
-    : mDevice(inDevice.GetDeviceHandle()) {
+    : mDevice(inDevice.GetDeviceHandle()), mDescriptorPool(inDescriptorPool) {
     vk::DescriptorSetAllocateInfo DescriptorSetAllocateInfo(
          inDescriptorPool.GetDescriptorPoolHandle(),
          inDescriptorSetLayout.GetDescriptorLayoutHandle());
@@ -23,7 +23,7 @@ ksai::VulkanDescriptorSet::VulkanDescriptorSet(
      const VulkanDescriptorPoolBase& inDescriptorPool,
      const VulkanDescriptorSetLayoutBase& inDescriptorSetLayout,
      uint32_t inNoOfVarDescriptorSets)
-    : mDevice(inDevice.GetDeviceHandle()) {
+    : mDevice(inDevice.GetDeviceHandle()), mDescriptorPool(inDescriptorPool) {
     vk::DescriptorSetAllocateInfo DescriptorSetAllocateInfo(
          inDescriptorPool.GetDescriptorPoolHandle(),
          inDescriptorSetLayout.GetDescriptorLayoutHandle());

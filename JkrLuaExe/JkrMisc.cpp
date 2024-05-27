@@ -159,6 +159,9 @@ void CreateMiscBindings(sol::state& inState) {
          "mColor",
          &World3D::Object3D::mColor,
 
+         "mMatrix2",
+         &World3D::Object3D::mMatrix2,
+
          "AppyTransforms",
          &World3D::Object3D::ApplyTransforms,
 

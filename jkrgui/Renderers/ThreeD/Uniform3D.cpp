@@ -236,7 +236,7 @@ void Uniform3D::AddGenerateBRDFLookupTable(Instance& inInstance,
     mImages[inDstBinding]->mUniformImagePtr = mv(VMAimage);
     mImages[inDstBinding]->mSampler =
          MakeUp<VulkanSampler>(inInstance.GetDevice(), ImageContext::CubeCompatible);
-    mImages[inDstBinding]->Register(0, inDstBinding, 0, *mVulkanDescriptorSet);
+    mImages[inDstBinding]->Register(0, inDstBinding, 0, *mVulkanDescriptorSet, inDstSet);
 }
 
 void Uniform3D::AddGenerateIrradianceCube(Instance& inInstance,
@@ -267,7 +267,7 @@ void Uniform3D::AddGenerateIrradianceCube(Instance& inInstance,
     mImages[inDstBinding]->mUniformImagePtr = mv(VMAimage);
     mImages[inDstBinding]->mSampler =
          MakeUp<VulkanSampler>(inInstance.GetDevice(), ImageContext::CubeCompatible);
-    mImages[inDstBinding]->Register(0, inDstBinding, 0, *mVulkanDescriptorSet);
+    mImages[inDstBinding]->Register(0, inDstBinding, 0, *mVulkanDescriptorSet, inDstSet);
 }
 
 void Uniform3D::AddGeneratePrefilteredCube(Instance& inInstance,
@@ -298,5 +298,5 @@ void Uniform3D::AddGeneratePrefilteredCube(Instance& inInstance,
     mImages[inDstBinding]->mUniformImagePtr = mv(VMAimage);
     mImages[inDstBinding]->mSampler =
          MakeUp<VulkanSampler>(inInstance.GetDevice(), ImageContext::CubeCompatible);
-    mImages[inDstBinding]->Register(0, inDstBinding, 0, *mVulkanDescriptorSet);
+    mImages[inDstBinding]->Register(0, inDstBinding, 0, *mVulkanDescriptorSet, inDstSet);
 }

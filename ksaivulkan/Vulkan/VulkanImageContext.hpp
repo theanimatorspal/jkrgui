@@ -27,6 +27,7 @@ struct ImageProperties {
     vk::SharingMode mSharingMode                  = vk::SharingMode::eExclusive;
     vk::ImageLayout mInitialImageLayout           = vk::ImageLayout::eGeneral;
     vk::Extent2D mExtent;
-    vk::ImageCreateFlags mFlags = vk::ImageCreateFlags();
+    vk::ImageCreateFlags mFlags         = vk::ImageCreateFlags();
+    vk::ImageLayout mCurrentImageLayout = mInitialImageLayout;
 };
 } // namespace ksai

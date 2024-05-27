@@ -96,7 +96,7 @@ void ksai::VulkanBufferBase::CmdCopyFromImage(const VulkanCommandBuffer& inCmdBu
 void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFromImage(
      const VulkanQueue<QueueContext::Graphics>& inQueue,
      const VulkanCommandBuffer& inCmdBuffer,
-     const VulkanImageBase& inImage) const {
+     VulkanImageBase& inImage) const {
     auto ImageExtent  = inImage.GetImageExtent();
     auto CopySize     = ImageExtent.width * ImageExtent.height * 4; // TODO don't hardcode this
     auto srcImageProp = inImage.GetImageProperty();

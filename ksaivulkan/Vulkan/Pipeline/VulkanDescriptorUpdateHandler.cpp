@@ -40,7 +40,7 @@ void VulkanDescriptorUpdateHandler::RW(ImageContext inImageContext,
                                        uint32_t inDstSet) {
     auto imageinfo      = vk::DescriptorImageInfo(inSampler.GetSamplerHandle(),
                                              inImage.GetImageViewHandle(),
-                                             inImage.GetInitialImageLayout());
+                                             inImage.GetCurrentImageLayout()); // Improve this
     auto DescriptorType = vk::DescriptorType::eCombinedImageSampler;
     if (inImageContext == ImageContext::Storage) DescriptorType = vk::DescriptorType::eStorageImage;
 

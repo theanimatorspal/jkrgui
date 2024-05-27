@@ -14,7 +14,8 @@ class VulkanImageVMA : public VulkanImageBase {
                    ui inLayerCount                      = 1,
                    ui inSamples                         = 1,
                    ui inMips                            = 1,
-                   opt<vk::ImageUsageFlags> inUsageBits = std::nullopt);
+                   opt<vk::ImageUsageFlags> inUsageBits = std::nullopt,
+                   opt<vk::Format> inFormat             = std::nullopt);
     ~VulkanImageVMA();
 
     private:

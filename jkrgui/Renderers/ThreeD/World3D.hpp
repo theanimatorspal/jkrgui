@@ -77,6 +77,7 @@ struct World3D {
     void AddSkyboxToUniform3D(Instance& inInstance, sv inFolderPath, int inId, int inSet);
     void AddShadowMapToUniform3D(WindowMulT& inWindow, int inId, int inSet);
     void AddWorldPrimitiveToUniform3D(Instance& inInstance, Uniform3D& inUniform3D, int inId);
+    void UpdateWorldInfoToUniform3D(Uniform3D& inUniform);
 
     /* PBR Routines */
     World3D(Shape3D& inShape) : mShape(inShape) {}

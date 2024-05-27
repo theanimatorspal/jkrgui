@@ -38,6 +38,8 @@ struct Object3D {
     vec3 mForce{0.0f};
     vec3 mTorque{0.0f};
 
+    mat4 mMatrix2 = glm::identity<mat4>();
+
     private:
     Object3D* mParent;
 };

@@ -113,7 +113,7 @@ void ksai::VulkanImageBase::CmdTransitionImageLayout(const VulkanCommandBuffer& 
                                                      vk::PipelineStageFlags inBeforeStage,
                                                      vk::PipelineStageFlags inAfterStage,
                                                      vk::AccessFlags inBeforeAccess,
-                                                     vk::AccessFlags inAfterAccess) const {
+                                                     vk::AccessFlags inAfterAccess) {
     vk::ImageSubresourceRange ImageSubResourceRange(mImageProperties.mImageAspect,
                                                     0,
                                                     mImageProperties.mMipLevels,
@@ -130,6 +130,7 @@ void ksai::VulkanImageBase::CmdTransitionImageLayout(const VulkanCommandBuffer& 
     auto& CmdBuf    = inBuffer.GetCommandBufferHandle();
     CmdBuf.pipelineBarrier(
          inBeforeStage, inAfterStage, vk::DependencyFlagBits::eByRegion, {}, {}, ImgMemBarr);
+    this->mImageProperties.mCurrentImageLayout = inNewImageLayout;
 }
 
 void ksai::VulkanImageBase::GetMemoryTypeIndex(vk::MemoryPropertyFlagBits inFlag,
@@ -210,18 +211,21 @@ void ksai::VulkanImageBase::CreateImageView(vk::Image& inImage) {
     mImageView = mDevice.createImageView(ImageViewCreateInfo);
 }
 
-void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(const VulkanCommandBuffer& inCmdBuffer,
-                                                            const VulkanDevice& inDevice,
-                                                            VulkanImageBase& inImage,
-                                                            vk::PipelineStageFlags inAfterStage,
-                                                            vk::AccessFlags inAfterStageAccessflags,
-                                                            int inImageWidth,
-                                                            int inImageHeight,
-                                                            int inFromMipLevel,
-                                                            int inFromBaseArrayLayer,
-                                                            int inToMipLevel,
-                                                            int inToBaseArrayLayer,
-                                                            int inArrayLayersToBeCopied) {
+void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(
+     const VulkanCommandBuffer& inCmdBuffer,
+     const VulkanDevice& inDevice,
+     VulkanImageBase& inImage,
+     vk::PipelineStageFlags inAfterStage,
+     vk::AccessFlags inAfterStageAccessflags,
+     int inImageWidth,
+     int inImageHeight,
+     int inFromMipLevel,
+     int inFromBaseArrayLayer,
+     int inToMipLevel,
+     int inToBaseArrayLayer,
+     int inArrayLayersToBeCopied,
+     vk::ImageLayout inSrcImageLayoutTobeSetTo,
+     vk::ImageLayout inDstImageLayoutTobeSetTo) {
     // TODO This has to be checked
     auto& SrcVulkanImage = inImage;
     auto& DstVulkanImage = *this;
@@ -254,7 +258,7 @@ void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(const VulkanCommandB
     }
 
     DstVulkanImage.CmdTransitionImageLayout(inCmdBuffer,
-                                            vk::ImageLayout::eUndefined,
+                                            GetCurrentImageLayout(),
                                             vk::ImageLayout::eTransferDstOptimal,
                                             inAfterStage,
                                             vk::PipelineStageFlagBits::eTransfer,
@@ -262,7 +266,7 @@ void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(const VulkanCommandB
                                             vk::AccessFlagBits::eMemoryWrite);
 
     SrcVulkanImage.CmdTransitionImageLayout(inCmdBuffer,
-                                            vk::ImageLayout::eUndefined,
+                                            GetCurrentImageLayout(),
                                             vk::ImageLayout::eTransferSrcOptimal,
                                             inAfterStage,
                                             vk::PipelineStageFlagBits::eTransfer,
@@ -277,19 +281,21 @@ void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(const VulkanCommandB
 
     DstVulkanImage.CmdTransitionImageLayout(inCmdBuffer,
                                             vk::ImageLayout::eTransferDstOptimal,
-                                            vk::ImageLayout::eGeneral,
+                                            inDstImageLayoutTobeSetTo,
                                             vk::PipelineStageFlagBits::eTransfer,
                                             vk::PipelineStageFlagBits::eFragmentShader,
                                             vk::AccessFlagBits::eMemoryWrite,
                                             vk::AccessFlagBits::eMemoryRead);
+    DstVulkanImage.mImageProperties.mCurrentImageLayout = vk::ImageLayout::eGeneral;
 
     SrcVulkanImage.CmdTransitionImageLayout(inCmdBuffer,
                                             vk::ImageLayout::eTransferSrcOptimal,
-                                            vk::ImageLayout::eGeneral,
+                                            inSrcImageLayoutTobeSetTo,
                                             vk::PipelineStageFlagBits::eTransfer,
                                             vk::PipelineStageFlagBits::eFragmentShader,
                                             vk::AccessFlagBits::eMemoryRead,
                                             vk::AccessFlagBits::eMemoryRead);
+    DstVulkanImage.mImageProperties.mCurrentImageLayout = vk::ImageLayout::eGeneral;
 }
 
 void VulkanImageBase::FillImageProperties(ImageContext inImageContext, uint32_t inNumSamples) {

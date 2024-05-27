@@ -325,9 +325,9 @@ Engine.AddObject = function(modObjectsVector, inId, inAssociatedModel, inUniform
                             inMeshIndex)
     local Object = Jkr.Object3D()
     if inId then Object.mId = inId end
-    if inAssociatedModel then Object.mAssociatedModel = inAssociatedModel end
-    if inUniformIndex then Object.mAssociatedUniform = inUniformIndex end
-    if inSimple3dIndex then Object.mAssociatedSimple3D = inSimple3dIndex end
+    if inAssociatedModel then Object.mAssociatedModel = math.floor(inAssociatedModel) end
+    if inUniformIndex then Object.mAssociatedUniform = math.floor(inUniformIndex) end
+    if inSimple3dIndex then Object.mAssociatedSimple3D = math.floor(inSimple3dIndex) end
     if (inGLTFHandle) then
         local NodeIndices = inGLTFHandle:GetNodeIndexByMeshIndex(inMeshIndex)
         Object.mMatrix = inGLTFHandle:GetNodeMatrixByIndex(NodeIndices[1])

@@ -856,7 +856,7 @@ PBR.IBLF = Engine.Shader()
     vec3 Lo = vec3(0.0);
     for(int i = 0; i < Ubo.lights.length(); i++) {
     	vec3 L = normalize(Ubo.lights[i].xyz - vWorldPos);
-    	Lo += SpecularContribution(L, V, N, F0, metallic, roughness);
+    	Lo += SpecularContribution(L, V, N, F0, metallic, roughness) * Ubo.lights[i].w;
     }
 
     vec2 brdf = texture(samplerBRDFLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
@@ -885,6 +885,7 @@ PBR.IBLF = Engine.Shader()
     // Gamma correction gamma = 3.3
     color = pow(color, vec3(1.0f / 3.3));
 
+    //GL_EXT_debug_printf("color: (%f, %f, %f)", color.x, color.y, color.z);
     outFragColor = vec4(color, 1.0);
     ]]
     .GlslMainEnd()
@@ -937,7 +938,6 @@ PBR.FilterCubeV = Engine.Shader()
 
 PBR.PreFilterEnvMapF = Engine.Shader()
     .Header(450)
-    .NewLine()
     .PI()
     .In(0, "vec3", "inPos")
     .Push()
@@ -958,10 +958,14 @@ PBR.PreFilterEnvMapF = Engine.Shader()
     .PrefilterEnvMap()
     .GlslMainBegin()
     .Append [[
+
     consts.roughness = Push.m2[0].x;
     consts.numSamples = uint(Push.m2[0].y);
     vec3 N = normalize(inPos);
-	outFragColor = vec4(PrefilterEnvMap(N, consts.roughness), 1.0);
+    vec3 color = PrefilterEnvMap(N, consts.roughness);
+    debugPrintfEXT("PrefilterCubeMap:: Roughness: %f, Samples: %d, color: (%f, %f, %f)\n", consts.roughness, consts.numSamples, color.x, color.y, color.z);
+    outFragColor = vec4(color, 1.0);
+
     ]]
     .GlslMainEnd()
 
@@ -992,8 +996,9 @@ PBR.IrradianceCubeF = Engine.Shader()
 	const float TWO_PI = PI * 2.0;
 	const float HALF_PI = PI * 0.5;
 
-	vec3 color = vec3(0.0);
 	uint sampleCount = 0u;
+	vec3 color = vec3(0.0);
+
 	for (float phi = 0.0; phi < TWO_PI; phi += consts.deltaPhi) {
 		for (float theta = 0.0; theta < HALF_PI; theta += consts.deltaTheta) {
 			vec3 tempVec = cos(phi) * right + sin(phi) * up;
@@ -1002,7 +1007,9 @@ PBR.IrradianceCubeF = Engine.Shader()
 			sampleCount++;
 		}
 	}
-	outFragColor = vec4(PI * color / float(sampleCount), 1.0);
+    color  = PI * color / float(sampleCount);
+    debugPrintfEXT("deltaPhi = %f, deltaTheta = %f, color: (%f, %f, %f)\n", consts.deltaPhi, consts.deltaTheta, color.x, color.y, color.z);
+	outFragColor = vec4(color, 1.0);
     ]]
     .GlslMainEnd()
 

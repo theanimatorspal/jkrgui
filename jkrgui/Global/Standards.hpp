@@ -69,14 +69,15 @@ enum Uniform : int {
     World Info Uniform
 
 ============================================================== */
+constexpr int LightCount = 8;
 struct WorldInfoUniform {
     alignas(16) glm::mat4 mView;
     alignas(16) glm::mat4 mProjection;
     glm::vec3 mCameraPosition;
     alignas(16) glm::vec4 mNearFar;
-    alignas(16) glm::vec4 mLights[8];
+    alignas(16) glm::vec4 mLights[LightCount];
     alignas(16) glm::mat4 mShadowMatrix;
-    alignas(16) glm::mat4 mLightsDirections[8];
+    alignas(16) glm::vec4 mLightsDirections[LightCount];
 };
 
 } // namespace ksai::kstd

@@ -21,7 +21,7 @@ class VulkanBufferBase {
                                     void* inData);
     void SubmitImmediateCmdCopyFromImage(const VulkanQueue<QueueContext::Graphics>& inQueue,
                                          const VulkanCommandBuffer& inCmdBuffer,
-                                         const VulkanImageBase& inImage) const;
+                                         VulkanImageBase& inImage) const;
 
     void CmdCopyFrom(const VulkanCommandBuffer& inCmdBuffer,
                      VulkanBufferBase& inBuffer,

@@ -43,7 +43,7 @@ struct PBR {
                                                       std::string_view inFragmentShader,
                                                       std::string_view inComputeShader,
                                                       bool inShouldLoad,
-                                                      _3D::World3D& inUniform);
+                                                      _3D::World3D& inWorld3D);
 };
 
 } // namespace Jkr::Renderer
