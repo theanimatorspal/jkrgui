@@ -4,7 +4,7 @@ using namespace ksai;
 ksai::VulkanSwapChainBase::VulkanSwapChainBase(const VulkanDevice& inDevice)
     : mDevice(inDevice.GetDeviceHandle()) {}
 
-ksai::VulkanSwapChainBase::~VulkanSwapChainBase() {
+ksai::VulkanSwapChain::~VulkanSwapChain() {
     ExplicitlyDestroyOldSwapChain();
     ExplicitlyDestroy();
 }

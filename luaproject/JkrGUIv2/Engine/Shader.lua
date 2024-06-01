@@ -1,3 +1,5 @@
+require "JkrGUIv2.require"
+
 Engine.Shader = function()
     local o              = {}
 
@@ -121,6 +123,16 @@ layout(std140, set = 1, binding = 2) readonly buffer JointInfluenceSSBOIn {
 };
 
 ]]
+
+    local inTangent             = [[
+        struct Tangent {
+            vec4 mTangent;
+        };
+
+        layout(std140, set = 1, binding = 14) readonly buffer TangentSSBOIn {
+            Tangent inTangent[];
+        };
+    ]]
 
     local inJointMatrices       = [[
 
@@ -514,6 +526,11 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
         return o.NewLine()
     end
 
+    o.inTangent                = function()
+        o.Append(inTangent)
+        return o.NewLine()
+    end
+
     o.BiasMatrix               = function()
         o.Append(BiasMatrix)
         return o.NewLine()
@@ -888,6 +905,109 @@ PBR.IBLF = Engine.Shader()
 
     //GL_EXT_debug_printf("color: (%f, %f, %f)", color.x, color.y, color.z);
     outFragColor = vec4(color, 1.0);
+    ]]
+    .GlslMainEnd()
+
+
+PBR.IBLF_texture = Engine.Shader()
+    .Header(450)
+    .NewLine()
+    .In(0, "vec2", "vUV")
+    .In(1, "vec3", "vNormal")
+    .In(2, "vec3", "vWorldPos")
+    .Ubo()
+    .Push()
+    .outFragColor()
+    .Append [[
+
+    struct PushConsts {
+              float roughness;
+              float metallic;
+              float specular;
+              float r;
+              float g;
+              float b;
+    } material;
+
+        ]]
+    .uSamplerCubeMap(20, "samplerIrradiance")
+    .uSampler2D(3, "samplerBRDFLUT")
+    .uSamplerCubeMap(21, "prefilteredMap")
+    .uSampler2D(4, "albedoMap")
+    .uSampler2D(5, "normalMap")
+    .uSampler2D(6, "aoMap")
+    .uSampler2D(7, "metallicMap")
+    .uSampler2D(8, "roughnessMap")
+    .PI()
+    .Append "#define ALBEDO vec3(material.r, material.g, material.b)"
+    .NewLine()
+    .Append "vec3 MaterialColor() {return vec3(material.r, material.g, material.b);}"
+    .NewLine()
+    .Uncharted2Tonemap()
+    .D_GGX()
+    .G_SchlicksmithGGX()
+    .F_Schlick()
+    .F_SchlickR()
+    .PrefilteredReflection()
+    .SpecularContribution()
+    .Append [[
+
+vec3 calculateNormal()
+{
+    vec3 tangentNormal = texture(normalMap, inUV).xyz * 2.0 - 1.0;
+
+    vec3 N = normalize(inNormal);
+    vec3 T = normalize(inTangent.xyz);
+    vec3 B = normalize(cross(N, T));
+    mat3 TBN = mat3(T, B, N);
+    return normalize(TBN * tangentNormal);
+}
+
+    ]]
+    .GlslMainBegin()
+    .Append [[
+    vec3 N = calculateNormal();
+    vec3 V = normalize(ubo.campos - vWorldPos);
+	vec3 R = reflect(-V, N);
+
+	float metallic = texture(metallicMap, vUV).r;
+	float roughness = texture(roughnessMap, vUV).r;
+
+	vec3 F0 = vec3(0.04);
+	F0 = mix(F0, ALBEDO, metallic);
+
+	vec3 Lo = vec3(0.0);
+	for(int i = 0; i < uboParams.lights[i].length(); i++) {
+		vec3 L = normalize(uboParams.lights[i].xyz - inWorldPos);
+		Lo += specularContribution(L, V, N, F0, metallic, roughness);
+	}
+	
+	vec2 brdf = texture(samplerBRDFLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+	vec3 reflection = prefilteredReflection(R, roughness).rgb;	
+	vec3 irradiance = texture(samplerIrradiance, N).rgb;
+
+	// Diffuse based on irradiance
+	vec3 diffuse = irradiance * ALBEDO;	
+
+	vec3 F = F_SchlickR(max(dot(N, V), 0.0), F0, roughness);
+
+	// Specular reflectance
+	vec3 specular = reflection * (F * brdf.x + brdf.y);
+
+	// Ambient part
+	vec3 kD = 1.0 - F;
+	kD *= 1.0 - metallic;	
+	vec3 ambient = (kD * diffuse + specular) * texture(aoMap, vUV).rrr;
+	
+	vec3 color = ambient + Lo;
+
+	// Tone mapping exposure = 1.5
+	color = Uncharted2Tonemap(color * 1.5);
+	color = color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
+	// Gamma correction gamma = 0.3
+	color = pow(color, vec3(1.0f / 0.3));
+
+	outFragColor = vec4(color, 1.0);
     ]]
     .GlslMainEnd()
 

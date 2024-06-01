@@ -176,6 +176,7 @@ class glTF_Model {
     GETTER GetMaterialsSize() { return mMaterials.size(); }
     GETTER GetNodesSize() { return mNodes.size(); }
     GETTER GetSkinsSize() { return mSkins.size(); }
+    GETTER GetMeshesSize() { return mMeshes.size(); }
     GETTER GetJointsCount(ui inIndex) { return mSkins[inIndex].mInverseBindMatrices.size(); }
     GETTER GetAnimationsSize() { return mAnimations.size(); }
     GETTER GetNodeIndexByMeshIndex(int inIndex) const { return mMeshes[inIndex].mNodeIndex; }

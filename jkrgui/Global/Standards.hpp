@@ -38,6 +38,7 @@ struct Vertex3DExt {
     glm::vec3 mNormal;
     glm::vec2 mUV;
     glm::vec3 mColor;
+    glm::vec4 mTangent;
     glm::vec4 mJointIndices;
     glm::vec4 mJointWeights;
 };
@@ -45,6 +46,10 @@ struct Vertex3DExt {
 struct JointInfluence {
     alignas(16) glm::vec4 mJointIndices;
     alignas(16) glm::vec4 mJointWeights;
+};
+
+struct Tangent {
+    alignas(16) glm::vec4 mTangent;
 };
 
 using ui32 = uint32_t;
@@ -55,7 +60,8 @@ enum Storage : int {
     JointMatrix       = 1,
     JointInfluence    = 2,
     WorldVertexBuffer = 12,
-    WorldIndexBuffer  = 13
+    WorldIndexBuffer  = 13,
+    VertexInfo        = 14
 };
 enum Uniform : int {
     WorldInfo    = 0,

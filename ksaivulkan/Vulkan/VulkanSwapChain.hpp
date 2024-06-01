@@ -9,7 +9,7 @@ class VulkanBufferBase;
 class VulkanSwapChainBase {
     public:
     VulkanSwapChainBase(const VulkanDevice& inDevice);
-    ~VulkanSwapChainBase();
+    ~VulkanSwapChainBase() = default;
     void ExplicitlyDestroy();
     void ExplicitlyDestroyOldSwapChain();
 
@@ -56,7 +56,7 @@ class VulkanSwapChain : public VulkanSwapChainBase {
                     const VulkanSurface& inSurface,
                     optref<VulkanSwapChainBase> inOldSwapChain = std::nullopt,
                     sz inMaxFramesInFlight                     = 2);
-    ~VulkanSwapChain() = default;
+    ~VulkanSwapChain();
     VulkanSwapChain& operator=(VulkanSwapChain&& Other) noexcept {
         ExplicitlyDestroy();
         ExplicitlyDestroyOldSwapChain();

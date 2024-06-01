@@ -192,6 +192,9 @@ void CreateRenderer3DBindings(sol::state& s) {
          "glTF_Model",
          sol::call_constructor,
          sol::factories([](string_view inFileName) { return mu<glTF_Model>(inFileName); }),
+
+         "GetMeshesSize",
+         &Jkr::Renderer::_3D::glTF_Model::GetMeshesSize,
          "GetVerticesSize",
          &Jkr::Renderer::_3D::glTF_Model::GetVerticesSize,
          "GetIndicesSize",

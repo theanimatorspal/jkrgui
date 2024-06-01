@@ -10,7 +10,7 @@ class VulkanInstance {
     GETTER& GetInstanceHandle() const { return mInstance; }
 
     private:
-    vk::Instance mInstance;
+    vk::Instance mInstance = nullptr;
     v<char const*> mInstanceLayerNames;
     v<char const*> mInstanceExtensionNames;
 };

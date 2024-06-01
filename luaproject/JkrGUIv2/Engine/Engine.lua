@@ -1,12 +1,8 @@
+require "JkrGUIv2.Engine.Shader"
 require "JkrGUIv2.Basic"
-require "JkrGUIv2.Widgets"
-require "JkrGUIv2.Threed"
-require "JkrGUIv2.Multit"
-require "JkrGUIv2.ShaderFactory"
 
 local lerp = Jmath.Lerp
 
-Engine = {}
 Engine.Load = function(self, inEnableValidation)
     self.i = Jkr.CreateInstance(inEnableValidation)
     self.e = Jkr.CreateEventManager()
@@ -208,6 +204,7 @@ Materials = %d,
 Nodes = %d,
 Skins = %d,
 Animations = %d,
+Meshes = %d
                 ]],
             inLoadedGLTF:GetVerticesSize(),
             inLoadedGLTF:GetIndicesSize(),
@@ -216,12 +213,14 @@ Animations = %d,
             inLoadedGLTF:GetMaterialsSize(),
             inLoadedGLTF:GetNodesSize(),
             inLoadedGLTF:GetSkinsSize(),
-            inLoadedGLTF:GetAnimationsSize()
+            inLoadedGLTF:GetAnimationsSize(),
+            inLoadedGLTF:GetMeshesSize()
         ))
     end
 end
 
-Engine.CreateShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
+Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
+    inMaterialIndex = inMaterialIndex + 1
     local Material = inGLTF:GetMaterialsRef()[inMaterialIndex]
     local vShader = Engine.Shader()
         .Header(450)
@@ -230,6 +229,7 @@ Engine.CreateShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
         .Out(0, "vec2", "vUV")
         .Out(1, "vec3", "vNormal")
         .Out(2, "vec3", "vWorldPos")
+        .Out(3, "int", "vVertexIndex")
         .Push()
         .Ubo()
         .GlslMainBegin()
@@ -241,21 +241,16 @@ Engine.CreateShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
               vUV = inUV;
               vNormal = vec3(Push.model) * inNormal;
               vWorldPos = vec3(Pos);
+              vVertexIndex = gl_VertexIndex;
         ]]
         )
         .NewLine()
         .InvertY()
         .GlslMainEnd()
         .NewLine()
-    local fShader = Jkrmt.Shader()
+
+    local fShader = Engine.Shader()
         .Header(450)
-        .NewLine()
-        .In(0, "vec2", "vUV")
-        .In(1, "vec3", "vNormal")
-        .In(2, "vec3", "vWorldPos")
-        .outFragColor()
-        .Push()
-        .Ubo()
 
     local binding = 3
     if (Material.mBaseColorTextureIndex ~= -1) then
@@ -279,19 +274,151 @@ Engine.CreateShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
         binding = binding + 1
     end
 
-    fShader.GlslMainBegin()
-    if (Material.mBaseColorTextureIndex ~= -1) then
-        fShader.Append([[ vec4 BaseColor = texture(uBaseColorTexture, vUV); ]])
+
+    fShader
+        .NewLine()
+        .In(0, "vec2", "vUV")
+        .In(1, "vec3", "vNormal")
+        .In(2, "vec3", "vWorldPos")
+        .In(3, "flat int", "vVertexIndex")
+        .inTangent()
+        .outFragColor()
+        .Push()
+        .Ubo()
+        .Append [[
+
+    struct PushConsts {
+              float roughness;
+              float metallic;
+              float specular;
+              float r;
+              float g;
+              float b;
+    } material;
+
+        ]]
+
+        .uSamplerCubeMap(20, "samplerIrradiance")
+        .uSampler2D(3, "samplerBRDFLUT")
+        .uSamplerCubeMap(21, "prefilteredMap")
+        .PI()
+
+    if (Material.mMetallicRoughnessTextureIndex ~= -1) then
+        fShader.Append "#define ALBEDO pow(texture(uBaseColorTexture, vUV).rgb, vec3(2.2))"
             .NewLine()
     else
-        fShader.Append([[ vec4 BaseColor = vec4(1, 1, 0, 1); ]])
+        fShader
+            .Append "#define ALBEDO vec3(material.r, material.g, material.b)"
             .NewLine()
     end
 
-    fShader.Append([[outFragColor = BaseColor;]])
+    fShader
+        .Append "vec3 MaterialColor() {return vec3(material.r, material.g, material.b);}"
+        .NewLine()
+        .Uncharted2Tonemap()
+        .D_GGX()
+        .G_SchlicksmithGGX()
+        .F_Schlick()
+        .F_SchlickR()
+        .PrefilteredReflection()
+        .SpecularContribution()
+        .Append [[
+
+vec3 calculateNormal()
+{
+    vec3 tangentNormal = texture(uNormalTexture, vUV).xyz * 2.0 - 1.0;
+
+    vec3 N = normalize(vNormal);
+    vec3 T = normalize(inTangent[vVertexIndex].mTangent.xyz);
+    vec3 B = normalize(cross(N, T));
+    mat3 TBN = mat3(T, B, N);
+    return normalize(TBN * tangentNormal);
+}
+
+        ]]
+
+    fShader.GlslMainBegin()
+    fShader.Append [[
+
+    vec3 N = calculateNormal();
+    vec3 V = normalize(Ubo.campos - vWorldPos);
+	vec3 R = reflect(-V, N);
+
+    ]]
+
+    if (Material.mMetallicRoughnessTextureIndex ~= -1) then
+        fShader.Append [[
+
+            float metallic = texture(uMetallicRoughnessTexture, vUV).r;
+	        float roughness = texture(uMetallicRoughnessTexture, vUV).g;
+
+         ]]
+    else
+        fShader.Append [[
+
+            float metallic = material.metallic;
+	        float roughness = material.roughness;
+
+         ]]
+    end
+
+    fShader.Append [[
+
+	vec3 F0 = vec3(0.04);
+	F0 = mix(F0, ALBEDO, metallic);
+
+	vec3 Lo = vec3(0.0);
+	for(int i = 0; i < Ubo.lights[i].length(); i++) {
+		vec3 L = normalize(Ubo.lights[i].xyz - vWorldPos);
+		Lo += SpecularContribution(L, V, N, F0, metallic, roughness);
+	}
+	
+	vec2 brdf = texture(samplerBRDFLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+	vec3 reflection = PrefilteredReflection(R, roughness).rgb;	
+	vec3 irradiance = texture(samplerIrradiance, N).rgb;
+
+	// Diffuse based on irradiance
+	vec3 diffuse = irradiance * ALBEDO;	
+
+	vec3 F = F_SchlickR(max(dot(N, V), 0.0), F0, roughness);
+
+	// Specular reflectance
+	vec3 specular = reflection * (F * brdf.x + brdf.y);
+
+	// Ambient part
+	vec3 kD = 1.0 - F;
+	kD *= 1.0 - metallic;	
+
+    ]]
+
+    if (Material.mOcclusionTextureIndex ~= -1) then
+        fShader.Append [[
+
+            	vec3 ambient = (kD * diffuse + specular) * texture(uOcclusionTexture, vUV).rrr;
+        ]]
+    else
+        fShader.Append [[
+
+            	vec3 ambient = (kD * diffuse + specular);
+        ]]
+    end
+
+    fShader.Append [[
+
+    vec3 color = ambient + Lo;
+
+    // Tone mapping exposure = 1.5
+	color = Uncharted2Tonemap(color * 1.5);
+	color = color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
+	// Gamma correction gamma = 0.3
+	color = pow(color, vec3(1.0f / 0.3));
+
+	outFragColor = vec4(color, 1.0);
+    ]]
+
     fShader.GlslMainEnd()
 
-    return { vShader = vShader.str, fShader = fShader.str }
+    return { vShader = vShader, fShader = fShader }
 end
 
 Jkrmt.CreateObjectByGLTFPrimitiveAndUniform = function(inWorld3d,

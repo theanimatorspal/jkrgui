@@ -90,7 +90,15 @@ void CreateMiscBindings(sol::state& inState) {
          "Build",
          sol::overload(
               sol::resolve<void(Jkr::Renderer::_3D::Simple3D&)>(&Uniform3D::Build),
-              sol::resolve<void(Simple3D&, glTF_Model&, ui, bool, bool)>(&Uniform3D::Build),
+              [](Uniform3D& inUniform3D,
+                 Simple3D& inS,
+                 glTF_Model& inModel,
+                 ui inNodeIndex,
+                 bool inShouldskin,
+                 bool inShouldTexture) {
+                  inUniform3D.Build(inS, inModel, inNodeIndex, inShouldskin, inShouldTexture);
+              },
+              sol::resolve<void(Simple3D&, glTF_Model&, ui, bool, bool, bool)>(&Uniform3D::Build),
               sol::resolve<void(Simple3D&, glTF_Model&, glTF_Model::Primitive&)>(
                    &Uniform3D::Build)),
          "AddTextureToUniform3D",

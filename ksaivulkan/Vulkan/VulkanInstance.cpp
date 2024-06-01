@@ -146,6 +146,8 @@ VulkanInstance::VulkanInstance(bool inEnableValidation) {
 }
 
 VulkanInstance::~VulkanInstance() {
-    mInstance.destroy();
+    if (mInstance) {
+        mInstance.destroy();
+    }
     SDL_Quit();
 }

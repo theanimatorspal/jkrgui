@@ -100,23 +100,34 @@ void Uniform3D::Build(Simple3D& inSimple3D, VulkanDescriptorPool& inPool) {
          inSimple3D.GetPainterCache().GetVertexFragmentDescriptorSetLayout());
 }
 
-static std::mutex ExperimentalMutex;
 void Uniform3D::Build(Simple3D& inSimple3D,
                       Renderer::_3D::glTF_Model& inModel,
                       ui inNodeIndex,
                       bool inShouldSkin,
-                      bool inShouldTextures) {
-    std::scoped_lock<std::mutex> ExperimentalLock(ExperimentalMutex);
+                      bool inShouldTextures,
+                      bool inTangents) {
     if (not mVulkanDescriptorSet) {
         Build(inSimple3D);
     }
-    if (inShouldSkin) {
-        v<kstd::JointInfluence> JointInfluence;
-        for (auto& u : inModel.GetVerticesExtRef()) {
-            JointInfluence.push_back(kstd::JointInfluence{.mJointIndices = u.mJointIndices,
-                                                          .mJointWeights = u.mJointWeights});
-        }
 
+    v<kstd::JointInfluence> JointInfluence;
+    v<kstd::Tangent> Tangents;
+    for (auto& u : inModel.GetVerticesExtRef()) {
+        JointInfluence.push_back(kstd::JointInfluence{.mJointIndices = u.mJointIndices,
+                                                      .mJointWeights = u.mJointWeights});
+        Tangents.push_back(kstd::Tangent{.mTangent = u.mTangent});
+    }
+
+    if (inTangents) {
+        this->AddStorageBuffer(kstd::BindingIndex::Storage::VertexInfo,
+                               Tangents.size() * sizeof(kstd::Tangent));
+        void* data = Tangents.data();
+        this->UpdateStorageBuffer(kstd::BindingIndex::Storage::VertexInfo,
+                                  &data,
+                                  Tangents.size() * sizeof(kstd::Tangent));
+    }
+
+    if (inShouldSkin) {
         this->AddStorageBuffer(kstd::BindingIndex::Storage::JointInfluence,
                                JointInfluence.size() * sizeof(kstd::JointInfluence));
         void* data = JointInfluence.data();

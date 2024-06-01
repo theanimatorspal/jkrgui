@@ -464,6 +464,7 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                 const float* colorBuffer0       = nullptr;
                 const void* jointIndicesBuffer  = nullptr;
                 const float* jointWeightsBuffer = nullptr;
+                const float* tangentsBuffer     = nullptr;
                 size_t vertexCount              = 0;
 
                 int posByteStride;
@@ -473,6 +474,7 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                 int color0ByteStride;
                 int jointByteStride;
                 int weightByteStride;
+                int tangesByteStride;
 
                 /*Get Buffer data for vertex Position*/
                 if (glTFPrimitive.attributes.find("POSITION") != glTFPrimitive.attributes.end()) {
@@ -541,6 +543,20 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                                             : tinygltf::GetNumComponentsInType(TINYGLTF_TYPE_VEC3);
                 }
 
+                if (glTFPrimitive.attributes.find("TANGENT") != glTFPrimitive.attributes.end()) {
+                    const tinygltf::Accessor& tangentAccessor =
+                         input.accessors[glTFPrimitive.attributes.find("TANGENT")->second];
+                    const tinygltf::BufferView& tangentView =
+                         input.bufferViews[tangentAccessor.bufferView];
+                    tangentsBuffer = reinterpret_cast<const float*>(
+                         &(input.buffers[tangentView.buffer]
+                                .data[tangentAccessor.byteOffset + tangentView.byteOffset]));
+                    tangesByteStride =
+                         tangentAccessor.ByteStride(tangentView)
+                              ? (tangentAccessor.ByteStride(tangentView) / sizeof(float))
+                              : tinygltf::GetNumComponentsInType(TINYGLTF_TYPE_VEC4);
+                }
+
                 // POI: Get buffer data required for vertex skinning
                 // Get vertex joint indices
 
@@ -583,6 +599,9 @@ void glTF_Model::LoadNode(const tinygltf::Node& inputNode,
                                                : glm::vec2(0.0f);
                     vert.mColor = colorBuffer0 ? glm::make_vec4(&colorBuffer0[v * color0ByteStride])
                                                : glm::vec4(1.0f);
+                    vert.mTangent = tangentsBuffer
+                                         ? glm::vec4(glm::make_vec4(&tangentsBuffer[v * 4]))
+                                         : glm::vec4(0.0f);
 
                     if (hasSkin) {
                         switch (JointComponentType) {

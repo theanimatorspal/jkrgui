@@ -43,7 +43,8 @@ class Uniform3D {
                Renderer::_3D::glTF_Model& inModel,
                ui inNodeIndex        = 0,
                bool inShouldSkin     = false,
-               bool inShouldTextures = false);
+               bool inShouldTextures = false,
+               bool inShouldTangents = false);
     void Build(Simple3D& inSimple3D,
                Renderer::_3D::glTF_Model& inModel,
                Renderer::_3D::glTF_Model::Primitive& inPrimitive);

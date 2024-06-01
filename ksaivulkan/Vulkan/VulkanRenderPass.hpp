@@ -13,9 +13,7 @@ class VulkanRenderPassBase {
     protected:
     vk::RenderPass mRenderPass;
 };
-} // namespace ksai
 
-namespace ksai {
 template <RenderPassContext inRenderPassContext>
 class VulkanRenderPass : public VulkanRenderPassBase {
     public:
