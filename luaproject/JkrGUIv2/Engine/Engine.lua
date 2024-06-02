@@ -229,9 +229,11 @@ Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
         .Out(0, "vec2", "vUV")
         .Out(1, "vec3", "vNormal")
         .Out(2, "vec3", "vWorldPos")
-        .Out(3, "int", "vVertexIndex")
+        .Out(3, "vec4", "vTangent")
+        .Out(4, "int", "vVertexIndex")
         .Push()
         .Ubo()
+        .inTangent()
         .GlslMainBegin()
         .Indent()
         .Append(
@@ -242,6 +244,8 @@ Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
               vNormal = vec3(Push.model) * inNormal;
               vWorldPos = vec3(Pos);
               vVertexIndex = gl_VertexIndex;
+              vec4 tang = inTangent[gl_VertexIndex].mTangent;
+              vTangent = vec4(mat3(Push.model) * tang.xyz, tang.w);
         ]]
         )
         .NewLine()
@@ -251,40 +255,18 @@ Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
 
     local fShader = Engine.Shader()
         .Header(450)
-
-    local binding = 3
-    if (Material.mBaseColorTextureIndex ~= -1) then
-        fShader.uSampler2D(binding, "uBaseColorTexture").NewLine()
-        binding = binding + 1
-    end
-    if (Material.mMetallicRoughnessTextureIndex ~= -1) then
-        fShader.uSampler2D(binding, "uMetallicRoughnessTexture").NewLine()
-        binding = binding + 1
-    end
-    if (Material.mNormalTextureIndex ~= -1) then
-        fShader.uSampler2D(binding, "uNormalTexture").NewLine()
-        binding = binding + 1
-    end
-    if (Material.mOcclusionTextureIndex ~= -1) then
-        fShader.uSampler2D(binding, "uOcclusionTexture").NewLine()
-        binding = binding + 1
-    end
-    if (Material.mEmissiveTextureIndex ~= -1) then
-        fShader.uSampler2D(binding, "uEmissiveTexture").NewLine()
-        binding = binding + 1
-    end
-
-
-    fShader
         .NewLine()
         .In(0, "vec2", "vUV")
         .In(1, "vec3", "vNormal")
         .In(2, "vec3", "vWorldPos")
-        .In(3, "flat int", "vVertexIndex")
-        .inTangent()
+        .In(3, "vec4", "vTangent")
+        .In(4, "flat int", "vVertexIndex")
+        .uSamplerCubeMap(21, "samplerIrradiance", 0)
+        .uSamplerCubeMap(22, "prefilteredMap", 0)
+        .Ubo()
+        .uSampler2D(10, "samplerBRDFLUT", 1)
         .outFragColor()
         .Push()
-        .Ubo()
         .Append [[
 
     struct PushConsts {
@@ -297,11 +279,30 @@ Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
     } material;
 
         ]]
-
-        .uSamplerCubeMap(20, "samplerIrradiance")
-        .uSampler2D(3, "samplerBRDFLUT")
-        .uSamplerCubeMap(21, "prefilteredMap")
         .PI()
+
+
+    local binding = 3
+    if (Material.mBaseColorTextureIndex ~= -1) then
+        fShader.uSampler2D(binding, "uBaseColorTexture")
+        binding = binding + 1
+    end
+    if (Material.mMetallicRoughnessTextureIndex ~= -1) then
+        fShader.uSampler2D(binding, "uMetallicRoughnessTexture")
+        binding = binding + 1
+    end
+    if (Material.mNormalTextureIndex ~= -1) then
+        fShader.uSampler2D(binding, "uNormalTexture")
+        binding = binding + 1
+    end
+    if (Material.mOcclusionTextureIndex ~= -1) then
+        fShader.uSampler2D(binding, "uOcclusionTexture")
+        binding = binding + 1
+    end
+    if (Material.mEmissiveTextureIndex ~= -1) then
+        fShader.uSampler2D(binding, "uEmissiveTexture")
+        binding = binding + 1
+    end
 
     if (Material.mMetallicRoughnessTextureIndex ~= -1) then
         fShader.Append "#define ALBEDO pow(texture(uBaseColorTexture, vUV).rgb, vec3(2.2))"
@@ -329,7 +330,7 @@ vec3 calculateNormal()
     vec3 tangentNormal = texture(uNormalTexture, vUV).xyz * 2.0 - 1.0;
 
     vec3 N = normalize(vNormal);
-    vec3 T = normalize(inTangent[vVertexIndex].mTangent.xyz);
+    vec3 T = normalize(vTangent.xyz);
     vec3 B = normalize(cross(N, T));
     mat3 TBN = mat3(T, B, N);
     return normalize(TBN * tangentNormal);
@@ -341,6 +342,7 @@ vec3 calculateNormal()
     fShader.Append [[
 
     vec3 N = calculateNormal();
+    //vec3 N = vNormal;
     vec3 V = normalize(Ubo.campos - vWorldPos);
 	vec3 R = reflect(-V, N);
 
@@ -349,9 +351,8 @@ vec3 calculateNormal()
     if (Material.mMetallicRoughnessTextureIndex ~= -1) then
         fShader.Append [[
 
-            float metallic = texture(uMetallicRoughnessTexture, vUV).r;
 	        float roughness = texture(uMetallicRoughnessTexture, vUV).g;
-
+            float metallic = texture(uMetallicRoughnessTexture, vUV).b;
          ]]
     else
         fShader.Append [[
@@ -369,7 +370,7 @@ vec3 calculateNormal()
 
 	vec3 Lo = vec3(0.0);
 	for(int i = 0; i < Ubo.lights[i].length(); i++) {
-		vec3 L = normalize(Ubo.lights[i].xyz - vWorldPos);
+		vec3 L = normalize(Ubo.lights[i].xyz - vWorldPos) * Ubo.lights[i].w;
 		Lo += SpecularContribution(L, V, N, F0, metallic, roughness);
 	}
 	
@@ -408,12 +409,12 @@ vec3 calculateNormal()
     vec3 color = ambient + Lo;
 
     // Tone mapping exposure = 1.5
-	color = Uncharted2Tonemap(color * 1.5);
+	color = Uncharted2Tonemap(color * 2.3);
 	color = color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
 	// Gamma correction gamma = 0.3
-	color = pow(color, vec3(1.0f / 0.3));
+	color = pow(color, vec3(1.0f / 1.5));
 
-	outFragColor = vec4(color, 1.0);
+	outFragColor = vec4(N, 1.0);
     ]]
 
     fShader.GlslMainEnd()

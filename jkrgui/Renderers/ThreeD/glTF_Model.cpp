@@ -48,6 +48,47 @@ bool glTF_Model::BoundingBox::IsPointInside(glm::vec3 inVec) {
            inVec.z >= min.z and inVec.z <= max.z;
 }
 
+static void
+CalculateTangents(v<Vertex3DExt>& inVertices, v<ui>& inIndices, ui inInitialVertexOffset) {
+    using namespace glm;
+    std::vector<vec3> tan1(inVertices.size(), vec3(0.0f));
+    std::vector<vec3> tan2(inVertices.size(), vec3(0.0f));
+    for (size_t i = 0; i < inIndices.size(); i += 3) {
+        const auto vertex0 = inVertices[inIndices[i] - inInitialVertexOffset];
+        const auto vertex1 = inVertices[inIndices[i + 1] - inInitialVertexOffset];
+        const auto vertex2 = inVertices[inIndices[i + 2] - inInitialVertexOffset];
+
+        const vec3 dPos1   = vertex1.mPosition - vertex0.mPosition;
+        const vec3 dPos2   = vertex2.mPosition - vertex0.mPosition;
+
+        const vec2 dUV1    = vertex1.mUV - vertex0.mUV;
+        const vec2 dUV2    = vertex2.mUV - vertex0.mUV;
+
+        const float r      = 1.0f / (dUV1.x * dUV2.y - dUV1.y * dUV2.x);
+
+        const vec3 uDir    = (dPos1 * dUV2.y - dPos2 * dUV1.y) * r;
+        const vec3 vDir    = (dPos2 * dUV1.x - dPos1 * dUV2.x) * r;
+
+        tan1[inIndices[i] - inInitialVertexOffset] += uDir;
+        tan1[inIndices[i + 1] - inInitialVertexOffset] += uDir;
+        tan1[inIndices[i + 2] - inInitialVertexOffset] += uDir;
+
+        tan2[inIndices[i] - inInitialVertexOffset] += vDir;
+        tan2[inIndices[i + 1] - inInitialVertexOffset] += vDir;
+        tan2[inIndices[i + 2] - inInitialVertexOffset] += vDir;
+    }
+
+    for (size_t i = 0; i < inVertices.size(); i++) {
+        const vec3 n                  = inVertices[i].mNormal;
+        const vec3 t                  = tan1[i];
+
+        const vec3 tangent            = normalize(t - n * dot(n, t));
+        const float tangentHandedness = (dot(cross(n, t), tan2[i]) < 0.0f) ? -1.0f : 1.0f;
+
+        inVertices[i].mTangent        = {tangent.x, tangent.y, tangent.z, tangentHandedness};
+    }
+}
+
 // TODO Merge these two functions
 void glTF_Model::Load(ui inInitialVertexOffset) {
     std::scoped_lock<std::mutex> Lock(mUpdateMutex);
@@ -83,6 +124,7 @@ void glTF_Model::Load(ui inInitialVertexOffset) {
         for (auto& Node : mNodes) {
             UpdateJoints(Node.get());
         }
+        CalculateTangents(GetVerticesExtRef(), GetIndicesRef(), inInitialVertexOffset);
     } else {
         std::cout << "File Not Loaded, Not found with the name:" << mFileName << '\n';
     }

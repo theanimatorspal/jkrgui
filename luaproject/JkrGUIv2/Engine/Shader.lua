@@ -492,15 +492,25 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
         return o.NewLine()
     end
 
-    o.uSampler2D               = function(inBinding, inName)
-        o.str = o.str ..
-            string.format("layout(set = 1, binding = %d) uniform sampler2D %s;", inBinding, inName)
+    o.uSampler2D               = function(inBinding, inName, inSet)
+        if inSet then
+            o.str = o.str ..
+                string.format("layout(set = %d, binding = %d) uniform sampler2D %s;", inSet, inBinding, inName)
+        else
+            o.str = o.str ..
+                string.format("layout(set = 1, binding = %d) uniform sampler2D %s;", inBinding, inName)
+        end
         return o.NewLine()
     end
 
-    o.uSamplerCubeMap          = function(inBinding, inName)
-        o.str = o.str ..
-            string.format("layout(set = 1, binding = %d) uniform samplerCube %s;", inBinding, inName)
+    o.uSamplerCubeMap          = function(inBinding, inName, inSet)
+        if (inSet) then
+            o.str = o.str ..
+                string.format("layout(set = %d, binding = %d) uniform samplerCube %s;", inSet, inBinding, inName)
+        else
+            o.str = o.str ..
+                string.format("layout(set = 1, binding = %d) uniform samplerCube %s;", inBinding, inName)
+        end
         return o.NewLine()
     end
 
@@ -1054,7 +1064,7 @@ PBR.FilterCubeV = Engine.Shader()
     .Append [[
     vUVW = inPosition;
     gl_Position = Ubo.proj * Ubo.view * Push.model * vec4(inPosition, 1.0);
-    ]].InvertY()
+    ]]
     .GlslMainEnd()
 
 PBR.PreFilterEnvMapF = Engine.Shader()
