@@ -1,5 +1,4 @@
 require "JkrGUIv2.Engine.Shader"
-require "JkrGUIv2.Basic"
 
 local lerp = Jmath.Lerp
 
@@ -351,8 +350,8 @@ vec3 calculateNormal()
     if (Material.mMetallicRoughnessTextureIndex ~= -1) then
         fShader.Append [[
 
-	        float roughness = texture(uMetallicRoughnessTexture, vUV).g;
-            float metallic = texture(uMetallicRoughnessTexture, vUV).b;
+            float metallic = texture(uMetallicRoughnessTexture, vUV).g;
+	        float roughness = texture(uMetallicRoughnessTexture, vUV).b;
          ]]
     else
         fShader.Append [[
@@ -414,7 +413,7 @@ vec3 calculateNormal()
 	// Gamma correction gamma = 0.3
 	color = pow(color, vec3(1.0f / 1.5));
 
-	outFragColor = vec4(N, 1.0);
+	outFragColor = vec4(color, 1.0);
     ]]
 
     fShader.GlslMainEnd()

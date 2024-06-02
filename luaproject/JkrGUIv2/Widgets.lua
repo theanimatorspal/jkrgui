@@ -1,4 +1,4 @@
-require "JkrGUIv2.Basic"
+require "JkrGUIv2.require"
 
 local lerp = function(a, b, t)
     return (a * (1 - t) + t * b) * (1 - t) + b * t

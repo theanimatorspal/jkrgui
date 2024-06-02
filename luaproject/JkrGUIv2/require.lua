@@ -5,6 +5,51 @@ Jkrmt = {}
 local ShouldLoadCaches_b = false
 
 --[============================================================[
+        JKRGUI v2 - ALL RIGHT RESERVED (c)
+
+*userdata - means table in which you cannot insert elements.
+    This is similar to class in C++
+
+*factory function - These are the functions that are prefixed
+    CreateXXXX, that means you are creating an object.
+    *A table is returned by the factory function,
+
+Notes:
+1. All the factory functions that is not in the namespace Jkr,
+    (is local to this file), will return userdata, that is
+    you cannot extend the table. And those which are in the
+    Jkr namespace will return a table which can be extended
+    with your functionality.
+
+
+CODING STANDARDS
+    -- always  for member functions that are not meant to be used
+            use "m" prefix, like mNumber, mComplex
+    -- if the argument type is a table make it plural
+            like inNumbers, inKeyframes etc
+
+
+CREATING A FACTORY (CLASS PRODUCER)
+
+Namespace.CreateCLASSNAME = function(inArgument1, inArgument2)
+    local o = {}
+    o.mArgument1 = inArgument1
+    o.Argument2 = inArgument2
+
+    o.AFunction = function()
+        -- What the function does
+    end
+
+    return o
+end
+
+For Jkr Specific,
+If Supported for Multithreaded use Jkrmt
+If not use Jkr
+
+]============================================================]
+
+--[============================================================[
         DEFAULT RESOURCES
 
  These are all the shaders (vertex, fragment, compute) that
@@ -32,25 +77,25 @@ quat = quat
 
 math.int = math.floor
 ImportShared = function(inLibName)
-          local libName = inLibName
-          if ANDROID then
-                    libName = "lib" .. inLibName .. ".so"
-          elseif _WIN32 then
-                    libName = inLibName .. ".dll"
-          elseif APPLE then
-                    libName = "lib" .. inLibName .. ".so"
-          end
-          local f = package.loadlib(libName, "luaopen_" .. inLibName)
-          f()
+    local libName = inLibName
+    if ANDROID then
+        libName = "lib" .. inLibName .. ".so"
+    elseif _WIN32 then
+        libName = inLibName .. ".dll"
+    elseif APPLE then
+        libName = "lib" .. inLibName .. ".so"
+    end
+    local f = package.loadlib(libName, "luaopen_" .. inLibName)
+    f()
 end
 
 Jkr.GetDefaultResource = function(inRenderer, inShaderType, inX, inY, inZ)
-          --[============================================================[
+    --[============================================================[
             DEFAULT COMPUTE SHADER
     ]============================================================]
-          local is3D = inRenderer == "Simple3D"
-          if inShaderType == "Compute" and not is3D then
-                    return [[
+    local is3D = inRenderer == "Simple3D"
+    if inShaderType == "Compute" and not is3D then
+        return [[
 #version 450
 #extension GL_EXT_debug_printf : enable
 layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
@@ -68,16 +113,16 @@ void GlslMain()
 }
 
        ]]
-          end
+    end
 
-          --[============================================================[
+    --[============================================================[
             SHAPE RENDERER RESOURCES
     ]============================================================]
 
 
-          if inRenderer == "ShapeFill" or inRenderer == "ShapeImage" then
-                    if inShaderType == "Vertex" then
-                              return [[
+    if inRenderer == "ShapeFill" or inRenderer == "ShapeImage" then
+        if inShaderType == "Vertex" then
+            return [[
 #version 450
 #extension GL_EXT_debug_printf : enable
 
@@ -98,9 +143,9 @@ void GlslMain() {
 	outTexCoord = inTexCoord;
 }
            ]]
-                    else
-                              if inRenderer == "ShapeFill" then
-                                        return [[
+        else
+            if inRenderer == "ShapeFill" then
+                return [[
 #version 450
 #extension GL_EXT_debug_printf : enable
 layout(location = 0) out vec4 outColor;
@@ -117,8 +162,8 @@ void GlslMain()
 	outColor = push.Color;
 }
                 ]]
-                              elseif inRenderer == "ShapeImage" then
-                                        return [[
+            elseif inRenderer == "ShapeImage" then
+                return [[
 #version 450
 #extension GL_EXT_debug_printf : enable
 
@@ -138,8 +183,8 @@ void GlslMain()
 	outColor = vec4(color.r * push.Color.r, color.g * push.Color.g, color.b * push.Color.b, color.a * push.Color.a);
 }
                 ]]
-                              elseif inRenderer == "ShapeImageVarDes" then
-                                        return [[
+            elseif inRenderer == "ShapeImageVarDes" then
+                return [[
 #version 450
 #extension GL_EXT_debug_printf : enable
 #extension GL_EXT_nonuniform_qualifier : enable
@@ -160,18 +205,18 @@ void GlslMain()
 	outColor = vec4(color.r * push.Color.r, color.g * push.Color.g, color.b * push.Color.b, color.a * push.Color.a);
 }
                 ]]
-                              end
-                    end
-          end
+            end
+        end
+    end
 
-          --[============================================================[
+    --[============================================================[
          LINE RENDERER RESOURCES
     ]============================================================]
 
 
-          if inRenderer == "Line" then
-                    if inShaderType == "Vertex" then
-                              return [[
+    if inRenderer == "Line" then
+        if inShaderType == "Vertex" then
+            return [[
 #version 450
 #extension GL_EXT_debug_printf : enable
 
@@ -188,8 +233,8 @@ void GlslMain() {
 	gl_Position = push.Matrix * dx;
 }
         ]]
-                    elseif inShaderType == "Fragment" then
-                              return [[
+        elseif inShaderType == "Fragment" then
+            return [[
 #version 450
 #extension GL_EXT_debug_printf : enable
 layout(location = 0) out vec4 outColor;
@@ -204,15 +249,15 @@ void GlslMain()
 	outColor = push.Color;
 }
             ]]
-                    end
-          end
+        end
+    end
 
-          --[============================================================[
+    --[============================================================[
          3D RENDERER RESOURCES
     ]============================================================]
-          if inRenderer == "Simple3D" then
-                    if inShaderType == "Vertex" then
-                              return [[
+    if inRenderer == "Simple3D" then
+        if inShaderType == "Vertex" then
+            return [[
                 // Vertex Shader
                 #version 450
                 #pragma shader_stage(vertex)
@@ -235,8 +280,8 @@ void GlslMain()
                         outColor = inColor;
                 }
             ]]
-                    elseif inShaderType == "Fragment" then
-                              return [[
+        elseif inShaderType == "Fragment" then
+            return [[
                 #version 450
                 #pragma shader_stage(fragment)
                 #extension GL_EXT_debug_printf : enable
@@ -254,8 +299,8 @@ void GlslMain()
                     outColor = vec4(inColor, 1);
                 }
             ]]
-                    elseif inShaderType == "Compute" then
-                              return [[
+        elseif inShaderType == "Compute" then
+            return [[
                 #version 450
                 #pragma shader_stage(compute)
 
@@ -264,33 +309,33 @@ void GlslMain()
 
                 }
             ]]
-                    end
-          end
-          --[============================================================[
+        end
+    end
+    --[============================================================[
         CustomImagePainter Resources
     ]============================================================]
-          if inRenderer == "CustomImagePainter" then
-                    local Header = [[
+    if inRenderer == "CustomImagePainter" then
+        local Header = [[
 
 #version 450
 layout(set = 0, binding = 0, rgba8) uniform image2D storageImage;
 
         ]]
-                    local InvocationLayout =
-                    [[
+        local InvocationLayout =
+        [[
 
 layout(local_size_x = 1, local_size_y = 1, local_size_z =1) in;
 
 ]]
-                    if (inX) then
-                              InvocationLayout = string.format([[
+        if (inX) then
+            InvocationLayout = string.format([[
 
 layout(local_size_x = %d, local_size_y = %d, local_size_z = %d) in;
 
         ]], inX, inY, inZ)
-                    end
+        end
 
-                    local Assist = [[
+        local Assist = [[
 
 uvec3 gID = gl_GlobalInvocationID;
 ivec2 image_size = ivec2(imageSize(storageImage));
@@ -305,7 +350,7 @@ vec2 xy = vec2(x_cart, y_cart);
 
         ]]
 
-                    local PushConstant = [[
+        local PushConstant = [[
 
 layout(std430, push_constant) uniform pc {
         vec4 mPosDimen;
@@ -315,13 +360,13 @@ layout(std430, push_constant) uniform pc {
 
         ]]
 
-                    if inShaderType == "Header" then return Header end
-                    if inShaderType == "Push" then return PushConstant end
-                    if inShaderType == "Assist" then return Assist end
-                    if inShaderType == "InvocationLayout" then return InvocationLayout end
+        if inShaderType == "Header" then return Header end
+        if inShaderType == "Push" then return PushConstant end
+        if inShaderType == "Assist" then return Assist end
+        if inShaderType == "InvocationLayout" then return InvocationLayout end
 
-                    if inShaderType == "RoundedRectangle" then
-                              return Header .. InvocationLayout .. PushConstant .. [[
+        if inShaderType == "RoundedRectangle" then
+            return Header .. InvocationLayout .. PushConstant .. [[
 
 void GlslMain()
 {
@@ -344,8 +389,8 @@ imageStore(storageImage, to_draw_at, final_color);
 }
 
 ]]
-                    end
-          end
+        end
+    end
 end
 
 --[============================================================[
@@ -354,87 +399,87 @@ end
 
 local DefaultCaches = {}
 Jkr.GetDefaultCache = function(inInstance, inRend)
-          if inRend == "Line" then
-                    DefaultCaches["Line"] = Jkr.PainterCache(inInstance, Jkr.PainterType.Line)
-                    if ShouldLoadCaches_b then
-                              DefaultCaches["Line"]:Load("cache2/LineRendererCache.glsl")
-                    else
-                              DefaultCaches["Line"]:Store("cache2/LineRendererCache.glsl",
-                                        Jkr.GetDefaultResource("Line", "Vertex"),
-                                        Jkr.GetDefaultResource("Line", "Fragment"),
-                                        Jkr.GetDefaultResource(nil, "Compute")
-                              )
-                    end
-                    return DefaultCaches["Line"]
-          elseif inRend == "Shape" then
-                    DefaultCaches["Shape"] = Jkr.ShapeRendererResources()
-                    DefaultCaches["Shape"]:Add(
-                              inInstance,
-                              Jkr.FillType.Fill,
-                              Jkr.PipelineProperties.Default,
-                              "cache2/ShapeFillCache.glsl",
-                              Jkr.GetDefaultResource("ShapeFill", "Vertex"),
-                              Jkr.GetDefaultResource("ShapeFill", "Fragment"),
-                              Jkr.GetDefaultResource(nil, "Compute"),
-                              ShouldLoadCaches_b
-                    )
-                    DefaultCaches["Shape"]:Add(
-                              inInstance,
-                              Jkr.FillType.Image,
-                              Jkr.PipelineProperties.Default,
-                              "cache2/ShapeImageCache.glsl",
-                              Jkr.GetDefaultResource("ShapeImage", "Vertex"),
-                              Jkr.GetDefaultResource("ShapeImage", "Fragment"),
-                              Jkr.GetDefaultResource(nil, "Compute"),
-                              ShouldLoadCaches_b
-                    )
-                    DefaultCaches["Shape"]:Add(
-                              inInstance,
-                              Jkr.FillType.ContinousLine,
-                              Jkr.PipelineProperties.Line,
-                              "cache2/ShapeFillCache.glsl",
-                              Jkr.GetDefaultResource("ShapeFill", "Vertex"),
-                              Jkr.GetDefaultResource("ShapeFill", "Fragment"),
-                              Jkr.GetDefaultResource(nil, "Compute"),
-                              ShouldLoadCaches_b
-                    )
-                    return DefaultCaches["Shape"]
-          end
+    if inRend == "Line" then
+        DefaultCaches["Line"] = Jkr.PainterCache(inInstance, Jkr.PainterType.Line)
+        if ShouldLoadCaches_b then
+            DefaultCaches["Line"]:Load("cache2/LineRendererCache.glsl")
+        else
+            DefaultCaches["Line"]:Store("cache2/LineRendererCache.glsl",
+                Jkr.GetDefaultResource("Line", "Vertex"),
+                Jkr.GetDefaultResource("Line", "Fragment"),
+                Jkr.GetDefaultResource(nil, "Compute")
+            )
+        end
+        return DefaultCaches["Line"]
+    elseif inRend == "Shape" then
+        DefaultCaches["Shape"] = Jkr.ShapeRendererResources()
+        DefaultCaches["Shape"]:Add(
+            inInstance,
+            Jkr.FillType.Fill,
+            Jkr.PipelineProperties.Default,
+            "cache2/ShapeFillCache.glsl",
+            Jkr.GetDefaultResource("ShapeFill", "Vertex"),
+            Jkr.GetDefaultResource("ShapeFill", "Fragment"),
+            Jkr.GetDefaultResource(nil, "Compute"),
+            ShouldLoadCaches_b
+        )
+        DefaultCaches["Shape"]:Add(
+            inInstance,
+            Jkr.FillType.Image,
+            Jkr.PipelineProperties.Default,
+            "cache2/ShapeImageCache.glsl",
+            Jkr.GetDefaultResource("ShapeImage", "Vertex"),
+            Jkr.GetDefaultResource("ShapeImage", "Fragment"),
+            Jkr.GetDefaultResource(nil, "Compute"),
+            ShouldLoadCaches_b
+        )
+        DefaultCaches["Shape"]:Add(
+            inInstance,
+            Jkr.FillType.ContinousLine,
+            Jkr.PipelineProperties.Line,
+            "cache2/ShapeFillCache.glsl",
+            Jkr.GetDefaultResource("ShapeFill", "Vertex"),
+            Jkr.GetDefaultResource("ShapeFill", "Fragment"),
+            Jkr.GetDefaultResource(nil, "Compute"),
+            ShouldLoadCaches_b
+        )
+        return DefaultCaches["Shape"]
+    end
 end
 
 Jkr.GetDefaultShapeRendererResources = function(inInstance)
-          local Resource = Jkr.ShapeRendererResources()
-          Resource:Add(
-                    inInstance,
-                    Jkr.FillType.Fill,
-                    Jkr.PipelineProperties.Default,
-                    "cache2/ShapeFillCache.glsl",
-                    Jkr.GetDefaultResource("ShapeFill", "Vertex"),
-                    Jkr.GetDefaultResource("ShapeFill", "Fragment"),
-                    Jkr.GetDefaultResource(nil, "Compute"),
-                    ShouldLoadCaches_b
-          )
-          Resource:Add(
-                    inInstance,
-                    Jkr.FillType.Image,
-                    Jkr.PipelineProperties.Default,
-                    "cache2/ShapeImageCache.glsl",
-                    Jkr.GetDefaultResource("ShapeImage", "Vertex"),
-                    Jkr.GetDefaultResource("ShapeImage", "Fragment"),
-                    Jkr.GetDefaultResource(nil, "Compute"),
-                    ShouldLoadCaches_b
-          )
-          Resource:Add(
-                    inInstance,
-                    Jkr.FillType.ContinousLine,
-                    Jkr.PipelineProperties.Line,
-                    "cache2/ShapeFillCache.glsl",
-                    Jkr.GetDefaultResource("ShapeFill", "Vertex"),
-                    Jkr.GetDefaultResource("ShapeFill", "Fragment"),
-                    Jkr.GetDefaultResource(nil, "Compute"),
-                    ShouldLoadCaches_b
-          )
-          return Resource
+    local Resource = Jkr.ShapeRendererResources()
+    Resource:Add(
+        inInstance,
+        Jkr.FillType.Fill,
+        Jkr.PipelineProperties.Default,
+        "cache2/ShapeFillCache.glsl",
+        Jkr.GetDefaultResource("ShapeFill", "Vertex"),
+        Jkr.GetDefaultResource("ShapeFill", "Fragment"),
+        Jkr.GetDefaultResource(nil, "Compute"),
+        ShouldLoadCaches_b
+    )
+    Resource:Add(
+        inInstance,
+        Jkr.FillType.Image,
+        Jkr.PipelineProperties.Default,
+        "cache2/ShapeImageCache.glsl",
+        Jkr.GetDefaultResource("ShapeImage", "Vertex"),
+        Jkr.GetDefaultResource("ShapeImage", "Fragment"),
+        Jkr.GetDefaultResource(nil, "Compute"),
+        ShouldLoadCaches_b
+    )
+    Resource:Add(
+        inInstance,
+        Jkr.FillType.ContinousLine,
+        Jkr.PipelineProperties.Line,
+        "cache2/ShapeFillCache.glsl",
+        Jkr.GetDefaultResource("ShapeFill", "Vertex"),
+        Jkr.GetDefaultResource("ShapeFill", "Fragment"),
+        Jkr.GetDefaultResource(nil, "Compute"),
+        ShouldLoadCaches_b
+    )
+    return Resource
 end
 
 
@@ -444,10 +489,10 @@ end
 
 
 Jkr.CreateInstance = function(inEnableValidation, inVarDesSet, inPoolSize, inThreadsCount)
-          if not inVarDesSet then inVarDesSet = 1000 end
-          if not inPoolSize then inPoolSize = 1000 end
-          if not inThreadsCount then inThreadsCount = 7 end
-          return Jkr.Instance(inVarDesSet, inPoolSize, inEnableValidation)
+    if not inVarDesSet then inVarDesSet = 1000 end
+    if not inPoolSize then inPoolSize = 1000 end
+    if not inThreadsCount then inThreadsCount = 7 end
+    return Jkr.Instance(inVarDesSet, inPoolSize, inEnableValidation)
 end
 
 --[============================================================[
@@ -455,10 +500,10 @@ end
 ]============================================================]
 
 Jkr.CreateWindow = function(inJkrInstance, inTitle, inDimension_2f, inThreadCount)
-          if not inTitle then inTitle = "JkrGUIv2" end
-          if not inDimension_2f then inDimension_2f = uvec2(900, 700) end
-          if not inThreadCount then inThreadCount = 4 end
-          return Jkr.Window(inJkrInstance, inTitle, math.int(inDimension_2f.x), math.int(inDimension_2f.y), inThreadCount)
+    if not inTitle then inTitle = "JkrGUIv2" end
+    if not inDimension_2f then inDimension_2f = uvec2(900, 700) end
+    if not inThreadCount then inThreadCount = 4 end
+    return Jkr.Window(inJkrInstance, inTitle, math.int(inDimension_2f.x), math.int(inDimension_2f.y), inThreadCount)
 end
 
 --[============================================================[
@@ -466,7 +511,7 @@ end
 ]============================================================]
 
 Jkr.CreateEventManager = function()
-          return Jkr.EventManager()
+    return Jkr.EventManager()
 end
 
 
@@ -476,50 +521,50 @@ end
 
 
 local CreateLineRenderer = function(inInstance, inCompatibleWindow, inCache)
-          local DefaultCache = inCache
-          if not inCache then
-                    DefaultCache = Jkr.GetDefaultCache(inInstance, "Line")
-          end
-          return Jkr.LineRenderer(inInstance, inCompatibleWindow, DefaultCache)
+    local DefaultCache = inCache
+    if not inCache then
+        DefaultCache = Jkr.GetDefaultCache(inInstance, "Line")
+    end
+    return Jkr.LineRenderer(inInstance, inCompatibleWindow, DefaultCache)
 end
 
 Jkr.CreateLineRenderer = function(inInstance, inCompatibleWindow, inCache)
-          local o = {}
-          o.handle = CreateLineRenderer(inInstance, inCompatibleWindow, inCache)
-          o.recycleBin = Jkr.RecycleBin()
+    local o = {}
+    o.handle = CreateLineRenderer(inInstance, inCompatibleWindow, inCache)
+    o.recycleBin = Jkr.RecycleBin()
 
-          o.CreateMethods = function(self)
-                    self.Add = function(self, inP1_3f, inP2_3f)
-                              if not self.recycleBin:IsEmpty() then
-                                        local i = self.recycleBin:Get()
-                                        self.handle:Update(i, inP1_3f, inP2_3f)
-                                        return i
-                              else
-                                        return self.handle:Add(inP1_3f, inP2_3f)
-                              end
-                    end
-                    self.Remove = function(self, inIndex)
-                              self.recycleBin:Add(inIndex)
-                    end
-                    self.Draw = function(self, w, inColor, startId, endId, inMatrix)
-                              self.handle:Draw(w, inColor, startId, endId, inMatrix)
-                    end
-                    self.Bind = function(self, w)
-                              self.handle:Bind(w)
-                    end
-                    self.Dispatch = function(self, w)
-                              self.handle:Dispatch(w)
-                    end
-          end
+    o.CreateMethods = function(self)
+        self.Add = function(self, inP1_3f, inP2_3f)
+            if not self.recycleBin:IsEmpty() then
+                local i = self.recycleBin:Get()
+                self.handle:Update(i, inP1_3f, inP2_3f)
+                return i
+            else
+                return self.handle:Add(inP1_3f, inP2_3f)
+            end
+        end
+        self.Remove = function(self, inIndex)
+            self.recycleBin:Add(inIndex)
+        end
+        self.Draw = function(self, w, inColor, startId, endId, inMatrix)
+            self.handle:Draw(w, inColor, startId, endId, inMatrix)
+        end
+        self.Bind = function(self, w)
+            self.handle:Bind(w)
+        end
+        self.Dispatch = function(self, w)
+            self.handle:Dispatch(w)
+        end
+    end
 
-          o:CreateMethods()
-          return o
+    o:CreateMethods()
+    return o
 end
 
 function Fetch(inObject)
-          local f = string.dump(inObject.CreateMethods)
-          local func = load(f)
-          func(inObject)
+    local f = string.dump(inObject.CreateMethods)
+    local func = load(f)
+    func(inObject)
 end
 
 --[============================================================[
@@ -527,71 +572,71 @@ end
 ]============================================================]
 
 local CreateShapeRenderer = function(inInstance, inCompatibleWindow, inShapeRendererResouce)
-          if inShapeRendererResouce then
-                    return Jkr.ShapeRenderer(inInstance, inCompatibleWindow, inShapeRendererResouce)
-          else
-                    return Jkr.ShapeRenderer(inInstance, inCompatibleWindow, Jkr.GetDefaultCache(inInstance, "Shape"))
-          end
+    if inShapeRendererResouce then
+        return Jkr.ShapeRenderer(inInstance, inCompatibleWindow, inShapeRendererResouce)
+    else
+        return Jkr.ShapeRenderer(inInstance, inCompatibleWindow, Jkr.GetDefaultCache(inInstance, "Shape"))
+    end
 end
 
 Jkr.CreateShapeRenderer = function(inInstance, inCompatibleWindow, inShapeRendererResouce)
-          local o = {}
-          local sr = CreateShapeRenderer(inInstance, inCompatibleWindow, inShapeRendererResouce)
-          o.handle = sr
+    local o = {}
+    local sr = CreateShapeRenderer(inInstance, inCompatibleWindow, inShapeRendererResouce)
+    o.handle = sr
 
-          local recycleBin = Jkr.RecycleBin()
-          o.Add = function(self, inGenerator, inPosition_3f)
-                    if not recycleBin:IsEmpty() then
-                              local i = recycleBin:Get()
-                              sr:Update(inGenerator, inPosition_3f)
-                              return i
-                    else
-                              return sr:Add(inGenerator, inPosition_3f)
-                    end
-          end
+    local recycleBin = Jkr.RecycleBin()
+    o.Add = function(self, inGenerator, inPosition_3f)
+        if not recycleBin:IsEmpty() then
+            local i = recycleBin:Get()
+            sr:Update(inGenerator, inPosition_3f)
+            return i
+        else
+            return sr:Add(inGenerator, inPosition_3f)
+        end
+    end
 
-          o.AddImage = function(self, inWidth, inHeight)
-                    return sr:AddImage(math.int(inWidth), math.int(inHeight))
-          end
+    o.AddImage = function(self, inWidth, inHeight)
+        return sr:AddImage(math.int(inWidth), math.int(inHeight))
+    end
 
-          o.AddImageByFileName = function(self, inFileName)
-                    return sr:AddImage(inFileName)
-          end
+    o.AddImageByFileName = function(self, inFileName)
+        return sr:AddImage(inFileName)
+    end
 
-          o.Remove = function(self, inId)
-                    recycleBin:Add(inId)
-          end
+    o.Remove = function(self, inId)
+        recycleBin:Add(inId)
+    end
 
-          o.Update = function(self, inId, inGenerator, inPosition_3f)
-                    sr:Update(inId, inGenerator, inPosition_3f.x, inPosition_3f.y, inPosition_3f.z) -- TODO Improve this
-          end
-          o.BindShapes = function(self, w, inCmdParam)
-                    sr:BindShapes(w, inCmdParam)
-          end
-          o.BindFillMode = function(self, inFillMode, inWindow, inCmdParam)
-                    sr:BindFillMode(inFillMode, inWindow, inCmdParam)
-          end
-          o.BindImage = function(self, inWindow, inImageId, inCmdParam)
-                    sr:BindImage(inWindow, inImageId, inCmdParam)
-          end
-          o.Draw = function(self, w, inColor_4f, inStartShapeId, inEndShapeId, inMatrix, inCmdParam)
-                    sr:Draw(w, inColor_4f, inStartShapeId, inEndShapeId, inMatrix, inCmdParam)
-          end
-          o.Dispatch = function(self, w, inParam)
-                    sr:Dispatch(w, inParam)
-          end
-          o.CopyToImage = function(self, inId, inCustomPainterImage) -- TODO Wrap This
-                    sr:CopyToImage(inId, inCustomPainterImage)
-          end
-          return o
+    o.Update = function(self, inId, inGenerator, inPosition_3f)
+        sr:Update(inId, inGenerator, inPosition_3f.x, inPosition_3f.y, inPosition_3f.z) -- TODO Improve this
+    end
+    o.BindShapes = function(self, w, inCmdParam)
+        sr:BindShapes(w, inCmdParam)
+    end
+    o.BindFillMode = function(self, inFillMode, inWindow, inCmdParam)
+        sr:BindFillMode(inFillMode, inWindow, inCmdParam)
+    end
+    o.BindImage = function(self, inWindow, inImageId, inCmdParam)
+        sr:BindImage(inWindow, inImageId, inCmdParam)
+    end
+    o.Draw = function(self, w, inColor_4f, inStartShapeId, inEndShapeId, inMatrix, inCmdParam)
+        sr:Draw(w, inColor_4f, inStartShapeId, inEndShapeId, inMatrix, inCmdParam)
+    end
+    o.Dispatch = function(self, w, inParam)
+        sr:Dispatch(w, inParam)
+    end
+    o.CopyToImage = function(self, inId, inCustomPainterImage) -- TODO Wrap This
+        sr:CopyToImage(inId, inCustomPainterImage)
+    end
+    return o
 end
 
 local CreateShapeRendererEXT = function(inInstance, inCompatibleWindow, inCaches)
-          -- TODO
+    -- TODO
 end
 
 Jkr.CreateShaperRendererEXT = function(inInstance, inCompatibleWindow, inCache)
-          -- TODO
+    -- TODO
 end
 
 --[============================================================[
@@ -599,32 +644,32 @@ end
 ]============================================================]
 
 local CreateTextRendererBestTextAlt = function(inInstance, inShapeHandle, inBestTextBase)
-          return Jkr.BestText_Alt(inInstance, inShapeHandle, inBestTextBase)
+    return Jkr.BestText_Alt(inInstance, inShapeHandle, inBestTextBase)
 end
 
 Jkr.CreateTextRendererBestTextAlt = function(inInstance, inShapeRenderer)
-          local o = {}
-          local bt = Jkr.BestText_base()
-          local tr = CreateTextRendererBestTextAlt(inInstance, inShapeRenderer.handle, bt)
-          o.AddFontFace = function(self, inFontFileName, inSize)
-                    return bt:AddFontFace(inFontFileName, inSize)
-          end
-          o.Add = function(self, inFontId, inPosition_3f, inText)
-                    return tr:Add(inFontId, inPosition_3f, inText)
-          end
-          o.Update = function(self, inTextImageId, inFontId, inPosition_3f, inText)
-                    tr:Update(inTextImageId, inFontId, inPosition_3f, inText)
-          end
-          o.UpdatePosOnly = function(self, inTextImageId, inFontId, inPosition_3f, inText)
-                    tr:UpdatePosOnly(inTextImageId, inFontId, inPosition_3f, inText)
-          end
-          o.Draw = function(self, inTextImageId, w, inColor, inMatrix, inCmdParam)
-                    tr:Draw(inTextImageId, w, inColor, inMatrix, inCmdParam)
-          end
-          o.GetTextDimensions = function(self, inText, inFontShapeId)
-                    return bt:GetTextDimensions(inText, inFontShapeId)
-          end
-          return o
+    local o = {}
+    local bt = Jkr.BestText_base()
+    local tr = CreateTextRendererBestTextAlt(inInstance, inShapeRenderer.handle, bt)
+    o.AddFontFace = function(self, inFontFileName, inSize)
+        return bt:AddFontFace(inFontFileName, inSize)
+    end
+    o.Add = function(self, inFontId, inPosition_3f, inText)
+        return tr:Add(inFontId, inPosition_3f, inText)
+    end
+    o.Update = function(self, inTextImageId, inFontId, inPosition_3f, inText)
+        tr:Update(inTextImageId, inFontId, inPosition_3f, inText)
+    end
+    o.UpdatePosOnly = function(self, inTextImageId, inFontId, inPosition_3f, inText)
+        tr:UpdatePosOnly(inTextImageId, inFontId, inPosition_3f, inText)
+    end
+    o.Draw = function(self, inTextImageId, w, inColor, inMatrix, inCmdParam)
+        tr:Draw(inTextImageId, w, inColor, inMatrix, inCmdParam)
+    end
+    o.GetTextDimensions = function(self, inText, inFontShapeId)
+        return bt:GetTextDimensions(inText, inFontShapeId)
+    end
+    return o
 end
 
 
@@ -633,38 +678,38 @@ end
 ]============================================================]
 
 Jkr.CreateCustomPainterImage = function(i, w, inWidth, inHeight)
-          return Jkr.CustomPainterImage(i, w, inWidth, inHeight)
+    return Jkr.CustomPainterImage(i, w, inWidth, inHeight)
 end
 
 local CreateCustomImagePainter = function(inCacheFileName, inComputeShader)
-          return Jkr.CustomImagePainter(inCacheFileName, inComputeShader)
+    return Jkr.CustomImagePainter(inCacheFileName, inComputeShader)
 end
 
 Jkr.CreateCustomImagePainter = function(inCacheFileName, inComputeShader)
-          local o = {}
-          o.handle = CreateCustomImagePainter(inCacheFileName, inComputeShader)
+    local o = {}
+    o.handle = CreateCustomImagePainter(inCacheFileName, inComputeShader)
 
-          o.Load = function(self, i, w)
-                    o.handle:Load(i, w)
-          end
+    o.Load = function(self, i, w)
+        o.handle:Load(i, w)
+    end
 
-          o.Store = function(self, i, w)
-                    o.handle:Store(i, w)
-          end
+    o.Store = function(self, i, w)
+        o.handle:Store(i, w)
+    end
 
-          o.Bind = function(self, w, inCmdParam)
-                    o.handle:Bind(w, inCmdParam)
-          end
+    o.Bind = function(self, w, inCmdParam)
+        o.handle:Bind(w, inCmdParam)
+    end
 
-          o.BindImageFromImage = function(self, w, inCustomImagePainter, inCmdParam)
-                    o.handle:BindImageFromImage(w, inCustomImagePainter, inCmdParam)
-          end
+    o.BindImageFromImage = function(self, w, inCustomImagePainter, inCmdParam)
+        o.handle:BindImageFromImage(w, inCustomImagePainter, inCmdParam)
+    end
 
-          o.Draw = function(self, w, inPushConstant, inX, inY, inZ, inCmdParam)
-                    o.handle:Draw(w, inPushConstant, inX, inY, inZ, inCmdParam)
-          end
+    o.Draw = function(self, w, inPushConstant, inX, inY, inZ, inCmdParam)
+        o.handle:Draw(w, inPushConstant, inX, inY, inZ, inCmdParam)
+    end
 
-          return o
+    return o
 end
 
 
@@ -673,48 +718,64 @@ end
 ]============================================================]
 
 Jkr.DebugMainLoop = function(w, e, inUpdate, inDispatch, inDraw, inPostProcess, inColor_4f, inMT, inMTDraw, inExecute)
-          local oldTime = 0.0
-          local i = 0
-          while not e:ShouldQuit() do
-                    oldTime = w:GetWindowCurrentTime()
-                    e:ProcessEvents()
+    local oldTime = 0.0
+    local i = 0
+    while not e:ShouldQuit() do
+        oldTime = w:GetWindowCurrentTime()
+        e:ProcessEvents()
 
-                    -- /* All Updates are done here*/
-                    w:BeginUpdates()
-                    if (inUpdate) then inUpdate() end
-                    w:EndUpdates()
+        -- /* All Updates are done here*/
+        w:BeginUpdates()
+        if (inUpdate) then inUpdate() end
+        w:EndUpdates()
 
-                    w:BeginDispatches()
-                    if (inDispatch) then inDispatch() end
-                    w:EndDispatches()
+        w:BeginDispatches()
+        if (inDispatch) then inDispatch() end
+        w:EndDispatches()
 
-                    if (inMTDraw) then inMTDraw() end
-                    -- /* All UI Renders are Recordeed here*/
-                    w:BeginUIs()
-                    if (inDraw) then inDraw() end
-                    w:EndUIs()
+        if (inMTDraw) then inMTDraw() end
+        -- /* All UI Renders are Recordeed here*/
+        w:BeginUIs()
+        if (inDraw) then inDraw() end
+        w:EndUIs()
 
-                    -- /* All ComputeShader Invocations are Done here*/
+        -- /* All ComputeShader Invocations are Done here*/
 
-                    -- /* All Draws (Main CmdBuffer Recording) is done here*/
-                    if inColor_4f then
-                              w:BeginDraws(inColor_4f.x, inColor_4f.y, inColor_4f.z, inColor_4f.w, 1)
-                    else
-                              w:BeginDraws(0.8, 0.8, 0.8, 1, 1)
-                    end
-                    if (inMT) then inMT:Wait() end
-                    if (inExecute) then inExecute() end
-                    w:ExecuteUIs() -- The UI CmdBuffer is executed onto the main CmdBuffer
-                    w:EndDraws()
+        -- /* All Draws (Main CmdBuffer Recording) is done here*/
+        if inColor_4f then
+            w:BeginDraws(inColor_4f.x, inColor_4f.y, inColor_4f.z, inColor_4f.w, 1)
+        else
+            w:BeginDraws(0.8, 0.8, 0.8, 1, 1)
+        end
+        if (inMT) then inMT:Wait() end
+        if (inExecute) then inExecute() end
+        w:ExecuteUIs() -- The UI CmdBuffer is executed onto the main CmdBuffer
+        w:EndDraws()
 
-                    if (inPostProcess) then inPostProcess() end
+        if (inPostProcess) then inPostProcess() end
 
-                    -- /* Finally is presented onto the screen */
-                    w:Present()
-                    local delta = w:GetWindowCurrentTime() - oldTime
-                    if (i % 100 == 0) then
-                              w:SetTitle("FrameRate: " .. 1000 / delta)
-                    end
-                    i = i + 1
-          end
+        -- /* Finally is presented onto the screen */
+        w:Present()
+        local delta = w:GetWindowCurrentTime() - oldTime
+        if (i % 100 == 0) then
+            w:SetTitle("FrameRate: " .. 1000 / delta)
+        end
+        i = i + 1
+    end
+end
+
+--[============================================================[
+    SHAPE Renderer 3D
+]============================================================]
+
+function Jkr.CreateShapeRenderer3D(i, w)
+    return Jkr.Shape3D(i, w)
+end
+
+--[============================================================[
+    Simple 3D Pipeline
+]============================================================]
+
+function Jkr.CreateSimple3DPipeline(i, w)
+    return Jkr.Simple3D(i, w)
 end
