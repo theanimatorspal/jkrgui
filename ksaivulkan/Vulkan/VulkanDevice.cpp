@@ -81,3 +81,7 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice,
         } break;
     }
 }
+
+void VulkanDevice::Wait() const { mDevice.waitIdle(); }
+
+VulkanDevice::~VulkanDevice() { mDevice.destroy(); }

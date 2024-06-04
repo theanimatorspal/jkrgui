@@ -22,6 +22,11 @@
 #include <iostream>
 
 using namespace ksai;
+VulkanInstance::DeletionQueueType VulkanInstance::gDeletionQueue;
+std::mutex VulkanInstance::gDeletionMutex;
+
+VulkanInstance::DeletionQueueType& VulkanInstance::GetDeletionQueueRef() { return gDeletionQueue; }
+std::mutex& VulkanInstance::GetDeletionMutexRef() { return gDeletionMutex; }
 
 static s AppName    = "JkrEngine";
 static s EngineName = "JkrVulkanEngine";
@@ -54,6 +59,12 @@ static bool hasExtensions(std::span<char const*> const& instanceExtensionNames,
 }
 
 VulkanInstance::VulkanInstance(bool inEnableValidation) {
+    {
+        std::scoped_lock<std::mutex> Lock(gDeletionMutex);
+        gDeletionQueue.clear();
+        gDeletionQueue.shrink_to_fit();
+        gDeletionQueue.reserve(100);
+    }
     auto instanceLayerProperties = vk::enumerateInstanceLayerProperties();
     if (inEnableValidation) {
         mInstanceLayerNames.push_back("VK_LAYER_KHRONOS_validation");
@@ -149,5 +160,10 @@ VulkanInstance::~VulkanInstance() {
     if (mInstance) {
         mInstance.destroy();
     }
+    auto& DQ = VulkanInstance::GetDeletionQueueRef();
+    for (int i = 0; i < DQ.size(); i++) {
+        DQ.at(i)();
+    }
+    DQ.clear();
     SDL_Quit();
 }

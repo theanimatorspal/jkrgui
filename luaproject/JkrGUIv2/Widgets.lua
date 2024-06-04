@@ -405,25 +405,6 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         Image.CopyToSampledEXT = function(inComputeImage)
             o.s:CopyToImage(Image.sampledImage.mId, inComputeImage)
         end
-        Image.CreateButton = function(inPosition_3f, inDimension_3f, inOnclickFunction)
-            Image.buttonBoundedRect = {}
-            Image.buttonBoundedRect.mDepthValue = math.int(inPosition_3f.z)
-            Image.buttonBoundedRect.mId = e:SetBoundedRect(vec2(inPosition_3f.x, inPosition_3f.y),
-                vec2(inDimension_3f.x, inDimension_3f.y), math.int(inPosition_3f.z))
-            Image.buttonBoundedRect.mPushId = o.c.Push(Jkr.CreateUpdatable(function()
-                local over = e:IsMouseWithinAtTopOfStack(Image.buttonBoundedRect.mId, Image.buttonBoundedRect
-                    .mDepthValue)
-                if e:IsLeftButtonPressed() and over then
-                    inOnclickFunction()
-                end
-            end))
-            Image.buttonBoundedRect.Update = function(inPosition_3f, inDimension_3f)
-                Image.sampledImage:Update(inPosition_3f, inDimension_3f)
-                e:UpdateBoundedRect(Image.buttonBoundedRect.mId, vec2(inPosition_3f.x, inPosition_3f.y),
-                    vec2(inDimension_3f.x, inDimension_3f.y), Image.buttonBoundedRect.mDepthValue)
-            end
-            return Image.buttonBoundedRect
-        end
         return Image
     end
 

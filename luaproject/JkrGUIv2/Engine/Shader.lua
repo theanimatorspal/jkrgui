@@ -336,6 +336,43 @@ vec3 ImportanceSample_GGX(vec2 Xi, float roughness, vec3 normal)
 }
        ]]
 
+    local SRGBtoLINEAR         = [[
+
+vec4 SRGBtoLINEAR(vec4 srgbIn)
+{
+	#define MANUAL_SRGB 1
+	#ifdef MANUAL_SRGB
+	#ifdef SRGB_FAST_APPROXIMATION
+	vec3 linOut = pow(srgbIn.xyz,vec3(2.2));
+	#else //SRGB_FAST_APPROXIMATION
+	vec3 bLess = step(vec3(0.04045),srgbIn.xyz);
+	vec3 linOut = mix( srgbIn.xyz/vec3(12.92), pow((srgbIn.xyz+vec3(0.055))/vec3(1.055),vec3(2.4)), bLess );
+	#endif //SRGB_FAST_APPROXIMATION
+	return vec4(linOut,srgbIn.w);;
+	#else //MANUAL_SRGB
+	return srgbIn;
+	#endif //MANUAL_SRGB
+}
+
+vec3 SRGBtoLINEAR(vec3 srgbIn)
+{
+	#define MANUAL_SRGB 1
+	#ifdef MANUAL_SRGB
+	#ifdef SRGB_FAST_APPROXIMATION
+	vec3 linOut = pow(srgbIn.xyz,vec3(2.2));
+	#else //SRGB_FAST_APPROXIMATION
+	vec3 bLess = step(vec3(0.04045),srgbIn.xyz);
+	vec3 linOut = mix( srgbIn.xyz/vec3(12.92), pow((srgbIn.xyz+vec3(0.055))/vec3(1.055),vec3(2.4)), bLess );
+	#endif //SRGB_FAST_APPROXIMATION
+	return linOut;
+	#else //MANUAL_SRGB
+	return srgbIn;
+	#endif //MANUAL_SRGB
+}
+]]
+
+
+
     local PrefilterEnvMap      = [[
 
 vec3 PrefilterEnvMap(vec3 R, float roughness)
@@ -584,6 +621,12 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
     o.Uncharted2Tonemap        = function()
         o.NewLine()
         o.Append(Uncharted2Tonemap)
+        return o.NewLine()
+    end
+
+    o.SRGBtoLINEAR             = function()
+        o.NewLine()
+        o.Append(SRGBtoLINEAR)
         return o.NewLine()
     end
 
@@ -1012,10 +1055,10 @@ vec3 calculateNormal()
 	vec3 color = ambient + Lo;
 
 	// Tone mapping exposure = 1.5
-	color = Uncharted2Tonemap(color * 1.5);
+	color = Uncharted2Tonemap(color * 2.5);
 	color = color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
 	// Gamma correction gamma = 0.3
-	color = pow(color, vec3(1.0f / 0.3));
+	color = pow(color, vec3(1.0f / 1.3));
 
 	outFragColor = vec4(color, 1.0);
     ]]

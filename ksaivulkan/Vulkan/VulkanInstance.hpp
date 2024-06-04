@@ -5,13 +5,19 @@
 namespace ksai {
 class VulkanInstance {
     public:
+    using DeletionQueueType = std::vector<std::function<void(void)>>;
+    GETTER& GetInstanceHandle() const { return mInstance; }
+    static DeletionQueueType& GetDeletionQueueRef();
+    static std::mutex& GetDeletionMutexRef();
     VulkanInstance(bool inEnableValidation = false);
     ~VulkanInstance();
-    GETTER& GetInstanceHandle() const { return mInstance; }
 
     private:
+    static DeletionQueueType gDeletionQueue;
+    static std::mutex gDeletionMutex;
     vk::Instance mInstance = nullptr;
     v<char const*> mInstanceLayerNames;
     v<char const*> mInstanceExtensionNames;
+    static std::mutex mDeletionMutex;
 };
 } // namespace ksai

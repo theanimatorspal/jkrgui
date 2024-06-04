@@ -322,6 +322,7 @@ Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
         .F_SchlickR()
         .PrefilteredReflection()
         .SpecularContribution()
+        .SRGBtoLINEAR()
         .Append [[
 
 vec3 calculateNormal()
@@ -350,8 +351,10 @@ vec3 calculateNormal()
     if (Material.mMetallicRoughnessTextureIndex ~= -1) then
         fShader.Append [[
 
-            float metallic = texture(uMetallicRoughnessTexture, vUV).g;
-	        float roughness = texture(uMetallicRoughnessTexture, vUV).b;
+            float metallic = texture(uMetallicRoughnessTexture, vUV).b;
+	        float roughness = texture(uMetallicRoughnessTexture, vUV).g;
+            // metallic = 0;
+            // roughness = 0.5;
          ]]
     else
         fShader.Append [[
@@ -365,7 +368,7 @@ vec3 calculateNormal()
     fShader.Append [[
 
 	vec3 F0 = vec3(0.04);
-	F0 = mix(F0, ALBEDO, metallic);
+	F0 = mix(F0, SRGBtoLINEAR(vec4(ALBEDO, 1.0)).xyz, metallic);
 
 	vec3 Lo = vec3(0.0);
 	for(int i = 0; i < Ubo.lights[i].length(); i++) {
@@ -374,8 +377,8 @@ vec3 calculateNormal()
 	}
 	
 	vec2 brdf = texture(samplerBRDFLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
-	vec3 reflection = PrefilteredReflection(R, roughness).rgb;	
-	vec3 irradiance = texture(samplerIrradiance, N).rgb;
+	vec3 reflection = SRGBtoLINEAR(PrefilteredReflection(R, roughness)).rgb;	
+	vec3 irradiance = SRGBtoLINEAR(texture(samplerIrradiance, N)).rgb;
 
 	// Diffuse based on irradiance
 	vec3 diffuse = irradiance * ALBEDO;	
@@ -408,10 +411,10 @@ vec3 calculateNormal()
     vec3 color = ambient + Lo;
 
     // Tone mapping exposure = 1.5
-	color = Uncharted2Tonemap(color * 2.3);
+	color = Uncharted2Tonemap(color * 2);
 	color = color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
 	// Gamma correction gamma = 0.3
-	color = pow(color, vec3(1.0f / 1.5));
+	color = pow(color, vec3(1.0f / 2));
 
 	outFragColor = vec4(color, 1.0);
     ]]
