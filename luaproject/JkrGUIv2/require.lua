@@ -707,8 +707,8 @@ Jkr.CreateCustomImagePainter = function(inCacheFileName, inComputeShader)
         o.handle:Bind(w, inCmdParam)
     end
 
-    o.BindImageFromImage = function(self, w, inCustomImagePainter, inCmdParam)
-        o.handle:BindImageFromImage(w, inCustomImagePainter, inCmdParam)
+    o.BindImageFromImage = function(self, w, inComputeImage, inCmdParam)
+        o.handle:BindImageFromImage(w, inComputeImage.mId, inCmdParam)
     end
 
     o.Draw = function(self, w, inPushConstant, inX, inY, inZ, inCmdParam)
