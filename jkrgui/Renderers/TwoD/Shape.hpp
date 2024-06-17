@@ -47,9 +47,15 @@ class Shape : public Shape_base, Renderer_base {
                      uint32_t inWidth,
                      uint32_t inHeight,
                      CustomPainterImage& inPainterImage);
+    void CopyFromImage(uint32_t inId,
+                       uint32_t inWidth,
+                       uint32_t inHeight,
+                       CustomPainterImage& inPainterImage);
+    void CopyFromImage(uint32_t inId, CustomPainterImage& inPainterImage);
     void CopyToImage(uint32_t inId, CustomPainterImage& inPainterImage);
     void BindImage(Window& inWindow, uint32_t inImageId, CmdParam inParam = CmdParam::UI);
 
+    glm::vec2 GetImageSize(const sv inFileName);
     ui AddImageEXT(const std::string_view inFileName);
     ui AddImageEXT(uint32_t inWidth, uint32_t inHeight);
     ui AddImageEXT(v<uc> inImage, ui inWidth, ui inHeight);

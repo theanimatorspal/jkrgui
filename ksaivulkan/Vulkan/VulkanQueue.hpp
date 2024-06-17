@@ -9,6 +9,7 @@ class VulkanCommandBuffer;
 class VulkanSwapChain;
 class VulkanQueueBase {
     public:
+    operator vk::Queue() const { return mQueue; }
     VulkanQueueBase(const VulkanQueueContext& inQueueContext, const VulkanDevice& inDevice);
     void Wait() const;
     GETTER& GetQueueHandle() const { return mQueue; }

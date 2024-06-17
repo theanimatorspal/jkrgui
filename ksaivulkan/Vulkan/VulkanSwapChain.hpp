@@ -8,6 +8,7 @@ namespace ksai {
 class VulkanBufferBase;
 class VulkanSwapChainBase {
     public:
+    operator vk::SwapchainKHR() const { return mSwapChain; }
     VulkanSwapChainBase(const VulkanDevice& inDevice);
     ~VulkanSwapChainBase() = default;
     void ExplicitlyDestroy();

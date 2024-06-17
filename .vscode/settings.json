@@ -19,12 +19,12 @@
           "cmake.parallelJobs": 8,
           "cmake.clearOutputBeforeBuild": true,
           "cmake.debugConfig": {
-                    "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\PBR",
+                    "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\Present",
                     "visualizerFile": "${workspaceFolder}/Visualizers/glm.natvis"
           },
           /* EDITOR */
           "editor.matchBrackets": "near",
-          "editor.fontFamily": "Victor Mono",
+          "editor.fontFamily": "Sitka Text",
           "editor.fontWeight": "normal",
           "editor.fontSize": 16,
           "editor.tabSize": 10,

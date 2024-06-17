@@ -317,12 +317,14 @@ void VulkanImageBase::FillImageProperties(ImageContext inImageContext, uint32_t 
         // mImageProperties.mInitialImageLayout = vk::ImageLayout::eDepthAttachmentOptimal;
         mImageProperties.mInitialImageLayout = vk::ImageLayout::eGeneral;
     } else if (inImageContext == ImageContext::Storage) {
-        mImageProperties.mImageUsage =
-             vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eTransferSrc;
+        mImageProperties.mImageUsage = vk::ImageUsageFlagBits::eStorage |
+                                       vk::ImageUsageFlagBits::eTransferSrc |
+                                       vk::ImageUsageFlagBits::eTransferDst;
         mImageProperties.mImageFormat = vk::Format::eR8G8B8A8Unorm;
     } else if (inImageContext == ImageContext::Default) {
-        mImageProperties.mImageUsage =
-             vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst;
+        mImageProperties.mImageUsage = vk::ImageUsageFlagBits::eSampled |
+                                       vk::ImageUsageFlagBits::eTransferDst |
+                                       vk::ImageUsageFlagBits::eTransferSrc;
         mImageProperties.mImageFormat = vk::Format::eR8G8B8A8Unorm;
     } else if (inImageContext == ImageContext::CubeCompatible) {
         mImageProperties.mFlags = vk::ImageCreateFlagBits::eCubeCompatible;

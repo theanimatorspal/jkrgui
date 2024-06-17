@@ -5,6 +5,7 @@
 namespace ksai {
 class VulkanSampler {
     public:
+    operator vk::Sampler() const { return mSampler; }
     // TODO Make this better
     VulkanSampler(const VulkanDevice& inDevice,
                   ImageContext inImageContext = ImageContext::Default,

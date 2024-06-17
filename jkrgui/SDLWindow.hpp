@@ -9,7 +9,6 @@
 
 #include "Instance.hpp"
 #include <SDL2/SDL_vulkan.h>
-#include <any>
 #include <functional>
 
 namespace Jkr {
@@ -17,6 +16,7 @@ class SDLWindow {
     public:
     std::pair<int, int> GetWindowSize() const;
     glm::vec2 GetWindowDimension() const;
+    glm::vec2 GetVulkanDrawableSize() const;
     GETTER GetWindowHandle() const { return mSDLWindowPtr; }
     SETTER SetWindowShouldClose(bool inValue) { mWindowShouldClose = inValue; }
     SETTER SetResizeCallBack(const std::function<void(void*)>& inFunction) {

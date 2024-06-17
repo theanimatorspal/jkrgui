@@ -103,3 +103,20 @@ void Jkr::SDLWindow::Minimize() {
     SDL_MinimizeWindow(mSDLWindowPtr);
     mWindowIsFullScreen = false;
 }
+
+glm::vec2 Jkr::SDLWindow::GetVulkanDrawableSize() const {
+    int x, y;
+    SDL_Vulkan_GetDrawableSize(mSDLWindowPtr, &x, &y);
+    std::cout << "Drawable SIZE CPP: " << x << ", " << y << "\n";
+    float ddpi;
+    float hdpi;
+    float vdpi;
+    SDL_GetDisplayDPI(0, &ddpi, &hdpi, &vdpi);
+    std::cout << "Display DPI:\n"
+              << "DDPI: " << ddpi << "\n";
+    std::cout << "Display DPI:\n"
+              << "HDPI: " << hdpi << "\n";
+    std::cout << "Display DPI:\n"
+              << "VDPI: " << vdpi << "\n";
+    return glm::vec2(x, y);
+}

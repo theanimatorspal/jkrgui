@@ -1,5 +1,5 @@
 #include "ksai_config.hpp"
-#include <sol/sol.hpp>
+#include "JkrLuaExe.hpp"
 
 #ifdef ANDROID
 #include <jni.h>

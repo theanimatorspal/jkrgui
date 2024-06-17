@@ -7,6 +7,7 @@
 namespace ksai {
 class VulkanBufferVMA : public VulkanBufferBase {
     public:
+    vk::Buffer operator()(const VulkanBufferBase&) { return mBufferHandle; }
     void MapMemoryRegion(void** outMappedMemoryRegion);
     void UnMapMemoryRegion();
     void FlushMemoryRanges(vk::DeviceSize inOffset, vk::DeviceSize inSize) {

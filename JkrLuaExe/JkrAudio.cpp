@@ -1,5 +1,5 @@
 #include <Audio/Sound.hpp>
-#include <sol/sol.hpp>
+#include "JkrLuaExe.hpp"
 
 namespace JkrEXE {
 void CreateAudioBindings(sol::state& inState) {

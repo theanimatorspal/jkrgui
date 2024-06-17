@@ -1,6 +1,6 @@
-#include "sol/sol.hpp"
 #include <Renderers/ThreeD/World3D.hpp>
 #include <Renderers/ThreeD/Simple3D.hpp>
+#include "JkrLuaExe.hpp"
 
 namespace JkrEXE {
 using namespace std;

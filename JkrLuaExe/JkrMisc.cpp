@@ -2,7 +2,6 @@
 #include "Renderers/ThreeD/World3D.hpp"
 #include "Renderers/ThreeD/Simple3D.hpp"
 #include "Renderers/TwoD/Shape.hpp"
-#include "sol/sol.hpp"
 #include <Misc/RecycleBin.hpp>
 
 namespace JkrEXE {
@@ -101,6 +100,8 @@ void CreateMiscBindings(sol::state& inState) {
               sol::resolve<void(Simple3D&, glTF_Model&, ui, bool, bool, bool)>(&Uniform3D::Build),
               sol::resolve<void(Simple3D&, glTF_Model&, glTF_Model::Primitive&)>(
                    &Uniform3D::Build)),
+         "BuildByMaterial",
+         &Uniform3D::BuildByMaterial,
          "AddTextureToUniform3D",
          &Uniform3D::AddTextureToUniform3D,
          "AddUniformBufferToUniform3D",

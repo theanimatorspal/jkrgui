@@ -14,6 +14,7 @@ inline constexpr BufferContext operator|(BufferContext lhs, BufferContext rhs) {
 
 class VulkanBufferBase {
     public:
+    vk::Buffer operator()(const VulkanBufferBase&) { return mBufferHandle; }
     VulkanBufferBase(const VulkanDevice& inDevice);
     virtual ~VulkanBufferBase() = default;
     void SubmitImmediateCmdCopyFrom(const VulkanQueue<QueueContext::Graphics>& inQueue,
@@ -67,6 +68,7 @@ class VulkanBufferBase {
 
 class VulkanBuffer : public VulkanBufferBase {
     public:
+    vk::Buffer operator()(const VulkanBuffer&) { return mBufferHandle; }
     void MapMemoryRegion(void** outMappedMemoryRegion);
     void UnMapMemoryRegion();
 

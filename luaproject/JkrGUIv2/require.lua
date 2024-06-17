@@ -628,6 +628,12 @@ Jkr.CreateShapeRenderer = function(inInstance, inCompatibleWindow, inShapeRender
     o.CopyToImage = function(self, inId, inCustomPainterImage) -- TODO Wrap This
         sr:CopyToImage(inId, inCustomPainterImage)
     end
+    o.CopyFromImage = function(self, inId, inCustomImagePainter)
+        sr:CopyFromImage(inId, inCustomImagePainter)
+    end
+    o.GetImageSize = function(self, inFileName)
+        return sr:GetImageSize(inFileName)
+    end
     return o
 end
 

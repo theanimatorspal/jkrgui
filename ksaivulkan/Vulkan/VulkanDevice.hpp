@@ -8,6 +8,7 @@ enum class VulkanDeviceFeatureSet { Default, Minimal, Extensive };
 
 class VulkanDevice {
     public:
+    operator vk::Device() const { return mDevice; }
     VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice,
                  const VulkanQueueContext& inQueueContext,
                  VulkanDeviceFeatureSet inFeatureSet = VulkanDeviceFeatureSet::Extensive);

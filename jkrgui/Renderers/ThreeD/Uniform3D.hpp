@@ -48,6 +48,8 @@ class Uniform3D {
     void Build(Simple3D& inSimple3D,
                Renderer::_3D::glTF_Model& inModel,
                Renderer::_3D::glTF_Model::Primitive& inPrimitive);
+    void
+    BuildByMaterial(Simple3D& inSimpe3D, Renderer::_3D::glTF_Model& inModel, int inMaterialIndex);
 
     /* ============================================================
 

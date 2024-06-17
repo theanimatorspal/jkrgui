@@ -1,4 +1,5 @@
 #include <SDLWindow.hpp>
+#include "JkrLuaExe.hpp"
 
 namespace JkrEXE {
 

@@ -1,11 +1,10 @@
 #include "../Painter.hpp"
 #include "../PainterParameter.hpp"
-#include "vulkan/vulkan_enums.hpp"
-#include "vulkan/vulkan_structs.hpp"
 
 namespace Jkr::Renderer {
 using Image = PainterParameter<Jkr::PainterParameterContext::StorageImage>;
 class CustomImagePainter;
+class Shape;
 
 struct CustomPainterImage {
     CustomPainterImage(const Instance& inInstance, const Window& inWindow, ui inWidth, ui inHeight);
@@ -30,6 +29,12 @@ struct CustomImagePainter {
         VulkanDescriptorUpdateHandler Handler(inInstance.GetDevice());
         inImage.GetPainterParam().Register(0, 0, 0, inImage.GetDescriptorSet());
     }
+    void RegisterImageExternal(const Instance& inInstance,
+                               Window& inWindow,
+                               Shape& inShape,
+                               CustomPainterImage& inImage,
+                               int inImageIndex,
+                               int inDstBinding);
     void Bind(const Window& inWindow, ComPar inPar = ComPar::None) {
         mPainter->BindComputePipeline(inWindow, inPar);
     }

@@ -105,6 +105,8 @@ void CreateRendererBindings(sol::state& inState) {
          sol::overload(sol::resolve<ui(const string_view)>(&Jkr::Renderer::Shape::AddImageEXT),
                        sol::resolve<ui(ui, ui)>(&Jkr::Renderer::Shape::AddImageEXT),
                        sol::resolve<ui(vector<uc>, ui, ui)>(&Jkr::Renderer::Shape::AddImageEXT)),
+         "GetImageSize",
+         &Jkr::Renderer::Shape::GetImageSize,
          "BindShapes",
          &Jkr::Renderer::Shape::BindShapes,
          "BindImage",
@@ -118,7 +120,9 @@ void CreateRendererBindings(sol::state& inState) {
          "BindFillMode",
          &Jkr::Renderer::Shape::BindFillMode,
          "CopyToImage",
-         sol::resolve<uint32_t, CustomPainterImage&>(&Jkr::Renderer::Shape::CopyToImage));
+         sol::resolve<uint32_t, CustomPainterImage&>(&Jkr::Renderer::Shape::CopyToImage),
+         "CopyFromImage",
+         sol::resolve<uint32_t, CustomPainterImage&>(&Jkr::Renderer::Shape::CopyFromImage));
 
     Jkr.new_usertype<Jkr::Renderer::Line>(
          "LineRenderer",

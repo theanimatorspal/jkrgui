@@ -365,11 +365,24 @@ vec3 calculateNormal()
          ]]
     end
 
+    if (Material.mEmissiveTextureIndex ~= -1) then
+        fShader.Append [[
+
+    vec3 Emissive = texture(uEmissiveTexture, vUV).rgb;
+
+        ]]
+    else
+        fShader.Append [[
+
+    vec3 Emissive = vec3(1);
+        ]]
+    end
+
     fShader.Append [[
+
 
 	vec3 F0 = vec3(0.04);
 	F0 = mix(F0, SRGBtoLINEAR(vec4(ALBEDO, 1.0)).xyz, metallic);
-
 	vec3 Lo = vec3(0.0);
 	for(int i = 0; i < Ubo.lights[i].length(); i++) {
 		vec3 L = normalize(Ubo.lights[i].xyz - vWorldPos) * Ubo.lights[i].w;
@@ -416,7 +429,7 @@ vec3 calculateNormal()
 	// Gamma correction gamma = 0.3
 	color = pow(color, vec3(1.0f / 2));
 
-	outFragColor = vec4(color, 1.0);
+	outFragColor = vec4(color + Emissive, 1.0);
     ]]
 
     fShader.GlslMainEnd()

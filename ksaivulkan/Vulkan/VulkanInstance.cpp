@@ -68,6 +68,7 @@ VulkanInstance::VulkanInstance(bool inEnableValidation) {
     auto instanceLayerProperties = vk::enumerateInstanceLayerProperties();
     if (inEnableValidation) {
         mInstanceLayerNames.push_back("VK_LAYER_KHRONOS_validation");
+        // mInstanceLayerNames.push_back("VK_LAYER_LUNARG_api_dump");
     }
 
 #ifdef __APPLE__

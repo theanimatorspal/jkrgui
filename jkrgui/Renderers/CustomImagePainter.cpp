@@ -1,4 +1,4 @@
-#include "CustomImagePainter.hpp"
+#include "Renderers/TwoD/Shape.hpp"
 using namespace Jkr::Renderer;
 using namespace ksai;
 
@@ -158,4 +158,14 @@ void CustomImagePainter::BindImageFromImage(const Window& inWindow,
                                    vk::PipelineStageFlagBits::eComputeShader,
                                    vk::AccessFlagBits::eShaderWrite,
                                    vk::AccessFlagBits::eShaderWrite);
+}
+
+void CustomImagePainter::RegisterImageExternal(const Instance& inInstance,
+                                               Window& inWindow,
+                                               Jkr::Renderer::Shape& inShape,
+                                               CustomPainterImage& inImage,
+                                               int inImageIndex,
+                                               int inDstBinding) {
+    VulkanDescriptorUpdateHandler Handler(inInstance.GetDevice());
+    inShape.GetImages()[inImageIndex]->Register(0, inDstBinding, 0, inImage.GetDescriptorSet());
 }

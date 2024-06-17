@@ -8,6 +8,7 @@ enum class RenderPassContext { Default, MSAA, Shadow, SingleColorAttachment };
 
 class VulkanRenderPassBase {
     public:
+    operator vk::RenderPass() const { return mRenderPass; }
     GETTER& GetRenderPassHandle() const { return mRenderPass; }
 
     protected:

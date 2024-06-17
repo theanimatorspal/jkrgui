@@ -1,6 +1,7 @@
 #include "EventManager.hpp"
 #include "Painter.hpp"
 #include "WindowMulT.hpp"
+#include "JkrLuaExe.hpp"
 
 namespace JkrEXE {
 using namespace std;
@@ -79,6 +80,8 @@ void CreateBasicBindings(sol::state& s) {
          &Jkr::WindowMulT::GetWindowCurrentTime,
          "GetWindowDimension",
          &Jkr::WindowMulT::GetWindowDimension,
+         "GetVulkanDrawableSize",
+         &Jkr::WindowMulT::GetVulkanDrawableSize,
 
          "SetScissor",
          &Jkr::WindowMulT::SetScissor,

@@ -104,7 +104,7 @@ void Uniform3D::Build(Simple3D& inSimple3D,
                       Renderer::_3D::glTF_Model& inModel,
                       ui inNodeIndex,
                       bool inShouldSkin,
-                      bool inShouldTextures,
+                      bool inShouldTextures, // TODO Remove this
                       bool inTangents) {
     if (not mVulkanDescriptorSet) {
         Build(inSimple3D);
@@ -145,6 +145,7 @@ void Uniform3D::Build(Simple3D& inSimple3D,
         }
     }
     ui BindingIndex = kstd::BindingIndex::Uniform::Images;
+    // TODO : This section of the code remains as is just for Samprahar Returns to work
     if (inShouldTextures) {
         for (auto& I : inModel.GetTexturesRef()) {
             auto& Image = inModel.GetImagesRef()[I.mImageIndex];
@@ -195,9 +196,19 @@ void Uniform3D::Bind(Window& inWindow,
                                inSet);
 }
 
+// TODO Quite misleading
 void Uniform3D::Build(Simple3D& inSimple3D,
                       Renderer::_3D::glTF_Model& inModel,
                       Renderer::_3D::glTF_Model::Primitive& inPrimitive) {
+    if (not mVulkanDescriptorSet) {
+        Build(inSimple3D);
+    }
+    BuildByMaterial(inSimple3D, inModel, inPrimitive.mMaterialIndex);
+}
+
+void Uniform3D::BuildByMaterial(Simple3D& inSimple3D,
+                                Renderer::_3D::glTF_Model& inModel,
+                                int inMaterialIndex) {
     if (not mVulkanDescriptorSet) {
         Build(inSimple3D);
     }
@@ -208,7 +219,7 @@ void Uniform3D::Build(Simple3D& inSimple3D,
         BindingIndex++;
     };
 
-    auto& Material = inModel.GetMaterialsRef()[inPrimitive.mMaterialIndex];
+    auto& Material = inModel.GetMaterialsRef()[inMaterialIndex];
     if (Material.mBaseColorTextureIndex != -1) {
         FillByTexture(Material.mBaseColorTextureIndex);
     }

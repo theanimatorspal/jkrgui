@@ -11,6 +11,7 @@
 #include <string_view>
 #include <type_traits>
 #include <unordered_map>
+#include "JkrLuaExe.hpp"
 
 using namespace ksai;
 using namespace std;
