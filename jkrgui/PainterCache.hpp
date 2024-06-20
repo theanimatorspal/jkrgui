@@ -7,12 +7,22 @@
 #include <Vulkan/Pipeline/VulkanShaderModule.hpp>
 
 namespace Jkr {
+class ShaderCompiler {
+    public:
+    ShaderCompiler(const std::string_view inVertexShaderString,
+                   const std::string_view inFragmentShaderString,
+                   std::vector<uint32_t>& outVertexShaderModule,
+                   std::vector<uint32_t>& outFragmentShaderModule);
+    ShaderCompiler(const std::string_view inComputeShaderString,
+                   std::vector<uint32_t>& outComputeShaderModule);
+};
+
 class ShaderModules {
     public:
     ShaderModules(const VulkanDevice& inDevice,
-                  const std::vector<uint32_t>& inVertexShaderSPIRV,
-                  const std::vector<uint32_t>& inFragmentShaderSPIRV,
-                  const std::vector<uint32_t>& inComputeShaderSPIRV);
+                  const std::vector<uint32_t>& inVertexShaderSPIRV   = {},
+                  const std::vector<uint32_t>& inFragmentShaderSPIRV = {},
+                  const std::vector<uint32_t>& inComputeShaderSPIRV  = {});
     ~ShaderModules();
 
     public:
@@ -31,11 +41,11 @@ class PainterCache {
     public:
     explicit PainterCache(const Instance& inInstance,
                           PipelinePropertiesContext inContext = PipelinePropertiesContext::Default);
-    PainterCache& Store(const std::string& fileName,
-                        const std::string& inVertexShader,
-                        const std::string& inFragmentShader,
-                        const std::string& inComputeShader,
-                        ui inVarDescount = 5000);
+    PainterCache& Store(const std::string_view fileName,
+                        const std::string_view inVertexShader   = "",
+                        const std::string_view inFragmentShader = "",
+                        const std::string_view inComputeShader  = "",
+                        ui inVarDescount                        = 5000);
     PainterCache& Load(const std::string& fileName, ui inVarDescount = 5000);
 
     GETTER& GetPipelineContext() const { return mPipelineContext; }
@@ -69,8 +79,8 @@ class PainterCache {
     using VertexFragmentDescriptorSetLayout =
          VulkanDescriptorSetLayout<2, ShaderModuleContext::Vertex, ShaderModuleContext::Fragment>;
     std::array<std::vector<uint32_t>, 2> mVertexFragmentShaderSPIRV = {};
-    void StoreSPIRVsToFile(const std::string inFileName);
-    void LoadSPIRVsFromFile(const std::string inFileName);
+    void StoreSPIRVsToFile(const std::string_view inFileName);
+    void LoadSPIRVsFromFile(const std::string_view inFileName);
     Up<VertexFragmentDescriptorSetLayout> mPtrVertexFragmentDescriptorSetLayout     = nullptr;
     Up<VertexFragmentDescriptorSetLayout> mPtrVertexFragmentDescriptorSetLayout_EXT = nullptr;
     Up<VulkanPipelineLayout<2>> mPtrVertexFragmentPipelineLayout                    = nullptr;

@@ -30,6 +30,8 @@ void AndroidShowToast(const char* inMessage) {
 void LuaShowToastNotification(const std::string_view inMessage) {
 #ifdef ANDROID
     AndroidShowToast(inMessage.data());
+#else
+    std::cout << inMessage.data();
 #endif
 }
 

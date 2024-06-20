@@ -12,13 +12,51 @@ local lerp_3f = function(a, b, t)
 end
 
 
-Presentation = function(inTable) end
-Frame = function(inTable) end
-TitlePage = function(inTable) return inTable end
-Enumerate = function(inTable) return inTable end
-Animation = function(inStyle) return inStyle end
-Item = function(inStr) return inStr end
+Frame = function(inTable)
+          return { Frame = inTable }
+end
+TitlePage = function(inTable) return { TitlePage = inTable } end
+Enumerate = function(inTable) return { Enumerate = inTable } end
+Animation = function(inStyle) return { Style = inStyle } end
+Item = function(inStr)
+          return inStr
+end
 
+--[============================================================[
+          PROCESS  FUNCTIONS
+]============================================================]
+
+local ProcessFunctions = {
+          TitlePage = function(inPresentation, inValue)
+                    local title = inPresentation.Title
+                    local date = inPresentation.Date
+                    local author = inPresentation.Author
+          end,
+          Enumerate = function(inPresentation, inValue)
+
+          end
+}
+
+--[============================================================[
+          PRESENTATION  FUNCTION
+]============================================================]
+
+Presentation = function(inPresentation)
+          local Frames = {}
+          for key, value in pairs(inPresentation) do
+                    if (key == "Frame") then
+                              Frames[#Frames + 1] = value
+                    end
+          end
+
+          local FrameCout = #Frames
+          for i = 1, FrameCout, 1 do
+                    local FrameContents = Frames[i]
+                    for key, value in pairs(FrameContents) do
+                              ProcessFunctions[key](inPresentation, value)
+                    end
+          end
+end
 
 Presentation {
           Title = "Introduction to JkrGUI Presentation Engine",

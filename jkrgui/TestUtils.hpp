@@ -30,16 +30,6 @@ class TestWindow {
     SDL_Window* mWindow;
 };
 
-class ShaderCompiler {
-    public:
-    ShaderCompiler(const std::string& inVertexShaderString,
-                   const std::string& inFragmentShaderString,
-                   std::vector<uint32_t>& outVertexShaderModule,
-                   std::vector<uint32_t>& outFragmentShaderModule);
-    ShaderCompiler(const std::string& inComputeShaderString,
-                   std::vector<uint32_t>& outComputeShaderModule);
-};
-
 class Timer {
     private:
     // Type aliases to make accessing nested type easier

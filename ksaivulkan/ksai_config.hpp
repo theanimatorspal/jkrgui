@@ -63,7 +63,14 @@ extern "C" int __android_log_print(int prio, const char* tag, const char* fmt, .
 template <typename T> inline void ksai_print(T inT) {
 #ifdef ANDROID
     __android_log_print(6, "KSAI::%s", "=================================");
-    __android_log_print(6, "KSAI::%s", (char*)inT);
+    if constexpr (std::is_same_v<T, ksai::s>) {
+        __android_log_print(6, "KSAI::%s", inT.c_str());
+    }
+
+    if constexpr (std::is_same_v<T, ksai::sv>) {
+        __android_log_print(6, "KSAI::%s", inT.dat());
+    }
+
 #else
     std::cout << inT << "\n";
     // printf(inT);

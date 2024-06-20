@@ -111,7 +111,8 @@ void VulkanPipelineBase::BuildPipeline(VulkanPipelineCache& inCache,
                                        const VulkanRenderPassBase& inRenderPass,
                                        const VulkanPipelineLayoutBase& inLayout,
                                        const std::vector<VulkanShaderModule>& inModules,
-                                       PipelineContext inPipelineContext) {
+                                       PipelineContext inPipelineContext,
+                                       ui inSubpass) {
     if (inPipelineContext == PipelineContext::Compute) {
         auto ShaderStageCreateInfo =
              vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(),
@@ -238,6 +239,8 @@ void VulkanPipelineBase::BuildPipeline(VulkanPipelineCache& inCache,
                                             &PipelineDepthStencilStateCreateInfo,
                                             &PipelineColorBlendStateCreateInfo,
                                             &PipelineDynamicStateCreateInfo);
+
+        GraphicsPipelineCreateInfo.setSubpass(inSubpass);
         GraphicsPipelineCreateInfo.setRenderPass(inRenderPass.GetRenderPassHandle())
              .setLayout(inLayout.GetPipelineLayoutHandle());
         mPipeline = mDevice.createGraphicsPipeline(nullptr, GraphicsPipelineCreateInfo).value;

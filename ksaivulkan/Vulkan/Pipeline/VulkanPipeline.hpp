@@ -17,7 +17,8 @@ class VulkanPipelineBase {
                        const VulkanRenderPassBase& inRenderPass,
                        const VulkanPipelineLayoutBase& inLayout,
                        const std::vector<VulkanShaderModule>& inModules,
-                       PipelineContext inPipelineContext);
+                       PipelineContext inPipelineContext,
+                       ui inSubpass = 0);
 
     template <PipelineContext inContext> void Bind(const VulkanCommandBuffer& inCmdBuffer);
     void DrawIndexed(const VulkanCommandBuffer& inCmdBuffer,
