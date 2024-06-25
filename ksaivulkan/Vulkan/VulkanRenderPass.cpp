@@ -1,6 +1,8 @@
 #include "VulkanRenderPass.hpp"
+
 #include "VulkanImage.hpp"
 #include "vulkan/vulkan_enums.hpp"
+
 using namespace ksai;
 template <RenderPassContext T> using vr = VulkanRenderPass<T>;
 

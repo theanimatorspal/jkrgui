@@ -67,16 +67,15 @@ class BestText_base {
     TextDimensions RenderTextToImage(std::string_view inString,
                                      uint32_t inFontShapeId,
                                      std::vector<uc>& outImage,
-                                     ksai::optref<ksai::ThreadPool> inThreadpool = std::nullopt,
-                                     ksai::optref<int> outYoff                   = std::nullopt);
+                                     ksai::ThreadPool& inThreadpool,
+                                     ksai::optref<int> outYoff = std::nullopt);
 
     public:
-    [[nodiscard]] inline v<uc>
-    RenderTextToImage(ui inFontShapeId,
-                      sv inStringView,
-                      TextDimensions& outDimens,
-                      ksai::optref<ksai::ThreadPool> inThreadPool = std::nullopt,
-                      ksai::optref<int> outYoff                   = std::nullopt) {
+    [[nodiscard]] inline v<uc> RenderTextToImage(ui inFontShapeId,
+                                                 sv inStringView,
+                                                 TextDimensions& outDimens,
+                                                 ksai::ThreadPool& inThreadPool,
+                                                 ksai::optref<int> outYoff = std::nullopt) {
         ZoneScoped;
         v<uc> img;
         outDimens = RenderTextToImage(inStringView, inFontShapeId, img, inThreadPool, outYoff);

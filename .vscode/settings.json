@@ -1,5 +1,5 @@
 {
-          "workbench.colorTheme": "Default Dark Modern",
+          "workbench.colorTheme": "Gruvbox Dark (Hard)",
           "git.enableSmartCommit": true,
           "git.confirmSync": false,
           "gitlens.currentLine.enabled": false,
@@ -12,6 +12,7 @@
                     "-header-insertion=never",
           ],
           /*CMAKE*/
+          "window.zoomLevel": -2,
           "cmake.allowCommentsInPresetsFile": true,
           "cmake.useCMakePresets": "always",
           "cmake.configureOnOpen": true,
@@ -24,9 +25,9 @@
           },
           /* EDITOR */
           "editor.matchBrackets": "near",
-          "editor.fontFamily": "Victor Mono",
+          "editor.fontFamily": "Cambria",
           "editor.fontWeight": "normal",
-          "editor.fontSize": 16,
+          "editor.fontSize": 20,
           "editor.tabSize": 10,
           "editor.tokenColorCustomizations": {
                     "textMateRules": [

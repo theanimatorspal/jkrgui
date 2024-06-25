@@ -1,4 +1,5 @@
 require "JkrGUIv2.WidgetsRefactor"
+require "JkrGUIv2.Engine.Engine"
 --[============================================================[
           UTILITY FUNCTIONS
 ]============================================================]
@@ -21,58 +22,239 @@ Animation = function(inStyle) return { Style = inStyle } end
 Item = function(inStr)
           return inStr
 end
+Text = function(inText)
+          return { Text = inText }
+end
 
 --[============================================================[
           PROCESS  FUNCTIONS
+
+Keyframe = {
+          FrameIndex = int,
+          Texts = {},
+          Positions = {},
+          Dimensions = {},
+}
 ]============================================================]
 
+local window = {}
+local wid = {}
+local assets = {}
+local literals = {}
+local screenElements = {}
+local FontMap = {}
+local CurrentKey = 1
+local WindowDimension = vec2(0)
+local FrameKeys = {}
+
+
+local index = 0
+local Unique = function(inElementName) -- Generate Unique Name
+          if type(inElementName) == "number" then
+                    index = index + 1
+                    return index
+          elseif type(inElementName) == "string" then
+                    return inElementName
+          end
+end
+
+local ComputePositionByName = function(inPositionName, inDimension)
+          if inPositionName == "CENTER" then
+                    return vec2(WindowDimension.x / 2 - inDimension.x / 2, WindowDimension.y / 2 - inDimension.y / 2)
+          else
+                    return inPositionName
+          end
+end
+
 local ProcessFunctions = {
-          TitlePage = function(inPresentation, inValue)
+          TitlePage = function(inPresentation, inValue, inFrameIndex, inElementName)
                     local title = inPresentation.Title
                     local date = inPresentation.Date
                     local author = inPresentation.Author
+                    -- TODO title page
           end,
-          Enumerate = function(inPresentation, inValue)
-
+          Enumerate = function(inPresentation, inValue, inFrameIndex, inElementName)
+          end,
+          Text = function(inPresentation, inValue, inFrameIndex, inElementName)
+                    local ElementName = Unique(inElementName)
+                    if not screenElements[ElementName] then
+                              screenElements[ElementName] = wid.CreateTextLabel(vec3(math.huge),
+                                        vec3(math.huge),
+                                        FontMap[inValue.f],
+                                        inValue.t, inValue.c)
+                    end
+                    FrameKeys[inFrameIndex][#FrameKeys[inFrameIndex] + 1] = {
+                              FrameIndex = inFrameIndex,
+                              Elements = {
+                                        { "TEXT", handle = screenElements[ElementName], value = inValue, name = ElementName },
+                              }
+                    };
           end
 }
+
+local ProcessLiterals = function(inName, inValue)
+          literals[inName] = inValue
+end
+
+
+--[============================================================[
+          EXECUTE  FUNCTIONS
+
+]============================================================]
+
+local GetPreviousFrameKeyElement = function(inPresentation, inElement, inFrameIndex)
+          local PreviousFrame = FrameKeys[inFrameIndex - 1]
+          if PreviousFrame then
+                    local Key = PreviousFrame[i]
+                    for _, element in pairs(Key.Elements) do
+                              if element.name == inElement.name then
+                                        return element
+                              end
+                    end
+          end
+end
+
+local ExecuteFunction = {
+          Text = function(inPresentation, inElement, inFrameIndex, t)
+                    local PreviousElement = GetPreviousFrameKeyElement(inPresentation, inElement, inFrameIndex)
+                    if PreviousElement then
+                              -- interpolate
+                    else
+                    end
+          end
+}
+
+local ExecuteFrame = function(inPresentation, inFrameIndex, t)
+          local CurrentFrame = FrameKeys[inFrameIndex]
+          local CurrentFrameKeyCount = #CurrentFrame
+          for i = 1, CurrentFrameKeyCount, 1 do
+                    local Key = CurrentFrame[i]
+                    for _, element in pairs(Key.Elements) do
+                              ExecuteFunction[element[1]](inPresentation, element, inFrameIndex, t)
+                    end
+          end
+end
 
 --[============================================================[
           PRESENTATION  FUNCTION
 ]============================================================]
 
 Presentation = function(inPresentation)
-          local Frames = {}
-          for key, value in pairs(inPresentation) do
-                    if (key == "Frame") then
-                              Frames[#Frames + 1] = value
-                    end
+          local Log = function(inContent)
+                    print(string.format("[JkrGUI Present: ] %s", inContent))
+          end
+          local shouldRun = true
+          local Validation = false
+          Engine:Load(Validation)
+          window = Jkr.CreateWindow(Engine.i, "Hello", vec2(900, 480), 3)
+          wid = Jkr.CreateWidgetRenderer(Engine.i, window, Engine.e)
+
+          if inPresentation.Config then
+                    local conf = inPresentation.Config
+                    FontMap.Tiny = wid.CreateFont(conf.Font.Tiny[1], conf.Font.Tiny[2])
+                    FontMap.Small = wid.CreateFont(conf.Font.Small[1], conf.Font.Small[2])
+                    FontMap.Normal = wid.CreateFont(conf.Font.Normal[1], conf.Font.Normal[2])
+                    FontMap.large = wid.CreateFont(conf.Font.large[1], conf.Font.large[2])
+                    FontMap.Large = wid.CreateFont(conf.Font.Large[1], conf.Font.Large[2])
+                    FontMap.huge = wid.CreateFont(conf.Font.huge[1], conf.Font.huge[2])
+                    FontMap.Huge = wid.CreateFont(conf.Font.Huge[1], conf.Font.Huge[2])
+                    FontMap.gigantic = wid.CreateFont(conf.Font.gigantic[1], conf.Font.gigantic[2])
+                    FontMap.Gigantic = wid.CreateFont(conf.Font.Gigantic[1], conf.Font.Gigantic[2])
+          else
+                    Log("Error: No Config provided.")
           end
 
-          local FrameCout = #Frames
-          for i = 1, FrameCout, 1 do
-                    local FrameContents = Frames[i]
-                    for key, value in pairs(FrameContents) do
-                              ProcessFunctions[key](inPresentation, value)
+          if shouldRun then
+                    --[[
+                    Presentation {
+                              {Frame = table}
+                    }
+                    ]]
+
+                    local FrameIndex = 1
+                    for _, elements in ipairs(inPresentation) do
+                              for __, value in pairs(elements) do
+                                        if (__ == "Frame") then
+                                                  FrameKeys[FrameIndex] = {}
+                                                  local frameElements = value
+                                                  --[[==================================================]]
+                                                  for felementName, felement in pairs(frameElements) do
+                                                            if type(felement) == "table" then
+                                                                      for processFunctionIndex, ElementValue in pairs(felement) do
+                                                                                ProcessFunctions[processFunctionIndex](
+                                                                                          inPresentation, ElementValue,
+                                                                                          FrameIndex, felementName)
+                                                                                print("processFunctionIndex : ",
+                                                                                          processFunctionIndex,
+                                                                                          "elementName: ",
+                                                                                          felementName)
+                                                                      end
+                                                            else
+                                                                      ProcessLiterals(felementName, felement)
+                                                            end
+                                                  end
+                                                  --[[==================================================]]
+                                                  FrameIndex = FrameIndex + 1
+                                        end
+                              end
+                    end
+
+
+                    WindowClearColor = vec4(0)
+                    ExecuteFrame(1)
+
+                    local function Update()
+                              wid.Update()
+                    end
+
+                    local function Dispatch()
+                              wid.Dispatch()
+                    end
+
+                    local function Draw()
+                              wid.Draw()
+                    end
+
+                    local function MultiThreadedDraws()
+                    end
+
+                    local function MultiThreadedExecute()
+                    end
+
+                    local oldTime = 0.0
+                    local frameCount = 0
+                    local e = Engine.e
+                    local w = window
+                    local mt = Engine.mt
+                    while not e:ShouldQuit() and shouldRun do
+                              oldTime = w:GetWindowCurrentTime()
+                              e:ProcessEvents()
+                              w:BeginUpdates()
+                              Update()
+                              WindowDimension = w:GetWindowDimension()
+                              w:EndUpdates()
+
+                              w:BeginDispatches()
+                              Dispatch()
+                              w:EndDispatches()
+
+                              MultiThreadedDraws()
+                              w:BeginUIs()
+                              Draw()
+                              w:EndUIs()
+
+                              w:BeginDraws(WindowClearColor.x, WindowClearColor.y, WindowClearColor.z,
+                                        WindowClearColor.w, 1)
+                              MultiThreadedExecute()
+                              w:ExecuteUIs()
+                              w:EndDraws()
+                              w:Present()
+                              local delta = w:GetWindowCurrentTime() - oldTime
+                              if (frameCount % 100 == 0) then
+                                        w:SetTitle("Samprahar Frame Rate" .. 1000 / delta)
+                              end
+                              frameCount = frameCount + 1
+                              mt:InjectToGate("__MtDrawCount", 0)
                     end
           end
 end
-
-Presentation {
-          Title = "Introduction to JkrGUI Presentation Engine",
-          Date = "18th Jeshtha, 2020",
-          Author = { "Darshan Koirala" },
-          Animation {
-                    Interpolation = "Constant",
-          },
-          Frame { TitlePage {} },
-          Frame {
-                    Title = "Introduction",
-                    Enumerate {
-                              Item "The Best Presentation Engine",
-                              Item "I love this Presenation Engine",
-                              Item "You will love this too",
-                              Item "Thank You",
-                    }
-          }
-}

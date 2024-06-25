@@ -97,7 +97,7 @@ bb::TextDimensions bb::AddText(ui inX,
 bb::TextDimensions bb::RenderTextToImage(sv inString,
                                          ui inFontShapeId,
                                          v<uc>& outImage,
-                                         optref<ThreadPool> inThreadPool,
+                                         ThreadPool& inThreadPool,
                                          optref<int> outYoff) {
     hb_buffer_t* hbBuffer = hb_buffer_create();
     hb_buffer_add_utf8(hbBuffer, reinterpret_cast<const char*>(inString.data()), -1, 0, -1);
@@ -172,7 +172,7 @@ bb::TextDimensions bb::RenderTextToImage(sv inString,
              [=]<typename T>(const T& from, T& to, int x, int y, int w, int h, int c) {
                  ui maini = drawX * c + x + (outbmp_h - (drawY - y - 1) - 1) * outbmp_w * c;
                  ui biti  = x + y * w * c;
-                 to[maini] += glm::clamp((int)from[biti], 0, 255);
+                 to[maini] += from[biti];
              };
 
         ksai::image::process(bitmap_width,
@@ -186,7 +186,7 @@ bb::TextDimensions bb::RenderTextToImage(sv inString,
         originX += PixelAdvance;
     }
 
-    if (inThreadPool.has_value()) inThreadPool.value().get().Wait();
+    inThreadPool.Wait();
     if (outYoff.has_value()) {
         outYoff.value().get() = (maxY - minY) - maxYBearing;
     }
