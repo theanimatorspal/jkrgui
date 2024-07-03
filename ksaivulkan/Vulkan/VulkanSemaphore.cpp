@@ -2,10 +2,22 @@
 
 using namespace ksai;
 
-VulkanSemaphore::VulkanSemaphore(const VulkanDevice& inDevice)
-    : mDevice(inDevice.GetDeviceHandle()) {
-    auto SemaphoreCreateInfo = vk::SemaphoreCreateInfo(vk::SemaphoreCreateFlags());
-    mSemaphore               = mDevice.createSemaphore(SemaphoreCreateInfo);
+VulkanSemaphore::VulkanSemaphore(const VulkanDevice &inDevice) { Init({&inDevice}); }
+
+VulkanSemaphore::~VulkanSemaphore() {
+    if (mInitialized) {
+        Destroy();
+    }
 }
 
-VulkanSemaphore::~VulkanSemaphore() { mDevice.destroySemaphore(mSemaphore); }
+void VulkanSemaphore::Init(CreateInfo inCreateInfo) {
+    mDevice                  = &inCreateInfo.mDevice->GetDeviceHandle();
+    auto SemaphoreCreateInfo = vk::SemaphoreCreateInfo(vk::SemaphoreCreateFlags());
+    mSemaphore               = mDevice->createSemaphore(SemaphoreCreateInfo);
+    mInitialized             = true;
+}
+void VulkanSemaphore::Destroy() {
+    if (mSemaphore) {
+        mDevice->destroySemaphore(mSemaphore);
+    }
+}

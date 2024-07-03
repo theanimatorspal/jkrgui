@@ -6,28 +6,41 @@
 
 using namespace ksai;
 
-ksai::VulkanImageBase::VulkanImageBase(const VulkanDevice& inDevice, bool inDestroyImageView)
-    : mPhysicalDevice(inDevice.GetPhysicalDeviceHandle()),
-      mDevice(inDevice.GetDeviceHandle()),
-      mDestroyImageView(inDestroyImageView) {}
+ksai::VulkanImageBase::VulkanImageBase(const VulkanDevice &inDevice, bool inDestroyImageView) {
+    Init({&inDevice, inDestroyImageView});
+}
+
+void ksai::VulkanImageBase::Init(ksai::VulkanImageBase::CreateInfo inInfo) {
+    mPhysicalDevice   = &inInfo.mDevice->GetPhysicalDeviceHandle();
+    mDevice           = &inInfo.mDevice->GetDeviceHandle();
+    mDestroyImageView = inInfo.mDestroyImageView;
+    mInitialized      = true;
+}
 
 ksai::VulkanImageBase::~VulkanImageBase() {
-    if (mImageView and mDestroyImageView) mDevice.destroyImageView(mImageView);
+    if (mInitialized) {
+        Destroy();
+    }
+}
+
+void ksai::VulkanImageBase::Destroy() {
+    if (mImageView and mDestroyImageView) mDevice->destroyImageView(mImageView);
+    mInitialized = false;
 }
 
 void ksai::VulkanImageBase::SubmitImmediateCmdCopyFromData(
-     const VulkanQueue<QueueContext::Graphics>& inQueue,
-     const VulkanCommandBuffer& inCmdBuffer,
-     const VulkanDevice& inDevice,
-     const VulkanFence& inFence,
-     void** inData,
+     const VulkanQueue<QueueContext::Graphics> &inQueue,
+     const VulkanCommandBuffer &inCmdBuffer,
+     const VulkanDevice &inDevice,
+     const VulkanFence &inFence,
+     void **inData,
      vk::DeviceSize inSize) {
     VulkanBuffer StagingBuffer(
          inDevice, inSize, BufferContext::Staging, MemoryType::HostVisibleAndCoherenet);
-    void* MapRegion;
+    void *MapRegion;
     StagingBuffer.MapMemoryRegion(&MapRegion);
     std::memcpy(MapRegion, *inData, inSize);
-    const vk::CommandBuffer& Cmd = inCmdBuffer.GetCommandBufferHandle();
+    const vk::CommandBuffer &Cmd = inCmdBuffer.GetCommandBufferHandle();
     inFence.Wait();
     inFence.Reset();
     inCmdBuffer.Begin();
@@ -61,21 +74,21 @@ void ksai::VulkanImageBase::SubmitImmediateCmdCopyFromData(
 }
 
 void VulkanImageBase::SubmitImmediateCmdCopyFromData(
-     const VulkanQueue<QueueContext::Graphics>& inQueue,
-     const VulkanCommandBuffer& inCmdBuffer,
-     const VulkanDevice& inDevice,
-     const VulkanFence& inFence,
+     const VulkanQueue<QueueContext::Graphics> &inQueue,
+     const VulkanCommandBuffer &inCmdBuffer,
+     const VulkanDevice &inDevice,
+     const VulkanFence &inFence,
      vk::DeviceSize inSize,
-     std::span<void**> inLayerImageDatas) {
+     std::span<void **> inLayerImageDatas) {
     vk::DeviceSize size = inLayerImageDatas.size() * inSize;
     VulkanBuffer StagingBuffer(
          inDevice, size, BufferContext::Staging, MemoryType::HostVisibleAndCoherenet);
-    void* MapRegion;
+    void *MapRegion;
     StagingBuffer.MapMemoryRegion(&MapRegion);
     for (int i = 0; i < inLayerImageDatas.size(); i++) {
-        std::memcpy((char*)MapRegion + i * inSize, *inLayerImageDatas[i], inSize);
+        std::memcpy((char *)MapRegion + i * inSize, *inLayerImageDatas[i], inSize);
     }
-    const vk::CommandBuffer& Cmd = inCmdBuffer.GetCommandBufferHandle();
+    const vk::CommandBuffer &Cmd = inCmdBuffer.GetCommandBufferHandle();
     inFence.Wait();
     inFence.Reset();
     inCmdBuffer.Begin();
@@ -107,7 +120,7 @@ void VulkanImageBase::SubmitImmediateCmdCopyFromData(
     inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer, inFence);
 }
 
-void ksai::VulkanImageBase::CmdTransitionImageLayout(const VulkanCommandBuffer& inBuffer,
+void ksai::VulkanImageBase::CmdTransitionImageLayout(const VulkanCommandBuffer &inBuffer,
                                                      vk::ImageLayout inOldImageLayout,
                                                      vk::ImageLayout inNewImageLayout,
                                                      vk::PipelineStageFlags inBeforeStage,
@@ -127,7 +140,7 @@ void ksai::VulkanImageBase::CmdTransitionImageLayout(const VulkanCommandBuffer& 
                                              VK_QUEUE_FAMILY_IGNORED,
                                              mImage,
                                              ImageSubResourceRange);
-    auto& CmdBuf    = inBuffer.GetCommandBufferHandle();
+    auto &CmdBuf    = inBuffer.GetCommandBufferHandle();
     CmdBuf.pipelineBarrier(
          inBeforeStage, inAfterStage, vk::DependencyFlagBits::eByRegion, {}, {}, ImgMemBarr);
     this->mImageProperties.mCurrentImageLayout = inNewImageLayout;
@@ -135,10 +148,10 @@ void ksai::VulkanImageBase::CmdTransitionImageLayout(const VulkanCommandBuffer& 
 
 void ksai::VulkanImageBase::GetMemoryTypeIndex(vk::MemoryPropertyFlagBits inFlag,
                                                vk::Image inImage,
-                                               vk::DeviceSize& outSize,
-                                               ui& outIndex) {
-    vk::PhysicalDeviceMemoryProperties memoryProperties = mPhysicalDevice.getMemoryProperties();
-    vk::MemoryRequirements memoryRequirements = mDevice.getImageMemoryRequirements(inImage);
+                                               vk::DeviceSize &outSize,
+                                               ui &outIndex) {
+    vk::PhysicalDeviceMemoryProperties memoryProperties = mPhysicalDevice->getMemoryProperties();
+    vk::MemoryRequirements memoryRequirements = mDevice->getImageMemoryRequirements(inImage);
     ui typeBits                               = memoryRequirements.memoryTypeBits;
     ui typeIndex                              = ui(~0);
     for (ui i = 0; i < memoryProperties.memoryTypeCount; i++) {
@@ -155,8 +168,8 @@ void ksai::VulkanImageBase::GetMemoryTypeIndex(vk::MemoryPropertyFlagBits inFlag
 
 void ksai::VulkanImageBase::GetImageTiling(vk::Format inFormat,
                                            vk::FormatFeatureFlagBits inFormatFeature,
-                                           vk::ImageTiling& outTiling) {
-    vk::FormatProperties FormatProperties = mPhysicalDevice.getFormatProperties(inFormat);
+                                           vk::ImageTiling &outTiling) {
+    vk::FormatProperties FormatProperties = mPhysicalDevice->getFormatProperties(inFormat);
     vk::ImageTiling Tiling;
 
     // if (FormatProperties.linearTilingFeatures &
@@ -174,8 +187,8 @@ void ksai::VulkanImageBase::GetImageTiling(vk::Format inFormat,
     outTiling = Tiling;
 }
 
-void ksai::VulkanImageBase::CreateImageAndBindMemory(vk::Image& inImage,
-                                                     vk::DeviceMemory& inDeviceMemory) {
+void ksai::VulkanImageBase::CreateImageAndBindMemory(vk::Image &inImage,
+                                                     vk::DeviceMemory &inDeviceMemory) {
     vk::ImageTiling Tiling;
     GetImageTiling(mImageProperties.mImageFormat, mImageProperties.mImageFormatFeature, Tiling);
     auto ImageCreateInfo = vk::ImageCreateInfo(vk::ImageCreateFlags(),
@@ -187,15 +200,15 @@ void ksai::VulkanImageBase::CreateImageAndBindMemory(vk::Image& inImage,
                                                mImageProperties.mSampleCountFlagBits,
                                                mImageProperties.mTiling,
                                                mImageProperties.mImageUsage);
-    inImage              = mDevice.createImage(ImageCreateInfo);
+    inImage              = mDevice->createImage(ImageCreateInfo);
     vk::DeviceSize RequiredSize;
     ui RequiredIndex;
     GetMemoryTypeIndex(mImageProperties.mMemoryProperty, inImage, RequiredSize, RequiredIndex);
-    inDeviceMemory = mDevice.allocateMemory(vk::MemoryAllocateInfo(RequiredSize, RequiredIndex));
-    mDevice.bindImageMemory(inImage, inDeviceMemory, 0);
+    inDeviceMemory = mDevice->allocateMemory(vk::MemoryAllocateInfo(RequiredSize, RequiredIndex));
+    mDevice->bindImageMemory(inImage, inDeviceMemory, 0);
 }
 
-void ksai::VulkanImageBase::CreateImageView(vk::Image& inImage) {
+void ksai::VulkanImageBase::CreateImageView(vk::Image &inImage) {
     vk::ImageSubresourceRange ImageSubResourcesRange(mImageProperties.mImageAspect,
                                                      0,
                                                      mImageProperties.mMipLevels,
@@ -208,13 +221,13 @@ void ksai::VulkanImageBase::CreateImageView(vk::Image& inImage) {
                                                 {},
                                                 ImageSubResourcesRange);
 
-    mImageView = mDevice.createImageView(ImageViewCreateInfo);
+    mImageView = mDevice->createImageView(ImageViewCreateInfo);
 }
 
 void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(
-     const VulkanCommandBuffer& inCmdBuffer,
-     const VulkanDevice& inDevice,
-     VulkanImageBase& inImage,
+     const VulkanCommandBuffer &inCmdBuffer,
+     const VulkanDevice &inDevice,
+     VulkanImageBase &inImage,
      vk::PipelineStageFlags inAfterStage,
      vk::AccessFlags inAfterStageAccessflags,
      int inImageWidth,
@@ -229,10 +242,10 @@ void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(
      opt<vk::ImageLayout> inSrcImageLayoutFrom,
      opt<vk::ImageLayout> inDstImageLayoutFrom) {
     // TODO This has to be checked
-    auto& SrcVulkanImage    = inImage;
-    auto& DstVulkanImage    = *this;
-    auto& SrcImageHandle    = SrcVulkanImage.GetImageHandle();
-    auto& DstImageHandle    = DstVulkanImage.GetImageHandle();
+    auto &SrcVulkanImage    = inImage;
+    auto &DstVulkanImage    = *this;
+    auto &SrcImageHandle    = SrcVulkanImage.GetImageHandle();
+    auto &DstImageHandle    = DstVulkanImage.GetImageHandle();
     auto SrcImageLayoutFrom = inSrcImageLayoutFrom.has_value()
                                    ? inSrcImageLayoutFrom.value()
                                    : SrcVulkanImage.GetCurrentImageLayout();
@@ -241,7 +254,7 @@ void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(
                                    : DstVulkanImage.GetCurrentImageLayout();
     auto SrcImageProp       = SrcVulkanImage.mImageProperties;
     auto DstImageProp       = DstVulkanImage.mImageProperties;
-    auto& Cmd               = inCmdBuffer.GetCommandBufferHandle();
+    auto &Cmd               = inCmdBuffer.GetCommandBufferHandle();
     vk::ImageSubresourceLayers SrcSubResource(
          SrcImageProp.mImageAspect, inFromMipLevel, inFromBaseArrayLayer, inArrayLayersToBeCopied);
     vk::ImageSubresourceLayers DstSubResource(
@@ -351,7 +364,7 @@ void VulkanImageBase::FillImageProperties(ImageContext inImageContext, uint32_t 
     }
 }
 
-void VulkanImage::MoveMembers(ksai::VulkanImage& Other) {
+void VulkanImage::MoveMembers(ksai::VulkanImage &Other) {
     mImage                   = std::move(Other.mImage);
     mImageView               = std::move(Other.mImageView);
     mDeviceMemory            = std::move(Other.mDeviceMemory);
@@ -361,40 +374,41 @@ void VulkanImage::MoveMembers(ksai::VulkanImage& Other) {
     Other.mDeviceMemory      = nullptr;
 }
 
-VulkanImage::VulkanImage(const VulkanDevice& inDevice, ImageContext inImageContext)
-    : VulkanImageBase(inDevice) {
-    FillImageProperties(inImageContext);
-    CreateImageAndBindMemory(mImage, mDeviceMemory);
-    CreateImageView(mImage);
+VulkanImage::VulkanImage(const VulkanDevice &inDevice, ImageContext inImageContext) {
+    CreateInfo info;
+    info.mDevice       = &inDevice;
+    info.mImageContext = inImageContext;
+    Init(info);
 }
 
-VulkanImage::VulkanImage(const VulkanDevice& inDevice,
+VulkanImage::VulkanImage(const VulkanDevice &inDevice,
                          ui inWidth,
                          ui inHeight,
-                         ImageContext inImageContext)
-    : VulkanImageBase(inDevice) {
-    FillImageProperties(inImageContext);
-    mImageProperties.mExtent.width  = inWidth;
-    mImageProperties.mExtent.height = inHeight;
-    CreateImageAndBindMemory(mImage, mDeviceMemory);
-    CreateImageView(mImage);
+                         ImageContext inImageContext) {
+    CreateInfo info;
+    info.mDevice       = &inDevice;
+    info.mWidth        = inWidth;
+    info.mHeight       = inHeight;
+    info.mImageContext = inImageContext;
+    Init(info);
 }
 
-VulkanImage::VulkanImage(const VulkanDevice& inDevice,
-                         const VulkanSurface& inSurface,
+VulkanImage::VulkanImage(const VulkanDevice &inDevice,
+                         const VulkanSurface &inSurface,
                          ui inMSAASamples,
-                         ImageContext inImageContext)
-    : VulkanImageBase(inDevice) {
-    FillImageProperties(inImageContext, inMSAASamples);
-    mImageProperties.mExtent = inSurface.GetExtent();
-    CreateImageAndBindMemory(mImage, mDeviceMemory);
-    CreateImageView(mImage);
+                         ImageContext inImageContext) {
+    CreateInfo info;
+    info.mDevice       = &inDevice;
+    info.mSurface      = &inSurface;
+    info.mMSAASamples  = inMSAASamples;
+    info.mImageContext = inImageContext;
+    Init(info);
 }
 
-VulkanImage::VulkanImage(const VulkanDevice& inDevice,
-                         const VulkanSurface& inSurface,
-                         const vk::Image& inImage,
-                         vk::ImageView& inImageView,
+VulkanImage::VulkanImage(const VulkanDevice &inDevice,
+                         const VulkanSurface &inSurface,
+                         const vk::Image &inImage,
+                         vk::ImageView &inImageView,
                          ImageContext inImageContext)
     : VulkanImageBase(inDevice) {
     mImageProperties.mExtent = inSurface.GetExtent();
@@ -404,22 +418,48 @@ VulkanImage::VulkanImage(const VulkanDevice& inDevice,
 
 void VulkanImage::ExplicitDestroy() {
     if (mImage) {
-        mDevice.waitIdle();
-        mDevice.destroyImage(mImage);
-        mDevice.destroyImageView(mImageView);
-        mDevice.freeMemory(mDeviceMemory);
+        mDevice->waitIdle();
+        mDevice->destroyImage(mImage);
+        mDevice->destroyImageView(mImageView);
+        mDevice->freeMemory(mDeviceMemory);
         mImage        = nullptr;
         mImageView    = nullptr;
         mDeviceMemory = nullptr;
     }
 }
 
-VulkanImageExternalHandled::VulkanImageExternalHandled(const VulkanDevice& inDevice,
-                                                       const VulkanSurface& inSurface,
+VulkanImageExternalHandled::VulkanImageExternalHandled(const VulkanDevice &inDevice,
+                                                       const VulkanSurface &inSurface,
                                                        vk::Image inImage,
                                                        vk::ImageView inImageView)
     : VulkanImageBase(inDevice, false) {
     mImageProperties.mExtent = inSurface.GetExtent();
     mImage                   = inImage;
     mImageView               = inImageView;
+}
+
+void VulkanImage::Init(CreateInfo inCreateInfo) {
+    VulkanImageBase::Init({.mDevice = inCreateInfo.mDevice});
+    FillImageProperties(inCreateInfo.mImageContext, inCreateInfo.mMSAASamples);
+    if (inCreateInfo.mSurface) {
+        mImageProperties.mExtent = inCreateInfo.mSurface->GetExtent();
+    }
+    if (inCreateInfo.mWidth.has_value() and inCreateInfo.mHeight.has_value()) {
+        mImageProperties.mExtent.setHeight(inCreateInfo.mHeight.value());
+        mImageProperties.mExtent.setWidth(inCreateInfo.mWidth.value());
+    }
+    CreateImageAndBindMemory(mImage, mDeviceMemory);
+    CreateImageView(mImage);
+    mInitialized = true;
+}
+
+void VulkanImage::Destroy() {
+    ExplicitDestroy();
+    mInitialized = false;
+}
+
+VulkanImage::~VulkanImage() {
+    if (mInitialized) {
+        Destroy();
+    }
 }

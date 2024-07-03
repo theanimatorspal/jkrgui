@@ -13,32 +13,47 @@
 namespace ksai {
 class VulkanSurface {
     public:
-    operator vk::SurfaceKHR() const { return mSurface; }
-    VulkanSurface(const VulkanInstance& inInstance, SDL_Window* inWindow);
+    struct CreateInfo {
+        const VulkanInstance *mInstance;
+        SDL_Window *mWindow;
+    };
+
+    VulkanSurface() = default;
     ~VulkanSurface();
-    VulkanSurface&
-    ProcessCurrentSurfaceConditions(const VulkanPhysicalDevice& inPhysicalDevice,
+    VulkanSurface(const VulkanSurface &other)            = delete;
+    VulkanSurface &operator=(const VulkanSurface &other) = delete;
+    VulkanSurface(VulkanSurface &&other)                 = default;
+    VulkanSurface &operator=(VulkanSurface &&other)      = default;
+    operator vk::SurfaceKHR() const { return mSurface; }
+
+    void Init(CreateInfo inCreateInfo);
+    void Destroy();
+
+    VulkanSurface(const VulkanInstance &inInstance, SDL_Window *inWindow);
+    VulkanSurface &
+    ProcessCurrentSurfaceConditions(const VulkanPhysicalDevice &inPhysicalDevice,
                                     vk::PresentModeKHR inMode = vk::PresentModeKHR::eFifo);
-    VulkanSurface& ProcessCurrentSurfaceExtents(const VulkanPhysicalDevice& inPhysicalDevice);
-    GETTER& GetSurfaceHandle() const { return mSurface; }
-    GETTER& GetWindowHandle() const { return mWindow; }
-    GETTER& GetSurfaceCapabilities() const { return mSurfaceCapabilities; }
-    GETTER& GetSurfaceImageFormat() const { return mSurfaceImageFormat; }
-    GETTER& GetExtent() const { return mExtent; }
-    GETTER& GetPresentMode() const { return mPresentMode; }
-    GETTER& GetPreTransform() const { return mPreTransform; }
-    GETTER& GetCompositeAlpha() const { return mCompositeAlpha; }
+    VulkanSurface &ProcessCurrentSurfaceExtents(const VulkanPhysicalDevice &inPhysicalDevice);
+    GETTER &GetSurfaceHandle() const { return mSurface; }
+    GETTER &GetWindowHandle() const { return mWindow; }
+    GETTER &GetSurfaceCapabilities() const { return mSurfaceCapabilities; }
+    GETTER &GetSurfaceImageFormat() const { return mSurfaceImageFormat; }
+    GETTER &GetExtent() const { return mExtent; }
+    GETTER &GetPresentMode() const { return mPresentMode; }
+    GETTER &GetPreTransform() const { return mPreTransform; }
+    GETTER &GetCompositeAlpha() const { return mCompositeAlpha; }
 
     private:
-    const vk::Instance& mInstance;
-    vk::SurfaceKHR mSurface;
-    SDL_Window* mWindow;
+    const vk::Instance *mInstance = nullptr;
+    vk::SurfaceKHR mSurface       = nullptr;
+    SDL_Window *mWindow           = nullptr;
     vk::Format mSurfaceImageFormat;
     vk::SurfaceCapabilitiesKHR mSurfaceCapabilities;
     vk::Extent2D mExtent;
     vk::PresentModeKHR mPresentMode;
     vk::SurfaceTransformFlagBitsKHR mPreTransform;
     vk::CompositeAlphaFlagBitsKHR mCompositeAlpha;
+    bool mInitialized = false;
 };
 
 } // namespace ksai

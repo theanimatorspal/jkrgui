@@ -6,23 +6,21 @@
 #include <SDL2/SDL_vulkan.h>
 #endif
 #include <iostream>
-using namespace ksai;
 #undef max
 
-VulkanSurface::VulkanSurface(const VulkanInstance& inInstance, SDL_Window* inWindow)
-    : mInstance(inInstance.GetInstanceHandle()), mWindow(inWindow) {
-    SDL_bool Error = SDL_Vulkan_CreateSurface(
-         inWindow, inInstance.GetInstanceHandle(), (VkSurfaceKHR*)&mSurface);
-    if (Error == SDL_FALSE) {
-        ksai_print("Surface Creation Error");
-        std::cout << "Error Surface Create\n";
+using namespace ksai;
+VulkanSurface::VulkanSurface(const VulkanInstance &inInstance, SDL_Window *inWindow) {
+    Init({&inInstance, inWindow});
+}
+
+VulkanSurface::~VulkanSurface() {
+    if (mInitialized) {
+        Destroy();
     }
 }
 
-VulkanSurface::~VulkanSurface() { mInstance.destroySurfaceKHR(mSurface); }
-
-VulkanSurface&
-VulkanSurface::ProcessCurrentSurfaceConditions(const VulkanPhysicalDevice& inPhysicalDevice,
+VulkanSurface &
+VulkanSurface::ProcessCurrentSurfaceConditions(const VulkanPhysicalDevice &inPhysicalDevice,
                                                vk::PresentModeKHR inMode) {
     ProcessCurrentSurfaceExtents(inPhysicalDevice);
     mPresentMode = inMode;
@@ -44,9 +42,9 @@ VulkanSurface::ProcessCurrentSurfaceConditions(const VulkanPhysicalDevice& inPhy
     return *this;
 }
 
-VulkanSurface&
-VulkanSurface::ProcessCurrentSurfaceExtents(const VulkanPhysicalDevice& inPhysicalDevice) {
-    const auto& mPhysicalDevice               = inPhysicalDevice.GetPhysicalDeviceHandle();
+VulkanSurface &
+VulkanSurface::ProcessCurrentSurfaceExtents(const VulkanPhysicalDevice &inPhysicalDevice) {
+    const auto &mPhysicalDevice               = inPhysicalDevice.GetPhysicalDeviceHandle();
     std::vector<vk::SurfaceFormatKHR> formats = mPhysicalDevice.getSurfaceFormatsKHR(mSurface);
     assert(!formats.empty());
 
@@ -61,7 +59,7 @@ VulkanSurface::ProcessCurrentSurfaceExtents(const VulkanPhysicalDevice& inPhysic
 
     if (surfaceSizeUndefined) {
         int width, height;
-        SDL_GetWindowSize(const_cast<SDL_Window*>(mWindow), &width, &height);
+        SDL_GetWindowSize(const_cast<SDL_Window *>(mWindow), &width, &height);
         mExtent.width  = std::clamp<decltype(width)>(width,
                                                     mSurfaceCapabilities.minImageExtent.width,
                                                     mSurfaceCapabilities.maxImageExtent.width);
@@ -72,4 +70,23 @@ VulkanSurface::ProcessCurrentSurfaceExtents(const VulkanPhysicalDevice& inPhysic
         mExtent = mSurfaceCapabilities.currentExtent;
     }
     return *this;
+}
+
+void VulkanSurface::Init(CreateInfo inCreateInfo) {
+    mInstance      = &inCreateInfo.mInstance->GetInstanceHandle();
+    mWindow        = inCreateInfo.mWindow;
+
+    SDL_bool Error = SDL_Vulkan_CreateSurface(mWindow, *mInstance, (VkSurfaceKHR *)&mSurface);
+    if (Error == SDL_FALSE) {
+        ksai_print("Surface Creation Error");
+        std::cout << "Error Surface Create\n";
+    }
+    mInitialized = true;
+}
+
+void VulkanSurface::Destroy() {
+    if (mSurface) {
+        mInstance->destroySurfaceKHR(mSurface);
+    }
+    mInitialized = true;
 }

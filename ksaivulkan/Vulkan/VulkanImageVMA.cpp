@@ -1,8 +1,8 @@
 #include "VulkanImageVMA.hpp"
 
 using namespace ksai;
-VulkanImageVMA::VulkanImageVMA(const VulkanVMA& inVMA,
-                               const VulkanDevice& inDevice,
+VulkanImageVMA::VulkanImageVMA(const VulkanVMA &inVMA,
+                               const VulkanDevice &inDevice,
                                ui inWidth,
                                ui inHeight,
                                ImageContext inImageContext,
@@ -12,22 +12,45 @@ VulkanImageVMA::VulkanImageVMA(const VulkanVMA& inVMA,
                                ui inMips,
                                opt<vk::ImageUsageFlags> inBits,
                                opt<vk::ImageLayout> inLayout,
-                               opt<vk::Format> inFormat)
-    : VulkanImageBase(inDevice), mVMA(inVMA) {
-    FillImageProperties(inImageContext, inSamples);
-    mImageProperties.mArrayLayers   = inLayerCount;
-    mImageProperties.mExtent.width  = inWidth;
-    mImageProperties.mExtent.height = inHeight;
-    mImageProperties.mMipLevels     = inMips;
-    if (inBits.has_value()) {
-        mImageProperties.mImageUsage |= inBits.value();
+                               opt<vk::Format> inFormat) {
+    Init({.inVMA          = &inVMA,
+          .inDevice       = &inDevice,
+          .inWidth        = inWidth,
+          .inHeight       = inHeight,
+          .inImageContext = inImageContext,
+          .inChannel      = inChannel,
+          .inLayerCount   = inLayerCount,
+          .inSamples      = inSamples,
+          .inMips         = inMips,
+          .inUsageBits    = inBits,
+          .inLayout       = inLayout,
+          .inFormat       = inFormat});
+}
+
+VulkanImageVMA::~VulkanImageVMA() {
+    if (mInitialized) {
+        Destroy();
     }
-    if (inLayout.has_value()) {
-        mImageProperties.mCurrentImageLayout = inLayout.value();
-        mImageProperties.mInitialImageLayout = inLayout.value();
+}
+
+void VulkanImageVMA::Init(CreateInfo inCreateInfo) {
+    VulkanImageBase::Init({.mDevice = inCreateInfo.inDevice});
+    mVMA    = inCreateInfo.inVMA;
+    mDevice = &inCreateInfo.inDevice->GetDeviceHandle();
+    FillImageProperties(inCreateInfo.inImageContext, inCreateInfo.inSamples);
+    mImageProperties.mArrayLayers   = inCreateInfo.inLayerCount;
+    mImageProperties.mExtent.width  = inCreateInfo.inWidth;
+    mImageProperties.mExtent.height = inCreateInfo.inHeight;
+    mImageProperties.mMipLevels     = inCreateInfo.inMips;
+    if (inCreateInfo.inUsageBits.has_value()) {
+        mImageProperties.mImageUsage |= inCreateInfo.inUsageBits.value();
     }
-    if (inFormat.has_value()) {
-        mImageProperties.mImageFormat = inFormat.value();
+    if (inCreateInfo.inLayout.has_value()) {
+        mImageProperties.mCurrentImageLayout = inCreateInfo.inLayout.value();
+        mImageProperties.mInitialImageLayout = inCreateInfo.inLayout.value();
+    }
+    if (inCreateInfo.inFormat.has_value()) {
+        mImageProperties.mImageFormat = inCreateInfo.inFormat.value();
     }
     vk::ImageTiling Tiling;
     GetImageTiling(mImageProperties.mImageFormat, mImageProperties.mImageFormatFeature, Tiling);
@@ -46,7 +69,7 @@ VulkanImageVMA::VulkanImageVMA(const VulkanVMA& inVMA,
     AllocationCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
     VkImage Image_C;
     VkImageCreateInfo ImageCreateInfo_C = ImageCreateInfo;
-    vmaCreateImage(inVMA.GetVMAHandle(),
+    vmaCreateImage(inCreateInfo.inVMA->GetVMAHandle(),
                    &ImageCreateInfo_C,
                    &AllocationCreateInfo,
                    &Image_C,
@@ -54,9 +77,11 @@ VulkanImageVMA::VulkanImageVMA(const VulkanVMA& inVMA,
                    nullptr);
     mImage = Image_C;
     CreateImageView(mImage);
+    mInitialized = true;
 }
 
-VulkanImageVMA::~VulkanImageVMA() {
-    mDevice.waitIdle();
-    vmaDestroyImage(mVMA.GetVMAHandle(), mImage, mAllocation);
+void VulkanImageVMA::Destroy() {
+    mDevice->waitIdle();
+    vmaDestroyImage(mVMA->GetVMAHandle(), mImage, mAllocation);
+    mInitialized = false;
 }
