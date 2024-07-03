@@ -79,3 +79,28 @@ void Simple3D::CompileWithCustomRenderPass(Jkr::Instance& inInstance,
     }
     mPainter = mu<Painter>(inInstance, inRenderPass, *mPainterCache, mPipelineContext);
 }
+
+void Simple3D::CompileForDeferredOffscreen(Jkr::Instance& inInstance,
+                                           Jkr::WindowMulT& inCompatibleWindow,
+                                           std::string_view inFilename,
+                                           std::string_view inVertexShader,
+                                           std::string_view inFragmentShader,
+                                           std::string_view inComputeShader,
+                                           bool inShouldLoad) {
+
+    mPipelineContext = PipelineContext::DefaultSingleSampled; // TODO Modify for multi sampeld
+    mPainterCache    = mu<PainterCache>(inInstance);
+    using namespace std;
+    if (not inShouldLoad) {
+        mPainterCache->Store(string(inFilename),
+                             string(inVertexShader),
+                             string(inFragmentShader),
+                             string(inComputeShader));
+    } else {
+        mPainterCache->Load(string(inFilename));
+    }
+    mPainter = mu<Painter>(inInstance,
+                           inCompatibleWindow.GetDeferredPass().GetRenderPass(),
+                           *mPainterCache,
+                           mPipelineContext);
+}

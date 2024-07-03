@@ -131,11 +131,10 @@ void WindowMulT::ExecuteUIs() {
 
 using namespace Jkr;
 void WindowMulT::BeginShadowPass(float ind) {
-    mCommandBuffers[mCurrentFrame].BeginRenderPass(
-         mShadowPass->GetRenderPass(),
-         vk::Extent2D(mShadowPassSize.x, mShadowPassSize.y),
-         mShadowPass->GetFrameBuffer(),
-         {1.0f, 1.0f, 1.0f, 1.0f, ind});
+    mCommandBuffers[mCurrentFrame].BeginRenderPass(mShadowPass->GetRenderPass(),
+                                                   vk::Extent2D(mFrameSize.x, mFrameSize.y),
+                                                   mShadowPass->GetFrameBuffer(),
+                                                   {1.0f, 1.0f, 1.0f, 1.0f, ind});
 }
 void WindowMulT::EndShadowPass() {
 
@@ -168,8 +167,27 @@ void WindowMulT::EndThreadCommandBuffer(int inThreadId) {
 }
 
 void WindowMulT::BuildShadowPass(ui inWidth, ui inHeight) {
-    mShadowPass     = mu<ShadowPass>(mInstance, inWidth, inHeight);
-    mShadowPassSize = glm::uvec2(inWidth, inHeight);
+    mShadowPass = mu<ShadowPass>(mInstance, inWidth, inHeight);
+    mFrameSize  = glm::uvec2(inWidth, inHeight);
 }
+
+void WindowMulT::BuildDeferredPass(ui inWidth, ui inHeight) {
+    mDeferredPass = mu<DeferredPass>(mInstance, inWidth, inHeight);
+    mFrameSize    = glm::uvec2(inWidth, inHeight);
+}
+void WindowMulT::BeginDeferredDraws(float r, float g, float b, float a, float d) {
+    // mCommandBuffers[mCurrentFrame].BeginRenderPass(
+    //      mDeferredPass->GetRenderPass(),
+    //      vk::Extent2D(mShadowPassSize.x, mShadowPassSize.y),
+    //      mDeferredPass->GetFrameBuffer(),
+    //      {r, g, b, a, d});
+    mCommandBuffers[mCurrentFrame]
+         .BeginRenderPass<VulkanCommandBuffer::RenderPassBeginContext::SecondaryCommandBuffers>(
+              mDeferredPass->GetRenderPass(),
+              vk::Extent2D{mFrameSize.x, mFrameSize.y},
+              mDeferredPass->GetFrameBuffer(),
+              {r, g, b, a});
+}
+void WindowMulT::EndDeferredDraws() { mCommandBuffers[mCurrentFrame].EndRenderPass(); }
 
 } // namespace Jkr

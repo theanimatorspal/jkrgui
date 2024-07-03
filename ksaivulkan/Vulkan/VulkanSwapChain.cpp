@@ -1,21 +1,20 @@
 #include "VulkanSwapChain.hpp"
 using namespace ksai;
 
-ksai::VulkanSwapChainBase::VulkanSwapChainBase(const VulkanDevice& inDevice)
-    : mDevice(inDevice.GetDeviceHandle()) {}
+ksai::VulkanSwapChainBase::VulkanSwapChainBase(const VulkanDevice &inDevice) { Init({&inDevice}); }
 
-ksai::VulkanSwapChain::~VulkanSwapChain() {
-    ExplicitlyDestroyOldSwapChain();
-    ExplicitlyDestroy();
+void VulkanSwapChainBase::Init(CreateInfo inCreateInfo) {
+    mDevice      = &inCreateInfo.mDevice->GetDeviceHandle();
+    mInitialized = true;
 }
 
 void ksai::VulkanSwapChainBase::ExplicitlyDestroy() {
     if (mSwapChain) {
-        mDevice.waitIdle();
-        for (auto& u : mSwapChainImageViews) {
-            mDevice.destroyImageView(u);
+        mDevice->waitIdle();
+        for (auto &u : mSwapChainImageViews) {
+            mDevice->destroyImageView(u);
         }
-        mDevice.destroy(mSwapChain);
+        mDevice->destroy(mSwapChain);
         mSwapChainImageViews.clear();
         mSwapChainImages.clear();
         mSwapChain = nullptr;
@@ -24,11 +23,11 @@ void ksai::VulkanSwapChainBase::ExplicitlyDestroy() {
 
 void ksai::VulkanSwapChainBase::ExplicitlyDestroyOldSwapChain() {
     if (mOldSwapChain) {
-        mDevice.waitIdle();
-        for (auto& u : mOldSwapChainImageViews) {
-            mDevice.destroyImageView(u);
+        mDevice->waitIdle();
+        for (auto &u : mOldSwapChainImageViews) {
+            mDevice->destroyImageView(u);
         }
-        mDevice.destroy(mOldSwapChain);
+        mDevice->destroy(mOldSwapChain);
         mOldSwapChainImages.clear();
         mOldSwapChainImageViews.clear();
         mOldSwapChain = nullptr;
@@ -36,15 +35,15 @@ void ksai::VulkanSwapChainBase::ExplicitlyDestroyOldSwapChain() {
 }
 
 std::pair<uint32_t, uint32_t>
-ksai::VulkanSwapChainBase::AcquireNextImage(const VulkanSemaphore& inSemapore) {
-    vk::ResultValue<uint32_t> Result = mDevice.acquireNextImageKHR(
+ksai::VulkanSwapChainBase::AcquireNextImage(const VulkanSemaphore &inSemapore) {
+    vk::ResultValue<uint32_t> Result = mDevice->acquireNextImageKHR(
          mSwapChain, std::numeric_limits<uint32_t>::max(), inSemapore.GetSemaphoreHandle());
     return std::pair<uint32_t, uint32_t>(static_cast<uint32_t>(Result.result),
                                          static_cast<uint32_t>(Result.value));
 }
 
-v<VulkanImages> VulkanSwapChain::GetVulkanImages(const VulkanDevice& inDevice,
-                                                 const VulkanSurface& inSurface) {
+v<VulkanImages> VulkanSwapChain::GetVulkanImages(const VulkanDevice &inDevice,
+                                                 const VulkanSurface &inSurface) {
     v<VulkanImages> Vectors;
     for (int i = 0; i < mSwapChainImageViews.size(); i++) {
         auto Image = VulkanImageExternalHandled(
@@ -54,12 +53,20 @@ v<VulkanImages> VulkanSwapChain::GetVulkanImages(const VulkanDevice& inDevice,
     return Vectors;
 }
 
-VulkanSwapChain::VulkanSwapChain(const VulkanDevice& inDevice,
-                                 const VulkanQueueContext& inQueueContext,
-                                 const VulkanSurface& inSurface,
+VulkanSwapChain::VulkanSwapChain(const VulkanDevice &inDevice,
+                                 const VulkanQueueContext &inQueueContext,
+                                 const VulkanSurface &inSurface,
                                  optref<VulkanSwapChainBase> inOldSwapChain,
-                                 sz inMaxFramesInFlight)
-    : VulkanSwapChainBase(inDevice) {
+                                 sz inMaxFramesInFlight) {
+    Init({&inDevice, &inQueueContext, &inSurface, inOldSwapChain, inMaxFramesInFlight});
+}
+
+void VulkanSwapChain::Init(CreateInfo inCreateInfo) {
+    VulkanSwapChainBase::Init({inCreateInfo.mDevice});
+    auto &inSurface          = *inCreateInfo.mSurface;
+    auto inMaxFramesInFlight = inCreateInfo.mMaxFramesInFlight;
+    auto &inOldSwapChain     = inCreateInfo.mOldSwapChain;
+    auto &inQueueContext     = *inCreateInfo.mQueueContext;
     auto swapChainCreateInfo =
          vk::SwapchainCreateInfoKHR()
               .setFlags(vk::SwapchainCreateFlagsKHR())
@@ -79,7 +86,7 @@ VulkanSwapChain::VulkanSwapChain(const VulkanDevice& inDevice,
     if (inOldSwapChain.has_value()) {
         ExplicitlyDestroyOldSwapChain();
         swapChainCreateInfo.setOldSwapchain(inOldSwapChain.value().get().GetSwapChainHandle());
-        auto& oldSwapChain                = inOldSwapChain.value().get();
+        auto &oldSwapChain                = inOldSwapChain.value().get();
         mOldSwapChain                     = std::move(oldSwapChain.GetSwapChainHandle());
         mOldSwapChainImages               = std::move(oldSwapChain.GetSwapChainImages());
         mOldSwapChainImageViews           = std::move(oldSwapChain.GetSwapChainImageViews());
@@ -94,10 +101,10 @@ VulkanSwapChain::VulkanSwapChain(const VulkanDevice& inDevice,
         swapChainCreateInfo.pQueueFamilyIndices   = queueFamilyIndices;
     }
 
-    vk::SwapchainKHR swapChain = mDevice.createSwapchainKHR(swapChainCreateInfo);
+    vk::SwapchainKHR swapChain = mDevice->createSwapchainKHR(swapChainCreateInfo);
     mSwapChain                 = swapChain;
 
-    mSwapChainImages           = mDevice.getSwapchainImagesKHR(mSwapChain);
+    mSwapChainImages           = mDevice->getSwapchainImagesKHR(mSwapChain);
     mSwapChainImageViews.resize(mSwapChainImages.size());
     auto Format                                   = inSurface.GetSurfaceImageFormat();
     vk::ImageSubresourceRange imgSubResourceRange = {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1};
@@ -105,6 +112,19 @@ VulkanSwapChain::VulkanSwapChain(const VulkanDevice& inDevice,
          {}, {}, vk::ImageViewType::e2D, Format, {}, imgSubResourceRange);
     for (int i = 0; i < mSwapChainImages.size(); i++) {
         imageViewCreateInfo.image = mSwapChainImages[i];
-        mSwapChainImageViews[i]   = mDevice.createImageView(imageViewCreateInfo);
+        mSwapChainImageViews[i]   = mDevice->createImageView(imageViewCreateInfo);
+    }
+    mInitialized = true;
+}
+
+void VulkanSwapChain::Destroy() {
+    ExplicitlyDestroyOldSwapChain();
+    ExplicitlyDestroy();
+    mInitialized = false;
+};
+
+ksai::VulkanSwapChain::~VulkanSwapChain() {
+    if (mInitialized) {
+        Destroy();
     }
 }

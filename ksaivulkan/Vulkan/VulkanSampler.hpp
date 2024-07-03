@@ -11,6 +11,7 @@ class VulkanSampler {
                   ImageContext inImageContext = ImageContext::Default,
                   float inMinLod              = 0.0f,
                   float inMaxLoad             = 1.0f);
+    VulkanSampler(const VulkanDevice& inDevice, vk::SamplerCreateInfo inCreateInfo);
     ~VulkanSampler();
     GETTER& GetSamplerHandle() const { return mSampler; }
 

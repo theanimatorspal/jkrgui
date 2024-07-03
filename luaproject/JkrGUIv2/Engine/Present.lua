@@ -28,7 +28,7 @@ end
 
 --[============================================================[
           PROCESS  FUNCTIONS
-
+          these functions make the presentation engine ready for presentation
 Keyframe = {
           FrameIndex = int,
           Texts = {},
@@ -46,7 +46,7 @@ local FontMap = {}
 local CurrentKey = 1
 local WindowDimension = vec2(0)
 local FrameKeys = {}
-
+local baseDepth = 50
 
 local index = 0
 local Unique = function(inElementName) -- Generate Unique Name
@@ -60,7 +60,11 @@ end
 
 local ComputePositionByName = function(inPositionName, inDimension)
           if inPositionName == "CENTER" then
-                    return vec2(WindowDimension.x / 2 - inDimension.x / 2, WindowDimension.y / 2 - inDimension.y / 2)
+                    print(inDimension.x / 20, inDimension.y / 20)
+                    print(WindowDimension.x / 20, WindowDimension.y / 20)
+                    return vec3(WindowDimension.x / 2.0 - inDimension.x / 2.0,
+                              WindowDimension.y / 2.0 - inDimension.y / 2.0,
+                              baseDepth)
           else
                     return inPositionName
           end
@@ -83,6 +87,7 @@ local ProcessFunctions = {
                                         FontMap[inValue.f],
                                         inValue.t, inValue.c)
                     end
+                    inValue.d = FontMap[inValue.f]:GetTextDimension(inValue.t)
                     FrameKeys[inFrameIndex][#FrameKeys[inFrameIndex] + 1] = {
                               FrameIndex = inFrameIndex,
                               Elements = {
@@ -99,7 +104,8 @@ end
 
 --[============================================================[
           EXECUTE  FUNCTIONS
-
+          these functions actually show the presenation and update it interactively
+          element = { "TEXT", handle = screenElements[ElementName], value = inValue, name = ElementName },
 ]============================================================]
 
 local GetPreviousFrameKeyElement = function(inPresentation, inElement, inFrameIndex)
@@ -115,11 +121,13 @@ local GetPreviousFrameKeyElement = function(inPresentation, inElement, inFrameIn
 end
 
 local ExecuteFunction = {
-          Text = function(inPresentation, inElement, inFrameIndex, t)
+          TEXT = function(inPresentation, inElement, inFrameIndex, t)
                     local PreviousElement = GetPreviousFrameKeyElement(inPresentation, inElement, inFrameIndex)
                     if PreviousElement then
                               -- interpolate
                     else
+                              inElement.handle:Update(ComputePositionByName(inElement.value.p, inElement.value.d),
+                                        vec3(inElement.value.d.x, inElement.value.d.y, inElement.value.d.z))
                     end
           end
 }
@@ -130,6 +138,7 @@ local ExecuteFrame = function(inPresentation, inFrameIndex, t)
           for i = 1, CurrentFrameKeyCount, 1 do
                     local Key = CurrentFrame[i]
                     for _, element in pairs(Key.Elements) do
+                              print(element[1], ExecuteFunction[element[1]])
                               ExecuteFunction[element[1]](inPresentation, element, inFrameIndex, t)
                     end
           end
@@ -147,6 +156,7 @@ Presentation = function(inPresentation)
           local Validation = false
           Engine:Load(Validation)
           window = Jkr.CreateWindow(Engine.i, "Hello", vec2(900, 480), 3)
+          WindowDimension = window:GetWindowDimension()
           wid = Jkr.CreateWidgetRenderer(Engine.i, window, Engine.e)
 
           if inPresentation.Config then
@@ -201,7 +211,7 @@ Presentation = function(inPresentation)
 
 
                     WindowClearColor = vec4(0)
-                    ExecuteFrame(1)
+                    ExecuteFrame(inPresentation, 1, 0)
 
                     local function Update()
                               wid.Update()

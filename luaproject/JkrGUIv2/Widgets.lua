@@ -118,6 +118,27 @@ Jkr.CreateCallBuffers = function() -- Similar to Comptable in JrkGUI v1
         end
     end
 
+    o.Remove = function(inIndex, inFrame, inType, inTimeType)
+        if inTimeType == "ONE" then
+            if inType == "DRAW" then
+                table.remove(o.mOneTimeDrawables[inFrame], inIndex)
+            elseif inType == "DISPATCH" then
+                table.remove(o.mOneTimeDispatchables[inFrame], inIndex)
+            elseif inType == "UPDATE" then
+                table.remove(o.mOneTimeUpdatables[inFrame], inIndex)
+            end
+        end
+        if inTimeType ~= "ONE" then
+            if inType == "DRAW" then
+                table.remove(o.mDrawables[inFrame], inIndex)
+            elseif inType == "DISPATCH" then
+                table.remove(o.mDispatchables[inFrame], inIndex)
+            elseif inType == "UPDATE" then
+                table.remove(o.mUpdatables[inFrame], inIndex)
+            end
+        end
+    end
+
     local cdf = 1 -- CurrentDispatchFrame
     o.Dispatch = function()
         --[========================================================]

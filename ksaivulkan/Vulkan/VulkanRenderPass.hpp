@@ -4,7 +4,7 @@
 #include "VulkanSurface.hpp"
 namespace ksai {
 
-enum class RenderPassContext { Default, MSAA, Shadow, SingleColorAttachment };
+enum class RenderPassContext { Default, MSAA, Shadow, SingleColorAttachment, Deferred };
 
 class VulkanRenderPassBase {
     public:
@@ -28,6 +28,11 @@ class VulkanRenderPass : public VulkanRenderPassBase {
                      const VulkanImage& inColorImageTarget,
                      const VulkanImage& inDepthImage,
                      vk::SampleCountFlagBits inMSAASamples);
+    VulkanRenderPass(const VulkanDevice& inDevice,
+                     const VulkanImageBase& inPositionImage,
+                     const VulkanImageBase& inNormalImage,
+                     const VulkanImageBase& inAlbedoImage,
+                     const VulkanImageBase& inDepthImage);
     ~VulkanRenderPass() { mDevice.destroyRenderPass(mRenderPass); }
 
     private:

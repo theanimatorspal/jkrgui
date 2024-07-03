@@ -12,15 +12,20 @@ class WindowMulT : public Window {
     public:
     const VulkanCommandBufferArray& GetCommandBuffers(ParameterContext inParameter) const override;
     GETTER& GetShadowPass() { return *mShadowPass; }
+    GETTER& GetDeferredPass() { return *mDeferredPass; }
     void BuildShadowPass(ui inWidth, ui inHeight);
-
     void BeginShadowPass(float ind);
     void EndShadowPass();
+
+    void BuildDeferredPass(ui inWidth, ui inHeight);
+    void BeginDeferredDraws(float r, float g, float b, float a, float d);
+    void EndDeferredDraws();
 
     void BeginUpdates();
     void EndUpdates();
     void BeginDispatches();
     void EndDispatches();
+
     void BeginDraws(float r, float g, float b, float a, float d);
     void EndDraws();
     void Present();
@@ -48,7 +53,8 @@ class WindowMulT : public Window {
     VulkanCommandPool mUICommandPool;
     VulkanCommandBufferArray mSecondaryCommandBuffersUI;
     Up<ShadowPass> mShadowPass;
-    glm::uvec2 mShadowPassSize;
+    Up<DeferredPass> mDeferredPass;
+    glm::uvec2 mFrameSize;
 };
 
 } // namespace Jkr

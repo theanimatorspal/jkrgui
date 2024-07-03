@@ -263,3 +263,71 @@ VulkanRenderPass<RenderPassContext::SingleColorAttachment>::VulkanRenderPass(
                                                 .setSubpasses(SubpassDescriptions)
                                                 .setDependencies(SubpassDependencies));
 }
+
+template <>
+VulkanRenderPass<RenderPassContext::Deferred>::VulkanRenderPass(
+     const VulkanDevice& inDevice,
+     const VulkanImageBase& inPositionImage,
+     const VulkanImageBase& inNormalImage,
+     const VulkanImageBase& inAlbedoImage,
+     const VulkanImageBase& inDepthImage)
+    : mDevice(inDevice.GetDeviceHandle()) {
+
+    std::array<vk::AttachmentDescription, 4> AttachmentDescriptions;
+    for (uint32_t i = 0; i < 4; ++i) {
+        AttachmentDescriptions[i].samples        = vk::SampleCountFlagBits::e1;
+        AttachmentDescriptions[i].loadOp         = vk::AttachmentLoadOp::eLoad;
+        AttachmentDescriptions[i].storeOp        = vk::AttachmentStoreOp::eStore;
+        AttachmentDescriptions[i].stencilLoadOp  = vk::AttachmentLoadOp::eDontCare;
+        AttachmentDescriptions[i].stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+        if (i == 3) {
+            AttachmentDescriptions[i].initialLayout = vk::ImageLayout::eUndefined;
+            AttachmentDescriptions[i].finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+        } else {
+            AttachmentDescriptions[i].initialLayout = vk::ImageLayout::eUndefined;
+            AttachmentDescriptions[i].finalLayout   = vk::ImageLayout::eShaderReadOnlyOptimal;
+        }
+    }
+    AttachmentDescriptions[0].format = inPositionImage.GetImageFormat();
+    AttachmentDescriptions[1].format = inNormalImage.GetImageFormat();
+    AttachmentDescriptions[2].format = inAlbedoImage.GetImageFormat();
+    AttachmentDescriptions[3].format = inDepthImage.GetImageFormat();
+
+    std::array<vk::AttachmentReference, 3> ColorReferences;
+    ColorReferences[0] = {0, vk::ImageLayout::eColorAttachmentOptimal};
+    ColorReferences[1] = {1, vk::ImageLayout::eColorAttachmentOptimal};
+    ColorReferences[2] = {2, vk::ImageLayout::eColorAttachmentOptimal};
+    vk::AttachmentReference DepthReference;
+    DepthReference.setAttachment(3).setLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal);
+
+    auto SubpassDescriptions = vk::SubpassDescription()
+                                    .setPipelineBindPoint(vk::PipelineBindPoint::eGraphics)
+                                    .setColorAttachments(ColorReferences)
+                                    .setPDepthStencilAttachment(&DepthReference);
+
+    std::array<vk::SubpassDependency, 2> SubpassDependencies = {
+         vk::SubpassDependency()
+              .setSrcSubpass(VK_SUBPASS_EXTERNAL)
+              .setDstSubpass(0)
+              .setSrcStageMask(vk::PipelineStageFlagBits::eBottomOfPipe)
+              .setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
+              .setSrcAccessMask(vk::AccessFlagBits::eMemoryRead)
+              .setDstAccessMask(vk::AccessFlagBits::eColorAttachmentRead |
+                                vk::AccessFlagBits::eColorAttachmentWrite)
+              .setDependencyFlags(vk::DependencyFlagBits::eByRegion),
+         vk::SubpassDependency()
+              .setSrcSubpass(VK_SUBPASS_EXTERNAL)
+              .setDstSubpass(0)
+              .setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
+              .setDstStageMask(vk::PipelineStageFlagBits::eBottomOfPipe)
+              .setSrcAccessMask(vk::AccessFlagBits::eColorAttachmentRead |
+                                vk::AccessFlagBits::eColorAttachmentWrite)
+              .setDstAccessMask(vk::AccessFlagBits::eMemoryRead)
+              .setDependencyFlags(vk::DependencyFlagBits::eByRegion),
+    };
+
+    mRenderPass = mDevice.createRenderPass(vk::RenderPassCreateInfo()
+                                                .setAttachments(AttachmentDescriptions)
+                                                .setSubpasses(SubpassDescriptions)
+                                                .setDependencies(SubpassDependencies));
+}

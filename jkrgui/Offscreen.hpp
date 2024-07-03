@@ -21,4 +21,25 @@ struct ShadowPass {
     Up<FrameBufferType> mFrameBuffer;
 };
 
+struct DeferredPass {
+    using FrameBufferType =
+         VulkanFrameBuffer<4, VulkanImageVMA, VulkanImageVMA, VulkanImageVMA, VulkanImageVMA>;
+    using ImageType      = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
+    using RenderPassType = VulkanRenderPass<RenderPassContext::Deferred>;
+    GETTER& GetRenderPass() { return *mRenderPass; }
+    GETTER& GetFrameBuffer() { return *mFrameBuffer; }
+
+    DeferredPass(const Instance& inInstance, ui inWidth, ui inHeight);
+
+    private:
+    const Instance& mInstance;
+    Up<ImageType> mDepthImage;
+    Up<ImageType> mPositionImage;
+    Up<ImageType> mNormalImage;
+    Up<ImageType> mAlbedoImage;
+    Up<RenderPassType> mRenderPass;
+    Up<FrameBufferType> mFrameBuffer;
+    Up<VulkanSampler> mSampler;
+};
+
 } // namespace Jkr

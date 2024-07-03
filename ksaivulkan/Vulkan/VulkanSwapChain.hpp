@@ -8,15 +8,27 @@ namespace ksai {
 class VulkanBufferBase;
 class VulkanSwapChainBase {
     public:
+    struct CreateInfo {
+        const VulkanDevice *mDevice;
+    };
+
+    VulkanSwapChainBase()                                            = default;
+    VulkanSwapChainBase(const VulkanSwapChainBase &other)            = default;
+    VulkanSwapChainBase &operator=(const VulkanSwapChainBase &other) = default;
+    VulkanSwapChainBase(VulkanSwapChainBase &&other)                 = default;
+    VulkanSwapChainBase &operator=(VulkanSwapChainBase &&other)      = default;
     operator vk::SwapchainKHR() const { return mSwapChain; }
-    VulkanSwapChainBase(const VulkanDevice& inDevice);
+
+    void Init(CreateInfo inCreateInfo);
+
+    VulkanSwapChainBase(const VulkanDevice &inDevice);
     ~VulkanSwapChainBase() = default;
     void ExplicitlyDestroy();
     void ExplicitlyDestroyOldSwapChain();
 
     public:
     using ImageResult = p<ui, ui>;
-    ImageResult AcquireNextImage(const VulkanSemaphore& inSemapore);
+    ImageResult AcquireNextImage(const VulkanSemaphore &inSemapore);
     static bool ImageIsNotOk(ImageResult inResult) {
         return (inResult.first != static_cast<ui>(vk::Result::eSuccess)) and
                (inResult.first != static_cast<ui>(vk::Result::eSuboptimalKHR));
@@ -30,13 +42,13 @@ class VulkanSwapChainBase {
                (inResult == static_cast<ui>(vk::Result::eSuboptimalKHR));
     }
 
-    GETTER& GetSwapChainHandle() const { return mSwapChain; }
-    GETTER& GetSwapChainHandle() { return mSwapChain; }
-    GETTER& GetSwapChainImages() { return mSwapChainImages; }
-    GETTER& GetSwapChainImageViews() { return mSwapChainImageViews; }
+    GETTER &GetSwapChainHandle() const { return mSwapChain; }
+    GETTER &GetSwapChainHandle() { return mSwapChain; }
+    GETTER &GetSwapChainImages() { return mSwapChainImages; }
+    GETTER &GetSwapChainImageViews() { return mSwapChainImageViews; }
 
     protected:
-    const vk::Device& mDevice;
+    const vk::Device *mDevice;
     vk::SwapchainKHR mSwapChain;
     vk::Extent2D mSwapChainImageExtent;
     v<vk::Image> mSwapChainImages;
@@ -45,6 +57,7 @@ class VulkanSwapChainBase {
     vk::SwapchainKHR mOldSwapChain = nullptr;
     v<vk::Image> mOldSwapChainImages;
     v<vk::ImageView> mOldSwapChainImageViews;
+    bool mInitialized = false;
 };
 } // namespace ksai
 
@@ -52,13 +65,20 @@ namespace ksai {
 using VulkanImages = VulkanImageExternalHandled;
 class VulkanSwapChain : public VulkanSwapChainBase {
     public:
-    VulkanSwapChain(const VulkanDevice& inDevice,
-                    const VulkanQueueContext& inQueueContext,
-                    const VulkanSurface& inSurface,
-                    optref<VulkanSwapChainBase> inOldSwapChain = std::nullopt,
-                    sz inMaxFramesInFlight                     = 2);
+    struct CreateInfo {
+        const VulkanDevice *mDevice             = nullptr;
+        const VulkanQueueContext *mQueueContext = nullptr;
+        const VulkanSurface *mSurface           = nullptr;
+        optref<VulkanSwapChainBase> mOldSwapChain;
+        sz mMaxFramesInFlight = 2;
+    };
+
+    VulkanSwapChain() = default;
     ~VulkanSwapChain();
-    VulkanSwapChain& operator=(VulkanSwapChain&& Other) noexcept {
+    VulkanSwapChain(const VulkanSwapChain &other)            = delete;
+    VulkanSwapChain &operator=(const VulkanSwapChain &other) = delete;
+    VulkanSwapChain(VulkanSwapChain &&other)                 = default;
+    VulkanSwapChain &operator=(VulkanSwapChain &&Other) noexcept {
         ExplicitlyDestroy();
         ExplicitlyDestroyOldSwapChain();
 
@@ -78,6 +98,19 @@ class VulkanSwapChain : public VulkanSwapChainBase {
 
         return *this;
     }
-    v<VulkanImages> GetVulkanImages(const VulkanDevice& inDevice, const VulkanSurface& inSurface);
+
+    void Init(CreateInfo inCreateInfo);
+    void Destroy();
+
+    v<VulkanImages> GetVulkanImages(const VulkanDevice &inDevice, const VulkanSurface &inSurface);
+
+    VulkanSwapChain(const VulkanDevice &inDevice,
+                    const VulkanQueueContext &inQueueContext,
+                    const VulkanSurface &inSurface,
+                    optref<VulkanSwapChainBase> inOldSwapChain = std::nullopt,
+                    sz inMaxFramesInFlight                     = 2);
+
+    private:
+    bool mInitialized = false;
 };
 } // namespace ksai

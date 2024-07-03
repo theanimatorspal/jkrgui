@@ -16,7 +16,7 @@ class VulkanPhysicalDevice {
     GETTER& GetPhysicalDeviceHandle() const { return mPhysicalDevice; }
 
     private:
-    const vk::Instance& mInstance;
+    const vk::Instance* mInstance = nullptr;
     vk::PhysicalDevice mPhysicalDevice;
     vk::PhysicalDeviceProperties mPhysicalDeviceProperties;
     vk::SampleCountFlags mMaxSampleCount;

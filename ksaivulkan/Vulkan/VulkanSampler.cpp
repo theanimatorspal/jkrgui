@@ -17,6 +17,11 @@ VulkanSampler::VulkanSampler(const VulkanDevice& inDevice,
     mSampler = mDevice.createSampler(VulkanSamplerCreateInfo);
 }
 
+VulkanSampler::VulkanSampler(const VulkanDevice& inDevice, vk::SamplerCreateInfo inCreateInfo)
+    : mDevice(inDevice.GetDeviceHandle()) {
+    mSampler = mDevice.createSampler(inCreateInfo);
+}
+
 VulkanSampler::~VulkanSampler() {
     mDevice.waitIdle();
     mDevice.destroySampler(mSampler);

@@ -58,7 +58,15 @@ static bool hasExtensions(std::span<char const*> const& instanceExtensionNames,
     return !(PropertyIterator == ExtensionProperties.end());
 }
 
-VulkanInstance::VulkanInstance(bool inEnableValidation) {
+VulkanInstance::VulkanInstance(bool inEnableValidation) { Init(CreateInfo{inEnableValidation}); }
+
+VulkanInstance::~VulkanInstance() {
+    if (mInitialized) {
+        Destroy();
+    }
+}
+
+void VulkanInstance::Init(CreateInfo inCreateInfo) {
     {
         std::scoped_lock<std::mutex> Lock(gDeletionMutex);
         gDeletionQueue.clear();
@@ -66,7 +74,7 @@ VulkanInstance::VulkanInstance(bool inEnableValidation) {
         gDeletionQueue.reserve(100);
     }
     auto instanceLayerProperties = vk::enumerateInstanceLayerProperties();
-    if (inEnableValidation) {
+    if (inCreateInfo.mEnableValiation) {
         mInstanceLayerNames.push_back("VK_LAYER_KHRONOS_validation");
         // mInstanceLayerNames.push_back("VK_LAYER_LUNARG_api_dump");
     }
@@ -104,7 +112,7 @@ VulkanInstance::VulkanInstance(bool inEnableValidation) {
         ksai_print(extensions[i]);
     }
 
-    if (inEnableValidation) {
+    if (inCreateInfo.mEnableValiation) {
         mInstanceExtensionNames.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
         mInstanceExtensionNames.push_back(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME);
     }
@@ -137,7 +145,7 @@ VulkanInstance::VulkanInstance(bool inEnableValidation) {
 #endif
 
 #ifdef USE_VULKAN_1_3
-    if (inEnableValidation) {
+    if (inCreateInfo.mEnableValiation) {
         v<vk::ValidationFeatureEnableEXT> EnabledFeaturesValidaiton = {
              vk::ValidationFeatureEnableEXT::eSynchronizationValidation};
         auto ValidationFeaturesInfo =
@@ -155,9 +163,10 @@ VulkanInstance::VulkanInstance(bool inEnableValidation) {
     mInstance = vk::createInstance(InstanceCreateInfo);
     ksai_print("Instance print created");
 #endif
+    mInitialized = true;
 }
 
-VulkanInstance::~VulkanInstance() {
+void VulkanInstance::Destroy() {
     if (mInstance) {
         mInstance.destroy();
     }
@@ -167,4 +176,5 @@ VulkanInstance::~VulkanInstance() {
     }
     DQ.clear();
     SDL_Quit();
+    mInitialized = false;
 }

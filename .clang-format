@@ -6,7 +6,7 @@ AllowShortIfStatementsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: true
 IndentCaseLabels: true
 SpaceBeforeAssignmentOperators: true
-PointerAlignment: Left
+PointerAlignment: Right
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 BinPackArguments: false
 BinPackParameters: false

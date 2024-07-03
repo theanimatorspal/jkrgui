@@ -29,9 +29,14 @@ class Simple3D {
                                    std::string_view inVertexShader,
                                    std::string_view inFragmentShader,
                                    std::string_view inComputeShader,
-                                   bool inShouldLoad
-
-    );
+                                   bool inShouldLoad);
+    void CompileForDeferredOffscreen(Jkr::Instance& inInstance,
+                                     Jkr::WindowMulT& inCompatibleWindow,
+                                     std::string_view inFilename,
+                                     std::string_view inVertexShader,
+                                     std::string_view inFragmentShader,
+                                     std::string_view inComputeShader,
+                                     bool inShouldLoad);
     void CompileWithCustomRenderPass(
          Jkr::Instance& inInstance,
          Jkr::WindowMulT& inCompatibleWindow,
@@ -42,6 +47,7 @@ class Simple3D {
          std::string_view inComputeShader,
          bool inShouldLoad,
          PipelineContext inPipelineContext = PipelineContext::DefaultSingleSampled);
+
     template <typename T>
     void Draw(Jkr::Window& inWindow,
               Shape& inShape3D,
