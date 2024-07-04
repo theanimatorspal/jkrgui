@@ -1,18 +1,31 @@
 #include "VulkanShaderModule.hpp"
 
-ksai::VulkanShaderModule::VulkanShaderModule(const VulkanDevice& inDevice,
-                                             const std::vector<uint32_t>& inSPIRV,
-                                             bool inShouldDestroy)
-    : mDevice(inDevice.GetDeviceHandle()) {
-    mCompiler = std::make_shared<spirv_cross::Compiler>(inSPIRV);
-    vk::ShaderModuleCreateInfo info(vk::ShaderModuleCreateFlags(), inSPIRV);
-    mResources     = mCompiler->get_shader_resources();
-    mModule        = mDevice.createShaderModule(info);
-    mShouldDestroy = inShouldDestroy;
+ksai::VulkanShaderModule::VulkanShaderModule(const VulkanDevice &inDevice,
+                                             const std::vector<uint32_t> &inSPIRV,
+                                             bool inShouldDestroy) {
+    Init({&inDevice, &inSPIRV, inShouldDestroy});
 }
 
-ksai::VulkanShaderModule::~VulkanShaderModule() {
+namespace ksai {
+void VulkanShaderModule::Init(CreateInfo inCreateInfo) {
+    mDevice   = &inCreateInfo.inDevice->GetDeviceHandle();
+    mCompiler = std::make_shared<spirv_cross::Compiler>(std::ref(*inCreateInfo.inSPIRV));
+    vk::ShaderModuleCreateInfo info(vk::ShaderModuleCreateFlags(), *inCreateInfo.inSPIRV);
+    mResources     = mCompiler->get_shader_resources();
+    mModule        = mDevice->createShaderModule(info);
+    mShouldDestroy = inCreateInfo.inShouldDestroy;
+    mInitialized   = true;
+}
+
+void VulkanShaderModule::Destroy() {
     if (mShouldDestroy) {
-        mDevice.destroyShaderModule(mModule);
+        mDevice->destroyShaderModule(mModule);
     }
 }
+
+VulkanShaderModule::~VulkanShaderModule() {
+    if (mInitialized) {
+        Destroy();
+    }
+}
+} // namespace ksai

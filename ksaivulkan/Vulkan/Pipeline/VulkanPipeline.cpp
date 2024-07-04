@@ -5,17 +5,17 @@
 
 namespace ksai {
 void VulkanPipelineBase::FillVertexInputDescriptions(
-     const spirv_cross::ShaderResources& Resources,
-     const spirv_cross::Compiler& comp,
-     std::vector<vk::VertexInputBindingDescription>& VertexInputBindingDesp,
-     std::vector<vk::VertexInputAttributeDescription>& InputAttrDescription) {
+     const spirv_cross::ShaderResources &Resources,
+     const spirv_cross::Compiler &comp,
+     std::vector<vk::VertexInputBindingDescription> &VertexInputBindingDesp,
+     std::vector<vk::VertexInputAttributeDescription> &InputAttrDescription) {
     {
         // uint32_t previousBindingIndex = 0;
         uint32_t AttributeOffset = 0;
         InputAttrDescription.resize(Resources.stage_inputs.size());
         v<ui> AttrSizes(InputAttrDescription.size());
         for (auto i = 0; i < Resources.stage_inputs.size(); i++) {
-            auto& u                    = Resources.stage_inputs[i];
+            auto &u                    = Resources.stage_inputs[i];
             spirv_cross::SPIRType type = comp.get_type(u.type_id);
             size_t AttributeSize       = 0; // TODO
             uint32_t location          = comp.get_decoration(u.id, spv::DecorationLocation);
@@ -59,9 +59,9 @@ void VulkanPipelineBase::FillVertexInputDescriptions(
         }
         std::sort(InputAttrDescription.begin(),
                   InputAttrDescription.end(),
-                  [](const auto& lhs, const auto& rhs) { return lhs.location < rhs.location; });
+                  [](const auto &lhs, const auto &rhs) { return lhs.location < rhs.location; });
 
-        for (ui off = 0, i = 0; auto& u : InputAttrDescription) {
+        for (ui off = 0, i = 0; auto &u : InputAttrDescription) {
             u.offset = off;
             off += AttrSizes[i];
             i++;
@@ -81,12 +81,12 @@ void VulkanPipelineBase::FillVertexInputDescriptions(
 namespace ksai {
 template <>
 VulkanPipeline<2, PipelineContext::Default>::VulkanPipeline(
-     const VulkanDevice& inDevice,
-     VulkanPipelineCache& inCache,
-     const VulkanPipelineContextBase& inContext,
-     const VulkanRenderPassBase& inRenderPass,
-     const VulkanPipelineLayoutBase& inLayout,
-     const std::vector<VulkanShaderModule>& inModules)
+     const VulkanDevice &inDevice,
+     VulkanPipelineCache &inCache,
+     const VulkanPipelineContextBase &inContext,
+     const VulkanRenderPassBase &inRenderPass,
+     const VulkanPipelineLayoutBase &inLayout,
+     const std::vector<VulkanShaderModule> &inModules)
     : VulkanPipelineBase(inDevice) {
     BuildPipeline(inCache, inContext, inRenderPass, inLayout, inModules, PipelineContext::Default);
 }
@@ -96,21 +96,21 @@ VulkanPipeline<2, PipelineContext::Default>::VulkanPipeline(
 namespace ksai {
 template <>
 VulkanPipeline<1, PipelineContext::Compute>::VulkanPipeline(
-     const VulkanDevice& inDevice,
-     VulkanPipelineCache& inCache,
-     const VulkanPipelineContextBase& inContext,
-     const VulkanRenderPassBase& inRenderPass,
-     const VulkanPipelineLayoutBase& inLayout,
-     const std::vector<VulkanShaderModule>& inModules)
+     const VulkanDevice &inDevice,
+     VulkanPipelineCache &inCache,
+     const VulkanPipelineContextBase &inContext,
+     const VulkanRenderPassBase &inRenderPass,
+     const VulkanPipelineLayoutBase &inLayout,
+     const std::vector<VulkanShaderModule> &inModules)
     : VulkanPipelineBase(inDevice) {
     BuildPipeline(inCache, inContext, inRenderPass, inLayout, inModules, PipelineContext::Compute);
 }
 
-void VulkanPipelineBase::BuildPipeline(VulkanPipelineCache& inCache,
-                                       const VulkanPipelineContextBase& inContext,
-                                       const VulkanRenderPassBase& inRenderPass,
-                                       const VulkanPipelineLayoutBase& inLayout,
-                                       const std::vector<VulkanShaderModule>& inModules,
+void VulkanPipelineBase::BuildPipeline(VulkanPipelineCache &inCache,
+                                       const VulkanPipelineContextBase &inContext,
+                                       const VulkanRenderPassBase &inRenderPass,
+                                       const VulkanPipelineLayoutBase &inLayout,
+                                       const std::vector<VulkanShaderModule> &inModules,
                                        PipelineContext inPipelineContext,
                                        ui inSubpass) {
     if (inPipelineContext == PipelineContext::Compute) {
@@ -123,12 +123,12 @@ void VulkanPipelineBase::BuildPipeline(VulkanPipelineCache& inCache,
                                                "n");
         auto ComputePipelineCreateInfo = vk::ComputePipelineCreateInfo(
              vk::PipelineCreateFlags(), ShaderStageCreateInfo, inLayout.GetPipelineLayoutHandle());
-        auto Result = mDevice.createComputePipeline(inCache.GetPipelineCacheHandle(),
-                                                    ComputePipelineCreateInfo);
+        auto Result = mDevice->createComputePipeline(inCache.GetPipelineCacheHandle(),
+                                                     ComputePipelineCreateInfo);
         mPipeline   = Result.value;
     } else {
-        auto& VertexShaderCompiler  = inModules[0].GetShaderResourcesCompilerHandle();
-        auto& VertexShaderResources = inModules[0].GetShaderResourcesHandle();
+        auto &VertexShaderCompiler  = inModules[0].GetShaderResourcesCompilerHandle();
+        auto &VertexShaderResources = inModules[0].GetShaderResourcesHandle();
         std::vector<vk::VertexInputBindingDescription> VertexInputBindingDesp;
 
         std::vector<vk::VertexInputAttributeDescription> InputAttrDescription;
@@ -243,11 +243,11 @@ void VulkanPipelineBase::BuildPipeline(VulkanPipelineCache& inCache,
         GraphicsPipelineCreateInfo.setSubpass(inSubpass);
         GraphicsPipelineCreateInfo.setRenderPass(inRenderPass.GetRenderPassHandle())
              .setLayout(inLayout.GetPipelineLayoutHandle());
-        mPipeline = mDevice.createGraphicsPipeline(nullptr, GraphicsPipelineCreateInfo).value;
+        mPipeline = mDevice->createGraphicsPipeline(nullptr, GraphicsPipelineCreateInfo).value;
     }
 }
 
-void VulkanPipelineBase::DrawIndexed(const VulkanCommandBuffer& inCmdBuffer,
+void VulkanPipelineBase::DrawIndexed(const VulkanCommandBuffer &inCmdBuffer,
                                      int32_t inIndexCount,
                                      int32_t inInstanceCount,
                                      int32_t inFirstIndex,
@@ -258,11 +258,22 @@ void VulkanPipelineBase::DrawIndexed(const VulkanCommandBuffer& inCmdBuffer,
 }
 
 VulkanPipelineBase::~VulkanPipelineBase() {
-    mDevice.waitIdle();
-    mDevice.destroyPipeline(mPipeline);
+    if (mInitialized) {
+        Destroy();
+    }
 }
 
-VulkanPipelineBase::VulkanPipelineBase(const VulkanDevice& inDevice)
-    : mDevice(inDevice.GetDeviceHandle()) {}
+VulkanPipelineBase::VulkanPipelineBase(const VulkanDevice &inDevice) { Init({&inDevice}); }
+
+void VulkanPipelineBase::Init(CreateInfo info) {
+    mDevice      = &info.inDevice->GetDeviceHandle();
+    mInitialized = true;
+}
+
+void VulkanPipelineBase::Destroy() {
+    mDevice->waitIdle();
+    mDevice->destroyPipeline(mPipeline);
+    mInitialized = false;
+}
 
 } // namespace ksai

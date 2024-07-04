@@ -15,33 +15,60 @@ enum class PipelineContext {
 namespace ksai {
 class VulkanPipelineLayoutBase {
     public:
-    VulkanPipelineLayoutBase(const VulkanDevice& inDevice) : mDevice(inDevice.GetDeviceHandle()) {}
-    ~VulkanPipelineLayoutBase() { mDevice.destroyPipelineLayout(mPipelineLayout); }
+    struct CreateInfo {
+        const VulkanDevice *inDevice;
+    };
 
-    void FillPushConstantRanges(const spirv_cross::ShaderResources& VertexResources,
-                                const spirv_cross::Compiler& inVertexComp,
-                                const spirv_cross::ShaderResources& inFragmentResources,
-                                const spirv_cross::Compiler& inFragmentComp,
-                                std::vector<vk::PushConstantRange>& PushConstantRanges);
+    VulkanPipelineLayoutBase() = default;
+    ~VulkanPipelineLayoutBase();
+    VulkanPipelineLayoutBase(const VulkanPipelineLayoutBase &other)            = delete;
+    VulkanPipelineLayoutBase &operator=(const VulkanPipelineLayoutBase &other) = delete;
+    VulkanPipelineLayoutBase(VulkanPipelineLayoutBase &&other)                 = default;
+    VulkanPipelineLayoutBase &operator=(VulkanPipelineLayoutBase &&other)      = default;
+
+    void Init(CreateInfo inCreateInfo);
+    void Destroy();
+
+    VulkanPipelineLayoutBase(const VulkanDevice &inDevice) { Init({&inDevice}); }
+
+    void FillPushConstantRanges(const spirv_cross::ShaderResources &VertexResources,
+                                const spirv_cross::Compiler &inVertexComp,
+                                const spirv_cross::ShaderResources &inFragmentResources,
+                                const spirv_cross::Compiler &inFragmentComp,
+                                std::vector<vk::PushConstantRange> &PushConstantRanges);
 
     public:
-    GETTER& GetPipelineLayoutHandle() const { return mPipelineLayout; }
+    GETTER &GetPipelineLayoutHandle() const { return mPipelineLayout; }
 
     protected:
-    const vk::Device& mDevice;
+    const vk::Device *mDevice;
     vk::PipelineLayout mPipelineLayout;
+    bool mInitialized = false;
 };
 } // namespace ksai
 
 namespace ksai {
 template <size_t NoOfShaderModules> class VulkanPipelineLayout : public VulkanPipelineLayoutBase {
     public:
-    VulkanPipelineLayout(const VulkanDevice& inDevice,
-                         const VulkanDescriptorSetLayoutBase& inDescriptorSetLayout,
-                         const std::vector<VulkanShaderModule>& inModules);
-    ~VulkanPipelineLayout() = default;
+    struct CreateInfo {
+        const VulkanDevice *inDevice;
+        const VulkanDescriptorSetLayoutBase *inDescriptorSetLayout;
+        const std::vector<VulkanShaderModule> *inModules;
+    };
+
+    VulkanPipelineLayout()                                             = default;
+    ~VulkanPipelineLayout()                                            = default;
+    VulkanPipelineLayout(const VulkanPipelineLayout &other)            = delete;
+    VulkanPipelineLayout &operator=(const VulkanPipelineLayout &other) = delete;
+    VulkanPipelineLayout(VulkanPipelineLayout &&other)                 = default;
+    VulkanPipelineLayout &operator=(VulkanPipelineLayout &&other)      = default;
+    operator vk::PipelineLayout() const { return mPipelineLayout; }
+
+    VulkanPipelineLayout(const VulkanDevice &inDevice,
+                         const VulkanDescriptorSetLayoutBase &inDescriptorSetLayout,
+                         const std::vector<VulkanShaderModule> &inModules);
 
     private:
-    const std::vector<VulkanShaderModule>& mModules;
+    const std::vector<VulkanShaderModule> &mModules;
 };
 } // namespace ksai

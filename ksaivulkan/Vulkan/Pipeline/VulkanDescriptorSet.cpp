@@ -4,26 +4,18 @@ using namespace ksai;
 static std::mutex mMutex;
 
 ksai::VulkanDescriptorSet::VulkanDescriptorSet(
-     const VulkanDevice& inDevice,
-     const VulkanDescriptorPoolBase& inDescriptorPool,
-     const VulkanDescriptorSetLayoutBase& inDescriptorSetLayout)
-    : mDevice(inDevice.GetDeviceHandle()), mDescriptorPool(inDescriptorPool) {
-    vk::DescriptorSetAllocateInfo DescriptorSetAllocateInfo(
-         inDescriptorPool.GetDescriptorPoolHandle(),
-         inDescriptorSetLayout.GetDescriptorLayoutHandle());
-    {
-        std::scoped_lock<std::mutex> lock(mMutex);
-        mVulkanDescriptorSetHandles =
-             inDevice.GetDeviceHandle().allocateDescriptorSets(DescriptorSetAllocateInfo);
-    }
+     const VulkanDevice &inDevice,
+     const VulkanDescriptorPoolBase &inDescriptorPool,
+     const VulkanDescriptorSetLayoutBase &inDescriptorSetLayout) {
+    Init({&inDevice, &inDescriptorPool, &inDescriptorSetLayout});
 }
 
+// TODO Fix this
 ksai::VulkanDescriptorSet::VulkanDescriptorSet(
-     const VulkanDevice& inDevice,
-     const VulkanDescriptorPoolBase& inDescriptorPool,
-     const VulkanDescriptorSetLayoutBase& inDescriptorSetLayout,
-     uint32_t inNoOfVarDescriptorSets)
-    : mDevice(inDevice.GetDeviceHandle()), mDescriptorPool(inDescriptorPool) {
+     const VulkanDevice &inDevice,
+     const VulkanDescriptorPoolBase &inDescriptorPool,
+     const VulkanDescriptorSetLayoutBase &inDescriptorSetLayout,
+     uint32_t inNoOfVarDescriptorSets) {
     vk::DescriptorSetAllocateInfo DescriptorSetAllocateInfo(
          inDescriptorPool.GetDescriptorPoolHandle(),
          inDescriptorSetLayout.GetDescriptorLayoutHandle());
@@ -42,12 +34,26 @@ ksai::VulkanDescriptorSet::VulkanDescriptorSet(
 }
 
 void VulkanDescriptorSet::Bind(vk::PipelineBindPoint inBindPoint,
-                               const VulkanCommandBuffer& inBuffer,
-                               const VulkanPipelineLayoutBase& inPipelineLayout,
+                               const VulkanCommandBuffer &inBuffer,
+                               const VulkanPipelineLayoutBase &inPipelineLayout,
                                int inSet) {
     inBuffer.GetCommandBufferHandle().bindDescriptorSets(inBindPoint,
                                                          inPipelineLayout.GetPipelineLayoutHandle(),
                                                          inSet,
                                                          mVulkanDescriptorSetHandles[inSet],
                                                          {});
+}
+
+void VulkanDescriptorSet::Init(CreateInfo info) {
+    mDevice         = &info.inDevice->GetDeviceHandle();
+    mDescriptorPool = info.inDescriptorPool;
+    vk::DescriptorSetAllocateInfo DescriptorSetAllocateInfo(
+         info.inDescriptorPool->GetDescriptorPoolHandle(),
+         info.inDescriptorSetLayout->GetDescriptorLayoutHandle());
+    {
+        std::scoped_lock<std::mutex> lock(mMutex);
+        mVulkanDescriptorSetHandles =
+             info.inDevice->GetDeviceHandle().allocateDescriptorSets(DescriptorSetAllocateInfo);
+    }
+    mInitialized = true;
 }
