@@ -7,28 +7,42 @@
 namespace ksai {
 class VulkanBufferVMA : public VulkanBufferBase {
     public:
-    vk::Buffer operator()(const VulkanBufferBase&) { return mBufferHandle; }
-    void MapMemoryRegion(void** outMappedMemoryRegion);
+    struct CreateInfo {
+        const VulkanVMA *inVMA;
+        const VulkanDevice *inDevice;
+        size_t inSize;
+        BufferContext inBufferContext;
+        MemoryType inBufferMemoryType;
+    };
+
+    VulkanBufferVMA() = default;
+    ~VulkanBufferVMA();
+    VulkanBufferVMA(const VulkanBufferVMA &other)            = delete;
+    VulkanBufferVMA &operator=(const VulkanBufferVMA &other) = delete;
+    VulkanBufferVMA(VulkanBufferVMA &&other)                 = default;
+    VulkanBufferVMA &operator=(VulkanBufferVMA &&other)      = default;
+
+    void Init(CreateInfo inCreateInfo);
+    void Destroy();
+    vk::Buffer operator()(const VulkanBufferBase &) { return mBufferHandle; }
+
+    void MapMemoryRegion(void **outMappedMemoryRegion);
     void UnMapMemoryRegion();
     void FlushMemoryRanges(vk::DeviceSize inOffset, vk::DeviceSize inSize) {
-        vmaFlushAllocation(mAllocator.GetVMAHandle(), mAllocation, inOffset, inSize);
+        vmaFlushAllocation(mAllocator->GetVMAHandle(), mAllocation, inOffset, inSize);
     }
 
     public:
-    VulkanBufferVMA(const VulkanVMA& inVMA,
-                    const VulkanDevice& inDevice,
+    VulkanBufferVMA(const VulkanVMA &inVMA,
+                    const VulkanDevice &inDevice,
                     size_t inSize,
                     BufferContext inBufferContext,
                     MemoryType inBufferStorageType);
-    ~VulkanBufferVMA() {
-        if (mMemoryMapped) vmaUnmapMemory(mAllocator.GetVMAHandle(), mAllocation);
-        mDevice.waitIdle();
-        vmaDestroyBuffer(mAllocator.GetVMAHandle(), mBufferHandle, mAllocation);
-    };
 
     private:
-    const VulkanVMA& mAllocator;
+    const VulkanVMA *mAllocator;
     VmaAllocation mAllocation;
     bool mMemoryMapped = false;
+    bool mInitialized  = false;
 };
 } // namespace ksai

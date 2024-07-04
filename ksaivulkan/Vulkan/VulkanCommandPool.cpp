@@ -1,17 +1,28 @@
 #include "VulkanCommandPool.hpp"
 using namespace ksai;
 
-VulkanCommandPool::VulkanCommandPool(const VulkanDevice & inDevice, const VulkanQueueContext& inContext) : mDevice(inDevice.GetDeviceHandle())
-{
-	auto CommandPoolCreateInfo = vk::CommandPoolCreateInfo(
-		vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
-		inContext.GetGraphicsQueueFamilyIndex()
-	);
-	mPool = mDevice.createCommandPool(CommandPoolCreateInfo);
+VulkanCommandPool::VulkanCommandPool(const VulkanDevice &inDevice,
+                                     const VulkanQueueContext &inContext) {
+    Init({&inDevice, &inContext});
 }
 
-VulkanCommandPool::~VulkanCommandPool()
-{
-	mDevice.waitIdle();
-	mDevice.destroyCommandPool(mPool);
+VulkanCommandPool::~VulkanCommandPool() {
+    if (mInitialized) {
+        Destroy();
+    }
+}
+
+void VulkanCommandPool::Init(CreateInfo info) {
+    mDevice = &info.inDevice->GetDeviceHandle();
+    auto CommandPoolCreateInfo =
+         vk::CommandPoolCreateInfo(vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
+                                   info.inQueueContext->GetGraphicsQueueFamilyIndex());
+    mPool        = mDevice->createCommandPool(CommandPoolCreateInfo);
+    mInitialized = true;
+}
+
+void VulkanCommandPool::Destroy() {
+    mDevice->waitIdle();
+    mDevice->destroyCommandPool(mPool);
+    mInitialized = false;
 }

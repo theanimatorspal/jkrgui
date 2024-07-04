@@ -5,29 +5,39 @@
 using namespace ksai;
 using vb = VulkanCommandBuffer;
 
-vb::VulkanCommandBuffer(const VulkanDevice& inDevice,
-                        const VulkanCommandPool& inPool,
-                        vb::Type inContext)
-    : mDevice(inDevice.GetDeviceHandle()) {
-    vk::CommandBufferAllocateInfo CommandBufferAllocateInfo;
-    if (inContext == Type::Primary) {
-        CommandBufferAllocateInfo = vk::CommandBufferAllocateInfo(
-             inPool.GetCommandPoolHandle(), vk::CommandBufferLevel::ePrimary, 1);
-    } else {
-        CommandBufferAllocateInfo = vk::CommandBufferAllocateInfo(
-             inPool.GetCommandPoolHandle(), vk::CommandBufferLevel::eSecondary, 1);
-    }
-
-    mBuffer = mDevice.allocateCommandBuffers(CommandBufferAllocateInfo).front();
+vb::VulkanCommandBuffer(const VulkanDevice &inDevice,
+                        const VulkanCommandPool &inPool,
+                        vb::Type inContext) {
+    Init({&inDevice, &inPool, inContext});
 }
 
-vb::~VulkanCommandBuffer() {}
+void VulkanCommandBuffer::Init(CreateInfo inCreateInfo) {
+    mDevice = &inCreateInfo.inDevice->GetDeviceHandle();
+    vk::CommandBufferAllocateInfo CommandBufferAllocateInfo;
+    if (inCreateInfo.inContext == Type::Primary) {
+        CommandBufferAllocateInfo = vk::CommandBufferAllocateInfo(
+             inCreateInfo.inPool->GetCommandPoolHandle(), vk::CommandBufferLevel::ePrimary, 1);
+    } else {
+        CommandBufferAllocateInfo = vk::CommandBufferAllocateInfo(
+             inCreateInfo.inPool->GetCommandPoolHandle(), vk::CommandBufferLevel::eSecondary, 1);
+    }
+
+    mBuffer      = mDevice->allocateCommandBuffers(CommandBufferAllocateInfo).front();
+    mInitialized = true;
+}
+void VulkanCommandBuffer::Destroy() { mInitialized = false; }
+
+vb::~VulkanCommandBuffer() {
+    if (mInitialized) {
+        Destroy();
+    }
+}
 
 template <>
 void vb::BeginRenderPass<vb::RenderPassBeginContext::Inline>(
-     const VulkanRenderPassBase& inRenderPass,
+     const VulkanRenderPassBase &inRenderPass,
      const vk::Extent2D inExtent,
-     const VulkanFrameBufferBase& inFrameBuffer,
+     const VulkanFrameBufferBase &inFrameBuffer,
      std::array<float, 5> inClearValue) const {
     std::array<vk::ClearValue, 2> ClearValues;
     ClearValues[0].color =
@@ -53,9 +63,9 @@ void vb::BeginRenderPass<vb::RenderPassBeginContext::Inline>(
 
 template <>
 void vb::BeginRenderPass<vb::RenderPassBeginContext::SecondaryCommandBuffers>(
-     const VulkanRenderPassBase& inRenderPass,
+     const VulkanRenderPassBase &inRenderPass,
      const vk::Extent2D inExtent,
-     const VulkanFrameBufferBase& inFrameBuffer,
+     const VulkanFrameBufferBase &inFrameBuffer,
      std::array<float, 5> inClearValue) const {
     std::array<vk::ClearValue, 2> ClearValues;
     ClearValues[0].color =
@@ -82,9 +92,9 @@ template <> void vb::Begin<vb::BeginContext::ContinueRenderPass>() const {
 }
 
 template <>
-void vb::Begin<vb::BeginContext::ContinueRenderPass>(VulkanRenderPassBase& inRenderPass,
+void vb::Begin<vb::BeginContext::ContinueRenderPass>(VulkanRenderPassBase &inRenderPass,
                                                      ui inSubpass,
-                                                     VulkanFrameBufferBase& inFrameBuffer) const {
+                                                     VulkanFrameBufferBase &inFrameBuffer) const {
     vk::CommandBufferBeginInfo info(vk::CommandBufferUsageFlagBits::eRenderPassContinue);
     vk::CommandBufferInheritanceInfo inheritanceInfo(
          inRenderPass.GetRenderPassHandle(), inSubpass, inFrameBuffer.GetFrameBufferHandle());
@@ -94,7 +104,7 @@ void vb::Begin<vb::BeginContext::ContinueRenderPass>(VulkanRenderPassBase& inRen
 
 template <>
 void vb::Begin<vb::BeginContext::ContinueRenderPassAndOneTimeSubmit>(
-     VulkanRenderPassBase& inRenderPass, ui inSubpass, VulkanFrameBufferBase& inFrameBuffer) const {
+     VulkanRenderPassBase &inRenderPass, ui inSubpass, VulkanFrameBufferBase &inFrameBuffer) const {
     vk::CommandBufferBeginInfo info(vk::CommandBufferUsageFlagBits::eRenderPassContinue |
                                     vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
     vk::CommandBufferInheritanceInfo inheritanceInfo(

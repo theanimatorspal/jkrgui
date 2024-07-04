@@ -17,33 +17,49 @@ class VulkanCommandBuffer {
         ContinueRenderPassAndOneTimeSubmit
     };
 
-    VulkanCommandBuffer(const VulkanDevice& inDevice,
-                        const VulkanCommandPool& inPool,
-                        Type inContext = Type::Primary);
+    struct CreateInfo {
+        const VulkanDevice *inDevice    = nullptr;
+        const VulkanCommandPool *inPool = nullptr;
+        Type inContext                  = Type::Primary;
+    };
+
+    VulkanCommandBuffer() = default;
     ~VulkanCommandBuffer();
-    GETTER& GetCommandBufferHandle() const { return mBuffer; }
+    VulkanCommandBuffer(const VulkanCommandBuffer &other)            = delete;
+    VulkanCommandBuffer &operator=(const VulkanCommandBuffer &other) = delete;
+    VulkanCommandBuffer(VulkanCommandBuffer &&other)                 = default;
+    VulkanCommandBuffer &operator=(VulkanCommandBuffer &&other)      = default;
+    operator vk::CommandBuffer() const { return mBuffer; }
+
+    void Init(CreateInfo inCreateInfo);
+    void Destroy();
+
+    VulkanCommandBuffer(const VulkanDevice &inDevice,
+                        const VulkanCommandPool &inPool,
+                        Type inContext = Type::Primary);
+    GETTER &GetCommandBufferHandle() const { return mBuffer; }
     template <BeginContext inContext = BeginContext::Normal> void Begin() const;
 
     template <BeginContext inContext = BeginContext::Normal>
-    void Begin(VulkanRenderPassBase& inRenderPass,
+    void Begin(VulkanRenderPassBase &inRenderPass,
                ksai::ui inSubpass,
-               VulkanFrameBufferBase& inFrameBuffer) const;
+               VulkanFrameBufferBase &inFrameBuffer) const;
     void Reset() const { mBuffer.reset(); }
     void End() const { mBuffer.end(); }
-    void ExecuteCommands(const VulkanCommandBuffer& inBuffer) const {
+    void ExecuteCommands(const VulkanCommandBuffer &inBuffer) const {
         mBuffer.executeCommands(inBuffer.mBuffer);
     }
 
     enum class RenderPassBeginContext { Inline, SecondaryCommandBuffers };
     template <RenderPassBeginContext inBeginContext = RenderPassBeginContext::Inline>
-    void BeginRenderPass(const VulkanRenderPassBase& inRenderPass,
+    void BeginRenderPass(const VulkanRenderPassBase &inRenderPass,
                          const vk::Extent2D inSurface,
-                         const VulkanFrameBufferBase& inFrameBuffer,
+                         const VulkanFrameBufferBase &inFrameBuffer,
                          std::array<float, 5> inClearValue) const;
 
     void EndRenderPass() const;
     template <class T>
-    void PushConstants(const VulkanPipelineLayoutBase& inPipelineLayout,
+    void PushConstants(const VulkanPipelineLayoutBase &inPipelineLayout,
                        const vk::ArrayProxy<const T> inValues) const {
         mBuffer.pushConstants<T>(inPipelineLayout.GetPipelineLayoutHandle(),
                                  vk::ShaderStageFlagBits::eVertex |
@@ -52,8 +68,8 @@ class VulkanCommandBuffer {
                                  0,
                                  inValues);
     }
-    void SetViewport(const VulkanSurface& inSurface) {
-        const auto& Extent = inSurface.GetExtent();
+    void SetViewport(const VulkanSurface &inSurface) {
+        const auto &Extent = inSurface.GetExtent();
         mBuffer.setViewport(0,
                             vk::Viewport(0.0f,
                                          0.0f,
@@ -62,14 +78,15 @@ class VulkanCommandBuffer {
                                          0.0f,
                                          1.0f));
     }
-    void SetScissor(const VulkanSurface& inSurface) {
-        const auto& Extent = inSurface.GetExtent();
+    void SetScissor(const VulkanSurface &inSurface) {
+        const auto &Extent = inSurface.GetExtent();
         mBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), Extent));
     }
 
     private:
-    const vk::Device& mDevice;
+    const vk::Device *mDevice;
     vk::CommandBuffer mBuffer;
+    bool mInitialized = false;
 };
 
 } // namespace ksai

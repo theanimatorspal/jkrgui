@@ -2,15 +2,24 @@
 
 using namespace ksai;
 
-ksai::VulkanBufferBase::VulkanBufferBase(const VulkanDevice& inDevice)
-    : mVulkanDevice(inDevice),
-      mDevice(inDevice.GetDeviceHandle()),
-      mPhysicalDevice(inDevice.GetPhysicalDeviceHandle()) {}
+ksai::VulkanBufferBase::VulkanBufferBase(const VulkanDevice &inDevice) { Init({&inDevice}); }
+
+void VulkanBufferBase::Init(CreateInfo inCreateInfo) {
+    mDevice         = &inCreateInfo.inDevice->GetDeviceHandle();
+    mVulkanDevice   = inCreateInfo.inDevice;
+    mPhysicalDevice = &inCreateInfo.inDevice->GetPhysicalDeviceHandle();
+    mInitialized    = true;
+}
+void VulkanBufferBase::Destroy() { mInitialized = false; }
+
+VulkanBufferBase::~VulkanBufferBase() {
+    if (mInitialized) Destroy();
+};
 
 void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFrom(
-     const VulkanQueue<QueueContext::Graphics>& inQueue,
-     const VulkanCommandBuffer& inCmdBuffer,
-     void* inData) {
+     const VulkanQueue<QueueContext::Graphics> &inQueue,
+     const VulkanCommandBuffer &inCmdBuffer,
+     void *inData) {
     uint32_t MemoryIndex;
     vk::DeviceSize MemorySize;
     GetMemoryTypeIndex(vk::MemoryPropertyFlagBits::eHostVisible |
@@ -20,25 +29,25 @@ void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFrom(
                        MemoryIndex);
     auto StagingBufferCreateInfo = vk::BufferCreateInfo(
          vk::BufferCreateFlags(), MemorySize, vk::BufferUsageFlagBits::eTransferSrc);
-    auto StagingBuffer = mDevice.createBuffer(StagingBufferCreateInfo);
+    auto StagingBuffer = mDevice->createBuffer(StagingBufferCreateInfo);
     auto StagingBufferMemory =
-         mDevice.allocateMemory(vk::MemoryAllocateInfo(MemorySize, MemoryIndex));
-    mDevice.bindBufferMemory(StagingBuffer, StagingBufferMemory, 0);
-    uint8_t* pData = static_cast<uint8_t*>(mDevice.mapMemory(StagingBufferMemory, 0, MemorySize));
+         mDevice->allocateMemory(vk::MemoryAllocateInfo(MemorySize, MemoryIndex));
+    mDevice->bindBufferMemory(StagingBuffer, StagingBufferMemory, 0);
+    uint8_t *pData = static_cast<uint8_t *>(mDevice->mapMemory(StagingBufferMemory, 0, MemorySize));
     std::memcpy(pData, inData, MemorySize);
-    mDevice.unmapMemory(StagingBufferMemory);
-    const vk::CommandBuffer& Cmd = inCmdBuffer.GetCommandBufferHandle();
+    mDevice->unmapMemory(StagingBufferMemory);
+    const vk::CommandBuffer &Cmd = inCmdBuffer.GetCommandBufferHandle();
     Cmd.begin(vk::CommandBufferBeginInfo());
     std::array<vk::BufferCopy, 1> Regions = {vk::BufferCopy(0, 0, MemorySize)};
     inCmdBuffer.GetCommandBufferHandle().copyBuffer(StagingBuffer, mBufferHandle, Regions);
     Cmd.end();
     inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer);
-    mDevice.freeMemory(StagingBufferMemory);
-    mDevice.destroyBuffer(StagingBuffer);
+    mDevice->freeMemory(StagingBufferMemory);
+    mDevice->destroyBuffer(StagingBuffer);
 }
 
-void ksai::VulkanBufferBase::CmdCopyFrom(const VulkanCommandBuffer& inCmdBuffer,
-                                         VulkanBufferBase& inBuffer,
+void ksai::VulkanBufferBase::CmdCopyFrom(const VulkanCommandBuffer &inCmdBuffer,
+                                         VulkanBufferBase &inBuffer,
                                          vk::DeviceSize FromBufferOffset,
                                          vk::DeviceSize ToBufferOffset,
                                          vk::DeviceSize inSizeToCopy) {
@@ -48,7 +57,7 @@ void ksai::VulkanBufferBase::CmdCopyFrom(const VulkanCommandBuffer& inCmdBuffer,
          inBuffer.mBufferHandle, mBufferHandle, BufferCopyRegion);
 }
 
-void ksai::VulkanBufferBase::SetBarrier(const VulkanCommandBuffer& inCmdBuffer,
+void ksai::VulkanBufferBase::SetBarrier(const VulkanCommandBuffer &inCmdBuffer,
                                         vk::DeviceSize inDstBufferOffset,
                                         vk::DeviceSize inSizeToCopy,
                                         vk::AccessFlags inBeforeAccess,
@@ -68,10 +77,10 @@ void ksai::VulkanBufferBase::SetBarrier(const VulkanCommandBuffer& inCmdBuffer,
 
 void ksai::VulkanBufferBase::GetMemoryTypeIndex(vk::MemoryPropertyFlags inFlag,
                                                 vk::Buffer inBuffer,
-                                                vk::DeviceSize& outSize,
-                                                uint32_t& outIndex) {
-    vk::PhysicalDeviceMemoryProperties memoryProperties = mPhysicalDevice.getMemoryProperties();
-    vk::MemoryRequirements memoryRequirements = mDevice.getBufferMemoryRequirements(inBuffer);
+                                                vk::DeviceSize &outSize,
+                                                uint32_t &outIndex) {
+    vk::PhysicalDeviceMemoryProperties memoryProperties = mPhysicalDevice->getMemoryProperties();
+    vk::MemoryRequirements memoryRequirements = mDevice->getBufferMemoryRequirements(inBuffer);
     uint32_t typeBits                         = memoryRequirements.memoryTypeBits;
     uint32_t typeIndex                        = uint32_t(~0);
     for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++) {
@@ -86,21 +95,21 @@ void ksai::VulkanBufferBase::GetMemoryTypeIndex(vk::MemoryPropertyFlags inFlag,
     }
 }
 
-void ksai::VulkanBufferBase::CmdCopyFromImage(const VulkanCommandBuffer& inCmdBuffer,
-                                              const VulkanImageBase& inImage,
+void ksai::VulkanBufferBase::CmdCopyFromImage(const VulkanCommandBuffer &inCmdBuffer,
+                                              const VulkanImageBase &inImage,
                                               vk::PipelineStageFlags inAfterStage,
                                               vk::AccessFlags inAfterAccessFlags) const {
     // TODO
 }
 
 void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFromImage(
-     const VulkanQueue<QueueContext::Graphics>& inQueue,
-     const VulkanCommandBuffer& inCmdBuffer,
-     VulkanImageBase& inImage) const {
+     const VulkanQueue<QueueContext::Graphics> &inQueue,
+     const VulkanCommandBuffer &inCmdBuffer,
+     VulkanImageBase &inImage) const {
     auto ImageExtent  = inImage.GetImageExtent();
     auto CopySize     = ImageExtent.width * ImageExtent.height * 4; // TODO don't hardcode this
     auto srcImageProp = inImage.GetImageProperty();
-    const vk::CommandBuffer& Cmd = inCmdBuffer.GetCommandBufferHandle();
+    const vk::CommandBuffer &Cmd = inCmdBuffer.GetCommandBufferHandle();
 
     Cmd.begin(vk::CommandBufferBeginInfo());
     auto ImageSubResource =
@@ -129,7 +138,7 @@ void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFromImage(
     inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer);
 }
 
-void VulkanBufferBase::FillBufferUsage(vk::BufferCreateInfo& inInfo,
+void VulkanBufferBase::FillBufferUsage(vk::BufferCreateInfo &inInfo,
                                        BufferContext inBufferContext,
                                        MemoryType inBufferStorageType) {
     // if (inBufferContext == BufferContext::Vertex)
@@ -165,52 +174,67 @@ void VulkanBufferBase::FillBufferUsage(vk::BufferCreateInfo& inInfo,
                     vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst);
 }
 
-void VulkanBuffer::MapMemoryRegion(void** outMappedMemoryRegion) {
+void VulkanBuffer::MapMemoryRegion(void **outMappedMemoryRegion) {
     *outMappedMemoryRegion =
-         static_cast<void*>(mDevice.mapMemory(mBufferMemory, 0, GetBufferSize()));
+         static_cast<void *>(mDevice->mapMemory(mBufferMemory, 0, GetBufferSize()));
     mIsMemoryMapped = true;
 }
 void VulkanBuffer::UnMapMemoryRegion() {
-    mDevice.unmapMemory(mBufferMemory);
+    mDevice->unmapMemory(mBufferMemory);
 
     mIsMemoryMapped = false;
 }
 
-VulkanBuffer::VulkanBuffer(const VulkanDevice& inDevice,
+VulkanBuffer::VulkanBuffer(const VulkanDevice &inDevice,
                            size_t inSize,
                            BufferContext inBufferContext,
-                           MemoryType inBufferMemoryType)
-    : VulkanBufferBase(inDevice) {
-    mSize      = inSize;
+                           MemoryType inBufferMemoryType) {
+    Init({&inDevice, inSize, inBufferContext, inBufferMemoryType});
+}
+
+VulkanBuffer::~VulkanBuffer() {
+    if (mInitialized) {
+        Destroy();
+    }
+}
+
+void VulkanBuffer::Init(CreateInfo inCreateInfo) {
+    VulkanBufferBase::Init({inCreateInfo.inDevice});
+    mSize      = inCreateInfo.inSize;
     auto Usage = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
 
-    if (inBufferContext == BufferContext::Staging) Usage = vk::BufferUsageFlagBits::eTransferSrc;
+    if (inCreateInfo.inBufferContext == BufferContext::Staging)
+        Usage = vk::BufferUsageFlagBits::eTransferSrc;
 
-    auto BufferCreateInfo = vk::BufferCreateInfo(vk::BufferCreateFlags(), inSize, Usage);
-    FillBufferUsage(BufferCreateInfo, inBufferContext, inBufferMemoryType);
+    auto BufferCreateInfo =
+         vk::BufferCreateInfo(vk::BufferCreateFlags(), inCreateInfo.inSize, Usage);
+    FillBufferUsage(
+         BufferCreateInfo, inCreateInfo.inBufferContext, inCreateInfo.inBufferMemoryType);
 
-    mBufferHandle = mDevice.createBuffer(BufferCreateInfo);
+    mBufferHandle = mDevice->createBuffer(BufferCreateInfo);
 
     uint32_t MemoryTypeIndex;
     vk::DeviceSize MemorySize;
     vk::MemoryPropertyFlags MemoryPropertyFlagBits;
 
-    if (inBufferMemoryType == MemoryType::DeviceLocal)
+    if (inCreateInfo.inBufferMemoryType == MemoryType::DeviceLocal)
         MemoryPropertyFlagBits = vk::MemoryPropertyFlagBits::eDeviceLocal;
-    else if (inBufferMemoryType == MemoryType::HostVisibleAndCoherenet)
+    else if (inCreateInfo.inBufferMemoryType == MemoryType::HostVisibleAndCoherenet)
         MemoryPropertyFlagBits =
              vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
 
     GetMemoryTypeIndex(MemoryPropertyFlagBits, mBufferHandle, MemorySize, MemoryTypeIndex);
-    mBufferMemory = mDevice.allocateMemory(vk::MemoryAllocateInfo(MemorySize, MemoryTypeIndex));
-    mDevice.bindBufferMemory(mBufferHandle, mBufferMemory, 0);
+    mBufferMemory = mDevice->allocateMemory(vk::MemoryAllocateInfo(MemorySize, MemoryTypeIndex));
+    mDevice->bindBufferMemory(mBufferHandle, mBufferMemory, 0);
+    mInitialized = true;
 }
 
-VulkanBuffer::~VulkanBuffer() {
+void VulkanBuffer::Destroy() {
     if (mIsMemoryMapped) {
-        mDevice.unmapMemory(mBufferMemory);
+        mDevice->unmapMemory(mBufferMemory);
     }
-    mVulkanDevice.Wait();
-    mDevice.destroyBuffer(mBufferHandle);
-    mDevice.freeMemory(mBufferMemory);
+    mVulkanDevice->Wait();
+    mDevice->destroyBuffer(mBufferHandle);
+    mDevice->freeMemory(mBufferMemory);
+    mInitialized = false;
 }

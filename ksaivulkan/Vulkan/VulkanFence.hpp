@@ -6,15 +6,30 @@ namespace ksai {
 
 class VulkanFence {
     public:
-    VulkanFence(const VulkanDevice& inDevice);
+    struct CreateInfo {
+        const VulkanDevice *inDevice;
+    };
+
+    VulkanFence() = default;
     ~VulkanFence();
+    VulkanFence(const VulkanFence &other)            = delete;
+    VulkanFence &operator=(const VulkanFence &other) = delete;
+    VulkanFence(VulkanFence &&other)                 = default;
+    VulkanFence &operator=(VulkanFence &&other)      = default;
+    operator vk::Fence() const { return mFence; }
+
+    void Init(CreateInfo inCreateInfo);
+    void Destroy();
+
+    VulkanFence(const VulkanDevice &inDevice);
     vk::Result Wait() const;
     void Reset() const;
-    GETTER& GetFenceHandle() const { return mFence; }
+    GETTER &GetFenceHandle() const { return mFence; }
 
     private:
-    const vk::Device& mDevice;
+    const vk::Device *mDevice;
     vk::Fence mFence;
+    bool mInitialized = false;
 };
 
 } // namespace ksai
