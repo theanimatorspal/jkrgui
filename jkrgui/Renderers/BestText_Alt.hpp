@@ -24,7 +24,7 @@ struct BestText_Alt {
     void UpdateEXT(ImageId inId, ui inFontId, glm::vec3 inPos, const sv inText);
     void UpdatePosOnlyEXT(ImageId inId, ui inFontId, glm::vec3 inPos, const sv inText);
     void DrawEXT(
-         ImageId inId, Window& inWindow, glm::vec4 inColor, glm::mat4 inMatrix, CmdParam inParam);
+         ImageId inId, Window_base& inWindow, glm::vec4 inColor, glm::mat4 inMatrix, CmdParam inParam);
 
     private:
     Shape& sh;

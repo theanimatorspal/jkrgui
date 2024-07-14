@@ -184,10 +184,10 @@ void Uniform3D::UpdateStorageBuffer(int inDstBinding, void** inData, size_t inSi
     memcpy(memory, *inData, inSize);
 }
 
-void Uniform3D::Bind(Window& inWindow,
+void Uniform3D::Bind(Window_base& inWindow,
                      Simple3D& inSimple3D,
                      int inSet,
-                     Window::ParameterContext inParam) {
+                     Window_base::ParameterContext inParam) {
     const VulkanCommandBuffer& Cmd =
          inWindow.GetCommandBuffers(inParam)[inWindow.GetCurrentFrame()];
     mVulkanDescriptorSet->Bind(vk::PipelineBindPoint::eGraphics,
@@ -238,7 +238,7 @@ void Uniform3D::BuildByMaterial(Simple3D& inSimple3D,
 }
 
 void Uniform3D::AddGenerateBRDFLookupTable(Instance& inInstance,
-                                           WindowMulT& inWindow,
+                                           Window& inWindow,
                                            std::string_view inFileName,
                                            std::string_view inVertexShader,
                                            std::string_view inFragmentShader,
@@ -262,7 +262,7 @@ void Uniform3D::AddGenerateBRDFLookupTable(Instance& inInstance,
 }
 
 void Uniform3D::AddGenerateIrradianceCube(Instance& inInstance,
-                                          WindowMulT& inWindow,
+                                          Window& inWindow,
                                           Renderer::_3D::Shape& inShape,
                                           int inSkyboxModelIndex,
                                           VulkanImageBase& inEnvironmentCubeMap,
@@ -293,7 +293,7 @@ void Uniform3D::AddGenerateIrradianceCube(Instance& inInstance,
 }
 
 void Uniform3D::AddGeneratePrefilteredCube(Instance& inInstance,
-                                           WindowMulT& inWindow,
+                                           Window& inWindow,
                                            Renderer::_3D::Shape& inShape,
                                            int inSkyboxModelIndex,
                                            VulkanImageBase& inEnvironmentCubeMap,

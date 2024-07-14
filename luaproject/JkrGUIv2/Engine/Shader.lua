@@ -1193,4 +1193,59 @@ PBR.BasicCompute = Engine.Shader()
     .GlslMainBegin()
     .GlslMainEnd()
 
+
+Deferred = {}
+
+Deferred.ScreenQuadCompositionVertex = Engine.Shader()
+    .Header(450)
+    .Push()
+    .Out(0, "vec2", "vUV")
+    .GlslMainBegin()
+    .Append [[
+        vUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+        gl_Position = vec4(vUV * 2.0 - 1.0, 0.0, 1.0);
+    ]]
+    .GlslMainEnd()
+
+Deferred.ScreenQuadCompositionFragment = Engine.Shader()
+    .Header(450)
+    .Ubo()
+    .In(0, "vec2", "vUV")
+    .uSampler2D(0, "inPositionImage", 1)
+    .uSampler2D(1, "inNormalImage", 1)
+    .uSampler2D(2, "inAlbedoImage", 1)
+    .Push()
+    .outFragColor()
+    .GlslMainBegin()
+    .Append [[
+        vec3 fragPos = texture(inPositionImage, vUV).rgb;
+        vec3 normal = texture(inNormalImage, vUV).rgb;
+        vec3 albedo = texture(inAlbedoImage, vUV).rgb;
+        #define lightCount 8
+        #define ambient 0.0
+        vec3 fragColor = albedo.rgb * ambient;
+
+        for(int i = 0; i < 8; ++i)
+        {
+            vec3 L = Ubo.lights[i].xyz - fragPos;
+            float dist = length(L);
+            vec3 V = Ubo.campos - fragPos;
+            V = normalize(V);
+            L = normalize(L);
+            float attenuation = Ubo.lights[i].w / (dist * dist + 1.0f);
+            // diffuse
+            vec3 N = normalize(normal);
+            float NdotL = max(0.0f, dot(N, L));
+            vec3 lightColor = vec3(1, 1, 1);
+            vec3 diff = lightColor * albedo.rgb * NdotL * attenuation;
+            // specular
+            vec3 R = reflect(-L, N);
+            float NdotR = max(0.0f, dot(R, V));
+            vec3 spec = lightColor * albedo.a * pow(NdotR, 16.0f) * attenuation;
+            fragColor += diff + spec;
+        }
+        outFragColor = fragColor;
+    ]]
+    .GlslMainEnd()
+
 -- TODO Remove str form everywhere

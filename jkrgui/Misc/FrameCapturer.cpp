@@ -15,13 +15,13 @@ void FrameCapturer::Refresh() {
 }
 
 void FrameCapturer::Dispatch() {
-    auto& ImageTobeCopiedFrom = mWindow.GetSwapChainImages().front();
+    auto &ImageTobeCopiedFrom = mWindow.GetSwapChainImages().front();
     auto Extent               = ImageTobeCopiedFrom.GetImageExtent();
     mWidth                    = Extent.width;
     mHeight                   = Extent.height;
     mChannelCount             = 4; // TODO Get From Image
 
     if (ImageTobeCopiedFrom.GetImageHandle()) {
-        mWindow.CmdCopySwapChainImageToBufferPostRendering(*mMousePickingBuffer);
+        // mWindow.CmdCopySwapChainImageToBufferPostRendering(*mMousePickingBuffer);
     }
 }

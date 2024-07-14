@@ -9,23 +9,23 @@ class Line : public Line_base, Renderer_base {
     using lb = Line_base;
 
     public:
-    Line(const Instance& inInstance, Window& inCompatibleWindow, PainterCache& inPainterCache);
+    Line(const Instance& inInstance, Window_base& inCompatibleWindow, PainterCache& inPainterCache);
     void
     AddLine(glm::vec2 inFirstPoint, glm::vec2 inSecondPoint, float inDepthValue, uint32_t& outId);
     int AddEXT(glm::vec3 inFirstPoint, glm::vec3 inSecondPoint);
     void
     UpdateLine(uint32_t inId, glm::vec2 inFirstPoint, glm::vec2 inSecondPoint, float inDepthValue);
     void UpdateEXT(uint32_t inId, glm::vec3 inFirstPoint, glm::vec3 inSecondPoint);
-    void Dispatch(Window& inWindow);
-    void Bind(Window& inWindow);
-    void Draw(Window& inWindow,
+    void Dispatch(Window_base& inWindow);
+    void Bind(Window_base& inWindow);
+    void Draw(Window_base& inWindow,
               glm::vec4 inColor,
               uint32_t inWindowW,
               uint32_t inWindowH,
               uint32_t inStartLineId,
               uint32_t inEndLineId,
               glm::mat4 inMatrix);
-    void DrawAll(Window& inWindow,
+    void DrawAll(Window_base& inWindow,
                  glm::vec4 inColor,
                  uint32_t inWindowW,
                  uint32_t inWindowH,
@@ -39,7 +39,7 @@ class Line : public Line_base, Renderer_base {
              inMatrix);
     }
 
-    void DrawEXT(Window& inWindow,
+    void DrawEXT(Window_base& inWindow,
                  glm::vec4 inColor,
                  uint32_t inStartLineId,
                  uint32_t inEndLineId,
@@ -75,7 +75,7 @@ inline void Line::UpdateEXT(uint32_t inId, glm::vec3 inFirstPoint, glm::vec3 inS
     UpdateLine(inId, inFirstPoint, inSecondPoint, inFirstPoint.z);
 }
 
-inline void Line::DrawEXT(Window& inWindow,
+inline void Line::DrawEXT(Window_base& inWindow,
                           glm::vec4 inColor,
                           uint32_t inStartLineId,
                           uint32_t inEndLineId,

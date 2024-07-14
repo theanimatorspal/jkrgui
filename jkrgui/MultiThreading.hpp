@@ -1,6 +1,6 @@
 #pragma once
 #include "VulkanCommandBuffer.hpp"
-#include "Window.hpp"
+#include "Window_base.hpp"
 
 namespace Jkr {
 

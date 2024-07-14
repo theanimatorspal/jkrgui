@@ -1,6 +1,7 @@
 #pragma once
 #include "VulkanImageContext.hpp"
 #include "VulkanQueue.hpp"
+#include <vulkan/vulkan_raii.hpp>
 
 namespace ksai {
 
@@ -47,23 +48,22 @@ class VulkanImageBase {
                                         const VulkanFence &inFence,
                                         vk::DeviceSize inSize,
                                         std::span<void **> inLayerImageDatas);
-    void CmdCopyImageFromImageAfterStage(
-         const VulkanCommandBuffer &inCmdBuffer,
-         const VulkanDevice &inDevice,
-         VulkanImageBase &inImage,
-         vk::PipelineStageFlags inAfterStage,
-         vk::AccessFlags inAfterStageAccessFlags,
-         int inWidth                               = -1,
-         int inHeight                              = -1,
-         int inFromMipLevel                        = 0,
-         int inFromBaseArrayLayer                  = 0,
-         int inToMipLevel                          = 0,
-         int inToBaseArrayLayer                    = 0,
-         int inArrayLayersToBeCopied               = 1,
-         vk::ImageLayout inSrcImageLayoutTobeSetTo = vk::ImageLayout::eGeneral,
-         vk::ImageLayout inDstImageLayoutTobeSetTo = vk::ImageLayout::eGeneral,
-         opt<vk::ImageLayout> inSrcImageLayoutFrom = std::nullopt,
-         opt<vk::ImageLayout> inDstImageLayoutFrom = std::nullopt);
+    void CmdCopyImageFromImageAfterStage(const VulkanCommandBuffer &inCmdBuffer,
+                                         const VulkanDevice &inDevice,
+                                         VulkanImageBase &inImage,
+                                         vk::PipelineStageFlags inAfterStage,
+                                         vk::AccessFlags inAfterStageAccessFlags,
+                                         int inWidth                               = -1,
+                                         int inHeight                              = -1,
+                                         int inFromMipLevel                        = 0,
+                                         int inFromBaseArrayLayer                  = 0,
+                                         int inToMipLevel                          = 0,
+                                         int inToBaseArrayLayer                    = 0,
+                                         int inArrayLayersToBeCopied               = 1,
+                                         vk::ImageLayout inSrcImageLayoutTobeSetTo = vk::ImageLayout::eGeneral,
+                                         vk::ImageLayout inDstImageLayoutTobeSetTo = vk::ImageLayout::eGeneral,
+                                         opt<vk::ImageLayout> inSrcImageLayoutFrom = std::nullopt,
+                                         opt<vk::ImageLayout> inDstImageLayoutFrom = std::nullopt);
     void CmdTransitionImageLayout(const VulkanCommandBuffer &inBuffer,
                                   vk::ImageLayout inOldImageLayout,
                                   vk::ImageLayout inNewImageLayout,
@@ -74,13 +74,11 @@ class VulkanImageBase {
 
     public:
     void FillImageProperties(ImageContext inImageContext, uint32_t inNumSamples = 1);
-    void GetMemoryTypeIndex(vk::MemoryPropertyFlagBits inFlag,
-                            vk::Image inImage,
-                            vk::DeviceSize &outSize,
-                            ui &outIndex);
-    void GetImageTiling(vk::Format inFormat,
-                        vk::FormatFeatureFlagBits inFormatFeature,
-                        vk::ImageTiling &outTiling);
+    void GetMemoryTypeIndex(vk::MemoryPropertyFlagBits inFlag, vk::Image inImage, vk::DeviceSize &outSize, ui &outIndex);
+    void GetImageTiling(vk::Format inFormat, vk::FormatFeatureFlagBits inFormatFeature, vk::ImageTiling &outTiling);
+
+    void BuildImageViewsByLayers();
+    GETTER &GetImageViews() { return mImageViews; }
 
     protected:
     void CreateImageAndBindMemory(vk::Image &inImage, vk::DeviceMemory &inDeviceMemory);
@@ -92,8 +90,9 @@ class VulkanImageBase {
     vk::Image mImage         = nullptr;
     vk::ImageView mImageView = nullptr;
     ImageProperties mImageProperties;
-    bool mDestroyImageView = true;
-    bool mInitialized      = false;
+    bool mDestroyImageView                 = true;
+    bool mInitialized                      = false;
+    std::vector<vk::ImageView> mImageViews = {};
 };
 
 class VulkanImage : public VulkanImageBase {

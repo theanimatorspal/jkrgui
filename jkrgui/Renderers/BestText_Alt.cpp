@@ -40,7 +40,7 @@ void Jkr::Renderer::BestText_Alt::UpdatePosOnlyEXT(ImageId inId,
 }
 
 void Jkr::Renderer::BestText_Alt::DrawEXT(
-     ImageId inId, Window& inWindow, glm::vec4 inColor, glm::mat4 inMatrix, CmdParam inParam) {
+     ImageId inId, Window_base& inWindow, glm::vec4 inColor, glm::mat4 inMatrix, CmdParam inParam) {
     sh.BindImage(inWindow, inId.mImgId, inParam);
     sh.DrawEXT(inWindow, inColor, inId.mRectId, inId.mRectId, inMatrix, inParam);
 }

@@ -4,7 +4,7 @@
 using namespace Jkr;
 
 Jkr::Painter::Painter(const Instance& inInstance,
-                      const Window& inWindow,
+                      const Window_base& inWindow,
                       const PainterCache& inCache,
                       PipelineContext inPipelineContext)
     : mInstance(inInstance),
@@ -26,7 +26,7 @@ Jkr::Painter::Painter(const Instance& inInstance,
 }
 
 Jkr::Painter::Painter(const Instance& inInstance,
-                      const Window& inWindow,
+                      const Window_base& inWindow,
                       const PainterCache& inCache,
                       uint32_t inNoOfVariableDescriptorCount)
     : mInstance(inInstance),
@@ -73,7 +73,7 @@ Jkr::Painter::Painter(const Instance& inInstance,
 void Painter::OptimizeParameter(
      const Instance& inInstance,
      const PainterParameter<PainterParameterContext::StorageImage>& inImage,
-     const Window& inWindow) {
+     const Window_base& inWindow) {
     inInstance.GetUtilCommandBufferFence().Wait();
     inInstance.GetUtilCommandBufferFence().Reset();
     inInstance.GetUtilCommandBuffer().Begin();
@@ -87,7 +87,7 @@ void Jkr::Painter::OptimizeImageParameter(
      const Instance& inInstance,
      const VulkanCommandBuffer& inBuffer,
      const PainterParameter<PainterParameterContext::StorageImage>& inImage,
-     const Window& inWindow) {
+     const Window_base& inWindow) {
     inImage.GetStorageImage().CmdTransitionImageLayout(inBuffer,
                                                        vk::ImageLayout::eUndefined,
                                                        vk::ImageLayout::eGeneral,
@@ -99,7 +99,7 @@ void Jkr::Painter::OptimizeImageParameter(
 
 using namespace Jkr;
 
-void Jkr::Painter::BindComputePipeline(const Window& inWindow, CmdParam inParam) {
+void Jkr::Painter::BindComputePipeline(const Window_base& inWindow, CmdParam inParam) {
     auto index = inWindow.GetCurrentFrame();
     auto& Cmd  = inWindow.GetCommandBuffers(inParam)[index];
     mVulkanComputePipeline.Bind<PipelineContext::Compute>(Cmd);
@@ -110,14 +110,14 @@ void Jkr::Painter::BindComputePipeline(VulkanCommandBuffer& inBuffer) {
 }
 
 void Painter::BindDrawPipeline(const Primitive& inPrimitive,
-                               const Window& inWindow,
+                               const Window_base& inWindow,
                                CmdParam inCmdParam) {
     auto index = inWindow.GetCurrentFrame();
     auto& Cmd  = inWindow.GetCommandBuffers(inCmdParam)[index];
     mVulkanPipeline.Bind<PipelineContext::Default>(Cmd);
 }
 
-void Painter::BindDrawPipeline(const Window& inWindow, CmdParam inCmdParam) {
+void Painter::BindDrawPipeline(const Window_base& inWindow, CmdParam inCmdParam) {
     auto index = inWindow.GetCurrentFrame();
     auto& Cmd  = inWindow.GetCommandBuffers(inCmdParam)[index];
     mVulkanPipeline.Bind<PipelineContext::Default>(Cmd);

@@ -29,7 +29,7 @@ void CreateMiscBindings(sol::state& inState) {
          "CustomPainterImage",
          sol::call_constructor,
          sol::factories(
-              [](Jkr::Instance& inInstance, Jkr::Window& inWindow, int inWidth, int inHeight) {
+              [](Jkr::Instance& inInstance, Jkr::Window_base& inWindow, int inWidth, int inHeight) {
                   return mu<Jkr::Renderer::CustomPainterImage>(
                        inInstance, inWindow, inWidth, inHeight);
               }),

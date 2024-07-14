@@ -5,9 +5,7 @@
 using namespace ksai;
 using vb = VulkanCommandBuffer;
 
-vb::VulkanCommandBuffer(const VulkanDevice &inDevice,
-                        const VulkanCommandPool &inPool,
-                        vb::Type inContext) {
+vb::VulkanCommandBuffer(const VulkanDevice &inDevice, const VulkanCommandPool &inPool, vb::Type inContext) {
     Init({&inDevice, &inPool, inContext});
 }
 
@@ -15,11 +13,11 @@ void VulkanCommandBuffer::Init(CreateInfo inCreateInfo) {
     mDevice = &inCreateInfo.inDevice->GetDeviceHandle();
     vk::CommandBufferAllocateInfo CommandBufferAllocateInfo;
     if (inCreateInfo.inContext == Type::Primary) {
-        CommandBufferAllocateInfo = vk::CommandBufferAllocateInfo(
-             inCreateInfo.inPool->GetCommandPoolHandle(), vk::CommandBufferLevel::ePrimary, 1);
+        CommandBufferAllocateInfo =
+             vk::CommandBufferAllocateInfo(inCreateInfo.inPool->GetCommandPoolHandle(), vk::CommandBufferLevel::ePrimary, 1);
     } else {
-        CommandBufferAllocateInfo = vk::CommandBufferAllocateInfo(
-             inCreateInfo.inPool->GetCommandPoolHandle(), vk::CommandBufferLevel::eSecondary, 1);
+        CommandBufferAllocateInfo =
+             vk::CommandBufferAllocateInfo(inCreateInfo.inPool->GetCommandPoolHandle(), vk::CommandBufferLevel::eSecondary, 1);
     }
 
     mBuffer      = mDevice->allocateCommandBuffers(CommandBufferAllocateInfo).front();
@@ -34,14 +32,12 @@ vb::~VulkanCommandBuffer() {
 }
 
 template <>
-void vb::BeginRenderPass<vb::RenderPassBeginContext::Inline>(
-     const VulkanRenderPassBase &inRenderPass,
-     const vk::Extent2D inExtent,
-     const VulkanFrameBufferBase &inFrameBuffer,
-     std::array<float, 5> inClearValue) const {
+void vb::BeginRenderPass<vb::RenderPassBeginContext::Inline>(const VulkanRenderPassBase &inRenderPass,
+                                                             const vk::Extent2D inExtent,
+                                                             const VulkanFrameBufferBase &inFrameBuffer,
+                                                             std::array<float, 5> inClearValue) const {
     std::array<vk::ClearValue, 2> ClearValues;
-    ClearValues[0].color =
-         vk::ClearColorValue(inClearValue[0], inClearValue[1], inClearValue[2], inClearValue[3]);
+    ClearValues[0].color        = vk::ClearColorValue(inClearValue[0], inClearValue[1], inClearValue[2], inClearValue[3]);
     ClearValues[1].depthStencil = vk::ClearDepthStencilValue(inClearValue[4]);
     auto RenderPassBeginInfo    = vk::RenderPassBeginInfo()
                                     .setRenderPass(inRenderPass.GetRenderPassHandle())
@@ -51,25 +47,18 @@ void vb::BeginRenderPass<vb::RenderPassBeginContext::Inline>(
                                     .setClearValues(ClearValues);
 
     mBuffer.beginRenderPass(RenderPassBeginInfo, vk::SubpassContents::eInline);
-    mBuffer.setViewport(0,
-                        vk::Viewport(0.0f,
-                                     0.0f,
-                                     static_cast<float>(inExtent.width),
-                                     static_cast<float>(inExtent.height),
-                                     0.0f,
-                                     1.0f));
+    mBuffer.setViewport(
+         0, vk::Viewport(0.0f, 0.0f, static_cast<float>(inExtent.width), static_cast<float>(inExtent.height), 0.0f, 1.0f));
     mBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), inExtent));
 }
 
 template <>
-void vb::BeginRenderPass<vb::RenderPassBeginContext::SecondaryCommandBuffers>(
-     const VulkanRenderPassBase &inRenderPass,
-     const vk::Extent2D inExtent,
-     const VulkanFrameBufferBase &inFrameBuffer,
-     std::array<float, 5> inClearValue) const {
+void vb::BeginRenderPass<vb::RenderPassBeginContext::SecondaryCommandBuffers>(const VulkanRenderPassBase &inRenderPass,
+                                                                              const vk::Extent2D inExtent,
+                                                                              const VulkanFrameBufferBase &inFrameBuffer,
+                                                                              std::array<float, 5> inClearValue) const {
     std::array<vk::ClearValue, 2> ClearValues;
-    ClearValues[0].color =
-         vk::ClearColorValue(inClearValue[0], inClearValue[1], inClearValue[2], inClearValue[3]);
+    ClearValues[0].color        = vk::ClearColorValue(inClearValue[0], inClearValue[1], inClearValue[2], inClearValue[3]);
     ClearValues[1].depthStencil = vk::ClearDepthStencilValue(inClearValue[4]);
     auto RenderPassBeginInfo    = vk::RenderPassBeginInfo()
                                     .setRenderPass(inRenderPass.GetRenderPassHandle())
@@ -83,9 +72,7 @@ void vb::BeginRenderPass<vb::RenderPassBeginContext::SecondaryCommandBuffers>(
 
 void vb::EndRenderPass() const { mBuffer.endRenderPass(); }
 
-template <> void vb::Begin<vb::BeginContext::Normal>() const {
-    mBuffer.begin(vk::CommandBufferBeginInfo());
-}
+template <> void vb::Begin<vb::BeginContext::Normal>() const { mBuffer.begin(vk::CommandBufferBeginInfo()); }
 
 template <> void vb::Begin<vb::BeginContext::ContinueRenderPass>() const {
     mBuffer.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eRenderPassContinue));
@@ -103,8 +90,9 @@ void vb::Begin<vb::BeginContext::ContinueRenderPass>(VulkanRenderPassBase &inRen
 }
 
 template <>
-void vb::Begin<vb::BeginContext::ContinueRenderPassAndOneTimeSubmit>(
-     VulkanRenderPassBase &inRenderPass, ui inSubpass, VulkanFrameBufferBase &inFrameBuffer) const {
+void vb::Begin<vb::BeginContext::ContinueRenderPassAndOneTimeSubmit>(VulkanRenderPassBase &inRenderPass,
+                                                                     ui inSubpass,
+                                                                     VulkanFrameBufferBase &inFrameBuffer) const {
     vk::CommandBufferBeginInfo info(vk::CommandBufferUsageFlagBits::eRenderPassContinue |
                                     vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
     vk::CommandBufferInheritanceInfo inheritanceInfo(

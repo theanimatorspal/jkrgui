@@ -5,7 +5,7 @@
 #include "Renderers/TwoD/Shape.hpp"
 #include <Misc/RecycleBin.hpp>
 #include <Renderers/TwoD/Shape.hpp>
-#include <WindowMulT.hpp>
+#include <Window.hpp>
 
 namespace JkrEXE {
 using namespace std;
@@ -93,7 +93,7 @@ void CreateRendererBindings(sol::state& inState) {
          "ShapeRenderer",
          sol::call_constructor,
          sol::factories([](Jkr::Instance& inInstance,
-                           Jkr::WindowMulT& inCompatibleWindow,
+                           Jkr::Window& inCompatibleWindow,
                            ShapeRendererResources& inResources) {
              return mu<Jkr::Renderer::Shape>(inInstance, inCompatibleWindow, inResources.mCaches);
          }),
@@ -128,7 +128,7 @@ void CreateRendererBindings(sol::state& inState) {
          "LineRenderer",
          sol::call_constructor,
          sol::factories(
-              [](Jkr::Instance& inInstance, Jkr::WindowMulT& inWindow, Jkr::PainterCache& inCache) {
+              [](Jkr::Instance& inInstance, Jkr::Window& inWindow, Jkr::PainterCache& inCache) {
                   return mu<Jkr::Renderer::Line>(inInstance, inWindow, inCache);
               }),
          "Add",

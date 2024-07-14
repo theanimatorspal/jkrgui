@@ -2,7 +2,7 @@
 #include <glm/ext/matrix_clip_space.hpp>
 
 Jkr::Renderer::Line::Line(const Instance& inInstance,
-                          Window& inCompatibleWindow,
+                          Window_base& inCompatibleWindow,
                           PainterCache& inPainterCache)
     : mInstance(inInstance) {
     mPainter = MakeUp<Painter>(inInstance, inCompatibleWindow, inPainterCache);
@@ -75,7 +75,7 @@ void Jkr::Renderer::Line::UpdateLine(uint32_t inId,
 #endif
 }
 
-void Jkr::Renderer::Line::Dispatch(Window& inWindow) {
+void Jkr::Renderer::Line::Dispatch(Window_base& inWindow) {
 #ifndef JKR_NO_STAGING_BUFFERS
     if (!rb::IsCopyRegionsEmpty()) {
         rb::CmdCopyToPrimitiveFromStagingBuffer(
@@ -90,12 +90,12 @@ void Jkr::Renderer::Line::Dispatch(Window& inWindow) {
 #endif
 }
 
-void Jkr::Renderer::Line::Bind(Window& inWindow) {
+void Jkr::Renderer::Line::Bind(Window_base& inWindow) {
     // TODO Improve this
     // mPainter->BindDrawParamters_EXT(*mPrimitive, inWindow);
 }
 
-void Jkr::Renderer::Line::Draw(Window& inWindow,
+void Jkr::Renderer::Line::Draw(Window_base& inWindow,
                                glm::vec4 inColor,
                                uint32_t inWindowW,
                                uint32_t inWindowH,

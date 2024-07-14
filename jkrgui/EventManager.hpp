@@ -1,5 +1,5 @@
 #pragma once
-#include "Window.hpp"
+#include "Window_base.hpp"
 
 namespace Jkr {
 struct BoundRect2D {

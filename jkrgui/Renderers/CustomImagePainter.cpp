@@ -62,13 +62,13 @@ CustomImagePainter::CustomImagePainter(
     mFragmentStream << gmain_function_null;
 }
 
-void CustomImagePainter::Load(const Instance& inInstance, Window& inWindow) {
+void CustomImagePainter::Load(const Instance& inInstance, Window_base& inWindow) {
     mCustomPainterCache = MakeUp<PainterCache>(inInstance);
     mCustomPainterCache->Load(mCustomPainterFileName);
     mPainter = MakeUp<Painter>(inInstance, inWindow, *mCustomPainterCache);
 }
 
-void CustomImagePainter::Store(const Instance& inInstance, Window& inWindow) {
+void CustomImagePainter::Store(const Instance& inInstance, Window_base& inWindow) {
     mCustomPainterCache = MakeUp<PainterCache>(inInstance);
     mCustomPainterCache->Store(
          mCustomPainterFileName, mVertexStream.str(), mFragmentStream.str(), mComputeStream.str());
@@ -94,7 +94,7 @@ void GlslMain()
 }
 
 std::vector<int> CustomPainterImage::GetImageToVector(const Instance& inInstance,
-                                                      const Window& inWindow) {
+                                                      const Window_base& inWindow) {
     ui ImageChannels = 4;
     auto ImageExtent = mPainterParam->GetStorageImage().GetImageExtent();
     auto Size        = ImageChannels * ImageExtent.width * ImageExtent.height;
@@ -106,7 +106,7 @@ std::vector<int> CustomPainterImage::GetImageToVector(const Instance& inInstance
                            MemoryType::HostVisibleAndCoherenet);
     Buffer.SubmitImmediateCmdCopyFromImage(
          inInstance.GetGraphicsQueue(),
-         inWindow.GetCommandBuffers(Jkr::Window::None)[inWindow.GetCurrentFrame()],
+         inWindow.GetCommandBuffers(Jkr::Window_base::None)[inWindow.GetCurrentFrame()],
          mPainterParam->GetStorageImage());
     void* MemoryRegion;
     Buffer.MapMemoryRegion(&MemoryRegion);
@@ -132,7 +132,7 @@ void Jkr::Renderer::CustomPainterImage::Register(const Instance& inInstance,
 }
 
 CustomPainterImage::CustomPainterImage(const Instance& inInstance,
-                                       const Window& inWindow,
+                                       const Window_base& inWindow,
                                        ui inWidth,
                                        ui inHeight) {
     mPainterParam = mu<Image>(inInstance);
@@ -140,7 +140,7 @@ CustomPainterImage::CustomPainterImage(const Instance& inInstance,
     Painter::OptimizeParameter(inInstance, *mPainterParam, inWindow);
 }
 
-void CustomImagePainter::BindImageFromImage(const Window& inWindow,
+void CustomImagePainter::BindImageFromImage(const Window_base& inWindow,
                                             CustomPainterImage& inImage,
                                             ComPar inPar) {
     auto& Cmd = inWindow.GetCommandBuffers(inPar)[inWindow.GetCurrentFrame()];
@@ -161,7 +161,7 @@ void CustomImagePainter::BindImageFromImage(const Window& inWindow,
 }
 
 void CustomImagePainter::RegisterImageExternal(const Instance& inInstance,
-                                               Window& inWindow,
+                                               Window_base& inWindow,
                                                Jkr::Renderer::Shape& inShape,
                                                CustomPainterImage& inImage,
                                                int inImageIndex,

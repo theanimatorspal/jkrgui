@@ -1,6 +1,6 @@
 #pragma once
 #include <Global/Standards.hpp>
-#include "Window.hpp"
+#include "Window_base.hpp"
 #include "Painter.hpp"
 #include "PainterParameter.hpp"
 

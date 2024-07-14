@@ -10,8 +10,10 @@ class VulkanFrameBufferBase {
     vk::Framebuffer mBuffer;
 };
 
-template <size_t NoOfAttachements = 2, typename... T>
-class VulkanFrameBuffer : public VulkanFrameBufferBase {
+template <typename T>
+concept Has_GetImageViewHandle = requires(T &t) { t.GetImageViewHandle(); };
+
+template <size_t NoOfAttachements = 2, typename... T> class VulkanFrameBuffer : public VulkanFrameBufferBase {
     public:
     VulkanFrameBuffer() = default;
     ~VulkanFrameBuffer() {
@@ -30,22 +32,29 @@ class VulkanFrameBuffer : public VulkanFrameBufferBase {
         return *this;
     }
 
-    void
-    Init(const VulkanDevice &inDevice, const VulkanRenderPassBase &inRenderPass, const T &...inT) {
+    /**
+     * @brief Can accept VulkanImage, VulkanImageVMA or vk::ImageView
+     *
+     *
+     * Just pass the specified type starting from the third parameter,
+     * creating frame buffers for multiple layers is supported with
+     * vk::ImageView being supported
+     */
+    void Init(const VulkanDevice &inDevice, const VulkanRenderPassBase &inRenderPass, const T &...inT) {
         mDevice = &inDevice.GetDeviceHandle();
         Attachments.reserve(NoOfAttachements);
         (
              [&] {
-                 Attachments.push_back(inT.GetImageViewHandle());
-                 mExtent = inT.GetImageExtent();
+                 if constexpr (Has_GetImageViewHandle<T>) {
+                     Attachments.push_back(inT.GetImageViewHandle());
+                     mExtent = inT.GetImageExtent();
+                 } else {
+                     Attachments.push_back(inT);
+                 }
              }(),
              ...);
-        auto FrameBufferCreateInfo = vk::FramebufferCreateInfo(vk::FramebufferCreateFlags(),
-                                                               inRenderPass.GetRenderPassHandle(),
-                                                               Attachments,
-                                                               mExtent.width,
-                                                               mExtent.height,
-                                                               1);
+        auto FrameBufferCreateInfo = vk::FramebufferCreateInfo(
+             vk::FramebufferCreateFlags(), inRenderPass.GetRenderPassHandle(), Attachments, mExtent.width, mExtent.height, 1);
         mBuffer      = inDevice.GetDeviceHandle().createFramebuffer(FrameBufferCreateInfo);
         mInitialized = true;
     }
@@ -53,9 +62,7 @@ class VulkanFrameBuffer : public VulkanFrameBufferBase {
         ExplicitlyDestroy();
         mInitialized = false;
     }
-    VulkanFrameBuffer(const VulkanDevice &inDevice,
-                      const VulkanRenderPassBase &inRenderPass,
-                      const T &...inT) {
+    VulkanFrameBuffer(const VulkanDevice &inDevice, const VulkanRenderPassBase &inRenderPass, const T &...inT) {
         Init(inDevice, inRenderPass, inT...);
     }
     void ExplicitlyDestroy() {

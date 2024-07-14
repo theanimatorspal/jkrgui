@@ -29,7 +29,7 @@ int World3D::AddGLTFModel(std::string_view inFileName) {
     }
 }
 
-int World3D::AddSimple3D(Jkr::Instance& inInstance, Window& inWindow) {
+int World3D::AddSimple3D(Jkr::Instance& inInstance, Window_base& inWindow) {
     mSimple3Ds.emplace_back(mu<Simple3D>(inInstance, inWindow));
     return mSimple3Ds.size() - 1;
 }
@@ -57,7 +57,7 @@ void World3D::AddSkyboxToUniform3D(Instance& inInstance, sv inFolderPath, int in
     mSkyboxImages.push_back(mv(SkyboxImage));
 }
 
-void World3D::AddShadowMapToUniform3D(WindowMulT& inWindow, int inId, int inSet) {
+void World3D::AddShadowMapToUniform3D(Window& inWindow, int inId, int inSet) {
     auto& DesSet   = mUniforms[inId]->GetVulkanDescriptorSet();
     auto& ImgParam = inWindow.GetShadowPass().GetDepthImagePainterParameter();
     ImgParam.RegisterDepth(0, kstd::BindingIndex::Uniform::Images, 0, DesSet, inSet);
@@ -68,7 +68,7 @@ struct PushConstantDefault {
     glm::mat4 m2;
 };
 
-void World3D::DrawObjectsExplicit(Window& inWindow,
+void World3D::DrawObjectsExplicit(Window_base& inWindow,
                                   v<Object3D>& inExplicitObjects,
                                   Renderer::CmdParam inParam) {
     mShape.Bind(inWindow, inParam);

@@ -5,20 +5,20 @@
 #include "Pipeline/VulkanPipelineLayout.hpp"
 #include "Primitive.hpp"
 #include "VulkanRenderPass.hpp"
-#include "Window.hpp"
+#include "Window_base.hpp"
 
 namespace Jkr {
 
 class Painter {
-    using CmdParam = Window::ParameterContext;
+    using CmdParam = Window_base::ParameterContext;
 
     public:
     Painter(const Instance& inInstance,
-            const Window& inWindow,
+            const Window_base& inWindow,
             const PainterCache& inCache,
             PipelineContext inPipelineContext = PipelineContext::Default);
     Painter(const Instance& inInstance,
-            const Window& inWindow,
+            const Window_base& inWindow,
             const PainterCache& inCache,
             uint32_t inNoOfVariableDescriptorCount);
     Painter(const Instance& inInstance,
@@ -27,14 +27,14 @@ class Painter {
             PipelineContext inPipelineContext = PipelineContext::Default);
 
     void BindDrawPipeline(const Primitive& inPrimitive,
-                          const Window& inWindow,
+                          const Window_base& inWindow,
                           CmdParam inCmdContext = CmdParam::UI);
-    void BindDrawPipeline(const Window& inWindow, CmdParam inCmdContext = CmdParam::UI);
+    void BindDrawPipeline(const Window_base& inWindow, CmdParam inCmdContext = CmdParam::UI);
     void BindDrawPipeline(VulkanCommandBuffer& inBuffer);
 
     template <class PushType>
     void Draw_EXT(const vk::ArrayProxy<PushType> inPushConstants,
-                  const Window& inWindow,
+                  const Window_base& inWindow,
                   uint32_t inIndexCount,
                   uint32_t inInstanceCount,
                   uint32_t inFirstIndex,
@@ -49,11 +49,11 @@ class Painter {
                   uint32_t inFirstIndex,
                   uint32_t inFirstInstance);
 
-    void BindComputePipeline(const Window& inWindow, CmdParam inCmdContext = CmdParam::UI);
+    void BindComputePipeline(const Window_base& inWindow, CmdParam inCmdContext = CmdParam::UI);
     void BindComputePipeline(VulkanCommandBuffer& inBuffer);
 
     template <class PushType>
-    void Dispatch_EXT(Window& inWindow,
+    void Dispatch_EXT(Window_base& inWindow,
                       const vk::ArrayProxy<PushType> inPushConstants,
                       uint32_t inCountX,
                       uint32_t inCountY,
@@ -70,14 +70,14 @@ class Painter {
     static void
     OptimizeParameter(const Instance& inInstance,
                       const PainterParameter<PainterParameterContext::StorageImage>& inImage,
-                      const Window& inWindow);
+                      const Window_base& inWindow);
 
     private:
     static void
     OptimizeImageParameter(const Instance& inInstance,
                            const VulkanCommandBuffer& inBuffer,
                            const PainterParameter<PainterParameterContext::StorageImage>& inImage,
-                           const Window& inWindow);
+                           const Window_base& inWindow);
     const Instance& mInstance;
     const PainterCache& mGUIPainterCache;
     VulkanPipelineBase mVulkanPipeline;
@@ -85,7 +85,7 @@ class Painter {
 };
 
 template <class PushType>
-void Painter::Dispatch_EXT(Window& inWindow,
+void Painter::Dispatch_EXT(Window_base& inWindow,
                            const vk::ArrayProxy<PushType> inPushConstants,
                            uint32_t inCountX,
                            uint32_t inCountY,
@@ -98,7 +98,7 @@ void Painter::Dispatch_EXT(Window& inWindow,
 
 template <class PushType>
 void Painter::Draw_EXT(const vk::ArrayProxy<PushType> inPushConstants,
-                       const Window& inWindow,
+                       const Window_base& inWindow,
                        uint32_t inIndexCount,
                        uint32_t inInstanceCount,
                        uint32_t inFirstIndex,

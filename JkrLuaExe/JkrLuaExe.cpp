@@ -1,24 +1,25 @@
 ﻿#include "JkrLuaExe.hpp"
 #include <SDLWindow.hpp>
+#include <TracyLua.hpp>
 
 extern void LuaShowToastNotification(const std::string_view inMessage);
 
 namespace JkrEXE {
-extern void CreateBasicBindings(sol::state& inState);
-extern void CreateGLMBindings(sol::state& inState);
-extern void CreateKeyBindings(sol::state& inState);
-extern void CreateMiscBindings(sol::state& inState);
-extern void CreateRendererBindings(sol::state& inState);
-extern void CreateTextRendererBindings(sol::state& inState);
-extern void CreateBuildSystemBindings(sol::state& inS);
-extern void CreateRenderer3DBindings(sol::state& s);
-extern void CreateAudioBindings(sol::state& inState);
-extern void CreatePlatformBindings(sol::state& inS);
-extern umap<s, v<s>> CommandLine(int ArgCount, char** ArgStrings); // TODO Complete This
-extern void CreateMultiThreadingBindings(sol::state& inState);
-extern void CreateNetworkBindings(sol::state& s);
+extern void CreateBasicBindings(sol::state &inState);
+extern void CreateGLMBindings(sol::state &inState);
+extern void CreateKeyBindings(sol::state &inState);
+extern void CreateMiscBindings(sol::state &inState);
+extern void CreateRendererBindings(sol::state &inState);
+extern void CreateTextRendererBindings(sol::state &inState);
+extern void CreateBuildSystemBindings(sol::state &inS);
+extern void CreateRenderer3DBindings(sol::state &s);
+extern void CreateAudioBindings(sol::state &inState);
+extern void CreatePlatformBindings(sol::state &inS);
+extern umap<s, v<s>> CommandLine(int ArgCount, char **ArgStrings); // TODO Complete This
+extern void CreateMultiThreadingBindings(sol::state &inState);
+extern void CreateNetworkBindings(sol::state &s);
 
-void CreateMainBindings(sol::state& s) {
+void CreateMainBindings(sol::state &s) {
     s.set_exception_handler(&my_exception_handler);
     s.open_libraries();
 #ifdef _WIN32
@@ -39,12 +40,13 @@ void CreateMainBindings(sol::state& s) {
     CreateAudioBindings(s);
     CreatePlatformBindings(s);
     CreateNetworkBindings(s);
+    tracy::LuaRegister(s);
 }
 } // namespace JkrEXE
 
 using namespace JkrEXE;
 static sol::state mainState;
-sol::state& GetMainStateRef() { return mainState; }
+sol::state &GetMainStateRef() { return mainState; }
 
 void RunScript() {
     CreateMainBindings(mainState);
@@ -56,8 +58,7 @@ void RunScript() {
 
 #endif
 
-    sol::protected_function_result result =
-         mainState.safe_script_file("app.lua", &sol::script_pass_on_error);
+    sol::protected_function_result result = mainState.safe_script_file("app.lua", &sol::script_pass_on_error);
     if (not result.valid()) {
         sol::error error = result;
         std::cout << error.what();
@@ -66,13 +67,12 @@ void RunScript() {
     }
 }
 
-void ProcessCmdLine(auto& inCmdLineArg_Map) {
+void ProcessCmdLine(auto &inCmdLineArg_Map) {
     if (inCmdLineArg_Map.contains("--build")) {
         sol::state s;
         s.open_libraries();
         CreateBuildSystemBindings(s);
-        sol::protected_function_result result =
-             s.safe_script_file("build.lua", &sol::script_pass_on_error);
+        sol::protected_function_result result = s.safe_script_file("build.lua", &sol::script_pass_on_error);
         if (not result.valid()) {
             sol::error error = result;
             std::cout << error.what();
@@ -87,10 +87,7 @@ void ProcessCmdLine(auto& inCmdLineArg_Map) {
         std::cout << "Current Directory:" << filesystem::current_path() << "\n";
         std::cout << "SRC:" << src << "\n";
         std::cout << "DEST:" << dest << "\n";
-        filesystem::copy(src,
-                         dest,
-                         filesystem::copy_options::recursive |
-                              filesystem::copy_options::update_existing);
+        filesystem::copy(src, dest, filesystem::copy_options::recursive | filesystem::copy_options::update_existing);
     };
     if (inCmdLineArg_Map.contains("--generate")) {
         Update();
@@ -101,7 +98,7 @@ void ProcessCmdLine(auto& inCmdLineArg_Map) {
     }
 }
 
-JKR_EXPORT int main(int ArgCount, char** ArgStrings) {
+JKR_EXPORT int main(int ArgCount, char **ArgStrings) {
 
 #ifndef ANDROID
     auto CmdArg_Map = CommandLine(ArgCount, ArgStrings);

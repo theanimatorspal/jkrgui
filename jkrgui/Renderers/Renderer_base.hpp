@@ -1,12 +1,12 @@
 #pragma once
 #include "Painter.hpp"
 #include "PainterParameter.hpp"
-#include "Window.hpp"
+#include "Window_base.hpp"
 #include <Vulkan/VulkanBufferVMA.hpp>
 
 namespace Jkr::Renderer {
 
-using CmdParam = Window::ParameterContext;
+using CmdParam = Window_base::ParameterContext;
 class Renderer_base {
     public:
     using ImageType        = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
@@ -34,7 +34,7 @@ class Renderer_base {
     protected:
 #endif
     void CreatePainter(const Instance& inInstance,
-                       Window& inCompatibleWindow,
+                       Window_base& inCompatibleWindow,
                        PainterCache& inPainterCache);
 #ifndef JKR_NO_STAGING_BUFFERS
     void CreateStagingBuffers(const Instance& inInstance,

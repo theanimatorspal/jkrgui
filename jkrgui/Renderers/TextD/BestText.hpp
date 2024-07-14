@@ -71,7 +71,7 @@ class BestText : public BestText_base, Renderer_base {
 
 public:
     BestText(const Instance& inInstance,
-        const Window& inCompatibleWindow,
+        const Window_base& inCompatibleWindow,
         const PainterCache& inCache,
         ui inVarDesCount = 5000)
         : mInstance(inInstance)
@@ -87,9 +87,9 @@ public:
         ui inDepthValue) {
         return {};
     }
-    void Dispatch(Window& inWindow) { }
-    void Bind(Window& inWindow) { }
-    void Draw(Window& inWindow, glm::vec4 inColor, ui inWindowW,
+    void Dispatch(Window_base& inWindow) { }
+    void Bind(Window_base& inWindow) { }
+    void Draw(Window_base& inWindow, glm::vec4 inColor, ui inWindowW,
         ui inWindowH, ui inStartTextId, ui inNoOfChars,
         glm::mat4 inMatrix) { }
     void CheckAndResize(size_t inNewSize) { }

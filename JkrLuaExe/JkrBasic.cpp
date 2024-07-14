@@ -1,6 +1,6 @@
 #include "EventManager.hpp"
 #include "Painter.hpp"
-#include "WindowMulT.hpp"
+#include "Window.hpp"
 #include "JkrLuaExe.hpp"
 
 namespace JkrEXE {
@@ -15,11 +15,11 @@ void CreateBasicBindings(sol::state& s) {
              return std::make_unique<Jkr::Instance>(
                   inDescriptorSize, inPoolSize, inEnableValidation);
          }));
-    Jkr.new_usertype<Jkr::Window>("WindowBase");
-    Jkr.new_usertype<Jkr::WindowMulT>(
+    Jkr.new_usertype<Jkr::Window_base>("WindowBase");
+    Jkr.new_usertype<Jkr::Window>(
          "Window",
          sol::base_classes,
-         sol::bases<Jkr::Window>(),
+         sol::bases<Jkr::Window_base>(),
          sol::call_constructor,
          sol::factories([](Jkr::Instance& inInstance,
                            std::string_view inTitle,
@@ -29,7 +29,7 @@ void CreateBasicBindings(sol::state& s) {
              int NoOfCmdBufferPerThread = 2; // TODO Don't hardcode
              std::vector<ui> CmdBufferCountPerThreadVec;
              CmdBufferCountPerThreadVec.resize(inThreadsCount, NoOfCmdBufferPerThread);
-             return std::make_unique<Jkr::WindowMulT>(inInstance,
+             return std::make_unique<Jkr::Window>(inInstance,
                                                       inTitle,
                                                       inHeight,
                                                       inWidth,
@@ -38,59 +38,59 @@ void CreateBasicBindings(sol::state& s) {
                                                       inInstance.GetThreadPool());
          }),
          "BuildShadowPass",
-         &Jkr::WindowMulT::BuildShadowPass,
+         &Jkr::Window::BuildShadowPass,
 
          "BeginShadowPass",
-         &Jkr::WindowMulT::BeginShadowPass,
+         &Jkr::Window::BeginShadowPass,
          "EndShadowPass",
-         &Jkr::WindowMulT::EndShadowPass,
+         &Jkr::Window::EndShadowPass,
 
          "SetTitle",
-         &Jkr::WindowMulT::SetTitle,
+         &Jkr::Window::SetTitle,
          "BeginUpdates",
-         &Jkr::WindowMulT::BeginUpdates,
+         &Jkr::Window::BeginUpdates,
          "EndUpdates",
-         &Jkr::WindowMulT::EndUpdates,
+         &Jkr::Window::EndUpdates,
          "BeginDispatches",
-         &Jkr::WindowMulT::BeginDispatches,
+         &Jkr::Window::BeginDispatches,
          "EndDispatches",
-         &Jkr::WindowMulT::EndDispatches,
+         &Jkr::Window::EndDispatches,
          "BeginDraws",
-         &Jkr::WindowMulT::BeginDraws,
+         &Jkr::Window::BeginDraws,
          "EndDraws",
-         &Jkr::WindowMulT::EndDraws,
+         &Jkr::Window::EndDraws,
          "Present",
-         &Jkr::WindowMulT::Present,
+         &Jkr::Window::Present,
 
          "BeginUIs",
-         &Jkr::WindowMulT::BeginUIs,
+         &Jkr::Window::BeginUIs,
          "EndUIs",
-         &Jkr::WindowMulT::EndUIs,
+         &Jkr::Window::EndUIs,
          "ExecuteUIs",
-         &Jkr::WindowMulT::ExecuteUIs,
+         &Jkr::Window::ExecuteUIs,
 
          "BeginThreadCommandBuffer",
-         &Jkr::WindowMulT::BeginThreadCommandBuffer,
+         &Jkr::Window::BeginThreadCommandBuffer,
          "EndThreadCommandBuffer",
-         &Jkr::WindowMulT::EndThreadCommandBuffer,
+         &Jkr::Window::EndThreadCommandBuffer,
          "ExecuteThreadCommandBuffer",
-         &Jkr::WindowMulT::ExecuteThreadCommandBuffer,
+         &Jkr::Window::ExecuteThreadCommandBuffer,
 
          "GetWindowCurrentTime",
-         &Jkr::WindowMulT::GetWindowCurrentTime,
+         &Jkr::Window::GetWindowCurrentTime,
          "GetWindowDimension",
-         &Jkr::WindowMulT::GetWindowDimension,
+         &Jkr::Window::GetWindowDimension,
          "GetVulkanDrawableSize",
-         &Jkr::WindowMulT::GetVulkanDrawableSize,
+         &Jkr::Window::GetVulkanDrawableSize,
 
          "SetScissor",
-         &Jkr::WindowMulT::SetScissor,
+         &Jkr::Window::SetScissor,
          "SetDefaultScissor",
-         &Jkr::WindowMulT::SetDefaultScissor,
+         &Jkr::Window::SetDefaultScissor,
          "SetViewport",
-         &Jkr::WindowMulT::SetViewport,
+         &Jkr::Window::SetViewport,
          "SetDefaultViewport",
-         &Jkr::WindowMulT::SetDefaultViewport);
+         &Jkr::Window::SetDefaultViewport);
 
     using namespace Jkr;
     Jkr.new_usertype<Jkr::EventManager>("EventManager",

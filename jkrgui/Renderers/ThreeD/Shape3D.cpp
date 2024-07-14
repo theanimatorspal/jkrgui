@@ -6,7 +6,7 @@
 
 using namespace Jkr::Renderer::_3D;
 
-Shape::Shape(const Instance& inInstance, Window& inCompatibleWindow) : mInstance(inInstance) {
+Shape::Shape(const Instance& inInstance, Window_base& inCompatibleWindow) : mInstance(inInstance) {
 #ifndef JKR_NO_STAGING_BUFFERS
     rb::CreateStagingBuffers(inInstance,
                              gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
@@ -72,7 +72,7 @@ void Shape::Add(Generator& inGenerator, glm::vec3 inPosition, ui& outId) {
     CopyToPrimitive(OffsetId, ModelId);
 }
 
-void Shape::Dispatch(Window& inWindow) {
+void Shape::Dispatch(Window_base& inWindow) {
 #ifndef JKR_NO_STAGING_BUFFERS
     if (not rb::IsCopyRegionsEmpty()) {
         rb::CmdCopyToPrimitiveFromStagingBuffer(
@@ -143,7 +143,7 @@ void Shape::CheckAndResize(const glTF_Model& inModel) {
     CheckAndResize(inModel.GetIndices().size(), inModel.GetVertices().size());
 }
 
-void Shape::Bind(Window& inWindow, ComPar inCompar) {
+void Shape::Bind(Window_base& inWindow, ComPar inCompar) {
     mPrimitive->Bind(mInstance, inWindow, inCompar);
 }
 

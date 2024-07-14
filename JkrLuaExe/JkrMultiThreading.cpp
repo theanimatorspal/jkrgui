@@ -5,12 +5,12 @@
 #include "Renderers/Renderer_base.hpp"
 #include "Renderers/TwoD/Line.hpp"
 #include "Renderers/TwoD/Shape.hpp"
-#include "WindowMulT.hpp"
+#include "Window.hpp"
 #include "sol/sol.hpp"
 #include <Misc/RecycleBin.hpp>
 #include <Renderers/ThreeD/World3D.hpp>
 #include <Renderers/TwoD/Shape.hpp>
-#include <WindowMulT.hpp>
+#include <Window.hpp>
 #include <mutex>
 
 extern sol::state& GetMainStateRef();
@@ -155,7 +155,7 @@ inline sol::object MultiThreading::Copy(sol::object obj, sol::state& target) {
                                    glm::uvec2,
                                    glm::mat4,
                                    Jkr::Instance,
-                                   Jkr::WindowMulT,
+                                   Jkr::Window,
                                    MultiThreading,
 
                                    DefaultCustomImagePainterPushConstant,

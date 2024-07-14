@@ -146,7 +146,7 @@ Jkr::Primitive::Primitive(const Instance& inInstance,
 }
 #endif
 
-void Jkr::Primitive::Bind(const Instance& inInstance, const Window& inWindow, CmdParam inCmdParam) {
+void Jkr::Primitive::Bind(const Instance& inInstance, const Window_base& inWindow, CmdParam inCmdParam) {
     auto& Cmd = inWindow.GetCommandBuffers(inCmdParam)[inWindow.GetCurrentFrame()];
     GetVertexBufferPtr()->Bind<BufferContext::Vertex>(Cmd);
     GetIndexBufferPtr()->Bind<BufferContext::Index>(Cmd);

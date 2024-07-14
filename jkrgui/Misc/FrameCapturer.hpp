@@ -8,7 +8,7 @@ class FrameCapturer {
     using MousePickingBufferType = VulkanBufferVMA;
 
     public:
-    FrameCapturer(Window& inWindow) : mWindow(inWindow) { Refresh(); }
+    FrameCapturer(Window_base& inWindow) : mWindow(inWindow) { Refresh(); }
     void Refresh();
     void Dispatch();
     void CaptureToFile(const std::string_view inFileName) {
@@ -17,7 +17,7 @@ class FrameCapturer {
     }
 
     private:
-    Window& mWindow;
+    Window_base& mWindow;
     Up<MousePickingBufferType> mMousePickingBuffer;
     void* mMappedMemory;
     int mWidth, mHeight, mChannelCount;

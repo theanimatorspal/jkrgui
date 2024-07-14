@@ -22,15 +22,15 @@ class Shape : public Shape_base, Renderer_base {
           std::unordered_map<FillType, Up<PainterCache>>& inPainterCaches)
         : mInstance(inInstance), mPainterCaches(inPainterCaches) {}
     Shape(const Instance& inInstance,
-          Window& inCompatibleWindow,
+          Window_base& inCompatibleWindow,
           std::unordered_map<FillType, Up<PainterCache>>& inPainterCaches,
           uint32_t inVarDesCount = 5000);
     void Add(Jkr::Generator& inShape, float inX, float inY, float inZ, uint32_t& outId);
     void Update(uint32_t inId, Jkr::Generator& inShape, float inX, float inY, float inZ);
-    void Dispatch(Window& inWindow, CmdParam inParam = CmdParam::None);
-    void BindFillMode(FillType inType, Window& inWindow, CmdParam inParam = CmdParam::UI);
-    void BindShapes(Window& inWindow, CmdParam inParam = CmdParam::UI);
-    void Draw(Window& inWindow,
+    void Dispatch(Window_base& inWindow, CmdParam inParam = CmdParam::None);
+    void BindFillMode(FillType inType, Window_base& inWindow, CmdParam inParam = CmdParam::UI);
+    void BindShapes(Window_base& inWindow, CmdParam inParam = CmdParam::UI);
+    void Draw(Window_base& inWindow,
               glm::vec4 inColor,
               uint32_t inWindowW,
               uint32_t inWindowH,
@@ -53,7 +53,7 @@ class Shape : public Shape_base, Renderer_base {
                        CustomPainterImage& inPainterImage);
     void CopyFromImage(uint32_t inId, CustomPainterImage& inPainterImage);
     void CopyToImage(uint32_t inId, CustomPainterImage& inPainterImage);
-    void BindImage(Window& inWindow, uint32_t inImageId, CmdParam inParam = CmdParam::UI);
+    void BindImage(Window_base& inWindow, uint32_t inImageId, CmdParam inParam = CmdParam::UI);
 
     glm::vec2 GetImageSize(const sv inFileName);
     ui AddImageEXT(const std::string_view inFileName);
@@ -62,7 +62,7 @@ class Shape : public Shape_base, Renderer_base {
 
     ui AddEXT(Jkr::Generator& inShape, glm::vec3 inPosition);
     void UpdateEXT(ui inId, Jkr::Generator& inShape, glm::vec3 inPosition);
-    void DrawEXT(Window& inWindow,
+    void DrawEXT(Window_base& inWindow,
                  glm::vec4 inColor,
                  ui inStartShapeId,
                  ui inEndShapeId,

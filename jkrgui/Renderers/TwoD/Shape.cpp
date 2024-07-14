@@ -7,7 +7,7 @@
 using namespace Jkr::Renderer;
 
 Shape::Shape(const Instance& inInstance,
-             Window& inCompatibleWindow,
+             Window_base& inCompatibleWindow,
              std::unordered_map<FillType, Up<PainterCache>>& inPainterCaches,
              ui inVarDesCount)
     : mInstance(inInstance), mPainterCaches(inPainterCaches) {
@@ -325,7 +325,7 @@ void Shape::Update(ui inId, Jkr::Generator& inShape, float inX, float inY, float
 #endif
 }
 
-void Shape::Dispatch(Window& inWindow, CmdParam inParam) {
+void Shape::Dispatch(Window_base& inWindow, CmdParam inParam) {
 #ifndef JKR_NO_STAGING_BUFFERS
     if (!rb::IsCopyRegionsEmpty()) {
         rb::CmdCopyToPrimitiveFromStagingBuffer(
@@ -353,7 +353,7 @@ void Shape::Dispatch(Window& inWindow, CmdParam inParam) {
     }
 }
 
-void Shape::BindFillMode(FillType inFillType, Window& inWindow, CmdParam inParam) {
+void Shape::BindFillMode(FillType inFillType, Window_base& inWindow, CmdParam inParam) {
 #ifdef JKR_USE_VARIABLE_DES_INDEXING
     auto& Cmd = inWindow.GetCommandBuffers(inParam)[inWindow.GetCurrentFrame()];
     Cmd.GetCommandBufferHandle().bindDescriptorSets(
@@ -369,7 +369,7 @@ void Shape::BindFillMode(FillType inFillType, Window& inWindow, CmdParam inParam
     mCurrentFillMode = inFillType;
 }
 
-void Shape::BindImage(Window& inWindow, ui inImageId, CmdParam inParam) {
+void Shape::BindImage(Window_base& inWindow, ui inImageId, CmdParam inParam) {
     // TODO Remove
     if (inImageId != -1) {
 #ifndef JKR_USE_VARIABLE_DES_INDEXING
@@ -388,11 +388,11 @@ void Shape::BindImage(Window& inWindow, ui inImageId, CmdParam inParam) {
     }
 }
 
-void Shape::BindShapes(Window& inWindow, CmdParam inParam) {
+void Shape::BindShapes(Window_base& inWindow, CmdParam inParam) {
     mPrimitive->Bind(mInstance, inWindow, inParam);
 }
 
-void Shape::Draw(Window& inWindow,
+void Shape::Draw(Window_base& inWindow,
                  glm::vec4 inColor,
                  ui inWindowW,
                  ui inWindowH,
@@ -516,7 +516,7 @@ void Jkr::Renderer::Shape::UpdateEXT(ui inId, Jkr::Generator& inShape, glm::vec3
     Update(inId, inShape, inPosition.x, inPosition.y, inPosition.z);
 }
 
-void Jkr::Renderer::Shape::DrawEXT(Window& inWindow,
+void Jkr::Renderer::Shape::DrawEXT(Window_base& inWindow,
                                    glm::vec4 inColor,
                                    ui inStartShapeId,
                                    ui inEndShapeId,

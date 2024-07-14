@@ -13,7 +13,7 @@ if(ANDROID)
 	 configure_target(jkrgui)
 else()
 	add_library(jkrgui STATIC ${app_SRC})
- endif()
+endif()
 
 PrecompileStdHeaders(jkrgui)
 someFlags(jkrgui)

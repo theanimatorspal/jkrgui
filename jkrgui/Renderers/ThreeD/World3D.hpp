@@ -8,7 +8,7 @@
 #include "PainterParameter_base.hpp"
 #include "Renderers/Renderer_base.hpp"
 #include "Uniform3D.hpp"
-#include "WindowMulT.hpp"
+#include "Window.hpp"
 
 // TODO Refactor, Make a world base (Or however) with Object, Lights and Cameras Only
 namespace Jkr::Renderer::_3D {
@@ -58,10 +58,10 @@ struct World3D {
 
     void AddCamera(Camera3D& inCamera) { mCameras.push_back(inCamera); }
     int AddGLTFModel(std::string_view inFileName);
-    int AddSimple3D(Jkr::Instance& inInstance, Window& inWindow);
+    int AddSimple3D(Jkr::Instance& inInstance, Window_base& inWindow);
     int AddUniform3D(Jkr::Instance& inInstance);
     int AddLight3D(glm::vec4 inPosition, glm::vec4 inDirection);
-    void DrawObjectsExplicit(Window& inWindow,
+    void DrawObjectsExplicit(Window_base& inWindow,
                              v<Object3D>& inExplicitObjectIds,
                              Renderer::CmdParam inParam);
     void Event(Jkr::EventManager& inEvent);
@@ -75,7 +75,7 @@ struct World3D {
     void AddWorldInfoToUniform3D(int inId);
     void AddWorldInfoToUniform3DEXT(Uniform3D& inUniform);
     void AddSkyboxToUniform3D(Instance& inInstance, sv inFolderPath, int inId, int inSet);
-    void AddShadowMapToUniform3D(WindowMulT& inWindow, int inId, int inSet);
+    void AddShadowMapToUniform3D(Window& inWindow, int inId, int inSet);
     void AddWorldPrimitiveToUniform3D(Instance& inInstance, Uniform3D& inUniform3D, int inId);
     void UpdateWorldInfoToUniform3D(Uniform3D& inUniform);
 

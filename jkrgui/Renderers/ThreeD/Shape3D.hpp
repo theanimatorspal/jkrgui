@@ -16,17 +16,17 @@ class Shape : public Renderer_base, public Shape_base {
     using gb                = Shape_base;
     using rb                = Renderer_base;
     using StagingBufferType = VulkanBuffer;
-    using ComPar            = Window::ParameterContext;
+    using ComPar            = Window_base::ParameterContext;
 
     public:
     GETTER& GetPrimitive() { return *mPrimitive; }
-    Shape(const Instance& inInstance, Window& inCompatibleWindow);
+    Shape(const Instance& inInstance, Window_base& inCompatibleWindow);
     void Add(glTF_Model& inModel, ui& outId);
     void Add(Generator& inGenerator, glm::vec3 inPosition, ui& outId);
     void Update(ui inId, Generator& inGenerator, glm::vec3 inPosition);
-    void Bind(Window& inWindow, ComPar inCompar);
+    void Bind(Window_base& inWindow, ComPar inCompar);
     void BindByCommandBuffer(VulkanCommandBuffer& inCmdBuffer);
-    void Dispatch(Window& inWindow);
+    void Dispatch(Window_base& inWindow);
 
     ui AddEXT(Generator& inGenerator, glm::vec3 inPosition);
     ui AddEXT(glTF_Model& inModel);

@@ -80,7 +80,7 @@ class Uniform3D {
                                   int inDstSet          = 0);
 
     void AddGenerateBRDFLookupTable(Instance& inInstance,
-                                    WindowMulT& inWindow,
+                                    Window& inWindow,
                                     std::string_view inFileName,
                                     std::string_view inVertexShader,
                                     std::string_view inFragmentShader,
@@ -90,7 +90,7 @@ class Uniform3D {
                                     int inDstSet     = 1);
 
     void AddGenerateIrradianceCube(Instance& inInstance,
-                                   WindowMulT& inWindow,
+                                   Window& inWindow,
                                    Renderer::_3D::Shape& inShape,
                                    int inSkyboxModelIndex,
                                    VulkanImageBase& inEnvironmentCubeMap,
@@ -104,7 +104,7 @@ class Uniform3D {
                                    int inDstSet     = 1);
 
     void AddGeneratePrefilteredCube(Instance& inInstance,
-                                    WindowMulT& inWindow,
+                                    Window& inWindow,
                                     Renderer::_3D::Shape& inShape,
                                     int inSkyboxModelIndex,
                                     VulkanImageBase& inEnvironmentCubeMap,
@@ -122,7 +122,7 @@ class Uniform3D {
     void UpdateStorageBuffer(int inDstBinding, void** inData, size_t inSize);
     void UpdateUniformBuffer(int inDstBinding, void** inData, size_t inSize);
     void UpdateByGLTFAnimation(Renderer::_3D::glTF_Model& inModel);
-    void Bind(Window& inWindow, Simple3D& inSimple, int inSet, Window::ParameterContext inParam);
+    void Bind(Window_base& inWindow, Simple3D& inSimple, int inSet, Window_base::ParameterContext inParam);
     void Print(); // TODO ChatGPT
 
     Uniform3D(const Instance& inInstance, Simple3D& inSimple3D) : mInstance(inInstance) {

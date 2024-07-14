@@ -14,13 +14,13 @@ namespace Jkr::Renderer
 		using fb = FastText_base;
 		using rb = Renderer_base;
 	public:
-		FastText(const Instance& inInstance, const Window& inCompatibleWindow, const PainterCache& inCache);
+		FastText(const Instance& inInstance, const Window_base& inCompatibleWindow, const PainterCache& inCache);
 		fb::TextDimensions AddText(const std::string_view inText, uint32_t inX, uint32_t inY, uint32_t inDepthValue, uint32_t& outId);
 		fb::TextDimensions UpdateText(uint32_t inId, const std::string_view inText, uint32_t inX, uint32_t inY, uint32_t inDepthValue);
-		void Dispatch(Window& inWindow);
-		void Bind(Window& inWindow);
-		void Draw(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inStartLineId, uint32_t inNoOfChars, glm::mat4 inMatrix);
-		void DrawAll(Window& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, glm::mat4 inMatrix)
+		void Dispatch(Window_base& inWindow);
+		void Bind(Window_base& inWindow);
+		void Draw(Window_base& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, uint32_t inStartLineId, uint32_t inNoOfChars, glm::mat4 inMatrix);
+		void DrawAll(Window_base& inWindow, glm::vec4 inColor, uint32_t inWindowW, uint32_t inWindowH, glm::mat4 inMatrix)
 		{
 			Draw(inWindow, inColor, inWindowW, inWindowH, 0, GetCurrentCharOffsetAbsolute(), inMatrix);
 		}

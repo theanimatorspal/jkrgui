@@ -5,7 +5,7 @@
 namespace Jkr::Renderer {
 
 Up<VulkanImageVMA> PBR::GenerateBRDFLookupTable(Instance& inInstance,
-                                                WindowMulT& inWindow,
+                                                Window& inWindow,
                                                 std::string_view inFileName,
                                                 std::string_view inVertexShader,
                                                 std::string_view inFragmentShader,
@@ -64,7 +64,7 @@ Up<VulkanImageVMA> PBR::GenerateBRDFLookupTable(Instance& inInstance,
 }
 
 Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance& inInstance,
-                                               WindowMulT& inWindow,
+                                               Window& inWindow,
                                                _3D::Shape& inShape,
                                                int inSkyboxModelIndex,
                                                VulkanImageBase& inEnvironmentCubeMap,
@@ -264,7 +264,7 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance& inInstance,
 }
 
 Up<VulkanImageVMA> PBR::GeneratePrefilteredCube(Instance& inInstance,
-                                                WindowMulT& inWindow,
+                                                Window& inWindow,
                                                 _3D::Shape& inShape,
                                                 int inSkyboxModelIndex,
                                                 VulkanImageBase& inEnvironmentCubeMap,

@@ -16,14 +16,14 @@ using namespace ksai;
 using namespace Jkr;
 struct PBR {
     static Up<VulkanImageVMA> GenerateBRDFLookupTable(Instance& inInstance,
-                                                      WindowMulT& inWindow,
+                                                      Window& inWindow,
                                                       std::string_view inFileName,
                                                       std::string_view inVertexShader,
                                                       std::string_view inFragmentShader,
                                                       std::string_view inComputeShader,
                                                       bool inShouldLoad);
     static Up<VulkanImageVMA> GenerateIrradianceCube(Instance& inInstance,
-                                                     WindowMulT& inWindow,
+                                                     Window& inWindow,
                                                      _3D::Shape& inShape,
                                                      int inSkyboxModelIndex,
                                                      VulkanImageBase& inEnvironmentCubeMap,
@@ -34,7 +34,7 @@ struct PBR {
                                                      bool inShouldLoad,
                                                      _3D::World3D& inWorld);
     static Up<VulkanImageVMA> GeneratePrefilteredCube(Instance& inInstance,
-                                                      WindowMulT& inWindow,
+                                                      Window& inWindow,
                                                       _3D::Shape& inShape,
                                                       int inSkyboxModelIndex,
                                                       VulkanImageBase& inEnvironmentCubeMap,
