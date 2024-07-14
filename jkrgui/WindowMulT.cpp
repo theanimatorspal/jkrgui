@@ -10,12 +10,12 @@
 using namespace Jkr;
 
 Jkr::Window::Window(const Instance &inInstance,
-                            const sv inTitle,
-                            ui inHeight,
-                            ui inWidth,
-                            ui inNumThreads,
-                            std::span<ui> inPerThreadBuffers, // TODO remove this
-                            optref<ksai::ThreadPool> inPool)
+                    const sv inTitle,
+                    ui inHeight,
+                    ui inWidth,
+                    ui inNumThreads,
+                    std::span<ui> inPerThreadBuffers, // TODO remove this
+                    optref<ksai::ThreadPool> inPool)
     : Window_base(inInstance, inTitle, inHeight, inWidth),
       mThreadPool(inPool),
       mUICommandPool(inInstance.GetDevice(), inInstance.GetQueueContext()),
@@ -149,23 +149,16 @@ void Window::BeginThreadCommandBuffer(int inThreadId) {
               mRenderPass, 0, *mFrameBuffers[mAcquiredImageIndex]);
 }
 
-void Window::EndThreadCommandBuffer(int inThreadId) {
-    mThreadCommandBuffers[inThreadId]->mCommandBuffers[mCurrentFrame].End();
-}
+void Window::EndThreadCommandBuffer(int inThreadId) { mThreadCommandBuffers[inThreadId]->mCommandBuffers[mCurrentFrame].End(); }
 
 void Window::BuildShadowPass(ui inWidth, ui inHeight) {
     mShadowPass = mu<ShadowPass>(*mInstance, inWidth, inHeight);
     mFrameSize  = glm::uvec2(inWidth, inHeight);
 }
 
-void Window::BuildDeferredPass(ui inWidth,
-                                   ui inHeight,
-                                   Renderer::_3D::Simple3D &inCompositionSimple3D,
-                                   Renderer::_3D::Simple3D &inShadowSimple3D,
-                                   Renderer::_3D::World3D &inWorld) {
-    mDeferredPass =
-         mu<DeferredPass>(*mInstance, inWidth, inHeight, inCompositionSimple3D, inShadowSimple3D, inWorld, mMaxFramesInFlight);
-    mFrameSize = glm::uvec2(inWidth, inHeight);
+void Window::BuildDeferredPass(ui inWidth, ui inHeight) {
+    mDeferredPass = mu<DeferredPass>(*mInstance, inWidth, inHeight, mMaxFramesInFlight);
+    mFrameSize    = glm::uvec2(inWidth, inHeight);
 }
 
 void Window::BeginDeferredDraws(float r, float g, float b, float a, float d) {

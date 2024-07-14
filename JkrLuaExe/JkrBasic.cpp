@@ -1,19 +1,18 @@
 #include "EventManager.hpp"
 #include "Painter.hpp"
 #include "Window.hpp"
+#include "Renderers/ThreeD/Uniform3D.hpp"
+#include "Renderers/ThreeD/World3D.hpp"
 #include "JkrLuaExe.hpp"
 
 namespace JkrEXE {
 using namespace std;
 using namespace Jkr;
-void CreateBasicBindings(sol::state& s) {
+void CreateBasicBindings(sol::state &s) {
     auto Jkr = s["Jkr"].get_or_create<sol::table>();
     Jkr.new_usertype<Jkr::Instance>(
-         "Instance",
-         sol::call_constructor,
-         sol::factories([](int inDescriptorSize, int inPoolSize, bool inEnableValidation) {
-             return std::make_unique<Jkr::Instance>(
-                  inDescriptorSize, inPoolSize, inEnableValidation);
+         "Instance", sol::call_constructor, sol::factories([](int inDescriptorSize, int inPoolSize, bool inEnableValidation) {
+             return std::make_unique<Jkr::Instance>(inDescriptorSize, inPoolSize, inEnableValidation);
          }));
     Jkr.new_usertype<Jkr::Window_base>("WindowBase");
     Jkr.new_usertype<Jkr::Window>(
@@ -21,29 +20,28 @@ void CreateBasicBindings(sol::state& s) {
          sol::base_classes,
          sol::bases<Jkr::Window_base>(),
          sol::call_constructor,
-         sol::factories([](Jkr::Instance& inInstance,
-                           std::string_view inTitle,
-                           int inWidth,
-                           int inHeight,
-                           int inThreadsCount) {
+         sol::factories([](Jkr::Instance &inInstance, std::string_view inTitle, int inWidth, int inHeight, int inThreadsCount) {
              int NoOfCmdBufferPerThread = 2; // TODO Don't hardcode
              std::vector<ui> CmdBufferCountPerThreadVec;
              CmdBufferCountPerThreadVec.resize(inThreadsCount, NoOfCmdBufferPerThread);
-             return std::make_unique<Jkr::Window>(inInstance,
-                                                      inTitle,
-                                                      inHeight,
-                                                      inWidth,
-                                                      inThreadsCount,
-                                                      CmdBufferCountPerThreadVec,
-                                                      inInstance.GetThreadPool());
+             return std::make_unique<Jkr::Window>(
+                  inInstance, inTitle, inHeight, inWidth, inThreadsCount, CmdBufferCountPerThreadVec, inInstance.GetThreadPool());
          }),
          "BuildShadowPass",
          &Jkr::Window::BuildShadowPass,
-
          "BeginShadowPass",
          &Jkr::Window::BeginShadowPass,
          "EndShadowPass",
          &Jkr::Window::EndShadowPass,
+
+         "BuildDeferredPass",
+         &Jkr::Window::BuildDeferredPass,
+         "PrepareDeferredPass",
+         &Jkr::Window::PrepareDeferredPass,
+         "BeginDeferredDraws",
+         &Jkr::Window::BeginDeferredDraws,
+         "EndDeferredDraws",
+         &Jkr::Window::EndDeferredDraws,
 
          "SetTitle",
          &Jkr::Window::SetTitle,
@@ -137,7 +135,7 @@ void CreateBasicBindings(sol::state& s) {
                                         "UpdateBoundedRect",
                                         &EventManager::UpdateBoundedRect,
                                         "SetEventCallBack",
-                                        [](Jkr::EventManager& inManager, sol::function inFunction) {
+                                        [](Jkr::EventManager &inManager, sol::function inFunction) {
                                             inManager.SetEventCallBack([=]() {
                                                 auto result = inFunction();
                                                 if (not result.valid()) {
@@ -158,24 +156,19 @@ void CreateBasicBindings(sol::state& s) {
     Jkr.new_usertype<Jkr::PainterCache>(
          "PainterCache",
          sol::call_constructor,
-         [](Jkr::Instance& inInstance, PipelinePropertiesContext inContext) {
+         [](Jkr::Instance &inInstance, PipelinePropertiesContext inContext) {
              return mu<Jkr::PainterCache>(inInstance, inContext);
          },
          "Store",
-         [](Jkr::PainterCache& inCache,
+         [](Jkr::PainterCache &inCache,
             string_view inFilename,
             string_view inVertexShader,
             string_view inFragmentShader,
             string_view inComputeShader) {
-             inCache.Store(string(inFilename),
-                           string(inVertexShader),
-                           string(inFragmentShader),
-                           string(inComputeShader));
+             inCache.Store(string(inFilename), string(inVertexShader), string(inFragmentShader), string(inComputeShader));
          },
          "Load",
-         [](Jkr::PainterCache& inCache, string_view inFilename) {
-             inCache.Load(string(inFilename));
-         }
+         [](Jkr::PainterCache &inCache, string_view inFilename) { inCache.Load(string(inFilename)); }
          // TODO Sort
          // Variable
          // Descriptors

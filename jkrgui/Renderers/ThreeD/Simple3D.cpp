@@ -102,7 +102,8 @@ void Simple3D::CompileForDeferredCompositionOffscreen(Jkr::Instance &inInstance,
     } else {
         mPainterCache->Load(string(inFilename));
     }
-    mPainter = mu<Painter>(inInstance, inCompatibleWindow.GetRenderPass(), *mPainterCache, mPipelineContext);
+    mPainter = mu<Painter>(
+         inInstance, inCompatibleWindow.GetDeferredPass().GetCompositionRenderPass(), *mPainterCache, mPipelineContext);
 }
 
 void Simple3D::Compile(Jkr::Instance &inInstance,
@@ -126,6 +127,9 @@ void Simple3D::Compile(Jkr::Instance &inInstance,
             CompileForDeferredOffscreen(
                  inInstance, inCompatibleWindow, inFilename, inVertexShader, inFragmentShader, inComputeShader, inShouldLoad);
             break;
+        case CompileContext::DeferredComposition:
+            CompileForDeferredCompositionOffscreen(
+                 inInstance, inCompatibleWindow, inFilename, inVertexShader, inFragmentShader, inComputeShader, inShouldLoad);
         default:
             break;
     }

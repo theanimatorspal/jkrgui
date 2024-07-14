@@ -2,6 +2,7 @@
 #include "Painter.hpp"
 #include "PainterCache.hpp"
 #include "Renderers/ThreeD/Simple3D.hpp"
+#include "Renderers/ThreeD/Uniform3D.hpp"
 #include "Renderers/ThreeD/World3D.hpp"
 
 using namespace Jkr;
@@ -13,13 +14,7 @@ ShadowPass::ShadowPass(const Instance &inInstance, ui inWidth, ui inHeight) : mI
     mFrameBuffer = mu<FrameBufferType>(inInstance.GetDevice(), *mRenderpass, mImage->GetDepthImage());
 }
 
-Jkr::DeferredPass::DeferredPass(const Instance &inInstance,
-                                ui inWidth,
-                                ui inHeight,
-                                Renderer::_3D::Simple3D &inCompositionSimple3D,
-                                Renderer::_3D::Simple3D &inShadowSimple3D,
-                                Renderer::_3D::World3D &inWorld3D,
-                                int inFramesInFlight)
+Jkr::DeferredPass::DeferredPass(const Instance &inInstance, ui inWidth, ui inHeight, int inFramesInFlight)
     : mInstance(inInstance) {
 
     // Deferred stuff
@@ -107,35 +102,24 @@ Jkr::DeferredPass::DeferredPass(const Instance &inInstance,
                                              .setBorderColor(vk::BorderColor::eFloatOpaqueWhite)));
         };
 
-        mCompositionDescriptorSet.Init({&mInstance.GetDevice(),
-                                        &mInstance.GetDescriptorPool(),
-                                        &inCompositionSimple3D.GetPainterCache().GetVertexFragmentDescriptorSetLayout()});
         mPositionImage->mSampler = mv(CreateSampler());
         mNormalImage->mSampler   = mv(CreateSampler());
         mAlbedoImage->mSampler   = mv(CreateSampler());
 
-        constexpr auto Set       = 1;
-        mPositionImage->Register(0, 0, 0, mCompositionDescriptorSet, Set);
-        mNormalImage->Register(0, 1, 0, mCompositionDescriptorSet, Set);
-        mAlbedoImage->Register(0, 2, 0, mCompositionDescriptorSet, Set);
-
-        // Build Commmand Buffers
-        {
-            mCompositionCommandBuffers.resize(inFramesInFlight);
-            for (auto &cmdbuf : mCompositionCommandBuffers) {
-                cmdbuf.Init({&mInstance.GetDevice(), &mInstance.GetCommandPool()});
-                cmdbuf.Begin();
-                cmdbuf.BeginRenderPass(*mDeferredRenderPass, vk::Extent2D{inWidth, inHeight}, *mFrameBuffer, {1, 1, 1, 1, 1});
-                cmdbuf.GetCommandBufferHandle().setViewport(0, vk::Viewport{0, 0, (float)inWidth, (float)inHeight, 0.0f, 1.0f});
-                cmdbuf.GetCommandBufferHandle().setScissor(0, vk::Rect2D{{}, vk::Extent2D{inWidth, inHeight}});
-                mCompositionDescriptorSet.Bind(vk::PipelineBindPoint::eGraphics,
-                                               cmdbuf,
-                                               inCompositionSimple3D.GetPainterCache().GetVertexFragmentPipelineLayout());
-                inCompositionSimple3D.BindByCommandBuffer(cmdbuf);
-                cmdbuf.GetCommandBufferHandle().draw(3, 1, 0, 0);
-                cmdbuf.End();
-            }
-        }
+        mCompositionImage->mUniformImagePtr =
+             mu<VulkanImageVMA>(inInstance.GetVMA(),
+                                mInstance.GetDevice(),
+                                inWidth,
+                                inHeight,
+                                ksai::ImageContext::Default,
+                                4,
+                                1,
+                                1,
+                                1,
+                                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
+                                vk::ImageLayout::eGeneral,
+                                vk::Format::eR8G8B8Unorm);
+        mCompositionRenderPass = mu<CompositionRenderPassType>(mInstance.GetDevice(), mCompositionImage->GetUniformImage());
     }
 
     // Deferred Shadows
@@ -161,4 +145,16 @@ Jkr::DeferredPass::DeferredPass(const Instance &inInstance,
                  mu<ShadowFrameBufferType>(mInstance.GetDevice(), *mShadowRenderPass, ShadowImageViews[i]));
         }
     }
+}
+
+void DeferredPass::Prepare(Renderer::_3D::Simple3D &inCompositionSimple3D,
+                           Renderer::_3D::Simple3D &inShadowSimple3D,
+                           Renderer::_3D::World3D &inWorld3D) {
+    constexpr auto Set    = 1;
+    mCompositionUniform3D = mu<Renderer::_3D::Uniform3D>(mInstance);
+    mCompositionUniform3D->Build(inCompositionSimple3D);
+    inWorld3D.AddWorldInfoToUniform3DEXT(*mCompositionUniform3D);
+    mPositionImage->Register(0, 3, 0, mCompositionUniform3D->GetVulkanDescriptorSet(), Set);
+    mNormalImage->Register(0, 4, 0, mCompositionUniform3D->GetVulkanDescriptorSet(), Set);
+    mAlbedoImage->Register(0, 5, 0, mCompositionUniform3D->GetVulkanDescriptorSet(), Set);
 }

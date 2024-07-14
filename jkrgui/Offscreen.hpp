@@ -8,6 +8,7 @@ class Painter;
 namespace Renderer::_3D {
 class Simple3D;
 class World3D;
+class Uniform3D;
 } // namespace Renderer::_3D
 class Window;
 
@@ -34,6 +35,7 @@ struct DeferredPass {
     using ImageType                 = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
     using RenderPassType            = VulkanRenderPass<RenderPassContext::Deferred>;
     using CompositionRenderPassType = VulkanRenderPass<RenderPassContext::SingleColorAttachment>;
+    GETTER &GetCompositionRenderPass() { return *mCompositionRenderPass; }
     GETTER &GetRenderPass() { return *mDeferredRenderPass; }
     GETTER &GetShadowRenderPass() { return *mShadowRenderPass; }
     GETTER &GetFrameBuffer() { return *mFrameBuffer; }
@@ -42,13 +44,10 @@ struct DeferredPass {
     void BeginDeferred(Window &inWindow, const glm::vec4 &inColor);
     void EndDeferred(Window &inWindow);
 
-    DeferredPass(const Instance &inInstance,
-                 ui inWidth,
-                 ui inHeight,
-                 Renderer::_3D::Simple3D &inCompositionSimple3D,
+    DeferredPass(const Instance &inInstance, ui inWidth, ui inHeight, int inFramesInFlight);
+    void Prepare(Renderer::_3D::Simple3D &inCompositionSimple3D,
                  Renderer::_3D::Simple3D &inShadowSimple3D,
-                 Renderer::_3D::World3D &inWorld3D,
-                 int inFramesInFlight);
+                 Renderer::_3D::World3D &inWorld3D);
 
     private:
     const Instance &mInstance;
@@ -60,8 +59,8 @@ struct DeferredPass {
     Up<FrameBufferType> mFrameBuffer;
     Up<VulkanSampler> mSampler;
 
-    VulkanDescriptorSet mCompositionDescriptorSet;
-    Up<CompositionRenderPassType> mCompositionRenderPassType;
+    Up<Renderer::_3D::Uniform3D> mCompositionUniform3D;
+    Up<CompositionRenderPassType> mCompositionRenderPass;
     Up<PainterCache> mCompositionPainterCache;
     Up<Painter> mCompositionPainter;
     Up<ImageType> mCompositionImage;

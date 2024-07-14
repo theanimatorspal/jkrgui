@@ -17,11 +17,10 @@ class Window : public Window_base {
     void BeginShadowPass(float ind);
     void EndShadowPass();
 
-    void BuildDeferredPass(ui inWidth,
-                           ui inHeight,
-                           Renderer::_3D::Simple3D &inCompositionSimple3D,
-                           Renderer::_3D::Simple3D &inShadowSimple3D,
-                           Renderer::_3D::World3D &inWorld);
+    void BuildDeferredPass(ui inWidth, ui inHeight);
+    void PrepareDeferredPass(Renderer::_3D::Simple3D &inCompositionSimple3D,
+                             Renderer::_3D::Simple3D &inShadowSimple3D,
+                             Renderer::_3D::World3D &inWorld);
 
     void BeginDeferredDraws(float r, float g, float b, float a, float d);
     void EndDeferredDraws();
@@ -44,12 +43,12 @@ class Window : public Window_base {
     void ExecuteThreadCommandBuffer(int inThreadId);
 
     Window(const Instance &inInstance,
-               const sv inTitle,
-               ui inHeight,
-               ui inWidth,
-               ui inNumThreads,
-               std::span<ui> inPerThreadBuffers,
-               optref<ksai::ThreadPool> inPool = std::nullopt);
+           const sv inTitle,
+           ui inHeight,
+           ui inWidth,
+           ui inNumThreads,
+           std::span<ui> inPerThreadBuffers,
+           optref<ksai::ThreadPool> inPool = std::nullopt);
     ~Window() = default;
 
     private:
