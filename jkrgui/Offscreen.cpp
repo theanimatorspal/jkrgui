@@ -61,13 +61,13 @@ Jkr::DeferredPass::DeferredPass(const Instance &inInstance, ui inWidth, ui inHei
                                 1,
                                 vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
                                 vk::ImageLayout::eGeneral,
-                                vk::Format::eR8G8B8Unorm);
+                                vk::Format::eR8G8B8A8Unorm);
         mDepthImage->mUniformImagePtr =
              mu<VulkanImageVMA>(inInstance.GetVMA(),
                                 mInstance.GetDevice(),
                                 inWidth,
                                 inHeight,
-                                ksai::ImageContext::Default,
+                                ksai::ImageContext::DepthImage,
                                 4,
                                 1,
                                 1,
@@ -106,6 +106,7 @@ Jkr::DeferredPass::DeferredPass(const Instance &inInstance, ui inWidth, ui inHei
         mNormalImage->mSampler   = mv(CreateSampler());
         mAlbedoImage->mSampler   = mv(CreateSampler());
 
+        mCompositionImage        = mu<ImageType>(mInstance);
         mCompositionImage->mUniformImagePtr =
              mu<VulkanImageVMA>(inInstance.GetVMA(),
                                 mInstance.GetDevice(),
@@ -118,18 +119,19 @@ Jkr::DeferredPass::DeferredPass(const Instance &inInstance, ui inWidth, ui inHei
                                 1,
                                 vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
                                 vk::ImageLayout::eGeneral,
-                                vk::Format::eR8G8B8Unorm);
+                                vk::Format::eR8G8B8A8Unorm);
         mCompositionRenderPass = mu<CompositionRenderPassType>(mInstance.GetDevice(), mCompositionImage->GetUniformImage());
     }
 
     // Deferred Shadows
     {
+        mShadowMap = mu<ImageType>(mInstance);
         mShadowMap->mUniformImagePtr =
              mu<VulkanImageVMA>(inInstance.GetVMA(),
                                 mInstance.GetDevice(),
                                 std::max(inWidth, inHeight),
                                 std::max(inWidth, inHeight),
-                                ksai::ImageContext::Default,
+                                ksai::ImageContext::DepthImage,
                                 4,
                                 kstd::LightCount,
                                 1,
@@ -142,14 +144,15 @@ Jkr::DeferredPass::DeferredPass(const Instance &inInstance, ui inWidth, ui inHei
         auto &ShadowImageViews = mShadowMap->mUniformImagePtr->GetImageViews();
         for (int i = 0; i < ShadowImageViews.size(); i++) {
             mShadowFrameBuffers.emplace_back(
-                 mu<ShadowFrameBufferType>(mInstance.GetDevice(), *mShadowRenderPass, ShadowImageViews[i]));
+                 mu<ShadowFrameBufferType>(mInstance.GetDevice(),
+                                           *mShadowRenderPass,
+                                           vk::Extent2D{std::max(inWidth, inHeight), std::max(inWidth, inHeight)},
+                                           ShadowImageViews[i]));
         }
     }
 }
 
-void DeferredPass::Prepare(Renderer::_3D::Simple3D &inCompositionSimple3D,
-                           Renderer::_3D::Simple3D &inShadowSimple3D,
-                           Renderer::_3D::World3D &inWorld3D) {
+void DeferredPass::Prepare(Renderer::_3D::Simple3D &inCompositionSimple3D, Renderer::_3D::World3D &inWorld3D) {
     constexpr auto Set    = 1;
     mCompositionUniform3D = mu<Renderer::_3D::Uniform3D>(mInstance);
     mCompositionUniform3D->Build(inCompositionSimple3D);

@@ -35,10 +35,9 @@ template <size_t NoOfAttachements = 2, typename... T> class VulkanFrameBuffer : 
     /**
      * @brief Can accept VulkanImage, VulkanImageVMA or vk::ImageView
      *
+     * for vk::ImageView, a vk::Extent object has to be passed with the ImageViews
+     * like Init(device, renderPass, extent2d, imageview1, imageview2);
      *
-     * Just pass the specified type starting from the third parameter,
-     * creating frame buffers for multiple layers is supported with
-     * vk::ImageView being supported
      */
     void Init(const VulkanDevice &inDevice, const VulkanRenderPassBase &inRenderPass, const T &...inT) {
         mDevice = &inDevice.GetDeviceHandle();
@@ -48,6 +47,8 @@ template <size_t NoOfAttachements = 2, typename... T> class VulkanFrameBuffer : 
                  if constexpr (Has_GetImageViewHandle<T>) {
                      Attachments.push_back(inT.GetImageViewHandle());
                      mExtent = inT.GetImageExtent();
+                 } else if constexpr (std::is_same_v<T, vk::Extent2D>) {
+                     mExtent = inT;
                  } else {
                      Attachments.push_back(inT);
                  }

@@ -1220,7 +1220,7 @@ Deferred.ScreenQuadCompositionFragment = Engine.Shader()
     .Append [[
         vec3 fragPos = texture(inPositionImage, vUV).rgb;
         vec3 normal = texture(inNormalImage, vUV).rgb;
-        vec3 albedo = texture(inAlbedoImage, vUV).rgb;
+        vec4 albedo = texture(inAlbedoImage, vUV);
         #define lightCount 8
         #define ambient 0.0
         vec3 fragColor = albedo.rgb * ambient;
@@ -1244,7 +1244,7 @@ Deferred.ScreenQuadCompositionFragment = Engine.Shader()
             vec3 spec = lightColor * albedo.a * pow(NdotR, 16.0f) * attenuation;
             fragColor += diff + spec;
         }
-        outFragColor = fragColor;
+        outFragColor = vec4(fragColor, albedo.a);
     ]]
     .GlslMainEnd()
 

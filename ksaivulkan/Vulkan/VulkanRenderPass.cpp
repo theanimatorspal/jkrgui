@@ -261,10 +261,10 @@ VulkanRenderPass<RenderPassContext::Deferred>::VulkanRenderPass(const VulkanDevi
         AttachmentDescriptions[i].stencilLoadOp  = vk::AttachmentLoadOp::eDontCare;
         AttachmentDescriptions[i].stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
         if (i == 3) {
-            AttachmentDescriptions[i].initialLayout = vk::ImageLayout::eUndefined;
+            AttachmentDescriptions[i].initialLayout = vk::ImageLayout::eGeneral;
             AttachmentDescriptions[i].finalLayout   = vk::ImageLayout::eDepthStencilAttachmentOptimal;
         } else {
-            AttachmentDescriptions[i].initialLayout = vk::ImageLayout::eUndefined;
+            AttachmentDescriptions[i].initialLayout = vk::ImageLayout::eGeneral;
             AttachmentDescriptions[i].finalLayout   = vk::ImageLayout::eShaderReadOnlyOptimal;
         }
     }

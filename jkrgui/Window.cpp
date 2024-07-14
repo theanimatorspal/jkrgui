@@ -161,10 +161,8 @@ void Window::BuildDeferredPass(ui inWidth, ui inHeight) {
     mFrameSize    = glm::uvec2(inWidth, inHeight);
 }
 
-void Window::PrepareDeferredPass(Renderer::_3D::Simple3D &inCompositionSimple3D,
-                                 Renderer::_3D::Simple3D &inShadowSimple3D,
-                                 Renderer::_3D::World3D &inWorld) {
-    mDeferredPass->Prepare(inCompositionSimple3D, inShadowSimple3D, inWorld);
+void Window::PrepareDeferredPass(Renderer::_3D::Simple3D &inCompositionSimple3D, Renderer::_3D::World3D &inWorld) {
+    mDeferredPass->Prepare(inCompositionSimple3D, inWorld);
 }
 
 void Window::BeginDeferredDraws(float r, float g, float b, float a, float d) {

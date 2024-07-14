@@ -45,9 +45,7 @@ struct DeferredPass {
     void EndDeferred(Window &inWindow);
 
     DeferredPass(const Instance &inInstance, ui inWidth, ui inHeight, int inFramesInFlight);
-    void Prepare(Renderer::_3D::Simple3D &inCompositionSimple3D,
-                 Renderer::_3D::Simple3D &inShadowSimple3D,
-                 Renderer::_3D::World3D &inWorld3D);
+    void Prepare(Renderer::_3D::Simple3D &inCompositionSimple3D, Renderer::_3D::World3D &inWorld3D);
 
     private:
     const Instance &mInstance;
@@ -67,7 +65,7 @@ struct DeferredPass {
     v<VulkanCommandBuffer> mCompositionCommandBuffers;
 
     using ShadowRenderPassType  = VulkanRenderPass<RenderPassContext::Shadow>;
-    using ShadowFrameBufferType = VulkanFrameBuffer<1, vk::ImageView>;
+    using ShadowFrameBufferType = VulkanFrameBuffer<1, vk::Extent2D, vk::ImageView>;
     Up<ImageType> mShadowMap;
     v<up<ShadowFrameBufferType>> mShadowFrameBuffers;
     Up<ShadowRenderPassType> mShadowRenderPass;

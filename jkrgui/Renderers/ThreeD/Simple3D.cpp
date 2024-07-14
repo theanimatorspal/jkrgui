@@ -130,6 +130,7 @@ void Simple3D::Compile(Jkr::Instance &inInstance,
         case CompileContext::DeferredComposition:
             CompileForDeferredCompositionOffscreen(
                  inInstance, inCompatibleWindow, inFilename, inVertexShader, inFragmentShader, inComputeShader, inShouldLoad);
+            break;
         default:
             break;
     }

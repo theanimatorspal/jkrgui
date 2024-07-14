@@ -200,7 +200,7 @@ void ksai::VulkanImageBase::CreateImageAndBindMemory(vk::Image &inImage, vk::Dev
 
 void ksai::VulkanImageBase::CreateImageView(vk::Image &inImage) {
     vk::ImageSubresourceRange ImageSubResourcesRange(
-         mImageProperties.mImageAspect, 0, mImageProperties.mMipLevels, 0, mImageProperties.mArrayLayers);
+         mImageProperties.mImageAspect, 0, mImageProperties.mMipLevels, 0, VK_REMAINING_ARRAY_LAYERS);
     vk::ImageViewCreateInfo ImageViewCreateInfo(vk::ImageViewCreateFlags(),
                                                 inImage,
                                                 mImageProperties.mImageViewType,
@@ -292,6 +292,9 @@ void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(const VulkanCommandB
 }
 
 void VulkanImageBase::FillImageProperties(ImageContext inImageContext, uint32_t inNumSamples) {
+    if (mImageProperties.mArrayLayers > 1) {
+        mImageProperties.mImageViewType = vk::ImageViewType::e2DArray;
+    }
     // These are all for other than Defaults
     if (inImageContext == ImageContext::DepthImage) {
         mImageProperties.mImageFormat         = vk::Format::eD16Unorm;
@@ -301,7 +304,6 @@ void VulkanImageBase::FillImageProperties(ImageContext inImageContext, uint32_t 
         mImageProperties.mImageUsage     = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
         mImageProperties.mImageAspect    = vk::ImageAspectFlagBits::eDepth;
         mImageProperties.mMemoryProperty = vk::MemoryPropertyFlagBits::eDeviceLocal;
-        mImageProperties.mImageViewType  = vk::ImageViewType::e2D;
         // mImageProperties.mInitialImageLayout = vk::ImageLayout::eDepthAttachmentOptimal;
         mImageProperties.mInitialImageLayout = vk::ImageLayout::eGeneral;
     } else if (inImageContext == ImageContext::Storage) {
@@ -338,7 +340,7 @@ void VulkanImageBase::FillImageProperties(ImageContext inImageContext, uint32_t 
 void VulkanImageBase::BuildImageViewsByLayers() {
     for (int i = 0; i < mImageProperties.mArrayLayers; i++) {
         vk::ImageSubresourceRange ImageSubResourcesRange(
-             mImageProperties.mImageAspect, 0, mImageProperties.mMipLevels, i, mImageProperties.mArrayLayers);
+             mImageProperties.mImageAspect, 0, mImageProperties.mMipLevels, i, VK_REMAINING_ARRAY_LAYERS);
         vk::ImageViewCreateInfo ImageViewCreateInfo(vk::ImageViewCreateFlags(),
                                                     mImage,
                                                     mImageProperties.mImageViewType,

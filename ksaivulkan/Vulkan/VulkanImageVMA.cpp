@@ -35,13 +35,13 @@ VulkanImageVMA::~VulkanImageVMA() {
 
 void VulkanImageVMA::Init(CreateInfo inCreateInfo) {
     VulkanImageBase::Init({.mDevice = inCreateInfo.inDevice});
-    mVMA    = inCreateInfo.inVMA;
-    mDevice = &inCreateInfo.inDevice->GetDeviceHandle();
-    FillImageProperties(inCreateInfo.inImageContext, inCreateInfo.inSamples);
+    mVMA                            = inCreateInfo.inVMA;
+    mDevice                         = &inCreateInfo.inDevice->GetDeviceHandle();
     mImageProperties.mArrayLayers   = inCreateInfo.inLayerCount;
     mImageProperties.mExtent.width  = inCreateInfo.inWidth;
     mImageProperties.mExtent.height = inCreateInfo.inHeight;
     mImageProperties.mMipLevels     = inCreateInfo.inMips;
+    FillImageProperties(inCreateInfo.inImageContext, inCreateInfo.inSamples);
     if (inCreateInfo.inUsageBits.has_value()) {
         mImageProperties.mImageUsage |= inCreateInfo.inUsageBits.value();
     }
