@@ -10,12 +10,7 @@ namespace ksai {
 class VulkanCommandBuffer {
     public:
     enum class Type { Primary, Secondary };
-    enum class BeginContext {
-        Normal,
-        ContinueRenderPass,
-        OneTimeSubmit,
-        ContinueRenderPassAndOneTimeSubmit
-    };
+    enum class BeginContext { Normal, ContinueRenderPass, OneTimeSubmit, ContinueRenderPassAndOneTimeSubmit };
 
     struct CreateInfo {
         const VulkanDevice *inDevice    = nullptr;
@@ -34,49 +29,37 @@ class VulkanCommandBuffer {
     void Init(CreateInfo inCreateInfo);
     void Destroy();
 
-    VulkanCommandBuffer(const VulkanDevice &inDevice,
-                        const VulkanCommandPool &inPool,
-                        Type inContext = Type::Primary);
+    VulkanCommandBuffer(const VulkanDevice &inDevice, const VulkanCommandPool &inPool, Type inContext = Type::Primary);
     GETTER &GetCommandBufferHandle() const { return mBuffer; }
     template <BeginContext inContext = BeginContext::Normal> void Begin() const;
 
     template <BeginContext inContext = BeginContext::Normal>
-    void Begin(VulkanRenderPassBase &inRenderPass,
-               ksai::ui inSubpass,
-               VulkanFrameBufferBase &inFrameBuffer) const;
+    void Begin(VulkanRenderPassBase &inRenderPass, ksai::ui inSubpass, VulkanFrameBufferBase &inFrameBuffer) const;
     void Reset() const { mBuffer.reset(); }
     void End() const { mBuffer.end(); }
-    void ExecuteCommands(const VulkanCommandBuffer &inBuffer) const {
-        mBuffer.executeCommands(inBuffer.mBuffer);
-    }
+    void ExecuteCommands(const VulkanCommandBuffer &inBuffer) const { mBuffer.executeCommands(inBuffer.mBuffer); }
 
     enum class RenderPassBeginContext { Inline, SecondaryCommandBuffers };
     template <RenderPassBeginContext inBeginContext = RenderPassBeginContext::Inline>
     void BeginRenderPass(const VulkanRenderPassBase &inRenderPass,
                          const vk::Extent2D inSurface,
                          const VulkanFrameBufferBase &inFrameBuffer,
-                         std::array<float, 5> inClearValue) const;
+                         std::array<float, 5> inClearValue,
+                         int inClearValueCount = 2) const;
 
     void EndRenderPass() const;
     template <class T>
-    void PushConstants(const VulkanPipelineLayoutBase &inPipelineLayout,
-                       const vk::ArrayProxy<const T> inValues) const {
+    void PushConstants(const VulkanPipelineLayoutBase &inPipelineLayout, const vk::ArrayProxy<const T> inValues) const {
         mBuffer.pushConstants<T>(inPipelineLayout.GetPipelineLayoutHandle(),
-                                 vk::ShaderStageFlagBits::eVertex |
-                                      vk::ShaderStageFlagBits::eFragment |
+                                 vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment |
                                       vk::ShaderStageFlagBits::eCompute,
                                  0,
                                  inValues);
     }
     void SetViewport(const VulkanSurface &inSurface) {
         const auto &Extent = inSurface.GetExtent();
-        mBuffer.setViewport(0,
-                            vk::Viewport(0.0f,
-                                         0.0f,
-                                         static_cast<float>(Extent.width),
-                                         static_cast<float>(Extent.height),
-                                         0.0f,
-                                         1.0f));
+        mBuffer.setViewport(
+             0, vk::Viewport(0.0f, 0.0f, static_cast<float>(Extent.width), static_cast<float>(Extent.height), 0.0f, 1.0f));
     }
     void SetScissor(const VulkanSurface &inSurface) {
         const auto &Extent = inSurface.GetExtent();

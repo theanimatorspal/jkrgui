@@ -72,7 +72,7 @@ class Simple3D {
               ui inInstanceCount,
               CmdParam inParam);
 
-    void BindByCommandBuffer(VulkanCommandBuffer &inCommandBuffer);
+    void BindByCommandBuffer(const VulkanCommandBuffer &inCommandBuffer);
     template <typename T>
     void DrawByCommandBuffer(
          VulkanCommandBuffer &inCommandBuffer, Shape &inShape3D, T inPush, ui inFirstIndex, ui inIndexCount, ui inInstanceCount);

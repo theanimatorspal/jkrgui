@@ -35,15 +35,16 @@ template <>
 void vb::BeginRenderPass<vb::RenderPassBeginContext::Inline>(const VulkanRenderPassBase &inRenderPass,
                                                              const vk::Extent2D inExtent,
                                                              const VulkanFrameBufferBase &inFrameBuffer,
-                                                             std::array<float, 5> inClearValue) const {
-    std::array<vk::ClearValue, 2> ClearValues;
-    ClearValues[0].color        = vk::ClearColorValue(inClearValue[0], inClearValue[1], inClearValue[2], inClearValue[3]);
-    ClearValues[1].depthStencil = vk::ClearDepthStencilValue(inClearValue[4]);
-    auto RenderPassBeginInfo    = vk::RenderPassBeginInfo()
+                                                             std::array<float, 5> inClearValue,
+                                                             int inClearValueCount) const {
+    std::vector<vk::ClearValue> ClearValues;
+    ClearValues.resize(inClearValueCount,
+                       vk::ClearColorValue(inClearValue[0], inClearValue[1], inClearValue[2], inClearValue[3]));
+    ClearValues[inClearValueCount - 1] = vk::ClearDepthStencilValue(inClearValue[4]);
+    auto RenderPassBeginInfo           = vk::RenderPassBeginInfo()
                                     .setRenderPass(inRenderPass.GetRenderPassHandle())
                                     .setFramebuffer(inFrameBuffer.GetFrameBufferHandle())
                                     .setRenderArea(vk::Rect2D(vk::Offset2D(0, 0), inExtent))
-                                    .setClearValueCount(ClearValues.size())
                                     .setClearValues(ClearValues);
 
     mBuffer.beginRenderPass(RenderPassBeginInfo, vk::SubpassContents::eInline);
@@ -56,11 +57,14 @@ template <>
 void vb::BeginRenderPass<vb::RenderPassBeginContext::SecondaryCommandBuffers>(const VulkanRenderPassBase &inRenderPass,
                                                                               const vk::Extent2D inExtent,
                                                                               const VulkanFrameBufferBase &inFrameBuffer,
-                                                                              std::array<float, 5> inClearValue) const {
-    std::array<vk::ClearValue, 2> ClearValues;
-    ClearValues[0].color        = vk::ClearColorValue(inClearValue[0], inClearValue[1], inClearValue[2], inClearValue[3]);
-    ClearValues[1].depthStencil = vk::ClearDepthStencilValue(inClearValue[4]);
-    auto RenderPassBeginInfo    = vk::RenderPassBeginInfo()
+                                                                              std::array<float, 5> inClearValue,
+                                                                              int inClearValueCount) const {
+
+    std::vector<vk::ClearValue> ClearValues;
+    ClearValues.resize(inClearValueCount,
+                       vk::ClearColorValue(inClearValue[0], inClearValue[1], inClearValue[2], inClearValue[3]));
+    ClearValues[inClearValueCount - 1] = vk::ClearDepthStencilValue(inClearValue[4]);
+    auto RenderPassBeginInfo           = vk::RenderPassBeginInfo()
                                     .setRenderPass(inRenderPass.GetRenderPassHandle())
                                     .setFramebuffer(inFrameBuffer.GetFrameBufferHandle())
                                     .setRenderArea(vk::Rect2D(vk::Offset2D(0, 0), inExtent))

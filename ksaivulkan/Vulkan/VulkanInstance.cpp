@@ -25,36 +25,30 @@ using namespace ksai;
 VulkanInstance::DeletionQueueType VulkanInstance::gDeletionQueue;
 std::mutex VulkanInstance::gDeletionMutex;
 
-VulkanInstance::DeletionQueueType& VulkanInstance::GetDeletionQueueRef() { return gDeletionQueue; }
-std::mutex& VulkanInstance::GetDeletionMutexRef() { return gDeletionMutex; }
+VulkanInstance::DeletionQueueType &VulkanInstance::GetDeletionQueueRef() { return gDeletionQueue; }
+std::mutex &VulkanInstance::GetDeletionMutexRef() { return gDeletionMutex; }
 
 static s AppName    = "JkrEngine";
 static s EngineName = "JkrVulkanEngine";
-static bool hasLayers(std::span<char const*> const& layers,
-                      std::span<vk::LayerProperties> const& properties) {
-    return std::all_of(layers.begin(), layers.end(), [&properties](char const* name) {
-        return std::any_of(
-             properties.begin(), properties.end(), [&name](vk::LayerProperties const& property) {
-                 ksai_print("LEFT:", property.layerName);
-                 ksai_print("RIGHT:", name);
-                 return strcmp(property.layerName, name) == 0;
-             });
+static bool hasLayers(std::span<char const *> const &layers, std::span<vk::LayerProperties> const &properties) {
+    return std::all_of(layers.begin(), layers.end(), [&properties](char const *name) {
+        return std::any_of(properties.begin(), properties.end(), [&name](vk::LayerProperties const &property) {
+            ksai_print("LEFT:", property.layerName);
+            ksai_print("RIGHT:", name);
+            return strcmp(property.layerName, name) == 0;
+        });
     });
 }
 
 // Yelle kaam garya xaina hai, beware
-static bool hasExtensions(std::span<char const*> const& instanceExtensionNames,
+static bool hasExtensions(std::span<char const *> const &instanceExtensionNames,
                           std::span<vk::ExtensionProperties> ExtensionProperties) {
-    auto PropertyIterator =
-         std::find_if(ExtensionProperties.begin(),
-                      ExtensionProperties.end(),
-                      [&instanceExtensionNames](vk::ExtensionProperties const& ep) {
-                          return std::any_of(instanceExtensionNames.begin(),
-                                             instanceExtensionNames.end(),
-                                             [&ep](char const* name) {
-                                                 return strcmp(ep.extensionName, name) == 0;
-                                             });
-                      });
+    auto PropertyIterator = std::find_if(
+         ExtensionProperties.begin(), ExtensionProperties.end(), [&instanceExtensionNames](vk::ExtensionProperties const &ep) {
+             return std::any_of(instanceExtensionNames.begin(), instanceExtensionNames.end(), [&ep](char const *name) {
+                 return strcmp(ep.extensionName, name) == 0;
+             });
+         });
     return !(PropertyIterator == ExtensionProperties.end());
 }
 
@@ -85,8 +79,7 @@ void VulkanInstance::Init(CreateInfo inCreateInfo) {
 #endif
 
     if (not hasLayers(mInstanceLayerNames, instanceLayerProperties)) {
-        std::cout << "Set the Environment VK_LAYER_PATH to point to the location your layers"
-                  << std::endl;
+        std::cout << "Set the Environment VK_LAYER_PATH to point to the location your layers" << std::endl;
         ksai_print("Set the Environment VK_LAYER_PATH to pont to the locatioon, layer not found");
         exit(1);
     }
@@ -95,20 +88,19 @@ void VulkanInstance::Init(CreateInfo inCreateInfo) {
         ksai_print("SDL returned error");
         ksai_print("Couldn't INitialize SDL: %s", SDL_GetError());
     }
-    SDL_Window* Window =
-         SDL_CreateWindow("Test", 0, 0, 100, 100, SDL_WINDOW_HIDDEN | SDL_WINDOW_VULKAN);
+    SDL_Window *Window       = SDL_CreateWindow("Test", 0, 0, 100, 100, SDL_WINDOW_HIDDEN | SDL_WINDOW_VULKAN);
     auto ExtensionProperties = vk::enumerateInstanceExtensionProperties();
     ui pCount                = 0;
-    const char** extensions;
+    const char **extensions;
 
     SDL_Vulkan_GetInstanceExtensions(Window, &pCount, NULL);
-    v<const char*> extVec(pCount);
+    v<const char *> extVec(pCount);
     extensions = extVec.data();
     SDL_Vulkan_GetInstanceExtensions(Window, &pCount, extensions);
     SDL_DestroyWindow(Window);
 
     for (int i = 0; i < pCount; i++) {
-        mInstanceExtensionNames.push_back((char const*)extensions[i]);
+        mInstanceExtensionNames.push_back((char const *)extensions[i]);
         ksai_print(extensions[i]);
     }
 
@@ -134,26 +126,20 @@ void VulkanInstance::Init(CreateInfo inCreateInfo) {
     }
 
 #ifdef __APPLE__
-    auto InstanceCreateInfo =
-         vk::InstanceCreateInfo(vk::InstanceCreateFlagBits::eEnumeratePortabilityKHR,
-                                &ApplicationInfo,
-                                mInstanceLayerNames,
-                                mInstanceExtensionNames);
+    auto InstanceCreateInfo = vk::InstanceCreateInfo(
+         vk::InstanceCreateFlagBits::eEnumeratePortabilityKHR, &ApplicationInfo, mInstanceLayerNames, mInstanceExtensionNames);
 #else
-    auto InstanceCreateInfo =
-         vk::InstanceCreateInfo({}, &ApplicationInfo, mInstanceLayerNames, mInstanceExtensionNames);
+    auto InstanceCreateInfo = vk::InstanceCreateInfo({}, &ApplicationInfo, mInstanceLayerNames, mInstanceExtensionNames);
 #endif
 
 #ifdef USE_VULKAN_1_3
     if (inCreateInfo.mEnableValiation) {
         v<vk::ValidationFeatureEnableEXT> EnabledFeaturesValidaiton = {
              vk::ValidationFeatureEnableEXT::eSynchronizationValidation};
-        auto ValidationFeaturesInfo =
-             vk::ValidationFeaturesEXT().setEnabledValidationFeatures(EnabledFeaturesValidaiton);
-        vk::StructureChain<vk::InstanceCreateInfo, vk::ValidationFeaturesEXT>
-             InstanceCreateInfo_WithValidationFeatures(InstanceCreateInfo, ValidationFeaturesInfo);
-        mInstance = vk::createInstance(
-             InstanceCreateInfo_WithValidationFeatures.get<vk::InstanceCreateInfo>());
+        auto ValidationFeaturesInfo = vk::ValidationFeaturesEXT().setEnabledValidationFeatures(EnabledFeaturesValidaiton);
+        vk::StructureChain<vk::InstanceCreateInfo, vk::ValidationFeaturesEXT> InstanceCreateInfo_WithValidationFeatures(
+             InstanceCreateInfo, ValidationFeaturesInfo);
+        mInstance = vk::createInstance(InstanceCreateInfo_WithValidationFeatures.get<vk::InstanceCreateInfo>());
     } else {
         mInstance = vk::createInstance(InstanceCreateInfo);
     }
@@ -170,7 +156,7 @@ void VulkanInstance::Destroy() {
     if (mInstance) {
         mInstance.destroy();
     }
-    auto& DQ = VulkanInstance::GetDeletionQueueRef();
+    auto &DQ = VulkanInstance::GetDeletionQueueRef();
     for (int i = 0; i < DQ.size(); i++) {
         DQ.at(i)();
     }

@@ -19,7 +19,7 @@ class Window : public Window_base {
 
     void BuildDeferredPass(ui inWidth, ui inHeight);
     void PrepareDeferredPass(Renderer::_3D::Simple3D &inCompositionSimple3D, Renderer::_3D::World3D &inWorld);
-
+    void ExecuteDeferredComposition(Renderer::_3D::Simple3D &inCompositionSimple3D, Renderer::_3D::World3D &inWorld);
     void BeginDeferredDraws(float r, float g, float b, float a, float d);
     void EndDeferredDraws();
 

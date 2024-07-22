@@ -42,6 +42,8 @@ void CreateBasicBindings(sol::state &s) {
          &Jkr::Window::BeginDeferredDraws,
          "EndDeferredDraws",
          &Jkr::Window::EndDeferredDraws,
+         "ExecuteDeferredComposition",
+         &Jkr::Window::ExecuteDeferredComposition,
 
          "SetTitle",
          &Jkr::Window::SetTitle,

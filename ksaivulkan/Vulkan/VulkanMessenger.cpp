@@ -14,69 +14,75 @@ VKAPI_ATTR VkBool32 VKAPI_CALL KsaiDebugMessengerCallback(VkDebugUtilsMessageSev
                                                           VkDebugUtilsMessageTypeFlagsEXT messageTypes,
                                                           VkDebugUtilsMessengerCallbackDataEXT const *pCallbackData,
                                                           void * /*pUserData*/) {
+
     ksai_print("Triggered VALIDATION ERROR:::: JKR");
+
     std::ostringstream message;
     message << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(messageSeverity)) << ": "
             << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(messageTypes)) << ":\n";
-    message << std::string("\t") << "messageIDName   = <" << pCallbackData->pMessageIdName << ">\n";
-    message << std::string("\t") << "messageIdNumber = " << pCallbackData->messageIdNumber << "\n";
-    std::string CallbackDataMessage = pCallbackData->pMessage;
-    std::replace_if(
-         CallbackDataMessage.begin(), CallbackDataMessage.end(), [](char c) { return c == ',' || c == ';' || c == '|'; }, '\n');
+    message << "\tmessageIDName   = <" << pCallbackData->pMessageIdName << ">\n";
+    message << "\tmessageIdNumber = " << pCallbackData->messageIdNumber << "\n";
 
-    message << std::string("\t") << "message         = (\n\n" << CallbackDataMessage << "\n)\n\n";
-    if (0 < pCallbackData->queueLabelCount) {
-        message << std::string("\t") << "Queue Labels:\n";
-        for (ui i = 0; i < pCallbackData->queueLabelCount; i++) {
-            message << std::string("\t\t") << "labelName = <" << pCallbackData->pQueueLabels[i].pLabelName << ">\n";
+    std::string callbackDataMessage = pCallbackData->pMessage;
+    std::replace_if(
+         callbackDataMessage.begin(), callbackDataMessage.end(), [](char c) { return c == ',' || c == ';' || c == '|'; }, '\n');
+
+    message << "\tmessage         = (\n\n" << callbackDataMessage << "\n)\n\n";
+
+    if (pCallbackData->queueLabelCount > 0) {
+        message << "\tQueue Labels:\n";
+        for (uint32_t i = 0; i < pCallbackData->queueLabelCount; i++) {
+            message << "\t\tlabelName = <" << pCallbackData->pQueueLabels[i].pLabelName << ">\n";
         }
     }
-    if (0 < pCallbackData->cmdBufLabelCount) {
-        message << std::string("\t") << "CommandBuffer Labels:\n";
-        for (ui i = 0; i < pCallbackData->cmdBufLabelCount; i++) {
-            message << std::string("\t\t") << "labelName = <" << pCallbackData->pCmdBufLabels[i].pLabelName << ">\n";
+
+    if (pCallbackData->cmdBufLabelCount > 0) {
+        message << "\tCommandBuffer Labels:\n";
+        for (uint32_t i = 0; i < pCallbackData->cmdBufLabelCount; i++) {
+            message << "\t\tlabelName = <" << pCallbackData->pCmdBufLabels[i].pLabelName << ">\n";
         }
     }
-    if (0 < pCallbackData->objectCount) {
-        message << std::string("\t") << "Objects:\n";
-        for (ui i = 0; i < pCallbackData->objectCount; i++) {
-            message << std::string("\t\t") << "Object " << i << "\n";
-            message << std::string("\t\t\t")
-                    << "objectType   = " << vk::to_string(static_cast<vk::ObjectType>(pCallbackData->pObjects[i].objectType))
-                    << "\n";
-            message << std::string("\t\t\t") << "objectHandle = " << pCallbackData->pObjects[i].objectHandle << "\n";
+
+    if (pCallbackData->objectCount > 0) {
+        message << "\tObjects:\n";
+        for (uint32_t i = 0; i < pCallbackData->objectCount; i++) {
+            message << "\t\tObject " << i << "\n";
+            message << "\t\t\tobjectType   = "
+                    << vk::to_string(static_cast<vk::ObjectType>(pCallbackData->pObjects[i].objectType)) << "\n";
+            message << "\t\t\tobjectHandle = " << pCallbackData->pObjects[i].objectHandle << "\n";
             if (pCallbackData->pObjects[i].pObjectName) {
-                message << std::string("\t\t\t") << "objectName   = <" << pCallbackData->pObjects[i].pObjectName << ">\n";
+                message << "\t\t\tobjectName   = <" << pCallbackData->pObjects[i].pObjectName << ">\n";
             }
         }
     }
-    std::string message_string = message.str();
+
+    std::string messageString = message.str();
 
 #ifdef _WIN32
-    std::cout << message_string << std::endl;
+    std::cout << messageString << std::endl;
     bool isError       = messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
     bool isWarning     = messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
     bool isInfo        = messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
-
     bool isPerformance = messageTypes & VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 
     if (isError) {
-        MessageBoxA(NULL, message_string.c_str(), "Error", MB_ICONERROR);
-        assert("Erro" && false);
+        MessageBoxA(NULL, messageString.c_str(), "Error", MB_ICONERROR);
+        assert("Error" && false);
     } else if (isWarning && !(isPerformance)) {
-        MessageBoxA(NULL, message_string.c_str(), "Warning", MB_ICONWARNING);
+        MessageBoxA(NULL, messageString.c_str(), "Warning", MB_ICONWARNING);
         assert("Warning" && false);
     } else if (isInfo) {
-        std::cout << message_string.c_str() << '\n';
+        std::cout << messageString.c_str() << '\n';
     } else if (isPerformance) {
-        std::cout << "=========================PERFORMANCE================================" << '\n';
-        std::cout << message_string << '\n';
+        std::cout << "=========================PERFORMANCE================================\n";
+        std::cout << messageString << '\n';
     }
 #else
-    std::cout << message.str() << std::endl;
+    std::cout << messageString << std::endl;
 #endif
-    ksai_print(message_string.c_str());
-    return false;
+
+    ksai_print(messageString.c_str());
+    return VK_FALSE;
 }
 
 PFN_vkCreateDebugUtilsMessengerEXT pfnVkCreateDebugUtilsMessengerEXT;

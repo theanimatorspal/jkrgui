@@ -34,18 +34,17 @@ class VulkanPipelineBase {
                        PipelineContext inPipelineContext,
                        ui inSubpass = 0);
 
-    template <PipelineContext inContext> void Bind(const VulkanCommandBuffer &inCmdBuffer);
+    template <PipelineContext inContext> void Bind(const VulkanCommandBuffer &inCmdBuffer) const;
     void DrawIndexed(const VulkanCommandBuffer &inCmdBuffer,
                      int32_t inIndexCount,
                      int32_t inInstanceCount,
                      int32_t inFirstIndex,
                      int32_t inVertexOffset,
                      int32_t inFirstInstance) const;
-    void FillVertexInputDescriptions(
-         const spirv_cross::ShaderResources &Resources,
-         const spirv_cross::Compiler &comp,
-         std::vector<vk::VertexInputBindingDescription> &VertexInputBindingDesp,
-         std::vector<vk::VertexInputAttributeDescription> &InputAttrDescription);
+    void FillVertexInputDescriptions(const spirv_cross::ShaderResources &Resources,
+                                     const spirv_cross::Compiler &comp,
+                                     std::vector<vk::VertexInputBindingDescription> &VertexInputBindingDesp,
+                                     std::vector<vk::VertexInputAttributeDescription> &InputAttrDescription);
 
     VulkanPipelineBase(const VulkanDevice &inDevice);
 
@@ -56,8 +55,7 @@ class VulkanPipelineBase {
 };
 
 // TODO This class is only for backwards compatibility
-template <size_t NoOfShaderModules, PipelineContext inPipelineContext>
-class VulkanPipeline : public VulkanPipelineBase {
+template <size_t NoOfShaderModules, PipelineContext inPipelineContext> class VulkanPipeline : public VulkanPipelineBase {
     public:
     struct CreateInfo {};
 
@@ -80,14 +78,11 @@ class VulkanPipeline : public VulkanPipelineBase {
                    const std::vector<VulkanShaderModule> &inModules);
 };
 
-template <PipelineContext inContext>
-inline void VulkanPipelineBase::Bind(const VulkanCommandBuffer &inCmdBuffer) {
+template <PipelineContext inContext> inline void VulkanPipelineBase::Bind(const VulkanCommandBuffer &inCmdBuffer) const {
     if constexpr (inContext == PipelineContext::Default)
-        inCmdBuffer.GetCommandBufferHandle().bindPipeline(vk::PipelineBindPoint::eGraphics,
-                                                          mPipeline);
+        inCmdBuffer.GetCommandBufferHandle().bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline);
     else if constexpr (inContext == PipelineContext::Compute)
-        inCmdBuffer.GetCommandBufferHandle().bindPipeline(vk::PipelineBindPoint::eCompute,
-                                                          mPipeline);
+        inCmdBuffer.GetCommandBufferHandle().bindPipeline(vk::PipelineBindPoint::eCompute, mPipeline);
 }
 
 } // namespace ksai

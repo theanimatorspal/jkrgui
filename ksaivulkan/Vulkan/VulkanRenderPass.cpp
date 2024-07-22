@@ -256,15 +256,15 @@ VulkanRenderPass<RenderPassContext::Deferred>::VulkanRenderPass(const VulkanDevi
     std::array<vk::AttachmentDescription, 4> AttachmentDescriptions;
     for (uint32_t i = 0; i < 4; ++i) {
         AttachmentDescriptions[i].samples        = vk::SampleCountFlagBits::e1;
-        AttachmentDescriptions[i].loadOp         = vk::AttachmentLoadOp::eLoad;
+        AttachmentDescriptions[i].loadOp         = vk::AttachmentLoadOp::eClear;
         AttachmentDescriptions[i].storeOp        = vk::AttachmentStoreOp::eStore;
         AttachmentDescriptions[i].stencilLoadOp  = vk::AttachmentLoadOp::eDontCare;
         AttachmentDescriptions[i].stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
         if (i == 3) {
-            AttachmentDescriptions[i].initialLayout = vk::ImageLayout::eGeneral;
+            AttachmentDescriptions[i].initialLayout = vk::ImageLayout::eUndefined;
             AttachmentDescriptions[i].finalLayout   = vk::ImageLayout::eDepthStencilAttachmentOptimal;
         } else {
-            AttachmentDescriptions[i].initialLayout = vk::ImageLayout::eGeneral;
+            AttachmentDescriptions[i].initialLayout = vk::ImageLayout::eUndefined;
             AttachmentDescriptions[i].finalLayout   = vk::ImageLayout::eShaderReadOnlyOptimal;
         }
     }
@@ -289,17 +289,19 @@ VulkanRenderPass<RenderPassContext::Deferred>::VulkanRenderPass(const VulkanDevi
          vk::SubpassDependency()
               .setSrcSubpass(VK_SUBPASS_EXTERNAL)
               .setDstSubpass(0)
-              .setSrcStageMask(vk::PipelineStageFlagBits::eBottomOfPipe)
-              .setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
+              .setSrcStageMask(vk::PipelineStageFlagBits::eFragmentShader)
+              .setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests)
               .setSrcAccessMask(vk::AccessFlagBits::eMemoryRead)
-              .setDstAccessMask(vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite)
+              .setDstAccessMask(vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite |
+                                vk::AccessFlagBits::eDepthStencilAttachmentWrite)
               .setDependencyFlags(vk::DependencyFlagBits::eByRegion),
          vk::SubpassDependency()
-              .setSrcSubpass(VK_SUBPASS_EXTERNAL)
-              .setDstSubpass(0)
-              .setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
-              .setDstStageMask(vk::PipelineStageFlagBits::eBottomOfPipe)
-              .setSrcAccessMask(vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite)
+              .setSrcSubpass(0)
+              .setDstSubpass(VK_SUBPASS_EXTERNAL)
+              .setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eLateFragmentTests)
+              .setDstStageMask(vk::PipelineStageFlagBits::eFragmentShader)
+              .setSrcAccessMask(vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite |
+                                vk::AccessFlagBits::eDepthStencilAttachmentWrite)
               .setDstAccessMask(vk::AccessFlagBits::eMemoryRead)
               .setDependencyFlags(vk::DependencyFlagBits::eByRegion),
     };

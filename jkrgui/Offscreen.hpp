@@ -31,18 +31,23 @@ struct ShadowPass {
 };
 
 struct DeferredPass {
-    using FrameBufferType           = VulkanFrameBuffer<4, VulkanImageVMA, VulkanImageVMA, VulkanImageVMA, VulkanImageVMA>;
-    using ImageType                 = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
-    using RenderPassType            = VulkanRenderPass<RenderPassContext::Deferred>;
-    using CompositionRenderPassType = VulkanRenderPass<RenderPassContext::SingleColorAttachment>;
+    using FrameBufferType            = VulkanFrameBuffer<4, VulkanImageVMA, VulkanImageVMA, VulkanImageVMA, VulkanImageVMA>;
+    using ImageType                  = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
+    using RenderPassType             = VulkanRenderPass<RenderPassContext::Deferred>;
+    using CompositionRenderPassType  = VulkanRenderPass<RenderPassContext::SingleColorAttachment>;
+    using CompositionFrameBufferType = VulkanFrameBuffer<1, VulkanImageVMA>;
+    using ShadowRenderPassType       = VulkanRenderPass<RenderPassContext::Shadow>;
+    using ShadowFrameBufferType      = VulkanFrameBuffer<1, vk::Extent2D, vk::ImageView>;
+
     GETTER &GetCompositionRenderPass() { return *mCompositionRenderPass; }
     GETTER &GetRenderPass() { return *mDeferredRenderPass; }
     GETTER &GetShadowRenderPass() { return *mShadowRenderPass; }
     GETTER &GetFrameBuffer() { return *mFrameBuffer; }
-    void BeginShadowPass(Window &inWindow);
-    void EndShadowPass(Window &inWindow);
-    void BeginDeferred(Window &inWindow, const glm::vec4 &inColor);
+    void BeginDeferred(Window &inWindow, float r, float g, float b, float a, float d);
     void EndDeferred(Window &inWindow);
+    void ExecuteDeferredComposition(Window &inWindow,
+                                    Renderer::_3D::Simple3D &inCompositionSimple3D,
+                                    Renderer::_3D::World3D &inWorld3D);
 
     DeferredPass(const Instance &inInstance, ui inWidth, ui inHeight, int inFramesInFlight);
     void Prepare(Renderer::_3D::Simple3D &inCompositionSimple3D, Renderer::_3D::World3D &inWorld3D);
@@ -59,16 +64,13 @@ struct DeferredPass {
 
     Up<Renderer::_3D::Uniform3D> mCompositionUniform3D;
     Up<CompositionRenderPassType> mCompositionRenderPass;
-    Up<PainterCache> mCompositionPainterCache;
-    Up<Painter> mCompositionPainter;
+    Up<CompositionFrameBufferType> mCompositionFrameBuffer;
     Up<ImageType> mCompositionImage;
-    v<VulkanCommandBuffer> mCompositionCommandBuffers;
 
-    using ShadowRenderPassType  = VulkanRenderPass<RenderPassContext::Shadow>;
-    using ShadowFrameBufferType = VulkanFrameBuffer<1, vk::Extent2D, vk::ImageView>;
     Up<ImageType> mShadowMap;
-    v<up<ShadowFrameBufferType>> mShadowFrameBuffers;
+    v<Up<ShadowFrameBufferType>> mShadowFrameBuffers;
     Up<ShadowRenderPassType> mShadowRenderPass;
+    glm::uvec2 mDimension{};
 };
 
 } // namespace Jkr

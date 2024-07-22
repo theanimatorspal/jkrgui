@@ -1,9 +1,8 @@
 #include "Instance.hpp"
 #include <Renderers/BestText_Alt.hpp>
-#include "JkrLuaExe.hpp"
 
 namespace JkrEXE {
-void CreateTextRendererBindings(sol::state& inState) {
+void CreateTextRendererBindings(sol::state &inState) {
     auto Jkr = inState["Jkr"].get_or_create<sol::table>();
     using namespace Jkr::Renderer;
     Jkr.new_usertype<BestText_base>("BestText_base",
@@ -17,7 +16,7 @@ void CreateTextRendererBindings(sol::state& inState) {
     Jkr.new_usertype<Renderer::BestText_Alt>(
          "BestText_Alt",
          sol::call_constructor,
-         [](Instance& inInstance, Renderer::Shape& inShape, Renderer::BestText_base& inBestText) {
+         [](Instance &inInstance, Renderer::Shape &inShape, Renderer::BestText_base &inBestText) {
              return mu<BestText_Alt>(inInstance, inShape, inBestText);
          },
          "Add",

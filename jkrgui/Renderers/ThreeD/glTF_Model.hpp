@@ -97,7 +97,7 @@ class glTF_Model {
     struct Node {
         glm::mat4 GetLocalMatrix();
 
-        Node* mParent;
+        Node *mParent;
         uint32_t mIndex;
         v<Up<Node>> mChildren;
 
@@ -121,9 +121,9 @@ class glTF_Model {
     //==========================
     struct Skin {
         s mName;
-        Node* mSkeletonRoot = nullptr;
+        Node *mSkeletonRoot = nullptr;
         v<glm::mat4> mInverseBindMatrices;
-        v<Node*> mJoints;
+        v<Node *> mJoints;
     };
     //==========================
     // ANIMATION
@@ -135,7 +135,7 @@ class glTF_Model {
     };
     struct AnimationChannel {
         s mPath;
-        Node* mNode;
+        Node *mNode;
         ui mSamplerIndex;
     };
     struct Animation {
@@ -151,24 +151,24 @@ class glTF_Model {
     using FillIndexCallBack    = std::function<ui(ui)>;
     using PushCallBack         = std::function<void(glm::mat4)>;
     using DrawCallBack         = std::function<void(ui, opt<Texture>)>;
-    using UpdateJointsCallBack = std::function<void(v<glm::mat4>&)>;
+    using UpdateJointsCallBack = std::function<void(v<glm::mat4> &)>;
 
-    Node* FindNode(Node* inParent, ui inIndex);
-    Node* NodeFromIndex(ui inIndex);
+    Node *FindNode(Node *inParent, ui inIndex);
+    Node *NodeFromIndex(ui inIndex);
     GETTER GetFileName() const { return sv(mFileName); }
-    GETTER& GetVertices() const { return mVertexBuffer; }
-    GETTER& GetIndices() const { return mIndexBuffer; }
-    GETTER& GetVerticesExtRef() { return mVertexBufferExt; }
-    GETTER& GetVerticesRef() { return mVertexBuffer; }
-    GETTER& GetIndicesRef() { return mIndexBuffer; }
-    GETTER& GetImagesRef() { return mImages; }
-    GETTER& GetTexturesRef() { return mTextures; }
-    GETTER& GetMaterialsRef() { return mMaterials; }
-    GETTER& GetNodesRef() { return mNodes; }
-    GETTER& GetSkinsRef() { return mSkins; }
-    GETTER& GetAnimationsRef() { return mAnimations; }
-    GETTER& GetMeshesRef() { return mMeshes; }
-    GETTER& GetAnimationById(int inId) { return mAnimations[inId]; }
+    GETTER &GetVertices() const { return mVertexBuffer; }
+    GETTER &GetIndices() const { return mIndexBuffer; }
+    GETTER &GetVerticesExtRef() { return mVertexBufferExt; }
+    GETTER &GetVerticesRef() { return mVertexBuffer; }
+    GETTER &GetIndicesRef() { return mIndexBuffer; }
+    GETTER &GetImagesRef() { return mImages; }
+    GETTER &GetTexturesRef() { return mTextures; }
+    GETTER &GetMaterialsRef() { return mMaterials; }
+    GETTER &GetNodesRef() { return mNodes; }
+    GETTER &GetSkinsRef() { return mSkins; }
+    GETTER &GetAnimationsRef() { return mAnimations; }
+    GETTER &GetMeshesRef() { return mMeshes; }
+    GETTER &GetAnimationById(int inId) { return mAnimations[inId]; }
     GETTER GetVerticesSize() { return mVertexBuffer.size(); }
     GETTER GetIndicesSize() { return mIndexBuffer.size(); }
     GETTER GetImagesSize() { return mImages.size(); }
@@ -180,22 +180,22 @@ class glTF_Model {
     GETTER GetJointsCount(ui inIndex) { return mSkins[inIndex].mInverseBindMatrices.size(); }
     GETTER GetAnimationsSize() { return mAnimations.size(); }
     GETTER GetNodeIndexByMeshIndex(int inIndex) const { return mMeshes[inIndex].mNodeIndex; }
-    glm::mat4 GetNodeMatrix(glTF_Model::Node* inNode);
+    glm::mat4 GetNodeMatrix(glTF_Model::Node *inNode);
     glm::mat4 GetNodeMatrixByIndex(int inIndex);
 
     void Load(ui inInitialVertexOffset = 0);
     void Load(FillVertexCallBack inVertexCallback, FillIndexCallBack inIndexCallback);
     void Load(const sv inFilePath, ui inInitialVertexOffset = 0);
-    void LoadImages(tinygltf::Model& input);
-    void LoadTextures(tinygltf::Model& input);
-    void LoadMaterials(tinygltf::Model& input);
+    void LoadImages(tinygltf::Model &input);
+    void LoadTextures(tinygltf::Model &input);
+    void LoadMaterials(tinygltf::Model &input);
     void LoadNode(
-         const tinygltf::Node& inputNode,
-         const tinygltf::Model& input,
-         glTF_Model::Node* inParent,
+         const tinygltf::Node &inputNode,
+         const tinygltf::Model &input,
+         glTF_Model::Node *inParent,
          ui inNodeIndex,
-         v<ui>& indexBuffer,
-         v<Vertex3D>& vertexBuffer,
+         v<ui> &indexBuffer,
+         v<Vertex3D> &vertexBuffer,
          FillVertexCallBack inVertexCallback =
               [](Vertex3DExt inVertex) {
                   return Vertex3D{.mPosition = inVertex.mPosition,
@@ -204,10 +204,9 @@ class glTF_Model {
                                   .mColor    = inVertex.mColor};
               },
          FillIndexCallBack inIndexCallback = [](ui inIndex) { return inIndex; });
-    void LoadSkins(tinygltf::Model& input);
-    void LoadAnimations(tinygltf::Model& input);
-    void
-    UpdateJoints(glTF_Model::Node* inNode, UpdateJointsCallBack inCallBack = [](v<glm::mat4>&) {});
+    void LoadSkins(tinygltf::Model &input);
+    void LoadAnimations(tinygltf::Model &input);
+    void UpdateJoints(glTF_Model::Node *inNode, UpdateJointsCallBack inCallBack = [](v<glm::mat4> &) {});
     void UpdateAnimation(ui inActiveAnimation, float inDeltaTime, bool inShouldLoop = true);
     void BlendCombineAnimationToArbritaryTime(float inDestinationTime,
                                               ui inDestinationAnimationIndex,
@@ -227,8 +226,7 @@ class glTF_Model {
         mVertexBuffer.clear();
         mVertexBuffer.shrink_to_fit();
     }
-    void
-    Draw(glTF_Model::Node& inNode, PushCallBack inBindDataCallBack, DrawCallBack inDrawCallBack);
+    void Draw(glTF_Model::Node &inNode, PushCallBack inBindDataCallBack, DrawCallBack inDrawCallBack);
 
     glTF_Model(const std::string_view inFileName) : mFileName(inFileName) {}
 

@@ -165,15 +165,12 @@ void Window::PrepareDeferredPass(Renderer::_3D::Simple3D &inCompositionSimple3D,
     mDeferredPass->Prepare(inCompositionSimple3D, inWorld);
 }
 
-void Window::BeginDeferredDraws(float r, float g, float b, float a, float d) {
-    // mCommandBuffers[mCurrentFrame].BeginRenderPass(
-    //      mDeferredPass->GetRenderPass(),
-    //      vk::Extent2D(mShadowPassSize.x, mShadowPassSize.y),
-    //      mDeferredPass->GetFrameBuffer(),
-    //      {r, g, b, a, d});
-    mCommandBuffers[mCurrentFrame].BeginRenderPass<VulkanCommandBuffer::RenderPassBeginContext::SecondaryCommandBuffers>(
-         mDeferredPass->GetRenderPass(), vk::Extent2D{mFrameSize.x, mFrameSize.y}, mDeferredPass->GetFrameBuffer(), {r, g, b, a});
+void Window::ExecuteDeferredComposition(Renderer::_3D::Simple3D &inCompositionSimple3D, Renderer::_3D::World3D &inWorld) {
+    mDeferredPass->ExecuteDeferredComposition(*this, inCompositionSimple3D, inWorld);
 }
-void Window::EndDeferredDraws() { mCommandBuffers[mCurrentFrame].EndRenderPass(); }
+void Window::BeginDeferredDraws(float r, float g, float b, float a, float d) {
+    mDeferredPass->BeginDeferred(*this, r, g, b, a, d);
+}
+void Window::EndDeferredDraws() { mDeferredPass->EndDeferred(*this); }
 
 } // namespace Jkr

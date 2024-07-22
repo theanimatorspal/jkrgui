@@ -2,15 +2,7 @@
 #include <vulkan/vulkan.hpp>
 
 namespace ksai {
-enum class ImageContext {
-    Default,
-    Unknown,
-    ExternalHandled,
-    DepthImage,
-    Storage,
-    CubeCompatible,
-    ColorAttach
-};
+enum class ImageContext { Default, Unknown, ExternalHandled, DepthImage, Storage, CubeCompatible, ColorAttach };
 
 struct ImageProperties {
     vk::Format mImageFormat                       = vk::Format::eR16G16B16A16Sfloat;
@@ -25,7 +17,7 @@ struct ImageProperties {
     vk::MemoryPropertyFlagBits mMemoryProperty    = vk::MemoryPropertyFlagBits::eDeviceLocal;
     vk::ImageViewType mImageViewType              = vk::ImageViewType::e2D;
     vk::SharingMode mSharingMode                  = vk::SharingMode::eExclusive;
-    vk::ImageLayout mInitialImageLayout           = vk::ImageLayout::eGeneral;
+    vk::ImageLayout mInitialImageLayout           = vk::ImageLayout::eUndefined;
     vk::Extent2D mExtent;
     vk::ImageCreateFlags mFlags         = vk::ImageCreateFlags();
     vk::ImageLayout mCurrentImageLayout = mInitialImageLayout;

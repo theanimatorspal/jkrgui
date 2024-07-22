@@ -5,7 +5,7 @@ using namespace Jkr::Renderer::_3D;
 
 void Simple3D::Bind(Window_base &inWindow, CmdParam inParam) { mPainter->BindDrawPipeline(inWindow, inParam); }
 
-void Simple3D::BindByCommandBuffer(VulkanCommandBuffer &inBuffer) { mPainter->BindDrawPipeline(inBuffer); }
+void Simple3D::BindByCommandBuffer(const VulkanCommandBuffer &inBuffer) { mPainter->BindDrawPipeline(inBuffer); }
 
 void Simple3D::BindCompute(Window_base &inWindow, CmdParam inParam) { mPainter->BindComputePipeline(inWindow, inParam); }
 

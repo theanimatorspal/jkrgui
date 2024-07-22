@@ -424,7 +424,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         end
         ComputeImage.BindPainter = function(inPainter)
             inPainter:Bind(w, Jkr.CmdParam.None)
-            inPainter:BindImageFromImage(w, ComputeImage.mId, Jkr.CmdParam.None)
+            inPainter:BindImageFromImage(w, ComputeImage, Jkr.CmdParam.None)
         end
         ComputeImage.DrawPainter = function(inPainter, inPushConstant, inX, inY, inZ)
             inPainter:Draw(w, inPushConstant, inX, inY, inZ, Jkr.CmdParam.None)

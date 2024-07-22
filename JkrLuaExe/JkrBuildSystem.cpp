@@ -78,9 +78,7 @@ namespace JkrEXE {
 namespace fs = std::filesystem;
 namespace BuildSystem {
 
-static void ReplaceStringInFile(fs::path filePath,
-                                const std::string_view searchString,
-                                const std::string_view replaceString) {
+static void ReplaceStringInFile(fs::path filePath, const std::string_view searchString, const std::string_view replaceString) {
     std::ifstream fileIn(filePath);
     if (!fileIn.is_open()) {
         std::cerr << "Failed to open file: " << filePath << std::endl;
@@ -101,19 +99,15 @@ static void ReplaceStringInFile(fs::path filePath,
     }
 }
 
-static void ReplaceString(fs::path path,
-                          const std::string_view searchString,
-                          const std::string_view replaceString) {
-    for (const auto& entry : fs::recursive_directory_iterator(path)) {
+static void ReplaceString(fs::path path, const std::string_view searchString, const std::string_view replaceString) {
+    for (const auto &entry : fs::recursive_directory_iterator(path)) {
         if (entry.is_regular_file()) {
             ReplaceStringInFile(entry.path(), searchString, replaceString);
         }
     }
 }
 
-static void RenameFileName(const fs::path& path,
-                           const std::string_view searchString,
-                           const std::string_view replaceString) {
+static void RenameFileName(const fs::path &path, const std::string_view searchString, const std::string_view replaceString) {
     fs::path parentPath = path.parent_path();
     std::string newName = path.filename().string();
     size_t pos          = newName.find(searchString);
@@ -125,11 +119,10 @@ static void RenameFileName(const fs::path& path,
     }
 }
 
-static void RenameFilesInDirectory(const fs::path& path,
-                                   const std::string_view searchString,
-                                   const std::string_view replaceString) {
+static void
+RenameFilesInDirectory(const fs::path &path, const std::string_view searchString, const std::string_view replaceString) {
     static v<fs::path> FilesToBeRenamedFrom;
-    for (const auto& entry : fs::recursive_directory_iterator(path)) {
+    for (const auto &entry : fs::recursive_directory_iterator(path)) {
         if (entry.is_regular_file() or entry.is_directory()) {
             size_t pos = entry.path().filename().string().find(searchString);
             if (pos != std::string::npos) {
@@ -143,9 +136,7 @@ static void RenameFilesInDirectory(const fs::path& path,
     }
 }
 
-void CreateAndroidEnvironment(const sv inAndroidAppName,
-                              const sv inAndroidAppDirectory,
-                              const sv inLibraryName) {
+void CreateAndroidEnvironment(const sv inAndroidAppName, const sv inAndroidAppDirectory, const sv inLibraryName) {
     fs::path Src    = s(getenv("JKRGUI_DIR")) + "/Android/";
     fs::path Target = s(inAndroidAppDirectory);
     if (not fs::exists(Target)) {
@@ -159,10 +150,9 @@ void CreateAndroidEnvironment(const sv inAndroidAppName,
     const v<sv> EntriesToBeCopied = {"cache2", "JkrGUIv2", "res", "src", "app.lua"};
 
     int i                         = 0;
-    for (const auto& entry : fs::directory_iterator(fs::current_path())) {
-        bool ShouldCopy = std::any_of(EntriesToBeCopied.begin(),
-                                      EntriesToBeCopied.end(),
-                                      [&](auto& i) { return i == entry.path().filename(); });
+    for (const auto &entry : fs::directory_iterator(fs::current_path())) {
+        bool ShouldCopy = std::any_of(
+             EntriesToBeCopied.begin(), EntriesToBeCopied.end(), [&](auto &i) { return i == entry.path().filename(); });
         if (ShouldCopy) {
             fs::path src    = entry;
             fs::path target = Assets / entry.path().filename();
@@ -172,21 +162,18 @@ void CreateAndroidEnvironment(const sv inAndroidAppName,
     }
 }
 
-static void
-CreateLuaLibraryEnvironment(sv inLibraryName, sv inNativeDestinationDirectory, bool inOverride) {
+static void CreateLuaLibraryEnvironment(sv inLibraryName, sv inNativeDestinationDirectory, bool inOverride) {
     fs::path CurrentPath                = fs::current_path();
     fs::path JkrGuiRepoPath             = s(getenv("JKRGUI_DIR"));
     fs::path NativeDestinationDirectory = s(inNativeDestinationDirectory);
 
     {
-        fs::path mainCppFilePath =
-             NativeDestinationDirectory / fs::path(string(inLibraryName) + ".cpp");
-        fs::path cmakeListsFilePath   = NativeDestinationDirectory / fs::path("CMakeLists.txt");
-        fs::path cmakePresetsFilePath = NativeDestinationDirectory / fs::path("CMakePresets.json");
+        fs::path mainCppFilePath               = NativeDestinationDirectory / fs::path(string(inLibraryName) + ".cpp");
+        fs::path cmakeListsFilePath            = NativeDestinationDirectory / fs::path("CMakeLists.txt");
+        fs::path cmakePresetsFilePath          = NativeDestinationDirectory / fs::path("CMakePresets.json");
         fs::path cmakePresetsJkrGuiLibraryPath = JkrGuiRepoPath / fs::path("CMakePresets.json");
 
-        if (not fs::exists(NativeDestinationDirectory))
-            fs::create_directory(inNativeDestinationDirectory);
+        if (not fs::exists(NativeDestinationDirectory)) fs::create_directory(inNativeDestinationDirectory);
 
         if (not fs::exists(cmakeListsFilePath) or inOverride) {
             std::ofstream cmakeListsFile(cmakeListsFilePath, std::fstream::out);
@@ -195,8 +182,7 @@ CreateLuaLibraryEnvironment(sv inLibraryName, sv inNativeDestinationDirectory, b
             } else {
                 std::cout << "Fuck, Files are not open";
             }
-            if (not fs::exists(cmakePresetsFilePath))
-                fs::copy_file(cmakePresetsJkrGuiLibraryPath, cmakePresetsFilePath);
+            if (not fs::exists(cmakePresetsFilePath)) fs::copy_file(cmakePresetsJkrGuiLibraryPath, cmakePresetsFilePath);
         }
 
         if (not fs::exists(mainCppFilePath) or inOverride) {
@@ -221,7 +207,7 @@ int GetArgumentCount(sv inString) {
     }
 }
 
-umap<s, v<s>> CommandLine(int ArgCount, char** ArgStrings) {
+umap<s, v<s>> CommandLine(int ArgCount, char **ArgStrings) {
     umap<s, v<s>> CommandLineStuff;
     int FirstArgIndex = 1;
     for (int i = FirstArgIndex; i < ArgCount; i++) {
@@ -244,7 +230,7 @@ umap<s, v<s>> CommandLine(int ArgCount, char** ArgStrings) {
     return CommandLineStuff;
 }
 
-void CreateBuildSystemBindings(sol::state& inS) {
+void CreateBuildSystemBindings(sol::state &inS) {
     auto Jkr   = inS["Jkr"].get_or_create<sol::table>();
     auto Build = Jkr["BuildSystem"].get_or_create<sol::table>();
     Build.set_function("CreateLuaLibraryEnvironment", &BuildSystem::CreateLuaLibraryEnvironment);
