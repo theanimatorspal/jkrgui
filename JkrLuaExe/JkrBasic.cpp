@@ -11,8 +11,11 @@ using namespace Jkr;
 void CreateBasicBindings(sol::state &s) {
     auto Jkr = s["Jkr"].get_or_create<sol::table>();
     Jkr.new_usertype<Jkr::Instance>(
-         "Instance", sol::call_constructor, sol::factories([](int inDescriptorSize, int inPoolSize, bool inEnableValidation) {
-             return std::make_unique<Jkr::Instance>(inDescriptorSize, inPoolSize, inEnableValidation);
+         "Instance",
+         sol::call_constructor,
+         sol::factories([](int inDescriptorSize, int inPoolSize, bool inEnableValidation) {
+             return std::make_unique<Jkr::Instance>(
+                  inDescriptorSize, inPoolSize, inEnableValidation);
          }));
     Jkr.new_usertype<Jkr::Window_base>("WindowBase");
     Jkr.new_usertype<Jkr::Window>(
@@ -20,12 +23,21 @@ void CreateBasicBindings(sol::state &s) {
          sol::base_classes,
          sol::bases<Jkr::Window_base>(),
          sol::call_constructor,
-         sol::factories([](Jkr::Instance &inInstance, std::string_view inTitle, int inWidth, int inHeight, int inThreadsCount) {
+         sol::factories([](Jkr::Instance &inInstance,
+                           std::string_view inTitle,
+                           int inWidth,
+                           int inHeight,
+                           int inThreadsCount) {
              int NoOfCmdBufferPerThread = 2; // TODO Don't hardcode
              std::vector<ui> CmdBufferCountPerThreadVec;
              CmdBufferCountPerThreadVec.resize(inThreadsCount, NoOfCmdBufferPerThread);
-             return std::make_unique<Jkr::Window>(
-                  inInstance, inTitle, inHeight, inWidth, inThreadsCount, CmdBufferCountPerThreadVec, inInstance.GetThreadPool());
+             return std::make_unique<Jkr::Window>(inInstance,
+                                                  inTitle,
+                                                  inHeight,
+                                                  inWidth,
+                                                  inThreadsCount,
+                                                  CmdBufferCountPerThreadVec,
+                                                  inInstance.GetThreadPool());
          }),
          "BuildShadowPass",
          &Jkr::Window::BuildShadowPass,
@@ -44,6 +56,8 @@ void CreateBasicBindings(sol::state &s) {
          &Jkr::Window::EndDeferredDraws,
          "ExecuteDeferredComposition",
          &Jkr::Window::ExecuteDeferredComposition,
+         "PresentDeferred",
+         &Jkr::Window::PresentDeferred,
 
          "SetTitle",
          &Jkr::Window::SetTitle,
@@ -167,10 +181,15 @@ void CreateBasicBindings(sol::state &s) {
             string_view inVertexShader,
             string_view inFragmentShader,
             string_view inComputeShader) {
-             inCache.Store(string(inFilename), string(inVertexShader), string(inFragmentShader), string(inComputeShader));
+             inCache.Store(string(inFilename),
+                           string(inVertexShader),
+                           string(inFragmentShader),
+                           string(inComputeShader));
          },
          "Load",
-         [](Jkr::PainterCache &inCache, string_view inFilename) { inCache.Load(string(inFilename)); }
+         [](Jkr::PainterCache &inCache, string_view inFilename) {
+             inCache.Load(string(inFilename));
+         }
          // TODO Sort
          // Variable
          // Descriptors

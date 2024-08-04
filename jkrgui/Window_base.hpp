@@ -12,15 +12,17 @@ class Window_base : public SDLWindow {
 
     public:
     using SwapChainVulkanImages = std::vector<ksai::VulkanImageExternalHandled>;
-    using FrameBufferType       = VulkanFrameBuffer<3, VulkanImage, VulkanImage, VulkanImageExternalHandled>;
+    using FrameBufferType =
+         VulkanFrameBuffer<3, VulkanImage, VulkanImage, VulkanImageExternalHandled>;
     enum ParameterContext : int { None = -3, UI = -1, Background = -1 };
 
-    Window_base()                               = default;
+    Window_base()                                    = default;
     Window_base(const Window_base &other)            = delete;
     Window_base &operator=(const Window_base &other) = delete;
     Window_base(Window_base &&other)                 = default;
 
-    virtual const std::array<VulkanCommandBuffer, mMaxFramesInFlight> &GetCommandBuffers(ParameterContext inParameter) const {
+    virtual const std::array<VulkanCommandBuffer, mMaxFramesInFlight> &
+    GetCommandBuffers(ParameterContext inParameter) const {
         return mCommandBuffers;
     }
     const VulkanCommandPool &GetCommandPool() const { return mCommandPool; }
@@ -28,9 +30,16 @@ class Window_base : public SDLWindow {
     GETTER &GetInstance() const { return *mInstance; }
     GETTER &GetRenderPass() const { return mRenderPass; }
     GETTER &GetSwapChainImages() const { return mSwapChainImages; }
-    void SetScissor(int inX, int inY, int inW, int inH, ParameterContext inContext = ParameterContext::UI);
+    void SetScissor(
+         int inX, int inY, int inW, int inH, ParameterContext inContext = ParameterContext::UI);
     void SetDefaultScissor(ParameterContext inContext = ParameterContext::UI);
-    void SetViewport(int inX, int inY, int inW, int inH, float inMind, float inMaxD, ParameterContext inContext);
+    void SetViewport(int inX,
+                     int inY,
+                     int inW,
+                     int inH,
+                     float inMind,
+                     float inMaxD,
+                     ParameterContext inContext);
     void SetDefaultViewport(ParameterContext inContext);
 
     Window_base(const Instance &inInstance, std::string_view inTitle, int inHeight, int inWidth);

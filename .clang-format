@@ -1,7 +1,7 @@
 BasedOnStyle: LLVM
 IndentWidth: 4
 TabWidth: 1
-ColumnLimit: 130
+ColumnLimit: 100
 AllowShortIfStatementsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: true
 IndentCaseLabels: true

@@ -5,12 +5,13 @@
 namespace Jkr {
 class PainterCache;
 class Painter;
+class Window;
+
 namespace Renderer::_3D {
 class Simple3D;
 class World3D;
 class Uniform3D;
 } // namespace Renderer::_3D
-class Window;
 
 using namespace ksai;
 struct ShadowPass {
@@ -31,20 +32,26 @@ struct ShadowPass {
 };
 
 struct DeferredPass {
-    using FrameBufferType            = VulkanFrameBuffer<4, VulkanImageVMA, VulkanImageVMA, VulkanImageVMA, VulkanImageVMA>;
-    using ImageType                  = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
-    using RenderPassType             = VulkanRenderPass<RenderPassContext::Deferred>;
+    using FrameBufferType =
+         VulkanFrameBuffer<4, VulkanImageVMA, VulkanImageVMA, VulkanImageVMA, VulkanImageVMA>;
+    using RenderPassType = VulkanRenderPass<RenderPassContext::Deferred>;
+    using ImageType      = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
     using CompositionRenderPassType  = VulkanRenderPass<RenderPassContext::SingleColorAttachment>;
     using CompositionFrameBufferType = VulkanFrameBuffer<1, VulkanImageVMA>;
     using ShadowRenderPassType       = VulkanRenderPass<RenderPassContext::Shadow>;
     using ShadowFrameBufferType      = VulkanFrameBuffer<1, vk::Extent2D, vk::ImageView>;
-
     GETTER &GetCompositionRenderPass() { return *mCompositionRenderPass; }
     GETTER &GetRenderPass() { return *mDeferredRenderPass; }
     GETTER &GetShadowRenderPass() { return *mShadowRenderPass; }
     GETTER &GetFrameBuffer() { return *mFrameBuffer; }
+    GETTER &GetDeferredCompositionImage() { return *mCompositionImage; }
+
     void BeginDeferred(Window &inWindow, float r, float g, float b, float a, float d);
     void EndDeferred(Window &inWindow);
+    /// @brief This function expects at least one uniform3d created
+    ///        in the world, in the inWorld3D parameter
+    ///
+    ///
     void ExecuteDeferredComposition(Window &inWindow,
                                     Renderer::_3D::Simple3D &inCompositionSimple3D,
                                     Renderer::_3D::World3D &inWorld3D);

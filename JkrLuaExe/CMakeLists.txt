@@ -17,6 +17,7 @@
 )
 if(ANDROID)
      add_library(JkrLuaExe SHARED ${JKR_SOURCES})
+     set_target_properties(JkrLuaExe PROPERTIES LINK_FLAGS "-Wl,--export-dynamic-symbol=main")
 else()
      add_executable(JkrLuaExe ${JKR_SOURCES})
 endif()
@@ -24,8 +25,6 @@ endif()
 PrecompileStdHeaders(JkrLuaExe)
 target_link_libraries(JkrLuaExe ksaivulkan jkrgui)
 configure_target(JkrLuaExe)
-
-set_target_properties(JkrLuaExe PROPERTIES LINK_FLAGS "-Wl,--export-dynamic-symbol=main")
 
 add_custom_command(
     TARGET JkrLuaExe POST_BUILD

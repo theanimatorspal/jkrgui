@@ -76,7 +76,9 @@ void VulkanSwapChain::Init(CreateInfo inCreateInfo) {
                                            inSurface.GetSurfaceCapabilities().maxImageCount))
               .setImageFormat(inSurface.GetSurfaceImageFormat())
               .setImageExtent(inSurface.GetExtent())
-              .setImageUsage(vk::ImageUsageFlagBits::eColorAttachment)
+              //   .setImageColorSpace(inSurface.GetColorSpace())
+              .setImageUsage(vk::ImageUsageFlagBits::eColorAttachment |
+                             vk::ImageUsageFlagBits::eTransferDst)
               .setImageSharingMode(vk::SharingMode::eExclusive)
               .setPreTransform(inSurface.GetPreTransform())
               .setCompositeAlpha(inSurface.GetCompositeAlpha())
@@ -99,6 +101,7 @@ void VulkanSwapChain::Init(CreateInfo inCreateInfo) {
         swapChainCreateInfo.imageSharingMode      = vk::SharingMode::eConcurrent;
         swapChainCreateInfo.queueFamilyIndexCount = 2;
         swapChainCreateInfo.pQueueFamilyIndices   = queueFamilyIndices;
+        swapChainCreateInfo.imageUsage |= vk::ImageUsageFlagBits::eTransferDst;
     }
 
     vk::SwapchainKHR swapChain = mDevice->createSwapchainKHR(swapChainCreateInfo);

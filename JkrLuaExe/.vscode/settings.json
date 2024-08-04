@@ -1,5 +1,5 @@
 {
-          "workbench.colorTheme": "Default Dark Modern",
+          "workbench.colorTheme": "Quiet Light",
           "git.enableSmartCommit": true,
           "git.confirmSync": false,
           "gitlens.currentLine.enabled": false,
@@ -8,26 +8,18 @@
           "gitlens.blame.heatmap.location": "left",
           "explorer.decorations.colors": false,
           "explorer.decorations.badges": false,
-          "clangd.arguments": [
-                    "-header-insertion=never",
-          ],
           /*CMAKE*/
-          "window.zoomLevel": -2,
           "cmake.allowCommentsInPresetsFile": true,
           "cmake.useCMakePresets": "always",
           "cmake.configureOnOpen": true,
           "cmake.options.statusBarVisibility": "compact",
           "cmake.parallelJobs": 8,
           "cmake.clearOutputBeforeBuild": true,
-          "cmake.debugConfig": {
-                    "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\ufri",
-                    "visualizerFile": "${workspaceFolder}/Visualizers/glm.natvis"
-          },
           /* EDITOR */
           "editor.matchBrackets": "near",
-          "editor.fontFamily": "Liberation Mono",
+          "editor.fontFamily": "Segoe Print",
           "editor.fontWeight": "normal",
-          "editor.fontSize": 20,
+          "editor.fontSize": 24,
           "editor.tabSize": 10,
           "editor.tokenColorCustomizations": {
                     "textMateRules": [
@@ -35,7 +27,7 @@
                                         "scope": "keyword",
                                         "settings": {
                                                   "fontStyle": "italic",
-                                                  "foreground": "#8850ff"
+                                                  "foreground": "#80000f"
                                         }
                               },
                               {
@@ -61,7 +53,7 @@
                               {
                                         "scope": "entity.name.function",
                                         "settings": {
-                                                  "fontStyle": "italic",
+                                                  "fontStyle": "italic bold",
                                                   "foreground": "#0f89ff"
                                         }
                               }
@@ -87,14 +79,6 @@
                     "editor.suggest.insertMode": "replace",
                     "editor.semanticHighlighting.enabled": true,
           },
-          "[lua]": {
-                    "editor.quickSuggestions": {
-                              "comments": "inline",
-                              "other": "on",
-                              "strings": "on"
-                    },
-                    "editor.semanticHighlighting.enabled": true,
-          },
           "[log][Log]": {
                     "editor.fontSize": 13, // whatever value you want
                     "editor.fontFamily": "Consolas, 'Courier New', monospace"
@@ -111,8 +95,4 @@
           "notebook.output.fontSize": 10,
           "workbench.layoutControl.enabled": false,
           "workbench.panel.defaultLocation": "right",
-          "Lua.format.defaultConfig": {
-                    "indent_style": "space",
-                    "indent_size": "10"
-          }
 }

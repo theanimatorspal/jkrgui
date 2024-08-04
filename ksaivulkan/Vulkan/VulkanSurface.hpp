@@ -42,12 +42,14 @@ class VulkanSurface {
     GETTER &GetPresentMode() const { return mPresentMode; }
     GETTER &GetPreTransform() const { return mPreTransform; }
     GETTER &GetCompositeAlpha() const { return mCompositeAlpha; }
+    GETTER GetColorSpace() const { return mColorSpace; }
 
     private:
     const vk::Instance *mInstance = nullptr;
     vk::SurfaceKHR mSurface       = nullptr;
     SDL_Window *mWindow           = nullptr;
     vk::Format mSurfaceImageFormat;
+    vk::ColorSpaceKHR mColorSpace;
     vk::SurfaceCapabilitiesKHR mSurfaceCapabilities;
     vk::Extent2D mExtent;
     vk::PresentModeKHR mPresentMode;

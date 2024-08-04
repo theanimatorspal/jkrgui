@@ -58,7 +58,8 @@ void RunScript() {
 
 #endif
 
-    sol::protected_function_result result = mainState.safe_script_file("app.lua", &sol::script_pass_on_error);
+    sol::protected_function_result result =
+         mainState.safe_script_file("app.lua", &sol::script_pass_on_error);
     if (not result.valid()) {
         sol::error error = result;
         std::cout << error.what();
@@ -72,7 +73,8 @@ void ProcessCmdLine(auto &inCmdLineArg_Map) {
         sol::state s;
         s.open_libraries();
         CreateBuildSystemBindings(s);
-        sol::protected_function_result result = s.safe_script_file("build.lua", &sol::script_pass_on_error);
+        sol::protected_function_result result =
+             s.safe_script_file("build.lua", &sol::script_pass_on_error);
         if (not result.valid()) {
             sol::error error = result;
             std::cout << error.what();
@@ -87,7 +89,10 @@ void ProcessCmdLine(auto &inCmdLineArg_Map) {
         std::cout << "Current Directory:" << filesystem::current_path() << "\n";
         std::cout << "SRC:" << src << "\n";
         std::cout << "DEST:" << dest << "\n";
-        filesystem::copy(src, dest, filesystem::copy_options::recursive | filesystem::copy_options::update_existing);
+        filesystem::copy(src,
+                         dest,
+                         filesystem::copy_options::recursive |
+                              filesystem::copy_options::update_existing);
     };
     if (inCmdLineArg_Map.contains("--generate")) {
         Update();
@@ -99,7 +104,6 @@ void ProcessCmdLine(auto &inCmdLineArg_Map) {
 }
 
 JKR_EXPORT int main(int ArgCount, char **ArgStrings) {
-
 #ifndef ANDROID
     auto CmdArg_Map = CommandLine(ArgCount, ArgStrings);
     if (not CmdArg_Map.empty()) ProcessCmdLine(CmdArg_Map);

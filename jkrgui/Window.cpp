@@ -20,8 +20,10 @@ Jkr::Window::Window(const Instance &inInstance,
       mThreadPool(inPool),
       mUICommandPool(inInstance.GetDevice(), inInstance.GetQueueContext()),
       mSecondaryCommandBuffersUI{
-           VulkanCommandBuffer(inInstance.GetDevice(), mUICommandPool, VulkanCommandBuffer::Type::Secondary),
-           VulkanCommandBuffer(inInstance.GetDevice(), mUICommandPool, VulkanCommandBuffer::Type::Secondary)}
+           VulkanCommandBuffer(
+                inInstance.GetDevice(), mUICommandPool, VulkanCommandBuffer::Type::Secondary),
+           VulkanCommandBuffer(
+                inInstance.GetDevice(), mUICommandPool, VulkanCommandBuffer::Type::Secondary)}
 
 {
     for (int i = 0; i < inNumThreads; i++) {
@@ -32,14 +34,19 @@ Jkr::Window::Window(const Instance &inInstance,
 void Jkr::Window::Refresh() {
     ZoneScoped;
     mSurface.ProcessCurrentSurfaceConditions(mInstance->GetPhysicalDevice());
-    mSwapChain              = VulkanSwapChain(mInstance->GetDevice(), mInstance->GetQueueContext(), mSurface, mSwapChain);
-    mSwapChainImages        = mSwapChain.GetVulkanImages(mInstance->GetDevice(), mSurface);
-    mColorImageRenderTarget = VulkanImage(mInstance->GetDevice(), mSurface, 4, ImageContext::ColorAttach);
-    mDepthImage             = VulkanImage(mInstance->GetDevice(), mSurface, 4, ImageContext::DepthImage);
+    mSwapChain = VulkanSwapChain(
+         mInstance->GetDevice(), mInstance->GetQueueContext(), mSurface, mSwapChain);
+    mSwapChainImages = mSwapChain.GetVulkanImages(mInstance->GetDevice(), mSurface);
+    mColorImageRenderTarget =
+         VulkanImage(mInstance->GetDevice(), mSurface, 4, ImageContext::ColorAttach);
+    mDepthImage = VulkanImage(mInstance->GetDevice(), mSurface, 4, ImageContext::DepthImage);
 
     for (int i = 0; i < mSwapChainImages.size(); i++) {
-        mFrameBuffers[i] = MakeUp<FrameBufferType>(
-             mInstance->GetDevice(), mRenderPass, mColorImageRenderTarget, mDepthImage, mSwapChainImages[i]);
+        mFrameBuffers[i] = MakeUp<FrameBufferType>(mInstance->GetDevice(),
+                                                   mRenderPass,
+                                                   mColorImageRenderTarget,
+                                                   mDepthImage,
+                                                   mSwapChainImages[i]);
     }
 
     if (mShadowPass) {
@@ -50,7 +57,8 @@ void Jkr::Window::Refresh() {
 }
 
 namespace Jkr {
-const std::array<VulkanCommandBuffer, 2U> &Jkr::Window::GetCommandBuffers(ParameterContext inParameter) const {
+const std::array<VulkanCommandBuffer, 2U> &
+Jkr::Window::GetCommandBuffers(ParameterContext inParameter) const {
     switch (inParameter) {
         case Jkr::Window_base::None:
             return mCommandBuffers;
@@ -67,8 +75,9 @@ void Jkr::Window::BeginUpdates() {
 }
 
 void Window::EndUpdates() {
-    std::pair<uint32_t, uint32_t> SwapChainResult = mSwapChain.AcquireNextImage(mImageAvailableSemaphores[mCurrentFrame]);
-    mAcquiredImageIndex                           = SwapChainResult.second;
+    std::pair<uint32_t, uint32_t> SwapChainResult =
+         mSwapChain.AcquireNextImage(mImageAvailableSemaphores[mCurrentFrame]);
+    mAcquiredImageIndex = SwapChainResult.second;
 }
 
 void Window::BeginDispatches() {
@@ -78,10 +87,12 @@ void Window::BeginDispatches() {
 
 void Window::EndDispatches() {}
 
-void Window::BeginDraws(float r = 0.1f, float g = 0.1f, float b = 0.1f, float a = 0.1f, float d = 1.0f) {
+void Window::BeginDraws(
+     float r = 0.1f, float g = 0.1f, float b = 0.1f, float a = 0.1f, float d = 1.0f) {
     std::array<float, 5> ClearValues = {r, g, b, a, d};
-    mCommandBuffers[mCurrentFrame].BeginRenderPass<VulkanCommandBuffer::RenderPassBeginContext::SecondaryCommandBuffers>(
-         mRenderPass, mSurface.GetExtent(), *mFrameBuffers[mAcquiredImageIndex], ClearValues);
+    mCommandBuffers[mCurrentFrame]
+         .BeginRenderPass<VulkanCommandBuffer::RenderPassBeginContext::SecondaryCommandBuffers>(
+              mRenderPass, mSurface.GetExtent(), *mFrameBuffers[mAcquiredImageIndex], ClearValues);
 }
 
 void Window::EndDraws() { mCommandBuffers[mCurrentFrame].EndRenderPass(); }
@@ -89,10 +100,11 @@ void Window::EndDraws() { mCommandBuffers[mCurrentFrame].EndRenderPass(); }
 void Window::Present() {
     mCommandBuffers[mCurrentFrame].End();
 
-    mInstance->GetGraphicsQueue().Submit<SubmitContext::ColorAttachment>(mImageAvailableSemaphores[mCurrentFrame],
-                                                                         mRenderFinishedSemaphores[mCurrentFrame],
-                                                                         mFences[mCurrentFrame],
-                                                                         mCommandBuffers[mCurrentFrame]);
+    mInstance->GetGraphicsQueue().Submit<SubmitContext::ColorAttachment>(
+         mImageAvailableSemaphores[mCurrentFrame],
+         mRenderFinishedSemaphores[mCurrentFrame],
+         mFences[mCurrentFrame],
+         mCommandBuffers[mCurrentFrame]);
     uint32_t Result = mInstance->GetGraphicsQueue().Present<SubmitContext::ColorAttachment>(
          mSwapChain, mRenderFinishedSemaphores[mCurrentFrame], mAcquiredImageIndex);
 
@@ -104,8 +116,9 @@ void Window::Present() {
 }
 
 void Window::BeginUIs() {
-    mSecondaryCommandBuffersUI[mCurrentFrame].Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPassAndOneTimeSubmit>(
-         mRenderPass, 0, *mFrameBuffers[mAcquiredImageIndex]);
+    mSecondaryCommandBuffersUI[mCurrentFrame]
+         .Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPassAndOneTimeSubmit>(
+              mRenderPass, 0, *mFrameBuffers[mAcquiredImageIndex]);
 
     // TODO Replace this with Our Window Functions
     mSecondaryCommandBuffersUI[mCurrentFrame].SetViewport(mSurface);
@@ -114,7 +127,9 @@ void Window::BeginUIs() {
 
 void Window::EndUIs() { mSecondaryCommandBuffersUI[mCurrentFrame].End(); }
 
-void Window::ExecuteUIs() { mCommandBuffers[mCurrentFrame].ExecuteCommands(mSecondaryCommandBuffersUI[mCurrentFrame]); }
+void Window::ExecuteUIs() {
+    mCommandBuffers[mCurrentFrame].ExecuteCommands(mSecondaryCommandBuffersUI[mCurrentFrame]);
+}
 
 using namespace Jkr;
 void Window::BeginShadowPass(float ind) {
@@ -149,7 +164,9 @@ void Window::BeginThreadCommandBuffer(int inThreadId) {
               mRenderPass, 0, *mFrameBuffers[mAcquiredImageIndex]);
 }
 
-void Window::EndThreadCommandBuffer(int inThreadId) { mThreadCommandBuffers[inThreadId]->mCommandBuffers[mCurrentFrame].End(); }
+void Window::EndThreadCommandBuffer(int inThreadId) {
+    mThreadCommandBuffers[inThreadId]->mCommandBuffers[mCurrentFrame].End();
+}
 
 void Window::BuildShadowPass(ui inWidth, ui inHeight) {
     mShadowPass = mu<ShadowPass>(*mInstance, inWidth, inHeight);
@@ -161,16 +178,81 @@ void Window::BuildDeferredPass(ui inWidth, ui inHeight) {
     mFrameSize    = glm::uvec2(inWidth, inHeight);
 }
 
-void Window::PrepareDeferredPass(Renderer::_3D::Simple3D &inCompositionSimple3D, Renderer::_3D::World3D &inWorld) {
+void Window::PrepareDeferredPass(Renderer::_3D::Simple3D &inCompositionSimple3D,
+                                 Renderer::_3D::World3D &inWorld) {
     mDeferredPass->Prepare(inCompositionSimple3D, inWorld);
 }
 
-void Window::ExecuteDeferredComposition(Renderer::_3D::Simple3D &inCompositionSimple3D, Renderer::_3D::World3D &inWorld) {
+void Window::ExecuteDeferredComposition(Renderer::_3D::Simple3D &inCompositionSimple3D,
+                                        Renderer::_3D::World3D &inWorld) {
     mDeferredPass->ExecuteDeferredComposition(*this, inCompositionSimple3D, inWorld);
 }
 void Window::BeginDeferredDraws(float r, float g, float b, float a, float d) {
     mDeferredPass->BeginDeferred(*this, r, g, b, a, d);
 }
 void Window::EndDeferredDraws() { mDeferredPass->EndDeferred(*this); }
+
+void Window::PresentDeferred() {
+    using namespace vk;
+    auto &AquiredImage = mSwapChainImages[mAcquiredImageIndex];
+    ImageSubresourceLayers SrcSubLayers(ImageAspectFlagBits::eColor, 0, 0, 1);
+    ImageSubresourceLayers DstSubLayers(ImageAspectFlagBits::eColor, 0, 0, 1);
+    ImageBlit Blit;
+    Blit.setSrcSubresource(SrcSubLayers);
+    Blit.setDstSubresource(DstSubLayers);
+    Blit.srcOffsets[1].x = mFrameSize.x;
+    Blit.srcOffsets[1].y = mFrameSize.y;
+    Blit.srcOffsets[1].z = 1;
+    Blit.dstOffsets[1].x = mWidth;
+    Blit.dstOffsets[1].y = mHeight;
+    Blit.dstOffsets[1].z = 1;
+    auto &cmd            = mCommandBuffers[mCurrentFrame].GetCommandBufferHandle();
+    AquiredImage.CmdTransitionImageLayout(mCommandBuffers[mCurrentFrame],
+                                          vk::ImageLayout::eUndefined,
+                                          vk::ImageLayout::eTransferDstOptimal,
+                                          vk::PipelineStageFlagBits::eTopOfPipe,
+                                          vk::PipelineStageFlagBits::eTransfer,
+                                          vk::AccessFlagBits::eNone,
+                                          vk::AccessFlagBits::eMemoryWrite);
+    mDeferredPass->GetDeferredCompositionImage().mUniformImagePtr->CmdTransitionImageLayout(
+         mCommandBuffers[mCurrentFrame],
+         vk::ImageLayout::eShaderReadOnlyOptimal,
+         vk::ImageLayout::eTransferSrcOptimal,
+         vk::PipelineStageFlagBits::eColorAttachmentOutput,
+         vk::PipelineStageFlagBits::eTransfer,
+         vk::AccessFlagBits::eMemoryWrite,
+         vk::AccessFlagBits::eMemoryRead);
+    cmd.blitImage(mDeferredPass->GetDeferredCompositionImage().mUniformImagePtr->GetImageHandle(),
+                  vk::ImageLayout::eTransferSrcOptimal,
+                  AquiredImage.GetImageHandle(),
+                  vk::ImageLayout::eTransferDstOptimal,
+                  Blit,
+                  vk::Filter::eLinear);
+
+    AquiredImage.CmdTransitionImageLayout(mCommandBuffers[mCurrentFrame],
+                                          vk::ImageLayout::eTransferDstOptimal,
+                                          vk::ImageLayout::ePresentSrcKHR,
+                                          vk::PipelineStageFlagBits::eColorAttachmentOutput |
+                                               vk::PipelineStageFlagBits::eTransfer,
+                                          vk::PipelineStageFlagBits::eBottomOfPipe,
+                                          vk::AccessFlagBits::eMemoryWrite,
+                                          vk::AccessFlagBits::eMemoryRead);
+
+    mCommandBuffers[mCurrentFrame].End();
+    mInstance->GetGraphicsQueue().Submit<SubmitContext::ColorAttachment>(
+         mImageAvailableSemaphores[mCurrentFrame],
+         mRenderFinishedSemaphores[mCurrentFrame],
+         mFences[mCurrentFrame],
+         mCommandBuffers[mCurrentFrame]);
+
+    uint32_t Result = mInstance->GetGraphicsQueue().Present<SubmitContext::ColorAttachment>(
+         mSwapChain, mRenderFinishedSemaphores[mCurrentFrame], mAcquiredImageIndex);
+
+    if (mSwapChain.ImageIsNotOptimal(Result)) {
+        Refresh();
+    } else {
+        mCurrentFrame = (mCurrentFrame + 1) % mMaxFramesInFlight;
+    }
+}
 
 } // namespace Jkr
