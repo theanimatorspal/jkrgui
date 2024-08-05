@@ -4,14 +4,13 @@
 #include "vulkan/vulkan_enums.hpp"
 
 using namespace ksai;
-template <RenderPassContext T> using vr = VulkanRenderPass<T>;
 
-// TODO Uniformize Parameters in these functions
 template <>
 VulkanRenderPass<RenderPassContext::Default>::VulkanRenderPass(const VulkanDevice &inDevice,
                                                                const VulkanSurface &inSurface,
                                                                const VulkanImage &inDepthImage)
     : mDevice(&inDevice.GetDeviceHandle()) {
+    mColorAttachmentCount             = 1;
     vk::Format SurfaceSwapChainFormat = inSurface.GetSurfaceImageFormat();
     vk::Format DepthImageFormat       = inDepthImage.GetImageFormat();
     vk::AttachmentDescription DepthAttachment =
@@ -82,6 +81,7 @@ template <>
 VulkanRenderPass<RenderPassContext::Shadow>::VulkanRenderPass(const VulkanDevice &inDevice,
                                                               VulkanImageBase &inDepthImage)
     : mDevice(&inDevice.GetDeviceHandle()) {
+    mColorAttachmentCount       = 0;
     vk::Format DepthImageFormat = inDepthImage.GetImageFormat();
     vk::AttachmentDescription DepthAttachment =
          vk::AttachmentDescription(vk::AttachmentDescriptionFlags(), DepthImageFormat)
@@ -133,6 +133,7 @@ VulkanRenderPass<RenderPassContext::MSAA>::VulkanRenderPass(const VulkanDevice &
                                                             const VulkanImage &inDepthImage,
                                                             vk::SampleCountFlagBits inMSAASamples)
     : mDevice(&inDevice.GetDeviceHandle()) {
+    mColorAttachmentCount             = 1;
     vk::Format SurfaceSwapChainFormat = inSurface.GetSurfaceImageFormat();
     vk::Format DepthImageFormat       = inDepthImage.GetImageFormat();
 
@@ -221,6 +222,7 @@ template <>
 VulkanRenderPass<RenderPassContext::SingleColorAttachment>::VulkanRenderPass(
      const VulkanDevice &inDevice, VulkanImageBase &inColorImage)
     : mDevice(&inDevice.GetDeviceHandle()) {
+    mColorAttachmentCount = 1;
     vk::AttachmentDescription ColorAttachment =
          vk::AttachmentDescription(vk::AttachmentDescriptionFlags(), inColorImage.GetImageFormat())
               .setInitialLayout(vk::ImageLayout::eUndefined)
@@ -272,6 +274,7 @@ VulkanRenderPass<RenderPassContext::Deferred>::VulkanRenderPass(
      const VulkanImageBase &inAlbedoImage,
      const VulkanImageBase &inDepthImage)
     : mDevice(&inDevice.GetDeviceHandle()) {
+    mColorAttachmentCount = 3;
 
     std::array<vk::AttachmentDescription, 4> AttachmentDescriptions;
     for (uint32_t i = 0; i < 4; ++i) {

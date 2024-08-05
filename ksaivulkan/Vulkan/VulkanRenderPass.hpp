@@ -10,12 +10,15 @@ class VulkanRenderPassBase {
     public:
     operator vk::RenderPass() const { return mRenderPass; }
     GETTER &GetRenderPassHandle() const { return mRenderPass; }
+    GETTER GetAttachmentCount() const { return mColorAttachmentCount; }
 
     protected:
     vk::RenderPass mRenderPass = nullptr;
+    int mColorAttachmentCount  = 1;
 };
 
-template <RenderPassContext inRenderPassContext> class VulkanRenderPass : public VulkanRenderPassBase {
+template <RenderPassContext inRenderPassContext>
+class VulkanRenderPass : public VulkanRenderPassBase {
     public:
     VulkanRenderPass()                                         = default;
     VulkanRenderPass(const VulkanRenderPass &other)            = delete;
@@ -30,7 +33,9 @@ template <RenderPassContext inRenderPassContext> class VulkanRenderPass : public
     }
 
     VulkanRenderPass(const VulkanDevice &inDevice) : mDevice(&inDevice.GetDeviceHandle()) {}
-    VulkanRenderPass(const VulkanDevice &inDevice, const VulkanSurface &inSurface, const VulkanImage &inDepthImage);
+    VulkanRenderPass(const VulkanDevice &inDevice,
+                     const VulkanSurface &inSurface,
+                     const VulkanImage &inDepthImage);
     VulkanRenderPass(const VulkanDevice &inDevice, VulkanImageBase &inDepthImage);
     VulkanRenderPass(const VulkanDevice &inDevice,
                      const VulkanSurface &inSurface,
