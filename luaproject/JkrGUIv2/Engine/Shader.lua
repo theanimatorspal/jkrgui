@@ -1222,8 +1222,10 @@ Deferred.ScreenQuadCompositionFragment = Engine.Shader()
         vec3 normal = texture(inNormalImage, vUV).rgb;
         vec4 albedo = texture(inAlbedoImage, vUV);
         #define lightCount 8
-        #define ambient 0.0
+        #define ambient 0.1
         vec3 fragColor = albedo.rgb * ambient;
+
+        vec3 N = normalize(normal);
 
         for(int i = 0; i < 8; ++i)
         {
@@ -1233,8 +1235,8 @@ Deferred.ScreenQuadCompositionFragment = Engine.Shader()
             V = normalize(V);
             L = normalize(L);
             float attenuation = Ubo.lights[i].w / (dist * dist + 1.0f);
+
             // diffuse
-            vec3 N = normalize(normal);
             float NdotL = max(0.0f, dot(N, L));
             vec3 lightColor = vec3(1, 1, 1);
             vec3 diff = lightColor * albedo.rgb * NdotL * attenuation;
@@ -1248,6 +1250,7 @@ Deferred.ScreenQuadCompositionFragment = Engine.Shader()
     ]]
     .GlslMainEnd()
 
+---@diagnostic disable-next-line: duplicate-set-field
 function Deferred.GetBasicVertexHeader()
     return Engine.Shader()
         .Header(450)
@@ -1261,6 +1264,7 @@ function Deferred.GetBasicVertexHeader()
         .Out(4, "vec3", "vWorldPos")
 end
 
+---@diagnostic disable-next-line: duplicate-set-field
 function Deferred.GetBasicFragmentHeader()
     return Engine.Shader()
         .Header(450)

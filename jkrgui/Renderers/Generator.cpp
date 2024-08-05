@@ -253,58 +253,7 @@ void Jkr::Generator::operator()(float inX,
             float Theta                = 0.0f;
             float Phi                  = 0.0f;
             using namespace kstd;
-            for (int yseg = 0; yseg < s2d; ++yseg) {
-                for (int xzseg = 0; xzseg < s3d; ++xzseg) {
-                    const float y_up        = r * cos(Phi);
-                    const float x_upLeft    = r * sin(Phi) * cos(Theta);
-                    const float z_upLeft    = r * sin(Phi) * sin(Theta);
-                    const float x_upRight   = r * sin(Phi) * cos(Theta + DelTheta);
-                    const float z_upRight   = r * sin(Phi) * sin(Theta + DelTheta);
-
-                    const float y_down      = r * cos(Phi + DelPhi);
-                    const float x_downLeft  = r * sin(Phi + DelPhi) * cos(Theta);
-                    const float z_downLeft  = r * sin(Phi + DelPhi) * sin(Theta);
-                    const float x_downRight = r * sin(Phi + DelPhi) * cos(Theta + DelTheta);
-                    const float z_downRight = r * sin(Phi + DelPhi) * sin(Theta + DelTheta);
-
-                    Vertex3D UpperLeft      = {.mPosition = {x_upLeft, y_up, z_upLeft}};
-                    Vertex3D UpperRight     = {.mPosition = {x_upRight, y_up, z_upRight}};
-                    Vertex3D LowerLeft      = {.mPosition = {x_downLeft, y_down, z_downLeft}};
-                    Vertex3D LowerRight     = {.mPosition = {x_downRight, y_down, z_downRight}};
-                    if (xzseg == 0) {
-                        modVertices[vIndex++] = UpperCenter;
-                    } else {
-                        modVertices[vIndex++] = UpperLeft;
-                        modVertices[vIndex++] = UpperRight;
-                    }
-
-                    if (xzseg == s3d - 1) {
-                        modVertices[vIndex++] = LowerCenter;
-                    } else {
-                        modVertices[vIndex++] = LowerLeft;
-                        modVertices[vIndex++] = LowerRight;
-                    }
-
-                    if (xzseg == 0) {
-                        int FirstVIndex      = vIndex + inStartVertexIndex - 3;
-                        modIndices[iIndex++] = FirstVIndex + 0;
-                        modIndices[iIndex++] = FirstVIndex + 1;
-                        modIndices[iIndex++] = FirstVIndex + 2;
-                    } else if (xzseg == s3d - 1) {
-
-                    } else {
-                        int FirstVIndex      = vIndex + inStartVertexIndex - 4;
-                        modIndices[iIndex++] = FirstVIndex + 0;
-                        modIndices[iIndex++] = FirstVIndex + 2;
-                        modIndices[iIndex++] = FirstVIndex + 3;
-                        modIndices[iIndex++] = FirstVIndex + 0;
-                        modIndices[iIndex++] = FirstVIndex + 3;
-                        modIndices[iIndex++] = FirstVIndex + 1;
-                    }
-                    Theta += DelTheta;
-                }
-                Phi += DelPhi;
-            }
+            // TODO Complete this
         } break;
         case Shapes::Cylinder3D: {
             modVertices.resize(mVertexCount + modVertices.size());

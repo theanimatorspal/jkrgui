@@ -194,6 +194,7 @@ void Window::EndDeferredDraws() { mDeferredPass->EndDeferred(*this); }
 
 void Window::PresentDeferred() {
     using namespace vk;
+    auto d             = GetWindowDimension();
     auto &AquiredImage = mSwapChainImages[mAcquiredImageIndex];
     ImageSubresourceLayers SrcSubLayers(ImageAspectFlagBits::eColor, 0, 0, 1);
     ImageSubresourceLayers DstSubLayers(ImageAspectFlagBits::eColor, 0, 0, 1);
@@ -203,8 +204,8 @@ void Window::PresentDeferred() {
     Blit.srcOffsets[1].x = mFrameSize.x;
     Blit.srcOffsets[1].y = mFrameSize.y;
     Blit.srcOffsets[1].z = 1;
-    Blit.dstOffsets[1].x = mWidth;
-    Blit.dstOffsets[1].y = mHeight;
+    Blit.dstOffsets[1].x = d.x;
+    Blit.dstOffsets[1].y = d.y;
     Blit.dstOffsets[1].z = 1;
     auto &cmd            = mCommandBuffers[mCurrentFrame].GetCommandBufferHandle();
 
