@@ -5,54 +5,58 @@
 using namespace Jkr;
 
 Generator::Generator(Shapes inShape, Arguments inArgs) : mArgs(inArgs), mShape(inShape) {
-    switch (inShape) {
-        case Shapes::EllipseWire:
-            mVertexCount = std::get<glm::uvec2>(mArgs).y;
-            mIndexCount  = std::get<glm::uvec2>(mArgs).y + 1;
-            break;
-        case Shapes::EllipseFill:
-            // TODO Implement
-            break;
-        case Shapes::RectangleFill:
-            mVertexCount = 4;
-            mIndexCount  = 6;
-            break;
-        case Shapes::RectangleWire:
-            // TODO Implement
-            break;
-        case Shapes::Bezier2_8Wire:
-            mVertexCount = 8;
-            mIndexCount  = 8;
-        case Shapes::Cube3D:
-            mVertexCount = 24;
-            mIndexCount  = 36;
-            break;
-        case Shapes::Sphere3D: {
-            const glm::vec4 r_s2d_s3d = std::get<glm::vec4>(mArgs);
-            const float r             = r_s2d_s3d.x;
-            const ui s2d              = static_cast<ui>(r_s2d_s3d.y);
-            const ui s3d              = static_cast<ui>(r_s2d_s3d.z);
-            mVertexCount              = 2 + s2d * s3d;
-            mIndexCount               = 3 * s2d + s2d * s3d * 6;
-        } break;
-        case Shapes::Cylinder3D: {
-            const glm::vec3 rh     = std::get<glm::vec3>(mArgs);
-            const float r          = rh.x;
-            const float h          = rh.y;
-            const int SegmentCount = static_cast<ui>(rh.z);
-            const float DelTheta   = 360.0f / (float)SegmentCount;
-            mIndexCount            = SegmentCount * 12;
-            mVertexCount           = SegmentCount * 10;
-        } break;
-        case Shapes::Cone3D:
-            // TODO Implement
-            break;
-        case Shapes::Torus3D:
-            // TODO Implement
-            break;
-        case Shapes::Icosphere3D:
-            // TODO Implement
-            break;
+    try {
+        switch (inShape) {
+            case Shapes::EllipseWire:
+                mVertexCount = std::get<glm::uvec2>(mArgs).y;
+                mIndexCount  = std::get<glm::uvec2>(mArgs).y + 1;
+                break;
+            case Shapes::EllipseFill:
+                // TODO Implement
+                break;
+            case Shapes::RectangleFill:
+                mVertexCount = 4;
+                mIndexCount  = 6;
+                break;
+            case Shapes::RectangleWire:
+                // TODO Implement
+                break;
+            case Shapes::Bezier2_8Wire:
+                mVertexCount = 8;
+                mIndexCount  = 8;
+            case Shapes::Cube3D:
+                mVertexCount = 24;
+                mIndexCount  = 36;
+                break;
+            case Shapes::Sphere3D: {
+                const glm::vec4 r_s2d_s3d = std::get<glm::vec4>(mArgs);
+                const float r             = r_s2d_s3d.x;
+                const ui s2d              = static_cast<ui>(r_s2d_s3d.y);
+                const ui s3d              = static_cast<ui>(r_s2d_s3d.z);
+                mVertexCount              = 2 + s2d * s3d;
+                mIndexCount               = 3 * s2d + s2d * s3d * 6;
+            } break;
+            case Shapes::Cylinder3D: {
+                const glm::vec3 rh     = std::get<glm::vec3>(mArgs);
+                const float r          = rh.x;
+                const float h          = rh.y;
+                const int SegmentCount = static_cast<ui>(rh.z);
+                const float DelTheta   = 360.0f / (float)SegmentCount;
+                mIndexCount            = SegmentCount * 12;
+                mVertexCount           = SegmentCount * 10;
+            } break;
+            case Shapes::Cone3D:
+                // TODO Implement
+                break;
+            case Shapes::Torus3D:
+                // TODO Implement
+                break;
+            case Shapes::Icosphere3D:
+                // TODO Implement
+                break;
+        }
+    } catch (const std::exception &e) {
+        throw std::exception("The parameters passed to generate the object is not compatible.");
     }
 }
 
@@ -61,8 +65,8 @@ void Jkr::Generator::operator()(float inX,
                                 float inZ,
                                 uint32_t inStartVertexIndex,
                                 uint32_t inStartIndexIndex,
-                                std::vector<kstd::Vertex>& modVertices,
-                                std::vector<uint32_t>& modIndices) {
+                                std::vector<kstd::Vertex> &modVertices,
+                                std::vector<uint32_t> &modIndices) {
     switch (mShape) {
         // TODO Implement Ellipse (This is a Circle Implementation)
         case Shapes::EllipseWire: {
@@ -131,7 +135,7 @@ void Jkr::Generator::operator()(float inX,
             const auto i_index = inStartIndexIndex;
             float del_t        = 1.0f / 8.0f;
             float t            = 0.0f;
-            auto& p            = std::get<std::vector<glm::uvec2>>(mArgs);
+            auto &p            = std::get<std::vector<glm::uvec2>>(mArgs);
             auto p_o           = glm::vec2(p[0].x, p[0].y);
             auto p_1           = glm::vec2(p[1].x, p[1].y);
             auto p_2           = glm::vec2(p[2].x, p[2].y);
@@ -158,8 +162,8 @@ void Jkr::Generator::operator()(float inX,
                                 float inZ,
                                 uint32_t inStartVertexIndex,
                                 uint32_t inStartIndexIndex,
-                                ksai::v<kstd::Vertex3D>& modVertices,
-                                ksai::v<ksai::ui>& modIndices) {
+                                ksai::v<kstd::Vertex3D> &modVertices,
+                                ksai::v<ksai::ui> &modIndices) {
     switch (mShape) {
         case Shapes::Cube3D: {
             glm::vec3 Size = std::get<decltype(Size)>(mArgs);

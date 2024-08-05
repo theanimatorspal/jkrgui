@@ -1248,11 +1248,35 @@ Deferred.ScreenQuadCompositionFragment = Engine.Shader()
     ]]
     .GlslMainEnd()
 
-Deferred.BasicVertex = Engine.Shader()
-    .Header(450)
-    .VLayout()
-    .Ubo()
-    .Push()
+function Deferred.GetBasicVertexHeader()
+    return Engine.Shader()
+        .Header(450)
+        .VLayout()
+        .Ubo()
+        .Push()
+        .Out(0, "vec3", "vNormal")
+        .Out(1, "vec2", "vUV")
+        .Out(2, "vec3", "vColor")
+        .Out(3, "vec3", "vTangent")
+        .Out(4, "vec3", "vWorldPos")
+end
+
+function Deferred.GetBasicFragmentHeader()
+    return Engine.Shader()
+        .Header(450)
+        .Ubo()
+        .Push()
+        .In(0, "vec3", "vNormal")
+        .In(1, "vec2", "vUV")
+        .In(2, "vec3", "vColor")
+        .In(3, "vec3", "vTangent")
+        .In(4, "vec3", "vWorldPos")
+        .Out(0, "vec4", "outPosition")
+        .Out(1, "vec4", "outNormal")
+        .Out(2, "vec4", "outAlbedo")
+end
+
+Deferred.BasicVertex = Deferred.GetBasicVertexHeader()
     .Append [[
         struct Tangent {
             vec4 mTangent;
@@ -1262,38 +1286,22 @@ Deferred.BasicVertex = Engine.Shader()
             Tangent inTangent[];
         };
     ]]
-    .Out(0, "vec3", "vNormal")
-    .Out(1, "vec2", "vUV")
-    .Out(2, "vec3", "vColor")
-    .Out(3, "vec3", "vTangent")
-    .Out(4, "vec3", "vWorldPos")
     .GlslMainBegin()
     .Append
     [[
-        gl_Position = Ubo.proj * Ubo.view * Push.model * inPosition;
-        vWorldPos = vec3(Push.model * vec4(inPosition, 1))
+        gl_Position = Ubo.proj * Ubo.view * Push.model * vec4(inPosition, 1);
+        vWorldPos = vec3(Push.model * vec4(inPosition, 1));
         mat3 mNormal = transpose(inverse(mat3(Push.model)));
-        vNormal = mNormal * normalize(inNormal);
-        vTangent = mNormal * normalize(inTangent[gl_VertexIndex]);
+        vNormal = mNormal * normalize(inNormal.xyz);
+        vTangent = mNormal * normalize(inTangent[gl_VertexIndex].mTangent.xyz);
         vUV = inUV;
         vColor = inColor;
     ]]
     .GlslMainEnd()
 
-Deferred.BasicFragment = Engine.Shader()
-    .Header(450)
+Deferred.BasicFragment = Deferred.GetBasicFragmentHeader()
     .uSampler2D(3, "samplerColor", 1)
-    .uSampler2D(3, "samplerNormal", 1)
-    .Ubo()
-    .Push()
-    .In(0, "vec3", "vNormal")
-    .In(1, "vec2", "vUV")
-    .In(2, "vec3", "vColor")
-    .In(3, "vec3", "vTangent")
-    .In(4, "vec3", "vWorldPos")
-    .Out(0, "vec4", "outPosition")
-    .Out(1, "vec4", "outNormal")
-    .Out(2, "vec4", "outAlbedo")
+    .uSampler2D(4, "samplerNormal", 1)
     .GlslMainBegin()
     .Append
     [[
@@ -1305,8 +1313,6 @@ Deferred.BasicFragment = Engine.Shader()
         mat3 TBN = mat3(T, B, N);
         vec3 tnorm = TBN * normalize(texture(samplerNormal, vUV).xyz * 2.0 - vec3(1.0));
         outNormal = vec4(tnorm, 1.0);
-        outAlbedo = texture(samplerColor, inUV);
+        outAlbedo = texture(samplerColor, vUV);
     ]]
     .GlslMainEnd()
-
--- TODO Remove str form everywhere

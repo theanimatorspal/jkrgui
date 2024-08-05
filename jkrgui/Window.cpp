@@ -207,13 +207,15 @@ void Window::PresentDeferred() {
     Blit.dstOffsets[1].y = mHeight;
     Blit.dstOffsets[1].z = 1;
     auto &cmd            = mCommandBuffers[mCurrentFrame].GetCommandBufferHandle();
+
     AquiredImage.CmdTransitionImageLayout(mCommandBuffers[mCurrentFrame],
                                           vk::ImageLayout::eUndefined,
                                           vk::ImageLayout::eTransferDstOptimal,
-                                          vk::PipelineStageFlagBits::eTopOfPipe,
+                                          vk::PipelineStageFlagBits::eAllGraphics,
                                           vk::PipelineStageFlagBits::eTransfer,
-                                          vk::AccessFlagBits::eNone,
+                                          vk::AccessFlagBits::eMemoryRead,
                                           vk::AccessFlagBits::eMemoryWrite);
+
     mDeferredPass->GetDeferredCompositionImage().mUniformImagePtr->CmdTransitionImageLayout(
          mCommandBuffers[mCurrentFrame],
          vk::ImageLayout::eShaderReadOnlyOptimal,
@@ -222,6 +224,7 @@ void Window::PresentDeferred() {
          vk::PipelineStageFlagBits::eTransfer,
          vk::AccessFlagBits::eMemoryWrite,
          vk::AccessFlagBits::eMemoryRead);
+
     cmd.blitImage(mDeferredPass->GetDeferredCompositionImage().mUniformImagePtr->GetImageHandle(),
                   vk::ImageLayout::eTransferSrcOptimal,
                   AquiredImage.GetImageHandle(),

@@ -1,6 +1,7 @@
 ﻿#include "JkrLuaExe.hpp"
 #include <SDLWindow.hpp>
-#include <TracyLua.hpp>
+// #include <Tracy.hpp>
+// #include <TracyLua.hpp>
 
 extern void LuaShowToastNotification(const std::string_view inMessage);
 
@@ -40,7 +41,7 @@ void CreateMainBindings(sol::state &s) {
     CreateAudioBindings(s);
     CreatePlatformBindings(s);
     CreateNetworkBindings(s);
-    tracy::LuaRegister(s);
+    // tracy::LuaRegister(s);
 }
 } // namespace JkrEXE
 
@@ -108,6 +109,10 @@ JKR_EXPORT int main(int ArgCount, char **ArgStrings) {
     auto CmdArg_Map = CommandLine(ArgCount, ArgStrings);
     if (not CmdArg_Map.empty()) ProcessCmdLine(CmdArg_Map);
 #endif
-    RunScript();
+    try {
+        RunScript();
+    } catch (const std::exception &e) {
+        std::cout << "ERROR:: " << e.what() << "\n";
+    }
     return 0;
 }

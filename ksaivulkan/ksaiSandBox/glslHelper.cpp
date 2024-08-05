@@ -1,5 +1,9 @@
 #include "glslHelper.hpp"
-void SpirvHelper::InitResources(TBuiltInResource& Resources) {
+
+void SpirvHelper::Init() { glslang::InitializeProcess(); }
+void SpirvHelper::Finalize() { glslang::FinalizeProcess(); }
+
+void SpirvHelper::InitResources(TBuiltInResource &Resources) {
     Resources.maxLights                                   = 32;
     Resources.maxClipPlanes                               = 6;
     Resources.maxTextureUnits                             = 32;
@@ -123,11 +127,11 @@ EShLanguage SpirvHelper::FindLanguage(const vk::ShaderStageFlagBits shader_type)
 }
 
 bool SpirvHelper::GLSLtoSPV(const vk::ShaderStageFlagBits shader_type,
-                            const char* pshader,
-                            std::vector<unsigned int>& spirv) {
+                            const char *pshader,
+                            std::vector<unsigned int> &spirv) {
     EShLanguage stage = FindLanguage(shader_type);
     glslang::TShader shader(stage);
-    const char* shaderStrings[1];
+    const char *shaderStrings[1];
     TBuiltInResource Resources = {};
     InitResources(Resources);
 
