@@ -49,10 +49,6 @@ void Jkr::Window::Refresh() {
                                                    mSwapChainImages[i]);
     }
 
-    if (mShadowPass) {
-        // TODO Recreate Shadow pass
-    }
-
     mResizeFunction(nullptr);
 }
 
@@ -92,12 +88,54 @@ void Window::BeginDraws(
     std::array<float, 5> ClearValues = {r, g, b, a, d};
     mCommandBuffers[mCurrentFrame]
          .BeginRenderPass<VulkanCommandBuffer::RenderPassBeginContext::SecondaryCommandBuffers>(
-              mRenderPass, mSurface.GetExtent(), *mFrameBuffers[mAcquiredImageIndex], ClearValues);
+              mRenderPass,
+              {mOffscreenFrameSize.x, mOffscreenFrameSize.y},
+              *mFrameBuffers[mAcquiredImageIndex],
+              ClearValues);
 }
 
 void Window::EndDraws() { mCommandBuffers[mCurrentFrame].EndRenderPass(); }
 
 void Window::Present() {
+    using namespace vk;
+    auto d             = GetWindowDimension();
+    auto &AquiredImage = mSwapChainImages[mAcquiredImageIndex];
+    ImageSubresourceLayers SrcSubLayers(ImageAspectFlagBits::eColor, 0, 0, 1);
+    ImageSubresourceLayers DstSubLayers(ImageAspectFlagBits::eColor, 0, 0, 1);
+    ImageBlit Blit;
+    Blit.setSrcSubresource(SrcSubLayers);
+    Blit.setDstSubresource(DstSubLayers);
+    Blit.srcOffsets[1].x = mOffscreenFrameSize.x;
+    Blit.srcOffsets[1].y = mOffscreenFrameSize.y;
+    Blit.srcOffsets[1].z = 1;
+    Blit.dstOffsets[1].x = d.x;
+    Blit.dstOffsets[1].y = d.y;
+    Blit.dstOffsets[1].z = 1;
+    auto &cmd            = mCommandBuffers[mCurrentFrame].GetCommandBufferHandle();
+    AquiredImage.CmdTransitionImageLayout(mCommandBuffers[mCurrentFrame],
+                                          vk::ImageLayout::eUndefined,
+                                          vk::ImageLayout::eTransferDstOptimal,
+                                          // TODO Improve this
+                                          vk::PipelineStageFlagBits::eAllGraphics,
+                                          vk::PipelineStageFlagBits::eTransfer,
+                                          vk::AccessFlagBits::eMemoryRead,
+                                          vk::AccessFlagBits::eMemoryWrite);
+    cmd.blitImage(mOffscreenImages[mCurrentFrame],
+                  vk::ImageLayout::eTransferSrcOptimal,
+                  AquiredImage.GetImageHandle(),
+                  vk::ImageLayout::eTransferDstOptimal,
+                  Blit,
+                  vk::Filter::eLinear);
+
+    AquiredImage.CmdTransitionImageLayout(mCommandBuffers[mCurrentFrame],
+                                          vk::ImageLayout::eTransferDstOptimal,
+                                          vk::ImageLayout::ePresentSrcKHR,
+                                          vk::PipelineStageFlagBits::eColorAttachmentOutput |
+                                               vk::PipelineStageFlagBits::eTransfer,
+                                          vk::PipelineStageFlagBits::eBottomOfPipe,
+                                          vk::AccessFlagBits::eMemoryWrite,
+                                          vk::AccessFlagBits::eMemoryRead);
+
     mCommandBuffers[mCurrentFrame].End();
 
     mInstance->GetGraphicsQueue().Submit<SubmitContext::ColorAttachment>(
@@ -120,9 +158,8 @@ void Window::BeginUIs() {
          .Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPassAndOneTimeSubmit>(
               mRenderPass, 0, *mFrameBuffers[mAcquiredImageIndex]);
 
-    // TODO Replace this with Our Window Functions
-    mSecondaryCommandBuffersUI[mCurrentFrame].SetViewport(mSurface);
-    mSecondaryCommandBuffersUI[mCurrentFrame].SetScissor(mSurface);
+    SetViewport(0, 0, 1920, 1080, 0.0f, 1.0f, Window::ParameterContext::UI);
+    SetScissor(0, 0, 1920, 1080, Window::ParameterContext::UI);
 }
 
 void Window::EndUIs() { mSecondaryCommandBuffersUI[mCurrentFrame].End(); }
@@ -133,10 +170,11 @@ void Window::ExecuteUIs() {
 
 using namespace Jkr;
 void Window::BeginShadowPass(float ind) {
-    mCommandBuffers[mCurrentFrame].BeginRenderPass(mShadowPass->GetRenderPass(),
-                                                   vk::Extent2D(mFrameSize.x, mFrameSize.y),
-                                                   mShadowPass->GetFrameBuffer(),
-                                                   {1.0f, 1.0f, 1.0f, 1.0f, ind});
+    mCommandBuffers[mCurrentFrame].BeginRenderPass(
+         mShadowPass->GetRenderPass(),
+         vk::Extent2D(mOffscreenFrameSize.x, mOffscreenFrameSize.y),
+         mShadowPass->GetFrameBuffer(),
+         {1.0f, 1.0f, 1.0f, 1.0f, ind});
 }
 void Window::EndShadowPass() {
 
@@ -169,13 +207,12 @@ void Window::EndThreadCommandBuffer(int inThreadId) {
 }
 
 void Window::BuildShadowPass(ui inWidth, ui inHeight) {
-    mShadowPass = mu<ShadowPass>(*mInstance, inWidth, inHeight);
-    mFrameSize  = glm::uvec2(inWidth, inHeight);
+    mShadowPass = mu<ShadowPass>(*mInstance, mOffscreenFrameSize.x, mOffscreenFrameSize.y);
 }
 
 void Window::BuildDeferredPass(ui inWidth, ui inHeight) {
-    mDeferredPass = mu<DeferredPass>(*mInstance, inWidth, inHeight, mMaxFramesInFlight);
-    mFrameSize    = glm::uvec2(inWidth, inHeight);
+    mDeferredPass = mu<DeferredPass>(
+         *mInstance, mOffscreenFrameSize.x, mOffscreenFrameSize.y, mMaxFramesInFlight);
 }
 
 void Window::PrepareDeferredPass(Renderer::_3D::Simple3D &inCompositionSimple3D,
@@ -194,18 +231,17 @@ void Window::EndDeferredDraws() { mDeferredPass->EndDeferred(*this); }
 
 void Window::PresentDeferred() {
     using namespace vk;
-    auto d             = GetWindowDimension();
     auto &AquiredImage = mSwapChainImages[mAcquiredImageIndex];
     ImageSubresourceLayers SrcSubLayers(ImageAspectFlagBits::eColor, 0, 0, 1);
     ImageSubresourceLayers DstSubLayers(ImageAspectFlagBits::eColor, 0, 0, 1);
     ImageBlit Blit;
     Blit.setSrcSubresource(SrcSubLayers);
     Blit.setDstSubresource(DstSubLayers);
-    Blit.srcOffsets[1].x = mFrameSize.x;
-    Blit.srcOffsets[1].y = mFrameSize.y;
+    Blit.srcOffsets[1].x = mOffscreenFrameSize.x;
+    Blit.srcOffsets[1].y = mOffscreenFrameSize.y;
     Blit.srcOffsets[1].z = 1;
-    Blit.dstOffsets[1].x = d.x;
-    Blit.dstOffsets[1].y = d.y;
+    Blit.dstOffsets[1].x = mWidth;
+    Blit.dstOffsets[1].y = mHeight;
     Blit.dstOffsets[1].z = 1;
     auto &cmd            = mCommandBuffers[mCurrentFrame].GetCommandBufferHandle();
 

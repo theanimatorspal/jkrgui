@@ -162,7 +162,7 @@ VulkanRenderPass<RenderPassContext::MSAA>::VulkanRenderPass(const VulkanDevice &
          vk::AttachmentDescription(vk::AttachmentDescriptionFlags(),
                                    inColorImageTarget.GetImageFormat())
               .setInitialLayout(vk::ImageLayout::eUndefined)
-              .setFinalLayout(vk::ImageLayout::ePresentSrcKHR)
+              .setFinalLayout(vk::ImageLayout::eTransferSrcOptimal) // Offscreen MSAA
               .setLoadOp(vk::AttachmentLoadOp::eDontCare)
               .setStoreOp(vk::AttachmentStoreOp::eStore)
               .setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
@@ -181,21 +181,21 @@ VulkanRenderPass<RenderPassContext::MSAA>::VulkanRenderPass(const VulkanDevice &
     std::vector<vk::AttachmentDescription> AttachmentDescriptions = {
          ColorAttachment, DepthAttachment, ColorAttachmentResolve};
 
-    vk::SubpassDependency SubpassDependency =
+    std::vector<vk::SubpassDependency> SubpassDependencies = {
+         // TODO Improve this
          vk::SubpassDependency()
               .setSrcSubpass(VK_SUBPASS_EXTERNAL)
               .setDstSubpass(0)
-              .setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput |
-                               vk::PipelineStageFlagBits::eEarlyFragmentTests |
-                               vk::PipelineStageFlagBits::eBottomOfPipe) // TOO Naive TODO Fix this
+              .setSrcStageMask(vk::PipelineStageFlagBits::eFragmentShader |
+                               vk::PipelineStageFlagBits::eTransfer |
+                               vk::PipelineStageFlagBits::eAllCommands)
               .setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput |
-                               vk::PipelineStageFlagBits::eEarlyFragmentTests |
-                               vk::PipelineStageFlagBits::eBottomOfPipe)
-              .setSrcAccessMask(vk::AccessFlagBits::eNone)
-              .setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite |
-                                vk::AccessFlagBits::eDepthStencilAttachmentWrite);
-
-    vk::SubpassDependency SelfDependency =
+                               vk::PipelineStageFlagBits::eEarlyFragmentTests)
+              .setSrcAccessMask(vk::AccessFlagBits::eMemoryRead)
+              .setDstAccessMask(vk::AccessFlagBits::eColorAttachmentRead |
+                                vk::AccessFlagBits::eColorAttachmentWrite |
+                                vk::AccessFlagBits::eDepthStencilAttachmentWrite)
+              .setDependencyFlags(vk::DependencyFlagBits::eByRegion),
          vk::SubpassDependency()
               .setSrcSubpass(0)
               .setDstSubpass(0)
@@ -203,9 +203,20 @@ VulkanRenderPass<RenderPassContext::MSAA>::VulkanRenderPass(const VulkanDevice &
               .setDstStageMask(vk::PipelineStageFlagBits::eLateFragmentTests)
               .setSrcAccessMask(vk::AccessFlagBits::eNone)
               .setDstAccessMask(vk::AccessFlagBits::eNone)
-              .setDependencyFlags(vk::DependencyFlagBits::eByRegion);
-
-    std::vector<vk::SubpassDependency> SubpassDependencies = {SubpassDependency, SelfDependency};
+              .setDependencyFlags(vk::DependencyFlagBits::eByRegion),
+         vk::SubpassDependency()
+              .setSrcSubpass(0)
+              .setDstSubpass(VK_SUBPASS_EXTERNAL)
+              .setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput |
+                               vk::PipelineStageFlagBits::eLateFragmentTests)
+              .setDstStageMask(vk::PipelineStageFlagBits::eFragmentShader |
+                               vk::PipelineStageFlagBits::eTransfer)
+              .setSrcAccessMask(vk::AccessFlagBits::eColorAttachmentRead |
+                                vk::AccessFlagBits::eColorAttachmentWrite |
+                                vk::AccessFlagBits::eDepthStencilAttachmentWrite)
+              .setDstAccessMask(vk::AccessFlagBits::eMemoryRead)
+              .setDependencyFlags(vk::DependencyFlagBits::eByRegion),
+    };
 
     mRenderPass = mDevice->createRenderPass(vk::RenderPassCreateInfo()
                                                  .setAttachmentCount(AttachmentDescriptions.size())

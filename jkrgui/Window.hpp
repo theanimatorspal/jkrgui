@@ -13,11 +13,13 @@ class Window : public Window_base {
     const VulkanCommandBufferArray &GetCommandBuffers(ParameterContext inParameter) const override;
     GETTER &GetShadowPass() { return *mShadowPass; }
     GETTER &GetDeferredPass() { return *mDeferredPass; }
-    void BuildShadowPass(ui inWidth, ui inHeight);
+    void BuildShadowPass(ui inWidth,
+                         ui inHeight); // TODO Remove these parameters they don't do anything
     void BeginShadowPass(float ind);
     void EndShadowPass();
 
-    void BuildDeferredPass(ui inWidth, ui inHeight);
+    void BuildDeferredPass(ui inWidth,
+                           ui inHeight); // TODO Remove these parameters they don't do anything
     void PrepareDeferredPass(Renderer::_3D::Simple3D &inCompositionSimple3D,
                              Renderer::_3D::World3D &inWorld);
     void ExecuteDeferredComposition(Renderer::_3D::Simple3D &inCompositionSimple3D,
@@ -59,7 +61,6 @@ class Window : public Window_base {
     VulkanCommandBufferArray mSecondaryCommandBuffersUI;
     Up<ShadowPass> mShadowPass;
     Up<DeferredPass> mDeferredPass;
-    glm::uvec2 mFrameSize;
 };
 
 } // namespace Jkr

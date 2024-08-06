@@ -12,8 +12,7 @@ class Window_base : public SDLWindow {
 
     public:
     using SwapChainVulkanImages = std::vector<ksai::VulkanImageExternalHandled>;
-    using FrameBufferType =
-         VulkanFrameBuffer<3, VulkanImage, VulkanImage, VulkanImageExternalHandled>;
+    using FrameBufferType = VulkanFrameBuffer<3, VulkanImageBase, VulkanImageBase, VulkanImageBase>;
     enum ParameterContext : int { None = -3, UI = -1, Background = -1 };
 
     Window_base()                                    = default;
@@ -55,12 +54,14 @@ class Window_base : public SDLWindow {
     VulkanImage mDepthImage;
     VulkanRenderPass<RenderPassContext::MSAA> mRenderPass;
     SwapChainVulkanImages mSwapChainImages;
+    std::vector<VulkanImageVMA> mOffscreenImages;
     std::vector<up<FrameBufferType>> mFrameBuffers;
     std::array<VulkanSemaphore, mMaxFramesInFlight> mImageAvailableSemaphores;
     std::array<VulkanSemaphore, mMaxFramesInFlight> mRenderFinishedSemaphores;
     std::array<VulkanFence, mMaxFramesInFlight> mFences;
     VulkanCommandPool mCommandPool;
     std::array<VulkanCommandBuffer, mMaxFramesInFlight> mCommandBuffers;
+    glm::uvec2 mOffscreenFrameSize = {1920, 1080};
 };
 
 } // namespace Jkr
