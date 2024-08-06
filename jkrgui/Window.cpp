@@ -36,20 +36,10 @@ void Jkr::Window::Refresh() {
     mSurface.ProcessCurrentSurfaceConditions(mInstance->GetPhysicalDevice());
     mSwapChain = VulkanSwapChain(
          mInstance->GetDevice(), mInstance->GetQueueContext(), mSurface, mSwapChain);
-    mSwapChainImages = mSwapChain.GetVulkanImages(mInstance->GetDevice(), mSurface);
-    mColorImageRenderTarget =
-         VulkanImage(mInstance->GetDevice(), mSurface, 4, ImageContext::ColorAttach);
-    mDepthImage = VulkanImage(mInstance->GetDevice(), mSurface, 4, ImageContext::DepthImage);
-
-    for (int i = 0; i < mSwapChainImages.size(); i++) {
-        mFrameBuffers[i] = MakeUp<FrameBufferType>(mInstance->GetDevice(),
-                                                   mRenderPass,
-                                                   mColorImageRenderTarget,
-                                                   mDepthImage,
-                                                   mSwapChainImages[i]);
-    }
-
-    mResizeFunction(nullptr);
+    mSwapChainImages     = mSwapChain.GetVulkanImages(mInstance->GetDevice(), mSurface);
+    auto WindowDimension = GetWindowDimension();
+    mWidth               = WindowDimension.x;
+    mHeight              = WindowDimension.y;
 }
 
 namespace Jkr {
@@ -98,7 +88,6 @@ void Window::EndDraws() { mCommandBuffers[mCurrentFrame].EndRenderPass(); }
 
 void Window::Present() {
     using namespace vk;
-    auto d             = GetWindowDimension();
     auto &AquiredImage = mSwapChainImages[mAcquiredImageIndex];
     ImageSubresourceLayers SrcSubLayers(ImageAspectFlagBits::eColor, 0, 0, 1);
     ImageSubresourceLayers DstSubLayers(ImageAspectFlagBits::eColor, 0, 0, 1);
@@ -108,8 +97,8 @@ void Window::Present() {
     Blit.srcOffsets[1].x = mOffscreenFrameSize.x;
     Blit.srcOffsets[1].y = mOffscreenFrameSize.y;
     Blit.srcOffsets[1].z = 1;
-    Blit.dstOffsets[1].x = d.x;
-    Blit.dstOffsets[1].y = d.y;
+    Blit.dstOffsets[1].x = mWidth;
+    Blit.dstOffsets[1].y = mHeight;
     Blit.dstOffsets[1].z = 1;
     auto &cmd            = mCommandBuffers[mCurrentFrame].GetCommandBufferHandle();
     AquiredImage.CmdTransitionImageLayout(mCommandBuffers[mCurrentFrame],
