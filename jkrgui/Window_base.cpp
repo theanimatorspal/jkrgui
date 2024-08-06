@@ -4,10 +4,14 @@
 Jkr::Window_base::Window_base(const Instance &inInstance,
                               std::string_view inTitle,
                               int inHeight,
-                              int inWidth)
+                              int inWidth,
+                              int inOffscreenFrameHeight,
+                              int inOffscreenFrameWidth)
     : mInstance(&inInstance) {
-    auto iptr = &inInstance.GetVulkanInstance();
-    auto dptr = &inInstance.GetDevice();
+    mOffscreenFrameSize.x = inOffscreenFrameWidth;
+    mOffscreenFrameSize.y = inOffscreenFrameHeight;
+    auto iptr             = &inInstance.GetVulkanInstance();
+    auto dptr             = &inInstance.GetDevice();
     SDLWindow::Init({inTitle, inHeight, inWidth});
     mSurface.Init({iptr, this->GetWindowHandle()});
     mSurface.ProcessCurrentSurfaceConditions(

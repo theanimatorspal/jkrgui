@@ -23,22 +23,45 @@ void CreateBasicBindings(sol::state &s) {
          sol::base_classes,
          sol::bases<Jkr::Window_base>(),
          sol::call_constructor,
-         sol::factories([](Jkr::Instance &inInstance,
-                           std::string_view inTitle,
-                           int inWidth,
-                           int inHeight,
-                           int inThreadsCount) {
-             int NoOfCmdBufferPerThread = 2; // TODO Don't hardcode
-             std::vector<ui> CmdBufferCountPerThreadVec;
-             CmdBufferCountPerThreadVec.resize(inThreadsCount, NoOfCmdBufferPerThread);
-             return std::make_unique<Jkr::Window>(inInstance,
-                                                  inTitle,
-                                                  inHeight,
-                                                  inWidth,
-                                                  inThreadsCount,
-                                                  CmdBufferCountPerThreadVec,
-                                                  inInstance.GetThreadPool());
-         }),
+         sol::factories(
+              [](Jkr::Instance &inInstance,
+                 std::string_view inTitle,
+                 int inWidth,
+                 int inHeight,
+                 int inThreadsCount) {
+                  int NoOfCmdBufferPerThread = 2; // TODO Don't hardcode
+                  std::vector<ui> CmdBufferCountPerThreadVec;
+                  CmdBufferCountPerThreadVec.resize(inThreadsCount, NoOfCmdBufferPerThread);
+                  return std::make_unique<Jkr::Window>(inInstance,
+                                                       inTitle,
+                                                       inHeight,
+                                                       inWidth,
+                                                       1080,
+                                                       1920,
+                                                       inThreadsCount,
+                                                       CmdBufferCountPerThreadVec,
+                                                       inInstance.GetThreadPool());
+              },
+              [](Jkr::Instance &inInstance,
+                 std::string_view inTitle,
+                 int inWidth,
+                 int inHeight,
+                 int inOffscreenFrameWidth,
+                 int inOffscreenFrameHeight,
+                 int inThreadsCount) {
+                  int NoOfCmdBufferPerThread = 2; // TODO Don't hardcode
+                  std::vector<ui> CmdBufferCountPerThreadVec;
+                  CmdBufferCountPerThreadVec.resize(inThreadsCount, NoOfCmdBufferPerThread);
+                  return std::make_unique<Jkr::Window>(inInstance,
+                                                       inTitle,
+                                                       inHeight,
+                                                       inWidth,
+                                                       inOffscreenFrameHeight,
+                                                       inOffscreenFrameWidth,
+                                                       inThreadsCount,
+                                                       CmdBufferCountPerThreadVec,
+                                                       inInstance.GetThreadPool());
+              }),
          "BuildShadowPass",
          &Jkr::Window::BuildShadowPass,
          "BeginShadowPass",

@@ -41,7 +41,12 @@ class Window_base : public SDLWindow {
                      ParameterContext inContext);
     void SetDefaultViewport(ParameterContext inContext);
 
-    Window_base(const Instance &inInstance, std::string_view inTitle, int inHeight, int inWidth);
+    Window_base(const Instance &inInstance,
+                std::string_view inTitle,
+                int inHeight,
+                int inWidth,
+                int inOffscreenFrameHeight,
+                int inOffscreenFrameWidth);
     ~Window_base() { mInstance->GetDevice().Wait(); }
 
     protected:

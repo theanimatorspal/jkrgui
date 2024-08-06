@@ -49,6 +49,8 @@ class Window : public Window_base {
            const sv inTitle,
            ui inHeight,
            ui inWidth,
+           ui inOffscreenFrameHeight,
+           ui inOffscreenFrameWidth,
            ui inNumThreads,
            std::span<ui> inPerThreadBuffers,
            optref<ksai::ThreadPool> inPool = std::nullopt);

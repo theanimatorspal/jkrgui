@@ -13,10 +13,13 @@ Jkr::Window::Window(const Instance &inInstance,
                     const sv inTitle,
                     ui inHeight,
                     ui inWidth,
+                    ui inOffscreenFrameHeight,
+                    ui inOffscreenFrameWidth,
                     ui inNumThreads,
                     std::span<ui> inPerThreadBuffers, // TODO remove this
                     optref<ksai::ThreadPool> inPool)
-    : Window_base(inInstance, inTitle, inHeight, inWidth),
+    : Window_base(
+           inInstance, inTitle, inHeight, inWidth, inOffscreenFrameHeight, inOffscreenFrameWidth),
       mThreadPool(inPool),
       mUICommandPool(inInstance.GetDevice(), inInstance.GetQueueContext()),
       mSecondaryCommandBuffersUI{
@@ -147,8 +150,14 @@ void Window::BeginUIs() {
          .Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPassAndOneTimeSubmit>(
               mRenderPass, 0, *mFrameBuffers[mAcquiredImageIndex]);
 
-    SetViewport(0, 0, 1920, 1080, 0.0f, 1.0f, Window::ParameterContext::UI);
-    SetScissor(0, 0, 1920, 1080, Window::ParameterContext::UI);
+    SetViewport(0,
+                0,
+                mOffscreenFrameSize.x,
+                mOffscreenFrameSize.y,
+                0.0f,
+                1.0f,
+                Window::ParameterContext::UI);
+    SetScissor(0, 0, mOffscreenFrameSize.x, mOffscreenFrameSize.y, Window::ParameterContext::UI);
 }
 
 void Window::EndUIs() { mSecondaryCommandBuffersUI[mCurrentFrame].End(); }
