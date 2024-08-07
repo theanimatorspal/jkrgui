@@ -42,21 +42,22 @@ struct DeferredPass {
     using ShadowFrameBufferType      = VulkanFrameBuffer<1, vk::Extent2D, vk::ImageView>;
     GETTER &GetCompositionRenderPass() { return *mCompositionRenderPass; }
     GETTER &GetRenderPass() { return *mDeferredRenderPass; }
-    GETTER &GetShadowRenderPass() { return *mShadowRenderPass; }
     GETTER &GetFrameBuffer() { return *mFrameBuffer; }
     GETTER &GetDeferredCompositionImage() { return *mCompositionImage; }
 
     void BeginDeferred(Window &inWindow, float r, float g, float b, float a, float d);
     void EndDeferred(Window &inWindow);
+
     /// @brief This function expects at least one uniform3d created
-    ///        in the world, in the inWorld3D parameter
-    ///
-    ///
+    ///        in the world, (with World::AddUniform3D(), and built with
+    ///        Uniform3D::Build()) in the inWorld3D parameter
     void ExecuteDeferredComposition(Window &inWindow,
                                     Renderer::_3D::Simple3D &inCompositionSimple3D,
                                     Renderer::_3D::World3D &inWorld3D);
 
     DeferredPass(const Instance &inInstance, ui inWidth, ui inHeight, int inFramesInFlight);
+    /// @todo Name this correctly, this function should be "Build", and the Build function
+    ///         Should be named "Prepare".
     void Prepare(Renderer::_3D::Simple3D &inCompositionSimple3D, Renderer::_3D::World3D &inWorld3D);
 
     private:
@@ -74,9 +75,6 @@ struct DeferredPass {
     Up<CompositionFrameBufferType> mCompositionFrameBuffer;
     Up<ImageType> mCompositionImage;
 
-    Up<ImageType> mShadowMap;
-    v<Up<ShadowFrameBufferType>> mShadowFrameBuffers;
-    Up<ShadowRenderPassType> mShadowRenderPass;
     glm::uvec2 mDimension{};
 };
 

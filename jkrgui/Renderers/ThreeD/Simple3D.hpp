@@ -9,11 +9,19 @@
 namespace Jkr::Renderer::_3D {
 class Simple3D {
     public:
-    enum class CompileContext { Default, ShadowPass, Deferred, DeferredComposition };
+    enum class CompileContext {
+        Default,
+        ShadowPass,
+        Deferred,
+        DeferredShadow,
+        DeferredComposition
+    };
     GETTER &GetPainter() { return *mPainter; }
     GETTER &GetPainterCache() { return *mPainterCache; }
 
-    void SetPipelineContext(PipelineContext inPipelineContext) { mPipelineContext = inPipelineContext; }
+    void SetPipelineContext(PipelineContext inPipelineContext) {
+        mPipelineContext = inPipelineContext;
+    }
     // TODO Change this name to Build
     void CompileDefault(Jkr::Instance &inInstance,
                         Jkr::Window_base &inCompatibleWindow,
@@ -53,15 +61,16 @@ class Simple3D {
                  bool inShouldLoad,
                  CompileContext inContext);
 
-    void CompileWithCustomRenderPass(Jkr::Instance &inInstance,
-                                     Jkr::Window &inCompatibleWindow,
-                                     Jkr::VulkanRenderPassBase &inRenderPass,
-                                     std::string_view inFilename,
-                                     std::string_view inVertexShader,
-                                     std::string_view inFragmentShader,
-                                     std::string_view inComputeShader,
-                                     bool inShouldLoad,
-                                     PipelineContext inPipelineContext = PipelineContext::DefaultSingleSampled);
+    void CompileWithCustomRenderPass(
+         Jkr::Instance &inInstance,
+         Jkr::Window &inCompatibleWindow,
+         Jkr::VulkanRenderPassBase &inRenderPass,
+         std::string_view inFilename,
+         std::string_view inVertexShader,
+         std::string_view inFragmentShader,
+         std::string_view inComputeShader,
+         bool inShouldLoad,
+         PipelineContext inPipelineContext = PipelineContext::DefaultSingleSampled);
 
     template <typename T>
     void Draw(Jkr::Window_base &inWindow,
@@ -74,12 +83,18 @@ class Simple3D {
 
     void BindByCommandBuffer(const VulkanCommandBuffer &inCommandBuffer);
     template <typename T>
-    void DrawByCommandBuffer(
-         VulkanCommandBuffer &inCommandBuffer, Shape &inShape3D, T inPush, ui inFirstIndex, ui inIndexCount, ui inInstanceCount);
+    void DrawByCommandBuffer(VulkanCommandBuffer &inCommandBuffer,
+                             Shape &inShape3D,
+                             T inPush,
+                             ui inFirstIndex,
+                             ui inIndexCount,
+                             ui inInstanceCount);
 
     void Bind(Window_base &inWindow, CmdParam inParam);
     void BindCompute(Window_base &inWindow, CmdParam inParam);
-    template <typename T> void Dispatch(Jkr::Window_base &inWindow, Shape &inShape3D, T inPush, int inX, int inY, int inZ);
+    template <typename T>
+    void
+    Dispatch(Jkr::Window_base &inWindow, Shape &inShape3D, T inPush, int inX, int inY, int inZ);
     Simple3D(Jkr::Instance &inInstance, Jkr::Window_base &inCompatibleWindow) {}
 
     private:
@@ -89,7 +104,8 @@ class Simple3D {
 };
 
 template <typename T>
-inline void Simple3D::Dispatch(Jkr::Window_base &inWindow, Shape &inShape3D, T inPush, int inX, int inY, int inZ) {
+inline void Simple3D::Dispatch(
+     Jkr::Window_base &inWindow, Shape &inShape3D, T inPush, int inX, int inY, int inZ) {
     mPainter->Dispatch_EXT<T>(inWindow, inPush, inX, inY, inZ);
 }
 
@@ -101,12 +117,17 @@ inline void Simple3D::Draw(Jkr::Window_base &inWindow,
                            ui inIndexCount,
                            ui inInstanceCount,
                            CmdParam inParam) {
-    mPainter->Draw_EXT<T>(inPush, inWindow, inIndexCount, inInstanceCount, inFirstIndex, 0, inParam);
+    mPainter->Draw_EXT<T>(
+         inPush, inWindow, inIndexCount, inInstanceCount, inFirstIndex, 0, inParam);
 }
 
 template <typename T>
-inline void Simple3D::DrawByCommandBuffer(
-     VulkanCommandBuffer &inCommandBuffer, Shape &inShape3D, T inPush, ui inFirstIndex, ui inIndexCount, ui inInstanceCount) {
+inline void Simple3D::DrawByCommandBuffer(VulkanCommandBuffer &inCommandBuffer,
+                                          Shape &inShape3D,
+                                          T inPush,
+                                          ui inFirstIndex,
+                                          ui inIndexCount,
+                                          ui inInstanceCount) {
 
     mPainter->Draw_EXT<T>(inPush, inCommandBuffer, inIndexCount, inInstanceCount, inFirstIndex, 0);
 }

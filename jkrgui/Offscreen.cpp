@@ -131,35 +131,6 @@ Jkr::DeferredPass::DeferredPass(const Instance &inInstance,
         mCompositionFrameBuffer = mu<CompositionFrameBufferType>(
              mInstance.GetDevice(), *mCompositionRenderPass, *mCompositionImage->mUniformImagePtr);
     }
-
-    // Deferred Shadows
-    {
-        mShadowMap                   = mu<ImageType>(mInstance);
-        mShadowMap->mUniformImagePtr = mu<VulkanImageVMA>(
-             inInstance.GetVMA(),
-             mInstance.GetDevice(),
-             std::max(inWidth, inHeight),
-             std::max(inWidth, inHeight),
-             ksai::ImageContext::DepthImage,
-             4,
-             kstd::LightCount,
-             1,
-             1,
-             vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eDepthStencilAttachment,
-             vk::ImageLayout::eGeneral,
-             vk::Format::eD16Unorm);
-        mShadowRenderPass =
-             mu<ShadowRenderPassType>(mInstance.GetDevice(), *mShadowMap->mUniformImagePtr);
-        mShadowMap->mUniformImagePtr->BuildImageViewsByLayers();
-        auto &ShadowImageViews = mShadowMap->mUniformImagePtr->GetImageViews();
-        for (int i = 0; i < ShadowImageViews.size(); i++) {
-            mShadowFrameBuffers.emplace_back(mu<ShadowFrameBufferType>(
-                 mInstance.GetDevice(),
-                 *mShadowRenderPass,
-                 vk::Extent2D{std::max(inWidth, inHeight), std::max(inWidth, inHeight)},
-                 ShadowImageViews[i]));
-        }
-    }
 }
 
 static void Barrier(auto &inImage, auto &inCmd) {
