@@ -258,18 +258,18 @@ void Jkr::Generator::operator()(float inX,
         case Shapes::Cylinder3D: {
             modVertices.resize(mVertexCount + modVertices.size());
             modIndices.resize(mIndexCount + modIndices.size());
-            const glm::vec3 rh         = std::get<glm::vec3>(mArgs);
-            const float r              = rh.x;
-            const float h              = rh.y;
-            const int SegmentCount     = static_cast<ui>(rh.z);
-            constexpr float pi         = 3.14159; // TODO increase precision
-            const float DelTheta       = 2 * pi / static_cast<float>(SegmentCount);
-            ui vIndex                  = 0;
-            ui iIndex                  = inStartIndexIndex;
+            const glm::vec3 rh     = std::get<glm::vec3>(mArgs);
+            const float r          = rh.x;
+            const float h          = rh.y;
+            const int SegmentCount = static_cast<ui>(rh.z);
+            constexpr float pi     = 3.14159; // TODO increase precision
+            const float DelTheta   = 2 * pi / static_cast<float>(SegmentCount);
+            ui vIndex              = 0;
+            ui iIndex              = inStartIndexIndex;
 
-            constexpr int topPlaneY    = -1;
-            constexpr int bottomPlaneY = 1;
-            float Theta                = 0.0f;
+            int topPlaneY          = -1 * h;
+            int bottomPlaneY       = 1 * h;
+            float Theta            = 0.0f;
             for (int i = 0; i < SegmentCount; i++) {
                 kstd::Vertex3D UpperCenter;
                 kstd::Vertex3D UpperLeft;

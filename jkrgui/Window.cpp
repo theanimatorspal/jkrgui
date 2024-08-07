@@ -204,11 +204,11 @@ void Window::EndThreadCommandBuffer(int inThreadId) {
     mThreadCommandBuffers[inThreadId]->mCommandBuffers[mCurrentFrame].End();
 }
 
-void Window::BuildShadowPass(ui inWidth, ui inHeight) {
+void Window::BuildShadowPass() {
     mShadowPass = mu<ShadowPass>(*mInstance, mOffscreenFrameSize.x, mOffscreenFrameSize.y);
 }
 
-void Window::BuildDeferredPass(ui inWidth, ui inHeight) {
+void Window::BuildDeferredPass() {
     mDeferredPass = mu<DeferredPass>(
          *mInstance, mOffscreenFrameSize.x, mOffscreenFrameSize.y, mMaxFramesInFlight);
 }

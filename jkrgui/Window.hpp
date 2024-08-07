@@ -13,13 +13,11 @@ class Window : public Window_base {
     const VulkanCommandBufferArray &GetCommandBuffers(ParameterContext inParameter) const override;
     GETTER &GetShadowPass() { return *mShadowPass; }
     GETTER &GetDeferredPass() { return *mDeferredPass; }
-    void BuildShadowPass(ui inWidth,
-                         ui inHeight); // TODO Remove these parameters they don't do anything
+    void BuildShadowPass();
     void BeginShadowPass(float ind);
     void EndShadowPass();
 
-    void BuildDeferredPass(ui inWidth,
-                           ui inHeight); // TODO Remove these parameters they don't do anything
+    void BuildDeferredPass();
     void PrepareDeferredPass(Renderer::_3D::Simple3D &inCompositionSimple3D,
                              Renderer::_3D::World3D &inWorld);
     void ExecuteDeferredComposition(Renderer::_3D::Simple3D &inCompositionSimple3D,
