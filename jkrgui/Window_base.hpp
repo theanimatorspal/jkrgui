@@ -12,7 +12,7 @@ class Window_base : public SDLWindow {
 
     public:
     using SwapChainVulkanImages = std::vector<ksai::VulkanImageExternalHandled>;
-    using FrameBufferType = VulkanFrameBuffer<3, VulkanImageBase, VulkanImageBase, VulkanImageBase>;
+    using FrameBufferType       = VulkanFrameBuffer;
     enum ParameterContext : int { None = -3, UI = -1, Background = -1 };
 
     Window_base()                                    = default;

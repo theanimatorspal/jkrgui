@@ -29,8 +29,7 @@ Up<VulkanImageVMA> PBR::GenerateBRDFLookupTable(Instance &inInstance,
          vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment);
     VulkanRenderPass<RenderPassContext::SingleColorAttachment> RenderPass(inInstance.GetDevice(),
                                                                           *BRDFLUTImage);
-    VulkanFrameBuffer<1, VulkanImageVMA> FrameBuffer(
-         inInstance.GetDevice(), RenderPass, *BRDFLUTImage);
+    VulkanFrameBuffer FrameBuffer(inInstance.GetDevice(), RenderPass, *BRDFLUTImage);
 
     _3D::Simple3D Simple3D(inInstance, inWindow);
     Simple3D.CompileWithCustomRenderPass(inInstance,
@@ -106,8 +105,7 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance &inInstance,
                                          vk::ImageLayout::eUndefined);
     VulkanRenderPass<RenderPassContext::SingleColorAttachment> RenderPass(inInstance.GetDevice(),
                                                                           OffscreenFBufferImage);
-    VulkanFrameBuffer<1, VulkanImageVMA> FrameBuffer(
-         inInstance.GetDevice(), RenderPass, OffscreenFBufferImage);
+    VulkanFrameBuffer FrameBuffer(inInstance.GetDevice(), RenderPass, OffscreenFBufferImage);
 
     VulkanCommandBuffer Cmd(inInstance.GetDevice(), inInstance.GetCommandPool());
 
@@ -306,8 +304,7 @@ Up<VulkanImageVMA> PBR::GeneratePrefilteredCube(Instance &inInstance,
                                   vk::ImageLayout::eUndefined);
     VulkanRenderPass<RenderPassContext::SingleColorAttachment> RenderPass(inInstance.GetDevice(),
                                                                           OffscreenImage);
-    VulkanFrameBuffer<1, VulkanImageVMA> FrameBuffer(
-         inInstance.GetDevice(), RenderPass, OffscreenImage);
+    VulkanFrameBuffer FrameBuffer(inInstance.GetDevice(), RenderPass, OffscreenImage);
 
     VulkanCommandBuffer Cmd(inInstance.GetDevice(), inInstance.GetCommandPool());
 

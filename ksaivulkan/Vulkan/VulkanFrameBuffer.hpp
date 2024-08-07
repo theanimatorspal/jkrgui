@@ -13,7 +13,7 @@ class VulkanFrameBufferBase {
 template <typename T>
 concept Has_GetImageViewHandle = requires(T &t) { t.GetImageViewHandle(); };
 
-template <size_t NoOfAttachements = 2, typename... T> class VulkanFrameBuffer : public VulkanFrameBufferBase {
+class VulkanFrameBuffer : public VulkanFrameBufferBase {
     public:
     VulkanFrameBuffer() = default;
     ~VulkanFrameBuffer() {
@@ -24,13 +24,7 @@ template <size_t NoOfAttachements = 2, typename... T> class VulkanFrameBuffer : 
     VulkanFrameBuffer(const VulkanFrameBuffer &other)            = delete;
     VulkanFrameBuffer &operator=(const VulkanFrameBuffer &other) = delete;
     VulkanFrameBuffer(VulkanFrameBuffer &&other)                 = default;
-    VulkanFrameBuffer &operator=(VulkanFrameBuffer &&Other) {
-        ExplicitlyDestroy();
-        mBuffer       = std::move(Other.mBuffer);
-        mExtent       = std::move(Other.mExtent);
-        Other.mBuffer = nullptr;
-        return *this;
-    }
+    VulkanFrameBuffer &operator=(VulkanFrameBuffer &&Other);
 
     /**
      * @brief Can accept VulkanImage, VulkanImageVMA or vk::ImageView
@@ -39,40 +33,39 @@ template <size_t NoOfAttachements = 2, typename... T> class VulkanFrameBuffer : 
      * like Init(device, renderPass, extent2d, imageview1, imageview2);
      *
      */
-    void Init(const VulkanDevice &inDevice, const VulkanRenderPassBase &inRenderPass, const T &...inT) {
+    void Init(const VulkanDevice &inDevice,
+              const VulkanRenderPassBase &inRenderPass,
+              const auto &...inT) {
         mDevice = &inDevice.GetDeviceHandle();
-        Attachments.reserve(NoOfAttachements);
         (
              [&] {
-                 if constexpr (Has_GetImageViewHandle<T>) {
+                 if constexpr (Has_GetImageViewHandle<decltype(inT)>) {
                      Attachments.push_back(inT.GetImageViewHandle());
                      mExtent = inT.GetImageExtent();
-                 } else if constexpr (std::is_same_v<T, vk::Extent2D>) {
+                 } else if constexpr (std::is_same_v<decltype(inT), vk::Extent2D>) {
                      mExtent = inT;
                  } else {
                      Attachments.push_back(inT);
                  }
              }(),
              ...);
-        auto FrameBufferCreateInfo = vk::FramebufferCreateInfo(
-             vk::FramebufferCreateFlags(), inRenderPass.GetRenderPassHandle(), Attachments, mExtent.width, mExtent.height, 1);
+        auto FrameBufferCreateInfo = vk::FramebufferCreateInfo(vk::FramebufferCreateFlags(),
+                                                               inRenderPass.GetRenderPassHandle(),
+                                                               Attachments,
+                                                               mExtent.width,
+                                                               mExtent.height,
+                                                               1);
         mBuffer      = inDevice.GetDeviceHandle().createFramebuffer(FrameBufferCreateInfo);
         mInitialized = true;
     }
-    void Destroy() {
-        ExplicitlyDestroy();
-        mInitialized = false;
-    }
-    VulkanFrameBuffer(const VulkanDevice &inDevice, const VulkanRenderPassBase &inRenderPass, const T &...inT) {
+
+    void Destroy();
+    VulkanFrameBuffer(const VulkanDevice &inDevice,
+                      const VulkanRenderPassBase &inRenderPass,
+                      const auto &...inT) {
         Init(inDevice, inRenderPass, inT...);
     }
-    void ExplicitlyDestroy() {
-        if (mBuffer) {
-            mDevice->waitIdle();
-            mDevice->destroyFramebuffer(mBuffer);
-        }
-        mBuffer = nullptr;
-    }
+    void ExplicitlyDestroy();
 
     private:
     const vk::Device *mDevice;

@@ -15,7 +15,7 @@ class Uniform3D;
 
 using namespace ksai;
 struct ShadowPass {
-    using FrameBufferType = VulkanFrameBuffer<1, VulkanImageVMA>;
+    using FrameBufferType = VulkanFrameBuffer;
     using DepthImageType  = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
     using RenderPassType  = VulkanRenderPass<RenderPassContext::Shadow>;
     GETTER &GetRenderPass() { return *mRenderpass; }
@@ -32,14 +32,13 @@ struct ShadowPass {
 };
 
 struct DeferredPass {
-    using FrameBufferType =
-         VulkanFrameBuffer<4, VulkanImageVMA, VulkanImageVMA, VulkanImageVMA, VulkanImageVMA>;
-    using RenderPassType = VulkanRenderPass<RenderPassContext::Deferred>;
-    using ImageType      = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
+    using FrameBufferType = VulkanFrameBuffer;
+    using RenderPassType  = VulkanRenderPass<RenderPassContext::Deferred>;
+    using ImageType       = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
     using CompositionRenderPassType  = VulkanRenderPass<RenderPassContext::SingleColorAttachment>;
-    using CompositionFrameBufferType = VulkanFrameBuffer<1, VulkanImageVMA>;
+    using CompositionFrameBufferType = VulkanFrameBuffer;
     using ShadowRenderPassType       = VulkanRenderPass<RenderPassContext::Shadow>;
-    using ShadowFrameBufferType      = VulkanFrameBuffer<1, vk::Extent2D, vk::ImageView>;
+    using ShadowFrameBufferType      = VulkanFrameBuffer;
     GETTER &GetCompositionRenderPass() { return *mCompositionRenderPass; }
     GETTER &GetRenderPass() { return *mDeferredRenderPass; }
     GETTER &GetFrameBuffer() { return *mFrameBuffer; }
