@@ -703,9 +703,9 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
 end
 
 
-Jkrmt.CreateShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
+Engine.CreateShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
     local Material = inGLTF:GetMaterialsRef()[inMaterialIndex]
-    local vShader = Jkrmt.Shader()
+    local vShader = Engine.Shader()
         .Header(450)
         .NewLine()
         .VLayout()
@@ -729,7 +729,7 @@ Jkrmt.CreateShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
         .InvertY()
         .GlslMainEnd()
         .NewLine()
-    local fShader = Jkrmt.Shader()
+    local fShader = Engine.Shader()
         .Header(450)
         .NewLine()
         .In(0, "vec2", "vUV")
@@ -774,32 +774,6 @@ Jkrmt.CreateShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
     fShader.GlslMainEnd()
 
     return { vShader = vShader.str, fShader = fShader.str }
-end
-
-Engine.CreateObjectByGLTFPrimitiveAndUniform = function(inWorld3d,
-                                                        inGLTFModelId,
-                                                        inGLTFModelInWorld3DId,
-                                                        inMaterialToSimple3DIndex,
-                                                        inMeshIndex,
-                                                        inPrimitive)
-    local uniformIndex = inWorld3d:AddUniform3D(Engine.i)
-    local uniform = inWorld3d:GetUniform3D(uniformIndex)
-    local simple3dIndex = inMaterialToSimple3DIndex[inPrimitive.mMaterialIndex + 1]
-    local simple3d = inWorld3d:GetSimple3D(simple3dIndex)
-    local gltf = inWorld3d:GetGLTFModel(inGLTFModelId)
-    uniform:Build(simple3d, gltf, inPrimitive)
-
-    local Object3D = Jkr.Object3D()
-    Object3D.mId = inGLTFModelInWorld3DId
-    Object3D.mAssociatedUniform = uniformIndex
-    Object3D.mAssociatedModel = inGLTFModelId
-    Object3D.mAssociatedSimple3D = simple3dIndex
-    Object3D.mIndexCount = inPrimitive.mIndexCount
-    Object3D.mFirstIndex = inPrimitive.mFirstIndex
-    local NodeIndices = gltf:GetNodeIndexByMeshIndex(inMeshIndex - 1)
-    Object3D.mMatrix = gltf:GetNodeMatrixByIndex(NodeIndices[1])
-
-    return Object3D
 end
 
 PBR = {}
