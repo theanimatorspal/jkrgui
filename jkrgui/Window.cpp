@@ -34,6 +34,25 @@ Jkr::Window::Window(const Instance &inInstance,
     }
 }
 
+Window::Window(const Instance &inInstance,
+               std::span<ui> inPerThreadBuffers,
+               ui inOffscreenFrameHeight,
+               ui inOffscreenFrameWidth,
+               ui inNumThreads,
+               optref<ksai::ThreadPool> inPool)
+    : Window_base(inInstance, inOffscreenFrameHeight, inOffscreenFrameWidth),
+      mThreadPool(inPool),
+      mUICommandPool(inInstance.GetDevice(), inInstance.GetQueueContext()),
+      mSecondaryCommandBuffersUI{
+           VulkanCommandBuffer(
+                inInstance.GetDevice(), mUICommandPool, VulkanCommandBuffer::Type::Secondary),
+           VulkanCommandBuffer(
+                inInstance.GetDevice(), mUICommandPool, VulkanCommandBuffer::Type::Secondary)} {
+    for (int i = 0; i < inNumThreads; i++) {
+        mThreadCommandBuffers.emplace_back(mu<ThreadCommandBufferArray>(inInstance));
+    }
+}
+
 void Jkr::Window::Refresh() {
     ZoneScoped;
     mSurface.ProcessCurrentSurfaceConditions(mInstance->GetPhysicalDevice());

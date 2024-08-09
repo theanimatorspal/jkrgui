@@ -1,5 +1,4 @@
 Engine = {}
-Jkrmt = {}
 
 -- True : Will compile and store cachesC-- False: Will load caches instead of compiling the shaders
 local ShouldLoadCaches_b = false
@@ -506,6 +505,12 @@ Jkr.CreateWindow = function(inJkrInstance, inTitle, inDimension_2f, inThreadCoun
     if not inFrameDimension_2f then inFrameDimension_2f = uvec2(1920, 1080) end
     return Jkr.Window(inJkrInstance, inTitle, math.int(inDimension_2f.x), math.int(inDimension_2f.y),
         math.int(inFrameDimension_2f.x), math.int(inFrameDimension_2f.y), inThreadCount)
+end
+
+Jkr.CreateWindowNoWindow = function(inJkrInstance, inFrameDimension_2f, inThreadCount)
+    if not inThreadCount then inThreadCount = 4 end
+    if not inFrameDimension_2f then inFrameDimension_2f = uvec2(1920, 1080) end
+    return Jkr.Window(inJkrInstance, math.int(inFrameDimension_2f.x), math.int(inFrameDimension_2f.y), inThreadCount)
 end
 
 --[============================================================[
