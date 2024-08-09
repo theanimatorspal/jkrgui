@@ -698,82 +698,39 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
         end
         return o
     end
+    o.gltfPutMaterialTextures  = function(inGLTF, inMaterialIndex)
+        local Material = inGLTF:GetMaterialsRef()[inMaterialIndex]
+        local binding = 3
+        o.gltfMaterialTextures = {}
+        if (Material.mBaseColorTextureIndex ~= -1) then
+            o.uSampler2D(binding, "uBaseColorTexture").NewLine()
+            o.gltfMaterialTextures.mBaseColorTexture = true
+            binding = binding + 1
+        end
+        if (Material.mMetallicRoughnessTextureIndex ~= -1) then
+            o.uSampler2D(binding, "uMetallicRoughnessTexture").NewLine()
+            o.gltfMaterialTextures.mMetallicRoughnessTexture = true
+            binding = binding + 1
+        end
+        if (Material.mNormalTextureIndex ~= -1) then
+            o.uSampler2D(binding, "uNormalTexture").NewLine()
+            o.gltfMaterialTextures.mNormalTexture = true
+            binding = binding + 1
+        end
+        if (Material.mOcclusionTextureIndex ~= -1) then
+            o.uSampler2D(binding, "uOcclusionTexture").NewLine()
+            o.gltfMaterialTextures.mOcclusionTexture = true
+            binding = binding + 1
+        end
+        if (Material.mEmissiveTextureIndex ~= -1) then
+            o.uSampler2D(binding, "uEmissiveTexture").NewLine()
+            o.gltfMaterialTextures.mEmissiveTextureIndex = true
+            binding = binding + 1
+        end
+        return o
+    end
 
     return o
-end
-
-
-Engine.CreateShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
-    local Material = inGLTF:GetMaterialsRef()[inMaterialIndex]
-    local vShader = Engine.Shader()
-        .Header(450)
-        .NewLine()
-        .VLayout()
-        .Out(0, "vec2", "vUV")
-        .Out(1, "vec3", "vNormal")
-        .Out(2, "vec3", "vWorldPos")
-        .Push()
-        .Ubo()
-        .GlslMainBegin()
-        .Indent()
-        .Append(
-            [[
-              vec4 Pos = Push.model * vec4(inPosition, 1.0);
-              gl_Position = Ubo.proj * Ubo.view * Pos;
-              vUV = inUV;
-              vNormal = vec3(Push.model) * inNormal;
-              vWorldPos = vec3(Pos);
-        ]]
-        )
-        .NewLine()
-        .InvertY()
-        .GlslMainEnd()
-        .NewLine()
-    local fShader = Engine.Shader()
-        .Header(450)
-        .NewLine()
-        .In(0, "vec2", "vUV")
-        .In(1, "vec3", "vNormal")
-        .In(2, "vec3", "vWorldPos")
-        .outFragColor()
-        .Push()
-        .Ubo()
-
-    local binding = 3
-    if (Material.mBaseColorTextureIndex ~= -1) then
-        fShader.uSampler2D(binding, "uBaseColorTexture").NewLine()
-        binding = binding + 1
-    end
-    if (Material.mMetallicRoughnessTextureIndex ~= -1) then
-        fShader.uSampler2D(binding, "uMetallicRoughnessTexture").NewLine()
-        binding = binding + 1
-    end
-    if (Material.mNormalTextureIndex ~= -1) then
-        fShader.uSampler2D(binding, "uNormalTexture").NewLine()
-        binding = binding + 1
-    end
-    if (Material.mOcclusionTextureIndex ~= -1) then
-        fShader.uSampler2D(binding, "uOcclusionTexture").NewLine()
-        binding = binding + 1
-    end
-    if (Material.mEmissiveTextureIndex ~= -1) then
-        fShader.uSampler2D(binding, "uEmissiveTexture").NewLine()
-        binding = binding + 1
-    end
-
-    fShader.GlslMainBegin()
-    if (Material.mBaseColorTextureIndex ~= -1) then
-        fShader.Append([[ vec4 BaseColor = texture(uBaseColorTexture, vUV); ]])
-            .NewLine()
-    else
-        fShader.Append([[ vec4 BaseColor = vec4(1, 1, 0, 1); ]])
-            .NewLine()
-    end
-
-    fShader.Append([[outFragColor = BaseColor;]])
-    fShader.GlslMainEnd()
-
-    return { vShader = vShader.str, fShader = fShader.str }
 end
 
 PBR = {}
