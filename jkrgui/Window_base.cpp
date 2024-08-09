@@ -36,7 +36,7 @@ Jkr::Window_base::Window_base(const Instance &inInstance,
                       4});
     mRenderPass =
          std::move(VulkanRenderPass<ksai::RenderPassContext::MSAA>(mInstance->GetDevice(),
-                                                                   mSurface,
+                                                                   mSurface.GetSurfaceImageFormat(),
                                                                    mColorImageRenderTarget,
                                                                    mDepthImage,
                                                                    vk::SampleCountFlagBits::e4));
@@ -73,6 +73,41 @@ Jkr::Window_base::Window_base(const Instance &inInstance,
                                                            mDepthImage,
                                                            mOffscreenImages[i]));
     }
+}
+Jkr::Window_base::Window_base(const Instance &inInstance,
+                              int inOffscreenFrameHeight,
+                              int inOffscreenFrameWidth) {
+    mOffscreenFrameSize.x = inOffscreenFrameWidth;
+    mOffscreenFrameSize.y = inOffscreenFrameHeight;
+    auto iptr             = &inInstance.GetVulkanInstance();
+    auto dptr             = &inInstance.GetDevice();
+    mCommandPool.Init({dptr, &inInstance.GetQueueContext()});
+    for (auto &cmdbuf : mCommandBuffers)
+        cmdbuf.Init({dptr, &mCommandPool});
+    for (auto &semaphore : mImageAvailableSemaphores)
+        semaphore.Init({dptr});
+    for (auto &semaphore : mRenderFinishedSemaphores)
+        semaphore.Init({dptr});
+    for (auto &fence : mFences)
+        fence.Init({dptr});
+    mColorImageRenderTarget.Init({dptr,
+                                  ImageContext::ColorAttach,
+                                  mOffscreenFrameSize.x,
+                                  mOffscreenFrameSize.y,
+                                  &mSurface,
+                                  4});
+    mDepthImage.Init({dptr,
+                      ImageContext::DepthImage,
+                      mOffscreenFrameSize.x,
+                      mOffscreenFrameSize.y,
+                      nullptr,
+                      4});
+    mRenderPass =
+         std::move(VulkanRenderPass<ksai::RenderPassContext::MSAA>(mInstance->GetDevice(),
+                                                                   mSurface.GetSurfaceImageFormat(),
+                                                                   mColorImageRenderTarget,
+                                                                   mDepthImage,
+                                                                   vk::SampleCountFlagBits::e4));
 }
 
 void Jkr::Window_base::SetScissor(int inX, int inY, int inW, int inH, ParameterContext inContext) {

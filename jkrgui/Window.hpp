@@ -52,6 +52,12 @@ class Window : public Window_base {
            ui inNumThreads,
            std::span<ui> inPerThreadBuffers,
            optref<ksai::ThreadPool> inPool = std::nullopt);
+    Window(const Instance &inInstance,
+           std::span<ui> inPerThreadBuffers,
+           ui inOffscreenFrameHeight,
+           ui inOffscreenFrameWidth,
+           ui inNumThreads,
+           optref<ksai::ThreadPool> inPool = std::nullopt);
     ~Window() = default;
 
     private:

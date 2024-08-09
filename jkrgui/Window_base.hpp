@@ -47,6 +47,7 @@ class Window_base : public SDLWindow {
                 int inWidth,
                 int inOffscreenFrameHeight,
                 int inOffscreenFrameWidth);
+    Window_base(const Instance &inInstance, int inOffscreenFrameHeight, int inOffscreenFrameWidth);
     ~Window_base() { mInstance->GetDevice().Wait(); }
 
     protected:

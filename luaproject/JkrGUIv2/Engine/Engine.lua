@@ -437,12 +437,12 @@ vec3 calculateNormal()
     return { vShader = vShader, fShader = fShader }
 end
 
-Jkrmt.CreateObjectByGLTFPrimitiveAndUniform = function(inWorld3d,
-                                                       inGLTFModelId,
-                                                       inGLTFModelInWorld3DId,
-                                                       inMaterialToSimple3DIndex,
-                                                       inMeshIndex,
-                                                       inPrimitive)
+Engine.CreateObjectByGLTFPrimitiveAndUniform = function(inWorld3d,
+                                                        inGLTFModelId,
+                                                        inGLTFModelInWorld3DId,
+                                                        inMaterialToSimple3DIndex,
+                                                        inMeshIndex,
+                                                        inPrimitive)
     local uniformIndex = inWorld3d:AddUniform3D(i)
     local uniform = inWorld3d:GetUniform3D(uniformIndex)
     local simple3dIndex = inMaterialToSimple3DIndex[inPrimitive.mMaterialIndex + 1]

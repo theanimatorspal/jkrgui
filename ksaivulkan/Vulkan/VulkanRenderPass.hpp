@@ -34,11 +34,11 @@ class VulkanRenderPass : public VulkanRenderPassBase {
 
     VulkanRenderPass(const VulkanDevice &inDevice) : mDevice(&inDevice.GetDeviceHandle()) {}
     VulkanRenderPass(const VulkanDevice &inDevice,
-                     const VulkanSurface &inSurface,
+                     const VulkanSurface &inSurface, /// @todo change this as below
                      const VulkanImage &inDepthImage);
     VulkanRenderPass(const VulkanDevice &inDevice, VulkanImageBase &inDepthImage);
     VulkanRenderPass(const VulkanDevice &inDevice,
-                     const VulkanSurface &inSurface,
+                     const vk::Format inImageFormat,
                      const VulkanImage &inColorImageTarget,
                      const VulkanImage &inDepthImage,
                      vk::SampleCountFlagBits inMSAASamples);

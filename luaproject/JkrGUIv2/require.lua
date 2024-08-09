@@ -498,11 +498,13 @@ end
     CREATE JKR WINDOW
 ]============================================================]
 
-Jkr.CreateWindow = function(inJkrInstance, inTitle, inDimension_2f, inThreadCount)
+Jkr.CreateWindow = function(inJkrInstance, inTitle, inDimension_2f, inThreadCount, inFrameDimension_2f)
     if not inTitle then inTitle = "JkrGUIv2" end
     if not inDimension_2f then inDimension_2f = uvec2(900, 700) end
     if not inThreadCount then inThreadCount = 4 end
-    return Jkr.Window(inJkrInstance, inTitle, math.int(inDimension_2f.x), math.int(inDimension_2f.y), inThreadCount)
+    if not inFrameDimension_2f then inFrameDimension_2f = uvec2(1920, 1080) end
+    return Jkr.Window(inJkrInstance, inTitle, math.int(inDimension_2f.x), math.int(inDimension_2f.y),
+        math.int(inFrameDimension_2f.x), math.int(inFrameDimension_2f.y), inThreadCount)
 end
 
 --[============================================================[

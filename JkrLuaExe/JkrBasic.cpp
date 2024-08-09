@@ -61,6 +61,19 @@ void CreateBasicBindings(sol::state &s) {
                                                        inThreadsCount,
                                                        CmdBufferCountPerThreadVec,
                                                        inInstance.GetThreadPool());
+              },
+              [](Jkr::Instance &inInstance,
+                 int inOffscreenFrameWidth,
+                 int inOffscreenFrameHeight,
+                 int inThreadsCount) {
+                  int NoOfCmdBufferPerThread = 2;
+                  std::vector<ui> CmdBufferCountPerThreadVec;
+                  CmdBufferCountPerThreadVec.resize(NoOfCmdBufferPerThread);
+                  return std::make_unique<Jkr::Window>(inInstance,
+                                                       CmdBufferCountPerThreadVec,
+                                                       inOffscreenFrameHeight,
+                                                       inOffscreenFrameWidth,
+                                                       inThreadsCount);
               }),
          "BuildShadowPass",
          &Jkr::Window::BuildShadowPass,
