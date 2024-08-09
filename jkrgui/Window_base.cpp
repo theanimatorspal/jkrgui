@@ -76,7 +76,8 @@ Jkr::Window_base::Window_base(const Instance &inInstance,
 }
 Jkr::Window_base::Window_base(const Instance &inInstance,
                               int inOffscreenFrameHeight,
-                              int inOffscreenFrameWidth) {
+                              int inOffscreenFrameWidth)
+    : mInstance(&inInstance) {
     mOffscreenFrameSize.x = inOffscreenFrameWidth;
     mOffscreenFrameSize.y = inOffscreenFrameHeight;
     auto iptr             = &inInstance.GetVulkanInstance();
@@ -104,7 +105,7 @@ Jkr::Window_base::Window_base(const Instance &inInstance,
                       4});
     mRenderPass =
          std::move(VulkanRenderPass<ksai::RenderPassContext::MSAA>(mInstance->GetDevice(),
-                                                                   mSurface.GetSurfaceImageFormat(),
+                                                                   vk::Format::eR8G8B8A8Unorm,
                                                                    mColorImageRenderTarget,
                                                                    mDepthImage,
                                                                    vk::SampleCountFlagBits::e4));
