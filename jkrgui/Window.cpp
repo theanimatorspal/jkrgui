@@ -9,15 +9,15 @@
 
 using namespace Jkr;
 
-Jkr::Window::Window(const Instance &inInstance,
-                    const sv inTitle,
-                    ui inHeight,
-                    ui inWidth,
-                    ui inOffscreenFrameHeight,
-                    ui inOffscreenFrameWidth,
-                    ui inNumThreads,
-                    std::span<ui> inPerThreadBuffers, // TODO remove this
-                    optref<ksai::ThreadPool> inPool)
+Window::Window(const Instance &inInstance,
+               const sv inTitle,
+               ui inHeight,
+               ui inWidth,
+               ui inOffscreenFrameHeight,
+               ui inOffscreenFrameWidth,
+               ui inNumThreads,
+               std::span<ui> inPerThreadBuffers, // TODO remove this
+               optref<ksai::ThreadPool> inPool)
     : Window_base(
            inInstance, inTitle, inHeight, inWidth, inOffscreenFrameHeight, inOffscreenFrameWidth),
       mThreadPool(inPool),
@@ -53,7 +53,7 @@ Window::Window(const Instance &inInstance,
     }
 }
 
-void Jkr::Window::Refresh() {
+void Window::Refresh() {
     ZoneScoped;
     mSurface.ProcessCurrentSurfaceConditions(mInstance->GetPhysicalDevice());
     mSwapChain = VulkanSwapChain(
@@ -66,18 +66,18 @@ void Jkr::Window::Refresh() {
 
 namespace Jkr {
 const std::array<VulkanCommandBuffer, 2U> &
-Jkr::Window::GetCommandBuffers(ParameterContext inParameter) const {
+Window::GetCommandBuffers(ParameterContext inParameter) const {
     switch (inParameter) {
-        case Jkr::Window_base::None:
+        case Window_base::None:
             return mCommandBuffers;
-        case Jkr::Window_base::UI:
+        case Window_base::UI:
             return mSecondaryCommandBuffersUI;
         default:
             return mThreadCommandBuffers[inParameter]->mCommandBuffers;
     }
 }
 
-void Jkr::Window::BeginUpdates() {
+void Window::BeginUpdates() {
     mFences[mCurrentFrame].Wait();
     mFences[mCurrentFrame].Reset();
 }

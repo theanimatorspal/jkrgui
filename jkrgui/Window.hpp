@@ -8,16 +8,36 @@ namespace Jkr {
 class Window : public Window_base {
     using VulkanCommandBufferArray = std::array<VulkanCommandBuffer, mMaxFramesInFlight>;
     using ThreadCommandBufferArray = ThreadCommandBuffer<mMaxFramesInFlight>;
+    using VCBArray                 = VulkanCommandBufferArray;
+    using PC                       = ParameterContext;
 
     public:
-    const VulkanCommandBufferArray &GetCommandBuffers(ParameterContext inParameter) const override;
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
+    GETTER GetCommandBuffers(PC in) const -> const VCBArray & override;
     GETTER &GetShadowPass() { return *mShadowPass; }
     GETTER &GetDeferredPass() { return *mDeferredPass; }
     void BuildShadowPass();
     void BeginShadowPass(float ind);
     void EndShadowPass();
 
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
+    /// @todo Name this Correctly
     void BuildDeferredPass();
+    /// @todo Name this Correctly
     void PrepareDeferredPass(Renderer::_3D::Simple3D &inCompositionSimple3D,
                              Renderer::_3D::World3D &inWorld);
     void ExecuteDeferredComposition(Renderer::_3D::Simple3D &inCompositionSimple3D,
@@ -26,16 +46,40 @@ class Window : public Window_base {
     void EndDeferredDraws();
     void PresentDeferred();
 
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
     void BeginUpdates();
     void EndUpdates();
     void BeginDispatches();
     void EndDispatches();
 
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
     void BeginDraws(float r, float g, float b, float a, float d);
     void EndDraws();
     void Present();
     void Refresh();
 
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
     void BeginUIs();
     void EndUIs();
     void ExecuteUIs();
