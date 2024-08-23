@@ -190,7 +190,8 @@ Engine.Animate_4f = function(inCallBuffer, inV1, inV2, inV, inStepValue, inStart
     return Frame
 end
 
-Engine.GetGLTFInfo = function(inLoadedGLTF, inShouldPrint)
+
+Engine.PrintGLTFInfo = function(inLoadedGLTF, inShouldPrint)
     if (inShouldPrint) then
         io.write(string.format(
             [[
@@ -217,6 +218,8 @@ Meshes = %d
         ))
     end
 end
+
+Engine.GetGLTFInfo = Engine.PrintGLTFInfo
 
 Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
     inMaterialIndex = inMaterialIndex + 1
