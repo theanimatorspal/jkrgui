@@ -1,12 +1,13 @@
 ﻿#include "Window_base.hpp"
 #include "SDLWindow.hpp"
 
-Jkr::Window_base::Window_base(const Instance &inInstance,
-                              std::string_view inTitle,
-                              int inHeight,
-                              int inWidth,
-                              int inOffscreenFrameHeight,
-                              int inOffscreenFrameWidth)
+using namespace Jkr;
+Window_base::Window_base(const Instance &inInstance,
+                         std::string_view inTitle,
+                         int inHeight,
+                         int inWidth,
+                         int inOffscreenFrameHeight,
+                         int inOffscreenFrameWidth)
     : mInstance(&inInstance) {
     mOffscreenFrameSize.x = inOffscreenFrameWidth;
     mOffscreenFrameSize.y = inOffscreenFrameHeight;
@@ -74,9 +75,9 @@ Jkr::Window_base::Window_base(const Instance &inInstance,
                                                            mOffscreenImages[i]));
     }
 }
-Jkr::Window_base::Window_base(const Instance &inInstance,
-                              int inOffscreenFrameHeight,
-                              int inOffscreenFrameWidth)
+Window_base::Window_base(const Instance &inInstance,
+                         int inOffscreenFrameHeight,
+                         int inOffscreenFrameWidth)
     : mInstance(&inInstance) {
     mOffscreenFrameSize.x = inOffscreenFrameWidth;
     mOffscreenFrameSize.y = inOffscreenFrameHeight;
@@ -111,23 +112,23 @@ Jkr::Window_base::Window_base(const Instance &inInstance,
                                                                    vk::SampleCountFlagBits::e4));
 }
 
-void Jkr::Window_base::SetScissor(int inX, int inY, int inW, int inH, ParameterContext inContext) {
+void Window_base::SetScissor(int inX, int inY, int inW, int inH, ParameterContext inContext) {
     GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setScissor(
          0, vk::Rect2D{vk::Offset2D{inX, inY}, vk::Extent2D{(ui)inW, (ui)inH}});
 }
 
-void Jkr::Window_base::SetDefaultScissor(ParameterContext inContext) {
+void Window_base::SetDefaultScissor(ParameterContext inContext) {
     vk::Rect2D Rect(vk::Offset2D(0), mDepthImage.GetImageExtent());
     this->GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setScissor(0, Rect);
 }
 
-void Jkr::Window_base::SetViewport(
+void Window_base::SetViewport(
      int inX, int inY, int inW, int inH, float inMind, float inMaxD, ParameterContext inContext) {
     GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setViewport(
          0, vk::Viewport(inX, inY, inW, inH, inMind, inMaxD));
 }
 
-void Jkr::Window_base::SetDefaultViewport(ParameterContext inContext) {
+void Window_base::SetDefaultViewport(ParameterContext inContext) {
     auto extent = mDepthImage.GetImageExtent();
     SetViewport(0.0f,
                 0.0f,
