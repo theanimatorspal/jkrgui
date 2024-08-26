@@ -25,6 +25,7 @@ class Window_base : public SDLWindow {
         return mCommandBuffers;
     }
     const VulkanCommandPool &GetCommandPool() const { return mCommandPool; }
+    GETTER GetOffscreenFrameSize() const { return mOffscreenFrameSize; }
     GETTER &GetCurrentFrame() const { return mCurrentFrame; } // TODO Remove this reference
     GETTER &GetInstance() const { return *mInstance; }
     GETTER &GetRenderPass() const { return mRenderPass; }
