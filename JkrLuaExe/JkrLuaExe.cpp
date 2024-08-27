@@ -138,13 +138,16 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
                 while (getline(cin, line)) {
                     if (line.find("function") != string::npos or line.find("if") != string::npos or
                         line.find("for") != string::npos or line.find("while") != string::npos or
-                        line.find("(") != string::npos or line.find("{") != string::npos) {
+                        line.find("(") != string::npos or line.find("{") != string::npos or
+                        line.find("[[") != string::npos
+
+                    ) {
                         //
                         scope.push_back(true);
                         //
                     }
                     if (line.find("end") != string::npos or line.find(")") != string::npos or
-                        line.find("}") != string::npos) {
+                        line.find("}") != string::npos or line.find("]]") != string::npos) {
                         scope.pop_back();
                     }
                     input += line + '\n';
