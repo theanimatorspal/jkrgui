@@ -81,6 +81,8 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
     app.add_flag("--gr,--generate-run", FlagGenerateRun);
     app.add_flag("--r, --repl", FlagRepl);
 
+    app.parse(ArgCount, ArgStrings);
+
     if (FlagBuild) {
         sol::state s;
         s.open_libraries();
@@ -116,20 +118,51 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
     if (FlagRepl) {
         CreateMainBindings(mainState);
 
+        auto OldCurrentPath = std::filesystem::current_path();
+        std::filesystem::current_path(std::filesystem::path(getenv("JKRGUI_DIR")) / "luaproject");
+        mainState.safe_script(R"""(
+        require("JkrGUIv2.repl")
+)""");
+        std::system("cls");
+        auto CurrentPath = std::filesystem::current_path();
+        std::filesystem::current_path(OldCurrentPath);
+
+        using namespace std;
         while (true) {
             try {
-                std::string line;
-                std::string input;
-                while (std::getline(std::cin, line)) {
+                vector<bool> scope;
+                string line;
+                string input;
+                cout << "[JKRGUI v2.0a]>> ";
+
+                while (getline(cin, line)) {
+                    if (line.find("function") != string::npos or line.find("if") != string::npos or
+                        line.find("for") != string::npos or line.find("while") != string::npos or
+                        line.find("(") != string::npos or line.find("{") != string::npos) {
+                        //
+                        scope.push_back(true);
+                        //
+                    }
+                    if (line.find("end") != string::npos or line.find(")") != string::npos or
+                        line.find("}") != string::npos) {
+                        scope.pop_back();
+                    }
                     input += line + '\n';
-                }
 
-                mainState.safe_script(input);
+                    // ALL CUSTOM COMMANDS
+                    if (line == "EXIT()" or line == "exit") {
+                        exit(0);
+                    } else if (line == "CLEAR()" or line == "cls" or line == "clear") {
+                        // TODO Make this cross platform
+                        std::system("cls");
+                        break;
+                    }
 
-                if (std::cin.eof()) {
-                    std::cin.clear();
-                } else {
-                    throw std::runtime_error("Input Error Occured");
+                    if (scope.empty()) {
+                        mainState.safe_script(input);
+                        std::cout << "\n";
+                        break;
+                    }
                 }
             } catch (const std::exception &e) {
                 std::cout << "ERROR:: " << e.what() << "\n";
@@ -140,8 +173,7 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
 
 JKR_EXPORT int main(int ArgCount, char **ArgStrings) {
 #ifndef ANDROID
-    auto CmdArg_Map = CommandLine(ArgCount, ArgStrings);
-    if (not CmdArg_Map.empty()) ProcessCmdLine(ArgCount, ArgStrings);
+    ProcessCmdLine(ArgCount, ArgStrings);
 #endif
     try {
         RunScript();

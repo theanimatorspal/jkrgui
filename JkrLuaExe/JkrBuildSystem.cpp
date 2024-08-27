@@ -213,15 +213,6 @@ CreateLuaLibraryEnvironment(sv inLibraryName, sv inNativeDestinationDirectory, b
 
 }; // namespace BuildSystem
 
-static umap<s, int> CommandLineCommandsArgumentCount = {{"--build", 0}, {"--generate", 0}};
-int GetArgumentCount(sv inString) {
-    if (CommandLineCommandsArgumentCount[s(inString)]) {
-        return CommandLineCommandsArgumentCount[s(inString)];
-    } else {
-        return 0;
-    }
-}
-
 void CreateBuildSystemBindings(sol::state &inS) {
     auto Jkr   = inS["Jkr"].get_or_create<sol::table>();
     auto Build = Jkr["BuildSystem"].get_or_create<sol::table>();
