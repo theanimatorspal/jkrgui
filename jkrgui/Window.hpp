@@ -20,7 +20,7 @@ class Window : public Window_base {
     ///
     ///
     ///
-    GETTER GetCommandBuffers(PC in) const -> const VCBArray & override;
+    auto GetCommandBuffers(PC in) const -> const VCBArray & override;
     GETTER &GetShadowPass() { return *mShadowPass; }
     GETTER &GetDeferredPass() { return *mDeferredPass; }
     void BuildShadowPass();
