@@ -246,9 +246,12 @@ function(configure_target TARGET_NAME)
             freetype
             harfbuzz
             harfbuzz-subset
+            user32
             ws2_32
             wsock32
             dbghelp
+            ntdll
+            advapi32
         )
     elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
         target_link_libraries(${TARGET_NAME}
@@ -278,9 +281,12 @@ function(configure_target TARGET_NAME)
             freetype
             harfbuzz
             harfbuzz-subset
+            user32
             ws2_32
             wsock32
             dbghelp
+            ntdll
+            advapi32
         )
     endif()
 endfunction()
