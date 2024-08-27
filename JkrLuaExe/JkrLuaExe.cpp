@@ -1,5 +1,6 @@
 ﻿#include "JkrLuaExe.hpp"
 #include <SDLWindow.hpp>
+#include <CLI11/CLI11.hpp>
 // #include <Tracy.hpp>
 // #include <TracyLua.hpp>
 
@@ -69,8 +70,18 @@ void RunScript() {
     }
 }
 
-void ProcessCmdLine(auto &inCmdLineArg_Map) {
-    if (inCmdLineArg_Map.contains("--build")) {
+void ProcessCmdLine(int ArgCount, char **ArgStrings) {
+    CLI::App app;
+    bool FlagBuild       = false;
+    bool FlagGenerate    = false;
+    bool FlagGenerateRun = false;
+    bool FlagRepl        = false;
+    app.add_flag("--b,--build", FlagBuild);
+    app.add_flag("--g,--generate", FlagGenerate);
+    app.add_flag("--gr,--generate-run", FlagGenerateRun);
+    app.add_flag("--r, --repl", FlagRepl);
+
+    if (FlagBuild) {
         sol::state s;
         s.open_libraries();
         CreateBuildSystemBindings(s);
@@ -95,19 +106,22 @@ void ProcessCmdLine(auto &inCmdLineArg_Map) {
                          filesystem::copy_options::recursive |
                               filesystem::copy_options::update_existing);
     };
-    if (inCmdLineArg_Map.contains("--generate")) {
+    if (FlagGenerate) {
         Update();
         exit(0);
     }
-    if (inCmdLineArg_Map.contains("--generate-run")) {
+    if (FlagGenerateRun) {
         Update();
+    }
+    if (FlagRepl) {
+        // fuck your repl here
     }
 }
 
 JKR_EXPORT int main(int ArgCount, char **ArgStrings) {
 #ifndef ANDROID
     auto CmdArg_Map = CommandLine(ArgCount, ArgStrings);
-    if (not CmdArg_Map.empty()) ProcessCmdLine(CmdArg_Map);
+    if (not CmdArg_Map.empty()) ProcessCmdLine(ArgCount, ArgStrings);
 #endif
     try {
         RunScript();

@@ -12,6 +12,7 @@
 #include <type_traits>
 #include <unordered_map>
 #include "JkrLuaExe.hpp"
+#include <CLI11/CLI11.hpp>
 
 using namespace ksai;
 using namespace std;
@@ -78,7 +79,9 @@ namespace JkrEXE {
 namespace fs = std::filesystem;
 namespace BuildSystem {
 
-static void ReplaceStringInFile(fs::path filePath, const std::string_view searchString, const std::string_view replaceString) {
+static void ReplaceStringInFile(fs::path filePath,
+                                const std::string_view searchString,
+                                const std::string_view replaceString) {
     std::ifstream fileIn(filePath);
     if (!fileIn.is_open()) {
         std::cerr << "Failed to open file: " << filePath << std::endl;
@@ -99,7 +102,9 @@ static void ReplaceStringInFile(fs::path filePath, const std::string_view search
     }
 }
 
-static void ReplaceString(fs::path path, const std::string_view searchString, const std::string_view replaceString) {
+static void ReplaceString(fs::path path,
+                          const std::string_view searchString,
+                          const std::string_view replaceString) {
     for (const auto &entry : fs::recursive_directory_iterator(path)) {
         if (entry.is_regular_file()) {
             ReplaceStringInFile(entry.path(), searchString, replaceString);
@@ -107,7 +112,9 @@ static void ReplaceString(fs::path path, const std::string_view searchString, co
     }
 }
 
-static void RenameFileName(const fs::path &path, const std::string_view searchString, const std::string_view replaceString) {
+static void RenameFileName(const fs::path &path,
+                           const std::string_view searchString,
+                           const std::string_view replaceString) {
     fs::path parentPath = path.parent_path();
     std::string newName = path.filename().string();
     size_t pos          = newName.find(searchString);
@@ -119,8 +126,9 @@ static void RenameFileName(const fs::path &path, const std::string_view searchSt
     }
 }
 
-static void
-RenameFilesInDirectory(const fs::path &path, const std::string_view searchString, const std::string_view replaceString) {
+static void RenameFilesInDirectory(const fs::path &path,
+                                   const std::string_view searchString,
+                                   const std::string_view replaceString) {
     static v<fs::path> FilesToBeRenamedFrom;
     for (const auto &entry : fs::recursive_directory_iterator(path)) {
         if (entry.is_regular_file() or entry.is_directory()) {
@@ -136,7 +144,9 @@ RenameFilesInDirectory(const fs::path &path, const std::string_view searchString
     }
 }
 
-void CreateAndroidEnvironment(const sv inAndroidAppName, const sv inAndroidAppDirectory, const sv inLibraryName) {
+void CreateAndroidEnvironment(const sv inAndroidAppName,
+                              const sv inAndroidAppDirectory,
+                              const sv inLibraryName) {
     fs::path Src    = s(getenv("JKRGUI_DIR")) + "/Android/";
     fs::path Target = s(inAndroidAppDirectory);
     if (not fs::exists(Target)) {
@@ -151,8 +161,9 @@ void CreateAndroidEnvironment(const sv inAndroidAppName, const sv inAndroidAppDi
 
     int i                         = 0;
     for (const auto &entry : fs::directory_iterator(fs::current_path())) {
-        bool ShouldCopy = std::any_of(
-             EntriesToBeCopied.begin(), EntriesToBeCopied.end(), [&](auto &i) { return i == entry.path().filename(); });
+        bool ShouldCopy = std::any_of(EntriesToBeCopied.begin(),
+                                      EntriesToBeCopied.end(),
+                                      [&](auto &i) { return i == entry.path().filename(); });
         if (ShouldCopy) {
             fs::path src    = entry;
             fs::path target = Assets / entry.path().filename();
@@ -162,18 +173,21 @@ void CreateAndroidEnvironment(const sv inAndroidAppName, const sv inAndroidAppDi
     }
 }
 
-static void CreateLuaLibraryEnvironment(sv inLibraryName, sv inNativeDestinationDirectory, bool inOverride) {
+static void
+CreateLuaLibraryEnvironment(sv inLibraryName, sv inNativeDestinationDirectory, bool inOverride) {
     fs::path CurrentPath                = fs::current_path();
     fs::path JkrGuiRepoPath             = s(getenv("JKRGUI_DIR"));
     fs::path NativeDestinationDirectory = s(inNativeDestinationDirectory);
 
     {
-        fs::path mainCppFilePath               = NativeDestinationDirectory / fs::path(string(inLibraryName) + ".cpp");
-        fs::path cmakeListsFilePath            = NativeDestinationDirectory / fs::path("CMakeLists.txt");
-        fs::path cmakePresetsFilePath          = NativeDestinationDirectory / fs::path("CMakePresets.json");
+        fs::path mainCppFilePath =
+             NativeDestinationDirectory / fs::path(string(inLibraryName) + ".cpp");
+        fs::path cmakeListsFilePath   = NativeDestinationDirectory / fs::path("CMakeLists.txt");
+        fs::path cmakePresetsFilePath = NativeDestinationDirectory / fs::path("CMakePresets.json");
         fs::path cmakePresetsJkrGuiLibraryPath = JkrGuiRepoPath / fs::path("CMakePresets.json");
 
-        if (not fs::exists(NativeDestinationDirectory)) fs::create_directory(inNativeDestinationDirectory);
+        if (not fs::exists(NativeDestinationDirectory))
+            fs::create_directory(inNativeDestinationDirectory);
 
         if (not fs::exists(cmakeListsFilePath) or inOverride) {
             std::ofstream cmakeListsFile(cmakeListsFilePath, std::fstream::out);
@@ -182,7 +196,8 @@ static void CreateLuaLibraryEnvironment(sv inLibraryName, sv inNativeDestination
             } else {
                 std::cout << "Fuck, Files are not open";
             }
-            if (not fs::exists(cmakePresetsFilePath)) fs::copy_file(cmakePresetsJkrGuiLibraryPath, cmakePresetsFilePath);
+            if (not fs::exists(cmakePresetsFilePath))
+                fs::copy_file(cmakePresetsJkrGuiLibraryPath, cmakePresetsFilePath);
         }
 
         if (not fs::exists(mainCppFilePath) or inOverride) {
@@ -205,29 +220,6 @@ int GetArgumentCount(sv inString) {
     } else {
         return 0;
     }
-}
-
-umap<s, v<s>> CommandLine(int ArgCount, char **ArgStrings) {
-    umap<s, v<s>> CommandLineStuff;
-    int FirstArgIndex = 1;
-    for (int i = FirstArgIndex; i < ArgCount; i++) {
-        const s arg(ArgStrings[i]);
-        const int ArgumentCount = GetArgumentCount(arg);
-        if (ArgumentCount == 0) {
-            CommandLineStuff[arg] = v<s>{""};
-        } else if (i + 1 < ArgCount) {
-            v<s> arguments;
-            for (int j = i; j < i + ArgumentCount; j++) {
-                const s new_arg(ArgStrings[i]);
-                i++;
-            }
-            CommandLineStuff[arg] = arguments;
-        } else {
-            std::cout << "Error:\n";
-        }
-    }
-
-    return CommandLineStuff;
 }
 
 void CreateBuildSystemBindings(sol::state &inS) {
