@@ -114,7 +114,27 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
         Update();
     }
     if (FlagRepl) {
-        // fuck your repl here
+        CreateMainBindings(mainState);
+
+        while (true) {
+            try {
+                std::string line;
+                std::string input;
+                while (std::getline(std::cin, line)) {
+                    input += line + '\n';
+                }
+
+                mainState.safe_script(input);
+
+                if (std::cin.eof()) {
+                    std::cin.clear();
+                } else {
+                    throw std::runtime_error("Input Error Occured");
+                }
+            } catch (const std::exception &e) {
+                std::cout << "ERROR:: " << e.what() << "\n";
+            }
+        }
     }
 }
 
