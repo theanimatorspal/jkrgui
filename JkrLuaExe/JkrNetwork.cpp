@@ -12,7 +12,7 @@ OnClientValidationFunctionType OnClientValidationFunction = [](sp<Connection>) {
 
 OnClientConnectionFunctionType OnClientConnectionFunction = [](sp<Connection>) { return false; };
 
-OnMessageFunctionType OnMessageFunction                   = [](sp<Connection>, Message& inMessage) {
+OnMessageFunctionType OnMessageFunction                   = [](sp<Connection>, Message &inMessage) {
     std::scoped_lock<std::mutex> Lock(MessageAccessMutex);
     MessageBuffer.push_back(inMessage);
 };
@@ -46,7 +46,7 @@ void ConnectFromClient(int inId, const std::string_view inHost, int inPort) {
     Clients[inId]->Connect(OnClientValidationFunction, inHost, inPort);
 }
 bool IsConnectedClient(int inId) { return Clients[inId]->IsConnected(); }
-void SendMessageFromClient(int inId, const Message& inMessage) { Clients[inId]->Send(inMessage); }
+void SendMessageFromClient(int inId, const Message &inMessage) { Clients[inId]->Send(inMessage); }
 bool IsIncomingMessagesEmptyClient(int inId) {
     return Clients[inId]->GetIncomingQMessages().empty();
 }
@@ -60,7 +60,7 @@ namespace JkrEXE {
     NETWORK BINDINGS
 
 ============================================================== */
-void CreateNetworkBindings(sol::state& s) {
+void CreateNetworkBindings(sol::state &s) {
     auto Jkr = s["Jkr"].get_or_create<sol::table>();
     Jkr.new_usertype<MessageHeader>("MessageHeader",
                                     sol::call_constructor,
@@ -89,7 +89,7 @@ void CreateNetworkBindings(sol::state& s) {
     Jkr.set_function("MessagesBufferAccessEnd", &MessagesBufferAccessEnd);
 
     Jkr.set_function("AddClient", &AddClient);
-    Jkr.set_function("ConnectionFromClient", &ConnectFromClient);
+    Jkr.set_function("ConnectFromClient", &ConnectFromClient);
     Jkr.set_function("IsConnectedClient", &IsConnectedClient);
     Jkr.set_function("SendMessageFromClient", &SendMessageFromClient);
     Jkr.set_function("IsIncomingMessageEmptyClient", &IsIncomingMessagesEmptyClient);

@@ -40,6 +40,8 @@ class SDLWindow {
     void SetTitle(std::string_view inString) const;
     void SetWindowBorderless();
     void ToggleWindowFullScreen();
+    void Hide();
+    void Show();
     void Minimize();
     static auto GetWindowCurrentTime() { return SDL_GetTicks(); }
 

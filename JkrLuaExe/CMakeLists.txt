@@ -23,6 +23,8 @@ else()
      add_executable(JkrLuaExe ${JKR_SOURCES})
 endif()
 
+set_target_properties(JkrLuaExe PROPERTIES OUTPUT_NAME "jkrgui")
+
 PrecompileStdHeaders(JkrLuaExe)
 target_link_libraries(JkrLuaExe ksaivulkan jkrgui)
 configure_target(JkrLuaExe)
