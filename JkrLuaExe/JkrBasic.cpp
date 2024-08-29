@@ -75,6 +75,14 @@ void CreateBasicBindings(sol::state &s) {
                                                        inOffscreenFrameWidth,
                                                        inThreadsCount);
               }),
+
+         "Show",
+         &Jkr::Window::Show,
+         "Hide",
+         &Jkr::Window::Hide,
+         "Destroy",
+         &Jkr::Window::Destroy,
+
          "BuildShadowPass",
          &Jkr::Window::BuildShadowPass,
          "BeginShadowPass",

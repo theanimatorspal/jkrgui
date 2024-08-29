@@ -15,12 +15,15 @@
     "JkrLuaPlatform.cpp"
     "JkrNetwork.cpp"
 )
+
 if(ANDROID)
      add_library(JkrLuaExe SHARED ${JKR_SOURCES})
      set_target_properties(JkrLuaExe PROPERTIES LINK_FLAGS "-Wl,--export-dynamic-symbol=main")
 else()
      add_executable(JkrLuaExe ${JKR_SOURCES})
 endif()
+
+set_target_properties(JkrLuaExe PROPERTIES OUTPUT_NAME "jkrgui")
 
 PrecompileStdHeaders(JkrLuaExe)
 target_link_libraries(JkrLuaExe ksaivulkan jkrgui)

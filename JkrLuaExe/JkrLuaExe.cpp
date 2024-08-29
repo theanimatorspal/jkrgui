@@ -1,8 +1,8 @@
-﻿#include "JkrLuaExe.hpp"
+﻿#define TRACY_IMPORTS
+#include "JkrLuaExe.hpp"
 #include <SDLWindow.hpp>
 #include <CLI11/CLI11.hpp>
-// #include <Tracy.hpp>
-// #include <TracyLua.hpp>
+#include <TracyLua.hpp>
 
 extern void LuaShowToastNotification(const std::string_view inMessage);
 
@@ -42,7 +42,7 @@ void CreateMainBindings(sol::state &s) {
     CreateAudioBindings(s);
     CreatePlatformBindings(s);
     CreateNetworkBindings(s);
-    // tracy::LuaRegister(s);
+    tracy::LuaRegister(s);
 }
 } // namespace JkrEXE
 
