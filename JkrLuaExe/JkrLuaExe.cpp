@@ -136,20 +136,24 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
                 cout << "[JKRGUI v2.0a]>> ";
 
                 while (getline(cin, line)) {
-                    if (line.find("function") != string::npos or line.find("if") != string::npos or
-                        line.find("for") != string::npos or line.find("while") != string::npos or
-                        line.find("(") != string::npos or line.find("{") != string::npos or
-                        line.find("[[") != string::npos
+                    int scope_start =
+                         (line.find("function") != string::npos) +
+                         (line.find("if") != string::npos) + (line.find("for") != string::npos) +
+                         (line.find("while") != string::npos) + (line.find("(") != string::npos) +
+                         (line.find("{") != string::npos) + (line.find("[[") != string::npos);
 
-                    ) {
-                        //
+                    for (int i = 0; i < scope_start; ++i) {
                         scope.push_back(true);
-                        //
                     }
-                    if (line.find("end") != string::npos or line.find(")") != string::npos or
-                        line.find("}") != string::npos or line.find("]]") != string::npos) {
+
+                    int scope_end =
+                         line.find("end") != string::npos or line.find(")") != string::npos or
+                         line.find("}") != string::npos or line.find("]]") != string::npos;
+
+                    for (int i = 0; i < scope_end; ++i) {
                         scope.pop_back();
                     }
+
                     input += line + '\n';
 
                     // ALL CUSTOM COMMANDS
