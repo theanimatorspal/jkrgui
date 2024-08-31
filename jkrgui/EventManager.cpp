@@ -1,9 +1,25 @@
 #include "EventManager.hpp"
 #include "Window.hpp"
-void Jkr::EventManager::ProcessEvents(Window &inWindow) {
+void Jkr::EventManager::ProcessEventsEXT(Window &inWindow) {
     mWindowSize            = inWindow.GetWindowDimension();
     mFrameSize             = inWindow.GetOffscreenFrameSize();
     mOffscreenByWindowSize = glm::vec2(mFrameSize.x / mWindowSize.x, mFrameSize.y / mWindowSize.y);
+    while (SDL_PollEvent(&mEvent)) {
+        mEventCallBack();
+        mCurrentPushedMouseButton = SDL_GetMouseState(&mMousePos.x, &mMousePos.y);
+        switch (mEvent.type) {
+            case SDL_QUIT:
+                should_quit = true;
+            default:
+                break;
+        }
+        SDL_GetRelativeMouseState(&mRelativePos.x, &mRelativePos.y);
+    }
+    int NumKeys;
+    mKeyboardState = SDL_GetKeyboardState(&NumKeys);
+}
+
+void Jkr::EventManager::ProcessEvents() {
     while (SDL_PollEvent(&mEvent)) {
         mEventCallBack();
         mCurrentPushedMouseButton = SDL_GetMouseState(&mMousePos.x, &mMousePos.y);

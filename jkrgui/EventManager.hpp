@@ -14,7 +14,8 @@ struct BoundRect2D {
 class EventManager {
     public:
     EventManager() { mBoundRect2Ds.reserve(100); }
-    void ProcessEvents(Window &inWindow);
+    void ProcessEventsEXT(Window &inWindow);
+    void ProcessEvents();
     GETTER ShouldQuit() const { return should_quit; }
     GETTER GetEventHandle() const { return mEvent; }
     GETTER GetMousePos() const { return mMousePos; }
