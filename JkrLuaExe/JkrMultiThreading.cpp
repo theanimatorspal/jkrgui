@@ -24,6 +24,7 @@ struct MultiThreading {
     void Inject(std::string_view inVariable, sol::object inValue);
     void InjectToGate(std::string_view inVariable, sol::object inValue);
     void AddJobF(sol::function inFunction);
+    void AddJobFIndex(sol::function inFunction, int inIndex);
     sol::object GetFromGate(std::string_view inVariable);
     sol::object GetFromGateToThread(std::string_view inVariable, int inThreadId);
 
@@ -100,6 +101,23 @@ inline void MultiThreading::AddJobF(sol::function inFunction) {
             ksai_print(error.what());
         }
     });
+}
+
+inline void MultiThreading::AddJobFIndex(sol::function inFunction, int inIndex) {
+    int ThreadIndex = inIndex;
+    auto f          = inFunction.dump();
+    mPool.Add_JobToThread(
+         [=, this]() {
+             std::scoped_lock<std::mutex> Lock2(mMutexes[ThreadIndex]);
+             auto &state = mStates[ThreadIndex];
+             auto result = state.safe_script(f.as_string_view(), &sol::script_pass_on_error);
+             if (not result.valid()) {
+                 sol::error error = result;
+                 std::cout << error.what();
+                 ksai_print(error.what());
+             }
+         },
+         ThreadIndex);
 }
 
 inline void MultiThreading::Wait() { mPool.Wait(); }
@@ -199,7 +217,9 @@ void CreateMultiThreadingBindings(sol::state &inState) {
          "Wait",
          &MultiThreading::Wait,
          "AddJobF",
-         &MultiThreading::AddJobF);
+         &MultiThreading::AddJobF,
+         "AddJobFIndex",
+         &MultiThreading::AddJobFIndex);
 }
 
 } // namespace JkrEXE

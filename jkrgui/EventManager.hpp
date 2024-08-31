@@ -40,9 +40,7 @@ class EventManager {
     GETTER IsRightButtonPressed() const {
         return (mEvent.type == SDL_MOUSEBUTTONDOWN) && (mEvent.button.button == SDL_BUTTON_RIGHT);
     }
-    GETTER IsCloseWindowEvent() const {
-        return mEvent.type == SDL_WINDOWEVENT and mEvent.window.event == SDL_WINDOWEVENT_CLOSE;
-    }
+    GETTER IsCloseWindowEvent() const { return mCloseWindowEvent; }
     void StartTextInput() { SDL_StartTextInput(); }
     void StopTextInput() { SDL_StopTextInput(); }
     bool IsMouseWithinAtTopOfStack(uint32_t inId, uint32_t inDepthValue);
@@ -56,11 +54,12 @@ class EventManager {
     glm::ivec2 mMousePos;
     glm::ivec2 mRelativePos;
     int mCurrentPushedMouseButton;
-    bool should_quit = false;
+    bool should_quit       = false;
+    bool mCloseWindowEvent = false;
     const uint8_t *mKeyboardState;
 
     private:
-    std::function<void()> mEventCallBack = []() {};
+    std::vector<std::function<void()>> mEventCallBack;
     std::unordered_map<uint32_t, std::vector<BoundRect2D>> mBoundRect2Ds;
     glm::vec2 mFrameSize;
     glm::vec2 mWindowSize;

@@ -8,6 +8,10 @@ i = Engine.i
 e = Engine.e
 mt = Engine.mt
 
+mt:Inject("Engine", Engine)
+mt:Inject("i", i)
+mt:Inject("e", e)
+
 repl = {}
 
 function repl.GetArgs(func)
@@ -18,6 +22,23 @@ function repl.GetArgs(func)
           for k, v in pairs(args) do
                     print(k, v)
           end
+end
+
+function repl.runWindow(inw, inThreadIndex, inevent)
+          mt:Inject("w", inw)
+          mt:Inject("inevent", inevent)
+          -- upvalues are not allowed FUUU
+          mt:AddJobFIndex(
+                    function()
+                              windowShouldRun = true
+                              while windowShouldRun do
+                                        if e:IsCloseWindowEvent() then
+                                                  windowShouldRun = false
+                                        end
+                              end
+                              w:Hide()
+                    end, inThreadIndex
+          )
 end
 
 mt:Inject("repl", repl)

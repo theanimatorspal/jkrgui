@@ -4,8 +4,18 @@ void Jkr::EventManager::ProcessEventsEXT(Window &inWindow) {
     mWindowSize            = inWindow.GetWindowDimension();
     mFrameSize             = inWindow.GetOffscreenFrameSize();
     mOffscreenByWindowSize = glm::vec2(mFrameSize.x / mWindowSize.x, mFrameSize.y / mWindowSize.y);
+    mCloseWindowEvent      = false;
+
     while (SDL_PollEvent(&mEvent)) {
-        mEventCallBack();
+
+        if (mEvent.type == SDL_WINDOWEVENT and mEvent.window.event == SDL_WINDOWEVENT_CLOSE) {
+            mCloseWindowEvent = true;
+        }
+
+        for (auto &callback : mEventCallBack) {
+            callback();
+        }
+
         mCurrentPushedMouseButton = SDL_GetMouseState(&mMousePos.x, &mMousePos.y);
         switch (mEvent.type) {
             case SDL_QUIT:
@@ -20,8 +30,18 @@ void Jkr::EventManager::ProcessEventsEXT(Window &inWindow) {
 }
 
 void Jkr::EventManager::ProcessEvents() {
+    mCloseWindowEvent = false;
+
     while (SDL_PollEvent(&mEvent)) {
-        mEventCallBack();
+
+        if (mEvent.type == SDL_WINDOWEVENT and mEvent.window.event == SDL_WINDOWEVENT_CLOSE) {
+            mCloseWindowEvent = true;
+        }
+
+        for (auto &callback : mEventCallBack) {
+            callback();
+        }
+
         mCurrentPushedMouseButton = SDL_GetMouseState(&mMousePos.x, &mMousePos.y);
         switch (mEvent.type) {
             case SDL_QUIT:
@@ -66,5 +86,5 @@ void Jkr::EventManager::UpdateBoundedRect(uint32_t inId,
     mBoundRect2Ds[inDepthValue][inId] = br;
 }
 void Jkr::EventManager::SetEventCallBack(const std::function<void()> &inEventCallBack) {
-    mEventCallBack = inEventCallBack;
+    mEventCallBack.push_back(inEventCallBack);
 }
