@@ -10,7 +10,7 @@ static std::mutex MessageAccessMutex;
 
 OnClientValidationFunctionType OnClientValidationFunction = [](sp<Connection>) {};
 
-OnClientConnectionFunctionType OnClientConnectionFunction = [](sp<Connection>) { return false; };
+OnClientConnectionFunctionType OnClientConnectionFunction = [](sp<Connection>) { return true; };
 
 OnMessageFunctionType OnMessageFunction                   = [](sp<Connection>, Message &inMessage) {
     std::scoped_lock<std::mutex> Lock(MessageAccessMutex);
