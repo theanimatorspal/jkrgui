@@ -182,6 +182,8 @@ void CreateBasicBindings(sol::state &s) {
                                         &EventManager::IsKeyReleased,
                                         "IsKeyPressed",
                                         &EventManager::IsKeyPressed,
+                                        "IsCloseWindowEvent",
+                                        &EventManager::IsCloseWindowEvent,
                                         "StartTextInput",
                                         &EventManager::StartTextInput,
                                         "StopTextInput",

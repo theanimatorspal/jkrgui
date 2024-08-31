@@ -1,4 +1,5 @@
 ﻿#define TRACY_IMPORTS
+#include "EventManager.hpp"
 #include "JkrLuaExe.hpp"
 #include <SDLWindow.hpp>
 #include <CLI11/CLI11.hpp>
@@ -70,6 +71,16 @@ void RunScript() {
     }
 }
 
+int count(const std::string &str, const std::string &sub) {
+    if (sub.length() == 0) return 0;
+    int count = 0;
+    for (size_t offset = str.find(sub); offset != std::string::npos;
+         offset        = str.find(sub, offset + sub.length())) {
+        ++count;
+    }
+    return count;
+}
+
 void ProcessCmdLine(int ArgCount, char **ArgStrings) {
     CLI::App app;
     bool FlagBuild       = false;
@@ -127,32 +138,30 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
         auto CurrentPath = std::filesystem::current_path();
         std::filesystem::current_path(OldCurrentPath);
 
+        std::deque<std::string> mainThreadStatements;
+        std::mutex mutex;
         using namespace std;
-        while (true) {
-            try {
+        bool inMainThread = false;
+        auto ReplLoop     = [&]() {
+            while (true) {
                 vector<bool> scope;
                 string line;
                 string input;
                 cout << "[JKRGUI v2.0a]>> ";
 
                 while (getline(cin, line)) {
-                    int scope_start =
-                         (line.find("function") != string::npos) +
-                         (line.find("if") != string::npos) + (line.find("for") != string::npos) +
-                         (line.find("while") != string::npos) + (line.find("(") != string::npos) +
-                         (line.find("{") != string::npos) + (line.find("[[") != string::npos);
+                    int scope_start = count(line, "function") + count(line, "if") +
+                                      count(line, "for") + count(line, "while") + count(line, "(") +
+                                      count(line, "{") + (line.find("[[") != string::npos);
 
-                    for (int i = 0; i < scope_start; ++i) {
+                    for (int i = 0; i < scope_start; ++i)
                         scope.push_back(true);
-                    }
 
-                    int scope_end =
-                         line.find("end") != string::npos or line.find(")") != string::npos or
-                         line.find("}") != string::npos or line.find("]]") != string::npos;
+                    int scope_end = count(line, "end") + count(line, ")") + count(line, "}") +
+                                    count(line, "]]");
 
-                    for (int i = 0; i < scope_end; ++i) {
+                    for (int i = 0; i < scope_end; ++i)
                         scope.pop_back();
-                    }
 
                     input += line + '\n';
 
@@ -164,17 +173,39 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
                         std::system("cls");
                         break;
                     }
-
                     if (scope.empty()) {
-                        mainState.safe_script(input);
+                        auto Lock = std::scoped_lock(mutex);
+                        mainThreadStatements.push_back(input);
                         std::cout << "\n";
                         break;
                     }
                 }
+            }
+        };
+
+        std::thread Thread(ReplLoop);
+        sol::object e_obj = mainState["e"];
+        auto e            = e_obj.as<Jkr::EventManager *>();
+
+        bool shouldQuit   = false;
+
+        while (not shouldQuit) {
+            try {
+                auto Lock = std::scoped_lock(mutex);
+                // shouldQuit = e->ShouldQuit();
+                e->ProcessEvents();
+                if (not mainThreadStatements.empty()) {
+                    mainState.safe_script(mainThreadStatements.front());
+                    mainThreadStatements.clear();
+                }
+                std::this_thread::sleep_for(10ns);
             } catch (const std::exception &e) {
                 std::cout << "ERROR:: " << e.what() << "\n";
+                mainThreadStatements.clear();
             }
         }
+
+        Thread.join();
     }
 }
 

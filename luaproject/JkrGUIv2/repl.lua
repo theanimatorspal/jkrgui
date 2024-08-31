@@ -8,8 +8,9 @@ i = Engine.i
 e = Engine.e
 mt = Engine.mt
 
+repl = {}
 
-function GetArgs(func)
+function repl.GetArgs(func)
           local args = {}
           for i = 1, debug.getinfo(func).nparams, 1 do
                     table.insert(args, debug.getlocal(func, i));
@@ -18,3 +19,5 @@ function GetArgs(func)
                     print(k, v)
           end
 end
+
+mt:Inject("repl", repl)

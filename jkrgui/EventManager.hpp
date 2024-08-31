@@ -38,13 +38,16 @@ class EventManager {
     GETTER IsRightButtonPressed() const {
         return (mEvent.type == SDL_MOUSEBUTTONDOWN) && (mEvent.button.button == SDL_BUTTON_RIGHT);
     }
+    GETTER IsCloseWindowEvent() const {
+        return mEvent.type == SDL_WINDOWEVENT and mEvent.window.event == SDL_WINDOWEVENT_CLOSE;
+    }
     void StartTextInput() { SDL_StartTextInput(); }
     void StopTextInput() { SDL_StopTextInput(); }
     bool IsMouseWithinAtTopOfStack(uint32_t inId, uint32_t inDepthValue);
     bool IsMouseWithin(uint32_t inId, uint32_t inDepthValue);
     uint32_t SetBoundedRect(glm::vec2 inXy, glm::vec2 inWh, uint32_t inDepthValue);
     void UpdateBoundedRect(uint32_t inId, glm::vec2 inXy, glm::vec2 inWh, uint32_t inDepthValue);
-    void SetEventCallBack(const std::function<void()>& inEventCallBack);
+    void SetEventCallBack(const std::function<void()> &inEventCallBack);
 
     private:
     SDL_Event mEvent;
@@ -52,7 +55,7 @@ class EventManager {
     glm::ivec2 mRelativePos;
     int mCurrentPushedMouseButton;
     bool should_quit = false;
-    const uint8_t* mKeyboardState;
+    const uint8_t *mKeyboardState;
 
     private:
     std::function<void()> mEventCallBack = []() {};
