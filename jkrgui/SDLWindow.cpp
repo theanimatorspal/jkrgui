@@ -43,7 +43,9 @@ void Jkr::SDLWindow::SetWindowBorderless() {
     SDL_SetWindowHitTest(mSDLWindowPtr, HitTestCallback, 0);
 }
 
-Jkr::SDLWindow::SDLWindow(std::string_view inName, int inHeight, int inWidth) { Init({inName, inHeight, inWidth}); }
+Jkr::SDLWindow::SDLWindow(std::string_view inName, int inHeight, int inWidth) {
+    Init({inName, inHeight, inWidth});
+}
 
 Jkr::SDLWindow::~SDLWindow() {
     if (mInitialized) {
@@ -61,7 +63,9 @@ void Jkr::SDLWindow::SetSize(int inWidth, int inHeight) {
     // TODO
 }
 
-void Jkr::SDLWindow::SetTitle(std::string_view inString) const { SDL_SetWindowTitle(mSDLWindowPtr, inString.data()); }
+void Jkr::SDLWindow::SetTitle(std::string_view inString) const {
+    SDL_SetWindowTitle(mSDLWindowPtr, inString.data());
+}
 
 std::pair<int, int> Jkr::SDLWindow::GetWindowSize() const {
     int w, h;
@@ -135,3 +139,7 @@ void SDLWindow::Destroy() {
     }
     mInitialized = false;
 }
+
+void SDLWindow::Show() { SDL_ShowWindow(mSDLWindowPtr); }
+
+void SDLWindow::Hide() { SDL_HideWindow(mSDLWindowPtr); }

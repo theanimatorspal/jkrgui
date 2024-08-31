@@ -1,7 +1,9 @@
-﻿#include "JkrLuaExe.hpp"
+﻿#define TRACY_IMPORTS
+#include "EventManager.hpp"
+#include "JkrLuaExe.hpp"
 #include <SDLWindow.hpp>
-// #include <Tracy.hpp>
-// #include <TracyLua.hpp>
+#include <CLI11/CLI11.hpp>
+#include <TracyLua.hpp>
 
 extern void LuaShowToastNotification(const std::string_view inMessage);
 
@@ -41,7 +43,7 @@ void CreateMainBindings(sol::state &s) {
     CreateAudioBindings(s);
     CreatePlatformBindings(s);
     CreateNetworkBindings(s);
-    // tracy::LuaRegister(s);
+    tracy::LuaRegister(s);
 }
 } // namespace JkrEXE
 
@@ -69,8 +71,30 @@ void RunScript() {
     }
 }
 
-void ProcessCmdLine(auto &inCmdLineArg_Map) {
-    if (inCmdLineArg_Map.contains("--build")) {
+int count(const std::string &str, const std::string &sub) {
+    if (sub.length() == 0) return 0;
+    int count = 0;
+    for (size_t offset = str.find(sub); offset != std::string::npos;
+         offset        = str.find(sub, offset + sub.length())) {
+        ++count;
+    }
+    return count;
+}
+
+void ProcessCmdLine(int ArgCount, char **ArgStrings) {
+    CLI::App app;
+    bool FlagBuild       = false;
+    bool FlagGenerate    = false;
+    bool FlagGenerateRun = false;
+    bool FlagRepl        = false;
+    app.add_flag("--b,--build", FlagBuild);
+    app.add_flag("--g,--generate", FlagGenerate);
+    app.add_flag("--gr,--generate-run", FlagGenerateRun);
+    app.add_flag("--r, --repl", FlagRepl);
+
+    app.parse(ArgCount, ArgStrings);
+
+    if (FlagBuild) {
         sol::state s;
         s.open_libraries();
         CreateBuildSystemBindings(s);
@@ -95,19 +119,99 @@ void ProcessCmdLine(auto &inCmdLineArg_Map) {
                          filesystem::copy_options::recursive |
                               filesystem::copy_options::update_existing);
     };
-    if (inCmdLineArg_Map.contains("--generate")) {
+    if (FlagGenerate) {
         Update();
         exit(0);
     }
-    if (inCmdLineArg_Map.contains("--generate-run")) {
+    if (FlagGenerateRun) {
         Update();
+    }
+    if (FlagRepl) {
+        CreateMainBindings(mainState);
+
+        auto OldCurrentPath = std::filesystem::current_path();
+        std::filesystem::current_path(std::filesystem::path(getenv("JKRGUI_DIR")) / "luaproject");
+        mainState.safe_script(R"""(
+        require("JkrGUIv2.repl")
+)""");
+        std::system("cls");
+        auto CurrentPath = std::filesystem::current_path();
+        std::filesystem::current_path(OldCurrentPath);
+
+        std::deque<std::string> mainThreadStatements;
+        std::mutex mutex;
+        using namespace std;
+        bool inMainThread = false;
+        auto ReplLoop     = [&]() {
+            while (true) {
+                vector<bool> scope;
+                string line;
+                string input;
+                cout << "[JKRGUI v2.0a]>> ";
+
+                while (getline(cin, line)) {
+                    int scope_start = count(line, "function") + count(line, "if") +
+                                      count(line, "for") + count(line, "while") + count(line, "(") +
+                                      count(line, "{") + (line.find("[[") != string::npos);
+
+                    for (int i = 0; i < scope_start; ++i)
+                        scope.push_back(true);
+
+                    int scope_end = count(line, "end") + count(line, ")") + count(line, "}") +
+                                    count(line, "]]");
+
+                    for (int i = 0; i < scope_end; ++i)
+                        scope.pop_back();
+
+                    input += line + '\n';
+
+                    // ALL CUSTOM COMMANDS
+                    if (line == "EXIT()" or line == "exit") {
+                        exit(0);
+                    } else if (line == "CLEAR()" or line == "cls" or line == "clear") {
+                        // TODO Make this cross platform
+                        std::system("cls");
+                        break;
+                    }
+                    if (scope.empty()) {
+                        auto Lock = std::scoped_lock(mutex);
+                        mainThreadStatements.push_back(input);
+                        std::cout << "\n";
+                        break;
+                    }
+                }
+            }
+        };
+
+        std::thread Thread(ReplLoop);
+        sol::object e_obj = mainState["e"];
+        auto e            = e_obj.as<Jkr::EventManager *>();
+
+        bool shouldQuit   = false;
+
+        while (not shouldQuit) {
+            try {
+                auto Lock = std::scoped_lock(mutex);
+                // shouldQuit = e->ShouldQuit();
+                e->ProcessEvents();
+                if (not mainThreadStatements.empty()) {
+                    mainState.safe_script(mainThreadStatements.front());
+                    mainThreadStatements.clear();
+                }
+                std::this_thread::sleep_for(10ns);
+            } catch (const std::exception &e) {
+                std::cout << "ERROR:: " << e.what() << "\n";
+                mainThreadStatements.clear();
+            }
+        }
+
+        Thread.join();
     }
 }
 
 JKR_EXPORT int main(int ArgCount, char **ArgStrings) {
 #ifndef ANDROID
-    auto CmdArg_Map = CommandLine(ArgCount, ArgStrings);
-    if (not CmdArg_Map.empty()) ProcessCmdLine(CmdArg_Map);
+    ProcessCmdLine(ArgCount, ArgStrings);
 #endif
     try {
         RunScript();

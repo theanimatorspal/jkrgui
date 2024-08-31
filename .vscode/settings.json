@@ -20,8 +20,9 @@
           "cmake.parallelJobs": 8,
           "cmake.clearOutputBeforeBuild": true,
           "cmake.debugConfig": {
+                    "externalConsole": true,
                     "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\PBR",
-                    "visualizerFile": "${workspaceFolder}/Visualizers/glm.natvis"
+                    "visualizerFile": "${workspaceFolder}/Visualizers/glm.natvis",
           },
           /* EDITOR */
           "editor.matchBrackets": "near",

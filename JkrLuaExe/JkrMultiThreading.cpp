@@ -13,13 +13,13 @@
 #include <Window.hpp>
 #include <mutex>
 
-extern sol::state& GetMainStateRef();
+extern sol::state &GetMainStateRef();
 namespace JkrEXE {
 using namespace Jkr;
-extern void CreateMainBindings(sol::state& s);
+extern void CreateMainBindings(sol::state &s);
 
 struct MultiThreading {
-    MultiThreading(Jkr::Instance& inInstance);
+    MultiThreading(Jkr::Instance &inInstance);
     ~MultiThreading();
     void Inject(std::string_view inVariable, sol::object inValue);
     void InjectToGate(std::string_view inVariable, sol::object inValue);
@@ -34,20 +34,20 @@ struct MultiThreading {
     std::deque<std::mutex> mMutexes;
     std::condition_variable mConditionVariable;
     bool mIsInjecting = false;
-    sol::object Copy(sol::object obj, sol::state& inTarget);
+    sol::object Copy(sol::object obj, sol::state &inTarget);
     ksai::ThreadPool mPool;
     std::vector<sol::state> mStates;
     sol::state mGateState;
     sol::state mGateStateTarget;
 };
 
-inline MultiThreading::MultiThreading(Jkr::Instance& inInstance) { // TODO Get Thread Count
+inline MultiThreading::MultiThreading(Jkr::Instance &inInstance) { // TODO Get Thread Count
     mPool.SetThreadCount(inInstance.GetThreadPool()
                               .mThreads.size()); // TODO don't do this, just GetThreadPoolSize();
     mStates.resize(inInstance.GetThreadPool().mThreads.size());
     mMutexes.resize(inInstance.GetThreadPool().mThreads.size());
     int i = 0;
-    for (auto& state : mStates) {
+    for (auto &state : mStates) {
         CreateMainBindings(state);
         state["StateId"] = i++;
     }
@@ -92,7 +92,7 @@ inline void MultiThreading::AddJobF(sol::function inFunction) {
     auto f          = inFunction.dump();
     mPool.Add_Job([=, this]() {
         std::scoped_lock<std::mutex> Lock2(mMutexes[ThreadIndex]);
-        auto& state = mStates[ThreadIndex];
+        auto &state = mStates[ThreadIndex];
         auto result = state.safe_script(f.as_string_view(), &sol::script_pass_on_error);
         if (not result.valid()) {
             sol::error error = result;
@@ -105,7 +105,7 @@ inline void MultiThreading::AddJobF(sol::function inFunction) {
 inline void MultiThreading::Wait() { mPool.Wait(); }
 
 template <typename T, typename... Ts>
-inline static sol::object getObjectByType(sol::object& obj, sol::state& target) noexcept {
+inline static sol::object getObjectByType(sol::object &obj, sol::state &target) noexcept {
     if constexpr (not(sizeof...(Ts) == 0)) {
         if (obj.is<T>()) {
             return sol::make_object(target, std::ref(obj.as<T>()));
@@ -117,7 +117,7 @@ inline static sol::object getObjectByType(sol::object& obj, sol::state& target) 
     return {};
 }
 
-inline sol::object MultiThreading::Copy(sol::object obj, sol::state& target) {
+inline sol::object MultiThreading::Copy(sol::object obj, sol::state &target) {
     sol::type tp = obj.get_type();
     switch (tp) {
         case sol::type::number: {
@@ -156,6 +156,7 @@ inline sol::object MultiThreading::Copy(sol::object obj, sol::state& target) {
                                    glm::mat4,
                                    Jkr::Instance,
                                    Jkr::Window,
+                                   Jkr::EventManager,
                                    MultiThreading,
 
                                    DefaultCustomImagePainterPushConstant,
@@ -163,7 +164,7 @@ inline sol::object MultiThreading::Copy(sol::object obj, sol::state& target) {
                                    Jkr::Renderer::_3D::Camera3D,
                                    Jkr::Renderer::_3D::World3D,
                                    Jkr::Renderer::_3D::World3D::Object3D,
-                                   std::vector<Jkr::Renderer::_3D::World3D::Object3D>&,
+                                   std::vector<Jkr::Renderer::_3D::World3D::Object3D> &,
                                    Jkr::Renderer::_3D::Uniform3D,
 
                                    Jkr::Renderer::Line,
@@ -179,14 +180,14 @@ inline sol::object MultiThreading::Copy(sol::object obj, sol::state& target) {
     return {};
 }
 
-void CreateMultiThreadingBindings(sol::state& inState) {
+void CreateMultiThreadingBindings(sol::state &inState) {
     using namespace JkrEXE;
     auto Jkr = inState["Jkr"].get_or_create<sol::table>();
 
     Jkr.new_usertype<MultiThreading>(
          "MultiThreading",
          sol::call_constructor,
-         sol::factories([](Jkr::Instance& inInstance) { return mu<MultiThreading>(inInstance); }),
+         sol::factories([](Jkr::Instance &inInstance) { return mu<MultiThreading>(inInstance); }),
          "Inject",
          &MultiThreading::Inject,
          "InjectToGate",

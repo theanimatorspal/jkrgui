@@ -39,6 +39,9 @@ class EventManager {
     GETTER IsRightButtonPressed() const {
         return (mEvent.type == SDL_MOUSEBUTTONDOWN) && (mEvent.button.button == SDL_BUTTON_RIGHT);
     }
+    GETTER IsCloseWindowEvent() const {
+        return mEvent.type == SDL_WINDOWEVENT and mEvent.window.event == SDL_WINDOWEVENT_CLOSE;
+    }
     void StartTextInput() { SDL_StartTextInput(); }
     void StopTextInput() { SDL_StopTextInput(); }
     bool IsMouseWithinAtTopOfStack(uint32_t inId, uint32_t inDepthValue);
