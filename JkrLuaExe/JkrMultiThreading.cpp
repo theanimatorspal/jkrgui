@@ -28,10 +28,12 @@ MultiThreading::MultiThreading(Jkr::Instance &inInstance) { // TODO Get Thread C
     for (auto &state : mStates) {
         CreateMainBindings(state);
         state["StateId"] = i++;
+        state["mt"]      = this;
     }
     GetMainStateRef()["StateId"] = -1;
     CreateMainBindings(mGateState);
     CreateMainBindings(mGateStateTarget);
+    mGateState["StateId"] = -2;
 }
 
 MultiThreading::~MultiThreading() { Wait(); }
@@ -44,11 +46,14 @@ void MultiThreading::Inject(std::string_view inVariable, sol::object inValue) {
 sol::object MultiThreading::Get(std::string_view inVariable, int inThreadId) {
     std::scoped_lock<std::recursive_mutex> Lock(mGateMutex);
     sol::object obj;
-    if (inThreadId != -1) {
+    if (inThreadId >= 0) {
         std::scoped_lock<std::recursive_mutex> mThreadMutex(mMutexes[inThreadId]);
         obj = Copy(mGateState[inVariable], mStates[inThreadId]);
-    } else {
+    } else if (inThreadId == -1) {
         obj = Copy(mGateState[inVariable], GetMainStateRef());
+    } else if (inThreadId == -2) {
+        std::scoped_lock<std::recursive_mutex> Lock(mGateMutex);
+        obj = Copy(mGateState[inVariable], mGateState);
     }
     return obj;
 }
@@ -83,6 +88,26 @@ void MultiThreading::AddJobFIndex(sol::function inFunction, int inIndex) {
              }
          },
          ThreadIndex);
+}
+
+void MultiThreading::ExecuteAll(sol::function inFunction) {
+    auto f = inFunction.dump();
+    for (int i = 0; i < mStates.size(); ++i) {
+        std::scoped_lock<std::recursive_mutex> Lock(mMutexes[i]);
+        auto result = mStates[i].safe_script(f.as_string_view());
+        if (not result.valid()) {
+            sol::error error = result;
+            std::cout << error.what();
+            ksai_print(error.what());
+        }
+    }
+    std::scoped_lock<std::recursive_mutex> Lock(mGateMutex);
+    auto result = mGateState.safe_script(f.as_string_view());
+    if (not result.valid()) {
+        sol::error error = result;
+        std::cout << error.what();
+        ksai_print(error.what());
+    }
 }
 
 void MultiThreading::Wait() { mPool.Wait(); }
@@ -185,7 +210,9 @@ void CreateMultiThreadingBindings(sol::state &inState) {
          "AddJobF",
          &MultiThreading::AddJobF,
          "AddJobFIndex",
-         &MultiThreading::AddJobFIndex);
+         &MultiThreading::AddJobFIndex,
+         "ExecuteAll",
+         &MultiThreading::ExecuteAll);
 }
 
 } // namespace JkrEXE

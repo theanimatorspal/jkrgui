@@ -71,7 +71,7 @@ void RunScript() {
     }
 }
 
-int count(const std::string &str, const std::string &sub) {
+int c(const std::string &str, const std::string &sub) {
     if (sub.length() == 0) return 0;
     int count = 0;
     for (size_t offset = str.find(sub); offset != std::string::npos;
@@ -155,15 +155,14 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
                 cout << "[JKRGUI v2.0a]>> ";
 
                 while (getline(cin, line)) {
-                    int scope_start = count(line, "function") + count(line, "if") +
-                                      count(line, "for") + count(line, "while") + count(line, "(") +
-                                      count(line, "{") + (line.find("[[") != string::npos);
+                    int scope_start = c(line, "function") + c(line, "if") + c(line, "for") +
+                                      c(line, "while") + c(line, "(") + c(line, "{") +
+                                      (line.find("[[") != string::npos);
 
                     for (int i = 0; i < scope_start; ++i)
                         scope.push_back(true);
 
-                    int scope_end = count(line, "end") + count(line, ")") + count(line, "}") +
-                                    count(line, "]]");
+                    int scope_end = c(line, "end") + c(line, ")") + c(line, "}") + c(line, "]]");
 
                     for (int i = 0; i < scope_end; ++i)
                         scope.pop_back();

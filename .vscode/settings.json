@@ -115,5 +115,8 @@
           "Lua.format.defaultConfig": {
                     "indent_style": "space",
                     "indent_size": "10"
-          }
+          },
+          "Lua.diagnostics.globals": [
+                    "StateId"
+          ]
 }

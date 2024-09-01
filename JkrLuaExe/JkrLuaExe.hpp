@@ -53,6 +53,7 @@ struct MultiThreading {
     sol::object Get(std::string_view inVanriable, int inThreadId);
     void AddJobF(sol::function inFunction);
     void AddJobFIndex(sol::function inFunction, int inIndex);
+    void ExecuteAll(sol::function inFunction);
 
     void Wait();
 
