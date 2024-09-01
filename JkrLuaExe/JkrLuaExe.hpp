@@ -44,22 +44,19 @@ namespace JkrEXE {
 struct MultiThreading {
     MultiThreading(Jkr::Instance &inInstance);
     ~MultiThreading();
-    /*
-    If mainState is being accessed otherwise (which is almost always the case, lock the following
-    mutex)
-     */
-    GETTER &GetMainAccessMutex() { return mMainMutex; }
+
+    /// @brief Injects to gate only
+    /// in all threads, all multithreaded objects should be returned by
+    /// Get function
+
     void Inject(std::string_view inVariable, sol::object inValue);
-    void InjectToGate(std::string_view inVariable, sol::object inValue);
+    sol::object Get(std::string_view inVanriable, int inThreadId);
     void AddJobF(sol::function inFunction);
     void AddJobFIndex(sol::function inFunction, int inIndex);
-    sol::object GetFromGate(std::string_view inVariable);
-    sol::object GetFromGateToThread(std::string_view inVanriable, int inThreadId);
 
     void Wait();
 
     private:
-    std::recursive_mutex mMainMutex;
     std::recursive_mutex mGateMutex;
     std::deque<std::recursive_mutex> mMutexes;
     std::condition_variable mConditionVariable;

@@ -142,14 +142,12 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
         std::recursive_mutex mutex;
         using namespace std;
 
-        sol::object e_obj  = mainState["e"];
-        auto e             = e_obj.as<Jkr::EventManager *>();
-        sol::object mt_obj = mainState["mt"];
-        auto mt            = mt_obj.as<JkrEXE::MultiThreading *>();
+        sol::object e_obj = mainState["e"];
+        auto e            = e_obj.as<Jkr::EventManager *>();
 
-        bool shouldQuit    = false;
+        bool shouldQuit   = false;
 
-        auto ReplLoop      = [&]() {
+        auto ReplLoop     = [&]() {
             while (true) {
                 vector<bool> scope;
                 string line;
@@ -198,7 +196,6 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
                 // shouldQuit = e->ShouldQuit();
                 e->ProcessEvents();
                 if (not mainThreadStatements.empty()) {
-                    std::scoped_lock<std::recursive_mutex> Lock(mt->GetMainAccessMutex());
                     mainState.safe_script(mainThreadStatements.front());
                     mainThreadStatements.clear();
                 }

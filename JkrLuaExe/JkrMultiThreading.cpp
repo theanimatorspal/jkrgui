@@ -29,6 +29,7 @@ MultiThreading::MultiThreading(Jkr::Instance &inInstance) { // TODO Get Thread C
         CreateMainBindings(state);
         state["StateId"] = i++;
     }
+    GetMainStateRef()["StateId"] = -1;
     CreateMainBindings(mGateState);
     CreateMainBindings(mGateStateTarget);
 }
@@ -36,29 +37,15 @@ MultiThreading::MultiThreading(Jkr::Instance &inInstance) { // TODO Get Thread C
 MultiThreading::~MultiThreading() { Wait(); }
 
 void MultiThreading::Inject(std::string_view inVariable, sol::object inValue) {
-    for (int i = 0; i < mStates.size(); ++i) {
-        std::scoped_lock<std::recursive_mutex> Lock1(mMutexes[i]);
-        mStates[i][inVariable] = Copy(inValue, mStates[i]);
-    }
-    std::scoped_lock<std::recursive_mutex> lock(mMainMutex);
-    GetMainStateRef()[inVariable] = Copy(inValue, GetMainStateRef());
-}
-
-void MultiThreading::InjectToGate(std::string_view inVariable, sol::object inValue) {
-    std::scoped_lock<std::recursive_mutex> Lock(mGateMutex);
+    std::scoped_lock<std::recursive_mutex> gatelock(mGateMutex);
     mGateState[inVariable] = Copy(inValue, mGateState);
 }
 
-sol::object MultiThreading::GetFromGate(std::string_view inVariable) {
-    std::scoped_lock<std::recursive_mutex> Lock(mGateMutex);
-    auto obj = Copy(mGateState[inVariable], mGateStateTarget);
-    return obj;
-}
-
-sol::object MultiThreading::GetFromGateToThread(std::string_view inVariable, int inThreadId) {
+sol::object MultiThreading::Get(std::string_view inVariable, int inThreadId) {
     std::scoped_lock<std::recursive_mutex> Lock(mGateMutex);
     sol::object obj;
     if (inThreadId != -1) {
+        std::scoped_lock<std::recursive_mutex> mThreadMutex(mMutexes[inThreadId]);
         obj = Copy(mGateState[inVariable], mStates[inThreadId]);
     } else {
         obj = Copy(mGateState[inVariable], GetMainStateRef());
@@ -191,12 +178,8 @@ void CreateMultiThreadingBindings(sol::state &inState) {
          sol::factories([](Jkr::Instance &inInstance) { return mu<MultiThreading>(inInstance); }),
          "Inject",
          &MultiThreading::Inject,
-         "InjectToGate",
-         &MultiThreading::InjectToGate,
-         "GetFromGate",
-         &MultiThreading::GetFromGate,
-         "GetFromGateToThread",
-         &MultiThreading::GetFromGateToThread,
+         "Get",
+         &MultiThreading::Get,
          "Wait",
          &MultiThreading::Wait,
          "AddJobF",
