@@ -152,10 +152,8 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
                 vector<bool> scope;
                 string line;
                 string input;
-                {
-                    auto Lock = std::scoped_lock(mutex);
-                    cout << "[JKRGUI v2.0a]>> ";
-                }
+
+                cout << "[JKRGUI v2.0a]>> ";
 
                 while (getline(cin, line)) {
                     int scope_start = c(line, "function") + c(line, "if") + c(line, "for") +
