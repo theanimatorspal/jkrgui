@@ -5,6 +5,7 @@
 #include "Renderers/Renderer_base.hpp"
 #include "Renderers/TwoD/Line.hpp"
 #include "Renderers/TwoD/Shape.hpp"
+#include "Renderers/BestText_Alt.hpp"
 #include "Window.hpp"
 #include "sol/sol.hpp"
 #include <Misc/RecycleBin.hpp>
@@ -18,31 +19,7 @@ namespace JkrEXE {
 using namespace Jkr;
 extern void CreateMainBindings(sol::state &s);
 
-struct MultiThreading {
-    MultiThreading(Jkr::Instance &inInstance);
-    ~MultiThreading();
-    void Inject(std::string_view inVariable, sol::object inValue);
-    void InjectToGate(std::string_view inVariable, sol::object inValue);
-    void AddJobF(sol::function inFunction);
-    void AddJobFIndex(sol::function inFunction, int inIndex);
-    sol::object GetFromGate(std::string_view inVariable);
-    sol::object GetFromGateToThread(std::string_view inVariable, int inThreadId);
-
-    void Wait();
-
-    private:
-    std::mutex mGateMutex;
-    std::deque<std::mutex> mMutexes;
-    std::condition_variable mConditionVariable;
-    bool mIsInjecting = false;
-    sol::object Copy(sol::object obj, sol::state &inTarget);
-    ksai::ThreadPool mPool;
-    std::vector<sol::state> mStates;
-    sol::state mGateState;
-    sol::state mGateStateTarget;
-};
-
-inline MultiThreading::MultiThreading(Jkr::Instance &inInstance) { // TODO Get Thread Count
+MultiThreading::MultiThreading(Jkr::Instance &inInstance) { // TODO Get Thread Count
     mPool.SetThreadCount(inInstance.GetThreadPool()
                               .mThreads.size()); // TODO don't do this, just GetThreadPoolSize();
     mStates.resize(inInstance.GetThreadPool().mThreads.size());
@@ -56,29 +33,30 @@ inline MultiThreading::MultiThreading(Jkr::Instance &inInstance) { // TODO Get T
     CreateMainBindings(mGateStateTarget);
 }
 
-inline MultiThreading::~MultiThreading() { Wait(); }
+MultiThreading::~MultiThreading() { Wait(); }
 
-inline void MultiThreading::Inject(std::string_view inVariable, sol::object inValue) {
+void MultiThreading::Inject(std::string_view inVariable, sol::object inValue) {
     for (int i = 0; i < mStates.size(); ++i) {
-        std::scoped_lock<std::mutex> Lock1(mMutexes[i]);
+        std::scoped_lock<std::recursive_mutex> Lock1(mMutexes[i]);
         mStates[i][inVariable] = Copy(inValue, mStates[i]);
     }
+    std::scoped_lock<std::recursive_mutex> lock(mMainMutex);
+    GetMainStateRef()[inVariable] = Copy(inValue, GetMainStateRef());
 }
 
-inline void MultiThreading::InjectToGate(std::string_view inVariable, sol::object inValue) {
-    std::scoped_lock<std::mutex> Lock(mGateMutex);
+void MultiThreading::InjectToGate(std::string_view inVariable, sol::object inValue) {
+    std::scoped_lock<std::recursive_mutex> Lock(mGateMutex);
     mGateState[inVariable] = Copy(inValue, mGateState);
 }
 
-inline sol::object MultiThreading::GetFromGate(std::string_view inVariable) {
-    std::scoped_lock<std::mutex> Lock(mGateMutex);
+sol::object MultiThreading::GetFromGate(std::string_view inVariable) {
+    std::scoped_lock<std::recursive_mutex> Lock(mGateMutex);
     auto obj = Copy(mGateState[inVariable], mGateStateTarget);
     return obj;
 }
 
-inline sol::object MultiThreading::GetFromGateToThread(std::string_view inVariable,
-                                                       int inThreadId) {
-    std::scoped_lock<std::mutex> Lock(mGateMutex);
+sol::object MultiThreading::GetFromGateToThread(std::string_view inVariable, int inThreadId) {
+    std::scoped_lock<std::recursive_mutex> Lock(mGateMutex);
     sol::object obj;
     if (inThreadId != -1) {
         obj = Copy(mGateState[inVariable], mStates[inThreadId]);
@@ -88,11 +66,11 @@ inline sol::object MultiThreading::GetFromGateToThread(std::string_view inVariab
     return obj;
 }
 
-inline void MultiThreading::AddJobF(sol::function inFunction) {
+void MultiThreading::AddJobF(sol::function inFunction) {
     int ThreadIndex = mPool.GetThreadIndex();
     auto f          = inFunction.dump();
     mPool.Add_Job([=, this]() {
-        std::scoped_lock<std::mutex> Lock2(mMutexes[ThreadIndex]);
+        std::scoped_lock<std::recursive_mutex> Lock2(mMutexes[ThreadIndex]);
         auto &state = mStates[ThreadIndex];
         auto result = state.safe_script(f.as_string_view(), &sol::script_pass_on_error);
         if (not result.valid()) {
@@ -103,12 +81,12 @@ inline void MultiThreading::AddJobF(sol::function inFunction) {
     });
 }
 
-inline void MultiThreading::AddJobFIndex(sol::function inFunction, int inIndex) {
+void MultiThreading::AddJobFIndex(sol::function inFunction, int inIndex) {
     int ThreadIndex = inIndex;
     auto f          = inFunction.dump();
     mPool.Add_JobToThread(
          [=, this]() {
-             std::scoped_lock<std::mutex> Lock2(mMutexes[ThreadIndex]);
+             std::scoped_lock<std::recursive_mutex> Lock2(mMutexes[ThreadIndex]);
              auto &state = mStates[ThreadIndex];
              auto result = state.safe_script(f.as_string_view(), &sol::script_pass_on_error);
              if (not result.valid()) {
@@ -120,10 +98,10 @@ inline void MultiThreading::AddJobFIndex(sol::function inFunction, int inIndex) 
          ThreadIndex);
 }
 
-inline void MultiThreading::Wait() { mPool.Wait(); }
+void MultiThreading::Wait() { mPool.Wait(); }
 
 template <typename T, typename... Ts>
-inline static sol::object getObjectByType(sol::object &obj, sol::state &target) noexcept {
+static sol::object getObjectByType(sol::object &obj, sol::state &target) noexcept {
     if constexpr (not(sizeof...(Ts) == 0)) {
         if (obj.is<T>()) {
             return sol::make_object(target, std::ref(obj.as<T>()));
@@ -135,7 +113,7 @@ inline static sol::object getObjectByType(sol::object &obj, sol::state &target) 
     return {};
 }
 
-inline sol::object MultiThreading::Copy(sol::object obj, sol::state &target) {
+sol::object MultiThreading::Copy(sol::object obj, sol::state &target) {
     sol::type tp = obj.get_type();
     switch (tp) {
         case sol::type::number: {
@@ -184,6 +162,11 @@ inline sol::object MultiThreading::Copy(sol::object obj, sol::state &target) {
                                    Jkr::Renderer::_3D::World3D::Object3D,
                                    std::vector<Jkr::Renderer::_3D::World3D::Object3D> &,
                                    Jkr::Renderer::_3D::Uniform3D,
+
+                                   Jkr::Renderer::Shape,
+                                   Jkr::Renderer::Line,
+                                   Jkr::Renderer::BestText_Alt,
+                                   Jkr::Renderer::CustomImagePainter,
 
                                    Jkr::Renderer::Line,
                                    Jkr::Renderer::_3D::Shape,

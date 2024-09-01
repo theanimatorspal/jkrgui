@@ -11,6 +11,7 @@ mt = Engine.mt
 mt:Inject("Engine", Engine)
 mt:Inject("i", i)
 mt:Inject("e", e)
+mt:Inject("mt", mt)
 
 repl = {}
 

@@ -139,10 +139,17 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
         std::filesystem::current_path(OldCurrentPath);
 
         std::deque<std::string> mainThreadStatements;
-        std::mutex mutex;
+        std::recursive_mutex mutex;
         using namespace std;
-        bool inMainThread = false;
-        auto ReplLoop     = [&]() {
+
+        sol::object e_obj  = mainState["e"];
+        auto e             = e_obj.as<Jkr::EventManager *>();
+        sol::object mt_obj = mainState["mt"];
+        auto mt            = mt_obj.as<JkrEXE::MultiThreading *>();
+
+        bool shouldQuit    = false;
+
+        auto ReplLoop      = [&]() {
             while (true) {
                 vector<bool> scope;
                 string line;
@@ -184,10 +191,6 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
         };
 
         std::thread Thread(ReplLoop);
-        sol::object e_obj = mainState["e"];
-        auto e            = e_obj.as<Jkr::EventManager *>();
-
-        bool shouldQuit   = false;
 
         while (not shouldQuit) {
             try {
@@ -195,6 +198,7 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
                 // shouldQuit = e->ShouldQuit();
                 e->ProcessEvents();
                 if (not mainThreadStatements.empty()) {
+                    std::scoped_lock<std::recursive_mutex> Lock(mt->GetMainAccessMutex());
                     mainState.safe_script(mainThreadStatements.front());
                     mainThreadStatements.clear();
                 }
