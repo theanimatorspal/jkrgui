@@ -152,7 +152,10 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
                 vector<bool> scope;
                 string line;
                 string input;
-                cout << "[JKRGUI v2.0a]>> ";
+                {
+                    auto Lock = std::scoped_lock(mutex);
+                    cout << "[JKRGUI v2.0a]>> ";
+                }
 
                 while (getline(cin, line)) {
                     int scope_start = c(line, "function") + c(line, "if") + c(line, "for") +
@@ -191,14 +194,13 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
 
         while (not shouldQuit) {
             try {
-                auto Lock = std::scoped_lock(mutex);
                 // shouldQuit = e->ShouldQuit();
                 e->ProcessEvents();
+                auto Lock = std::scoped_lock(mutex);
                 if (not mainThreadStatements.empty()) {
                     mainState.safe_script(mainThreadStatements.front());
                     mainThreadStatements.clear();
                 }
-                std::this_thread::sleep_for(10ns);
             } catch (const std::exception &e) {
                 std::cout << "ERROR:: " << e.what() << "\n";
                 mainThreadStatements.clear();

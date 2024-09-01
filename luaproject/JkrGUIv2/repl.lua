@@ -17,7 +17,11 @@ function SetMT()
                               return mt:Get(key, StateId)
                     end,
                     __newindex = function(_, k, v)
-                              mt:Inject(k, v)
+                              if k == "_run" and type(v) == "function" then
+                                        mt:AddJobF(v)
+                              else
+                                        mt:Inject(k, v)
+                              end
                     end
           })
 end
