@@ -1,5 +1,5 @@
 {
-          "workbench.colorTheme": "Default Dark Modern",
+          "workbench.colorTheme": "GitHub Light",
           "git.enableSmartCommit": true,
           "git.confirmSync": false,
           "gitlens.currentLine.enabled": false,
@@ -23,6 +23,9 @@
                     "externalConsole": true,
                     "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\PBR",
                     "visualizerFile": "${workspaceFolder}/Visualizers/glm.natvis",
+                    "args": [
+                              "--repl"
+                    ]
           },
           /* EDITOR */
           "editor.matchBrackets": "near",
@@ -118,5 +121,5 @@
           },
           "Lua.diagnostics.globals": [
                     "StateId"
-          ]
+          ],
 }

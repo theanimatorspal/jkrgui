@@ -11,7 +11,11 @@ e = Engine.e
 mt = Engine.mt
 
 function SetMT()
-          gate = {}
+          gate = {
+                    run = function(f, t)
+                              mt:AddJobFIndex(f, t)
+                    end
+          }
           setmetatable(gate, {
                     __index = function(_, key)
                               return mt:Get(key, StateId)
@@ -19,10 +23,12 @@ function SetMT()
                     __newindex = function(_, k, v)
                               if k == "_run" and type(v) == "function" then
                                         mt:AddJobF(v)
+                              elseif type(k) == "number" then
+                                        mt:AddJobFIndex(v, k)
                               else
                                         mt:Inject(k, v)
                               end
-                    end
+                    end,
           })
 end
 
@@ -56,34 +62,61 @@ function repl.GetArgs(func)
           end
 end
 
-function repl.Window(inThreadIndex)
-          if not inw then
+function repl.Window(inThreadIndex, showWindow)
+          if not repl.w then
                     -- keep the widnow global
                     repl.w = Jkr.CreateWindow(i, "JkrGUIv2 REPL")
                     inw = repl.w
+                    gate.w = repl.w
           end
           if not inThreadIndex then
                     inThreadIndex = 0
           end
-          mt:Inject("w", inw)
-          mt:AddJobFIndex(
-                    function()
-                              local windowShouldRun = true
+
+          gate.window_cc = vec4(1, 1, 1, 1)
+          gate.window_up = function() end
+          gate.window_uidraw = function() end
+          gate.window_disp = function() end
+          repl.w:Hide()
+
+          gate.window_loop = false
+          if showWindow then
+                    repl.w:Show()
+                    gate[inThreadIndex] = function()
+                              gate.window_loop = true
                               local e = gate.e
                               local w = gate.w
                               local i = gate.i
-                              while windowShouldRun do
-                                        local f = gate.windowFunction
+                              while gate.window_loop do
+                                        WindowClearColor = gate.window_cc
+                                        WindowUpdateFunction = gate.window_up
+                                        WindowUIDrawFunction = gate.window_uidraw
+                                        WindowDispatchFunction = gate.window_disp
+
+                                        w:BeginUpdates()
+                                        WindowUpdateFunction()
+                                        w:EndUpdates()
+
+                                        w:BeginDispatches()
+                                        WindowDispatchFunction()
+                                        w:EndDispatches()
+
+                                        w:BeginUIs()
+                                        WindowUIDrawFunction()
+                                        w:EndUIs()
+
+                                        w:BeginDraws(WindowClearColor.x, WindowClearColor.y,
+                                                  WindowClearColor.z, WindowClearColor.w, 1)
+                                        w:ExecuteUIs()
+                                        w:EndDraws()
+                                        w:Present()
                                         if e:IsCloseWindowEvent() then
-                                                  windowShouldRun = false
-                                                  if type(f) == "function" then
-                                                            f()
-                                                  end
+                                                  gate.window_loop = false
                                         end
                               end
                               w:Hide()
-                    end, inThreadIndex
-          )
+                    end
+          end
 end
 
-mt:Inject("repl", repl)
+gate.repl = repl

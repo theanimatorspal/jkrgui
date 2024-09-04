@@ -119,8 +119,8 @@ void Window::Present() {
     Blit.srcOffsets[1].x = mOffscreenFrameSize.x;
     Blit.srcOffsets[1].y = mOffscreenFrameSize.y;
     Blit.srcOffsets[1].z = 1;
-    Blit.dstOffsets[1].x = mWidth;
-    Blit.dstOffsets[1].y = mHeight;
+    Blit.dstOffsets[1].x = AquiredImage.GetImageExtent().width;
+    Blit.dstOffsets[1].y = AquiredImage.GetImageExtent().height;
     Blit.dstOffsets[1].z = 1;
     auto &cmd            = mCommandBuffers[mCurrentFrame].GetCommandBufferHandle();
     AquiredImage.CmdTransitionImageLayout(mCommandBuffers[mCurrentFrame],
@@ -131,6 +131,7 @@ void Window::Present() {
                                           vk::PipelineStageFlagBits::eTransfer,
                                           vk::AccessFlagBits::eMemoryRead,
                                           vk::AccessFlagBits::eMemoryWrite);
+
     cmd.blitImage(mOffscreenImages[mCurrentFrame],
                   vk::ImageLayout::eTransferSrcOptimal,
                   AquiredImage.GetImageHandle(),
