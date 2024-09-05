@@ -81,7 +81,7 @@ int c(const std::string &str, const std::string &sub) {
     for (size_t offset = str.find(sub); offset != std::string::npos;) {
 
         if (isalpha(sub[0])) {
-            size_t left = (offset - 1 <= 0) ? 0 : offset - 1;
+            size_t left = (offset - 1 <= 0) ? 0 : (offset - 1);
             size_t right =
                  ((offset + sub.length()) >= str.length()) ? str.length() : (offset + sub.length());
 
@@ -175,17 +175,20 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
                 int scope_end   = 0;
 
                 while (getline(cin, line)) {
-                    scope_start = c(line, "function") + c(line, "if") + c(line, "for") +
-                                  c(line, "while") + c(line, "(") + c(line, "{") +
-                                  (line.find("[[") != string::npos);
+                    scope_start += c(line, "function") + c(line, "if") + c(line, "for") +
+                                   c(line, "while") + c(line, "(") + c(line, "{") +
+                                   (line.find("[[") != string::npos);
+                    scope_end += c(line, "end") + c(line, ")") + c(line, "}") + c(line, "]]");
 
-                    for (int i = 0; i < scope_start; ++i)
+                    for (int i = 0; i < (scope_start - scope_end); ++i) {
                         scope.push_back(true);
+                    }
 
-                    scope_end = c(line, "end") + c(line, ")") + c(line, "}") + c(line, "]]");
-
-                    for (int i = 0; i < scope_end; ++i)
-                        scope.pop_back();
+                    if (scope_start == scope_end) {
+                        scope.clear();
+                        scope_start = 0;
+                        scope_end   = 0;
+                    }
 
                     input += line + '\n';
 
