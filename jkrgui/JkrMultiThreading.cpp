@@ -178,6 +178,7 @@ sol::object MultiThreading::Copy(sol::object obj, sol::state &target) {
                                    Jkr::Renderer::Shape,
                                    Jkr::Renderer::Line,
                                    Jkr::Renderer::BestText_Alt,
+                                   Jkr::Renderer::BestText_Alt::ImageId,
                                    Jkr::Renderer::CustomImagePainter,
 
                                    Jkr::Renderer::Line,

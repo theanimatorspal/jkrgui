@@ -74,9 +74,11 @@ function repl.Window(inThreadIndex, showWindow)
           end
 
           gate.window_cc = vec4(1, 1, 1, 1)
-          gate.window_up = function() end
-          gate.window_uidraw = function() end
-          gate.window_disp = function() end
+
+          if not gate.window_up then gate.window_up = function() end end
+          if not gate.window_uidraw then gate.window_uidraw = function() end end
+          if not gate.window_disp then gate.window_disp = function() end end
+
           repl.w:Hide()
 
           gate.window_loop = false
@@ -92,6 +94,7 @@ function repl.Window(inThreadIndex, showWindow)
                                         WindowUpdateFunction = gate.window_up
                                         WindowUIDrawFunction = gate.window_uidraw
                                         WindowDispatchFunction = gate.window_disp
+                                        wid = gate.wid
 
                                         w:BeginUpdates()
                                         WindowUpdateFunction()
@@ -117,6 +120,16 @@ function repl.Window(inThreadIndex, showWindow)
                               w:Hide()
                     end
           end
+end
+
+function repl.WidgetRenderer()
+          if not wid then
+                    wid = Jkr.CreateWidgetRenderer(gate.i, gate.w, gate.e)
+          end
+          gate.wid = wid
+          gate.window_up = function() wid:Update() end
+          gate.window_uidraw = function() wid:Draw() end
+          gate.window_disp = function() wid:Dispatch() end
 end
 
 gate.repl = repl

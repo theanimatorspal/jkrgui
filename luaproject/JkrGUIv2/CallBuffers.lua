@@ -23,7 +23,7 @@ Jkr.CreateAnimationPosDimen = function(inCallBuffer, inFrom, inTo, inComponent, 
         local to_dimen      = inTo.mDimension_3f
         local current_pos   = lerp_3f(from_pos, to_pos, t)
         local current_dimen = lerp_3f(from_dimen, to_dimen, t)
-        inCallBuffer.PushOneTime(Jkr.CreateUpdatable(
+        inCallBuffer:PushOneTime(Jkr.CreateUpdatable(
             function()
                 inComponent:Update(current_pos, current_dimen)
             end
@@ -81,61 +81,61 @@ Jkr.CreateCallBuffers = function() -- Similar to Comptable in JrkGUI v1
     o.mOneTimeDispatchables = {}
     o.mOneTimeUpdatables = {}
 
-    o.Push = function(inCall)
+    o.Push = function(self, inCall)
         if inCall.mDrawType then
-            o.mDrawables[#o.mDrawables + 1] = inCall
-            return #o.mDrawables
+            self.mDrawables[#self.mDrawables + 1] = inCall
+            return #self.mDrawables
         elseif inCall.mUpdate then
-            o.mUpdatables[#o.mUpdatables + 1] = inCall
-            return #o.mUpdatables
+            self.mUpdatables[#self.mUpdatables + 1] = inCall
+            return #self.mUpdatables
         elseif inCall.mDispatch then
-            o.mDispatchables[#o.mDispatchables + 1] = inCall
-            return #o.mDispatchables
+            self.mDispatchables[#self.mDispatchables + 1] = inCall
+            return #self.mDispatchables
         elseif inCall.mEvent then
-            o.mEventables[#o.mEventables + 1] = inCall
-            return #o.mEventables
+            self.mEventables[#self.mEventables + 1] = inCall
+            return #self.mEventables
         end
     end
-    o.PushOneTime = function(inCall, inFrame)
+    o.PushOneTime = function(self, inCall, inFrame)
         if inCall.mDrawType then
             -- Optimize this
-            if o.mOneTimeDrawables[inFrame] then
-                o.mOneTimeDrawables[inFrame][#o.mOneTimeDrawables[inFrame] + 1] = inCall
+            if self.mOneTimeDrawables[inFrame] then
+                self.mOneTimeDrawables[inFrame][#self.mOneTimeDrawables[inFrame] + 1] = inCall
             else
-                o.mOneTimeDrawables[inFrame] = {}
-                o.mOneTimeDrawables[inFrame][#o.mOneTimeDrawables[inFrame] + 1] = inCall
+                self.mOneTimeDrawables[inFrame] = {}
+                self.mOneTimeDrawables[inFrame][#self.mOneTimeDrawables[inFrame] + 1] = inCall
             end
         elseif inCall.mUpdate then
-            if o.mOneTimeUpdatables[inFrame] then
-                o.mOneTimeUpdatables[inFrame][#o.mOneTimeUpdatables[inFrame] + 1] = inCall
+            if self.mOneTimeUpdatables[inFrame] then
+                self.mOneTimeUpdatables[inFrame][#self.mOneTimeUpdatables[inFrame] + 1] = inCall
             else
-                o.mOneTimeUpdatables[inFrame] = {}
-                o.mOneTimeUpdatables[inFrame][#o.mOneTimeUpdatables[inFrame] + 1] = inCall
+                self.mOneTimeUpdatables[inFrame] = {}
+                self.mOneTimeUpdatables[inFrame][#self.mOneTimeUpdatables[inFrame] + 1] = inCall
             end
         elseif inCall.mDispatch then
-            if o.mOneTimeDispatchables[inFrame] then
-                o.mOneTimeDispatchables[inFrame][#o.mOneTimeDispatchables[inFrame] + 1] = inCall
+            if self.mOneTimeDispatchables[inFrame] then
+                self.mOneTimeDispatchables[inFrame][#self.mOneTimeDispatchables[inFrame] + 1] = inCall
             else
-                o.mOneTimeDispatchables[inFrame] = {}
-                o.mOneTimeDispatchables[inFrame][#o.mOneTimeDispatchables[inFrame] + 1] = inCall
+                self.mOneTimeDispatchables[inFrame] = {}
+                self.mOneTimeDispatchables[inFrame][#self.mOneTimeDispatchables[inFrame] + 1] = inCall
             end
         end
     end
 
     local cdf = 1 -- CurrentDispatchFrame
-    o.Dispatch = function()
+    o.Dispatch = function(self)
         --[========================================================]
         -- DISPATCH ONE TIMES
         --[========================================================]
-        if o.mOneTimeDispatchables[cdf] then
-            local Length = #o.mOneTimeDispatchables[cdf]
+        if self.mOneTimeDispatchables[cdf] then
+            local Length = #self.mOneTimeDispatchables[cdf]
             for x = 1, Length, 1 do
-                o.mOneTimeDispatchables[cdf][x].mDispatch()
-                o.mOneTimeDispatchables[cdf][x] = nil
+                self.mOneTimeDispatchables[cdf][x].mDispatch()
+                self.mOneTimeDispatchables[cdf][x] = nil
             end
-            o.mOneTimeDispatchables[cdf] = nil
+            self.mOneTimeDispatchables[cdf] = nil
             cdf = cdf + 1
-            if not o.mOneTimeDispatchables[cdf] then
+            if not self.mOneTimeDispatchables[cdf] then
                 cdf = 1
             end
         end
@@ -143,25 +143,25 @@ Jkr.CreateCallBuffers = function() -- Similar to Comptable in JrkGUI v1
         --[========================================================]
         -- DISPATCH
         --[========================================================]
-        for i = 1, #o.mDispatchables, 1 do
-            o.mDispatchables[i].mDispatch()
+        for i = 1, #self.mDispatchables, 1 do
+            self.mDispatchables[i].mDispatch()
         end
     end
 
     local cuf = 1 -- CurrentUpdateFrame
-    o.Update = function()
+    o.Update = function(self)
         --[========================================================]
         -- UPDATE ONE TIMES
         --[========================================================]
-        if o.mOneTimeUpdatables[cuf] then
-            local Length = #o.mOneTimeUpdatables[cuf]
+        if self.mOneTimeUpdatables[cuf] then
+            local Length = #self.mOneTimeUpdatables[cuf]
             for x = 1, Length, 1 do
-                o.mOneTimeUpdatables[cuf][x].mUpdate()
-                o.mOneTimeUpdatables[cuf][x] = nil
+                self.mOneTimeUpdatables[cuf][x].mUpdate()
+                self.mOneTimeUpdatables[cuf][x] = nil
             end
-            o.mOneTimeUpdatables[cuf] = nil
+            self.mOneTimeUpdatables[cuf] = nil
             cuf = cuf + 1
-            if not o.mOneTimeUpdatables[cuf] then
+            if not self.mOneTimeUpdatables[cuf] then
                 cuf = 1
             end
         end
@@ -169,17 +169,17 @@ Jkr.CreateCallBuffers = function() -- Similar to Comptable in JrkGUI v1
         --[========================================================]
         -- UPDATE
         --[========================================================]
-        for i = 1, #o.mUpdatables, 1 do
-            o.mUpdatables[i].mUpdate()
+        for i = 1, #self.mUpdatables, 1 do
+            self.mUpdatables[i].mUpdate()
         end
     end
 
-    o.Event = function()
+    o.Event = function(self)
         --[========================================================]
         -- EVENT
         --[========================================================]
-        for i = 1, #o.mEventables, 1 do
-            o.mEventables[i].mEvent()
+        for i = 1, #self.mEventables, 1 do
+            self.mEventables[i].mEvent()
         end
     end
 

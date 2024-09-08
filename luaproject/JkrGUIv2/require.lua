@@ -588,58 +588,58 @@ end
 
 Jkr.CreateShapeRenderer = function(inInstance, inCompatibleWindow, inShapeRendererResouce)
     local o = {}
-    local sr = CreateShapeRenderer(inInstance, inCompatibleWindow, inShapeRendererResouce)
-    o.handle = sr
+    o.sr = CreateShapeRenderer(inInstance, inCompatibleWindow, inShapeRendererResouce)
+    o.handle = o.sr
 
-    local recycleBin = Jkr.RecycleBin()
+    o.recycleBin = Jkr.RecycleBin()
     o.Add = function(self, inGenerator, inPosition_3f)
-        if not recycleBin:IsEmpty() then
-            local i = recycleBin:Get()
-            sr:Update(inGenerator, inPosition_3f)
+        if not self.recycleBin:IsEmpty() then
+            local i = self.recycleBin:Get()
+            self.sr:Update(inGenerator, inPosition_3f)
             return i
         else
-            return sr:Add(inGenerator, inPosition_3f)
+            return self.sr:Add(inGenerator, inPosition_3f)
         end
     end
 
     o.AddImage = function(self, inWidth, inHeight)
-        return sr:AddImage(math.int(inWidth), math.int(inHeight))
+        return self.sr:AddImage(math.int(inWidth), math.int(inHeight))
     end
 
     o.AddImageByFileName = function(self, inFileName)
-        return sr:AddImage(inFileName)
+        return o.sr:AddImage(inFileName)
     end
 
     o.Remove = function(self, inId)
-        recycleBin:Add(inId)
+        self.recycleBin:Add(inId)
     end
 
     o.Update = function(self, inId, inGenerator, inPosition_3f)
-        sr:Update(inId, inGenerator, inPosition_3f.x, inPosition_3f.y, inPosition_3f.z) -- TODO Improve this
+        self.sr:Update(inId, inGenerator, inPosition_3f.x, inPosition_3f.y, inPosition_3f.z) -- TODO Improve this
     end
     o.BindShapes = function(self, w, inCmdParam)
-        sr:BindShapes(w, inCmdParam)
+        self.sr:BindShapes(w, inCmdParam)
     end
     o.BindFillMode = function(self, inFillMode, inWindow, inCmdParam)
-        sr:BindFillMode(inFillMode, inWindow, inCmdParam)
+        self.sr:BindFillMode(inFillMode, inWindow, inCmdParam)
     end
     o.BindImage = function(self, inWindow, inImageId, inCmdParam)
-        sr:BindImage(inWindow, inImageId, inCmdParam)
+        self.sr:BindImage(inWindow, inImageId, inCmdParam)
     end
     o.Draw = function(self, w, inColor_4f, inStartShapeId, inEndShapeId, inMatrix, inCmdParam)
-        sr:Draw(w, inColor_4f, inStartShapeId, inEndShapeId, inMatrix, inCmdParam)
+        self.sr:Draw(w, inColor_4f, inStartShapeId, inEndShapeId, inMatrix, inCmdParam)
     end
     o.Dispatch = function(self, w, inParam)
-        sr:Dispatch(w, inParam)
+        self.sr:Dispatch(w, inParam)
     end
     o.CopyToImage = function(self, inId, inCustomPainterImage) -- TODO Wrap This
-        sr:CopyToImage(inId, inCustomPainterImage)
+        self.sr:CopyToImage(inId, inCustomPainterImage)
     end
     o.CopyFromImage = function(self, inId, inCustomImagePainter)
-        sr:CopyFromImage(inId, inCustomImagePainter)
+        self.sr:CopyFromImage(inId, inCustomImagePainter)
     end
     o.GetImageSize = function(self, inFileName)
-        return sr:GetImageSize(inFileName)
+        return self.sr:GetImageSize(inFileName)
     end
     return o
 end
@@ -662,25 +662,26 @@ end
 
 Jkr.CreateTextRendererBestTextAlt = function(inInstance, inShapeRenderer)
     local o = {}
-    local bt = Jkr.BestText_base()
-    local tr = CreateTextRendererBestTextAlt(inInstance, inShapeRenderer.handle, bt)
+    o.bt = Jkr.BestText_base()
+    o.tr = CreateTextRendererBestTextAlt(inInstance, inShapeRenderer.handle, o.bt)
+
     o.AddFontFace = function(self, inFontFileName, inSize)
-        return bt:AddFontFace(inFontFileName, inSize)
+        return self.bt:AddFontFace(inFontFileName, inSize)
     end
     o.Add = function(self, inFontId, inPosition_3f, inText)
-        return tr:Add(inFontId, inPosition_3f, inText)
+        return self.tr:Add(inFontId, inPosition_3f, inText)
     end
     o.Update = function(self, inTextImageId, inFontId, inPosition_3f, inText)
-        tr:Update(inTextImageId, inFontId, inPosition_3f, inText)
+        self.tr:Update(inTextImageId, inFontId, inPosition_3f, inText)
     end
     o.UpdatePosOnly = function(self, inTextImageId, inFontId, inPosition_3f, inText)
-        tr:UpdatePosOnly(inTextImageId, inFontId, inPosition_3f, inText)
+        self.tr:UpdatePosOnly(inTextImageId, inFontId, inPosition_3f, inText)
     end
     o.Draw = function(self, inTextImageId, w, inColor, inMatrix, inCmdParam)
-        tr:Draw(inTextImageId, w, inColor, inMatrix, inCmdParam)
+        self.tr:Draw(inTextImageId, w, inColor, inMatrix, inCmdParam)
     end
     o.GetTextDimensions = function(self, inText, inFontShapeId)
-        return bt:GetTextDimensions(inText, inFontShapeId)
+        return self.bt:GetTextDimensions(inText, inFontShapeId)
     end
     return o
 end

@@ -62,13 +62,13 @@ CustomImagePainter::CustomImagePainter(
     mFragmentStream << gmain_function_null;
 }
 
-void CustomImagePainter::Load(const Instance& inInstance, Window_base& inWindow) {
+void CustomImagePainter::Load(const Instance &inInstance, Window_base &inWindow) {
     mCustomPainterCache = MakeUp<PainterCache>(inInstance);
     mCustomPainterCache->Load(mCustomPainterFileName);
     mPainter = MakeUp<Painter>(inInstance, inWindow, *mCustomPainterCache);
 }
 
-void CustomImagePainter::Store(const Instance& inInstance, Window_base& inWindow) {
+void CustomImagePainter::Store(const Instance &inInstance, Window_base &inWindow) {
     mCustomPainterCache = MakeUp<PainterCache>(inInstance);
     mCustomPainterCache->Store(
          mCustomPainterFileName, mVertexStream.str(), mFragmentStream.str(), mComputeStream.str());
@@ -93,8 +93,8 @@ void GlslMain()
                )""";
 }
 
-std::vector<int> CustomPainterImage::GetImageToVector(const Instance& inInstance,
-                                                      const Window_base& inWindow) {
+std::vector<int> CustomPainterImage::GetImageToVector(const Instance &inInstance,
+                                                      const Window_base &inWindow) {
     ui ImageChannels = 4;
     auto ImageExtent = mPainterParam->GetStorageImage().GetImageExtent();
     auto Size        = ImageChannels * ImageExtent.width * ImageExtent.height;
@@ -108,7 +108,7 @@ std::vector<int> CustomPainterImage::GetImageToVector(const Instance& inInstance
          inInstance.GetGraphicsQueue(),
          inWindow.GetCommandBuffers(Jkr::Window_base::None)[inWindow.GetCurrentFrame()],
          mPainterParam->GetStorageImage());
-    void* MemoryRegion;
+    void *MemoryRegion;
     Buffer.MapMemoryRegion(&MemoryRegion);
     std::vector<uint8_t> OutImage;
     std::vector<int> OutImage_i;
@@ -122,8 +122,8 @@ std::vector<int> CustomPainterImage::GetImageToVector(const Instance& inInstance
     return OutImage_i;
 }
 
-void Jkr::Renderer::CustomPainterImage::Register(const Instance& inInstance,
-                                                 CustomImagePainter& inPainter) {
+void Jkr::Renderer::CustomPainterImage::Register(const Instance &inInstance,
+                                                 CustomImagePainter &inPainter) {
     mVulkanDescriptorSet = MakeUp<VulkanDescriptorSet>(
          inInstance.GetDevice(),
          inInstance.GetDescriptorPool(),
@@ -131,8 +131,8 @@ void Jkr::Renderer::CustomPainterImage::Register(const Instance& inInstance,
     mPainterParam->Register(0, 0, 0, *mVulkanDescriptorSet);
 }
 
-CustomPainterImage::CustomPainterImage(const Instance& inInstance,
-                                       const Window_base& inWindow,
+CustomPainterImage::CustomPainterImage(const Instance &inInstance,
+                                       const Window_base &inWindow,
                                        ui inWidth,
                                        ui inHeight) {
     mPainterParam = mu<Image>(inInstance);
@@ -140,30 +140,30 @@ CustomPainterImage::CustomPainterImage(const Instance& inInstance,
     Painter::OptimizeParameter(inInstance, *mPainterParam, inWindow);
 }
 
-void CustomImagePainter::BindImageFromImage(const Window_base& inWindow,
-                                            CustomPainterImage& inImage,
+void CustomImagePainter::BindImageFromImage(const Window_base &inWindow,
+                                            CustomPainterImage &inImage,
                                             ComPar inPar) {
-    auto& Cmd = inWindow.GetCommandBuffers(inPar)[inWindow.GetCurrentFrame()];
+    auto &Cmd = inWindow.GetCommandBuffers(inPar)[inWindow.GetCurrentFrame()];
     Cmd.GetCommandBufferHandle().bindDescriptorSets(
          vk::PipelineBindPoint::eCompute,
          mCustomPainterCache->GetComputePipelineLayout().GetPipelineLayoutHandle(),
          0,
          inImage.mVulkanDescriptorSet->GetDescriptorSetHandle(),
          {});
-    auto& Image = inImage.GetPainterParam().GetStorageImage();
+    auto &Image = inImage.GetPainterParam().GetStorageImage();
     Image.CmdTransitionImageLayout(Cmd,
                                    Image.GetInitialImageLayout(),
-                                   Image.GetInitialImageLayout(),
+                                   vk::ImageLayout::eGeneral,
                                    vk::PipelineStageFlagBits::eComputeShader,
                                    vk::PipelineStageFlagBits::eComputeShader,
                                    vk::AccessFlagBits::eShaderWrite,
                                    vk::AccessFlagBits::eShaderWrite);
 }
 
-void CustomImagePainter::RegisterImageExternal(const Instance& inInstance,
-                                               Window_base& inWindow,
-                                               Jkr::Renderer::Shape& inShape,
-                                               CustomPainterImage& inImage,
+void CustomImagePainter::RegisterImageExternal(const Instance &inInstance,
+                                               Window_base &inWindow,
+                                               Jkr::Renderer::Shape &inShape,
+                                               CustomPainterImage &inImage,
                                                int inImageIndex,
                                                int inDstBinding) {
     VulkanDescriptorUpdateHandler Handler(inInstance.GetDevice());

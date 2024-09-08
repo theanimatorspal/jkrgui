@@ -49,6 +49,9 @@ float y_cart = (float(image_size.y) / float(2) - float(gl_GlobalInvocationID.y))
 float ColorValueX = x_cart;
 float ColorValueY = y_cart;
 vec2 xy = vec2(x_cart, y_cart);
+vec4 p1 = push.mPosDimen;
+vec4 p2 = push.mColor;
+vec4 p3 = push.mParam;
       ]]
         )
         return o.NewLine()

@@ -9,12 +9,12 @@ include("CMakeCommon.cmake")
 
 project("jkrengine")
 find_package(JNI REQUIRED)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_JKRGUI_DIR}/out/build/${CMAKE_PRESET_NAME}/JkrLuaExe/")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_JKRGUI_DIR}/out/build/${CMAKE_PRESET_NAME}/jkrgui/")
 # Add subdirectories for building
 add_subdirectory(vendor/lua)
 add_subdirectory(ksaivulkan)
+add_subdirectory(jkrengine)
 add_subdirectory(jkrgui)
-add_subdirectory(JkrLuaExe)
 # add_subdirectory(playground)
 
 export(TARGETS lua FILE luaExport.cmake)

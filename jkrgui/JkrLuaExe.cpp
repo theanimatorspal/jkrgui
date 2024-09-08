@@ -78,11 +78,10 @@ int c(const std::string &str, const std::string &sub) {
     if (sub.length() == 0) return 0;
     int count = 0;
 
-    for (size_t offset = str.find(sub); offset != std::string::npos;) {
-
+    for (int offset = str.find(sub); offset != std::string::npos;) {
         if (isalpha(sub[0])) {
-            size_t left = (offset - 1 <= 0) ? 0 : (offset - 1);
-            size_t right =
+            int left = (offset - 1 <= 0) ? 0 : (offset - 1);
+            int right =
                  ((offset + sub.length()) >= str.length()) ? str.length() : (offset + sub.length());
 
             bool left_alright  = (left == 0) or IsBoundary(str[left]);
