@@ -7,7 +7,25 @@ Engine.Load = function(self, inEnableValidation)
     self.e = Jkr.CreateEventManager()
     print("INSTANCE:: ", self.i)
     self.mt = Jkr.MultiThreading(self.i)
-    print("SHIT")
+    self.gate = {
+        run = function(f, t)
+            mt:AddJobFIndex(f, t)
+        end
+    }
+    setmetatable(self.gate, {
+        __index = function(_, key)
+            return mt:Get(key, StateId)
+        end,
+        __newindex = function(_, k, v)
+            if k == "_run" and type(v) == "function" then
+                mt:AddJobF(v)
+            elseif type(k) == "number" then
+                mt:AddJobFIndex(v, k)
+            else
+                mt:Inject(k, v)
+            end
+        end,
+    })
 end
 
 Engine.GravitationalForce = 10

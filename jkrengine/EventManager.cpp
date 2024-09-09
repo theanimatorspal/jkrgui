@@ -7,7 +7,6 @@ void Jkr::EventManager::ProcessEventsEXT(Window &inWindow) {
     mCloseWindowEvent      = false;
 
     while (SDL_PollEvent(&mEvent)) {
-
         if (mEvent.type == SDL_WINDOWEVENT and mEvent.window.event == SDL_WINDOWEVENT_CLOSE) {
             mCloseWindowEvent = true;
         }

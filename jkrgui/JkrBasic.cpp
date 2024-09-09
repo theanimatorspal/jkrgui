@@ -158,6 +158,8 @@ void CreateBasicBindings(sol::state &s) {
                                         &Jkr::EventManager::ShouldQuit,
                                         "ProcessEvents",
                                         &EventManager::ProcessEvents,
+                                        "ProcessEventsEXT",
+                                        &EventManager::ProcessEventsEXT,
                                         "ShouldQuit",
                                         &EventManager::ShouldQuit,
                                         "GetEventHandle",
