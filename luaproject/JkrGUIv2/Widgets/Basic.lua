@@ -300,9 +300,11 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     --
     --
     --[========================================================]
+    o.WindowDimension = o.w:GetWindowDimension()
+    o.FrameDimension = o.w:GetOffscreenFrameDimension()
+    o.UIMatrix = Jmath.Ortho(0.0, o.FrameDimension.x, 0.0, o.FrameDimension.y, 1000, -1000)
+
     o.Update = function(self)
-        self.WindowDimension = self.w:GetWindowDimension()
-        self.UIMatrix = Jmath.Ortho(0.0, self.WindowDimension.x, 0.0, self.WindowDimension.y, 1000, -1000)
         self.c:Update()
     end
 

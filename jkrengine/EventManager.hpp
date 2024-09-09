@@ -7,8 +7,8 @@ struct BoundRect2D {
     glm::vec2 mXy;
     glm::vec2 mWh;
     constexpr bool IsPointWithin(glm::vec2 inXy, glm::vec2 inScale = glm::vec2(1, 1)) {
-        return ((mXy.x < inXy.x) && (inXy.x < mXy.x + mWh.x)) &&
-               ((mXy.y < inXy.y) && (inXy.y < mXy.y + mWh.y));
+        return ((mXy.x < inXy.x * inScale.x) && (inXy.x * inScale.x < mXy.x + mWh.x)) &&
+               ((mXy.y < inXy.y * inScale.y) && (inXy.y * inScale.y < mXy.y + mWh.y));
     }
 };
 class EventManager {

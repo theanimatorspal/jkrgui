@@ -140,6 +140,8 @@ void CreateBasicBindings(sol::state &s) {
          &Jkr::Window::GetWindowDimension,
          "GetVulkanDrawableSize",
          &Jkr::Window::GetVulkanDrawableSize,
+         "GetOffscreenFrameDimension",
+         &Jkr::Window::GetOffscreenFrameDimension,
 
          "SetScissor",
          &Jkr::Window::SetScissor,

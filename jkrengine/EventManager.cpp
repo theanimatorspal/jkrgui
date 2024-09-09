@@ -2,7 +2,7 @@
 #include "Window.hpp"
 void Jkr::EventManager::ProcessEventsEXT(Window &inWindow) {
     mWindowSize            = inWindow.GetWindowDimension();
-    mFrameSize             = inWindow.GetOffscreenFrameSize();
+    mFrameSize             = inWindow.GetOffscreenFrameDimension();
     mOffscreenByWindowSize = glm::vec2(mFrameSize.x / mWindowSize.x, mFrameSize.y / mWindowSize.y);
     mCloseWindowEvent      = false;
 
