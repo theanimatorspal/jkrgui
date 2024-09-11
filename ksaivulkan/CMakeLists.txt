@@ -37,7 +37,7 @@ set(FILES
 if(APPLE OR ANDROID)
         file(GLOB_RECURSE app_SRC CONFIGURE_DEPENDS ${FILES})
 	   if(ANDROID)
-		   add_library(ksaivulkan ${app_SRC})
+		   add_library(ksaivulkan STATIC ${app_SRC})
 	   else()
 		   add_library(ksaivulkan ${app_SRC})
 	   endif()

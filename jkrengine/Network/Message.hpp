@@ -12,18 +12,18 @@ struct Message {
     MessageHeader mHeader;
     std::vector<uint8_t> mBody;
     size_t size() const { return mBody.size(); }
-    template <typename DataType> void Insert(const DataType& inData) { *this << inData; }
+    template <typename DataType> void Insert(const DataType &inData) { *this << inData; }
     template <typename DataType> DataType Get() {
         DataType type;
         *this >> type;
         return type;
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const Message& msg) {
+    friend std::ostream &operator<<(std::ostream &os, const Message &msg) {
         os << "ID:" << int(msg.mHeader.mId) << " Size:" << msg.mHeader.mSize;
         return os;
     }
-    template <typename DataType> friend Message& operator<<(Message& msg, const DataType& data) {
+    template <typename DataType> friend Message &operator<<(Message &msg, const DataType &data) {
         static_assert(std::is_standard_layout<DataType>::value, "Data is too complex to be pushed");
         size_t i = msg.mBody.size();
         msg.mBody.resize(i + sizeof(DataType));
@@ -31,7 +31,7 @@ struct Message {
         msg.mHeader.mSize = msg.size();
         return msg;
     }
-    template <typename DataType> friend Message& operator>>(Message& msg, DataType& data) {
+    template <typename DataType> friend Message &operator>>(Message &msg, DataType &data) {
         static_assert(std::is_standard_layout<DataType>::value,
                       "Data is too complex to be recieved");
         size_t i = msg.mBody.size() - sizeof(DataType);
@@ -40,6 +40,8 @@ struct Message {
         msg.mHeader.mSize = msg.size();
         return msg;
     }
+    template <typename DataType> void InsertSpecial(Message &inMessage, DataType indata);
+    template <typename DataType> DataType GetSpecial(Message &inMessage, DataType indata);
 };
 
 struct Connection;

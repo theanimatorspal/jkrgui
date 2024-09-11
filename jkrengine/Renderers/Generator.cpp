@@ -56,7 +56,8 @@ Generator::Generator(Shapes inShape, Arguments inArgs) : mArgs(inArgs), mShape(i
                 break;
         }
     } catch (const std::exception &e) {
-        throw std::exception("The parameters passed to generate the object is not compatible.");
+        // throw std::exception("The parameters passed to generate the object is not compatible.");
+        ksai_print("The parameters passed to generate the object is not compatible.\n");
     }
 }
 

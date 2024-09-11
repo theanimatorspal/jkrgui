@@ -19,7 +19,7 @@ add_subdirectory(jkrgui)
 
 export(TARGETS lua FILE luaExport.cmake)
 export(TARGETS ksaivulkan FILE ksaivulkanExport.cmake)
-export(TARGETS jkrgui FILE jkrguiExport.cmake)
+export(TARGETS jkrengine FILE jkrengineExport.cmake)
 
 message(STATUS "CMAKE Flags:::" ${CMAKE_CXX_FLAGS})
 # add_custom_target(post)

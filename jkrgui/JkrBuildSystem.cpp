@@ -16,6 +16,8 @@
 
 using namespace ksai;
 using namespace std;
+
+namespace BuildSystem {
 const string_view DefaultCMakeListsFile = R"CmakeListsFile(cmake_minimum_required(VERSION 3.27)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -24,7 +26,7 @@ include("{0}/CMakeConfig.cmake")
 include("{0}/CMakeCommon.cmake")
 include("{0}/out/build/${{CMAKE_PRESET_NAME}}/luaExport.cmake")
 include("{0}/out/build/${{CMAKE_PRESET_NAME}}/ksaivulkanExport.cmake")
-include("{0}/out/build/${{CMAKE_PRESET_NAME}}/jkrguiExport.cmake")
+include("{0}/out/build/${{CMAKE_PRESET_NAME}}/jkrengineExport.cmake")
 
 
 project({1})
@@ -75,9 +77,7 @@ string GetLuaCMakeListsDefaultString(const string_view inLibraryName) {
 #endif
 }
 
-namespace JkrEXE {
 namespace fs = std::filesystem;
-namespace BuildSystem {
 
 static void ReplaceStringInFile(fs::path filePath,
                                 const std::string_view searchString,
@@ -144,6 +144,8 @@ static void RenameFilesInDirectory(const fs::path &path,
     }
 }
 
+constexpr std::string_view AndroidAppString = "AndroidApp";
+
 void CreateAndroidEnvironment(const sv inAndroidAppName,
                               const sv inAndroidAppDirectory,
                               const sv inLibraryName) {
@@ -153,8 +155,8 @@ void CreateAndroidEnvironment(const sv inAndroidAppName,
         fs::create_directory(Target);
     }
     fs::copy(Src, Target, fs::copy_options::recursive | fs::copy_options::skip_existing);
-    ReplaceString(Target, "AndroidApp", inAndroidAppName);
-    RenameFilesInDirectory(Target, "AndroidApp", inAndroidAppName);
+    ReplaceString(Target, AndroidAppString, inAndroidAppName);
+    RenameFilesInDirectory(Target, AndroidAppString, inAndroidAppName);
 
     fs::path Assets               = Target / "app" / "src" / "main" / "assets";
     const v<sv> EntriesToBeCopied = {"cache2", "JkrGUIv2", "res", "src", "app.lua"};
@@ -168,13 +170,17 @@ void CreateAndroidEnvironment(const sv inAndroidAppName,
             fs::path src    = entry;
             fs::path target = Assets / entry.path().filename();
             if (not fs::exists(target) and entry.is_directory()) fs::create_directory(target);
-            fs::copy(src, target, fs::copy_options::recursive | fs::copy_options::skip_existing);
+            if (fs::exists(src)) {
+                fs::copy(
+                     src, target, fs::copy_options::recursive | fs::copy_options::skip_existing);
+            }
         }
     }
 }
 
-static void
-CreateLuaLibraryEnvironment(sv inLibraryName, sv inNativeDestinationDirectory, bool inOverride) {
+void CreateLuaLibraryEnvironment(sv inLibraryName,
+                                 sv inNativeDestinationDirectory,
+                                 bool inOverride) {
     fs::path CurrentPath                = fs::current_path();
     fs::path JkrGuiRepoPath             = s(getenv("JKRGUI_DIR"));
     fs::path NativeDestinationDirectory = s(inNativeDestinationDirectory);
@@ -212,12 +218,3 @@ CreateLuaLibraryEnvironment(sv inLibraryName, sv inNativeDestinationDirectory, b
 }
 
 }; // namespace BuildSystem
-
-void CreateBuildSystemBindings(sol::state &inS) {
-    auto Jkr   = inS["Jkr"].get_or_create<sol::table>();
-    auto Build = Jkr["BuildSystem"].get_or_create<sol::table>();
-    Build.set_function("CreateLuaLibraryEnvironment", &BuildSystem::CreateLuaLibraryEnvironment);
-    Build.set_function("CreateAndroidEnvironment", &BuildSystem::CreateAndroidEnvironment);
-}
-
-} // namespace JkrEXE

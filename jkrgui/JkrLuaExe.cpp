@@ -3,7 +3,9 @@
 #include "JkrLuaExe.hpp"
 #include <SDLWindow.hpp>
 #include <CLI11/CLI11.hpp>
+#ifndef ANDROID
 #include <TracyLua.hpp>
+#endif
 
 extern void LuaShowToastNotification(const std::string_view inMessage);
 
@@ -14,7 +16,6 @@ extern void CreateKeyBindings(sol::state &inState);
 extern void CreateMiscBindings(sol::state &inState);
 extern void CreateRendererBindings(sol::state &inState);
 extern void CreateTextRendererBindings(sol::state &inState);
-extern void CreateBuildSystemBindings(sol::state &inS);
 extern void CreateRenderer3DBindings(sol::state &s);
 extern void CreateAudioBindings(sol::state &inState);
 extern void CreatePlatformBindings(sol::state &inS);
@@ -43,7 +44,9 @@ void CreateMainBindings(sol::state &s) {
     CreateAudioBindings(s);
     CreatePlatformBindings(s);
     CreateNetworkBindings(s);
+#ifndef ANDROID
     tracy::LuaRegister(s);
+#endif
 }
 } // namespace JkrEXE
 
@@ -98,30 +101,29 @@ int c(const std::string &str, const std::string &sub) {
 
 void ProcessCmdLine(int ArgCount, char **ArgStrings) {
     CLI::App app;
-    bool FlagBuild       = false;
-    bool FlagGenerate    = false;
-    bool FlagGenerateRun = false;
-    bool FlagRepl        = false;
-    app.add_flag("--b,--build", FlagBuild);
+    bool FlagBuild                       = false;
+    bool FlagGenerate                    = false;
+    bool FlagGenerateRun                 = false;
+    bool FlagRepl                        = false;
+    bool FlagCreateAndroidEnvironment    = false;
+    std::string OptionAndroidAppName     = "JkrGUIv2";
+    std::string OptionAndroidDirName     = "JkrGUIv2";
+    std::string OptionAndroidLibraryName = "JkrGUIv2";
     app.add_flag("--g,--generate", FlagGenerate);
     app.add_flag("--gr,--generate-run", FlagGenerateRun);
     app.add_flag("--r, --repl", FlagRepl);
+    app.add_flag("--android-environment,--and-env", FlagCreateAndroidEnvironment);
+    app.add_option("--appname", OptionAndroidAppName, "Android App Name");
+    app.add_option("--appdir", OptionAndroidDirName, "Android Dir Name");
+    app.add_option("--applib", OptionAndroidLibraryName, "Android Library Name");
 
     app.parse(ArgCount, ArgStrings);
 
-    if (FlagBuild) {
-        sol::state s;
-        s.open_libraries();
-        CreateBuildSystemBindings(s);
-        sol::protected_function_result result =
-             s.safe_script_file("build.lua", &sol::script_pass_on_error);
-        if (not result.valid()) {
-            sol::error error = result;
-            std::cout << error.what();
-            ksai_print(error.what());
-        }
-        exit(0);
+    if (FlagCreateAndroidEnvironment) {
+        BuildSystem::CreateAndroidEnvironment(
+             OptionAndroidAppName, OptionAndroidDirName, OptionAndroidLibraryName);
     }
+
     auto Update = []() {
         filesystem::path src = std::string(getenv("JKRGUI_DIR"));
         src /= "luaproject";

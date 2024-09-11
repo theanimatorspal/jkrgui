@@ -35,8 +35,14 @@ import org.libsdl.app.SDLActivity;
 
 public class JkrGUIActivity extends SDLActivity {
           static {
-                    System.loadLibrary("JkrLuaExe");
+                    System.loadLibrary("jkrgui");
           }
-
+          public void ShowToast(String inString) {
+                    runOnUiThread(
+                                        () -> {
+                                                  Toast.makeText(this, inString,
+                                                                      Toast.LENGTH_SHORT).show();
+                                        });
+          }
           public native void InitJNI();
 }

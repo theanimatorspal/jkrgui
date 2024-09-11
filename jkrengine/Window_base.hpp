@@ -6,10 +6,12 @@
 #include <VulkanSwapChain.hpp>
 
 namespace Jkr {
-class Window_base : public SDLWindow {
-    protected:
-    static const int mMaxFramesInFlight = 2;
+///
+///@warning IDK Why this thing doesn't work inside of Class with ANDROID NDK, (fails to link)
+///
+static const int mMaxFramesInFlight = 2;
 
+class Window_base : public SDLWindow {
     public:
     using SwapChainVulkanImages = std::vector<ksai::VulkanImageExternalHandled>;
     using FrameBufferType       = VulkanFrameBuffer;

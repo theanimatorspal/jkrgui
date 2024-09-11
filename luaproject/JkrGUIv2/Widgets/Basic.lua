@@ -314,13 +314,13 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         for i = 1, #self.c.mDrawables, 1 do
             local drawable = self.c.mDrawables[i]
             self.s:BindFillMode(Jkr.FillType.Image, self.w, Jkr.CmdParam.UI)
-            if drawable.mDrawType == "TEXT" then
-                self.t:Draw(drawable.mId, self.w, drawable.mColor, self.UIMatrix, Jkr.CmdParam.UI)
-            end
             if drawable.mDrawType == "IMAGE" then
                 self.s:BindImage(self.w, drawable.mImageId, Jkr.CmdParam.UI)
                 self.s:Draw(self.w, drawable.mColor, drawable.mId, drawable.mId, self.UIMatrix,
                     Jkr.CmdParam.UI)
+            end
+            if drawable.mDrawType == "TEXT" then
+                self.t:Draw(drawable.mId, self.w, drawable.mColor, self.UIMatrix, Jkr.CmdParam.UI)
             end
         end
     end

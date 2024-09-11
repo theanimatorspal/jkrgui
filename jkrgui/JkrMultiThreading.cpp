@@ -12,6 +12,7 @@
 #include <Renderers/ThreeD/World3D.hpp>
 #include <Renderers/TwoD/Shape.hpp>
 #include <Window.hpp>
+#include <Network/Message.hpp>
 #include <mutex>
 
 extern sol::state &GetMainStateRef();
@@ -185,6 +186,8 @@ sol::object MultiThreading::Copy(sol::object obj, sol::state &target) {
                                    Jkr::Renderer::_3D::Shape,
                                    Jkr::Renderer::_3D::glTF_Model,
                                    Jkr::Renderer::_3D::Simple3D,
+
+                                   Jkr::Network::Message,
 
                                    ui>(obj, target); // the last arg doesn't work
         } break;

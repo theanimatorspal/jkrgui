@@ -133,3 +133,32 @@ function repl.WidgetRenderer()
 end
 
 gate.repl = repl
+
+-- NETWORKING STUFF
+---------------------------------------------------
+function repl.SetupClient()
+          ip = "192.168.101.9"
+          Jkr.AddClient()
+          Jkr.ConnectFromClient(0, ip, 6000)
+          -- message = Jkr.Message()
+          -- message:InsertFloat(1.04)
+          -- Jkr.SendMessageFromClient(0, message)
+          -- Jkr.GetTrapMessagesBuffer()
+end
+
+function repl.SetupServer()
+          Jkr.StartServer(6000)
+          gate[0] = function()
+                    print("Network Loop")
+                    while true do
+                              Jkr.UpdateServer(50, false)
+                              local messages = Jkr.GetTrapMessagesBuffer()
+                              if #messages ~= 0 then
+                                        gate.nmessage = messages[1]
+                                        print("Network Loop End")
+                                        return;
+                              end
+                              Jkr.ReleaseMessagesBuffer()
+                    end
+          end
+end

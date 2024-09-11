@@ -69,3 +69,13 @@ struct MultiThreading {
     sol::state mGateStateTarget;
 };
 } // namespace JkrEXE
+
+namespace BuildSystem {
+void CreateAndroidEnvironment(const sv inAndroidAppName      = "JkrGUIv2",
+                              const sv inAndroidAppDirectory = "JkrGUIv2",
+                              const sv inLibraryName         = "JkrGUIv2");
+
+void CreateLuaLibraryEnvironment(sv inLibraryName,
+                                 sv inNativeDestinationDirectory,
+                                 bool inOverride);
+} // namespace BuildSystem
