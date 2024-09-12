@@ -7,8 +7,7 @@ using namespace Jkr::Network;
 // Specialization of Messages
 static std::vector<Up<ClientInterface>> Clients;
 static Up<ServerInterface> Server;
-static std::vector<Message> MessageBuffer;
-static std::mutex MessageAccessMutex;
+static Jkr::Network::TsQueue<Message> MessageBuffer;
 
 OnClientValidationFunctionType OnClientValidationFunction = [](sp<Connection>) {};
 
@@ -20,7 +19,6 @@ OnClientDisConnectionFunctionType OnClientDisConnectionFunction = [](sp<Connecti
 };
 
 OnMessageFunctionType OnMessageFunction = [](sp<Connection>, Message &inMessage) {
-    std::scoped_lock<std::mutex> Lock(MessageAccessMutex);
     std::cout << "A Message has been Received\n";
     MessageBuffer.push_back(inMessage);
 };
@@ -40,15 +38,15 @@ static void UpdateServer(int inMaxMessages, bool inShouldWait) {
     Server->Update(OnMessageFunction, inMaxMessages, inShouldWait);
 }
 
-static void MessagesBufferAccessStart() { MessageAccessMutex.lock(); }
-static void MessagesBufferAccessEnd() { MessageAccessMutex.unlock(); }
-
+/// @brief I don't think this function is even necessary
+///
+///
 static void SendMessageToClientFromServer(int inClient, const Message &inMessage) {
     Server->MessageClient(
          Clients[inClient]->GetConnection(), inMessage, OnClientDisConnectionFunction);
 }
 
-static void SendMessageToAllClientFromServer(const Message &inMessage) {
+static void BroadcastServer(const Message &inMessage) {
     Server->MessageAllClient(inMessage, OnClientDisConnectionFunction);
 }
 
@@ -113,26 +111,45 @@ void CreateNetworkBindings(sol::state &s) {
          [](Message &inMsg) -> std::string {
              sol::basic_bytecode<> code = inMsg.GetEXT<decltype(code)>();
              return std::string(code.as_string_view());
+         },
+         "InsertFile",
+         [](Message &inMsg, std::string_view inFileName) {
+             std::ifstream file = std::ifstream(std::string(inFileName));
+             auto FileSize      = filesystem::file_size(inFileName);
+             std::vector<char> Bytes;
+             Bytes.resize(FileSize);
+             file.read(Bytes.data(), FileSize);
+             inMsg.InsertEXT(Bytes);
+         },
+         /// @brief this downloads and writes the file, doesn't do anything else, returns nil
+         ///
+         ///
+         "GetFile",
+         [](Message &inMsg, std::string_view inFileName) {
+             std::vector<char> Bytes = inMsg.GetEXT<decltype(Bytes)>();
+             std::ofstream file      = std::ofstream(std::string(inFileName));
+             file.write(Bytes.data(), Bytes.size());
          });
 
     Jkr.set_function("StartServer", &StartServer);
     Jkr.set_function("StopServer", &StopServer);
     Jkr.set_function("UpdateServer", &UpdateServer);
+    Jkr.set_function("BroadcastServer", &BroadcastServer);
 
     ///@brief you cannot use the ServerUpdate function while using these two
     /// also this is for the server not for the client
-    Jkr.set_function("GetTrapMessagesBuffer", [&]() {
-        MessagesBufferAccessStart();
-        return MessageBuffer;
+    Jkr.set_function("IsMessagesBufferEmpty", [&]() {
+        UpdateServer(500000000, false);
+        return MessageBuffer.empty();
     });
-    Jkr.set_function("ReleaseMessagesBuffer", [&]() { MessagesBufferAccessEnd(); });
+    Jkr.set_function("PopFrontMessagesBuffer", [&]() { return MessageBuffer.pop_front(); });
 
     Jkr.set_function("AddClient", &AddClient);
     Jkr.set_function("ConnectFromClient", &ConnectFromClient);
     Jkr.set_function("IsConnectedClient", &IsConnectedClient);
     Jkr.set_function("SendMessageFromClient", &SendMessageFromClient);
-    Jkr.set_function("IsIncomingMessageEmptyClient", &IsIncomingMessagesEmptyClient);
-    Jkr.set_function("PopIncomingMessagesClient", &PopFrontIncomingMessagesClient);
+    Jkr.set_function("IsIncomingMessagesEmptyClient", &IsIncomingMessagesEmptyClient);
+    Jkr.set_function("PopFrontIncomingMessagesClient", &PopFrontIncomingMessagesClient);
 }
 
 } // namespace JkrEXE

@@ -27,8 +27,116 @@ Engine.Load = function(self, inEnableValidation)
         end,
     })
 
-    self.net = {
+    self.port = 6345
+    self.net = {}
 
+
+    self.net = {
+        Server = function()
+            Jkr.StartServer(self.port)
+
+            self.net.listenOnce = function(FileName)
+                if not Jkr.IsMessagesBufferEmpty() then
+                    local msg = Jkr.PopFrontMessagesBuffer()
+                    local id = msg.mHeader.mId
+                    if id == 1 then
+                        local name = msg:GetString()
+                        if string.sub(name, #name, #name) == ":" then -- in this format "name.txt:" then it is a file
+                            self.net.listenOnce(string.sub(name, 1, #name - 1))
+                        else
+                            return name
+                        end
+                    elseif id == 2 then
+                        return msg:GetFloat()
+                    elseif id == 3 then
+                        return load(msg:GetFunction())
+                    elseif id == 4 then
+                        msg:GetFile(FileName)
+                    elseif id == 5 then
+                        print("Message Error: Invalid Message ID in the header");
+                    end
+                end
+            end
+
+            self.net.BroadCast = function(inToSend)
+                local msg = Jkr.Message()
+                if type(inToSend) == "string" then
+                    if string.sub(inToSend, 1, 1) == ":" and string.sub(inToSend, #inToSend, #inToSend) == ":" then -- represents a file :name.txt: in this way
+                        local fileName = string.sub(inToSend, 2, #inToSend - 1)
+                        local fileNameToBeSent = string.sub(inToSend, 2, #inToSend)
+                        self.net.BroadCast(fileNameToBeSent) -- send the filename in name.txt: this way
+                        msg.mHeader.mId = 4
+                        msg:InsertFile(fileName)             -- and then send the file
+                    else
+                        msg.mHeader.mId = 1
+                        msg:InsertString(inToSend)
+                    end
+                end
+                if type(inToSend) == "number" then
+                    msg.mHeader.mId = 2
+                    msg:InsertFloat(inToSend)
+                end
+                if type(inToSend) == "function" then
+                    msg.mHeader.mId = 3
+                    msg:InsertFunction(inToSend)
+                end
+                -- TODO Improve this client ID
+                Jkr.BroadcastServer(msg)
+            end
+        end,
+
+        Client = function(inIp)
+            Jkr.AddClient()
+            Jkr.ConnectFromClient(0, inIp, self.port)
+            self.net.SendToServer = function(inToSend)
+                local msg = Jkr.Message()
+                if type(inToSend) == "string" then
+                    if string.sub(inToSend, 1, 1) == ":" and string.sub(inToSend, #inToSend, #inToSend) == ":" then -- represents a file :name.txt: in this way
+                        local fileName = string.sub(inToSend, 2, #inToSend - 1)
+                        local fileNameToBeSent = string.sub(inToSend, 2, #inToSend)
+                        self.net.SendToServer(fileNameToBeSent) -- send the filename in name.txt: this way
+                        msg.mHeader.mId = 4
+                        msg:InsertFile(fileName)                -- and then send the file
+                    else
+                        msg.mHeader.mId = 1
+                        msg:InsertString(inToSend)
+                    end
+                end
+                if type(inToSend) == "number" then
+                    msg.mHeader.mId = 2
+                    msg:InsertFloat(inToSend)
+                end
+                if type(inToSend) == "function" then
+                    msg.mHeader.mId = 3
+                    msg:InsertFunction(inToSend)
+                end
+                -- TODO Improve this client ID
+                Jkr.SendMessageFromClient(0, msg)
+            end
+
+            self.net.listenOnce = function(inFileName)
+                if not Jkr.IsIncomingMessagesEmptyClient(0) then
+                    local msg = Jkr.PopFrontIncomingMessagesClient(0)
+                    local id = msg.mHeader.mId
+                    if id == 1 then
+                        local name = msg:GetString()
+                        if string.sub(name, #name, #name) == ":" then -- in this format "name.txt:" then it is a file
+                            self.net.listenOnce(string.sub(name, 1, #name - 1))
+                        else
+                            return name
+                        end
+                    elseif id == 2 then
+                        return msg:GetFloat()
+                    elseif id == 3 then
+                        return load(msg:GetFunction())
+                    elseif id == 4 then
+                        return msg:GetFile(inFileName)
+                    elseif id == 5 then
+                        print("Message Error: Invalid Message ID in the header");
+                    end
+                end
+            end
+        end,
     }
 end
 

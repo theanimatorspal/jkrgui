@@ -5,7 +5,11 @@
 #include <CLI11/CLI11.hpp>
 #ifndef ANDROID
 #include <TracyLua.hpp>
+#else
+#include "LuaBundleAndroid.hpp"
 #endif
+
+#include "LuaBundleAndroid.hpp"
 
 extern void LuaShowToastNotification(const std::string_view inMessage);
 
@@ -59,10 +63,16 @@ void RunScript() {
 
 #ifdef ANDROID
     ksai_print("Main Function Entered");
-    std::filesystem::current_path("/data/data/com.SampraharReturns/");
-    std::filesystem::current_path("/storage/emulated/0/Download/jkrgui");
+    sol::protected_function_result result =
+         mainState.safe_script(LuaBundleScript, &sol::script_pass_on_error);
+    if (not result.valid()) {
+        sol::error error = result;
+        std::cout << error.what();
+        ksai_print(error.what());
+        LuaShowToastNotification(error.what());
+    }
+    std::filesystem::current_path("/storage/emulated/0/Download/JkrGUIv2");
 #endif
-
     sol::protected_function_result result =
          mainState.safe_script_file("app.lua", &sol::script_pass_on_error);
     if (not result.valid()) {
