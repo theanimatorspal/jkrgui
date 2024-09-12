@@ -72,8 +72,7 @@ struct MultiThreading {
 
 namespace BuildSystem {
 void CreateAndroidEnvironment(const sv inAndroidAppName      = "JkrGUIv2",
-                              const sv inAndroidAppDirectory = "JkrGUIv2",
-                              const sv inLibraryName         = "JkrGUIv2");
+                              const sv inAndroidAppDirectory = "android");
 
 void CreateLuaLibraryEnvironment(sv inLibraryName,
                                  sv inNativeDestinationDirectory,

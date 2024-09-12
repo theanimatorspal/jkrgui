@@ -21,10 +21,11 @@
     "cmake.clearOutputBeforeBuild": true,
     "cmake.debugConfig": {
         "console": "externalTerminal",
-        "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\Present",
+        "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\Experiment",
         "visualizerFile": "${workspaceFolder}/Visualizers/glm.natvis",
         "args": [
-            "--repl",
+            "--and-env"
+            // "--repl",
             // "--generate-run"
         ]
     },

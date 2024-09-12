@@ -121,7 +121,11 @@ static void RenameFileName(const fs::path &path,
     if (pos != std::string::npos) {
         newName.replace(pos, searchString.length(), replaceString);
         fs::path newPath = parentPath / newName;
-        fs::rename(path, newPath);
+        if (filesystem::exists(newPath)) {
+            filesystem::remove_all(path);
+        } else {
+            fs::rename(path, newPath);
+        }
         std::cout << "Renamed: " << path << " to " << newPath << std::endl;
     }
 }
@@ -146,11 +150,12 @@ static void RenameFilesInDirectory(const fs::path &path,
 
 constexpr std::string_view AndroidAppString = "AndroidApp";
 
-void CreateAndroidEnvironment(const sv inAndroidAppName,
-                              const sv inAndroidAppDirectory,
-                              const sv inLibraryName) {
+void CreateAndroidEnvironment(const sv inAndroidAppName, const sv inAndroidAppDirectory) {
     fs::path Src    = s(getenv("JKRGUI_DIR")) + "/Android/";
     fs::path Target = s(inAndroidAppDirectory);
+    if (not filesystem::exists(Target)) {
+        filesystem::create_directory(Target);
+    }
     if (not fs::exists(Target)) {
         fs::create_directory(Target);
     }
@@ -161,7 +166,11 @@ void CreateAndroidEnvironment(const sv inAndroidAppName,
     fs::path Assets               = Target / "app" / "src" / "main" / "assets";
     const v<sv> EntriesToBeCopied = {"cache2", "JkrGUIv2", "res", "src", "app.lua"};
 
-    int i                         = 0;
+    if (not filesystem::exists(Assets)) {
+        filesystem::create_directory(Assets);
+    }
+
+    int i = 0;
     for (const auto &entry : fs::directory_iterator(fs::current_path())) {
         bool ShouldCopy = std::any_of(EntriesToBeCopied.begin(),
                                       EntriesToBeCopied.end(),

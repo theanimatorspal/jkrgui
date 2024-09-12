@@ -61,7 +61,6 @@ void RunScript() {
     ksai_print("Main Function Entered");
     std::filesystem::current_path("/data/data/com.SampraharReturns/");
     std::filesystem::current_path("/storage/emulated/0/Download/jkrgui");
-
 #endif
 
     sol::protected_function_result result =
@@ -101,27 +100,24 @@ int c(const std::string &str, const std::string &sub) {
 
 void ProcessCmdLine(int ArgCount, char **ArgStrings) {
     CLI::App app;
-    bool FlagBuild                       = false;
-    bool FlagGenerate                    = false;
-    bool FlagGenerateRun                 = false;
-    bool FlagRepl                        = false;
-    bool FlagCreateAndroidEnvironment    = false;
-    std::string OptionAndroidAppName     = "JkrGUIv2";
-    std::string OptionAndroidDirName     = "JkrGUIv2";
-    std::string OptionAndroidLibraryName = "JkrGUIv2";
+    bool FlagBuild                    = false;
+    bool FlagGenerate                 = false;
+    bool FlagGenerateRun              = false;
+    bool FlagRepl                     = false;
+    bool FlagCreateAndroidEnvironment = false;
+    std::string OptionAndroidAppName  = "JkrGUIv2";
+    std::string OptionAndroidDirName  = "android";
     app.add_flag("--g,--generate", FlagGenerate);
     app.add_flag("--gr,--generate-run", FlagGenerateRun);
     app.add_flag("--r, --repl", FlagRepl);
     app.add_flag("--android-environment,--and-env", FlagCreateAndroidEnvironment);
     app.add_option("--appname", OptionAndroidAppName, "Android App Name");
-    app.add_option("--appdir", OptionAndroidDirName, "Android Dir Name");
-    app.add_option("--applib", OptionAndroidLibraryName, "Android Library Name");
+    app.add_option("--dirname", OptionAndroidDirName, "Android Dir Name");
 
     app.parse(ArgCount, ArgStrings);
 
     if (FlagCreateAndroidEnvironment) {
-        BuildSystem::CreateAndroidEnvironment(
-             OptionAndroidAppName, OptionAndroidDirName, OptionAndroidLibraryName);
+        BuildSystem::CreateAndroidEnvironment(OptionAndroidAppName, OptionAndroidDirName);
     }
 
     auto Update = []() {
