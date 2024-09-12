@@ -7,21 +7,23 @@ namespace Jkr::Network {
 class ServerInterface {
     public:
     ServerInterface(uint16_t inPort)
-        : mAsioAcceptor(mAsioContext, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), inPort)) {}
+        : mAsioAcceptor(mAsioContext, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), inPort)) {
+        std::cout << mAsioAcceptor.local_endpoint().address() << "\n";
+    }
     ~ServerInterface() { Stop(); }
-    bool Start(OnClientValidationFunctionType& inOnClientValidationFunction,
-               OnClientConnectionFunctionType& inOnClientConnectFunction);
+    bool Start(OnClientValidationFunctionType &inOnClientValidationFunction,
+               OnClientConnectionFunctionType &inOnClientConnectFunction);
     void Stop();
     // ASYNC
-    void WaitForClientConnection(OnClientValidationFunctionType& inFunction,
-                                 OnClientConnectionFunctionType& inOnClientConnectFunction);
+    void WaitForClientConnection(OnClientValidationFunctionType &inFunction,
+                                 OnClientConnectionFunctionType &inOnClientConnectFunction);
     void MessageClient(sp<Connection> inClient,
-                       const Message& inMsg,
-                       OnClientDisConnectionFunctionType& inOnclientDisconnect);
-    void MessageAllClient(const Message& inMsg,
-                          OnClientDisConnectionFunctionType& inOnclientDisconnect,
+                       const Message &inMsg,
+                       OnClientDisConnectionFunctionType &inOnclientDisconnect);
+    void MessageAllClient(const Message &inMsg,
+                          OnClientDisConnectionFunctionType &inOnclientDisconnect,
                           sp<Connection> inIgnoreClient = nullptr);
-    void Update(OnMessageFunctionType& inOnMessageFunction,
+    void Update(OnMessageFunctionType &inOnMessageFunction,
                 size_t inMaxMessages = -1,
                 bool inWait          = false);
 

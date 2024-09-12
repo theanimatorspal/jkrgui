@@ -26,6 +26,10 @@ Engine.Load = function(self, inEnableValidation)
             end
         end,
     })
+
+    self.net = {
+
+    }
 end
 
 Engine.GravitationalForce = 10
