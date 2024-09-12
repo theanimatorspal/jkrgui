@@ -3,6 +3,12 @@
 
 namespace Jkr::Network {
 
+template <typename T>
+concept IsContainer = requires(T &t) {
+    t.data();
+    t.size();
+};
+
 struct MessageHeader {
     int mId        = -1;
     uint32_t mSize = 0;
@@ -40,8 +46,43 @@ struct Message {
         msg.mHeader.mSize = msg.size();
         return msg;
     }
-    template <typename DataType> void InsertSpecial(Message &inMessage, DataType indata);
-    template <typename DataType> DataType GetSpecial(Message &inMessage, DataType indata);
+
+    /// @brief Multiple things cannot be >> in the message after a container is pushed
+    ///
+    ///
+    template <typename DataType> void InsertEXT(DataType indata) {
+        if constexpr (std::is_standard_layout_v<DataType>) {
+            *this << indata;
+        } else if constexpr (IsContainer<DataType>) {
+            mBody.clear();
+            const size_t data_size = indata.size() * sizeof(indata.front());
+            mBody.resize(data_size);
+            auto src = indata.data();
+            auto dst = mBody.data();
+            std::memcpy(dst, src, data_size);
+            mHeader.mSize = mBody.size();
+        }
+    }
+
+    /// @brief This will not erase the whole message, but you cannot
+    /// add more stuff or take out more stuff from here
+    ///
+    ///
+    template <typename DataType> DataType GetEXT() {
+        DataType IncomingData;
+        size_t IncomingDataSize = (*this).mHeader.mSize;
+
+        if constexpr (std::is_standard_layout_v<DataType>) {
+            (*this) >> IncomingData;
+            return IncomingData;
+        } else if constexpr (IsContainer<DataType>) {
+            IncomingData.resize(IncomingDataSize / sizeof(std::underlying_type<DataType>));
+            auto dst = IncomingData.data();
+            auto src = mBody.data();
+            std::memcpy(dst, src, IncomingDataSize);
+            return IncomingData;
+        }
+    }
 };
 
 struct Connection;

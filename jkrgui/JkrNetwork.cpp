@@ -3,17 +3,8 @@
 #include <Network/Server.hpp>
 
 using namespace Jkr::Network;
-// Specialization of Messages
-template <> void Jkr::Network::Message::InsertSpecial(Message &inMessage, sol::function indata) {
-    auto data = indata.dump();
-    inMessage << data;
-}
-template <>
-sol::function Jkr::Network::Message::GetSpecial(Message &inMessage, sol::function indata) {
-    sol::basic_bytecode<> code;
-    code.as_string_view();
-}
 
+// Specialization of Messages
 static std::vector<Up<ClientInterface>> Clients;
 static Up<ServerInterface> Server;
 static std::vector<Message> MessageBuffer;
@@ -97,22 +88,32 @@ void CreateNetworkBindings(sol::state &s) {
                                     &MessageHeader::mId,
                                     "mSize",
                                     &MessageHeader::mSize);
-    Jkr.new_usertype<Message>("Message",
-                              sol::call_constructor,
-                              sol::default_constructor,
-                              "mHeader",
-                              &Message::mHeader,
-                              "mBody",
-                              &Message::mBody,
-                              "InsertFloat",
-                              &Message::Insert<float>,
-                              "GetFloat",
-                              &Message::Get<float>
-                              //   "InsertString",
-                              //   &Message::Insert<std::string>
-                              //   "InsertFunction",
-                              //   &Message::Insert<sol::function>
-    );
+    Jkr.new_usertype<Message>(
+         "Message",
+         sol::call_constructor,
+         sol::default_constructor,
+         "mHeader",
+         &Message::mHeader,
+         "mBody",
+         &Message::mBody,
+         "InsertFloat",
+         &Message::Insert<float>,
+         "GetFloat",
+         &Message::Get<float>,
+         "InsertString",
+         &Message::InsertEXT<std::string>,
+         "GetString",
+         &Message::GetEXT<std::string>,
+         "InsertFunction",
+         [](Message &inMsg, sol::function inFunction) {
+             auto tosend = inFunction.dump();
+             inMsg.InsertEXT(tosend);
+         },
+         "GetFunction",
+         [](Message &inMsg) -> std::string {
+             sol::basic_bytecode<> code = inMsg.GetEXT<decltype(code)>();
+             return std::string(code.as_string_view());
+         });
 
     Jkr.set_function("StartServer", &StartServer);
     Jkr.set_function("StopServer", &StopServer);
