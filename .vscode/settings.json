@@ -24,8 +24,8 @@
         "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\Experiment",
         "visualizerFile": "${workspaceFolder}/Visualizers/glm.natvis",
         "args": [
-            "--and-env"
-            // "--repl",
+            // "--and-env"
+            "--repl",
             // "--generate-run"
         ]
     },

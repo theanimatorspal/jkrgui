@@ -2,6 +2,7 @@
 require("JkrGUIv2.Engine.Engine")
 require("JkrGUIv2.Engine.Shader")
 require("JkrGUIv2.Widgets.Basic")
+require("JkrGUIv2.Widgets.General")
 require("JkrGUIv2.require")
 inspect = require("JkrGUIv2.inspect")
 
