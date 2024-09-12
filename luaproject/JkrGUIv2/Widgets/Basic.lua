@@ -18,6 +18,7 @@ Jkr.HLayout = {
     AddComponents = function(self, inComponentListTable, inRatioTable)
         self.mComponents = inComponentListTable
         self.mRatioTable = inRatioTable
+        return self
     end,
     Update = function(self, inPosition_3f, inDimension_3f)
         local position = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z)
@@ -69,6 +70,7 @@ Jkr.VLayout = {
     AddComponents = function(self, inComponentListTable, inRatioTable)
         self.mComponents = inComponentListTable
         self.mRatioTable = inRatioTable
+        return self
     end,
     Update = function(self, inPosition_3f, inDimension_3f)
         local position = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z)
