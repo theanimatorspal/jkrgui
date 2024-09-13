@@ -14,16 +14,20 @@ extern "C" JNIEXPORT void JNICALL Java_org_JkrGUI_JkrGUIActivity_InitJNI(JNIEnv 
 }
 
 void AndroidShowToast(const char *inMessage) {
+    std::string Message = inMessage;
     JNIEnv *env;
-    if (g_vm->AttachCurrentThread(&env, nullptr) != JNI_OK) {
+    JavaVMAttachArgs args;
+    args.version = JNI_VERSION_1_6;
+    args.name    = NULL;
+    args.group   = NULL;
+    if (g_vm->AttachCurrentThread(&env, &args) != JNI_OK) {
         ksai_print("Failed to attach current thread");
         return;
     }
-
-    jstring Message    = env->NewStringUTF(inMessage);
+    jstring jMessage   = env->NewStringUTF(Message.c_str());
     jclass JkrGUIClass = env->FindClass("org/JkrGUI/JkrGUIActivity");
     jmethodID methodId = env->GetMethodID(JkrGUIClass, "ShowToast", "(Ljava/lang/String;)V");
-    env->CallVoidMethod(g_context, methodId, Message);
+    env->CallVoidMethod(g_context, methodId, jMessage);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_JkrGUI_JkrGUIActivity_ChangeDirectory(
@@ -37,9 +41,9 @@ extern "C" JNIEXPORT void JNICALL Java_org_JkrGUI_JkrGUIActivity_ChangeDirectory
 }
 #endif
 
-void LuaShowToastNotification(const std::string_view inMessage) {
+void LuaShowToastNotification(const std::string inMessage) {
 #ifdef ANDROID
-    AndroidShowToast(inMessage.data());
+    AndroidShowToast(inMessage.c_str());
 #else
     std::cout << inMessage.data();
 #endif

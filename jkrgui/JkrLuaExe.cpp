@@ -11,7 +11,7 @@
 
 #include "LuaBundleAndroid.hpp"
 
-extern void LuaShowToastNotification(const std::string_view inMessage);
+extern void LuaShowToastNotification(const std::string inMessage);
 
 namespace JkrEXE {
 extern void CreateBasicBindings(sol::state &inState);
@@ -69,7 +69,7 @@ void RunScript() {
         sol::error error = result;
         std::cout << error.what();
         ksai_print(error.what());
-        LuaShowToastNotification(error.what());
+        LuaShowToastNotification(std::string(error.what()));
     }
 #endif
     sol::protected_function_result result_ =
@@ -78,7 +78,7 @@ void RunScript() {
         sol::error error = result_;
         std::cout << error.what();
         ksai_print(error.what());
-        LuaShowToastNotification(error.what());
+        LuaShowToastNotification(std::string(error.what()));
     }
 }
 

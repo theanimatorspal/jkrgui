@@ -89,7 +89,7 @@
     "editor.lineNumbers": "on",
     "editor.foldingHighlight": true,
     "editor.foldingImportsByDefault": false,
-    "workbench.sideBar.location": "right",
+    "workbench.sideBar.location": "left",
     "[cpp]": {
         "editor.wordBasedSuggestions": "allDocuments",
         "editor.suggest.insertMode": "replace",

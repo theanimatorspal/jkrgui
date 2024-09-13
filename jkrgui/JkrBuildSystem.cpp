@@ -182,7 +182,9 @@ void CreateAndroidEnvironment(const sv inAndroidAppName,
                 fs::path target = Assets / entry.path().filename();
                 if (not fs::exists(target) and entry.is_directory()) fs::create_directory(target);
                 if (fs::exists(src)) {
-                    fs::copy(src, target, fs::copy_options::recursive);
+                    fs::copy(src,
+                             target,
+                             fs::copy_options::recursive | fs::copy_options::overwrite_existing);
                 }
             }
         }
@@ -198,9 +200,14 @@ void CreateAndroidEnvironment(const sv inAndroidAppName,
             source               = source / "out" / "build" / inBuild / "jkrgui";
             fs::path destination = jniLibsDir / "arm64-v8a";
             if (not fs::exists(destination)) fs::create_directory(destination);
-            fs::copy_file(source / "libjkrgui.so", destination / "libjkrgui.so");
-            fs::copy_file(sdlsource, destination / "libSDL2.so");
-            fs::copy_file(validation_layers, destination / "libVkLayer_khronos_validation.so");
+            fs::copy_file(source / "libjkrgui.so",
+                          destination / "libjkrgui.so",
+                          fs::copy_options::overwrite_existing);
+            fs::copy_file(
+                 sdlsource, destination / "libSDL2.so", fs::copy_options::overwrite_existing);
+            fs::copy_file(validation_layers,
+                          destination / "libVkLayer_khronos_validation.so",
+                          fs::copy_options::overwrite_existing);
         }
 
     } catch (const std::exception &e) {

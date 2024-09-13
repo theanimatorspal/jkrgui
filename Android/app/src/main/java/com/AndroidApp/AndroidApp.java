@@ -21,6 +21,7 @@ import org.libsdl.app.SDLActivity;
 public class AndroidApp extends JkrGUIActivity {
           @Override
           public void onCreate(Bundle savedInstanceState) {
+                    InitJNI();
                     copyFileOrDir("app.lua", this.getPackageName());
                     copyFileOrDir("font.ttf", this.getPackageName());
                     ChangeDirectory("/data/data/" + this.getPackageName() + "/");
