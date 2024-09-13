@@ -18,7 +18,6 @@ Jkr.HLayout = {
     AddComponents = function(self, inComponentListTable, inRatioTable)
         self.mComponents = inComponentListTable
         self.mRatioTable = inRatioTable
-        return self
     end,
     Update = function(self, inPosition_3f, inDimension_3f)
         local position = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z)
@@ -70,7 +69,6 @@ Jkr.VLayout = {
     AddComponents = function(self, inComponentListTable, inRatioTable)
         self.mComponents = inComponentListTable
         self.mRatioTable = inRatioTable
-        return self
     end,
     Update = function(self, inPosition_3f, inDimension_3f)
         local position = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z)
@@ -204,10 +202,13 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
                 SampledImage.mColor))
         end
 
-        SampledImage.Update = function(self, inPosition_3f, inDimension_3f)
+        SampledImage.Update = function(self, inPosition_3f, inDimension_3f, inColor)
             local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill,
                 uvec2(inDimension_3f.x, inDimension_3f.y))
             o.s:Update(SampledImage.imageViewRect, Rectangle, inPosition_3f)
+            if inColor then
+                o.c.mDrawables[self.DrawId].mColor = inColor
+            end
         end
 
         SampledImage.CopyToCompute = function(inComputeImage)

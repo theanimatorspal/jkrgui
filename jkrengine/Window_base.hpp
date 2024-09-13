@@ -34,6 +34,7 @@ class Window_base : public SDLWindow {
     GETTER &GetInstance() const { return *mInstance; }
     GETTER &GetRenderPass() const { return mRenderPass; }
     GETTER &GetSwapChainImages() const { return mSwapChainImages; }
+    GETTER &GetSurface() { return mSurface; }
     void SetScissor(
          int inX, int inY, int inW, int inH, ParameterContext inContext = ParameterContext::UI);
     void SetDefaultScissor(ParameterContext inContext = ParameterContext::UI);

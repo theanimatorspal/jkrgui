@@ -69,7 +69,7 @@ void Jkr::SDLWindow::SetTitle(std::string_view inString) const {
 
 std::pair<int, int> Jkr::SDLWindow::GetWindowSize() const {
     int w, h;
-    SDL_Vulkan_GetDrawableSize(mSDLWindowPtr, &w, &h);
+    SDL_GetWindowSize(mSDLWindowPtr, &w, &h);
     return std::make_pair(w, h);
 }
 

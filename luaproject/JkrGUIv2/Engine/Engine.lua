@@ -9,20 +9,20 @@ Engine.Load = function(self, inEnableValidation)
     self.mt = Jkr.MultiThreading(self.i)
     self.gate = {
         run = function(f, t)
-            mt:AddJobFIndex(f, t)
+            self.mt:AddJobFIndex(f, t)
         end
     }
     setmetatable(self.gate, {
         __index = function(_, key)
-            return mt:Get(key, StateId)
+            return self.mt:Get(key, StateId)
         end,
         __newindex = function(_, k, v)
             if k == "_run" and type(v) == "function" then
-                mt:AddJobF(v)
+                self.mt:AddJobF(v)
             elseif type(k) == "number" then
-                mt:AddJobFIndex(v, k)
+                self.mt:AddJobFIndex(v, k)
             else
-                mt:Inject(k, v)
+                self.mt:Inject(k, v)
             end
         end,
     })

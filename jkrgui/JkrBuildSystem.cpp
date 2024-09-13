@@ -150,40 +150,55 @@ static void RenameFilesInDirectory(const fs::path &path,
 
 constexpr std::string_view AndroidAppString = "AndroidApp";
 
-void CreateAndroidEnvironment(const sv inAndroidAppName, const sv inAndroidAppDirectory) {
-    fs::path Src    = s(getenv("JKRGUI_DIR")) + "/Android/";
-    fs::path Target = s(inAndroidAppDirectory);
-    if (not filesystem::exists(Target)) {
-        filesystem::create_directory(Target);
-    }
-    if (not fs::exists(Target)) {
-        fs::create_directory(Target);
-    }
-    fs::copy(Src, Target, fs::copy_options::recursive | fs::copy_options::skip_existing);
-    ReplaceString(Target, AndroidAppString, inAndroidAppName);
-    RenameFilesInDirectory(Target, AndroidAppString, inAndroidAppName);
+void CreateAndroidEnvironment(const sv inAndroidAppName,
+                              const sv inAndroidAppDirectory,
+                              const sv inBuild) {
+    try {
+        fs::path Src    = s(getenv("JKRGUI_DIR")) + "/Android/";
+        fs::path Target = s(inAndroidAppDirectory);
+        if (not filesystem::exists(Target)) {
+            filesystem::create_directory(Target);
+        }
+        if (not fs::exists(Target)) {
+            fs::create_directory(Target);
+        }
+        fs::copy(Src, Target, fs::copy_options::recursive | fs::copy_options::skip_existing);
+        ReplaceString(Target, AndroidAppString, inAndroidAppName);
+        RenameFilesInDirectory(Target, AndroidAppString, inAndroidAppName);
 
-    fs::path Assets               = Target / "app" / "src" / "main" / "assets";
-    const v<sv> EntriesToBeCopied = {"cache2", "JkrGUIv2", "res", "src", "app.lua"};
+        fs::path Assets               = Target / "app" / "src" / "main" / "assets";
+        const v<sv> EntriesToBeCopied = {"cache2", "JkrGUIv2", "res", "src", "app.lua"};
 
-    if (not filesystem::exists(Assets)) {
-        filesystem::create_directory(Assets);
-    }
+        if (not filesystem::exists(Assets)) {
+            filesystem::create_directory(Assets);
+        }
 
-    int i = 0;
-    for (const auto &entry : fs::directory_iterator(fs::current_path())) {
-        bool ShouldCopy = std::any_of(EntriesToBeCopied.begin(),
-                                      EntriesToBeCopied.end(),
-                                      [&](auto &i) { return i == entry.path().filename(); });
-        if (ShouldCopy) {
-            fs::path src    = entry;
-            fs::path target = Assets / entry.path().filename();
-            if (not fs::exists(target) and entry.is_directory()) fs::create_directory(target);
-            if (fs::exists(src)) {
-                fs::copy(
-                     src, target, fs::copy_options::recursive | fs::copy_options::skip_existing);
+        int i = 0;
+        for (const auto &entry : fs::directory_iterator(fs::current_path())) {
+            bool ShouldCopy = std::any_of(EntriesToBeCopied.begin(),
+                                          EntriesToBeCopied.end(),
+                                          [&](auto &i) { return i == entry.path().filename(); });
+            if (ShouldCopy) {
+                fs::path src    = entry;
+                fs::path target = Assets / entry.path().filename();
+                if (not fs::exists(target) and entry.is_directory()) fs::create_directory(target);
+                if (fs::exists(src)) {
+                    fs::copy(src,
+                             target,
+                             fs::copy_options::recursive | fs::copy_options::skip_existing);
+                }
             }
         }
+
+        fs::path jniLibsDir = Target / "app" / "src" / "main" / "jniLibsDir";
+        if (inBuild == "android-arm64-v8a") {
+            fs::path source      = s(getenv("JKRGUI_DIR"));
+            source               = source / "out" / "build" / inBuild;
+            fs::path destination = jniLibsDir / "android-arm64";
+            fs::copy_file(source / "jkrgui.so", destination / "jkrgui.so");
+        }
+    } catch (const std::exception &e) {
+        std::cout << e.what() << "\n";
     }
 }
 

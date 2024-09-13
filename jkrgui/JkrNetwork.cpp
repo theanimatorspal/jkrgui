@@ -9,7 +9,7 @@ static std::vector<Up<ClientInterface>> Clients;
 static Up<ServerInterface> Server;
 static Jkr::Network::TsQueue<Message> MessageBuffer;
 
-OnClientValidationFunctionType OnClientValidationFunction = [](sp<Connection>) {};
+OnClientValidationFunctionType OnClientValidationFunction = [](sp<Connection> inConnection) {};
 
 OnClientConnectionFunctionType OnClientConnectionFunction = [](sp<Connection>) { return true; };
 
@@ -19,7 +19,6 @@ OnClientDisConnectionFunctionType OnClientDisConnectionFunction = [](sp<Connecti
 };
 
 OnMessageFunctionType OnMessageFunction = [](sp<Connection>, Message &inMessage) {
-    std::cout << "A Message has been Received\n";
     MessageBuffer.push_back(inMessage);
 };
 
@@ -114,7 +113,7 @@ void CreateNetworkBindings(sol::state &s) {
          },
          "InsertFile",
          [](Message &inMsg, std::string_view inFileName) {
-             std::ifstream file = std::ifstream(std::string(inFileName));
+             std::ifstream file = std::ifstream(std::string(inFileName), std::ios::binary);
              auto FileSize      = filesystem::file_size(inFileName);
              std::vector<char> Bytes;
              Bytes.resize(FileSize);
@@ -127,7 +126,7 @@ void CreateNetworkBindings(sol::state &s) {
          "GetFile",
          [](Message &inMsg, std::string_view inFileName) {
              std::vector<char> Bytes = inMsg.GetEXT<decltype(Bytes)>();
-             std::ofstream file      = std::ofstream(std::string(inFileName));
+             std::ofstream file      = std::ofstream(std::string(inFileName), std::ios::binary);
              file.write(Bytes.data(), Bytes.size());
          });
 

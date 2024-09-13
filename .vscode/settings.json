@@ -21,11 +21,13 @@
     "cmake.clearOutputBeforeBuild": true,
     "cmake.debugConfig": {
         "console": "externalTerminal",
-        "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\Experiment",
+        "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\Present\\Experiment",
         "visualizerFile": "${workspaceFolder}/Visualizers/glm.natvis",
         "args": [
-            // "--and-env"
-            "--repl",
+            "--android-environment",
+            "--appname \"tester\"",
+            "--dirname \"android\"",
+            // "--repl",
             // "--generate-run"
         ]
     },

@@ -115,14 +115,21 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
     bool FlagGenerateRun              = false;
     bool FlagRepl                     = false;
     bool FlagCreateAndroidEnvironment = false;
-    std::string OptionAndroidAppName  = "JkrGUIv2";
-    std::string OptionAndroidDirName  = "android";
+    ///
+    /// @brief These options are string options
+    /// @warning Use "" for giving them in the command line,
+    /// otherwise it won't recognize the name
+    ///
+    std::string OptionAndroidAppName      = "JkrGUIv2";
+    std::string OptionAndroidDirName      = "android";
+    std::string OptionAndroidBuildDirName = "android-arm64-v8a";
     app.add_flag("--g,--generate", FlagGenerate);
     app.add_flag("--gr,--generate-run", FlagGenerateRun);
     app.add_flag("--r, --repl", FlagRepl);
     app.add_flag("--android-environment,--and-env", FlagCreateAndroidEnvironment);
     app.add_option("--appname", OptionAndroidAppName, "Android App Name");
     app.add_option("--dirname", OptionAndroidDirName, "Android Dir Name");
+    app.add_option("--builddir", OptionAndroidBuildDirName, "Android Build Directory Name");
 
     app.parse(ArgCount, ArgStrings);
 

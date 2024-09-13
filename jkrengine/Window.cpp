@@ -56,12 +56,15 @@ Window::Window(const Instance &inInstance,
 void Window::Refresh() {
     ZoneScoped;
     mSurface.ProcessCurrentSurfaceConditions(mInstance->GetPhysicalDevice());
+    SDL_Event event;
+    /// @todo This seems a little fishy TBH
+    while (mSurface.GetExtent().height <= 0 or mSurface.GetExtent().width <= 0) {
+        SDL_PollEvent(&event);
+        mSurface.ProcessCurrentSurfaceConditions(mInstance->GetPhysicalDevice());
+    }
     mSwapChain = VulkanSwapChain(
          mInstance->GetDevice(), mInstance->GetQueueContext(), mSurface, mSwapChain);
-    mSwapChainImages     = mSwapChain.GetVulkanImages(mInstance->GetDevice(), mSurface);
-    auto WindowDimension = GetWindowDimension();
-    mWidth               = WindowDimension.x;
-    mHeight              = WindowDimension.y;
+    mSwapChainImages = mSwapChain.GetVulkanImages(mInstance->GetDevice(), mSurface);
 }
 
 namespace Jkr {

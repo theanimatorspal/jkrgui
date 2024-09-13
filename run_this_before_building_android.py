@@ -20,6 +20,7 @@ std::string_view LuaBundleScript = R"ijum(
           Push("Engine.lua")
           Push("CallBuffers.lua")
           Push("Basic.lua")
+          Push("General.lua")
           outputFile.write("""
           )ijum";
 """)

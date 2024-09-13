@@ -42,28 +42,28 @@ imageStore(storageImage, to_draw_at, final_color);
     o.c:PushOneTime(Jkr.CreateDispatchable(function()
         op.roundedRectangle.BindPainter(op.roundedRectanglePainter)
         local PushConstant = Jkr.DefaultCustomImagePainterPushConstant()
-        PushConstant.x = vec4(0.0, 0.0, 1.0, 1.0)
-        PushConstant.y = vec4(1.0, 1.0, 1.0, 1.0)
-        PushConstant.z = vec4(0.0, 0.0, 0.0, 1.0)
+        PushConstant.x = vec4(0.0, 0.0, 0.85, 0.85)
+        PushConstant.y = vec4(1)
+        PushConstant.z = vec4(0.1, 0.5, 0.5, 0.0)
         op.roundedRectangle.DrawPainter(op.roundedRectanglePainter, PushConstant, 100, 100, 1)
     end), 1)
 
     o.CreatePressButton = function(inPosition_3f, inDimension_3f, inOnClickFunction, inContinous, inFont, inText,
-                                   inColor)
+                                   inColor, inBackgroundColor)
         local button = {}
         button.parent = o.CreateButton(inPosition_3f, inDimension_3f, inOnClickFunction, inContinous)
         setmetatable(button, button.parent)
         button.__index = button.parent
 
-        button.sampledImage = o.CreateSampledImage(inPosition_3f, inDimension_3f)
+        button.sampledImage = o.CreateSampledImage(inPosition_3f, inDimension_3f, nil, nil, inBackgroundColor)
         o.c:PushOneTime(Jkr.CreateDispatchable(function()
             op.roundedRectangle.CopyToSampled(button.sampledImage)
         end), 1)
         button.sampledText = o.CreateTextLabel(inPosition_3f, inDimension_3f, inFont, inText, inColor)
 
-        button.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inColor)
+        button.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inColor, inBackgroundColor)
             button.parent:Update(inPosition_3f, inDimension_3f)
-            button.sampledImage:Update(inPosition_3f, inDimension_3f)
+            button.sampledImage:Update(inPosition_3f, inDimension_3f, inBackgroundColor)
             local DelDim = vec3(0, 0, 0)
             local fontDim = button.sampledText.mFont:GetTextDimension(self.sampledText.mText)
             DelDim = vec3((inDimension_3f.x - fontDim.x) / 2, (inDimension_3f.y - fontDim.y) / 2, 0)
