@@ -19,11 +19,11 @@ import org.JkrGUI.JkrGUIActivity;
 import org.libsdl.app.SDLActivity;
 
 public class AndroidApp extends JkrGUIActivity {
-          private JkrGUI mJkrGUIInstance;
-
           @Override
           public void onCreate(Bundle savedInstanceState) {
-                    mJkrGUIInstance = new JkrGUI();
+                    copyFileOrDir("app.lua", this.getPackageName());
+                    copyFileOrDir("font.ttf", this.getPackageName());
+                    ChangeDirectory("/data/data/" + this.getPackageName() + "/");
                     super.onCreate(savedInstanceState);
                     RunMain();
           }

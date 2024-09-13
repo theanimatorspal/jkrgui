@@ -62,7 +62,7 @@ void RunScript() {
     CreateMainBindings(mainState);
 
 #ifdef ANDROID
-    ksai_print("Main Function Entered");
+    ksai_print("========================Main Function Entered=============================");
     sol::protected_function_result result =
          mainState.safe_script(LuaBundleScript, &sol::script_pass_on_error);
     if (not result.valid()) {
@@ -71,12 +71,11 @@ void RunScript() {
         ksai_print(error.what());
         LuaShowToastNotification(error.what());
     }
-    std::filesystem::current_path("/storage/emulated/0/Download/JkrGUIv2");
 #endif
-    sol::protected_function_result result =
+    sol::protected_function_result result_ =
          mainState.safe_script_file("app.lua", &sol::script_pass_on_error);
-    if (not result.valid()) {
-        sol::error error = result;
+    if (not result_.valid()) {
+        sol::error error = result_;
         std::cout << error.what();
         ksai_print(error.what());
         LuaShowToastNotification(error.what());

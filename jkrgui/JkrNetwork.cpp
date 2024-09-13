@@ -126,7 +126,8 @@ void CreateNetworkBindings(sol::state &s) {
          "GetFile",
          [](Message &inMsg, std::string_view inFileName) {
              std::vector<char> Bytes = inMsg.GetEXT<decltype(Bytes)>();
-             std::ofstream file      = std::ofstream(std::string(inFileName), std::ios::binary);
+             std::ofstream file =
+                  std::ofstream(std::string(inFileName), std::ios::binary | std::ios::trunc);
              file.write(Bytes.data(), Bytes.size());
          });
 

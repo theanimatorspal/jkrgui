@@ -3,18 +3,18 @@
 
 #ifdef ANDROID
 #include <jni.h>
-JavaVM* g_vm      = nullptr;
+JavaVM *g_vm      = nullptr;
 jobject g_context = nullptr;
 
-extern "C" JNIEXPORT void JNICALL Java_org_JkrGUI_JkrGUIActivity_InitJNI(JNIEnv* env,
+extern "C" JNIEXPORT void JNICALL Java_org_JkrGUI_JkrGUIActivity_InitJNI(JNIEnv *env,
                                                                          jobject thiz) {
     ksai_print("INITIALIZED::JNI");
     env->GetJavaVM(&g_vm);
     g_context = env->NewGlobalRef(thiz);
 }
 
-void AndroidShowToast(const char* inMessage) {
-    JNIEnv* env;
+void AndroidShowToast(const char *inMessage) {
+    JNIEnv *env;
     if (g_vm->AttachCurrentThread(&env, nullptr) != JNI_OK) {
         ksai_print("Failed to attach current thread");
         return;
@@ -24,6 +24,16 @@ void AndroidShowToast(const char* inMessage) {
     jclass JkrGUIClass = env->FindClass("org/JkrGUI/JkrGUIActivity");
     jmethodID methodId = env->GetMethodID(JkrGUIClass, "ShowToast", "(Ljava/lang/String;)V");
     env->CallVoidMethod(g_context, methodId, Message);
+}
+
+extern "C" JNIEXPORT void JNICALL Java_org_JkrGUI_JkrGUIActivity_ChangeDirectory(
+     JNIEnv *inenv, jobject thiz, jstring inDirectoryName) {
+
+    jboolean isCopy;
+    auto charrs = inenv->GetStringUTFChars(inDirectoryName, &isCopy);
+    std::string directory(charrs);
+    inenv->ReleaseStringUTFChars(inDirectoryName, charrs);
+    std::filesystem::current_path(directory);
 }
 #endif
 
@@ -36,7 +46,7 @@ void LuaShowToastNotification(const std::string_view inMessage) {
 }
 
 namespace JkrEXE {
-void CreatePlatformBindings(sol::state& inS) {
+void CreatePlatformBindings(sol::state &inS) {
     auto Jkr = inS["Jkr"].get_or_create<sol::table>();
     Jkr.set_function("ShowToastNotification", LuaShowToastNotification);
 }
