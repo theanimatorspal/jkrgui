@@ -3,11 +3,12 @@
 #include "Renderers/ThreeD/Simple3D.hpp"
 #include "Renderers/TwoD/Shape.hpp"
 #include <Misc/RecycleBin.hpp>
+#include <Misc/Tools.hpp>
 
 namespace JkrEXE {
-extern void CreateMainBindings(sol::state& s);
+extern void CreateMainBindings(sol::state &s);
 
-void CreateMiscBindings(sol::state& inState) {
+void CreateMiscBindings(sol::state &inState) {
     auto Jkr = inState["Jkr"].get_or_create<sol::table>();
 
     Jkr.new_usertype<Jkr::Misc::RecycleBin<int>>(
@@ -29,7 +30,7 @@ void CreateMiscBindings(sol::state& inState) {
          "CustomPainterImage",
          sol::call_constructor,
          sol::factories(
-              [](Jkr::Instance& inInstance, Jkr::Window_base& inWindow, int inWidth, int inHeight) {
+              [](Jkr::Instance &inInstance, Jkr::Window_base &inWindow, int inWidth, int inHeight) {
                   return mu<Jkr::Renderer::CustomPainterImage>(
                        inInstance, inWindow, inWidth, inHeight);
               }),
@@ -73,10 +74,10 @@ void CreateMiscBindings(sol::state& inState) {
          "Uniform3D",
          sol::call_constructor,
          sol::factories(
-              [](Jkr::Instance& inI, Jkr::Renderer::_3D::Simple3D& inSimple3D) {
+              [](Jkr::Instance &inI, Jkr::Renderer::_3D::Simple3D &inSimple3D) {
                   return mu<Uniform3D>(inI, inSimple3D);
               },
-              [](Jkr::Instance& inInstance) { return mu<Uniform3D>(inInstance); },
+              [](Jkr::Instance &inInstance) { return mu<Uniform3D>(inInstance); },
               &Uniform3D::CreateByGLTFNodeIndex),
          "AddTexture",
          &Uniform3D::AddTexture,
@@ -88,17 +89,17 @@ void CreateMiscBindings(sol::state& inState) {
          &Uniform3D::UpdateByGLTFAnimation,
          "Build",
          sol::overload(
-              sol::resolve<void(Jkr::Renderer::_3D::Simple3D&)>(&Uniform3D::Build),
-              [](Uniform3D& inUniform3D,
-                 Simple3D& inS,
-                 glTF_Model& inModel,
+              sol::resolve<void(Jkr::Renderer::_3D::Simple3D &)>(&Uniform3D::Build),
+              [](Uniform3D &inUniform3D,
+                 Simple3D &inS,
+                 glTF_Model &inModel,
                  ui inNodeIndex,
                  bool inShouldskin,
                  bool inShouldTexture) {
                   inUniform3D.Build(inS, inModel, inNodeIndex, inShouldskin, inShouldTexture);
               },
-              sol::resolve<void(Simple3D&, glTF_Model&, ui, bool, bool, bool)>(&Uniform3D::Build),
-              sol::resolve<void(Simple3D&, glTF_Model&, glTF_Model::Primitive&)>(
+              sol::resolve<void(Simple3D &, glTF_Model &, ui, bool, bool, bool)>(&Uniform3D::Build),
+              sol::resolve<void(Simple3D &, glTF_Model &, glTF_Model::Primitive &)>(
                    &Uniform3D::Build)),
          "BuildByMaterial",
          &Uniform3D::BuildByMaterial,
@@ -256,6 +257,9 @@ void CreateMiscBindings(sol::state& inState) {
 
                               "AddSkyboxToUniform3D",
                               &World3D::AddSkyboxToUniform3D);
+
+    Jkr.set_function("CopyWindowDeferredImageToShapeImage",
+                     &Jkr::CopyWindowDeferredImageToShapeImage);
 }
 
 } // namespace JkrEXE

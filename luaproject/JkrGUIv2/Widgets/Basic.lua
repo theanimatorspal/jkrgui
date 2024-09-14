@@ -214,6 +214,10 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         SampledImage.CopyToCompute = function(inComputeImage)
             o.s:CopyFromImage(SampledImage.mId, inComputeImage.mId)
         end
+
+        SampledImage.CopyDeferredImageFromWindow = function(inWindow)
+            Jkr.CopyWindowDeferredImageToShapeImage(inWindow, o.s.handle, SampledImage.mId)
+        end
         return SampledImage
     end
 
