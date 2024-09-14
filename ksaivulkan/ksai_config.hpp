@@ -27,8 +27,8 @@
 #undef min
 #endif
 
-void* operator new(std::size_t count);
-void operator delete(void* ptr) noexcept;
+void *operator new(std::size_t count);
+void operator delete(void *ptr) noexcept;
 
 namespace ksai {
 template <typename... T> using var           = std::variant<T...>;
@@ -57,18 +57,38 @@ using uc                                     = unsigned char;
 } // namespace ksai
 
 #ifdef ANDROID
-extern "C" int __android_log_print(int prio, const char* tag, const char* fmt, ...);
+extern "C" int __android_log_print(int prio, const char *tag, const char *fmt, ...);
 #endif
+
+template <typename... T> inline void ksai_print(std::string_view inT, T &&...t) {
+#ifdef ANDROID
+    __android_log_print(6, inT.data(), t...);
+#else
+    // printf(inT.data(), t...);
+#endif // ANDROID
+}
+
+template <typename... T> inline void ksai_print(const char *inT, T &&...t) {
+#ifdef ANDROID
+    __android_log_print(6, inT, t...);
+#else
+    // printf(inT.data(), t...);
+#endif // ANDROID
+}
+
+inline void ksai_print(const char *inT) { ksai_print("KSAI::%s", inT); }
 
 template <typename T> inline void ksai_print(T inT) {
 #ifdef ANDROID
     __android_log_print(6, "KSAI::%s", "=================================");
     if constexpr (std::is_same_v<T, ksai::s>) {
-        __android_log_print(6, "KSAI::%s", inT.c_str());
+        T t = inT;
+        __android_log_print(6, "KSAI::%s", t.c_str());
     }
 
     if constexpr (std::is_same_v<T, ksai::sv>) {
-        __android_log_print(6, "KSAI::%s", inT.dat());
+        T t = inT;
+        __android_log_print(6, "KSAI::%s", t.data());
     }
 
 #else
@@ -76,13 +96,5 @@ template <typename T> inline void ksai_print(T inT) {
     // printf(inT);
     //  printf(inT.data(), t...);
     //  printf("\n");
-#endif // ANDROID
-}
-
-template <typename... T> inline void ksai_print(std::string_view inT, T&&... t) {
-#ifdef ANDROID
-    __android_log_print(6, "KSAI:: %s", inT.data());
-#else
-    // printf(inT.data(), t...);
 #endif // ANDROID
 }

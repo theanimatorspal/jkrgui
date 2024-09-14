@@ -36,7 +36,7 @@ struct World3D {
     GETTER GetUniform3D(int inId) { return mUniforms[inId].get(); }
     GETTER GetSimple3D(int inId) { return mSimple3Ds[inId].get(); }
     SETTER SetCurrentCamera(int inId) { mCurrentCamera = inId; }
-    GETTER GetSkyboxImageBase(int inId) -> VulkanImageBase& {
+    GETTER GetSkyboxImageBase(int inId) -> VulkanImageBase & {
         return mSkyboxImages[inId]->GetUniformImage();
     }
     WorldInfoUniform GetWorldInfo();
@@ -47,7 +47,7 @@ struct World3D {
 
     ============================================================== */
 
-    static Up<World3D> CreateWorld3D(Shape3D& inShape);
+    static Up<World3D> CreateWorld3D(Shape3D &inShape);
     void BuildBasic();
 
     /* ============================================================
@@ -56,16 +56,16 @@ struct World3D {
 
     ============================================================== */
 
-    void AddCamera(Camera3D& inCamera) { mCameras.push_back(inCamera); }
+    void AddCamera(Camera3D &inCamera) { mCameras.push_back(inCamera); }
     int AddGLTFModel(std::string_view inFileName);
-    int AddSimple3D(Jkr::Instance& inInstance, Window_base& inWindow);
-    int AddUniform3D(Jkr::Instance& inInstance);
+    int AddSimple3D(Jkr::Instance &inInstance, Window_base &inWindow);
+    int AddUniform3D(Jkr::Instance &inInstance);
     int AddLight3D(glm::vec4 inPosition, glm::vec4 inDirection);
-    void DrawObjectsExplicit(Window_base& inWindow,
-                             v<Object3D>& inExplicitObjectIds,
+    void DrawObjectsExplicit(Window_base &inWindow,
+                             v<Object3D> &inExplicitObjectIds,
                              Renderer::CmdParam inParam);
-    void Event(Jkr::EventManager& inEvent);
-    void Update(Jkr::EventManager& inEvent);
+    void Event(Jkr::EventManager &inEvent);
+    void Update(Jkr::EventManager &inEvent);
 
     /* ============================================================
 
@@ -73,19 +73,19 @@ struct World3D {
 
     ============================================================== */
     void AddWorldInfoToUniform3D(int inId);
-    void AddWorldInfoToUniform3DEXT(Uniform3D& inUniform);
-    void AddSkyboxToUniform3D(Instance& inInstance, sv inFolderPath, int inId, int inSet);
-    void AddShadowMapToUniform3D(Window& inWindow, int inId, int inSet);
-    void AddWorldPrimitiveToUniform3D(Instance& inInstance, Uniform3D& inUniform3D, int inId);
-    void UpdateWorldInfoToUniform3D(Uniform3D& inUniform);
+    void AddWorldInfoToUniform3DEXT(Uniform3D &inUniform);
+    void AddSkyboxToUniform3D(Instance &inInstance, sv inFolderPath, int inId, int inSet);
+    void AddShadowMapToUniform3D(Window &inWindow, int inId, int inSet);
+    void AddWorldPrimitiveToUniform3D(Instance &inInstance, Uniform3D &inUniform3D, int inId);
+    void UpdateWorldInfoToUniform3D(Uniform3D &inUniform);
 
     /* PBR Routines */
-    World3D(Shape3D& inShape) : mShape(inShape) {}
+    World3D(Shape3D &inShape) : mShape(inShape) {}
 
     private:
     using SkyboxImageType = Jkr::PainterParameter<PainterParameterContext::SkyboxImage>;
     void UpdateWorldInfoToUniform3D(int inId);
-    Shape3D& mShape;
+    Shape3D &mShape;
     int mCurrentCamera = 0;
     v<Camera3D> mCameras;
     v<Up<Renderer::_3D::glTF_Model>> mGLTFModels;

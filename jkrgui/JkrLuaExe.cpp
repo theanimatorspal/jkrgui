@@ -68,7 +68,7 @@ void RunScript() {
     if (not result.valid()) {
         sol::error error = result;
         std::cout << error.what();
-        ksai_print(error.what());
+        ksai_print(std::string_view("KSAI::ERROR:%s"), error.what());
         LuaShowToastNotification(std::string(error.what()));
     }
 #endif
@@ -77,7 +77,7 @@ void RunScript() {
     if (not result_.valid()) {
         sol::error error = result_;
         std::cout << error.what();
-        ksai_print(error.what());
+        ksai_print(std::string_view("KSAI::ERROR:%s"), error.what());
         LuaShowToastNotification(std::string(error.what()));
     }
 }

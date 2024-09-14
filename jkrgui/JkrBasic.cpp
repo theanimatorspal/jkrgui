@@ -102,6 +102,8 @@ void CreateBasicBindings(sol::state &s) {
          &Jkr::Window::ExecuteDeferredComposition,
          "PresentDeferred",
          &Jkr::Window::PresentDeferred,
+         "PresentDeferredToOffscreenImage",
+         &Jkr::Window::PresentDeferredToOffscreenImage,
 
          "SetTitle",
          &Jkr::Window::SetTitle,

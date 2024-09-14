@@ -316,4 +316,14 @@ void Window::PresentDeferred() {
     }
 }
 
+void Window::PresentDeferredToOffscreenImage() {
+    using namespace vk;
+    auto &dst = mOffscreenImages[mCurrentFrame];
+    auto &src = mDeferredPass->GetDeferredCompositionImage().GetUniformImage();
+    auto &cmd = mCommandBuffers[mCurrentFrame];
+    ImageSubresourceLayers SrcSubLayers(ImageAspectFlagBits::eColor, 0, 0, 1);
+    ImageSubresourceLayers DstSubLayers(ImageAspectFlagBits::eColor, 0, 0, 1);
+    // For dst from ColorAttachment
+}
+
 } // namespace Jkr

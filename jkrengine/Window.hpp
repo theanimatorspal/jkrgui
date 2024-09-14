@@ -45,6 +45,7 @@ class Window : public Window_base {
     void BeginDeferredDraws(float r, float g, float b, float a, float d);
     void EndDeferredDraws();
     void PresentDeferred();
+    void PresentDeferredToOffscreenImage();
 
     ///
     ///

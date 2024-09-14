@@ -50,7 +50,7 @@ Window_base::Window_base(const Instance &inInstance,
     mCommandPool.Init({dptr, &inInstance.GetQueueContext()});
     for (auto &cmdbuf : mCommandBuffers)
         cmdbuf.Init({dptr, &mCommandPool});
-    ksai_print("SwapChainImagesSize: %d", mSwapChainImages.size());
+    ksai_print("SwapChainImagesSize: %d", std::to_string(mSwapChainImages.size()).c_str());
 
     mOffscreenImages.resize(mSwapChainImages.size());
     for (int i = 0; i < mSwapChainImages.size(); i++) {

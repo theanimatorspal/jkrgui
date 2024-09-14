@@ -611,3 +611,61 @@ Engine.AddObject = function(modObjectsVector, inId, inAssociatedModel, inUniform
     modObjectsVector:add(Object)
     return #modObjectsVector
 end
+
+Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmodelname, inshadertype, inprimitive,
+                                             inmeshindex)
+    local materialindex = inprimitive.mMaterialIndex
+    local meshindex = 0
+    local shouldload = false
+    if inmeshindex then meshindex = inmeshindex end
+
+    local gltfmodelindex = inworld3d:AddGLTFModel(ingltfmodelname)
+    local gltfmodel = inworld3d:GetGLTFModel(gltfmodelindex)
+    local uniform3dindex = inworld3d:AddUniform3D(Engine.i)
+    local uniform = inworld3d:GetUniform3D(uniform3dindex)
+
+    local shaderindex = inworld3d:AddSimple3D(Engine.i, w)
+    local shader = inworld3d:GetSimple3D(shaderindex)
+
+    local shapeindex = inshape3d:Add(gltfmodel) -- this ACUTALLY loads the GLTF Model
+    if inshadertype == "CONSTANT_COLOR" then
+        local vshader = Basics.GetVertexWithTangent()
+
+        local fshader = Basics.GetConstantFragmentHeader()
+            .gltfPutMaterialTextures(gltfmodel, materialindex)
+            .GlslMainBegin()
+        if fshader.gltfMaterialTextures.mBaseColorTexture == true then
+            fshader.Append [[
+                    outFragColor = texture(uBaseColorTexture, vUV);
+                    ]]
+        else
+            fshader.Append [[
+                outFragColor = vec4(1, 0, 0, 1)
+            ]]
+        end
+        fshader.GlslMainEnd()
+
+        shader:CompileEXT(
+            Engine.i,
+            w,
+            "cache/constant_color.glsl",
+            vshader.str,
+            fshader.str,
+            "",
+            shouldload,
+            Jkr.CompileContext.Default
+        )
+    end
+    uniform:Build(shader, gltfmodel, inprimitive)
+
+    local object = Jkr.Object3D()
+    object.mId = shapeindex;
+    object.mAssociatedModel = gltfmodelindex;
+    object.mAssociatedUniform = uniform3dindex;
+    object.mAssociatedSimple3D = shaderindex;
+    object.mFirstIndex = inprimitive.mFirstIndex
+    object.mIndexCount = inprimitive.mIndexCount
+    local NodeIndices = gltfmodel:GetNodeIndexByMeshIndex(meshindex - 1) --@lua indexes from one
+    object.mMatrix = gltfmodel:GetNodeMatrixByIndex(NodeIndices[1])
+    return object
+end

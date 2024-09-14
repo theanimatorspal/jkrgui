@@ -703,6 +703,9 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
     end
     o.gltfPutMaterialTextures  = function(inGLTF, inMaterialIndex)
         local Material = inGLTF:GetMaterialsRef()[inMaterialIndex]
+        if not Material then
+            Material = {}
+        end
         local binding = 3
         o.gltfMaterialTextures = {}
         if (Material.mBaseColorTextureIndex ~= -1) then
@@ -1254,3 +1257,42 @@ Deferred.BasicFragment = Deferred.GetBasicFragmentHeader()
         outAlbedo = texture(samplerColor, vUV);
     ]]
     .GlslMainEnd()
+
+Basics = {}
+
+Basics.GetVertexWithTangent = function()
+    return Deferred.GetBasicVertexHeader()
+        .Append [[
+        struct Tangent {
+            vec4 mTangent;
+        };
+
+        layout(std140, set = 1, binding = 14) readonly buffer TangentSSBOIn {
+            Tangent inTangent[];
+        };
+        ]]
+        .GlslMainBegin()
+        .Append [[
+        gl_Position = Ubo.proj * Ubo.view * Push.model * vec4(inPosition, 1);
+        vWorldPos = vec3(Push.model * vec4(inPosition, 1));
+        mat3 mNormal = transpose(inverse(mat3(Push.model)));
+        vNormal = mNormal * normalize(inNormal.xyz);
+        vTangent = mNormal * normalize(inTangent[gl_VertexIndex].mTangent.xyz);
+        vUV = inUV;
+        vColor = inColor;
+        ]]
+        .GlslMainEnd()
+end
+
+Basics.GetConstantFragmentHeader = function()
+    return Engine.Shader()
+        .Header(450)
+        .Ubo()
+        .Push()
+        .In(0, "vec3", "vNormal")
+        .In(1, "vec2", "vUV")
+        .In(2, "vec3", "vColor")
+        .In(3, "vec3", "vTangent")
+        .In(4, "vec3", "vWorldPos")
+        .outFragColor()
+end

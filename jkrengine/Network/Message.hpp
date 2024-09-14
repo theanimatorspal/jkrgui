@@ -51,15 +51,15 @@ struct Message {
     ///
     ///
     template <typename DataType> void InsertEXT(DataType indata) {
-        if constexpr (std::is_standard_layout_v<DataType>) {
+        if constexpr (std::is_standard_layout_v<DataType> and not IsContainer<DataType>) {
             *this << indata;
         } else if constexpr (IsContainer<DataType>) {
             mBody.clear();
-            const size_t data_size = indata.size() * sizeof(indata.front());
+            const size_t data_size = indata.size() * sizeof(typename DataType::value_type);
             mBody.resize(data_size);
-            auto src = indata.data();
-            auto dst = mBody.data();
-            std::memcpy(dst, src, data_size);
+            std::memcpy(reinterpret_cast<char *>(mBody.data()),
+                        reinterpret_cast<char *>(indata.data()),
+                        data_size);
             mHeader.mSize = mBody.size();
         }
     }
@@ -70,16 +70,15 @@ struct Message {
     ///
     template <typename DataType> DataType GetEXT() {
         DataType IncomingData;
-        size_t IncomingDataSize = (*this).mHeader.mSize;
-
-        if constexpr (std::is_standard_layout_v<DataType>) {
+        size_t IncomingDataSize = mHeader.mSize;
+        if constexpr (std::is_standard_layout_v<DataType> and not IsContainer<DataType>) {
             (*this) >> IncomingData;
             return IncomingData;
         } else if constexpr (IsContainer<DataType>) {
-            IncomingData.resize(IncomingDataSize / sizeof(std::underlying_type<DataType>));
-            auto dst = IncomingData.data();
-            auto src = mBody.data();
-            std::memcpy(dst, src, IncomingDataSize);
+            IncomingData.resize(IncomingDataSize / sizeof(typename DataType::value_type));
+            std::memcpy(reinterpret_cast<char *>(IncomingData.data()),
+                        reinterpret_cast<char *>(mBody.data()),
+                        IncomingDataSize);
             return IncomingData;
         }
     }
