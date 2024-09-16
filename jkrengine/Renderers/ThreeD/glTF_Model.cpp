@@ -793,6 +793,76 @@ void glTF_Model::UpdateJoints(glTF_Model::Node *inNode, UpdateJointsCallBack inC
         UpdateJoints(child.get(), inCallBack);
     }
 }
+void glTF_Model::UpdateAnimationNormalizedTime(ui inActiveAnimation,
+                                               float inNormalizedTime,
+                                               bool inShouldLoop) {
+    Animation &Animation   = mAnimations[inActiveAnimation];
+    auto time              = glm::mix(Animation.mStart, Animation.mEnd, inNormalizedTime);
+    Animation.mCurrentTime = time;
+
+    if (inShouldLoop) {
+        if (Animation.mCurrentTime > Animation.mEnd) {
+            Animation.mCurrentTime -= Animation.mEnd;
+        }
+
+        if (Animation.mCurrentTime < Animation.mStart) {
+            Animation.mCurrentTime += Animation.mEnd;
+        }
+    } else {
+        if (Animation.mCurrentTime > Animation.mEnd) {
+            Animation.mCurrentTime = Animation.mEnd;
+        }
+        if (Animation.mCurrentTime < Animation.mStart) {
+            Animation.mCurrentTime = Animation.mStart;
+        }
+    }
+
+    if (Animation.mCurrentTime < ErrorFactor) {
+        Animation.mCurrentTime = ErrorFactor;
+    }
+
+    for (auto &channel : Animation.mChannels) {
+        AnimationSampler &sampler = Animation.mSamplers[channel.mSamplerIndex];
+        for (size_t i = 0; i < sampler.mInputs.size() - 1; i++) {
+            if (sampler.mInterpolation != "LINEAR" and sampler.mInterpolation != "STEP") {
+                std::cout << "Only Linear is Supported Yet"; // TODO Support Others
+                continue;
+            }
+
+            if ((Animation.mCurrentTime >= sampler.mInputs[i]) &&
+                (Animation.mCurrentTime <= sampler.mInputs[i + 1])) {
+                float a = (Animation.mCurrentTime - sampler.mInputs[i]) /
+                          (sampler.mInputs[i + 1] - sampler.mInputs[i]);
+                if (sampler.mInterpolation == "STEP") {
+                    a = 1.0f;
+                }
+                if (channel.mPath == "translation") {
+                    channel.mNode->mTranslation =
+                         glm::mix(sampler.mOutputsVec4[i], sampler.mOutputsVec4[i + 1], a);
+                }
+                if (channel.mPath == "rotation") {
+                    glm::quat q1;
+                    q1.x = sampler.mOutputsVec4[i].x;
+                    q1.y = sampler.mOutputsVec4[i].y;
+                    q1.z = sampler.mOutputsVec4[i].z;
+                    q1.w = sampler.mOutputsVec4[i].w;
+
+                    glm::quat q2;
+                    q2.x                     = sampler.mOutputsVec4[i + 1].x;
+                    q2.y                     = sampler.mOutputsVec4[i + 1].y;
+                    q2.z                     = sampler.mOutputsVec4[i + 1].z;
+                    q2.w                     = sampler.mOutputsVec4[i + 1].w;
+
+                    channel.mNode->mRotation = glm::normalize(glm::slerp(q1, q2, a));
+                }
+                if (channel.mPath == "scale") {
+                    channel.mNode->mScale =
+                         glm::mix(sampler.mOutputsVec4[i], sampler.mOutputsVec4[i + 1], a);
+                }
+            }
+        }
+    }
+}
 
 void glTF_Model::UpdateAnimation(ui inActiveAnimation, float inDeltaTime, bool inShouldLoop) {
     Animation &Animation = mAnimations[inActiveAnimation];

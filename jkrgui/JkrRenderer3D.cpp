@@ -48,7 +48,9 @@ void CreateRenderer3DBindings(sol::state &s) {
                         Simple3D::CompileContext::DeferredComposition);
     Jkr.new_usertype<Simple3D>("Simple3D",
                                sol::call_constructor,
-                               sol::factories([](Jkr::Instance &inI, Jkr::Window_base &inW) { return mu<Simple3D>(inI, inW); }),
+                               sol::factories([](Jkr::Instance &inI, Jkr::Window_base &inW) {
+                                   return mu<Simple3D>(inI, inW);
+                               }),
                                "Compile",
                                &Simple3D::CompileDefault,
                                "CompileEXT",
@@ -66,73 +68,79 @@ void CreateRenderer3DBindings(sol::state &s) {
                                &Simple3D::SetPipelineContext);
 
     // TODO Make this consistent, Change BoundingBox::min  to mMin
-    Jkr.new_usertype<Jkr::Renderer::_3D::glTF_Model::BoundingBox>("BoundingBox",
-                                                                  sol::call_constructor,
-                                                                  sol::default_constructor,
-                                                                  "min",
-                                                                  &Jkr::Renderer::_3D::glTF_Model::BoundingBox::min,
-                                                                  "max",
-                                                                  &Jkr::Renderer::_3D::glTF_Model::BoundingBox::max,
-                                                                  "GetAABB",
-                                                                  &Jkr::Renderer::_3D::glTF_Model::BoundingBox::GetAABB);
+    Jkr.new_usertype<Jkr::Renderer::_3D::glTF_Model::BoundingBox>(
+         "BoundingBox",
+         sol::call_constructor,
+         sol::default_constructor,
+         "min",
+         &Jkr::Renderer::_3D::glTF_Model::BoundingBox::min,
+         "max",
+         &Jkr::Renderer::_3D::glTF_Model::BoundingBox::max,
+         "GetAABB",
+         &Jkr::Renderer::_3D::glTF_Model::BoundingBox::GetAABB);
 
-    Jkr.new_usertype<Jkr::Renderer::_3D::glTF_Model::Primitive>("Primitive",
-                                                                sol::call_constructor,
-                                                                sol::default_constructor,
-                                                                "mFirstIndex",
-                                                                &Jkr::Renderer::_3D::glTF_Model::Primitive::mFirstIndex,
-                                                                "mIndexCount",
-                                                                &Jkr::Renderer::_3D::glTF_Model::Primitive::mIndexCount,
-                                                                "mVertexCount",
-                                                                &Jkr::Renderer::_3D::glTF_Model::Primitive::mVertexCount,
-                                                                "mMaterialIndex",
-                                                                &Jkr::Renderer::_3D::glTF_Model::Primitive::mMaterialIndex,
-                                                                "mHasIndices",
-                                                                &Jkr::Renderer::_3D::glTF_Model::Primitive::mHasIndices,
-                                                                "mBB",
-                                                                &Jkr::Renderer::_3D::glTF_Model::Primitive::mBB);
+    Jkr.new_usertype<Jkr::Renderer::_3D::glTF_Model::Primitive>(
+         "Primitive",
+         sol::call_constructor,
+         sol::default_constructor,
+         "mFirstIndex",
+         &Jkr::Renderer::_3D::glTF_Model::Primitive::mFirstIndex,
+         "mIndexCount",
+         &Jkr::Renderer::_3D::glTF_Model::Primitive::mIndexCount,
+         "mVertexCount",
+         &Jkr::Renderer::_3D::glTF_Model::Primitive::mVertexCount,
+         "mMaterialIndex",
+         &Jkr::Renderer::_3D::glTF_Model::Primitive::mMaterialIndex,
+         "mHasIndices",
+         &Jkr::Renderer::_3D::glTF_Model::Primitive::mHasIndices,
+         "mBB",
+         &Jkr::Renderer::_3D::glTF_Model::Primitive::mBB);
 
-    Jkr.new_usertype<Jkr::Renderer::_3D::glTF_Model::Mesh>("Mesh",
-                                                           sol::call_constructor,
-                                                           sol::default_constructor,
-                                                           "mPrimitives",
-                                                           &Jkr::Renderer::_3D::glTF_Model::Mesh::mPrimitives,
-                                                           "mNodeIndex",
-                                                           &Jkr::Renderer::_3D::glTF_Model::Mesh::mNodeIndex,
-                                                           "mBB",
-                                                           &Jkr::Renderer::_3D::glTF_Model::Mesh::mBB,
-                                                           "mAABB",
-                                                           &Jkr::Renderer::_3D::glTF_Model::Mesh::mAABB);
+    Jkr.new_usertype<Jkr::Renderer::_3D::glTF_Model::Mesh>(
+         "Mesh",
+         sol::call_constructor,
+         sol::default_constructor,
+         "mPrimitives",
+         &Jkr::Renderer::_3D::glTF_Model::Mesh::mPrimitives,
+         "mNodeIndex",
+         &Jkr::Renderer::_3D::glTF_Model::Mesh::mNodeIndex,
+         "mBB",
+         &Jkr::Renderer::_3D::glTF_Model::Mesh::mBB,
+         "mAABB",
+         &Jkr::Renderer::_3D::glTF_Model::Mesh::mAABB);
 
-    Jkr.new_usertype<Jkr::Renderer::_3D::glTF_Model::Animation>("Animation",
-                                                                sol::call_constructor,
-                                                                sol::default_constructor,
-                                                                "mStart",
-                                                                &Jkr::Renderer::_3D::glTF_Model::Animation::mStart,
-                                                                "mEnd",
-                                                                &Jkr::Renderer::_3D::glTF_Model::Animation::mEnd,
-                                                                "mCurrentTime",
-                                                                &Jkr::Renderer::_3D::glTF_Model::Animation::mCurrentTime);
+    Jkr.new_usertype<Jkr::Renderer::_3D::glTF_Model::Animation>(
+         "Animation",
+         sol::call_constructor,
+         sol::default_constructor,
+         "mStart",
+         &Jkr::Renderer::_3D::glTF_Model::Animation::mStart,
+         "mEnd",
+         &Jkr::Renderer::_3D::glTF_Model::Animation::mEnd,
+         "mCurrentTime",
+         &Jkr::Renderer::_3D::glTF_Model::Animation::mCurrentTime);
 
-    Jkr.new_enum<glTF_Model::Material::AlphaMode>("AlphaMode",
-                                                  {{"Opaque", glTF_Model::Material::AlphaMode::Opaque},
-                                                   {"Mask", glTF_Model::Material::AlphaMode::Mask},
-                                                   {"Blend", glTF_Model::Material::AlphaMode::Blend}});
+    Jkr.new_enum<glTF_Model::Material::AlphaMode>(
+         "AlphaMode",
+         {{"Opaque", glTF_Model::Material::AlphaMode::Opaque},
+          {"Mask", glTF_Model::Material::AlphaMode::Mask},
+          {"Blend", glTF_Model::Material::AlphaMode::Blend}});
 
     // Bind TextureCoordinateSets struct
-    Jkr.new_usertype<glTF_Model::TextureCoordinateSets>("TextureCoordinateSets",
-                                                        "mBaseColor",
-                                                        &glTF_Model::TextureCoordinateSets::mBaseColor,
-                                                        "mMetallicRoughness",
-                                                        &glTF_Model::TextureCoordinateSets::mMetallicRoughness,
-                                                        "mSpecularGlossiness",
-                                                        &glTF_Model::TextureCoordinateSets::mSpecularGlossiness,
-                                                        "mNormal",
-                                                        &glTF_Model::TextureCoordinateSets::mNormal,
-                                                        "mOcclusion",
-                                                        &glTF_Model::TextureCoordinateSets::mOcclusion,
-                                                        "mEmissive",
-                                                        &glTF_Model::TextureCoordinateSets::mEmissive);
+    Jkr.new_usertype<glTF_Model::TextureCoordinateSets>(
+         "TextureCoordinateSets",
+         "mBaseColor",
+         &glTF_Model::TextureCoordinateSets::mBaseColor,
+         "mMetallicRoughness",
+         &glTF_Model::TextureCoordinateSets::mMetallicRoughness,
+         "mSpecularGlossiness",
+         &glTF_Model::TextureCoordinateSets::mSpecularGlossiness,
+         "mNormal",
+         &glTF_Model::TextureCoordinateSets::mNormal,
+         "mOcclusion",
+         &glTF_Model::TextureCoordinateSets::mOcclusion,
+         "mEmissive",
+         &glTF_Model::TextureCoordinateSets::mEmissive);
 
     // Bind Extension struct
     Jkr.new_usertype<glTF_Model::Extension>("Extension",
@@ -222,6 +230,8 @@ void CreateRenderer3DBindings(sol::state &s) {
          &Jkr::Renderer::_3D::glTF_Model::GetNodeMatrixByIndex,
          "UpdateAnimation",
          &Jkr::Renderer::_3D::glTF_Model::UpdateAnimation,
+         "UpdateAnimationNormalizedTime",
+         &Jkr::Renderer::_3D::glTF_Model::UpdateAnimationNormalizedTime,
          "UpdateBlendCombineAnimation",
          &Jkr::Renderer::_3D::glTF_Model::UpdateBlendCombineAnimation,
          "GetNodeIndexByMeshIndex",
@@ -239,8 +249,9 @@ void CreateRenderer3DBindings(sol::state &s) {
          "Bind",
          &Jkr::Renderer::_3D::Shape::Bind,
          "Add",
-         sol::overload(sol::resolve<glTF_Model &>(&Jkr::Renderer::_3D::Shape::AddEXT),
-                       sol::resolve<Jkr::Generator &, glm::vec3>(&Jkr::Renderer::_3D::Shape::AddEXT)),
+         sol::overload(
+              sol::resolve<glTF_Model &>(&Jkr::Renderer::_3D::Shape::AddEXT),
+              sol::resolve<Jkr::Generator &, glm::vec3>(&Jkr::Renderer::_3D::Shape::AddEXT)),
          "Dispatch",
          &Jkr::Renderer::_3D::Shape::Dispatch,
          "GetVertexCount",

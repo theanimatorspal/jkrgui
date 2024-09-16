@@ -206,8 +206,17 @@ class glTF_Model {
          FillIndexCallBack inIndexCallback = [](ui inIndex) { return inIndex; });
     void LoadSkins(tinygltf::Model &input);
     void LoadAnimations(tinygltf::Model &input);
-    void UpdateJoints(glTF_Model::Node *inNode, UpdateJointsCallBack inCallBack = [](v<glm::mat4> &) {});
+    void
+    UpdateJoints(glTF_Model::Node *inNode, UpdateJointsCallBack inCallBack = [](v<glm::mat4> &) {});
+    ///
+    /// @brief these two are the functions that are actually used
+    /// othersare to be @todo kept private, too lazy to do anything like that now
+    ///
+    void UpdateAnimationNormalizedTime(ui inActiveAnimation,
+                                       float inNormalizeTime,
+                                       bool inShouldLoop = true);
     void UpdateAnimation(ui inActiveAnimation, float inDeltaTime, bool inShouldLoop = true);
+
     void BlendCombineAnimationToArbritaryTime(float inDestinationTime,
                                               ui inDestinationAnimationIndex,
                                               float inBlendFactor,
@@ -226,7 +235,8 @@ class glTF_Model {
         mVertexBuffer.clear();
         mVertexBuffer.shrink_to_fit();
     }
-    void Draw(glTF_Model::Node &inNode, PushCallBack inBindDataCallBack, DrawCallBack inDrawCallBack);
+    void
+    Draw(glTF_Model::Node &inNode, PushCallBack inBindDataCallBack, DrawCallBack inDrawCallBack);
 
     glTF_Model(const std::string_view inFileName) : mFileName(inFileName) {}
 

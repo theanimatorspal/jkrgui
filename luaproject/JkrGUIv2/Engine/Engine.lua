@@ -373,17 +373,24 @@ Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
               vec4 Pos = Push.model * vec4(inPosition, 1.0);
               gl_Position = Ubo.proj * Ubo.view * Pos;
               vUV = inUV;
-              vNormal = vec3(Push.model) * inNormal;
               vWorldPos = vec3(Pos);
               vVertexIndex = gl_VertexIndex;
-              vec4 tang = inTangent[gl_VertexIndex].mTangent;
-              vTangent = vec4(mat3(Push.model) * tang.xyz, tang.w);
+
+              mat3 mNormal = transpose(inverse(mat3(Push.model)));
+              vNormal = mNormal * normalize(inNormal.xyz);
+            //vNormal = vec3(Push.model) * inNormal;
+            //vec4 tang = inTangent[gl_VertexIndex].mTangent;
+            //vTangent = vec4(mat3(Push.model) * tang.xyz, tang.w);
+
+              vec4 IN_Tangent = inTangent[gl_VertexIndex].mTangent;
+              vec3 tangentttt = mNormal * normalize(IN_Tangent.w > 0 ? IN_Tangent.xyz : vec3(-IN_Tangent.x, IN_Tangent.y, IN_Tangent.z));
+              vTangent = vec4(tangentttt, 1.0f);
         ]]
         )
         .NewLine()
         .InvertY()
         .GlslMainEnd()
-        .NewLine()
+        .NewLine().Print()
 
     local fShader = Engine.Shader()
         .Header(450)
@@ -642,8 +649,8 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
                 Engine.i,
                 w,
                 "cache/constant_color.glsl",
-                vshader.Print().str,
-                fshader.Print().str,
+                vshader.str,
+                fshader.str,
                 "",
                 shouldload,
                 incompilecontext

@@ -41,7 +41,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
 
 
     o.CreatePressButton = function(inPosition_3f, inDimension_3f, inOnClickFunction, inContinous, inFont, inText,
-                                   inColor, inBackgroundColor, inPushConstantForImagePainter)
+                                   inColor, inBackgroundColor, inPushConstantForImagePainter, inImageFilePath)
         local button = {}
         if (inOnClickFunction) then
             button.parent = o.CreateButton(inPosition_3f, inDimension_3f, inOnClickFunction, inContinous)
@@ -70,10 +70,14 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         end), 1)
 
         button.sampledImage = o.CreateSampledImage(inPosition_3f, inDimension_3f, nil, nil, inBackgroundColor)
-        o.c:PushOneTime(Jkr.CreateDispatchable(function()
-            button.roundedRectangle.CopyToSampled(button.sampledImage)
-        end), 1)
-        button.sampledText = o.CreateTextLabel(inPosition_3f, inDimension_3f, inFont, inText, inColor)
+        if not inImageFilePath then
+            o.c:PushOneTime(Jkr.CreateDispatchable(function()
+                button.roundedRectangle.CopyToSampled(button.sampledImage)
+            end), 1)
+            button.sampledText = o.CreateTextLabel(inPosition_3f, inDimension_3f, inFont, inText, inColor)
+        else
+
+        end
 
         button.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inColor, inBackgroundColor)
             if button.parent then
@@ -83,7 +87,9 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             local DelDim = vec3(0, 0, 0)
             local fontDim = button.sampledText.mFont:GetTextDimension(self.sampledText.mText)
             DelDim = vec3((inDimension_3f.x - fontDim.x) / 2, (inDimension_3f.y - fontDim.y) / 2, 0)
-            button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, inText, inColor)
+            if not inImageFilePath then
+                button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, inText, inColor)
+            end
         end
         return button
     end

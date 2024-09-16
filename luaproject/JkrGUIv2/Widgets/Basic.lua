@@ -123,6 +123,7 @@ Jkr.StackLayout = {
     end,
     AddComponents = function(self, inComponentListTable)
         self.mComponents = inComponentListTable
+        return self
     end,
     Update = function(self, inPosition_3f, inDimension_3f)
         local position = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z)
