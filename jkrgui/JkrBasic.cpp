@@ -82,6 +82,8 @@ void CreateBasicBindings(sol::state &s) {
          &Jkr::Window::Hide,
          "Destroy",
          &Jkr::Window::Destroy,
+         "ToggleWindowFullScreen",
+         &Jkr::Window::ToggleWindowFullScreen,
 
          "BuildShadowPass",
          &Jkr::Window::BuildShadowPass,
