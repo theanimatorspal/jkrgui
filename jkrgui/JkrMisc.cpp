@@ -50,6 +50,15 @@ void CreateMiscBindings(sol::state &inState) {
          "z",
          &DefaultCustomImagePainterPushConstant::z);
 
+    Jkr.new_usertype<Matrix2CustomImagePainterPushConstant>(
+         "Matrix2CustomImagePainterPushConstant",
+         sol::call_constructor,
+         sol::factories([]() { return Matrix2CustomImagePainterPushConstant(); }),
+         "a",
+         &Matrix2CustomImagePainterPushConstant::a,
+         "b",
+         &Matrix2CustomImagePainterPushConstant::b);
+
     Jkr.new_usertype<Jkr::Renderer::CustomImagePainter>(
          "CustomImagePainter",
          sol::call_constructor,
@@ -65,7 +74,9 @@ void CreateMiscBindings(sol::state &inState) {
          "BindImageFromImage",
          &Jkr::Renderer::CustomImagePainter::BindImageFromImage,
          "Draw",
-         &Jkr::Renderer::CustomImagePainter::Draw<DefaultCustomImagePainterPushConstant>);
+         sol::overload(
+              &Jkr::Renderer::CustomImagePainter::Draw<DefaultCustomImagePainterPushConstant>,
+              &Jkr::Renderer::CustomImagePainter::Draw<Matrix2CustomImagePainterPushConstant>));
 
     using Uniform3D = Jkr::Renderer::_3D::Uniform3D;
     using Simple3D  = Jkr::Renderer::_3D::Simple3D;

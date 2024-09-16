@@ -16,6 +16,9 @@ sol::state &GetMainStateRef();
 struct DefaultCustomImagePainterPushConstant {
     glm::vec4 x, y, z;
 };
+struct Matrix2CustomImagePainterPushConstant {
+    glm::mat4 a, b;
+};
 
 using namespace std;
 using namespace ksai;

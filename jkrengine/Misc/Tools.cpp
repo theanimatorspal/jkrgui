@@ -10,37 +10,82 @@ void CopyWindowDeferredImageToShapeImage(Window &inWindow, Renderer::Shape &inSh
     auto &cmd =
          inWindow.GetCommandBuffers(Window::ParameterContext::None)[inWindow.GetCurrentFrame()];
     SrcImage.CmdTransitionImageLayout(cmd,
-                                      vk::ImageLayout::eShaderReadOnlyOptimal,
-                                      vk::ImageLayout::eTransferSrcOptimal,
-                                      vk::PipelineStageFlagBits::eColorAttachmentOutput,
-                                      vk::PipelineStageFlagBits::eTransfer,
-                                      vk::AccessFlagBits::eMemoryWrite,
-                                      vk::AccessFlagBits::eMemoryRead);
+                                      ImageLayout::eShaderReadOnlyOptimal,
+                                      ImageLayout::eTransferSrcOptimal,
+                                      PipelineStageFlagBits::eColorAttachmentOutput,
+                                      PipelineStageFlagBits::eTransfer,
+                                      AccessFlagBits::eMemoryWrite,
+                                      AccessFlagBits::eMemoryRead);
     DstImage.CmdTransitionImageLayout(cmd,
-                                      vk::ImageLayout::eUndefined,
-                                      vk::ImageLayout::eTransferDstOptimal,
-                                      vk::PipelineStageFlagBits::eAllGraphics,
-                                      vk::PipelineStageFlagBits::eTransfer,
-                                      vk::AccessFlagBits::eMemoryRead,
-                                      vk::AccessFlagBits::eMemoryWrite);
+                                      ImageLayout::eUndefined,
+                                      ImageLayout::eTransferDstOptimal,
+                                      PipelineStageFlagBits::eAllGraphics,
+                                      PipelineStageFlagBits::eTransfer,
+                                      AccessFlagBits::eMemoryRead,
+                                      AccessFlagBits::eMemoryWrite);
 
-    vk::ImageCopy Copy;
-    Copy.setSrcOffset(vk::Offset3D{0, 0, 0})
-         .setDstOffset(vk::Offset3D{0, 0, 0})
-         .setExtent(vk::Extent3D{SrcImage.GetImageExtent(), 1})
+    ImageCopy Copy;
+    Copy.setSrcOffset(Offset3D{0, 0, 0})
+         .setDstOffset(Offset3D{0, 0, 0})
+         .setExtent(Extent3D{SrcImage.GetImageExtent(), 1})
          .setSrcSubresource(SrcSubLayers)
          .setDstSubresource(DstSubLayers);
     cmd.GetCommandBufferHandle().copyImage(SrcImage.GetImageHandle(),
-                                           vk::ImageLayout::eTransferSrcOptimal,
+                                           ImageLayout::eTransferSrcOptimal,
                                            DstImage.GetImageHandle(),
-                                           vk::ImageLayout::eTransferDstOptimal,
+                                           ImageLayout::eTransferDstOptimal,
                                            Copy);
     DstImage.CmdTransitionImageLayout(cmd,
-                                      vk::ImageLayout::eTransferDstOptimal,
-                                      vk::ImageLayout::eGeneral,
-                                      vk::PipelineStageFlagBits::eTransfer,
-                                      vk::PipelineStageFlagBits::eFragmentShader,
-                                      vk::AccessFlagBits::eMemoryWrite,
-                                      vk::AccessFlagBits::eMemoryRead);
+                                      ImageLayout::eTransferDstOptimal,
+                                      ImageLayout::eGeneral,
+                                      PipelineStageFlagBits::eTransfer,
+                                      PipelineStageFlagBits::eFragmentShader,
+                                      AccessFlagBits::eMemoryWrite,
+                                      AccessFlagBits::eMemoryRead);
 }
+
+void CopyWindowDeferredImageToCustomPainterImage(
+     Window &inWindow, Renderer::CustomPainterImage &inCustomPainterImage) {
+    using namespace vk;
+    auto &DstImage = inCustomPainterImage.GetPainterParam().GetStorageImage();
+    auto &SrcImage = inWindow.GetDeferredPass().GetDeferredCompositionImage().GetUniformImage();
+    ImageSubresourceLayers SrcSubLayers(ImageAspectFlagBits::eColor, 0, 0, 1);
+    ImageSubresourceLayers DstSubLayers(ImageAspectFlagBits::eColor, 0, 0, 1);
+    auto &cmd =
+         inWindow.GetCommandBuffers(Window::ParameterContext::None)[inWindow.GetCurrentFrame()];
+    SrcImage.CmdTransitionImageLayout(cmd,
+                                      ImageLayout::eShaderReadOnlyOptimal,
+                                      ImageLayout::eTransferSrcOptimal,
+                                      PipelineStageFlagBits::eColorAttachmentOutput,
+                                      PipelineStageFlagBits::eTransfer,
+                                      AccessFlagBits::eMemoryWrite,
+                                      AccessFlagBits::eMemoryRead);
+    DstImage.CmdTransitionImageLayout(cmd,
+                                      ImageLayout::eUndefined,
+                                      ImageLayout::eTransferDstOptimal,
+                                      PipelineStageFlagBits::eAllGraphics,
+                                      PipelineStageFlagBits::eTransfer,
+                                      AccessFlagBits::eMemoryRead,
+                                      AccessFlagBits::eMemoryWrite);
+
+    ImageCopy Copy;
+    Copy.setSrcOffset(Offset3D{0, 0, 0})
+         .setDstOffset(Offset3D{0, 0, 0})
+         .setExtent(Extent3D{SrcImage.GetImageExtent(), 1})
+         .setSrcSubresource(SrcSubLayers)
+         .setDstSubresource(DstSubLayers);
+    cmd.GetCommandBufferHandle().copyImage(SrcImage.GetImageHandle(),
+                                           ImageLayout::eTransferSrcOptimal,
+                                           DstImage.GetImageHandle(),
+                                           ImageLayout::eTransferDstOptimal,
+                                           Copy);
+    DstImage.CmdTransitionImageLayout(cmd,
+                                      ImageLayout::eTransferDstOptimal,
+                                      ImageLayout::eGeneral,
+                                      PipelineStageFlagBits::eTransfer,
+                                      PipelineStageFlagBits::eFragmentShader,
+                                      AccessFlagBits::eMemoryWrite,
+                                      AccessFlagBits::eMemoryRead);
+}
+
 }; // namespace Jkr

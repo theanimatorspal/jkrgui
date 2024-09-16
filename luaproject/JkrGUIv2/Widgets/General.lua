@@ -12,57 +12,73 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         .Header(450)
         .CInvocationLayout(1, 1, 1)
         .uImage2D()
-        .ImagePainterPush()
+        .ImagePainterPushMatrix2()
         .GlslMainBegin()
-        .ImagePainterAssist()
+        .ImagePainterAssistMatrix2()
         .Append [[
-vec2 center = vec2(push.mPosDimen.x, push.mPosDimen.y);
-vec2 hw = vec2(push.mPosDimen.z, push.mPosDimen.w);
-float radius = push.mParam.x;
-vec2 Q = abs(xy - center) - hw;
+        vec2 center = vec2(p1.x, p1.y);
+        vec2 hw = vec2(p1.z, p1.w);
+        float radius = p3.x;
+        vec2 Q = abs(xy - center) - hw;
 
-float color = distance(max(Q, vec2(0.0)), vec2(0.0)) + min(max(Q.x, Q.y), 0.0) - radius;
-color = smoothstep(-0.05, 0.05, -color);
+        float color = distance(max(Q, vec2(0.0)), vec2(0.0)) + min(max(Q.x, Q.y), 0.0) - radius;
+        color = smoothstep(-0.05, 0.05, -color);
 
-vec4 old_color = imageLoad(storageImage, to_draw_at);
-vec4 final_color = vec4(push.mColor.x * color, push.mColor.y * color, push.mColor.z * color, push.mColor.w * color);
-final_color = mix(final_color, old_color, push.mParam.w);
+        vec4 old_color = imageLoad(storageImage, to_draw_at);
+        vec4 final_color = vec4(p2.x * color, p2.y * color, p2.z * color, p2.w * color);
+        final_color = mix(final_color, old_color, p3.w);
 
-imageStore(storageImage, to_draw_at, final_color);
+        imageStore(storageImage, to_draw_at, final_color);
           ]]
         .GlslMainEnd().str
 
     o.prebuilts = {}
-    o.prebuilts.roundedRectangle = o.CreateComputeImage(vec3(0), vec3(100, 100, 1))
-    o.prebuilts.roundedRectanglePainter = Jkr.CreateCustomImagePainter("o.prebuilts.roundedRectangle.glsl",
+    o.prebuilts.roundedRectanglePainter = Jkr.CreateCustomImagePainter("cache/o.prebuilts.roundedRectangle.glsl",
         o.shaders.roundedRectangle)
     o.prebuilts.roundedRectanglePainter:Store(i, w)
-    o.prebuilts.roundedRectangle.RegisterPainter(o.prebuilts.roundedRectanglePainter)
+
     local op = o.prebuilts;
-    o.c:PushOneTime(Jkr.CreateDispatchable(function()
-        op.roundedRectangle.BindPainter(op.roundedRectanglePainter)
-        local PushConstant = Jkr.DefaultCustomImagePainterPushConstant()
-        PushConstant.x = vec4(0.0, 0.0, 0.85, 0.85)
-        PushConstant.y = vec4(1)
-        PushConstant.z = vec4(0.1, 0.5, 0.5, 0.0)
-        op.roundedRectangle.DrawPainter(op.roundedRectanglePainter, PushConstant, 100, 100, 1)
-    end), 1)
+
 
     o.CreatePressButton = function(inPosition_3f, inDimension_3f, inOnClickFunction, inContinous, inFont, inText,
-                                   inColor, inBackgroundColor)
+                                   inColor, inBackgroundColor, inPushConstantForImagePainter)
         local button = {}
-        button.parent = o.CreateButton(inPosition_3f, inDimension_3f, inOnClickFunction, inContinous)
-        setmetatable(button, button.parent)
-        button.__index = button.parent
+        if (inOnClickFunction) then
+            button.parent = o.CreateButton(inPosition_3f, inDimension_3f, inOnClickFunction, inContinous)
+            setmetatable(button, button.parent)
+            button.__index = button.parent
+        end
+        button.roundedRectangle = o.CreateComputeImage(inPosition_3f, inDimension_3f)
+        button.roundedRectangle.RegisterPainter(o.prebuilts.roundedRectanglePainter)
+
+        o.c:PushOneTime(Jkr.CreateDispatchable(function()
+            button.roundedRectangle.BindPainter(op.roundedRectanglePainter)
+            local PushConstant
+            if inPushConstantForImagePainter then
+                PushConstant = inPushConstantForImagePainter
+            else
+                PushConstant = Jkr.Matrix2CustomImagePainterPushConstant()
+                PushConstant.a = mat4(
+                    vec4(0.0, 0.0, 0.85, 0.85),
+                    vec4(1),
+                    vec4(0.1, 0.5, 0.5, 0.0),
+                    vec4(0)
+                )
+            end
+            button.roundedRectangle.DrawPainter(op.roundedRectanglePainter, PushConstant, math.int(inDimension_3f.x),
+                math.int(inDimension_3f.y), 1)
+        end), 1)
 
         button.sampledImage = o.CreateSampledImage(inPosition_3f, inDimension_3f, nil, nil, inBackgroundColor)
         o.c:PushOneTime(Jkr.CreateDispatchable(function()
-            op.roundedRectangle.CopyToSampled(button.sampledImage)
+            button.roundedRectangle.CopyToSampled(button.sampledImage)
         end), 1)
         button.sampledText = o.CreateTextLabel(inPosition_3f, inDimension_3f, inFont, inText, inColor)
 
         button.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inColor, inBackgroundColor)
-            button.parent:Update(inPosition_3f, inDimension_3f)
+            if button.parent then
+                button.parent:Update(inPosition_3f, inDimension_3f)
+            end
             button.sampledImage:Update(inPosition_3f, inDimension_3f, inBackgroundColor)
             local DelDim = vec3(0, 0, 0)
             local fontDim = button.sampledText.mFont:GetTextDimension(self.sampledText.mText)

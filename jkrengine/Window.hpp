@@ -36,10 +36,10 @@ class Window : public Window_base {
     ///
     ///
     /// @todo Name this Correctly
-    void BuildDeferredPass();
+    void PrepareDeferredPass();
     /// @todo Name this Correctly
-    void PrepareDeferredPass(Renderer::_3D::Simple3D &inCompositionSimple3D,
-                             Renderer::_3D::World3D &inWorld);
+    void BuildDeferredPass(Renderer::_3D::Simple3D &inCompositionSimple3D,
+                           Renderer::_3D::World3D &inWorld);
     void ExecuteDeferredComposition(Renderer::_3D::Simple3D &inCompositionSimple3D,
                                     Renderer::_3D::World3D &inWorld);
     void BeginDeferredDraws(float r, float g, float b, float a, float d);

@@ -123,12 +123,15 @@ std::vector<int> CustomPainterImage::GetImageToVector(const Instance &inInstance
 }
 
 void Jkr::Renderer::CustomPainterImage::Register(const Instance &inInstance,
-                                                 CustomImagePainter &inPainter) {
-    mVulkanDescriptorSet = MakeUp<VulkanDescriptorSet>(
-         inInstance.GetDevice(),
-         inInstance.GetDescriptorPool(),
-         inPainter.GetPainterCache().GetComputePipelineDescriptorSetLayout());
-    mPainterParam->Register(0, 0, 0, *mVulkanDescriptorSet);
+                                                 CustomImagePainter &inPainter,
+                                                 int inIndex) {
+    if (not mVulkanDescriptorSet) {
+        mVulkanDescriptorSet = MakeUp<VulkanDescriptorSet>(
+             inInstance.GetDevice(),
+             inInstance.GetDescriptorPool(),
+             inPainter.GetPainterCache().GetComputePipelineDescriptorSetLayout());
+    }
+    mPainterParam->Register(0, inIndex, 0, *mVulkanDescriptorSet);
 }
 
 CustomPainterImage::CustomPainterImage(const Instance &inInstance,
@@ -158,14 +161,4 @@ void CustomImagePainter::BindImageFromImage(const Window_base &inWindow,
                                    vk::PipelineStageFlagBits::eComputeShader,
                                    vk::AccessFlagBits::eShaderWrite,
                                    vk::AccessFlagBits::eShaderWrite);
-}
-
-void CustomImagePainter::RegisterImageExternal(const Instance &inInstance,
-                                               Window_base &inWindow,
-                                               Jkr::Renderer::Shape &inShape,
-                                               CustomPainterImage &inImage,
-                                               int inImageIndex,
-                                               int inDstBinding) {
-    VulkanDescriptorUpdateHandler Handler(inInstance.GetDevice());
-    inShape.GetImages()[inImageIndex]->Register(0, inDstBinding, 0, inImage.GetDescriptorSet());
 }

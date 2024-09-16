@@ -231,13 +231,13 @@ void Window::BuildShadowPass() {
     mShadowPass = mu<ShadowPass>(*mInstance, mOffscreenFrameSize.x, mOffscreenFrameSize.y);
 }
 
-void Window::BuildDeferredPass() {
+void Window::PrepareDeferredPass() {
     mDeferredPass = mu<DeferredPass>(
          *mInstance, mOffscreenFrameSize.x, mOffscreenFrameSize.y, mMaxFramesInFlight);
 }
 
-void Window::PrepareDeferredPass(Renderer::_3D::Simple3D &inCompositionSimple3D,
-                                 Renderer::_3D::World3D &inWorld) {
+void Window::BuildDeferredPass(Renderer::_3D::Simple3D &inCompositionSimple3D,
+                               Renderer::_3D::World3D &inWorld) {
     mDeferredPass->Prepare(inCompositionSimple3D, inWorld);
 }
 
