@@ -809,9 +809,7 @@ function Copy(inElement)
         end
         return t
     elseif type(inElement) == "string" then
-        local s = ""
-        s = s .. inElement
-        return s
+        return string.sub(inElement, 1, #inElement)
     else
         return inElement
     end

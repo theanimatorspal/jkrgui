@@ -78,6 +78,10 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
 
         end
 
+        if button.sampledText then
+            button.sampledText.__backupText = ""
+        end
+
         button.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inColor, inBackgroundColor)
             if button.parent then
                 button.parent:Update(inPosition_3f, inDimension_3f)
@@ -86,6 +90,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             local DelDim = vec3(0, 0, 0)
             local fontDim = button.sampledText.mFont:GetTextDimension(self.sampledText.mText)
             DelDim = vec3((inDimension_3f.x - fontDim.x) / 2, (inDimension_3f.y - fontDim.y) / 2, 0)
+            button.sampledText.__backupText = Copy(self.sampledText.mText)
             local substr = Copy(self.sampledText.mText)
             while DelDim.x < 0.0 do
                 substr = string.sub(substr, 1, #substr - 1)
@@ -95,6 +100,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             if not inImageFilePath then
                 button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, substr, inColor)
             end
+            self.sampledText.mText = Copy(button.sampledText.__backupText)
         end
         return button
     end
