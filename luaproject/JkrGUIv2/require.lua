@@ -793,3 +793,26 @@ end
 function Jkr.CreateSimple3DPipeline(i, w)
     return Jkr.Simple3D(i, w)
 end
+
+local index = 1
+function mark(inin)
+    if not inin then inin = "" end
+    print("==" .. inin .. "=++" .. index .. "++===")
+    index = index + 1
+end
+
+function Copy(inElement)
+    if type(inElement) == "table" then
+        local t = {}
+        for key, value in pairs(inElement) do
+            t[key] = Copy(value) -- copy all
+        end
+        return t
+    elseif type(inElement) == "string" then
+        local s = ""
+        s = s .. inElement
+        return s
+    else
+        return inElement
+    end
+end

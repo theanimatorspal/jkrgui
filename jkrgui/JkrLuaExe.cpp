@@ -11,6 +11,17 @@
 
 #include "LuaBundleAndroid.hpp"
 
+// For Command Line Stuff
+bool FlagBuild                        = false;
+bool FlagGenerate                     = false;
+bool FlagGenerateRun                  = false;
+bool FlagRepl                         = false;
+bool FlagCreateAndroidEnvironment     = false;
+std::string OptionAndroidAppName      = "JkrGUIv2";
+std::string OptionAndroidDirName      = "android";
+std::string OptionAndroidBuildDirName = "android-arm64-v8a";
+std::string OptionRun                 = "app.lua";
+
 extern void LuaShowToastNotification(const std::string inMessage);
 
 namespace JkrEXE {
@@ -72,8 +83,11 @@ void RunScript() {
         LuaShowToastNotification(std::string(error.what()));
     }
 #endif
+    if (OptionRun.find(".lua") == s::npos) {
+        OptionRun = OptionRun + ".lua";
+    }
     sol::protected_function_result result_ =
-         mainState.safe_script_file("app.lua", &sol::script_pass_on_error);
+         mainState.safe_script_file(OptionRun, &sol::script_pass_on_error);
     if (not result_.valid()) {
         sol::error error = result_;
         std::cout << error.what();
@@ -82,7 +96,7 @@ void RunScript() {
     }
 }
 
-static bool IsBoundary(char c) { return std::isspace(c) || std::ispunct(c) || c == '\0'; }
+static bool IsBoundary(char c) { return std::isspace(c) or std::ispunct(c) or c == '\0'; }
 
 int c(const std::string &str, const std::string &sub) {
 
@@ -109,26 +123,19 @@ int c(const std::string &str, const std::string &sub) {
 
 void ProcessCmdLine(int ArgCount, char **ArgStrings) {
     CLI::App app;
-    bool FlagBuild                    = false;
-    bool FlagGenerate                 = false;
-    bool FlagGenerateRun              = false;
-    bool FlagRepl                     = false;
-    bool FlagCreateAndroidEnvironment = false;
+    app.add_flag("--g,--generate", FlagGenerate);
+    app.add_flag("--gr,--generate-run", FlagGenerateRun);
+    app.add_flag("--r, --repl", FlagRepl);
+    app.add_flag("--android-environment,--and-env", FlagCreateAndroidEnvironment);
     ///
     /// @brief These options are string options
     /// @warning Use "" for giving them in the command line,
     /// otherwise it won't recognize the name
     ///
-    std::string OptionAndroidAppName      = "JkrGUIv2";
-    std::string OptionAndroidDirName      = "android";
-    std::string OptionAndroidBuildDirName = "android-arm64-v8a";
-    app.add_flag("--g,--generate", FlagGenerate);
-    app.add_flag("--gr,--generate-run", FlagGenerateRun);
-    app.add_flag("--r, --repl", FlagRepl);
-    app.add_flag("--android-environment,--and-env", FlagCreateAndroidEnvironment);
     app.add_option("--appname", OptionAndroidAppName, "Android App Name");
     app.add_option("--dirname", OptionAndroidDirName, "Android Dir Name");
     app.add_option("--builddir", OptionAndroidBuildDirName, "Android Build Directory Name");
+    app.add_option("--run", OptionRun, "Run File, Defaults to app.lua");
 
     app.parse(ArgCount, ArgStrings);
 

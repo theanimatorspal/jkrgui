@@ -1,6 +1,5 @@
 require "JkrGUIv2.Widgets.Basic"
 require "JkrGUIv2.Engine.Shader"
-
 Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
     local o = {}
     if not inWidgetRenderer then
@@ -87,8 +86,14 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             local DelDim = vec3(0, 0, 0)
             local fontDim = button.sampledText.mFont:GetTextDimension(self.sampledText.mText)
             DelDim = vec3((inDimension_3f.x - fontDim.x) / 2, (inDimension_3f.y - fontDim.y) / 2, 0)
+            local substr = Copy(self.sampledText.mText)
+            while DelDim.x < 0.0 do
+                substr = string.sub(substr, 1, #substr - 1)
+                fontDim = button.sampledText.mFont:GetTextDimension(substr)
+                DelDim = vec3((inDimension_3f.x - fontDim.x) / 2, (inDimension_3f.y - fontDim.y) / 2, 0)
+            end
             if not inImageFilePath then
-                button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, inText, inColor)
+                button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, substr, inColor)
             end
         end
         return button
