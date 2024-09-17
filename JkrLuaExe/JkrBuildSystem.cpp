@@ -68,8 +68,9 @@ string GetLuaCMakeListsDefaultString(const string_view inLibraryName) {
 #ifdef ANDROID
     return " ";
 #else
-    return std::vformat(DefaultCMakeListsFile,
-                        std::make_format_args(getenv("JKRGUI_DIR"), inLibraryName));
+    // return std::vformat(DefaultCMakeListsFile,
+    //                     std::make_format_args(getenv("JKRGUI_DIR"), inLibraryName));
+    return "";
 #endif
 }
 

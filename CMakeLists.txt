@@ -1,4 +1,5 @@
 ﻿cmake_minimum_required(VERSION 3.27)
+add_definitions(-DWIN32_LEAN_AND_MEAN -DNOMINMAX)
 
 include("CMakeConfig.cmake")
 include("CMakeCommon.cmake")
