@@ -47,19 +47,19 @@ class Window_base : public SDLWindow {
                      ParameterContext inContext);
     void SetDefaultViewport(ParameterContext inContext);
 
-    Window_base(const Instance &inInstance,
+    Window_base(Instance &inInstance,
                 std::string_view inTitle,
                 int inHeight,
                 int inWidth,
                 int inOffscreenFrameHeight,
                 int inOffscreenFrameWidth);
-    Window_base(const Instance &inInstance, int inOffscreenFrameHeight, int inOffscreenFrameWidth);
+    Window_base(Instance &inInstance, int inOffscreenFrameHeight, int inOffscreenFrameWidth);
     ~Window_base() { mInstance->GetDevice().Wait(); }
 
     protected:
     uint32_t mCurrentFrame       = 0;
     uint32_t mAcquiredImageIndex = 0;
-    const Instance *mInstance;
+    Instance *mInstance;
     VulkanSurface mSurface;
     VulkanSwapChain mSwapChain;
     VulkanImage mColorImageRenderTarget;

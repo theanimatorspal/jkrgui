@@ -18,10 +18,9 @@ class Shape : public Shape_base, Renderer_base {
     public:
     GETTER &GetImages() { return mImages; }
 
-    Shape(const Instance &inInstance,
-          std::unordered_map<FillType, Up<PainterCache>> &inPainterCaches)
+    Shape(Instance &inInstance, std::unordered_map<FillType, Up<PainterCache>> &inPainterCaches)
         : mInstance(inInstance), mPainterCaches(inPainterCaches) {}
-    Shape(const Instance &inInstance,
+    Shape(Instance &inInstance,
           Window_base &inCompatibleWindow,
           std::unordered_map<FillType, Up<PainterCache>> &inPainterCaches,
           uint32_t inVarDesCount = 5000);
@@ -81,7 +80,7 @@ class Shape : public Shape_base, Renderer_base {
 
     private:
     void CheckAndResize(const Jkr::Generator &inShape);
-    const Instance &mInstance;
+    Instance &mInstance;
     std::unordered_map<FillType, Up<PainterCache>> &mPainterCaches;
     std::unordered_map<FillType, Up<Painter>> mPainters;
     Up<Primitive> mPrimitive;

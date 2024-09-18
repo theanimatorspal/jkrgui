@@ -6,7 +6,7 @@
 
 using namespace Jkr::Renderer;
 
-Shape::Shape(const Instance &inInstance,
+Shape::Shape(Instance &inInstance,
              Window_base &inCompatibleWindow,
              std::unordered_map<FillType, Up<PainterCache>> &inPainterCaches,
              ui inVarDesCount)
@@ -142,11 +142,11 @@ void Shape::AddImage(v<uc> &inImage, ui inWidth, ui inHeight, ui &outIndex) {
 
 void Shape::UpdateImage(ui inId, v<uc> &inImage, ui inWidth, ui inHeight) {
 #ifndef JKR_USE_VARIABLE_DES_INDEXING
-    Up<ImageType> Image     = MakeUp<ImageType>(mInstance);
-    void *data              = inImage.data();
-    Image->mUniformImagePtr = mu<VulkanImageVMA>(
-         mInstance.GetVMA(), mInstance.GetDevice(), inWidth, inHeight, 4, ImageContext::Default);
-    // Image->Setup(reinterpret_cast<void **>(&data), inWidth, inHeight, 4);
+    Up<ImageType> Image = MakeUp<ImageType>(mInstance);
+    void *data          = inImage.data();
+    // Image->mUniformImagePtr = mu<VulkanImageVMA>(
+    //      mInstance.GetVMA(), mInstance.GetDevice(), inWidth, inHeight, ImageContext::Default, 4);
+    Image->Setup(reinterpret_cast<void **>(&data), inWidth, inHeight, 4);
     Image->Register(0, 0, 0, *mVulkanPerImageDescriptorSets[inId]);
     mImages[inId] = std::move(Image);
 #else

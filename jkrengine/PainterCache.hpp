@@ -11,66 +11,66 @@ class ShaderCompiler {
     public:
     ShaderCompiler(const std::string_view inVertexShaderString,
                    const std::string_view inFragmentShaderString,
-                   std::vector<uint32_t>& outVertexShaderModule,
-                   std::vector<uint32_t>& outFragmentShaderModule);
+                   std::vector<uint32_t> &outVertexShaderModule,
+                   std::vector<uint32_t> &outFragmentShaderModule);
     ShaderCompiler(const std::string_view inComputeShaderString,
-                   std::vector<uint32_t>& outComputeShaderModule);
+                   std::vector<uint32_t> &outComputeShaderModule);
 };
 
 class ShaderModules {
     public:
-    ShaderModules(const VulkanDevice& inDevice,
-                  const std::vector<uint32_t>& inVertexShaderSPIRV   = {},
-                  const std::vector<uint32_t>& inFragmentShaderSPIRV = {},
-                  const std::vector<uint32_t>& inComputeShaderSPIRV  = {});
+    ShaderModules(const VulkanDevice &inDevice,
+                  const std::vector<uint32_t> &inVertexShaderSPIRV   = {},
+                  const std::vector<uint32_t> &inFragmentShaderSPIRV = {},
+                  const std::vector<uint32_t> &inComputeShaderSPIRV  = {});
     ~ShaderModules();
 
     public:
-    GETTER& GetShaderModulesArray() const { return mVertexFragmentShaderModules; }
+    GETTER &GetShaderModulesArray() const { return mVertexFragmentShaderModules; }
 
     public:
-    GETTER& GetComputeShaderModuleArray() const { return mComputeShaderModule; }
+    GETTER &GetComputeShaderModuleArray() const { return mComputeShaderModule; }
 
     private:
-    const VulkanDevice& mDevice;
+    const VulkanDevice &mDevice;
     std::vector<VulkanShaderModule> mVertexFragmentShaderModules;
     std::vector<VulkanShaderModule> mComputeShaderModule;
 };
 
 class PainterCache {
     public:
-    explicit PainterCache(const Instance& inInstance,
+    explicit PainterCache(Instance &inInstance,
                           PipelinePropertiesContext inContext = PipelinePropertiesContext::Default);
-    PainterCache& Store(const std::string_view fileName,
+    PainterCache &Store(const std::string_view fileName,
                         const std::string_view inVertexShader   = "",
                         const std::string_view inFragmentShader = "",
                         const std::string_view inComputeShader  = "",
                         ui inVarDescount                        = 5000);
-    PainterCache& Load(const std::string& fileName, ui inVarDescount = 5000);
+    PainterCache &Load(const std::string &fileName, ui inVarDescount = 5000);
 
-    GETTER& GetPipelineContext() const { return mPipelineContext; }
-    GETTER& GetPipelineCache() const { return *mPtrPipelineCache; }
+    GETTER &GetPipelineContext() const { return mPipelineContext; }
+    GETTER &GetPipelineCache() const { return *mPtrPipelineCache; }
 
     public:
-    GETTER& GetVertexFragmentDescriptorSetLayout() const {
+    GETTER &GetVertexFragmentDescriptorSetLayout() const {
         return *mPtrVertexFragmentDescriptorSetLayout;
     }
-    GETTER& GetVertexFragmentPipelineLayout() const { return *mPtrVertexFragmentPipelineLayout; }
-    GETTER& GetVertexFragmentShaderModulesArray() const {
+    GETTER &GetVertexFragmentPipelineLayout() const { return *mPtrVertexFragmentPipelineLayout; }
+    GETTER &GetVertexFragmentShaderModulesArray() const {
         return mShaderModulesPtr->GetShaderModulesArray();
     }
 
     public:
-    GETTER& GetComputePipelineDescriptorSetLayout() const {
+    GETTER &GetComputePipelineDescriptorSetLayout() const {
         return *mPtrComputeDescriptorSetLayout;
     }
-    GETTER& GetComputePipelineLayout() const { return *mPtrComputePipelineLayout; }
-    GETTER& GetComputePipelineModule() const {
+    GETTER &GetComputePipelineLayout() const { return *mPtrComputePipelineLayout; }
+    GETTER &GetComputePipelineModule() const {
         return mShaderModulesPtr->GetComputeShaderModuleArray();
     }
 
     private:
-    const Instance& mInstance;
+    Instance &mInstance;
     Up<ShaderModules> mShaderModulesPtr;
     VulkanPipelineContext mPipelineContext;
     Up<VulkanPipelineCache> mPtrPipelineCache = nullptr;

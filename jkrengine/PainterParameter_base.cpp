@@ -6,7 +6,7 @@ using namespace Jkr;
 
 std::mutex Jkr::PainterParameterBase::mMutex;
 
-void Jkr::PainterParameterBase::SetupStorageBuffer(Up<StorageBufferType>& inStorageBuffer,
+void Jkr::PainterParameterBase::SetupStorageBuffer(Up<StorageBufferType> &inStorageBuffer,
                                                    vk::DeviceSize inDeviceSize) {
     inStorageBuffer = MakeUp<StorageBufferType>(mInstance.GetVMA(),
                                                 mInstance.GetDevice(),
@@ -15,9 +15,9 @@ void Jkr::PainterParameterBase::SetupStorageBuffer(Up<StorageBufferType>& inStor
                                                 ksai::MemoryType::DeviceLocal);
 }
 
-void Jkr::PainterParameterBase::SetupUniformBuffer(Up<UniformBufferType>& inUniformBuffer,
+void Jkr::PainterParameterBase::SetupUniformBuffer(Up<UniformBufferType> &inUniformBuffer,
                                                    vk::DeviceSize inDeviceSize,
-                                                   void** inMappedMemoryRegion) {
+                                                   void **inMappedMemoryRegion) {
     inUniformBuffer = MakeUp<UniformBufferType>(mInstance.GetVMA(),
                                                 mInstance.GetDevice(),
                                                 inDeviceSize,
@@ -27,9 +27,9 @@ void Jkr::PainterParameterBase::SetupUniformBuffer(Up<UniformBufferType>& inUnif
 }
 
 void Jkr::PainterParameterBase::SetupStorageBufferCoherent(
-     Up<StorageBufferTypeCoherent>& inStorageBuffer,
+     Up<StorageBufferTypeCoherent> &inStorageBuffer,
      vk::DeviceSize inDeviceSize,
-     void** inMappedMemoryRegion) {
+     void **inMappedMemoryRegion) {
     inStorageBuffer = MakeUp<StorageBufferTypeCoherent>(mInstance.GetVMA(),
                                                         mInstance.GetDevice(),
                                                         inDeviceSize,
@@ -44,8 +44,8 @@ void Jkr::PainterParameterBase::SetupStorageBufferCoherent(
 // using DepthImageType            = VulkanImageVMA<ImageContext::DepthImage>;
 
 // TODO Replace Verbosity with
-void Jkr::PainterParameterBase::SetupStorageImage(Up<VulkanSampler>& inStorageImageSampler,
-                                                  Up<StorageImageType>& inStorageImage,
+void Jkr::PainterParameterBase::SetupStorageImage(Up<VulkanSampler> &inStorageImageSampler,
+                                                  Up<StorageImageType> &inStorageImage,
                                                   uint32_t inWidth,
                                                   uint32_t inHeight) {
     inStorageImage = MakeUp<StorageImageType>(
@@ -53,8 +53,8 @@ void Jkr::PainterParameterBase::SetupStorageImage(Up<VulkanSampler>& inStorageIm
     inStorageImageSampler = MakeUp<VulkanSampler>(mInstance.GetDevice());
 }
 
-void Jkr::PainterParameterBase::SetupDepthImage(Up<VulkanSampler>& inDepthImageSampler,
-                                                Up<DepthImageType>& inDepthImage,
+void Jkr::PainterParameterBase::SetupDepthImage(Up<VulkanSampler> &inDepthImageSampler,
+                                                Up<DepthImageType> &inDepthImage,
                                                 uint32_t inWidth,
                                                 uint32_t inHeight) {
     inDepthImage = MakeUp<DepthImageType>(
@@ -62,13 +62,13 @@ void Jkr::PainterParameterBase::SetupDepthImage(Up<VulkanSampler>& inDepthImageS
     inDepthImageSampler = MakeUp<VulkanSampler>(mInstance.GetDevice(), ImageContext::DepthImage);
 }
 
-void Jkr::PainterParameterBase::SetupUniformImage(Up<VulkanSampler>& inUniformImageSampler,
-                                                  Up<UniformImageType>& inUniformImage,
+void Jkr::PainterParameterBase::SetupUniformImage(Up<VulkanSampler> &inUniformImageSampler,
+                                                  Up<UniformImageType> &inUniformImage,
                                                   const std::string_view inFileName) {
     int Width;
     int Height;
     int Channels;
-    void* data     = stbi_load(inFileName.data(), &Width, &Height, &Channels, STBI_rgb_alpha);
+    void *data     = stbi_load(inFileName.data(), &Width, &Height, &Channels, STBI_rgb_alpha);
     inUniformImage = MakeUp<DepthImageType>(
          mInstance.GetVMA(), mInstance.GetDevice(), Width, Height, ImageContext::Default);
     inUniformImageSampler = MakeUp<VulkanSampler>(mInstance.GetDevice());
@@ -80,19 +80,21 @@ void Jkr::PainterParameterBase::SetupUniformImage(Up<VulkanSampler>& inUniformIm
     //     Cmd(mInstance.GetDevice(), Pool);
     //     Remove this
 
-    inUniformImage->SubmitImmediateCmdCopyFromData(mInstance.GetGraphicsQueue(),
-                                                   mInstance.GetUtilCommandBuffer(),
-                                                   mInstance.GetDevice(),
-                                                   mInstance.GetUtilCommandBufferFence(),
-                                                   &data,
-                                                   4 * Width * Height);
+    inUniformImage->SubmitImmediateCmdCopyFromDataWithStagingBuffer(
+         mInstance.GetGraphicsQueue(),
+         mInstance.GetUtilCommandBuffer(),
+         mInstance.GetDevice(),
+         mInstance.GetUtilCommandBufferFence(),
+         &data,
+         4 * Width * Height,
+         mInstance.GetStagingBuffer(4 * Width * Height));
     mInstance.GetDevice().Wait();
     stbi_image_free(data);
 }
 
-void Jkr::PainterParameterBase::SetupUniformImage(Up<VulkanSampler>& inUniformImageSampler,
-                                                  Up<UniformImageType>& inUniformImage,
-                                                  void** inData,
+void Jkr::PainterParameterBase::SetupUniformImage(Up<VulkanSampler> &inUniformImageSampler,
+                                                  Up<UniformImageType> &inUniformImage,
+                                                  void **inData,
                                                   uint32_t inWidth,
                                                   uint32_t inHeight,
                                                   uint32_t inChannelCount) {
@@ -109,41 +111,43 @@ void Jkr::PainterParameterBase::SetupUniformImage(Up<VulkanSampler>& inUniformIm
     //     mInstance.GetGraphicsQueue().GetQueueContext()); VulkanCommandBuffer
     //     Cmd(mInstance.GetDevice(), Pool); VulkanFence Fence(mInstance.GetDevice());
     if (inData) {
-        inUniformImage->SubmitImmediateCmdCopyFromData(mInstance.GetGraphicsQueue(),
-                                                       mInstance.GetUtilCommandBuffer(),
-                                                       mInstance.GetDevice(),
-                                                       mInstance.GetUtilCommandBufferFence(),
-                                                       inData,
-                                                       inWidth * inHeight * inChannelCount);
+        inUniformImage->SubmitImmediateCmdCopyFromDataWithStagingBuffer(
+             mInstance.GetGraphicsQueue(),
+             mInstance.GetUtilCommandBuffer(),
+             mInstance.GetDevice(),
+             mInstance.GetUtilCommandBufferFence(),
+             inData,
+             inWidth * inHeight * inChannelCount,
+             mInstance.GetStagingBuffer(inWidth * inHeight * inChannelCount));
         mInstance.GetDevice().Wait();
     }
 }
 
-void Jkr::PainterParameterBase::SetupUniformImage(Up<VulkanSampler>& inUniformImageSampler,
-                                                  Up<UniformImageType>& inUniformImage,
+void Jkr::PainterParameterBase::SetupUniformImage(Up<VulkanSampler> &inUniformImageSampler,
+                                                  Up<UniformImageType> &inUniformImage,
                                                   std::vector<s> inFileNames) {
     SetupImage(inUniformImageSampler, inUniformImage, inFileNames, ImageContext::Default);
 }
 
-void Jkr::PainterParameterBase::SetupSkyboxImage(Up<VulkanSampler>& inUniformImageSampler,
-                                                 Up<SkyboxImageType>& inUniformImage,
+void Jkr::PainterParameterBase::SetupSkyboxImage(Up<VulkanSampler> &inUniformImageSampler,
+                                                 Up<SkyboxImageType> &inUniformImage,
                                                  std::vector<s> inFileNames) {
     SetupImage(inUniformImageSampler, inUniformImage, inFileNames, ImageContext::CubeCompatible);
 }
 
-void PainterParameterBase::SetupImage(Up<VulkanSampler>& inUniformImageSampler,
-                                      Up<VulkanImageVMA>& inUniformImage,
+void PainterParameterBase::SetupImage(Up<VulkanSampler> &inUniformImageSampler,
+                                      Up<VulkanImageVMA> &inUniformImage,
                                       std::vector<s> inFileNames,
                                       ImageContext inImageContext) {
     int Width;
     int Height;
     int Channels;
 
-    std::vector<void*> Datas;
+    std::vector<void *> Datas;
     Datas.reserve(inFileNames.size());
-    std::vector<void**> Datas_ptr;
+    std::vector<void **> Datas_ptr;
     Datas_ptr.reserve(inFileNames.size());
-    for (int i = 0; auto& u : inFileNames) {
+    for (int i = 0; auto &u : inFileNames) {
         Datas.push_back(stbi_load(u.data(), &Width, &Height, &Channels, STBI_rgb_alpha));
         Datas_ptr.push_back(&Datas[i]);
         i++;
@@ -164,14 +168,16 @@ void PainterParameterBase::SetupImage(Up<VulkanSampler>& inUniformImageSampler,
                                             4,
                                             inFileNames.size());
     inUniformImageSampler = MakeUp<VulkanSampler>(mInstance.GetDevice());
-    inUniformImage->SubmitImmediateCmdCopyFromData(mInstance.GetGraphicsQueue(),
-                                                   mInstance.GetUtilCommandBuffer(),
-                                                   mInstance.GetDevice(),
-                                                   mInstance.GetUtilCommandBufferFence(),
-                                                   Channels * Height * Width,
-                                                   Datas_ptr);
+    inUniformImage->SubmitImmediateCmdCopyFromDataWithStagingBuffer(
+         mInstance.GetGraphicsQueue(),
+         mInstance.GetUtilCommandBuffer(),
+         mInstance.GetDevice(),
+         mInstance.GetUtilCommandBufferFence(),
+         Channels * Height * Width,
+         Datas_ptr,
+         mInstance.GetStagingBuffer(Channels * Height * Width));
 
-    for (void* u : Datas) {
+    for (void *u : Datas) {
         stbi_image_free(u);
     }
 }

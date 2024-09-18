@@ -9,7 +9,7 @@
 
 using namespace Jkr;
 
-Window::Window(const Instance &inInstance,
+Window::Window(Instance &inInstance,
                const sv inTitle,
                ui inHeight,
                ui inWidth,
@@ -34,7 +34,7 @@ Window::Window(const Instance &inInstance,
     }
 }
 
-Window::Window(const Instance &inInstance,
+Window::Window(Instance &inInstance,
                std::span<ui> inPerThreadBuffers,
                ui inOffscreenFrameHeight,
                ui inOffscreenFrameWidth,

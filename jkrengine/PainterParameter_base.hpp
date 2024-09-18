@@ -33,51 +33,51 @@ using UniformSamplerType        = VulkanSampler;
 
 class PainterParameterBase {
     public:
-    PainterParameterBase(const Instance& inInstance)
+    PainterParameterBase(Instance &inInstance)
         : mInstance(inInstance), mVulkanDescriptorSetHandler(mInstance.GetDevice()) {}
     ~PainterParameterBase()                              = default;
-    PainterParameterBase(PainterParameterBase&& inParam) = default;
+    PainterParameterBase(PainterParameterBase &&inParam) = default;
 
     public:
-    void SetupStorageBuffer(Up<StorageBufferType>& inStorageBuffer, vk::DeviceSize inDeviceSize);
-    void SetupUniformBuffer(Up<UniformBufferType>& inUniformBuffer,
+    void SetupStorageBuffer(Up<StorageBufferType> &inStorageBuffer, vk::DeviceSize inDeviceSize);
+    void SetupUniformBuffer(Up<UniformBufferType> &inUniformBuffer,
                             vk::DeviceSize inDeviceSize,
-                            void** inMappedMemoryRegion);
-    void SetupStorageBufferCoherent(Up<StorageBufferTypeCoherent>& inUniformBuffer,
+                            void **inMappedMemoryRegion);
+    void SetupStorageBufferCoherent(Up<StorageBufferTypeCoherent> &inUniformBuffer,
                                     vk::DeviceSize inDeviceSize,
-                                    void** inMappedMemoryRegion);
-    void SetupStorageImage(Up<VulkanSampler>& inStorageImageSampler,
-                           Up<StorageImageType>& inStorageImage,
+                                    void **inMappedMemoryRegion);
+    void SetupStorageImage(Up<VulkanSampler> &inStorageImageSampler,
+                           Up<StorageImageType> &inStorageImage,
                            uint32_t inWidth,
                            uint32_t inHeight);
-    void SetupUniformImage(Up<VulkanSampler>& inUniformImageSampler,
-                           Up<UniformImageType>& inUniformImage,
+    void SetupUniformImage(Up<VulkanSampler> &inUniformImageSampler,
+                           Up<UniformImageType> &inUniformImage,
                            const std::string_view inFileName);
-    void SetupDepthImage(Up<VulkanSampler>& inDepthImageSampler,
-                         Up<DepthImageType>& inDepthImage,
+    void SetupDepthImage(Up<VulkanSampler> &inDepthImageSampler,
+                         Up<DepthImageType> &inDepthImage,
                          uint32_t inWidth,
                          uint32_t inHeight);
-    void SetupUniformImage(Up<VulkanSampler>& inUniformImageSampler,
-                           Up<UniformImageType>& inUniformImage,
+    void SetupUniformImage(Up<VulkanSampler> &inUniformImageSampler,
+                           Up<UniformImageType> &inUniformImage,
                            std::vector<s> inFileNames);
-    void SetupUniformImage(Up<VulkanSampler>& inUniformImageSampler,
-                           Up<UniformImageType>& inUniformImage,
-                           void** inData,
+    void SetupUniformImage(Up<VulkanSampler> &inUniformImageSampler,
+                           Up<UniformImageType> &inUniformImage,
+                           void **inData,
                            uint32_t inWidth,
                            uint32_t inHeight,
                            uint32_t inChannelCount);
-    void SetupSkyboxImage(Up<VulkanSampler>& inUnifromImageSampler,
-                          Up<SkyboxImageType>& inSkyboxImage,
+    void SetupSkyboxImage(Up<VulkanSampler> &inUnifromImageSampler,
+                          Up<SkyboxImageType> &inSkyboxImage,
                           std::vector<s> inFileNames);
 
     protected:
-    const Instance& mInstance;
+    Instance &mInstance;
     VulkanDescriptorUpdateHandler mVulkanDescriptorSetHandler;
     static std::mutex mMutex;
 
     private:
-    void SetupImage(Up<VulkanSampler>& inUniformImageSampler,
-                    Up<VulkanImageVMA>& inUniformImage,
+    void SetupImage(Up<VulkanSampler> &inUniformImageSampler,
+                    Up<VulkanImageVMA> &inUniformImage,
                     std::vector<s> inFileNames,
                     ImageContext inImageContext);
 };

@@ -243,7 +243,7 @@ void CreateRenderer3DBindings(sol::state &s) {
     Jkr.new_usertype<Jkr::Renderer::_3D::Shape>(
          "Shape3D",
          sol::call_constructor,
-         sol::factories([](const Jkr::Instance &inInstance, Jkr::Window_base &inCompatibleWindow) {
+         sol::factories([](Jkr::Instance &inInstance, Jkr::Window_base &inCompatibleWindow) {
              return mu<Jkr::Renderer::_3D::Shape>(inInstance, inCompatibleWindow);
          }),
          "Bind",

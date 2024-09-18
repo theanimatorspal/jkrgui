@@ -5,7 +5,7 @@
 namespace Jkr {
 
 template <ui MaxFramesInFlight> struct ThreadCommandBuffer {
-    ThreadCommandBuffer(const Instance& inInstance)
+    ThreadCommandBuffer(Instance &inInstance)
         : mCommandPool(inInstance.GetDevice(), inInstance.GetQueueContext()),
           mCommandBuffers(
                {VulkanCommandBuffer(

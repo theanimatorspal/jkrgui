@@ -6,6 +6,7 @@
 namespace ksai {
 
 class VulkanCommandBuffer;
+class VulkanBufferVMA;
 class VulkanImageBase {
     public:
     struct CreateInfo {
@@ -36,34 +37,39 @@ class VulkanImageBase {
     GETTER &GetImagePropertyRef() { return mImageProperties; }
 
     VulkanImageBase(const VulkanDevice &inDevice, bool inDestroyImageView = true);
-    void SubmitImmediateCmdCopyFromData(const VulkanQueue<QueueContext::Graphics> &inQueue,
-                                        const VulkanCommandBuffer &inCmdBuffer,
-                                        const VulkanDevice &inDevice,
-                                        const VulkanFence &inFence,
-                                        void **inData,
-                                        vk::DeviceSize inSize);
-    void SubmitImmediateCmdCopyFromData(const VulkanQueue<QueueContext::Graphics> &inQueue,
-                                        const VulkanCommandBuffer &inCmdBuffer,
-                                        const VulkanDevice &inDevice,
-                                        const VulkanFence &inFence,
-                                        vk::DeviceSize inSize,
-                                        std::span<void **> inLayerImageDatas);
-    void CmdCopyImageFromImageAfterStage(const VulkanCommandBuffer &inCmdBuffer,
-                                         const VulkanDevice &inDevice,
-                                         VulkanImageBase &inImage,
-                                         vk::PipelineStageFlags inAfterStage,
-                                         vk::AccessFlags inAfterStageAccessFlags,
-                                         int inWidth                               = -1,
-                                         int inHeight                              = -1,
-                                         int inFromMipLevel                        = 0,
-                                         int inFromBaseArrayLayer                  = 0,
-                                         int inToMipLevel                          = 0,
-                                         int inToBaseArrayLayer                    = 0,
-                                         int inArrayLayersToBeCopied               = 1,
-                                         vk::ImageLayout inSrcImageLayoutTobeSetTo = vk::ImageLayout::eGeneral,
-                                         vk::ImageLayout inDstImageLayoutTobeSetTo = vk::ImageLayout::eGeneral,
-                                         opt<vk::ImageLayout> inSrcImageLayoutFrom = std::nullopt,
-                                         opt<vk::ImageLayout> inDstImageLayoutFrom = std::nullopt);
+    void SubmitImmediateCmdCopyFromDataWithStagingBuffer(
+         const VulkanQueue<QueueContext::Graphics> &inQueue,
+         const VulkanCommandBuffer &inCmdBuffer,
+         const VulkanDevice &inDevice,
+         const VulkanFence &inFence,
+         void **inData,
+         vk::DeviceSize inSize,
+         VulkanBufferVMA &inStagingBuffer);
+    void SubmitImmediateCmdCopyFromDataWithStagingBuffer(
+         const VulkanQueue<QueueContext::Graphics> &inQueue,
+         const VulkanCommandBuffer &inCmdBuffer,
+         const VulkanDevice &inDevice,
+         const VulkanFence &inFence,
+         vk::DeviceSize inSize,
+         std::span<void **> inLayerImageDatas,
+         VulkanBufferVMA &inStagingBuffer);
+    void CmdCopyImageFromImageAfterStage(
+         const VulkanCommandBuffer &inCmdBuffer,
+         const VulkanDevice &inDevice,
+         VulkanImageBase &inImage,
+         vk::PipelineStageFlags inAfterStage,
+         vk::AccessFlags inAfterStageAccessFlags,
+         int inWidth                               = -1,
+         int inHeight                              = -1,
+         int inFromMipLevel                        = 0,
+         int inFromBaseArrayLayer                  = 0,
+         int inToMipLevel                          = 0,
+         int inToBaseArrayLayer                    = 0,
+         int inArrayLayersToBeCopied               = 1,
+         vk::ImageLayout inSrcImageLayoutTobeSetTo = vk::ImageLayout::eGeneral,
+         vk::ImageLayout inDstImageLayoutTobeSetTo = vk::ImageLayout::eGeneral,
+         opt<vk::ImageLayout> inSrcImageLayoutFrom = std::nullopt,
+         opt<vk::ImageLayout> inDstImageLayoutFrom = std::nullopt);
     void CmdTransitionImageLayout(const VulkanCommandBuffer &inBuffer,
                                   vk::ImageLayout inOldImageLayout,
                                   vk::ImageLayout inNewImageLayout,
@@ -74,8 +80,13 @@ class VulkanImageBase {
 
     public:
     void FillImageProperties(ImageContext inImageContext, uint32_t inNumSamples = 1);
-    void GetMemoryTypeIndex(vk::MemoryPropertyFlagBits inFlag, vk::Image inImage, vk::DeviceSize &outSize, ui &outIndex);
-    void GetImageTiling(vk::Format inFormat, vk::FormatFeatureFlagBits inFormatFeature, vk::ImageTiling &outTiling);
+    void GetMemoryTypeIndex(vk::MemoryPropertyFlagBits inFlag,
+                            vk::Image inImage,
+                            vk::DeviceSize &outSize,
+                            ui &outIndex);
+    void GetImageTiling(vk::Format inFormat,
+                        vk::FormatFeatureFlagBits inFormatFeature,
+                        vk::ImageTiling &outTiling);
 
     void BuildImageViewsByLayers();
     GETTER &GetImageViews() { return mImageViews; }

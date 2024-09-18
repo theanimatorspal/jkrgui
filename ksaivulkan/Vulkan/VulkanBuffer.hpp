@@ -20,15 +20,15 @@ class VulkanBufferBase {
 
     VulkanBufferBase() = default;
     ~VulkanBufferBase();
-    VulkanBufferBase(const VulkanBufferBase &other)            = delete;
-    VulkanBufferBase &operator=(const VulkanBufferBase &other) = delete;
-    VulkanBufferBase(VulkanBufferBase &&other)                 = default;
-    VulkanBufferBase &operator=(VulkanBufferBase &&other)      = default;
+    VulkanBufferBase(VulkanBufferBase &other)             = delete;
+    VulkanBufferBase &operator=(VulkanBufferBase &other)  = delete;
+    VulkanBufferBase(VulkanBufferBase &&other)            = default;
+    VulkanBufferBase &operator=(VulkanBufferBase &&other) = default;
 
     void Init(CreateInfo inCreateInfo);
     void Destroy();
 
-    vk::Buffer operator()(const VulkanBufferBase &) { return mBufferHandle; }
+    vk::Buffer operator()(VulkanBufferBase &) { return mBufferHandle; }
     VulkanBufferBase(const VulkanDevice &inDevice);
     void SubmitImmediateCmdCopyFrom(const VulkanQueue<QueueContext::Graphics> &inQueue,
                                     const VulkanCommandBuffer &inCmdBuffer,
@@ -91,10 +91,10 @@ class VulkanBuffer : public VulkanBufferBase {
 
     VulkanBuffer() = default;
     ~VulkanBuffer();
-    VulkanBuffer(const VulkanBuffer &other)            = delete;
-    VulkanBuffer &operator=(const VulkanBuffer &other) = delete;
-    VulkanBuffer(VulkanBuffer &&other)                 = default;
-    VulkanBuffer &operator=(VulkanBuffer &&other)      = default;
+    VulkanBuffer(VulkanBuffer &other)             = delete;
+    VulkanBuffer &operator=(VulkanBuffer &other)  = delete;
+    VulkanBuffer(VulkanBuffer &&other)            = default;
+    VulkanBuffer &operator=(VulkanBuffer &&other) = default;
 
     void Init(CreateInfo inCreateInfo);
     void Destroy();

@@ -2,8 +2,8 @@
 using namespace ksai;
 static std::mutex DescMutex;
 void VulkanDescriptorUpdateHandler::RW(BufferContext inBufferContext,
-                                       const VulkanDescriptorSet& inDescriptorSet,
-                                       const VulkanBufferBase& inBuffer,
+                                       const VulkanDescriptorSet &inDescriptorSet,
+                                       VulkanBufferBase &inBuffer,
                                        vk::DeviceSize inOffset,
                                        uint32_t inDstBinding,
                                        uint32_t inDstArrayElement,
@@ -32,9 +32,9 @@ void VulkanDescriptorUpdateHandler::RW(BufferContext inBufferContext,
 }
 
 void VulkanDescriptorUpdateHandler::RW(ImageContext inImageContext,
-                                       const VulkanDescriptorSet& inDescriptorSet,
-                                       const VulkanImageBase& inImage,
-                                       const VulkanSampler& inSampler,
+                                       const VulkanDescriptorSet &inDescriptorSet,
+                                       const VulkanImageBase &inImage,
+                                       const VulkanSampler &inSampler,
                                        uint32_t inDstBinding,
                                        uint32_t inDstArrayElement,
                                        uint32_t inDstSet) {
@@ -58,8 +58,8 @@ void VulkanDescriptorUpdateHandler::RW(ImageContext inImageContext,
     mDescriptorWrites.clear();
 }
 
-void VulkanDescriptorUpdateHandler::RW(const VulkanDescriptorSet& inDescriptorSet,
-                                       const VulkanSampler& inSampler,
+void VulkanDescriptorUpdateHandler::RW(const VulkanDescriptorSet &inDescriptorSet,
+                                       const VulkanSampler &inSampler,
                                        uint32_t inDstBinding,
                                        uint32_t inDstArrayElement,
                                        uint32_t inDstSet) {

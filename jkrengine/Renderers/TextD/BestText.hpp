@@ -15,33 +15,35 @@ class BestText : public BestText_base, Renderer_base {
     using bb = BestText_base;
     using rb = Renderer_base;
 
-public:
-    BestText(const Instance& inInstance,
-        const Window& inCompatibleWindow,
-        const PainterCache& inCache,
-        ui inVarDesCount = 5000);
-    bb::TextDimensions AddText(const std::string_view inText, ui inX,
-        ui inY, ui inDepthValue,
-        ui& outId, ui& outLength);
-    bb::TextDimensions UpdateText(ui inId, const std::string_view inText,
-        ui inX, ui inY,
-        ui inDepthValue);
-    void Dispatch(Window& inWindow);
-    void Bind(Window& inWindow, CmdParam inParam = CmdParam::UI);
-    void Draw(Window& inWindow, glm::vec4 inColor, ui inWindowW,
-        ui inWindowH, ui inStartTextId, ui inNoOfChars,
-        glm::mat4 inMatrix);
+    public:
+    BestText(Instance &inInstance,
+             const Window &inCompatibleWindow,
+             const PainterCache &inCache,
+             ui inVarDesCount = 5000);
+    bb::TextDimensions AddText(
+         const std::string_view inText, ui inX, ui inY, ui inDepthValue, ui &outId, ui &outLength);
+    bb::TextDimensions
+    UpdateText(ui inId, const std::string_view inText, ui inX, ui inY, ui inDepthValue);
+    void Dispatch(Window &inWindow);
+    void Bind(Window &inWindow, CmdParam inParam = CmdParam::UI);
+    void Draw(Window &inWindow,
+              glm::vec4 inColor,
+              ui inWindowW,
+              ui inWindowH,
+              ui inStartTextId,
+              ui inNoOfChars,
+              glm::mat4 inMatrix);
     void CheckAndResize(size_t inNewSize);
 
-private:
+    private:
     ui mCurrentFontFaceId = 0;
 
-public:
+    public:
     GETTER GetCurrentFontFace() { return mCurrentFontFaceId; }
     SETTER SetCurrentFontFace(ui inFontFaceId) { mCurrentFontFaceId = inFontFaceId; }
 
-private:
-    const Instance& mInstance;
+    private:
+    Instance &mInstance;
     struct PushConstant {
         glm::mat4 mMatrix;
         glm::vec4 mColor;
@@ -49,7 +51,7 @@ private:
     ui mTotalNoOfCharsRendererCanHold = rb::InitialRendererElementArraySize;
     std::unordered_map<ui, ui> mCodepointKeyTextureMap;
 
-private:
+    private:
     Up<Primitive> mPrimitive;
     Up<Painter> mPainter;
     Up<UniformType> mUniformBuffer;
@@ -69,40 +71,39 @@ class BestText : public BestText_base, Renderer_base {
     using bb = BestText_base;
     using rb = Renderer_base;
 
-public:
-    BestText(const Instance& inInstance,
-        const Window_base& inCompatibleWindow,
-        const PainterCache& inCache,
-        ui inVarDesCount = 5000)
-        : mInstance(inInstance)
-    {
-    }
-    bb::TextDimensions AddText(const sv inText, ui inX,
-        ui inY, ui inDepthValue,
-        ui& outId, ui& outLength) {
+    public:
+    BestText(Instance &inInstance,
+             const Window_base &inCompatibleWindow,
+             const PainterCache &inCache,
+             ui inVarDesCount = 5000)
+        : mInstance(inInstance) {}
+    bb::TextDimensions
+    AddText(const sv inText, ui inX, ui inY, ui inDepthValue, ui &outId, ui &outLength) {
         return {};
     }
-    bb::TextDimensions UpdateText(ui inId, const sv inText,
-        ui inX, ui inY,
-        ui inDepthValue) {
+    bb::TextDimensions UpdateText(ui inId, const sv inText, ui inX, ui inY, ui inDepthValue) {
         return {};
     }
-    void Dispatch(Window_base& inWindow) { }
-    void Bind(Window_base& inWindow) { }
-    void Draw(Window_base& inWindow, glm::vec4 inColor, ui inWindowW,
-        ui inWindowH, ui inStartTextId, ui inNoOfChars,
-        glm::mat4 inMatrix) { }
-    void CheckAndResize(size_t inNewSize) { }
+    void Dispatch(Window_base &inWindow) {}
+    void Bind(Window_base &inWindow) {}
+    void Draw(Window_base &inWindow,
+              glm::vec4 inColor,
+              ui inWindowW,
+              ui inWindowH,
+              ui inStartTextId,
+              ui inNoOfChars,
+              glm::mat4 inMatrix) {}
+    void CheckAndResize(size_t inNewSize) {}
 
-private:
+    private:
     ui mCurrentFontFaceId = 0;
 
-public:
+    public:
     GETTER GetCurrentFontFace() { return mCurrentFontFaceId; }
     SETTER SetCurrentFontFace(ui inFontFaceId) { mCurrentFontFaceId = inFontFaceId; }
 
-private:
-    const Instance& mInstance;
+    private:
+    Instance &mInstance;
     struct PushConstant {
         glm::mat4 mMatrix;
         glm::vec4 mColor;
@@ -110,7 +111,7 @@ private:
     ui mTotalNoOfCharsRendererCanHold = rb::InitialRendererElementArraySize;
     std::unordered_map<ui, ui> mCodepointKeyTextureMap;
 
-private:
+    private:
     Up<Primitive> mPrimitive;
     Up<Painter> mPainter;
     Up<UniformType> mUniformBuffer;
@@ -121,6 +122,6 @@ private:
 #endif
 };
 
-}
+} // namespace Jkr::Renderer
 
 #endif

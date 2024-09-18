@@ -17,14 +17,14 @@ class VulkanBufferVMA : public VulkanBufferBase {
 
     VulkanBufferVMA() = default;
     ~VulkanBufferVMA();
-    VulkanBufferVMA(const VulkanBufferVMA &other)            = delete;
-    VulkanBufferVMA &operator=(const VulkanBufferVMA &other) = delete;
-    VulkanBufferVMA(VulkanBufferVMA &&other)                 = default;
-    VulkanBufferVMA &operator=(VulkanBufferVMA &&other)      = default;
+    VulkanBufferVMA(VulkanBufferVMA &other)             = delete;
+    VulkanBufferVMA &operator=(VulkanBufferVMA &other)  = delete;
+    VulkanBufferVMA(VulkanBufferVMA &&other)            = default;
+    VulkanBufferVMA &operator=(VulkanBufferVMA &&other) = default;
 
     void Init(CreateInfo inCreateInfo);
     void Destroy();
-    vk::Buffer operator()(const VulkanBufferBase &) { return mBufferHandle; }
+    vk::Buffer operator()(VulkanBufferBase &) { return mBufferHandle; }
 
     void MapMemoryRegion(void **outMappedMemoryRegion);
     void UnMapMemoryRegion();

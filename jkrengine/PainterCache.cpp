@@ -57,7 +57,7 @@ Jkr::ShaderModules::~ShaderModules() {
     }
 }
 
-Jkr::PainterCache::PainterCache(const Instance &inInstance, PipelinePropertiesContext inContext)
+Jkr::PainterCache::PainterCache(Instance &inInstance, PipelinePropertiesContext inContext)
     : mInstance(inInstance), mPipelineContext(inContext) {}
 
 #ifndef JKR_USE_VARIABLE_DES_INDEXING

@@ -1,9 +1,9 @@
 #include "Line.hpp"
 #include <glm/ext/matrix_clip_space.hpp>
 
-Jkr::Renderer::Line::Line(const Instance& inInstance,
-                          Window_base& inCompatibleWindow,
-                          PainterCache& inPainterCache)
+Jkr::Renderer::Line::Line(Instance &inInstance,
+                          Window_base &inCompatibleWindow,
+                          PainterCache &inPainterCache)
     : mInstance(inInstance) {
     mPainter = MakeUp<Painter>(inInstance, inCompatibleWindow, inPainterCache);
 #ifndef JKR_NO_STAGING_BUFFERS
@@ -19,7 +19,7 @@ Jkr::Renderer::Line::Line(const Instance& inInstance,
 void Jkr::Renderer::Line::AddLine(glm::vec2 inFirstPoint,
                                   glm::vec2 inSecondPoint,
                                   float inDepthValue,
-                                  uint32_t& outId) {
+                                  uint32_t &outId) {
     CheckAndResize(mInstance, 1);
     lb::AddLine(inFirstPoint, inSecondPoint, inDepthValue);
 #ifndef JKR_NO_STAGING_BUFFERS
@@ -75,7 +75,7 @@ void Jkr::Renderer::Line::UpdateLine(uint32_t inId,
 #endif
 }
 
-void Jkr::Renderer::Line::Dispatch(Window_base& inWindow) {
+void Jkr::Renderer::Line::Dispatch(Window_base &inWindow) {
 #ifndef JKR_NO_STAGING_BUFFERS
     if (!rb::IsCopyRegionsEmpty()) {
         rb::CmdCopyToPrimitiveFromStagingBuffer(
@@ -90,12 +90,12 @@ void Jkr::Renderer::Line::Dispatch(Window_base& inWindow) {
 #endif
 }
 
-void Jkr::Renderer::Line::Bind(Window_base& inWindow) {
+void Jkr::Renderer::Line::Bind(Window_base &inWindow) {
     // TODO Improve this
     // mPainter->BindDrawParamters_EXT(*mPrimitive, inWindow);
 }
 
-void Jkr::Renderer::Line::Draw(Window_base& inWindow,
+void Jkr::Renderer::Line::Draw(Window_base &inWindow,
                                glm::vec4 inColor,
                                uint32_t inWindowW,
                                uint32_t inWindowH,
@@ -117,7 +117,7 @@ void Jkr::Renderer::Line::Draw(Window_base& inWindow,
          Push, inWindow, 2 * (inEndLineId - inStartLineId + 1), 1, inStartLineId * 2, 0);
 }
 
-void Jkr::Renderer::Line::CheckAndResize(const Instance& inInstance, uint32_t inNewSizeNeeded) {
+void Jkr::Renderer::Line::CheckAndResize(Instance &inInstance, uint32_t inNewSizeNeeded) {
     bool ResizeRequired = false;
     while (true) {
         bool ResizeRequiredi =

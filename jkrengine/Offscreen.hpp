@@ -22,10 +22,10 @@ struct ShadowPass {
     GETTER &GetFrameBuffer() { return *mFrameBuffer; }
     GETTER &GetDepthImagePainterParameter() { return *mImage; }
 
-    ShadowPass(const Instance &inInstance, ui inWidth, ui inHeight);
+    ShadowPass(Instance &inInstance, ui inWidth, ui inHeight);
 
     private:
-    const Instance &mInstance;
+    Instance &mInstance;
     Up<DepthImageType> mImage;
     Up<RenderPassType> mRenderpass;
     Up<FrameBufferType> mFrameBuffer;
@@ -54,13 +54,13 @@ struct DeferredPass {
                                     Renderer::_3D::Simple3D &inCompositionSimple3D,
                                     Renderer::_3D::World3D &inWorld3D);
 
-    DeferredPass(const Instance &inInstance, ui inWidth, ui inHeight, int inFramesInFlight);
+    DeferredPass(Instance &inInstance, ui inWidth, ui inHeight, int inFramesInFlight);
     /// @todo Name this correctly, this function should be "Build", and the Build function
     ///         Should be named "Prepare".
     void Prepare(Renderer::_3D::Simple3D &inCompositionSimple3D, Renderer::_3D::World3D &inWorld3D);
 
     private:
-    const Instance &mInstance;
+    Instance &mInstance;
     Up<ImageType> mDepthImage;
     Up<ImageType> mPositionImage;
     Up<ImageType> mNormalImage;

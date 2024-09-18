@@ -15,6 +15,7 @@ class VulkanCommandBuffer;
 class VulkanDescriptorPool;
 class VulkanVMA;
 class VulkanFence;
+class VulkanBufferVMA;
 } // namespace ksai
 
 namespace Jkr {
@@ -27,17 +28,18 @@ class Instance {
              uint32_t inPoolSize        = 10000,
              bool inEnableValidation    = false);
     ~Instance();
-    GETTER& GetVulkanInstance() const { return *mInstance; }
-    GETTER& GetPhysicalDevice() const { return *mPhysicalDevice; }
-    GETTER& GetQueueContext() const { return *mQueueContext; }
-    GETTER& GetDevice() const { return *mDevice; }
-    GETTER& GetGraphicsQueue() const { return *mGraphicsPresentQueue; };
-    GETTER& GetCommandPool() const { return *mCommandPool; }
-    GETTER& GetUtilCommandBuffer() const { return *mUtilCommandBuffer; }
-    GETTER& GetUtilCommandBufferFence() const { return *mUtilCommandBufferFence; }
-    GETTER& GetDescriptorPool() const { return *mDescriptorPool; }
-    GETTER& GetVMA() const { return *mVmaAllocator; }
-    GETTER& GetThreadPool() { return mThreadPool; }
+    GETTER &GetVulkanInstance() const { return *mInstance; }
+    GETTER &GetPhysicalDevice() const { return *mPhysicalDevice; }
+    GETTER &GetQueueContext() const { return *mQueueContext; }
+    GETTER &GetDevice() const { return *mDevice; }
+    GETTER &GetGraphicsQueue() const { return *mGraphicsPresentQueue; };
+    GETTER &GetCommandPool() const { return *mCommandPool; }
+    GETTER &GetUtilCommandBuffer() const { return *mUtilCommandBuffer; }
+    GETTER &GetUtilCommandBufferFence() const { return *mUtilCommandBufferFence; }
+    GETTER &GetDescriptorPool() const { return *mDescriptorPool; }
+    GETTER &GetVMA() const { return *mVmaAllocator; }
+    GETTER &GetThreadPool() { return mThreadPool; }
+    VulkanBufferVMA &GetStagingBuffer(size_t inSize);
 
     private:
     static const int mMaxFramesInFlight = 2;
@@ -55,5 +57,7 @@ class Instance {
     Up<VulkanDescriptorPool> mDescriptorPool;
     Up<VulkanVMA> mVmaAllocator;
     ksai::ThreadPool mThreadPool;
+
+    Up<VulkanBufferVMA> mVulkanStagingBufferPool;
 };
 } // namespace Jkr

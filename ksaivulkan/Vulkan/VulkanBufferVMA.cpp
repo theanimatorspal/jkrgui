@@ -7,7 +7,10 @@ void VulkanBufferVMA::MapMemoryRegion(void **outMappedMemoryRegion) {
 }
 
 void VulkanBufferVMA::UnMapMemoryRegion() {
-    vmaUnmapMemory(mAllocator->GetVMAHandle(), mAllocation);
+    if (mMemoryMapped) {
+        mMemoryMapped = false;
+        vmaUnmapMemory(mAllocator->GetVMAHandle(), mAllocation);
+    }
 }
 
 VulkanBufferVMA::VulkanBufferVMA(const VulkanVMA &inVMA,
