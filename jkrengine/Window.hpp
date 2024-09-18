@@ -87,7 +87,7 @@ class Window : public Window_base {
     void EndThreadCommandBuffer(int inThreadId);
     void ExecuteThreadCommandBuffer(int inThreadId);
 
-    Window(const Instance &inInstance,
+    Window(Instance &inInstance,
            const sv inTitle,
            ui inHeight,
            ui inWidth,
@@ -96,7 +96,7 @@ class Window : public Window_base {
            ui inNumThreads,
            std::span<ui> inPerThreadBuffers,
            optref<ksai::ThreadPool> inPool = std::nullopt);
-    Window(const Instance &inInstance,
+    Window(Instance &inInstance,
            std::span<ui> inPerThreadBuffers,
            ui inOffscreenFrameHeight,
            ui inOffscreenFrameWidth,

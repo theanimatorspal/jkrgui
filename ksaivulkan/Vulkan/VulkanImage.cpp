@@ -30,18 +30,17 @@ void ksai::VulkanImageBase::Destroy() {
     }
     mInitialized = false;
 }
-
-void ksai::VulkanImageBase::SubmitImmediateCmdCopyFromData(
+void ksai::VulkanImageBase::SubmitImmediateCmdCopyFromDataWithStagingBuffer(
      const VulkanQueue<QueueContext::Graphics> &inQueue,
      const VulkanCommandBuffer &inCmdBuffer,
      const VulkanDevice &inDevice,
      const VulkanFence &inFence,
      void **inData,
-     vk::DeviceSize inSize) {
-    VulkanBuffer StagingBuffer(
-         inDevice, inSize, BufferContext::Staging, MemoryType::HostVisibleAndCoherenet);
+     vk::DeviceSize inSize,
+     VulkanBufferVMA &inStagingBuffer) {
+
     void *MapRegion;
-    StagingBuffer.MapMemoryRegion(&MapRegion);
+    inStagingBuffer.MapMemoryRegion(&MapRegion);
     std::memcpy(MapRegion, *inData, inSize);
     const vk::CommandBuffer &Cmd = inCmdBuffer.GetCommandBufferHandle();
     inFence.Wait();
@@ -63,7 +62,7 @@ void ksai::VulkanImageBase::SubmitImmediateCmdCopyFromData(
                              vk::AccessFlagBits::eNone,
                              vk::AccessFlagBits::eTransferWrite);
     Cmd.copyBufferToImage(
-         StagingBuffer.GetBufferHandle(), mImage, vk::ImageLayout::eTransferDstOptimal, Copy);
+         inStagingBuffer.GetBufferHandle(), mImage, vk::ImageLayout::eTransferDstOptimal, Copy);
     CmdTransitionImageLayout(inCmdBuffer,
                              vk::ImageLayout::eTransferDstOptimal,
                              vk::ImageLayout::eGeneral,
@@ -73,19 +72,19 @@ void ksai::VulkanImageBase::SubmitImmediateCmdCopyFromData(
                              vk::AccessFlagBits::eNone);
     inCmdBuffer.End();
     inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer, inFence);
+    inStagingBuffer.UnMapMemoryRegion();
     //	inQueue.Wait();
 }
 
-void VulkanImageBase::SubmitImmediateCmdCopyFromData(
+void VulkanImageBase::SubmitImmediateCmdCopyFromDataWithStagingBuffer(
      const VulkanQueue<QueueContext::Graphics> &inQueue,
      const VulkanCommandBuffer &inCmdBuffer,
      const VulkanDevice &inDevice,
      const VulkanFence &inFence,
      vk::DeviceSize inSize,
-     std::span<void **> inLayerImageDatas) {
+     std::span<void **> inLayerImageDatas,
+     VulkanBufferVMA &StagingBuffer) {
     vk::DeviceSize size = inLayerImageDatas.size() * inSize;
-    VulkanBuffer StagingBuffer(
-         inDevice, size, BufferContext::Staging, MemoryType::HostVisibleAndCoherenet);
     void *MapRegion;
     StagingBuffer.MapMemoryRegion(&MapRegion);
     for (int i = 0; i < inLayerImageDatas.size(); i++) {

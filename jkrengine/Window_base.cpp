@@ -2,7 +2,7 @@
 #include "SDLWindow.hpp"
 
 using namespace Jkr;
-Window_base::Window_base(const Instance &inInstance,
+Window_base::Window_base(Instance &inInstance,
                          std::string_view inTitle,
                          int inHeight,
                          int inWidth,
@@ -75,7 +75,7 @@ Window_base::Window_base(const Instance &inInstance,
                                                            mOffscreenImages[i]));
     }
 }
-Window_base::Window_base(const Instance &inInstance,
+Window_base::Window_base(Instance &inInstance,
                          int inOffscreenFrameHeight,
                          int inOffscreenFrameWidth)
     : mInstance(&inInstance) {

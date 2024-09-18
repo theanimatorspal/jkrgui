@@ -1,7 +1,7 @@
 #include "Renderer_base.hpp"
 
 #ifndef JKR_NO_STAGING_BUFFERS
-void Jkr::Renderer::Renderer_base::CreateStagingBuffers(const Instance& inInstance,
+void Jkr::Renderer::Renderer_base::CreateStagingBuffers(Instance &inInstance,
                                                         size_t inVertexStagingBufferSizeInBytes,
                                                         size_t inIndexStagingBufferSizeInBytes) {
     mStagingVertexBuffer = MakeUp<StagingBuffer>(inInstance.GetVMA(),
@@ -19,24 +19,24 @@ void Jkr::Renderer::Renderer_base::CreateStagingBuffers(const Instance& inInstan
     mStagingIndexBufferSize  = inIndexStagingBufferSizeInBytes;
 }
 
-void Jkr::Renderer::Renderer_base::CopyToStagingBuffers(void* inVertexData,
-                                                        void* inIndexData,
+void Jkr::Renderer::Renderer_base::CopyToStagingBuffers(void *inVertexData,
+                                                        void *inIndexData,
                                                         size_t inVertexOffset,
                                                         size_t inIndexOffset,
                                                         size_t inVertexSize,
                                                         size_t inIndexSize) {
-    std::memcpy((char*)mVertexStagingBufferMemoryMapPtr + inVertexOffset,
-                (char*)inVertexData + inVertexOffset,
+    std::memcpy((char *)mVertexStagingBufferMemoryMapPtr + inVertexOffset,
+                (char *)inVertexData + inVertexOffset,
                 inVertexSize);
     mStagingVertexBuffer->FlushMemoryRanges(inVertexOffset, inVertexSize);
 
-    std::memcpy((char*)mIndexStagingBufferMemoryMapPtr + inIndexOffset,
-                (char*)inIndexData + inIndexOffset,
+    std::memcpy((char *)mIndexStagingBufferMemoryMapPtr + inIndexOffset,
+                (char *)inIndexData + inIndexOffset,
                 inIndexSize);
     mStagingIndexBuffer->FlushMemoryRanges(inIndexOffset, inIndexSize);
 }
 
-void Jkr::Renderer::Renderer_base::ResizeStagingBuffer(const Instance& inInstance,
+void Jkr::Renderer::Renderer_base::ResizeStagingBuffer(Instance &inInstance,
                                                        size_t inVertexStagingBufferSizeInBytes,
                                                        size_t inIndexStagingBufferSizeInBytes) {
     mStagingVertexBuffer.reset();
@@ -46,9 +46,9 @@ void Jkr::Renderer::Renderer_base::ResizeStagingBuffer(const Instance& inInstanc
 }
 
 void Jkr::Renderer::Renderer_base::CmdCopyToPrimitiveFromStagingBuffer(
-     const Instance& inInstance,
-     Primitive& inPrimitive,
-     Window& inWindow,
+     Instance &inInstance,
+     Primitive &inPrimitive,
+     Window &inWindow,
      size_t inVertexMemorySizeToBeBarriered,
      size_t inIndexMemorySizeToBeBarriered) {
     inWindow.GetUtilCommandBuffer().GetCommandBufferHandle().copyBuffer(
@@ -89,21 +89,21 @@ void Jkr::Renderer::Renderer_base::RegisterBufferCopyRegionToPrimitiveFromStagin
 }
 
 #else
-void Jkr::Renderer::Renderer_base::CopyToPrimitive(Primitive& inPrimitive,
-                                                   void* inVertexData,
-                                                   void* inIndexData,
+void Jkr::Renderer::Renderer_base::CopyToPrimitive(Primitive &inPrimitive,
+                                                   void *inVertexData,
+                                                   void *inIndexData,
                                                    size_t inVertexOffset,
                                                    size_t inIndexOffset,
                                                    size_t inVertexSize,
                                                    size_t inIndexSize) {
     std::scoped_lock<std::mutex> Lock(mCopyMutex);
-    std::memcpy((char*)inPrimitive.GetVertexMemoryMapPtr() + inVertexOffset,
-                (char*)inVertexData + inVertexOffset,
+    std::memcpy((char *)inPrimitive.GetVertexMemoryMapPtr() + inVertexOffset,
+                (char *)inVertexData + inVertexOffset,
                 inVertexSize);
     inPrimitive.GetVertexBufferPtr()->FlushMemoryRanges(inVertexOffset, inVertexSize);
 
-    std::memcpy((char*)inPrimitive.GetIndexMemoryMapPtr() + inIndexOffset,
-                (char*)inIndexData + inIndexOffset,
+    std::memcpy((char *)inPrimitive.GetIndexMemoryMapPtr() + inIndexOffset,
+                (char *)inIndexData + inIndexOffset,
                 inIndexSize);
     inPrimitive.GetIndexBufferPtr()->FlushMemoryRanges(inIndexOffset, inIndexSize);
 }

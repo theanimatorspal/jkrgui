@@ -7,12 +7,9 @@ class CustomImagePainter;
 class Shape;
 
 struct CustomPainterImage {
-    CustomPainterImage(const Instance &inInstance,
-                       const Window_base &inWindow,
-                       ui inWidth,
-                       ui inHeight);
-    void Register(const Instance &inInstance, CustomImagePainter &inPainterCache, int inIndex = 0);
-    std::vector<int> GetImageToVector(const Instance &inInstance, const Window_base &inWindow);
+    CustomPainterImage(Instance &inInstance, const Window_base &inWindow, ui inWidth, ui inHeight);
+    void Register(Instance &inInstance, CustomImagePainter &inPainterCache, int inIndex = 0);
+    std::vector<int> GetImageToVector(Instance &inInstance, const Window_base &inWindow);
 
     GETTER &GetPainterParam() { return *mPainterParam; }
     GETTER &GetDescriptorSet() { return *mVulkanDescriptorSet; }
@@ -26,8 +23,8 @@ struct CustomImagePainter {
          sv inName, sv inComputeShaderFunction, sv inPushConstantSignature, ui inX, ui inY, ui inZ);
     CustomImagePainter(sv inName, sv inComputeShader);
     GETTER &GetPainter() { return *mPainter; }
-    void Load(const Instance &inInstance, Window_base &inWindow);
-    void Store(const Instance &inInstance, Window_base &inWindow);
+    void Load(Instance &inInstance, Window_base &inWindow);
+    void Store(Instance &inInstance, Window_base &inWindow);
     void Bind(const Window_base &inWindow, ComPar inPar = ComPar::None) {
         mPainter->BindComputePipeline(inWindow, inPar);
     }

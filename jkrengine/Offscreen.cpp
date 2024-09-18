@@ -7,8 +7,7 @@
 
 using namespace Jkr;
 
-ShadowPass::ShadowPass(const Instance &inInstance, ui inWidth, ui inHeight)
-    : mInstance(inInstance) {
+ShadowPass::ShadowPass(Instance &inInstance, ui inWidth, ui inHeight) : mInstance(inInstance) {
     mImage = mu<DepthImageType>(inInstance);
     mImage->SetupDepth(inWidth, inHeight);
     mRenderpass = mu<RenderPassType>(inInstance.GetDevice(), mImage->GetDepthImage());
@@ -16,10 +15,7 @@ ShadowPass::ShadowPass(const Instance &inInstance, ui inWidth, ui inHeight)
          mu<FrameBufferType>(inInstance.GetDevice(), *mRenderpass, mImage->GetDepthImage());
 }
 
-Jkr::DeferredPass::DeferredPass(const Instance &inInstance,
-                                ui inWidth,
-                                ui inHeight,
-                                int inFramesInFlight)
+Jkr::DeferredPass::DeferredPass(Instance &inInstance, ui inWidth, ui inHeight, int inFramesInFlight)
     : mInstance(inInstance), mDimension(inWidth, inHeight) {
 
     // Deferred stuff

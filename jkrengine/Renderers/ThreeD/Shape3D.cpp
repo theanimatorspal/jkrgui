@@ -6,7 +6,7 @@
 
 using namespace Jkr::Renderer::_3D;
 
-Shape::Shape(const Instance& inInstance, Window_base& inCompatibleWindow) : mInstance(inInstance) {
+Shape::Shape(Instance &inInstance, Window_base &inCompatibleWindow) : mInstance(inInstance) {
 #ifndef JKR_NO_STAGING_BUFFERS
     rb::CreateStagingBuffers(inInstance,
                              gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
@@ -46,7 +46,7 @@ void Shape::CopyToPrimitive(ui inOffsetId, ui inModelId) {
 #endif
 }
 
-void Shape::Add(glTF_Model& inModel, uint32_t& outId) {
+void Shape::Add(glTF_Model &inModel, uint32_t &outId) {
     inModel.Load(gb::GetCurrentVertexOffset());
     CheckAndResize(inModel);
     gb::Add(inModel.GetVerticesRef(), inModel.GetIndicesRef(), outId);
@@ -55,7 +55,7 @@ void Shape::Add(glTF_Model& inModel, uint32_t& outId) {
     CopyToPrimitive(OffsetId, ModelId);
 }
 
-void Shape::Add(Generator& inGenerator, glm::vec3 inPosition, ui& outId) {
+void Shape::Add(Generator &inGenerator, glm::vec3 inPosition, ui &outId) {
     v<ui> Indices;
     v<Vertex3D> Vertices;
     inGenerator(inPosition.x,
@@ -72,7 +72,7 @@ void Shape::Add(Generator& inGenerator, glm::vec3 inPosition, ui& outId) {
     CopyToPrimitive(OffsetId, ModelId);
 }
 
-void Shape::Dispatch(Window_base& inWindow) {
+void Shape::Dispatch(Window_base &inWindow) {
 #ifndef JKR_NO_STAGING_BUFFERS
     if (not rb::IsCopyRegionsEmpty()) {
         rb::CmdCopyToPrimitiveFromStagingBuffer(
@@ -135,26 +135,26 @@ void Shape::CheckAndResize(size_t inIndicesSize, size_t inVerticesSize) {
 #endif
     }
 }
-void Shape::Update(ui inId, Generator& inGenerator, glm::vec3 inPosition) {
+void Shape::Update(ui inId, Generator &inGenerator, glm::vec3 inPosition) {
     // TODO To be Implemented
 }
 
-void Shape::CheckAndResize(const glTF_Model& inModel) {
+void Shape::CheckAndResize(const glTF_Model &inModel) {
     CheckAndResize(inModel.GetIndices().size(), inModel.GetVertices().size());
 }
 
-void Shape::Bind(Window_base& inWindow, ComPar inCompar) {
+void Shape::Bind(Window_base &inWindow, ComPar inCompar) {
     mPrimitive->Bind(mInstance, inWindow, inCompar);
 }
 
-ui Shape::AddEXT(Generator& inGenerator, glm::vec3 inPosition) {
+ui Shape::AddEXT(Generator &inGenerator, glm::vec3 inPosition) {
     std::scoped_lock<std::mutex> Guard(mAddMutex);
     ui i;
     Add(inGenerator, inPosition, i);
     return i;
 }
 
-ui Shape::AddEXT(glTF_Model& inModel) {
+ui Shape::AddEXT(glTF_Model &inModel) {
     std::scoped_lock<std::mutex> Guard(mAddMutex);
     ui i;
     Add(inModel, i);

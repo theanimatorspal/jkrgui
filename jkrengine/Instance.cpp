@@ -42,3 +42,18 @@ Jkr::Instance::Instance(uint32_t inNoOfDescriptors, uint32_t inPoolSize, bool in
 }
 
 Jkr::Instance::~Instance() { SpirvHelper::Finalize(); }
+
+std::mutex StagingBufferAccessMutex;
+VulkanBufferVMA &Jkr::Instance::GetStagingBuffer(size_t inSize) {
+    std::scoped_lock<std::mutex> StagingBufferAccessLock(StagingBufferAccessMutex);
+    if ((not mVulkanStagingBufferPool) or mVulkanStagingBufferPool->GetBufferSize() <= inSize) {
+        mVulkanStagingBufferPool = MakeUp<VulkanBufferVMA>();
+        mVulkanStagingBufferPool->Init(
+             VulkanBufferVMA::CreateInfo{mVmaAllocator.get(),
+                                         mDevice.get(),
+                                         inSize,
+                                         BufferContext::Staging,
+                                         MemoryType::HostVisibleAndCoherenet});
+    }
+    return *mVulkanStagingBufferPool;
+}

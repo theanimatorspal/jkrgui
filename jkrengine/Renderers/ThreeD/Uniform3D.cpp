@@ -531,7 +531,7 @@ void Uniform3D::UpdateByGLTFAnimation(Renderer::_3D::glTF_Model &inModel) {
     );
 }
 
-Up<Uniform3D> Uniform3D::CreateByGLTFNodeIndex(const Instance &inInstance,
+Up<Uniform3D> Uniform3D::CreateByGLTFNodeIndex(Instance &inInstance,
                                                Simple3D &inSimple,
                                                Renderer::_3D::glTF_Model &inLoadedModel,
                                                ui inNodeIndex,

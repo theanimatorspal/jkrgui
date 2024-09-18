@@ -62,13 +62,13 @@ CustomImagePainter::CustomImagePainter(
     mFragmentStream << gmain_function_null;
 }
 
-void CustomImagePainter::Load(const Instance &inInstance, Window_base &inWindow) {
+void CustomImagePainter::Load(Instance &inInstance, Window_base &inWindow) {
     mCustomPainterCache = MakeUp<PainterCache>(inInstance);
     mCustomPainterCache->Load(mCustomPainterFileName);
     mPainter = MakeUp<Painter>(inInstance, inWindow, *mCustomPainterCache);
 }
 
-void CustomImagePainter::Store(const Instance &inInstance, Window_base &inWindow) {
+void CustomImagePainter::Store(Instance &inInstance, Window_base &inWindow) {
     mCustomPainterCache = MakeUp<PainterCache>(inInstance);
     mCustomPainterCache->Store(
          mCustomPainterFileName, mVertexStream.str(), mFragmentStream.str(), mComputeStream.str());
@@ -93,7 +93,7 @@ void GlslMain()
                )""";
 }
 
-std::vector<int> CustomPainterImage::GetImageToVector(const Instance &inInstance,
+std::vector<int> CustomPainterImage::GetImageToVector(Instance &inInstance,
                                                       const Window_base &inWindow) {
     ui ImageChannels = 4;
     auto ImageExtent = mPainterParam->GetStorageImage().GetImageExtent();
@@ -122,7 +122,7 @@ std::vector<int> CustomPainterImage::GetImageToVector(const Instance &inInstance
     return OutImage_i;
 }
 
-void Jkr::Renderer::CustomPainterImage::Register(const Instance &inInstance,
+void Jkr::Renderer::CustomPainterImage::Register(Instance &inInstance,
                                                  CustomImagePainter &inPainter,
                                                  int inIndex) {
     if (not mVulkanDescriptorSet) {
@@ -134,7 +134,7 @@ void Jkr::Renderer::CustomPainterImage::Register(const Instance &inInstance,
     mPainterParam->Register(0, inIndex, 0, *mVulkanDescriptorSet);
 }
 
-CustomPainterImage::CustomPainterImage(const Instance &inInstance,
+CustomPainterImage::CustomPainterImage(Instance &inInstance,
                                        const Window_base &inWindow,
                                        ui inWidth,
                                        ui inHeight) {

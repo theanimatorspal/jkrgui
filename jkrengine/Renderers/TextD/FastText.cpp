@@ -4,9 +4,9 @@ using namespace Jkr::Renderer;
 using fb = FastText_base;
 using rb = Renderer_base;
 
-FastText::FastText(const Instance& inInstance,
-                   const Window_base& inCompatibleWindow,
-                   const PainterCache& inCache)
+FastText::FastText(Instance &inInstance,
+                   const Window_base &inCompatibleWindow,
+                   const PainterCache &inCache)
     : FastText_base("res/ksai_fast_text/Font32.fnt"), mInstance(inInstance) {
     // TODO Improve this renderer
     mImage = MakeUp<ImageType>(inInstance);
@@ -29,7 +29,7 @@ fb::TextDimensions Jkr::Renderer::FastText::AddText(const std::string_view inTex
                                                     uint32_t inX,
                                                     uint32_t inY,
                                                     uint32_t inDepthValue,
-                                                    uint32_t& outId) {
+                                                    uint32_t &outId) {
     auto NoOfNewCharsNeeded = strlen(inText.data());
     CheckAndResize(NoOfNewCharsNeeded);
     auto TextDimension = fb::AddText(inText, inX, inY, inDepthValue, outId);
@@ -89,7 +89,7 @@ fb::TextDimensions Jkr::Renderer::FastText::UpdateText(uint32_t inId,
     return TextDimension;
 }
 
-void Jkr::Renderer::FastText::Dispatch(Window_base& inWindow) {
+void Jkr::Renderer::FastText::Dispatch(Window_base &inWindow) {
 #ifndef JKR_NO_STAGING_BUFFERS
     if (!rb::IsCopyRegionsEmpty()) {
         rb::CmdCopyToPrimitiveFromStagingBuffer(
@@ -102,11 +102,11 @@ void Jkr::Renderer::FastText::Dispatch(Window_base& inWindow) {
 #endif
 }
 
-void Jkr::Renderer::FastText::Bind(Window_base& inWindow) {
+void Jkr::Renderer::FastText::Bind(Window_base &inWindow) {
     //     mPainter->BindDrawParamters_EXT(*mPrimitive, inWindow);
 }
 
-void Jkr::Renderer::FastText::Draw(Window_base& inWindow,
+void Jkr::Renderer::FastText::Draw(Window_base &inWindow,
                                    glm::vec4 inColor,
                                    uint32_t inWindowW,
                                    uint32_t inWindowH,

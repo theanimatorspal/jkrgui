@@ -3,7 +3,7 @@
 
 using namespace Jkr;
 
-Jkr::Painter::Painter(const Instance &inInstance,
+Jkr::Painter::Painter(Instance &inInstance,
                       const Window_base &inWindow,
                       const PainterCache &inCache,
                       PipelineContext inPipelineContext)
@@ -25,7 +25,7 @@ Jkr::Painter::Painter(const Instance &inInstance,
                                          PipelineContext::Compute);
 }
 
-Jkr::Painter::Painter(const Instance &inInstance,
+Jkr::Painter::Painter(Instance &inInstance,
                       const Window_base &inWindow,
                       const PainterCache &inCache,
                       uint32_t inNoOfVariableDescriptorCount)
@@ -48,7 +48,7 @@ Jkr::Painter::Painter(const Instance &inInstance,
                                          PipelineContext::Compute);
 }
 
-Jkr::Painter::Painter(const Instance &inInstance,
+Jkr::Painter::Painter(Instance &inInstance,
                       const VulkanRenderPassBase &inRenderPass,
                       const PainterCache &inCache,
                       PipelineContext inPipelineContext)
@@ -70,22 +70,24 @@ Jkr::Painter::Painter(const Instance &inInstance,
                                          PipelineContext::Compute);
 }
 
-void Painter::OptimizeParameter(const Instance &inInstance,
-                                const PainterParameter<PainterParameterContext::StorageImage> &inImage,
-                                const Window_base &inWindow) {
+void Painter::OptimizeParameter(
+     Instance &inInstance,
+     const PainterParameter<PainterParameterContext::StorageImage> &inImage,
+     const Window_base &inWindow) {
     inInstance.GetUtilCommandBufferFence().Wait();
     inInstance.GetUtilCommandBufferFence().Reset();
     inInstance.GetUtilCommandBuffer().Begin();
     OptimizeImageParameter(inInstance, inInstance.GetUtilCommandBuffer(), inImage, inWindow);
     inInstance.GetUtilCommandBuffer().End();
-    inInstance.GetGraphicsQueue().Submit<SubmitContext::SingleTime>(inInstance.GetUtilCommandBuffer(),
-                                                                    inInstance.GetUtilCommandBufferFence());
+    inInstance.GetGraphicsQueue().Submit<SubmitContext::SingleTime>(
+         inInstance.GetUtilCommandBuffer(), inInstance.GetUtilCommandBufferFence());
 }
 
-void Jkr::Painter::OptimizeImageParameter(const Instance &inInstance,
-                                          const VulkanCommandBuffer &inBuffer,
-                                          const PainterParameter<PainterParameterContext::StorageImage> &inImage,
-                                          const Window_base &inWindow) {
+void Jkr::Painter::OptimizeImageParameter(
+     Instance &inInstance,
+     const VulkanCommandBuffer &inBuffer,
+     const PainterParameter<PainterParameterContext::StorageImage> &inImage,
+     const Window_base &inWindow) {
     inImage.GetStorageImage().CmdTransitionImageLayout(inBuffer,
                                                        vk::ImageLayout::eUndefined,
                                                        vk::ImageLayout::eGeneral,
@@ -107,7 +109,9 @@ void Jkr::Painter::BindComputePipeline(VulkanCommandBuffer &inBuffer) {
     mVulkanComputePipeline.Bind<PipelineContext::Compute>(inBuffer);
 }
 
-void Painter::BindDrawPipeline(const Primitive &inPrimitive, const Window_base &inWindow, CmdParam inCmdParam) {
+void Painter::BindDrawPipeline(const Primitive &inPrimitive,
+                               const Window_base &inWindow,
+                               CmdParam inCmdParam) {
     auto index = inWindow.GetCurrentFrame();
     auto &Cmd  = inWindow.GetCommandBuffers(inCmdParam)[index];
     mVulkanPipeline.Bind<PipelineContext::Default>(Cmd);

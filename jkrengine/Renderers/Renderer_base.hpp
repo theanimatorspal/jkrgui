@@ -22,8 +22,8 @@ class Renderer_base {
     private:
     Up<StagingBuffer> mStagingVertexBuffer;
     Up<StagingBuffer> mStagingIndexBuffer;
-    void* mVertexStagingBufferMemoryMapPtr = nullptr;
-    void* mIndexStagingBufferMemoryMapPtr  = nullptr;
+    void *mVertexStagingBufferMemoryMapPtr = nullptr;
+    void *mIndexStagingBufferMemoryMapPtr  = nullptr;
     std::vector<vk::BufferCopy> mVertexCopyRegionsToBeSubmitted;
     std::vector<vk::BufferCopy> mIndexCopyRegionsToBeSubmitted;
 
@@ -33,29 +33,29 @@ class Renderer_base {
 
     protected:
 #endif
-    void CreatePainter(const Instance& inInstance,
-                       Window_base& inCompatibleWindow,
-                       PainterCache& inPainterCache);
+    void CreatePainter(Instance &inInstance,
+                       Window_base &inCompatibleWindow,
+                       PainterCache &inPainterCache);
 #ifndef JKR_NO_STAGING_BUFFERS
-    void CreateStagingBuffers(const Instance& inInstance,
+    void CreateStagingBuffers(Instance &inInstance,
                               size_t inVertexStagingBufferSizeInBytes,
                               size_t inIndexStagingBufferSizeInBytes);
-    void CopyToStagingBuffers(void* inVertexData,
-                              void* inIndexData,
+    void CopyToStagingBuffers(void *inVertexData,
+                              void *inIndexData,
                               size_t inVertexOffset,
                               size_t inIndexOffset,
                               size_t inVertexSize,
                               size_t inIndexSize);
-    void ResizeStagingBuffer(const Instance& inInstance,
+    void ResizeStagingBuffer(Instance &inInstance,
                              size_t inVertexStagingBufferSizeInBytes,
                              size_t inIndexStagingBufferSizeInBytes);
 
     bool IsCopyRegionsEmpty() const {
         return mVertexCopyRegionsToBeSubmitted.empty() && mIndexCopyRegionsToBeSubmitted.empty();
     }
-    void CmdCopyToPrimitiveFromStagingBuffer(const Instance& inInstance,
-                                             Primitive& inPrimitive,
-                                             Window& inWindow,
+    void CmdCopyToPrimitiveFromStagingBuffer(Instance &inInstance,
+                                             Primitive &inPrimitive,
+                                             Window &inWindow,
                                              size_t inVertexMemorySizeToBeBarriered,
                                              size_t inIndexMemorySizeToBeBarriered);
     void RegisterBufferCopyRegionToPrimitiveFromStaging(size_t inVertexOffset,
@@ -63,16 +63,16 @@ class Renderer_base {
                                                         size_t inVertexSize,
                                                         size_t inIndexSize);
 
-    GETTER& GetVertexStagingBufferMemoryMapPtr() { return mVertexStagingBufferMemoryMapPtr; }
-    GETTER& GetIndexStagingBufferMemoryMapPtr() { return mIndexStagingBufferMemoryMapPtr; }
-    GETTER& GetVertexStagingBufferSize() { return mStagingVertexBufferSize; }
-    GETTER& GetIndexStagingBufferSize() { return mStagingIndexBufferSize; }
+    GETTER &GetVertexStagingBufferMemoryMapPtr() { return mVertexStagingBufferMemoryMapPtr; }
+    GETTER &GetIndexStagingBufferMemoryMapPtr() { return mIndexStagingBufferMemoryMapPtr; }
+    GETTER &GetVertexStagingBufferSize() { return mStagingVertexBufferSize; }
+    GETTER &GetIndexStagingBufferSize() { return mStagingIndexBufferSize; }
 #endif
 
 #ifdef JKR_NO_STAGING_BUFFERS
-    void CopyToPrimitive(Primitive& inPrimitive,
-                         void* inVertexData,
-                         void* inIndexData,
+    void CopyToPrimitive(Primitive &inPrimitive,
+                         void *inVertexData,
+                         void *inIndexData,
                          size_t inVertexOffset,
                          size_t inIndexOffset,
                          size_t inVertexSize,

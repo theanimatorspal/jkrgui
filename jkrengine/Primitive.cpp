@@ -3,13 +3,13 @@
 // TODO Make these thread safe
 static std::mutex PriMutex;
 
-Jkr::Primitive::Primitive(const Instance& inInstance) : mInstance(inInstance) {}
+Jkr::Primitive::Primitive(Instance &inInstance) : mInstance(inInstance) {}
 Jkr::Primitive::~Primitive() { std::scoped_lock<std::mutex> Lock(PriMutex); }
 
 #ifndef JKR_NO_STAGING_BUFFERS
-Jkr::Primitive::Primitive(const Instance& inInstance,
-                          const vk::ArrayProxyNoTemporaries<kstd::Vertex>& inVertices,
-                          const vk::ArrayProxyNoTemporaries<kstd::ui32>& inIndices)
+Jkr::Primitive::Primitive(Instance &inInstance,
+                          const vk::ArrayProxyNoTemporaries<kstd::Vertex> &inVertices,
+                          const vk::ArrayProxyNoTemporaries<kstd::ui32> &inIndices)
     : mInstance(inInstance), mIndexCount(inIndices.size()) {
     std::scoped_lock<std::mutex> Lock(PriMutex);
     mVertexBufferPtr =
@@ -25,16 +25,16 @@ Jkr::Primitive::Primitive(const Instance& inInstance,
                                               MemoryType::HostVisibleAndHostCached);
     mVertexBufferPtr->SubmitImmediateCmdCopyFrom(mInstance.GetGraphicsQueue(),
                                                  mInstance.GetUtilCommandBuffer(),
-                                                 reinterpret_cast<void*>(inVertices.data()));
+                                                 reinterpret_cast<void *>(inVertices.data()));
     mIndexBufferPtr->SubmitImmediateCmdCopyFrom(mInstance.GetGraphicsQueue(),
                                                 mInstance.GetUtilCommandBuffer(),
-                                                reinterpret_cast<void*>(inIndices.data()));
+                                                reinterpret_cast<void *>(inIndices.data()));
     mInstance.GetGraphicsQueue().Wait();
 }
 
-Jkr::Primitive::Primitive(const Instance& inInstance,
-                          const vk::ArrayProxyNoTemporaries<kstd::VertexEXT>& inVertices,
-                          const vk::ArrayProxyNoTemporaries<kstd::ui32>& inIndices,
+Jkr::Primitive::Primitive(Instance &inInstance,
+                          const vk::ArrayProxyNoTemporaries<kstd::VertexEXT> &inVertices,
+                          const vk::ArrayProxyNoTemporaries<kstd::ui32> &inIndices,
                           int inExtParameter_DoesNotDoAnything)
     : mInstance(inInstance), mIndexCount(inIndices.size()) {
     std::scoped_lock<std::mutex> Lock(PriMutex);
@@ -51,14 +51,14 @@ Jkr::Primitive::Primitive(const Instance& inInstance,
                                               MemoryType::HostVisibleAndHostCached);
     mVertexBufferPtr->SubmitImmediateCmdCopyFrom(mInstance.GetGraphicsQueue(),
                                                  mInstance.GetUtilCommandBuffer(),
-                                                 reinterpret_cast<void*>(inVertices.data()));
+                                                 reinterpret_cast<void *>(inVertices.data()));
     mIndexBufferPtr->SubmitImmediateCmdCopyFrom(mInstance.GetGraphicsQueue(),
                                                 mInstance.GetUtilCommandBuffer(),
-                                                reinterpret_cast<void*>(inIndices.data()));
+                                                reinterpret_cast<void *>(inIndices.data()));
     mInstance.GetGraphicsQueue().Wait();
 }
 
-Jkr::Primitive::Primitive(const Instance& inInstance,
+Jkr::Primitive::Primitive(Instance &inInstance,
                           vk::DeviceSize inVertexBufferSizeInBytes,
                           vk::DeviceSize inIndexBufferSizeInBytes)
     : mInstance(inInstance), mIndexCount(0) {
@@ -71,9 +71,9 @@ Jkr::Primitive::Primitive(const Instance& inInstance,
          IndexBufferType(inInstance.GetVMA(), mInstance.GetDevice(), inIndexBufferSizeInBytes);
 }
 #else
-Jkr::Primitive::Primitive(const Instance& inInstance,
-                          const vk::ArrayProxyNoTemporaries<kstd::Vertex>& inVertices,
-                          const vk::ArrayProxyNoTemporaries<kstd::ui32>& inIndices)
+Jkr::Primitive::Primitive(Instance &inInstance,
+                          const vk::ArrayProxyNoTemporaries<kstd::Vertex> &inVertices,
+                          const vk::ArrayProxyNoTemporaries<kstd::ui32> &inIndices)
     : mInstance(inInstance), mIndexCount(inIndices.size()) {
     std::scoped_lock<std::mutex> Lock(PriMutex);
     mVertexBufferPtr =
@@ -89,18 +89,18 @@ Jkr::Primitive::Primitive(const Instance& inInstance,
                                               MemoryType::HostVisibleAndHostCached);
     mVertexBufferPtr->SubmitImmediateCmdCopyFrom(mInstance.GetGraphicsQueue(),
                                                  mInstance.GetUtilCommandBuffer(),
-                                                 reinterpret_cast<void*>(inVertices.data()));
+                                                 reinterpret_cast<void *>(inVertices.data()));
     mIndexBufferPtr->SubmitImmediateCmdCopyFrom(mInstance.GetGraphicsQueue(),
                                                 mInstance.GetUtilCommandBuffer(),
-                                                reinterpret_cast<void*>(inIndices.data()));
+                                                reinterpret_cast<void *>(inIndices.data()));
     mInstance.GetGraphicsQueue().Wait();
     mVertexBufferPtr->MapMemoryRegion(&mVertexBufferMappedMemory);
     mIndexBufferPtr->MapMemoryRegion(&mIndexBufferMappedMemory);
 }
 
-Jkr::Primitive::Primitive(const Instance& inInstance,
-                          const vk::ArrayProxyNoTemporaries<kstd::VertexEXT>& inVertices,
-                          const vk::ArrayProxyNoTemporaries<kstd::ui32>& inIndices,
+Jkr::Primitive::Primitive(Instance &inInstance,
+                          const vk::ArrayProxyNoTemporaries<kstd::VertexEXT> &inVertices,
+                          const vk::ArrayProxyNoTemporaries<kstd::ui32> &inIndices,
                           int inExtParameter_DoesNotDoAnything)
     : mInstance(inInstance), mIndexCount(inIndices.size()) {
     std::scoped_lock<std::mutex> Lock(PriMutex);
@@ -117,16 +117,16 @@ Jkr::Primitive::Primitive(const Instance& inInstance,
                                               MemoryType::HostVisibleAndHostCached);
     mVertexBufferPtr->SubmitImmediateCmdCopyFrom(mInstance.GetGraphicsQueue(),
                                                  mInstance.GetUtilCommandBuffer(),
-                                                 reinterpret_cast<void*>(inVertices.data()));
+                                                 reinterpret_cast<void *>(inVertices.data()));
     mIndexBufferPtr->SubmitImmediateCmdCopyFrom(mInstance.GetGraphicsQueue(),
                                                 mInstance.GetUtilCommandBuffer(),
-                                                reinterpret_cast<void*>(inIndices.data()));
+                                                reinterpret_cast<void *>(inIndices.data()));
     mInstance.GetGraphicsQueue().Wait();
     mVertexBufferPtr->MapMemoryRegion(&mVertexBufferMappedMemory);
     mIndexBufferPtr->MapMemoryRegion(&mIndexBufferMappedMemory);
 }
 
-Jkr::Primitive::Primitive(const Instance& inInstance,
+Jkr::Primitive::Primitive(Instance &inInstance,
                           vk::DeviceSize inVertexBufferSizeInBytes,
                           vk::DeviceSize inIndexBufferSizeInBytes)
     : mInstance(inInstance), mIndexCount(0) {
@@ -146,8 +146,8 @@ Jkr::Primitive::Primitive(const Instance& inInstance,
 }
 #endif
 
-void Jkr::Primitive::Bind(const Instance& inInstance, const Window_base& inWindow, CmdParam inCmdParam) {
-    auto& Cmd = inWindow.GetCommandBuffers(inCmdParam)[inWindow.GetCurrentFrame()];
+void Jkr::Primitive::Bind(Instance &inInstance, const Window_base &inWindow, CmdParam inCmdParam) {
+    auto &Cmd = inWindow.GetCommandBuffers(inCmdParam)[inWindow.GetCurrentFrame()];
     GetVertexBufferPtr()->Bind<BufferContext::Vertex>(Cmd);
     GetIndexBufferPtr()->Bind<BufferContext::Index>(Cmd);
 }
