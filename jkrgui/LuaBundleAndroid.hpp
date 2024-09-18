@@ -798,11 +798,32 @@ function Jkr.CreateSimple3DPipeline(i, w)
     return Jkr.Simple3D(i, w)
 end
 
+local index = 1
+function mark(inin)
+    if not inin then inin = "" end
+    print("==" .. inin .. "=++" .. index .. "++===")
+    index = index + 1
+end
+
+function Copy(inElement)
+    if type(inElement) == "table" then
+        local t = {}
+        for key, value in pairs(inElement) do
+            t[key] = Copy(value) -- copy all
+        end
+        return t
+    elseif type(inElement) == "string" then
+        return string.sub(inElement, 1, #inElement)
+    else
+        return inElement
+    end
+end
+
 
 Engine.Shader = function()
-    local o              = {}
+    local o                     = {}
 
-    o.uImage2D           = function()
+    o.uImage2D                  = function()
         o.NewLine()
         o.Append([[
 
@@ -811,7 +832,7 @@ layout(set = 0, binding = 0, rgba8) uniform image2D storageImage;
         return o.NewLine()
     end
 
-    o.CInvocationLayout  = function(inX, inY, inZ)
+    o.CInvocationLayout         = function(inX, inY, inZ)
         o.NewLine()
         o.Append(
             string.format("layout(local_size_x = %d, local_size_y = %d, local_size_z = %d) in;", inX,
@@ -820,13 +841,13 @@ layout(set = 0, binding = 0, rgba8) uniform image2D storageImage;
         return o.NewLine()
     end
 
-    o.ImagePainterPush   = function()
+    o.ImagePainterPush          = function()
         o.NewLine()
         o.Append(
             [[
 layout(std430, push_constant) uniform pc {
         vec4 mPosDimen;
-        vec4  mColor;
+        vec4 mColor;
         vec4 mParam;
 } push;
     ]]
@@ -834,7 +855,35 @@ layout(std430, push_constant) uniform pc {
         return o.NewLine()
     end
 
-    o.ImagePainterAssist = function()
+    o.ImagePainterPushMatrix2   = function()
+        o.NewLine()
+        o.Append [[
+layout(std430, push_constant) uniform pc {
+    mat4 a;
+    mat4 b;
+} push;
+       ]]
+        return o
+    end
+
+    o.ImagePainterAssistMatrix2 = function()
+        o.NewLine()
+        o.Append [[
+uvec3 gID = gl_GlobalInvocationID;
+ivec2 image_size = ivec2(imageSize(storageImage));
+ivec2 to_draw_at = ivec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y);
+float x_cart = (float(gl_GlobalInvocationID.x) - float(image_size.x) / float(2)) / (float((image_size.x) / float(2)));
+float y_cart = (float(image_size.y) / float(2) - float(gl_GlobalInvocationID.y)) / (float(image_size.y) / float(2));
+vec2 xy = vec2(x_cart, y_cart);
+vec4 p1 = push.a[0];
+vec4 p2 = push.a[1];
+vec4 p3 = push.a[2];
+vec4 p4 = push.a[3];
+       ]]
+        return o;
+    end
+
+    o.ImagePainterAssist        = function()
         o.NewLine()
         o.Append(
             [[
@@ -1492,7 +1541,7 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
     end
 
     o.Print                    = function()
-        local lineNumber = 1
+        local lineNumber = 13
 
         for line in o.str:gmatch("[^\n]+") do
             print(lineNumber .. ": " .. line)
@@ -1500,34 +1549,39 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
         end
         return o
     end
+    o.gltfMaterialTextures     = {}
     o.gltfPutMaterialTextures  = function(inGLTF, inMaterialIndex)
-        local Material = inGLTF:GetMaterialsRef()[inMaterialIndex]
-        local binding = 3
-        o.gltfMaterialTextures = {}
-        if (Material.mBaseColorTextureIndex ~= -1) then
-            o.uSampler2D(binding, "uBaseColorTexture").NewLine()
-            o.gltfMaterialTextures.mBaseColorTexture = true
-            binding = binding + 1
-        end
-        if (Material.mMetallicRoughnessTextureIndex ~= -1) then
-            o.uSampler2D(binding, "uMetallicRoughnessTexture").NewLine()
-            o.gltfMaterialTextures.mMetallicRoughnessTexture = true
-            binding = binding + 1
-        end
-        if (Material.mNormalTextureIndex ~= -1) then
-            o.uSampler2D(binding, "uNormalTexture").NewLine()
-            o.gltfMaterialTextures.mNormalTexture = true
-            binding = binding + 1
-        end
-        if (Material.mOcclusionTextureIndex ~= -1) then
-            o.uSampler2D(binding, "uOcclusionTexture").NewLine()
-            o.gltfMaterialTextures.mOcclusionTexture = true
-            binding = binding + 1
-        end
-        if (Material.mEmissiveTextureIndex ~= -1) then
-            o.uSampler2D(binding, "uEmissiveTexture").NewLine()
-            o.gltfMaterialTextures.mEmissiveTextureIndex = true
-            binding = binding + 1
+        if inGLTF then
+            local Material = inGLTF:GetMaterialsRef()[inMaterialIndex]
+            if not Material then
+                Material = {}
+            end
+            local binding = 3
+            if (Material.mBaseColorTextureIndex ~= -1) then
+                o.uSampler2D(binding, "uBaseColorTexture").NewLine()
+                o.gltfMaterialTextures.mBaseColorTexture = true
+                binding = binding + 1
+            end
+            if (Material.mMetallicRoughnessTextureIndex ~= -1) then
+                o.uSampler2D(binding, "uMetallicRoughnessTexture").NewLine()
+                o.gltfMaterialTextures.mMetallicRoughnessTexture = true
+                binding = binding + 1
+            end
+            if (Material.mNormalTextureIndex ~= -1) then
+                o.uSampler2D(binding, "uNormalTexture").NewLine()
+                o.gltfMaterialTextures.mNormalTexture = true
+                binding = binding + 1
+            end
+            if (Material.mOcclusionTextureIndex ~= -1) then
+                o.uSampler2D(binding, "uOcclusionTexture").NewLine()
+                o.gltfMaterialTextures.mOcclusionTexture = true
+                binding = binding + 1
+            end
+            if (Material.mEmissiveTextureIndex ~= -1) then
+                o.uSampler2D(binding, "uEmissiveTexture").NewLine()
+                o.gltfMaterialTextures.mEmissiveTextureIndex = true
+                binding = binding + 1
+            end
         end
         return o
     end
@@ -2036,6 +2090,32 @@ Deferred.BasicVertex = Deferred.GetBasicVertexHeader()
     ]]
     .GlslMainEnd()
 
+Deferred.GetBasicVertex = function()
+    return Deferred.GetBasicVertexHeader()
+        .Append [[
+        struct Tangent {
+            vec4 mTangent;
+        };
+
+        layout(std140, set = 1, binding = 14) readonly buffer TangentSSBOIn {
+            Tangent inTangent[];
+        };
+    ]]
+        .GlslMainBegin()
+        .Append
+        [[
+        gl_Position = Ubo.proj * Ubo.view * Push.model * vec4(inPosition, 1);
+        vWorldPos = vec3(Push.model * vec4(inPosition, 1));
+        mat3 mNormal = transpose(inverse(mat3(Push.model)));
+        vNormal = mNormal * normalize(inNormal.xyz);
+        vec4 IN_Tangent = inTangent[gl_VertexIndex].mTangent;
+        vTangent = mNormal * normalize(IN_Tangent.w > 0 ? IN_Tangent.xyz : vec3(-IN_Tangent.x, IN_Tangent.y, IN_Tangent.z));
+        vUV = inUV;
+        vColor = inColor;
+    ]]
+        .GlslMainEnd()
+end
+
 Deferred.BasicFragment = Deferred.GetBasicFragmentHeader()
     .uSampler2D(3, "samplerColor", 1)
     .uSampler2D(4, "samplerNormal", 1)
@@ -2053,6 +2133,158 @@ Deferred.BasicFragment = Deferred.GetBasicFragmentHeader()
         outAlbedo = texture(samplerColor, vUV);
     ]]
     .GlslMainEnd()
+
+Basics = {}
+
+Basics.GetVertexWithTangent = function()
+    return Deferred.GetBasicVertexHeader()
+        .Append [[
+        struct Tangent {
+            vec4 mTangent;
+        };
+
+        layout(std140, set = 1, binding = 14) readonly buffer TangentSSBOIn {
+            Tangent inTangent[];
+        };
+        ]]
+        .GlslMainBegin()
+        .Append [[
+        gl_Position = Ubo.proj * Ubo.view * Push.model * vec4(inPosition, 1);
+        vWorldPos = vec3(Push.model * vec4(inPosition, 1));
+        mat3 mNormal = transpose(inverse(mat3(Push.model)));
+        vNormal = mNormal * normalize(inNormal.xyz);
+        vTangent = mNormal * normalize(inTangent[gl_VertexIndex].mTangent.xyz);
+        vUV = inUV;
+        vColor = inColor;
+        ]]
+        .GlslMainEnd()
+end
+
+Basics.GetConstantFragmentHeader = function()
+    return Engine.Shader()
+        .Header(450)
+        .Ubo()
+        .Push()
+        .In(0, "vec3", "vNormal")
+        .In(1, "vec2", "vUV")
+        .In(2, "vec3", "vColor")
+        .In(3, "vec3", "vTangent")
+        .In(4, "vec3", "vWorldPos")
+        .outFragColor()
+end
+
+Basics.GetBasicVertexHeaderWithTangent = function()
+    return Deferred.GetBasicVertexHeader()
+        .Append [[
+        struct Tangent {
+            vec4 mTangent;
+        };
+
+        layout(std140, set = 1, binding = 14) readonly buffer TangentSSBOIn {
+            Tangent inTangent[];
+        };
+        ]]
+end
+
+
+Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel, materialindex, inskinning)
+    if inShaderType == "CONSTANT_COLOR" and incompilecontext == Jkr.CompileContext.Default then
+        local vshader = Basics.GetBasicVertexHeaderWithTangent()
+        if not inskinning then
+            vshader.GlslMainBegin()
+                .Append [[
+                    gl_Position = Ubo.proj * Ubo.view * Push.model * vec4(inPosition, 1);
+                    vWorldPos = vec3(Push.model * vec4(inPosition, 1));
+                    mat3 mNormal = transpose(inverse(mat3(Push.model)));
+                    vNormal = mNormal * normalize(inNormal.xyz);
+                    vTangent = mNormal * normalize(inTangent[gl_VertexIndex].mTangent.xyz);
+                    vUV = inUV;
+                    vColor = inColor;
+                    ]]
+                .GlslMainEnd()
+        else
+            vshader.inJointInfluence()
+                .inJointMatrices()
+                .GlslMainBegin()
+                .Append([[
+                        vec4 jweight = inJointInfluence[gl_VertexIndex].mJointWeights;
+                        vec4 jindex = inJointInfluence[gl_VertexIndex].mJointIndices;
+                        mat4 skinMat  =
+                                jweight.x * inJointMatrices[int(jindex.x)] +
+                                jweight.y * inJointMatrices[int(jindex.y)] +
+                                jweight.z * inJointMatrices[int(jindex.z)] +
+                                jweight.w * inJointMatrices[int(jindex.w)];
+                        ]])
+                .Append [[
+                        vec4 Pos = Push.model * skinMat * vec4(inPosition, 1.0f);
+                        gl_Position = Ubo.proj * Ubo.view * Pos;
+                        vUV = inUV;
+                        vNormal = vec3(Push.model) * inNormal;
+                        vWorldPos = vec3(Pos);
+                ]]
+                .GlslMainEnd()
+        end
+        local fshader = Basics.GetConstantFragmentHeader()
+            .gltfPutMaterialTextures(gltfmodel, materialindex)
+            .GlslMainBegin()
+        if fshader.gltfMaterialTextures.mBaseColorTexture == true then
+            fshader.Append [[
+                    outFragColor = texture(uBaseColorTexture, vUV);
+                    ]]
+        else
+            fshader.Append [[
+                outFragColor = vec4(1, 0, 0, 1);
+            ]]
+        end
+        fshader.GlslMainEnd()
+        return vshader, fshader
+    end
+    if inShaderType == "NORMAL" and incompilecontext == Jkr.CompileContext.Deferred then
+        local vshader = Deferred.GetBasicVertex()
+        local fshader = Deferred.GetBasicFragmentHeader()
+            .gltfPutMaterialTextures(gltfmodel, materialindex)
+            .GlslMainBegin()
+            .Append [[
+        outPosition = vec4(vWorldPos, 1.0);
+        // Calculate normal in tangent space
+        vec3 N = normalize(vNormal);
+        vec3 T = normalize(vTangent);
+        vec3 B = cross(N, T);
+        mat3 TBN = mat3(T, B, N);
+            ]]
+
+        if fshader.gltfMaterialTextures.mBaseColorTexture == true then
+            fshader.Append [[
+                    outAlbedo = texture(uBaseColorTexture, vUV);
+                    ]]
+        else
+            fshader.Append [[
+                outAlbedo = vec4(1, 0, 0, 1);
+            ]]
+        end
+
+        if fshader.gltfMaterialTextures.mNormalTexture == true then
+            fshader.Append [[
+                vec3 tnorm = TBN * normalize(texture(uNormalTexture, vUV).xyz * 2.0 - vec3(1.0));
+                outNormal = vec4(tnorm, 1.0);
+            ]]
+        else
+            fshader.Append [[
+                outNormal = vec4(0, 0, 0, 0);
+            ]]
+        end
+
+        if fshader.gltfMaterialTextures.mEmissiveTextureIndex == true then
+            fshader.Append [[
+                outAlbedo = outAlbedo * texture(uEmissiveTexture, vUV);
+            ]]
+        end
+
+        fshader.GlslMainEnd()
+
+        return vshader, fshader
+    end
+end
 
 
 local lerp = Jmath.Lerp
@@ -2428,17 +2660,20 @@ Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
               vec4 Pos = Push.model * vec4(inPosition, 1.0);
               gl_Position = Ubo.proj * Ubo.view * Pos;
               vUV = inUV;
-              vNormal = vec3(Push.model) * inNormal;
               vWorldPos = vec3(Pos);
               vVertexIndex = gl_VertexIndex;
-              vec4 tang = inTangent[gl_VertexIndex].mTangent;
-              vTangent = vec4(mat3(Push.model) * tang.xyz, tang.w);
+
+              mat3 mNormal = transpose(inverse(mat3(Push.model)));
+              vNormal = mNormal * normalize(inNormal.xyz);
+              vec4 IN_Tangent = inTangent[gl_VertexIndex].mTangent;
+              vec3 tangentttt = mNormal * normalize(IN_Tangent.w > 0 ? IN_Tangent.xyz : vec3(-IN_Tangent.x, IN_Tangent.y, IN_Tangent.z));
+              vTangent = vec4(tangentttt, 1.0f);
         ]]
         )
         .NewLine()
         .InvertY()
         .GlslMainEnd()
-        .NewLine()
+        .NewLine().Print()
 
     local fShader = Engine.Shader()
         .Header(450)
@@ -2667,6 +2902,63 @@ Engine.AddObject = function(modObjectsVector, inId, inAssociatedModel, inUniform
     return #modObjectsVector
 end
 
+Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmodelname, inshadertype, incompilecontext,
+                                             inskinning)
+    if not incompilecontext then incompilecontext = Jkr.CompileContext.Default end
+    local gltfmodelindex = inworld3d:AddGLTFModel(ingltfmodelname)
+    local gltfmodel = inworld3d:GetGLTFModel(gltfmodelindex)
+    local shapeindex = inshape3d:Add(gltfmodel) -- this ACUTALLY loads the GLTF Model
+    local Meshes = gltfmodel:GetMeshesRef()
+    Engine.GetGLTFInfo(gltfmodel, true)
+    local Objects = {}
+
+    for MeshIndex = 1, #Meshes, 1 do
+        local meshindex = MeshIndex
+        local shouldload = false
+        local primitives = Meshes[MeshIndex].mPrimitives
+
+        for PrimitiveIndex = 1, #primitives, 1 do
+            local inprimitive = primitives[PrimitiveIndex]
+            local materialindex = inprimitive.mMaterialIndex
+
+            -- [[[[[[[[[[[[[[[[[[[[[[[[[[THIS IS NOT OPTIMAL]]]]]]]]]]]]]]]]]]]]]]]]]]
+            local uniform3dindex = inworld3d:AddUniform3D(Engine.i)
+            local uniform = inworld3d:GetUniform3D(uniform3dindex)
+            local shaderindex = inworld3d:AddSimple3D(Engine.i, w)
+            local shader = inworld3d:GetSimple3D(shaderindex)
+            local vshader, fshader = Engine.GetAppropriateShader(inshadertype, incompilecontext, gltfmodel, materialindex,
+                inskinning)
+            shader:CompileEXT(
+                Engine.i,
+                w,
+                "cache/constant_color.glsl",
+                vshader.str,
+                fshader.str,
+                "",
+                shouldload,
+                incompilecontext
+            )
+            local skinning = false
+            if inskinning then skinning = true end
+            uniform:Build(shader, gltfmodel, 0, skinning, true, true)
+            -- [[[[[[[[[[[[[[[[[[[[[[[[[[CHANGE THIS LATER]]]]]]]]]]]]]]]]]]]]]]]]]]
+
+            local object = Jkr.Object3D()
+            object.mId = shapeindex;
+            object.mAssociatedModel = gltfmodelindex;
+            object.mAssociatedUniform = uniform3dindex;
+            object.mAssociatedSimple3D = shaderindex;
+            object.mFirstIndex = inprimitive.mFirstIndex
+            object.mIndexCount = inprimitive.mIndexCount
+            local NodeIndices = gltfmodel:GetNodeIndexByMeshIndex(meshindex - 1) --@lua indexes from one
+            object.mMatrix = gltfmodel:GetNodeMatrixByIndex(NodeIndices[1])
+
+            Objects[#Objects + 1] = object
+        end
+    end
+    return Objects
+end
+
 
 local lerp = function(a, b, t)
     return (a * (1 - t) + t * b) * (1 - t) + b * t
@@ -2871,6 +3163,9 @@ Jkr.HLayout = {
         local Obj = {
             mPadding = inPadding
         }
+        if not inPadding then
+            Obj.mPadding = 0
+        end
         setmetatable(Obj, self)
         self.__index = self
 
@@ -2879,6 +3174,7 @@ Jkr.HLayout = {
     AddComponents = function(self, inComponentListTable, inRatioTable)
         self.mComponents = inComponentListTable
         self.mRatioTable = inRatioTable
+        return self
     end,
     Update = function(self, inPosition_3f, inDimension_3f)
         local position = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z)
@@ -2923,13 +3219,18 @@ Jkr.VLayout = {
         local Obj = {
             mPadding = inPadding
         }
+        if not inPadding then
+            Obj.mPadding = 0
+        end
         setmetatable(Obj, self)
         self.__index = self
+        self.__call = Jkr.HLayout.New
         return Obj
     end,
     AddComponents = function(self, inComponentListTable, inRatioTable)
         self.mComponents = inComponentListTable
         self.mRatioTable = inRatioTable
+        return self
     end,
     Update = function(self, inPosition_3f, inDimension_3f)
         local position = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z)
@@ -2975,6 +3276,7 @@ Jkr.StackLayout = {
     end,
     AddComponents = function(self, inComponentListTable)
         self.mComponents = inComponentListTable
+        return self
     end,
     Update = function(self, inPosition_3f, inDimension_3f)
         local position = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z)
@@ -3075,6 +3377,10 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         SampledImage.CopyToCompute = function(inComputeImage)
             o.s:CopyFromImage(SampledImage.mId, inComputeImage.mId)
         end
+
+        SampledImage.CopyDeferredImageFromWindow = function(inWindow)
+            Jkr.CopyWindowDeferredImageToShapeImage(inWindow, o.s.handle, SampledImage.mId)
+        end
         return SampledImage
     end
 
@@ -3094,8 +3400,9 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
                 math.int(inDimension_3f.y))
         end
 
-        ComputeImage.RegisterPainter = function(inPainter)
-            ComputeImage.mId:Register(o.i, inPainter.handle)
+        ComputeImage.RegisterPainter = function(inPainter, inIndex)
+            if not inIndex then inIndex = 0 end
+            ComputeImage.mId:Register(o.i, inPainter.handle, inIndex)
         end
         ComputeImage.BindPainter = function(inPainter)
             inPainter:Bind(o.w, Jkr.CmdParam.None)
@@ -3200,7 +3507,6 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     return o
 end
 
-
 Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
     local o = {}
     if not inWidgetRenderer then
@@ -3212,62 +3518,95 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         .Header(450)
         .CInvocationLayout(1, 1, 1)
         .uImage2D()
-        .ImagePainterPush()
+        .ImagePainterPushMatrix2()
         .GlslMainBegin()
-        .ImagePainterAssist()
+        .ImagePainterAssistMatrix2()
         .Append [[
-vec2 center = vec2(push.mPosDimen.x, push.mPosDimen.y);
-vec2 hw = vec2(push.mPosDimen.z, push.mPosDimen.w);
-float radius = push.mParam.x;
-vec2 Q = abs(xy - center) - hw;
+        vec2 center = vec2(p1.x, p1.y);
+        vec2 hw = vec2(p1.z, p1.w);
+        float radius = p3.x;
+        vec2 Q = abs(xy - center) - hw;
 
-float color = distance(max(Q, vec2(0.0)), vec2(0.0)) + min(max(Q.x, Q.y), 0.0) - radius;
-color = smoothstep(-0.05, 0.05, -color);
+        float color = distance(max(Q, vec2(0.0)), vec2(0.0)) + min(max(Q.x, Q.y), 0.0) - radius;
+        color = smoothstep(-0.05, 0.05, -color);
 
-vec4 old_color = imageLoad(storageImage, to_draw_at);
-vec4 final_color = vec4(push.mColor.x * color, push.mColor.y * color, push.mColor.z * color, push.mColor.w * color);
-final_color = mix(final_color, old_color, push.mParam.w);
+        vec4 old_color = imageLoad(storageImage, to_draw_at);
+        vec4 final_color = vec4(p2.x * color, p2.y * color, p2.z * color, p2.w * color);
+        final_color = mix(final_color, old_color, p3.w);
 
-imageStore(storageImage, to_draw_at, final_color);
+        imageStore(storageImage, to_draw_at, final_color);
           ]]
         .GlslMainEnd().str
 
     o.prebuilts = {}
-    o.prebuilts.roundedRectangle = o.CreateComputeImage(vec3(0), vec3(100, 100, 1))
-    o.prebuilts.roundedRectanglePainter = Jkr.CreateCustomImagePainter("o.prebuilts.roundedRectangle.glsl",
+    o.prebuilts.roundedRectanglePainter = Jkr.CreateCustomImagePainter("cache/o.prebuilts.roundedRectangle.glsl",
         o.shaders.roundedRectangle)
     o.prebuilts.roundedRectanglePainter:Store(i, w)
-    o.prebuilts.roundedRectangle.RegisterPainter(o.prebuilts.roundedRectanglePainter)
+
     local op = o.prebuilts;
-    o.c:PushOneTime(Jkr.CreateDispatchable(function()
-        op.roundedRectangle.BindPainter(op.roundedRectanglePainter)
-        local PushConstant = Jkr.DefaultCustomImagePainterPushConstant()
-        PushConstant.x = vec4(0.0, 0.0, 0.85, 0.85)
-        PushConstant.y = vec4(1)
-        PushConstant.z = vec4(0.1, 0.5, 0.5, 0.0)
-        op.roundedRectangle.DrawPainter(op.roundedRectanglePainter, PushConstant, 100, 100, 1)
-    end), 1)
+
 
     o.CreatePressButton = function(inPosition_3f, inDimension_3f, inOnClickFunction, inContinous, inFont, inText,
-                                   inColor, inBackgroundColor)
+                                   inColor, inBackgroundColor, inPushConstantForImagePainter, inImageFilePath)
         local button = {}
-        button.parent = o.CreateButton(inPosition_3f, inDimension_3f, inOnClickFunction, inContinous)
-        setmetatable(button, button.parent)
-        button.__index = button.parent
+        if (inOnClickFunction) then
+            button.parent = o.CreateButton(inPosition_3f, inDimension_3f, inOnClickFunction, inContinous)
+            setmetatable(button, button.parent)
+            button.__index = button.parent
+        end
+        button.roundedRectangle = o.CreateComputeImage(inPosition_3f, inDimension_3f)
+        button.roundedRectangle.RegisterPainter(o.prebuilts.roundedRectanglePainter)
+
+        o.c:PushOneTime(Jkr.CreateDispatchable(function()
+            button.roundedRectangle.BindPainter(op.roundedRectanglePainter)
+            local PushConstant
+            if inPushConstantForImagePainter then
+                PushConstant = inPushConstantForImagePainter
+            else
+                PushConstant = Jkr.Matrix2CustomImagePainterPushConstant()
+                PushConstant.a = mat4(
+                    vec4(0.0, 0.0, 0.85, 0.85),
+                    vec4(1),
+                    vec4(0.1, 0.5, 0.5, 0.0),
+                    vec4(0)
+                )
+            end
+            button.roundedRectangle.DrawPainter(op.roundedRectanglePainter, PushConstant, math.int(inDimension_3f.x),
+                math.int(inDimension_3f.y), 1)
+        end), 1)
 
         button.sampledImage = o.CreateSampledImage(inPosition_3f, inDimension_3f, nil, nil, inBackgroundColor)
-        o.c:PushOneTime(Jkr.CreateDispatchable(function()
-            op.roundedRectangle.CopyToSampled(button.sampledImage)
-        end), 1)
-        button.sampledText = o.CreateTextLabel(inPosition_3f, inDimension_3f, inFont, inText, inColor)
+        if not inImageFilePath then
+            o.c:PushOneTime(Jkr.CreateDispatchable(function()
+                button.roundedRectangle.CopyToSampled(button.sampledImage)
+            end), 1)
+            button.sampledText = o.CreateTextLabel(inPosition_3f, inDimension_3f, inFont, inText, inColor)
+        else
+
+        end
+
+        if button.sampledText then
+            button.sampledText.__backupText = ""
+        end
 
         button.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inColor, inBackgroundColor)
-            button.parent:Update(inPosition_3f, inDimension_3f)
+            if button.parent then
+                button.parent:Update(inPosition_3f, inDimension_3f)
+            end
             button.sampledImage:Update(inPosition_3f, inDimension_3f, inBackgroundColor)
             local DelDim = vec3(0, 0, 0)
-            local fontDim = button.sampledText.mFont:GetTextDimension(self.sampledText.mText)
-            DelDim = vec3((inDimension_3f.x - fontDim.x) / 2, (inDimension_3f.y - fontDim.y) / 2, 0)
-            button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, inText, inColor)
+            if not inImageFilePath then
+                local fontDim = button.sampledText.mFont:GetTextDimension(inText or Copy(button.sampledText.mText))
+                DelDim = vec3((inDimension_3f.x - fontDim.x) / 2, (inDimension_3f.y - fontDim.y) / 2, 0)
+                local substr = Copy(inText)
+                while DelDim.x < 0.0 do
+                    substr = string.sub(substr, 1, #substr - 1)
+                    fontDim = button.sampledText.mFont:GetTextDimension(substr)
+                    DelDim = vec3((inDimension_3f.x - fontDim.x) / 2, (inDimension_3f.y - fontDim.y) / 2, 0)
+                end
+                button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, substr, inColor)
+                button.sampledText.mText = Copy(inText)
+            end
         end
         return button
     end

@@ -195,7 +195,8 @@ void CreateAndroidEnvironment(const sv inAndroidAppName,
         fs::path validation_layers = s(getenv("JKRGUI_DIR"));
         validation_layers =
              validation_layers / "libs" / "Android" / "libVkLayer_khronos_validation.so";
-        if (inBuild == "android-arm64-v8a") {
+
+        if (inBuild == "android-arm64-v8a" or inBuild == "android-arm64-v8a Release") {
             fs::path source      = s(getenv("JKRGUI_DIR"));
             source               = source / "out" / "build" / inBuild / "jkrgui";
             fs::path destination = jniLibsDir / "arm64-v8a";

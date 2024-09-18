@@ -140,7 +140,8 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
     app.parse(ArgCount, ArgStrings);
 
     if (FlagCreateAndroidEnvironment) {
-        BuildSystem::CreateAndroidEnvironment(OptionAndroidAppName, OptionAndroidDirName);
+        BuildSystem::CreateAndroidEnvironment(
+             OptionAndroidAppName, OptionAndroidDirName, OptionAndroidBuildDirName);
     }
 
     auto Update = []() {

@@ -4,7 +4,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 cmake_policy(SET CMP0069 NEW) 
 set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-add_definitions(-DWIN32_LEAN_AND_MEAN -DNOMINMAX)
+
+if(WIN32)
+    add_definitions(-DWIN32_LEAN_AND_MEAN -DNOMINMAX)
+endif()
 
 # Include directories
 include_directories(${CMAKE_JKRGUI_DIR}/application)
