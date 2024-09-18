@@ -6,9 +6,9 @@
 
 using namespace Jkr::Renderer;
 
-Shape::Shape(const Instance& inInstance,
-             Window_base& inCompatibleWindow,
-             std::unordered_map<FillType, Up<PainterCache>>& inPainterCaches,
+Shape::Shape(const Instance &inInstance,
+             Window_base &inCompatibleWindow,
+             std::unordered_map<FillType, Up<PainterCache>> &inPainterCaches,
              ui inVarDesCount)
     : mInstance(inInstance), mPainterCaches(inPainterCaches) {
     mPainters[FillType::Fill] =
@@ -39,7 +39,7 @@ Shape::Shape(const Instance& inInstance,
                                    sb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
 }
 
-void Shape::Add(Jkr::Generator& inShape, float inX, float inY, float inZ, ui& outId) {
+void Shape::Add(Jkr::Generator &inShape, float inX, float inY, float inZ, ui &outId) {
     CheckAndResize(inShape);
     sb::Add(inShape, inX, inY, inZ, outId);
     const auto OffsetId = (ui)outId;
@@ -66,7 +66,7 @@ void Shape::Add(Jkr::Generator& inShape, float inX, float inY, float inZ, ui& ou
 #endif
 }
 
-void Shape::AddImage(const std::string_view inFileName, ui& outIndex) {
+void Shape::AddImage(const std::string_view inFileName, ui &outIndex) {
 #ifndef JKR_USE_VARIABLE_DES_INDEXING
     Up<VulkanDescriptorSet> Desset = MakeUp<VulkanDescriptorSet>(
          mInstance.GetDevice(),
@@ -88,7 +88,7 @@ void Shape::AddImage(const std::string_view inFileName, ui& outIndex) {
 #endif
 }
 
-void Shape::AddImage(ui inWidth, ui inHeight, ui& outIndex) {
+void Shape::AddImage(ui inWidth, ui inHeight, ui &outIndex) {
 #ifndef JKR_USE_VARIABLE_DES_INDEXING
     Up<VulkanDescriptorSet> Desset = MakeUp<VulkanDescriptorSet>(
          mInstance.GetDevice(),
@@ -97,8 +97,8 @@ void Shape::AddImage(ui inWidth, ui inHeight, ui& outIndex) {
     Up<ImageType> Image = MakeUp<ImageType>(mInstance);
     v<uint8_t> image;
     image.resize(inWidth * inHeight * 4);
-    void* Data = image.data();
-    Image->Setup(reinterpret_cast<void**>(&Data), inWidth, inHeight, 4);
+    void *Data = image.data();
+    Image->Setup(reinterpret_cast<void **>(&Data), inWidth, inHeight, 4);
     Image->Register(0, 0, 0, *Desset);
     outIndex = mImages.size();
     mImages.push_back(std::move(Image));
@@ -107,7 +107,7 @@ void Shape::AddImage(ui inWidth, ui inHeight, ui& outIndex) {
     Up<ImageType> Image = MakeUp<ImageType>(mInstance);
     v<uint8_t> image;
     image.resize(inWidth * inHeight * 4);
-    void* data = image.data();
+    void *data = image.data();
     Image->Setup(&data, inWidth, inHeight, 4);
     ui CurrentIndex = mImages.size();
     Image->Register(0, 0, CurrentIndex, *mVarDesVulkanDescriptorSet);
@@ -116,22 +116,22 @@ void Shape::AddImage(ui inWidth, ui inHeight, ui& outIndex) {
 #endif
 }
 
-void Shape::AddImage(v<uc> inImage, ui inWidth, ui inHeight, ui& outIndex) {
+void Shape::AddImage(v<uc> &inImage, ui inWidth, ui inHeight, ui &outIndex) {
 #ifndef JKR_USE_VARIABLE_DES_INDEXING
     Up<VulkanDescriptorSet> Desset = MakeUp<VulkanDescriptorSet>(
          mInstance.GetDevice(),
          mInstance.GetDescriptorPool(),
          mPainterCaches[FillType::Image]->GetVertexFragmentDescriptorSetLayout());
     Up<ImageType> Image = MakeUp<ImageType>(mInstance);
-    void* data          = inImage.data();
-    Image->Setup(reinterpret_cast<void**>(&data), inWidth, inHeight, 4);
+    void *data          = inImage.data();
+    Image->Setup(reinterpret_cast<void **>(&data), inWidth, inHeight, 4);
     Image->Register(0, 0, 0, *Desset);
     outIndex = mImages.size();
     mImages.push_back(std::move(Image));
     mVulkanPerImageDescriptorSets.push_back(std::move(Desset));
 #else
     Up<ImageType> Image = MakeUp<ImageType>(mInstance);
-    void* data          = inImage.data();
+    void *data          = inImage.data();
     Image->Setup(&data, inWidth, inHeight, 4);
     ui CurrentIndex = mImages.size();
     Image->Register(0, 0, CurrentIndex, *mVarDesVulkanDescriptorSet);
@@ -140,28 +140,25 @@ void Shape::AddImage(v<uc> inImage, ui inWidth, ui inHeight, ui& outIndex) {
 #endif
 }
 
-void Shape::UpdateImage(ui inId, v<uc> inImage, ui inWidth, ui inHeight) {
+void Shape::UpdateImage(ui inId, v<uc> &inImage, ui inWidth, ui inHeight) {
 #ifndef JKR_USE_VARIABLE_DES_INDEXING
-    // Up<VulkanDescriptorSet> Desset = MakeUp<VulkanDescriptorSet>(
-    //     mInstance.GetDevice(),
-    //     mInstance.GetDescriptorPool(),
-    //     mPainterCaches[FillType::Image]->GetVertexFragmentDescriptorSetLayout());
-    Up<ImageType> Image = MakeUp<ImageType>(mInstance);
-    void* data          = inImage.data();
-    Image->Setup(reinterpret_cast<void**>(&data), inWidth, inHeight, 4);
+    Up<ImageType> Image     = MakeUp<ImageType>(mInstance);
+    void *data              = inImage.data();
+    Image->mUniformImagePtr = mu<VulkanImageVMA>(
+         mInstance.GetVMA(), mInstance.GetDevice(), inWidth, inHeight, 4, ImageContext::Default);
+    // Image->Setup(reinterpret_cast<void **>(&data), inWidth, inHeight, 4);
     Image->Register(0, 0, 0, *mVulkanPerImageDescriptorSets[inId]);
     mImages[inId] = std::move(Image);
-    // mVulkanPerImageDescriptorSets[inId] = std::move(Desset);
 #else
     Up<ImageType> Image = MakeUp<ImageType>(mInstance);
-    void* data          = inImage.data();
+    void *data          = inImage.data();
     Image->Setup(&data, inWidth, inHeight, 4);
     Image->Register(0, 0, inId, *mVarDesVulkanDescriptorSet);
     mImages[inId] = std::move(Image);
 #endif
 }
 
-void Shape::CopyFromImage(uint32_t inId, CustomPainterImage& inPainterImage) {
+void Shape::CopyFromImage(uint32_t inId, CustomPainterImage &inPainterImage) {
     CopyFromImage(inId,
                   inPainterImage.GetPainterParam().GetStorageImagePtr()->GetImageExtent().width,
                   inPainterImage.GetPainterParam().GetStorageImagePtr()->GetImageExtent().height,
@@ -171,14 +168,14 @@ void Shape::CopyFromImage(uint32_t inId, CustomPainterImage& inPainterImage) {
 void Shape::CopyFromImage(uint32_t inId,
                           uint32_t inWidth,
                           uint32_t inHeight,
-                          CustomPainterImage& inPainterImage) {
+                          CustomPainterImage &inPainterImage) {
     mImagesToBeCopiedIds.push_back(inId);
     mImagesToBeCopiedFrom.push_back(inPainterImage.GetPainterParam().GetStorageImagePtr());
 
     mImageCopyCommands.push_back(
-         [&](const ksai::VulkanCommandBuffer& inCmd,
-             ksai::VulkanImageBase& inDstImage, // TODO: improve this, here this is flipped
-             ksai::VulkanImageBase& inSrcImage) {
+         [&](const ksai::VulkanCommandBuffer &inCmd,
+             ksai::VulkanImageBase &inDstImage, // TODO: improve this, here this is flipped
+             ksai::VulkanImageBase &inSrcImage) {
              auto srcImgProp = inSrcImage.GetImageProperty();
              auto dstImgProp = inDstImage.GetImageProperty();
              vk::ImageSubresourceLayers SrcSubresource(
@@ -238,13 +235,13 @@ void Shape::CopyFromImage(uint32_t inId,
          });
 }
 
-void Shape::CopyToImage(ui inId, ui inWidth, ui inHeight, CustomPainterImage& inPainterImage) {
+void Shape::CopyToImage(ui inId, ui inWidth, ui inHeight, CustomPainterImage &inPainterImage) {
     mImagesToBeCopiedIds.push_back(inId);
     mImagesToBeCopiedFrom.push_back(inPainterImage.GetPainterParam().GetStorageImagePtr());
 
-    mImageCopyCommands.push_back([&](const ksai::VulkanCommandBuffer& inCmd,
-                                     ksai::VulkanImageBase& inSrcImage,
-                                     ksai::VulkanImageBase& inDstImage) {
+    mImageCopyCommands.push_back([&](const ksai::VulkanCommandBuffer &inCmd,
+                                     ksai::VulkanImageBase &inSrcImage,
+                                     ksai::VulkanImageBase &inDstImage) {
         auto srcImgProp = inSrcImage.GetImageProperty();
         auto dstImgProp = inDstImage.GetImageProperty();
         vk::ImageSubresourceLayers SrcSubresource(
@@ -299,7 +296,7 @@ void Shape::CopyToImage(ui inId, ui inWidth, ui inHeight, CustomPainterImage& in
     });
 }
 
-void Shape::Update(ui inId, Jkr::Generator& inShape, float inX, float inY, float inZ) {
+void Shape::Update(ui inId, Jkr::Generator &inShape, float inX, float inY, float inZ) {
     auto OffsetId = inId;
     sb::Update(inShape, inId, inX, inY, inZ);
 #ifndef JKR_NO_STAGING_BUFFERS
@@ -325,7 +322,7 @@ void Shape::Update(ui inId, Jkr::Generator& inShape, float inX, float inY, float
 #endif
 }
 
-void Shape::Dispatch(Window_base& inWindow, CmdParam inParam) {
+void Shape::Dispatch(Window_base &inWindow, CmdParam inParam) {
 #ifndef JKR_NO_STAGING_BUFFERS
     if (!rb::IsCopyRegionsEmpty()) {
         rb::CmdCopyToPrimitiveFromStagingBuffer(
@@ -338,11 +335,11 @@ void Shape::Dispatch(Window_base& inWindow, CmdParam inParam) {
 #endif
 
     for (ui i = 0; i < mImagesToBeCopiedIds.size(); i++) {
-        auto& func     = mImageCopyCommands[i];
+        auto &func     = mImageCopyCommands[i];
         auto id        = mImagesToBeCopiedIds[i];
-        auto& srcImage = mImagesToBeCopiedFrom[i];
+        auto &srcImage = mImagesToBeCopiedFrom[i];
 
-        const ksai::VulkanCommandBuffer& cmd =
+        const ksai::VulkanCommandBuffer &cmd =
              inWindow.GetCommandBuffers(inParam)[inWindow.GetCurrentFrame()];
         func(cmd, *srcImage, mImages[id]->GetUniformImage());
     }
@@ -353,9 +350,9 @@ void Shape::Dispatch(Window_base& inWindow, CmdParam inParam) {
     }
 }
 
-void Shape::BindFillMode(FillType inFillType, Window_base& inWindow, CmdParam inParam) {
+void Shape::BindFillMode(FillType inFillType, Window_base &inWindow, CmdParam inParam) {
 #ifdef JKR_USE_VARIABLE_DES_INDEXING
-    auto& Cmd = inWindow.GetCommandBuffers(inParam)[inWindow.GetCurrentFrame()];
+    auto &Cmd = inWindow.GetCommandBuffers(inParam)[inWindow.GetCurrentFrame()];
     Cmd.GetCommandBufferHandle().bindDescriptorSets(
          vk::PipelineBindPoint::eGraphics,
          mPainterCaches[FillType::Image]
@@ -369,11 +366,11 @@ void Shape::BindFillMode(FillType inFillType, Window_base& inWindow, CmdParam in
     mCurrentFillMode = inFillType;
 }
 
-void Shape::BindImage(Window_base& inWindow, ui inImageId, CmdParam inParam) {
+void Shape::BindImage(Window_base &inWindow, ui inImageId, CmdParam inParam) {
     // TODO Remove
     if (inImageId != -1) {
 #ifndef JKR_USE_VARIABLE_DES_INDEXING
-        auto& Cmd = inWindow.GetCommandBuffers(inParam)[inWindow.GetCurrentFrame()];
+        auto &Cmd = inWindow.GetCommandBuffers(inParam)[inWindow.GetCurrentFrame()];
         Cmd.GetCommandBufferHandle().bindDescriptorSets(
              vk::PipelineBindPoint::eGraphics,
              mPainterCaches[FillType::Image]
@@ -388,11 +385,11 @@ void Shape::BindImage(Window_base& inWindow, ui inImageId, CmdParam inParam) {
     }
 }
 
-void Shape::BindShapes(Window_base& inWindow, CmdParam inParam) {
+void Shape::BindShapes(Window_base &inWindow, CmdParam inParam) {
     mPrimitive->Bind(mInstance, inWindow, inParam);
 }
 
-void Shape::Draw(Window_base& inWindow,
+void Shape::Draw(Window_base &inWindow,
                  glm::vec4 inColor,
                  ui inWindowW,
                  ui inWindowH,
@@ -424,7 +421,7 @@ void Shape::Draw(Window_base& inWindow,
          0);
 }
 
-void Shape::CheckAndResize(const Jkr::Generator& inShape) {
+void Shape::CheckAndResize(const Jkr::Generator &inShape) {
     bool ResizeRequired = false;
     while (true) {
         bool ResizeRequiredi = (inShape.GetIndexCount() + sb::GetCurrentIndexOffset() >=
@@ -473,13 +470,13 @@ void Shape::CheckAndResize(const Jkr::Generator& inShape) {
     }
 }
 
-ksai::ui Jkr::Renderer::Shape::AddEXT(Jkr::Generator& inShape, glm::vec3 inPosition) {
+ksai::ui Jkr::Renderer::Shape::AddEXT(Jkr::Generator &inShape, glm::vec3 inPosition) {
     ui i;
     Add(inShape, inPosition.x, inPosition.y, inPosition.z, i);
     return i;
 }
 
-void Jkr::Renderer::Shape::CopyToImage(uint32_t inId, CustomPainterImage& inPainterImage) {
+void Jkr::Renderer::Shape::CopyToImage(uint32_t inId, CustomPainterImage &inPainterImage) {
     CopyToImage(inId,
                 inPainterImage.GetPainterParam().GetStorageImagePtr()->GetImageExtent().width,
                 inPainterImage.GetPainterParam().GetStorageImagePtr()->GetImageExtent().height,
@@ -512,11 +509,11 @@ ksai::ui Jkr::Renderer::Shape::AddImageEXT(v<uc> inImage, ui inWidth, ui inHeigh
     return i;
 }
 
-void Jkr::Renderer::Shape::UpdateEXT(ui inId, Jkr::Generator& inShape, glm::vec3 inPosition) {
+void Jkr::Renderer::Shape::UpdateEXT(ui inId, Jkr::Generator &inShape, glm::vec3 inPosition) {
     Update(inId, inShape, inPosition.x, inPosition.y, inPosition.z);
 }
 
-void Jkr::Renderer::Shape::DrawEXT(Window_base& inWindow,
+void Jkr::Renderer::Shape::DrawEXT(Window_base &inWindow,
                                    glm::vec4 inColor,
                                    ui inStartShapeId,
                                    ui inEndShapeId,
