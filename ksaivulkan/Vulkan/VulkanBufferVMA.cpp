@@ -2,8 +2,11 @@
 using namespace ksai;
 
 void VulkanBufferVMA::MapMemoryRegion(void **outMappedMemoryRegion) {
-    mMemoryMapped = true;
-    vmaMapMemory(mAllocator->GetVMAHandle(), mAllocation, outMappedMemoryRegion);
+    if (not mMemoryMapped) {
+        vmaMapMemory(mAllocator->GetVMAHandle(), mAllocation, &mMappedMemoryRegion);
+        mMemoryMapped = true;
+    }
+    *outMappedMemoryRegion = mMappedMemoryRegion;
 }
 
 void VulkanBufferVMA::UnMapMemoryRegion() {

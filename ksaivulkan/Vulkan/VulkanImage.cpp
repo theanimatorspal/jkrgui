@@ -72,7 +72,7 @@ void ksai::VulkanImageBase::SubmitImmediateCmdCopyFromDataWithStagingBuffer(
                              vk::AccessFlagBits::eNone);
     inCmdBuffer.End();
     inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer, inFence);
-    inStagingBuffer.UnMapMemoryRegion();
+    // inStagingBuffer.UnMapMemoryRegion();
     //	inQueue.Wait();
 }
 

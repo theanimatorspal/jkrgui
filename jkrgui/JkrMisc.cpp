@@ -271,6 +271,9 @@ void CreateMiscBindings(sol::state &inState) {
 
     Jkr.set_function("CopyWindowDeferredImageToShapeImage",
                      &Jkr::CopyWindowDeferredImageToShapeImage);
+    Jkr.set_function("SleepForMiliSeconds", [](int inMiliSeconds) {
+        std::this_thread::sleep_for(chrono::nanoseconds(inMiliSeconds * 1000000));
+    });
 }
 
 } // namespace JkrEXE

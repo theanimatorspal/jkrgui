@@ -109,6 +109,7 @@ class VulkanBuffer : public VulkanBufferBase {
     private:
     bool mIsMemoryMapped = false;
     bool mInitialized    = false;
+    void *mMappedMemoryRegion;
 };
 
 template <BufferContext Context>

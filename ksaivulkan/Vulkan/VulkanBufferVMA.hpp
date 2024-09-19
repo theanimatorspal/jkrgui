@@ -42,7 +42,8 @@ class VulkanBufferVMA : public VulkanBufferBase {
     private:
     const VulkanVMA *mAllocator;
     VmaAllocation mAllocation;
-    bool mMemoryMapped = false;
-    bool mInitialized  = false;
+    bool mMemoryMapped        = false;
+    bool mInitialized         = false;
+    void *mMappedMemoryRegion = nullptr;
 };
 } // namespace ksai

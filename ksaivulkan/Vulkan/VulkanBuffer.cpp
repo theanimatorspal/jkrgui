@@ -175,14 +175,18 @@ void VulkanBufferBase::FillBufferUsage(vk::BufferCreateInfo &inInfo,
 }
 
 void VulkanBuffer::MapMemoryRegion(void **outMappedMemoryRegion) {
-    *outMappedMemoryRegion =
-         static_cast<void *>(mDevice->mapMemory(mBufferMemory, 0, GetBufferSize()));
-    mIsMemoryMapped = true;
+    if (not mIsMemoryMapped) {
+        mMappedMemoryRegion =
+             static_cast<void *>(mDevice->mapMemory(mBufferMemory, 0, GetBufferSize()));
+    }
+    *outMappedMemoryRegion = mMappedMemoryRegion;
+    mIsMemoryMapped        = true;
 }
 void VulkanBuffer::UnMapMemoryRegion() {
-    mDevice->unmapMemory(mBufferMemory);
-
-    mIsMemoryMapped = false;
+    if (mIsMemoryMapped) {
+        mDevice->unmapMemory(mBufferMemory);
+        mIsMemoryMapped = false;
+    }
 }
 
 VulkanBuffer::VulkanBuffer(const VulkanDevice &inDevice,
