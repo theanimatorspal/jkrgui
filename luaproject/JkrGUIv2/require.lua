@@ -814,3 +814,12 @@ function Copy(inElement)
         return inElement
     end
 end
+
+function IterateEachElementRecursively(inElement, inFunc_val)
+    if type(inElement) == "table" then
+        for key, value in pairs(inElement) do
+            inFunc_val(value)
+            IterateEachElementRecursively(value, inFunc_val)
+        end
+    end
+end

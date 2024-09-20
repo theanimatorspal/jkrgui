@@ -23,6 +23,11 @@ Jkr.HLayout = {
         self.mRatioTable = inRatioTable
         return self
     end,
+    Add = function(self, inComponentListTable, inRatioTable)
+        self.mComponents = inComponentListTable
+        self.mRatioTable = inRatioTable
+        return self
+    end,
     Update = function(self, inPosition_3f, inDimension_3f)
         local position = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z)
         local dimension = vec3(inDimension_3f.x, inDimension_3f.y, inDimension_3f.z)
@@ -79,6 +84,11 @@ Jkr.VLayout = {
         self.mRatioTable = inRatioTable
         return self
     end,
+    Add = function(self, inComponentListTable, inRatioTable)
+        self.mComponents = inComponentListTable
+        self.mRatioTable = inRatioTable
+        return self
+    end,
     Update = function(self, inPosition_3f, inDimension_3f)
         local position = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z)
         local dimension = vec3(inDimension_3f.x, inDimension_3f.y, inDimension_3f.z)
@@ -122,6 +132,10 @@ Jkr.StackLayout = {
         return Obj
     end,
     AddComponents = function(self, inComponentListTable)
+        self.mComponents = inComponentListTable
+        return self
+    end,
+    Add = function(self, inComponentListTable)
         self.mComponents = inComponentListTable
         return self
     end,

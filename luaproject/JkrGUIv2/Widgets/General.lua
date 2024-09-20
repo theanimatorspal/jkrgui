@@ -81,6 +81,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         if button.sampledText then
             button.sampledText.__backupText = ""
         end
+        button.padding = 10
 
         button.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inColor, inBackgroundColor,
                                  inTextOreintation)
@@ -105,10 +106,11 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
 
                 if inTextOreintation then
                     if inTextOreintation == "LEFT" then
-                        DelDim.x = inPosition_3f.x
+                        DelDim.x = button.padding
                         button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, substr, inColor)
                     end
                     if inTextOreintation == "RIGHT" then
+                        DelDim.x = inPosition_3f.x - fontDim.x - button.padding
                         DelDim.x = inPosition_3f.x
                         button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, substr, inColor)
                     end

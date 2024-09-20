@@ -21,11 +21,12 @@
     "cmake.clearOutputBeforeBuild": true,
     "cmake.debugConfig": {
         "console": "externalTerminal",
-        "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\Present",
+        "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\PBR",
         "visualizerFile": "${workspaceFolder}/Visualizers/glm.natvis",
         "args": [
             "--run",
-            "jkrguipr"
+            "app"
+            // "jkrguipr"
             // "--android-environment",
             // "--appname \"tester\"",
             // "--dirname \"android\"",

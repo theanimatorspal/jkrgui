@@ -568,10 +568,10 @@ vec3 calculateNormal()
     vec3 color = ambient + Lo;
 
     // Tone mapping exposure = 1.5
-	color = Uncharted2Tonemap(color * 2);
+	color = Uncharted2Tonemap(color * 10);
 	color = color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
 	// Gamma correction gamma = 0.3
-	color = pow(color, vec3(1.0f / 2));
+	color = pow(color, vec3(1.0f / 2.2));
 
 	outFragColor = vec4(color + Emissive, 1.0);
     ]]

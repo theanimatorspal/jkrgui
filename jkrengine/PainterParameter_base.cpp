@@ -175,7 +175,7 @@ void PainterParameterBase::SetupImage(Up<VulkanSampler> &inUniformImageSampler,
          mInstance.GetUtilCommandBufferFence(),
          Channels * Height * Width,
          Datas_ptr,
-         mInstance.GetStagingBuffer(Channels * Height * Width));
+         mInstance.GetStagingBuffer(inFileNames.size() * Channels * Height * Width));
 
     for (void *u : Datas) {
         stbi_image_free(u);
