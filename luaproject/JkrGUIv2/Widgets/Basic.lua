@@ -18,11 +18,6 @@ Jkr.HLayout = {
 
         return Obj
     end,
-    AddComponents = function(self, inComponentListTable, inRatioTable)
-        self.mComponents = inComponentListTable
-        self.mRatioTable = inRatioTable
-        return self
-    end,
     Add = function(self, inComponentListTable, inRatioTable)
         self.mComponents = inComponentListTable
         self.mRatioTable = inRatioTable
@@ -79,11 +74,6 @@ Jkr.VLayout = {
         self.__call = Jkr.HLayout.New
         return Obj
     end,
-    AddComponents = function(self, inComponentListTable, inRatioTable)
-        self.mComponents = inComponentListTable
-        self.mRatioTable = inRatioTable
-        return self
-    end,
     Add = function(self, inComponentListTable, inRatioTable)
         self.mComponents = inComponentListTable
         self.mRatioTable = inRatioTable
@@ -130,10 +120,6 @@ Jkr.StackLayout = {
         setmetatable(Obj, self)
         self.__index = self
         return Obj
-    end,
-    AddComponents = function(self, inComponentListTable)
-        self.mComponents = inComponentListTable
-        return self
     end,
     Add = function(self, inComponentListTable)
         self.mComponents = inComponentListTable

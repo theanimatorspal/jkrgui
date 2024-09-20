@@ -31,8 +31,9 @@ Engine.Load = function(self, inEnableValidation)
         self.port = 6345
         self.net = {}
         self.net = {
-            Server = function(inDontStart)
-                if not inDontStart then
+            Server = function(inport)
+                self.net.Start = function()
+                    if not inport then inport = self.port else self.port = inport end
                     Jkr.StartServer(self.port)
                 end
 
@@ -86,10 +87,11 @@ Engine.Load = function(self, inEnableValidation)
                 end
             end,
 
-            Client = function(inIp, inDontStart)
-                if not inDontStart then
+            Client = function()
+                self.net.Start = function(inIp, inId)
+                    if not inId then inId = 0 end
                     Jkr.AddClient()
-                    Jkr.ConnectFromClient(0, inIp, self.port)
+                    Jkr.ConnectFromClient(inId, inIp, self.port)
                 end
                 self.net.SendToServer = function(inToSend)
                     local msg = Jkr.Message()
@@ -143,196 +145,26 @@ Engine.Load = function(self, inEnableValidation)
         }
     end
 
+    self:PrepareMultiThreadingAndNetworking()
+    self.MakeGlobals = function()
+        _G.mt = self.mt
+        _G.gate = self.gate
+        _G.net = self.net
+        _G.i = self.i
+        _G.e = self.e
+    end
+
+    -- in multithreading, in threads other than main thread,
+    -- Globalify the main handles for convenience
     self.mt:Inject("Engine", self)
     self.mt:Inject("mt", self.mt)
-    self:PrepareMultiThreadingAndNetworking()
-end
-
-Engine.GravitationalForce = 10
-
-Engine.MakeRigidBody = function(inObject, inType)
-    local o = {}
-    local object = inObject
-    o.object = inObject
-    local scale = object.mScale
-    local y = scale.y
-    local x = scale.x
-    local z = scale.z
-    object.mIBody = mat3(
-        vec3(1 / 12 * (y * y + z * z), 0, 0),
-        vec3(0, 1 / 12 * (x * x + z * z), 0),
-        vec3(0, 0, 1 / 12 * (x * x + y * y))
-    )
-    object.mMomentum = vec3(0)
-    object.mVelocity = object.mMomentum / object.mMass
-    object.mAngularVelocity = vec3(0)
-    object.mAngularMomentum = object.mIBody * object.mAngularVelocity
-    object.mForce = vec3(0.0, -object.mMass * Engine.GravitationalForce, 0.0)
-    object.mTorque = vec3(0)
-
-    local IWorld = mat3(0)
-    local IWorld_inv = mat3(0)
-
-    -- local ComputeAuxiliary = function()
-    --           local Rmat = object.mRotation:GetMatrix3x3()
-    --           IWorld = Rmat * object.mIBody * Jmath.Transpose(Rmat)
-    --           IWorld_inv = Rmat * Jmath.Inverse(object.mIBody) * Jmath.Transpose(Rmat)
-    --           object.mAngularVelocity = IWorld_inv * object.mAngularMomentum
-    -- end
-
-    -- local CalculateTorque = function()
-
-    -- end
-
-    o.ResetForces = function()
-        object.mForce = vec3(0, -object.mMass * Engine.GravitationalForce, 0)
-        object.mTorque = vec3(0)
-    end
-
-    if inType == "STATIC" then
-        o.mStaticTranslation = vec3(object.mTranslation)
-        o.mStatic = true
-        object.mMass = 10
-        o.Simulate = function(dt)
-            object.mTranslation = object.mTranslation + object.mVelocity * dt
-            object.mTranslation = o.mStaticTranslation
-        end
-    else
-        o.Simulate = function(dt)
-            object.mVelocity = object.mVelocity + object.mForce / object.mMass * dt
-            object.mTranslation = object.mTranslation + object.mVelocity * dt
-        end
-    end
-    return o
-end
-
-local GetVelocityAfterCollision = function(inObject1, inObject2, e, inStatic)
-    if inStatic then
-        return vec3(0)
-    end
-    local m1 = inObject1.mMass
-    local m2 = inObject2.mMass
-    local v1 = inObject1.mVelocity
-    local v2 = inObject2.mVelocity
-    return (m1 * v1 + m2 * v2 - m2 * (v1 - v2) * e) / (m1 + m2)
-end
-
-local abs = math.abs
-Engine.SimulateRigidBody = function(inObjectsTable, dt, e, inCallback)
-    local ObjectsSize = #inObjectsTable
-    for i = 1, ObjectsSize, 1 do
-        local O1 = inObjectsTable[i].object
-        inObjectsTable[i].Simulate(dt)
-        for j = i + 1, ObjectsSize, 1 do
-            local O2 = inObjectsTable[j].object
-            local CollisionThreasold = O1:GetCollisionThreashold(O2)
-            if CollisionThreasold > 0.0 then
-                inCallback(i, j)
-                O1.mVelocity = GetVelocityAfterCollision(O1, O2, e,
-                    inObjectsTable[i].mStatic)
-                O2.mVelocity = GetVelocityAfterCollision(O2, O1, e,
-                    inObjectsTable[j].mStatic)
-                if CollisionThreasold > 0.000001 then
-                    local ContactNormal = O1:GetContactNormal(O2)
-                    local absX = math.abs(ContactNormal.x)
-                    local absY = math.abs(ContactNormal.y)
-                    local absZ = math.abs(ContactNormal.z)
-
-                    if absX > absY and absX > absZ then
-                        O1.mTranslation.x = O1.mTranslation.x +
-                            ContactNormal.x * 0.01
-                    elseif absY > absZ then
-                        O1.mTranslation.y = O1.mTranslation.y +
-                            ContactNormal.y * 0.01
-                    else
-                        O1.mTranslation.z = O1.mTranslation.z +
-                            ContactNormal.z * 0.01
-                    end
-                end
-            end
-        end
-    end
-end
-
-Engine.SimulateRigidBodySubSteps = function(inObjectsTable, dt, inSubsteps, e, inCallback)
-    local SubSteps = 10
-    if inSubsteps then
-        SubSteps = inSubsteps
-    end
-    local newdt = dt / SubSteps
-    for i = 1, SubSteps, 1 do
-        Engine.SimulateRigidBody(inObjectsTable, newdt, e, inCallback)
-    end
+    self.mt:Inject("gate", self.gate)
 end
 
 
-Engine.AnimateObject = function(inCallBuffer, inO1, inO2, inO, inStepValue, inStartingFrame)
-    local Frame = 1
-    local Value = 0.0
-    local StepValue = 0.1
-    if inStartingFrame then Frame = inStartingFrame end
-    if inStepValue then StepValue = inStepValue end
-
-    local c = inCallBuffer
-    while Value <= 1.0 do
-        local Value_ = Value
-        c.PushOneTime(
-            Jkr.CreateUpdatable(
-                function()
-                    if (inO1.mPosition_3f) then
-                        local NewTranslation = lerp(inO1.mPosition_3f, inO2.mPosition_3f, Value_)
-                        inO.mTranslation = NewTranslation
-                    end
-                    if (inO1.mRotation_Qf) then
-                        local NewRotation = lerp(inO1.mRotation_Qf, inO2.mRotation_Qf, Value_)
-                        inO.mRotation = NewRotation
-                    end
-                    if (inO1.mScale_3f) then
-                        local NewScale = lerp(inO1.mScale_3f, inO2.mScale_3f, Value_)
-                        inO.mScale = NewScale
-                    end
-                end
-            ), Frame
-        )
-        Value = Value + StepValue
-        Frame = Frame + 1
-    end
-    return Frame
-end
-
-Engine.Animate_4f = function(inCallBuffer, inV1, inV2, inV, inStepValue, inStartingFrame)
-    local Frame = 1
-    local Value = 0.0
-    local StepValue = 0.1
-    if inStartingFrame then Frame = inStartingFrame end
-    if inStepValue then StepValue = inStepValue end
-
-    local c = inCallBuffer
-    while Value <= 1.0 do
-        local Value_ = Value
-        c.PushOneTime(
-            Jkr.CreateUpdatable(
-                function()
-                    local vv = lerp(inV1, inV2, Value_)
-                    inV.x = vv.x
-                    inV.y = vv.y
-                    inV.z = vv.z
-                    inV.w = vv.w
-                    --print(string.format("from %f, to: %f, value: %f, value_X: %f", inV1.x, inV2.x, vv.x, Value_))
-                end
-            ), Frame
-        )
-        Value = Value + StepValue
-        Frame = Frame + 1
-    end
-    return Frame
-end
-
-
-Engine.PrintGLTFInfo = function(inLoadedGLTF, inShouldPrint)
-    if (inShouldPrint) then
-        io.write(string.format(
-            [[
+Engine.PrintGLTFInfo = function(inLoadedGLTF)
+    io.write(string.format(
+        [[
 GLTF:-
 Vertices = %d,
 Indices = %d,
@@ -344,17 +176,16 @@ Skins = %d,
 Animations = %d,
 Meshes = %d
                 ]],
-            inLoadedGLTF:GetVerticesSize(),
-            inLoadedGLTF:GetIndicesSize(),
-            inLoadedGLTF:GetImagesSize(),
-            inLoadedGLTF:GetTexturesSize(),
-            inLoadedGLTF:GetMaterialsSize(),
-            inLoadedGLTF:GetNodesSize(),
-            inLoadedGLTF:GetSkinsSize(),
-            inLoadedGLTF:GetAnimationsSize(),
-            inLoadedGLTF:GetMeshesSize()
-        ))
-    end
+        inLoadedGLTF:GetVerticesSize(),
+        inLoadedGLTF:GetIndicesSize(),
+        inLoadedGLTF:GetImagesSize(),
+        inLoadedGLTF:GetTexturesSize(),
+        inLoadedGLTF:GetMaterialsSize(),
+        inLoadedGLTF:GetNodesSize(),
+        inLoadedGLTF:GetSkinsSize(),
+        inLoadedGLTF:GetAnimationsSize(),
+        inLoadedGLTF:GetMeshesSize()
+    ))
 end
 
 Engine.GetGLTFInfo = Engine.PrintGLTFInfo
