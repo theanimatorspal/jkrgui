@@ -51,14 +51,22 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                                      inImageFilePath,
                                      inImagePainter)
         local button = {}
+        if inDimension_3f.x == 0 or inDimension_3f.y == 0 then
+            button.shouldUpdateByDimension = vec3(inDimension_3f.x, inDimension_3f.y, inDimension_3f.z)
+            inDimension_3f = vec3(100, 100, 1)
+        end
+
         if (inOnClickFunction) then
             button.parent = o.CreateButton(inPosition_3f, inDimension_3f, inOnClickFunction, inContinous)
             setmetatable(button, button.parent)
             button.__index = button.parent
         end
+
         if not inImagePainter then
             inImagePainter = o.prebuilts.roundedRectanglePainter
         end
+
+
         button.roundedRectangle = o.CreateComputeImage(inPosition_3f, inDimension_3f)
         button.roundedRectangle.RegisterPainter(inImagePainter)
 
@@ -129,6 +137,10 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             if inText then
                 button.sampledText.mText = Copy(inText)
             end
+        end
+
+        if button.shouldUpdateByDimension then
+            button:Update(inPosition_3f, button.shouldUpdateByDimension)
         end
 
         return button
