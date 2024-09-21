@@ -28,9 +28,24 @@ OnMessageFunctionType OnMessageFunction = [](sp<Connection>, Message &inMessage)
 
 ============================================================== */
 
-static void StartServer(int inPort) {
+static v<s> StartServer(int inPort) {
     Server = MakeUp<ServerInterface>(static_cast<uint16_t>(inPort));
     Server->Start(OnClientValidationFunction, OnClientConnectionFunction);
+
+    v<s> endpoints_string;
+
+    asio::io_context io_context;
+    std::string host_Name = asio::ip::host_name();
+    asio::ip::tcp::resolver resolver(io_context);
+    asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(host_Name, "");
+    std::cout << "Local IP Addresses\n";
+    for (const auto &endpoint : endpoints) {
+        asio::ip::address addr = endpoint.endpoint().address();
+        if (addr.is_v4()) {
+            endpoints_string.push_back(addr.to_string());
+        }
+    }
+    return endpoints_string;
 }
 static void StopServer() { Server->Stop(); }
 static void UpdateServer(int inMaxMessages, bool inShouldWait) {

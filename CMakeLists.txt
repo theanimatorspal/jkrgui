@@ -20,21 +20,4 @@ add_subdirectory(jkrgui)
 export(TARGETS lua FILE luaExport.cmake)
 export(TARGETS ksaivulkan FILE ksaivulkanExport.cmake)
 export(TARGETS jkrengine FILE jkrengineExport.cmake)
-
 message(STATUS "CMAKE Flags:::" ${CMAKE_CXX_FLAGS})
-# add_custom_target(post)
-# if(WIN32)
-#      add_custom_command(
-#           TARGET post POST_BUILD
-#           COMMAND ${CMAKE_COMMAND} -E copy
-#                "${CMAKE_JKRGUI_DIR}/out/build/${CMAKE_PRESET_NAME}/jkrgui/jkrgui.dll"
-#                "${CMAKE_JKRGUI_DIR}/out/build/${CMAKE_PRESET_NAME}/JkrLuaExe/jkrgui.dll"
-#      )
-
-#      add_custom_command(
-#           TARGET post POST_BUILD
-#           COMMAND ${CMAKE_COMMAND} -E copy
-#                "${CMAKE_JKRGUI_DIR}/out/build/${CMAKE_PRESET_NAME}/ksaivulkan/ksaivulkan.dll"
-#                "${CMAKE_JKRGUI_DIR}/out/build/${CMAKE_PRESET_NAME}/JkrLuaExe/ksaivulkan.dll"
-#      )
-# endif()

@@ -34,7 +34,7 @@ Engine.Load = function(self, inEnableValidation)
             Server = function(inport)
                 self.net.Start = function()
                     if not inport then inport = self.port else self.port = inport end
-                    Jkr.StartServer(self.port)
+                    return Jkr.StartServer(self.port)
                 end
 
                 self.net.listenOnce = function(FileName)

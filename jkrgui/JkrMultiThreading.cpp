@@ -113,11 +113,18 @@ void MultiThreading::ExecuteAll(sol::function inFunction) {
 
 void MultiThreading::Wait() { mPool.Wait(); }
 
+template <typename OBJ, typename T>
+concept can_ref = requires(OBJ &obj, T &t) { std::ref(obj.template as<T>()); };
+
 template <typename T, typename... Ts>
 static sol::object getObjectByType(sol::object &obj, sol::state &target) noexcept {
     if constexpr (not(sizeof...(Ts) == 0)) {
         if (obj.is<T>()) {
-            return sol::make_object(target, std::ref(obj.as<T>()));
+            if constexpr (can_ref<decltype(obj), T>) {
+                return sol::make_object(target, std::ref(obj.as<T>()));
+            } else {
+                return sol::make_object(target, obj.as<T>());
+            }
         } else {
             return getObjectByType<Ts...>(obj,
                                           target); // TODO FIX last argument doesn't work template
@@ -158,38 +165,49 @@ sol::object MultiThreading::Copy(sol::object obj, sol::state &target) {
             return sol::make_object(target, DumpedF);
         } break;
         case sol::type::userdata: {
-            return getObjectByType<glm::vec2,
-                                   glm::vec3,
-                                   glm::vec4,
-                                   glm::uvec2,
-                                   glm::mat4,
-                                   Jkr::Instance,
-                                   Jkr::Window,
-                                   Jkr::EventManager,
-                                   MultiThreading,
+            return getObjectByType<
+                 // Standard Types
+                 //  std::string,
+                 v<s>,
+                 //  v<int>,
+                 //  v<float>,
+                 //  v<glm::vec3>,
 
-                                   DefaultCustomImagePainterPushConstant,
-                                   Jkr::Misc::RecycleBin<int>,
-                                   Jkr::Renderer::_3D::Camera3D,
-                                   Jkr::Renderer::_3D::World3D,
-                                   Jkr::Renderer::_3D::World3D::Object3D,
-                                   std::vector<Jkr::Renderer::_3D::World3D::Object3D> &,
-                                   Jkr::Renderer::_3D::Uniform3D,
+                 // GLM Types
+                 glm::vec2,
+                 glm::vec3,
+                 glm::vec4,
+                 glm::uvec2,
+                 glm::mat4,
 
-                                   Jkr::Renderer::Shape,
-                                   Jkr::Renderer::Line,
-                                   Jkr::Renderer::BestText_Alt,
-                                   Jkr::Renderer::BestText_Alt::ImageId,
-                                   Jkr::Renderer::CustomImagePainter,
+                 // Jkr Types
+                 Jkr::Instance,
+                 Jkr::Window,
+                 Jkr::EventManager,
+                 MultiThreading,
 
-                                   Jkr::Renderer::Line,
-                                   Jkr::Renderer::_3D::Shape,
-                                   Jkr::Renderer::_3D::glTF_Model,
-                                   Jkr::Renderer::_3D::Simple3D,
+                 DefaultCustomImagePainterPushConstant,
+                 Jkr::Misc::RecycleBin<int>,
+                 Jkr::Renderer::_3D::Camera3D,
+                 Jkr::Renderer::_3D::World3D,
+                 Jkr::Renderer::_3D::World3D::Object3D,
+                 std::vector<Jkr::Renderer::_3D::World3D::Object3D> &,
+                 Jkr::Renderer::_3D::Uniform3D,
 
-                                   Jkr::Network::Message,
+                 Jkr::Renderer::Shape,
+                 Jkr::Renderer::Line,
+                 Jkr::Renderer::BestText_Alt,
+                 Jkr::Renderer::BestText_Alt::ImageId,
+                 Jkr::Renderer::CustomImagePainter,
 
-                                   ui>(obj, target); // the last arg doesn't work
+                 Jkr::Renderer::Line,
+                 Jkr::Renderer::_3D::Shape,
+                 Jkr::Renderer::_3D::glTF_Model,
+                 Jkr::Renderer::_3D::Simple3D,
+
+                 Jkr::Network::Message,
+
+                 ui>(obj, target); // the last arg doesn't work
         } break;
         default:
             break;
