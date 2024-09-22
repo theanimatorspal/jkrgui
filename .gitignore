@@ -13,6 +13,7 @@ libs/Android/*.*
 *.userosscache
 *.sln.docstates
 compile_commands.json
+.DS_Store
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
