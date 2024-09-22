@@ -8,6 +8,8 @@
 
 #ifdef ANDROID
 #define JKR_EXPORT __attribute__((visibility("default")))
+#elif __APPLE__
+#define JKR_EXPORT __attribute__((visibility("default")))
 #else
 #define JKR_EXPORT __declspec(dllexport)
 #endif

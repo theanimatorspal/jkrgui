@@ -4,7 +4,9 @@
 #include <SDLWindow.hpp>
 #include <CLI11/CLI11.hpp>
 #ifndef ANDROID
+#ifndef __APPLE__
 #include <TracyLua.hpp>
+#endif
 #else
 #include "LuaBundleAndroid.hpp"
 #endif
@@ -60,7 +62,9 @@ void CreateMainBindings(sol::state &s) {
     CreatePlatformBindings(s);
     CreateNetworkBindings(s);
 #ifndef ANDROID
+#ifndef __APPLE__
     tracy::LuaRegister(s);
+#endif
 #endif
 }
 } // namespace JkrEXE

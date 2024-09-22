@@ -71,7 +71,7 @@ endif()
 
 # Set the number of parallel builds
 set(CMAKE_BUILD_PARALLEL_LEVEL 8)
-
+add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
 # Define additional flags based on the platform and build type
 if(ANDROID)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -DLUA_USE_LINUX)
