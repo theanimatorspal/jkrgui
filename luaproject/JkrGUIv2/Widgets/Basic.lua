@@ -145,7 +145,8 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     o.i = i
     o.w = w
     o.s = Jkr.CreateShapeRenderer(o.i, o.w)
-    o.t = Jkr.CreateTextRendererBestTextAlt(o.i, o.s)
+    o.t = Jkr.CreateTextRendererBestTextAlt(o.i, o.s) -- for now the idea has been dropped
+
     o.c = Jkr.CreateCallBuffers()
     o.e = Jkr.CreateCallExecutor(o.c)
     o.WindowDimension = o.w:GetWindowDimension()

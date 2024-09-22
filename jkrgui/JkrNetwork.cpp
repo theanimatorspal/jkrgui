@@ -38,7 +38,6 @@ static v<s> StartServer(int inPort) {
     std::string host_Name = asio::ip::host_name();
     asio::ip::tcp::resolver resolver(io_context);
     asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(host_Name, "");
-    std::cout << "Local IP Addresses\n";
     for (const auto &endpoint : endpoints) {
         asio::ip::address addr = endpoint.endpoint().address();
         if (addr.is_v4()) {
@@ -53,7 +52,7 @@ static void UpdateServer(int inMaxMessages, bool inShouldWait) {
 }
 
 /// @brief I don't think this function is even necessary
-///
+/// I don't know man, I should Investigate further.
 ///
 static void SendMessageToClientFromServer(int inClient, const Message &inMessage) {
     Server->MessageClient(
