@@ -45,8 +45,8 @@ class PainterCache {
                         const std::string_view inVertexShader   = "",
                         const std::string_view inFragmentShader = "",
                         const std::string_view inComputeShader  = "",
-                        ui inVarDescount                        = 5000);
-    PainterCache &Load(const std::string &fileName, ui inVarDescount = 5000);
+                        ui inVarDescount                        = -1);
+    PainterCache &Load(const std::string &fileName, ui inVarDescount = -1);
 
     GETTER &GetPipelineContext() const { return mPipelineContext; }
     GETTER &GetPipelineCache() const { return *mPtrPipelineCache; }

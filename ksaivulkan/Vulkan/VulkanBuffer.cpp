@@ -141,33 +141,10 @@ void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFromImage(
 void VulkanBufferBase::FillBufferUsage(vk::BufferCreateInfo &inInfo,
                                        BufferContext inBufferContext,
                                        MemoryType inBufferStorageType) {
-    // if (inBufferContext == BufferContext::Vertex)
-    //     inInfo.setUsage(vk::BufferUsageFlagBits::eVertexBuffer |
-    //                     vk::BufferUsageFlagBits::eTransferDst);
-    // else if (inBufferContext == BufferContext::Index)
-    //     inInfo.setUsage(vk::BufferUsageFlagBits::eIndexBuffer |
-    //                     vk::BufferUsageFlagBits::eTransferDst);
-    // else if (inBufferContext == BufferContext::Uniform)
-    //     inInfo.setUsage(vk::BufferUsageFlagBits::eUniformBuffer |
-    //                     vk::BufferUsageFlagBits::eTransferDst);
-    // else if (inBufferContext == BufferContext::Storage)
-    //     inInfo.setUsage(vk::BufferUsageFlagBits::eStorageBuffer |
-    //                     vk::BufferUsageFlagBits::eTransferDst);
-    // else if (inBufferContext == (BufferContext::Vertex | BufferContext::Storage))
-    //     inInfo.setUsage(vk::BufferUsageFlagBits::eStorageBuffer |
-    //                     vk::BufferUsageFlagBits::eVertexBuffer |
-    //                     vk::BufferUsageFlagBits::eTransferDst);
-    // else if (inBufferContext == BufferContext::Staging)
-    //     inInfo.setUsage(vk::BufferUsageFlagBits::eTransferSrc);
-    // else if (inBufferContext == (BufferContext::Uniform | BufferContext::Storage))
-    //     inInfo.setUsage(vk::BufferUsageFlagBits::eStorageBuffer |
-    //                     vk::BufferUsageFlagBits::eUniformBuffer |
-    //                     vk::BufferUsageFlagBits::eTransferDst);
-
-    // if (inBufferContext == (BufferContext::Staging | BufferContext::Index)) {
-    //     inInfo.setUsage(vk::BufferUsageFlagBits::eIndexBuffer |
-    //                     vk::BufferUsageFlagBits::eStorageBuffer);
-    // }
+    /// @warning This effectively makes the BufferContext flags meaningless.
+    /// This is done since, for now, the usage type for a buffer / image doesn't mean anything
+    /// for performance. If later, if there is any specific hardware feature that might arrive,
+    /// this might be important for then. But for now, @todo for later.
     inInfo.setUsage(vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndexBuffer |
                     vk::BufferUsageFlagBits::eStorageBuffer |
                     vk::BufferUsageFlagBits::eUniformBuffer |

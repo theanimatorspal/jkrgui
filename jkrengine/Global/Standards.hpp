@@ -85,5 +85,6 @@ struct WorldInfoUniform {
     alignas(16) glm::mat4 mShadowMatrix;
     alignas(16) glm::vec4 mLightsDirections[LightCount];
 };
+constexpr int GeneralUsageDescriptorSetIndex3D = 1;
 
 } // namespace ksai::kstd

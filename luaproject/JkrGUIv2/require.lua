@@ -715,8 +715,12 @@ Jkr.CreateCustomImagePainter = function(inCacheFileName, inComputeShader)
         o.handle:Bind(w, inCmdParam)
     end
 
+    -- @warning this inComputeImage.handle breaks dependency principle,
+    --- please fix this on refactor, since this doesn't know anything about
+    --- underlying abstracted type, "inComputeImage" from Basics.lua,
+    ---  this should only accept the type that this actually knows
     o.BindImageFromImage = function(self, w, inComputeImage, inCmdParam)
-        o.handle:BindImageFromImage(w, inComputeImage.mId, inCmdParam)
+        o.handle:BindImageFromImage(w, inComputeImage.handle, inCmdParam)
     end
 
     o.Draw = function(self, w, inPushConstant, inX, inY, inZ, inCmdParam)

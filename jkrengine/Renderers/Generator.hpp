@@ -11,6 +11,7 @@ enum class Shapes {
     RectangleWire,
     RectangleFill,
     Bezier2_8Wire,
+    Triangles3D,
     Cube3D,
     Sphere3D,
     Cylinder3D,
@@ -34,16 +35,16 @@ struct Generator {
                     float inZ,
                     uint32_t inStartVertexIndex,
                     uint32_t inStartIndexIndex,
-                    ksai::v<kstd::Vertex>& modVertices,
-                    ksai::v<ksai::ui>& modIndices);
+                    ksai::v<kstd::Vertex> &modVertices,
+                    ksai::v<ksai::ui> &modIndices);
 
     void operator()(float inX,
                     float inY,
                     float inZ,
                     uint32_t inStartVertexIndex,
                     uint32_t inStartIndexIndex,
-                    ksai::v<kstd::Vertex3D>& modVertices,
-                    ksai::v<ksai::ui>& modIndices);
+                    ksai::v<kstd::Vertex3D> &modVertices,
+                    ksai::v<ksai::ui> &modIndices);
     GETTER GetShape() const { return mShape; }
     GETTER GetVertexCount() const { return mVertexCount; }
     GETTER GetIndexCount() const { return mIndexCount; }

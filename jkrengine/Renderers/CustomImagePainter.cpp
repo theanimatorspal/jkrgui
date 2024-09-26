@@ -154,11 +154,12 @@ void CustomImagePainter::BindImageFromImage(const Window_base &inWindow,
          inImage.mVulkanDescriptorSet->GetDescriptorSetHandle(),
          {});
     auto &Image = inImage.GetPainterParam().GetStorageImage();
-    Image.CmdTransitionImageLayout(Cmd,
-                                   Image.GetInitialImageLayout(),
-                                   vk::ImageLayout::eGeneral,
-                                   vk::PipelineStageFlagBits::eComputeShader,
-                                   vk::PipelineStageFlagBits::eComputeShader,
-                                   vk::AccessFlagBits::eShaderWrite,
-                                   vk::AccessFlagBits::eShaderWrite);
+    Image.CmdTransitionImageLayout(
+         Cmd,
+         Image.GetInitialImageLayout(),
+         vk::ImageLayout::eGeneral,
+         vk::PipelineStageFlagBits::eComputeShader,
+         vk::PipelineStageFlagBits::eComputeShader,
+         vk::AccessFlagBits::eShaderWrite | vk::AccessFlagBits::eShaderRead,
+         vk::AccessFlagBits::eShaderWrite | vk::AccessFlagBits::eShaderRead);
 }

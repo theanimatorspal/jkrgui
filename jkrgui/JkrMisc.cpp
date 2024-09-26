@@ -274,6 +274,10 @@ void CreateMiscBindings(sol::state &inState) {
     Jkr.set_function("SleepForMiliSeconds", [](int inMiliSeconds) {
         std::this_thread::sleep_for(chrono::nanoseconds(inMiliSeconds * 1000000));
     });
+    Jkr.set_function("RegisterCustomPainterImageToCustomPainterImage",
+                     &Jkr::RegisterCustomPainterImageToCustomPainterImage);
+    Jkr.set_function("RegisterShapeRenderer3DToCustomPainterImgae",
+                     &Jkr::RegisterShapeRenderer3DToCustomPainterImage);
 }
 
 } // namespace JkrEXE

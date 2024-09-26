@@ -25,7 +25,7 @@
         "visualizerFile": "${workspaceFolder}/Visualizers/glm.natvis",
         "args": [
             "--run",
-            "jkrguipr"
+            "asst"
             // "jkrguipr"
             // "--android-environment",
             // "--appname \"tester\"",

@@ -24,6 +24,12 @@ Generator::Generator(Shapes inShape, Arguments inArgs) : mArgs(inArgs), mShape(i
             case Shapes::Bezier2_8Wire:
                 mVertexCount = 8;
                 mIndexCount  = 8;
+                break;
+            case Shapes::Triangles3D: {
+                glm::vec2 vi_size = std::get<glm::vec2>(mArgs);
+                mVertexCount      = vi_size.x;
+                mIndexCount       = vi_size.y;
+            } break;
             case Shapes::Cube3D:
                 mVertexCount = 24;
                 mIndexCount  = 36;
@@ -166,6 +172,16 @@ void Jkr::Generator::operator()(float inX,
                                 ksai::v<kstd::Vertex3D> &modVertices,
                                 ksai::v<ksai::ui> &modIndices) {
     switch (mShape) {
+        case Shapes::Triangles3D: {
+            modVertices.resize(mVertexCount * 3 + modVertices.size(), {});
+            modIndices.resize(mIndexCount * 3 + modIndices.size(), {});
+            int start = inStartIndexIndex;
+            for (int i = 0; i < mIndexCount; ++i) {
+                modIndices[start++] = inStartVertexIndex + (i * 3);
+                modIndices[start++] = inStartVertexIndex + (i * 3 + 1);
+                modIndices[start++] = inStartVertexIndex + (i * 3 + 2);
+            }
+        } break;
         case Shapes::Cube3D: {
             glm::vec3 Size = std::get<decltype(Size)>(mArgs);
             modVertices.resize(mVertexCount + modVertices.size());
@@ -206,7 +222,7 @@ void Jkr::Generator::operator()(float inX,
                  {1, 2, 6, 5}  // Front
             };
 
-            int start = 0; // Only in 3D
+            int start = inStartVertexIndex;
             for (int i = 0; i < 6; ++i) {
                 for (int j = 0; j < 4; ++j) {
                     int FaceIndex        = faceIndices[i][j];
@@ -265,7 +281,7 @@ void Jkr::Generator::operator()(float inX,
             const int SegmentCount = static_cast<ui>(rh.z);
             constexpr float pi     = 3.14159; // TODO increase precision
             const float DelTheta   = 2 * pi / static_cast<float>(SegmentCount);
-            ui vIndex              = 0;
+            ui vIndex              = inStartVertexIndex;
             ui iIndex              = inStartIndexIndex;
 
             int topPlaneY          = -1 * h;

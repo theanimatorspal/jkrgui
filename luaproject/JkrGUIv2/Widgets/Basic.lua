@@ -223,7 +223,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         end
 
         SampledImage.CopyToCompute = function(inComputeImage)
-            o.s:CopyFromImage(SampledImage.mId, inComputeImage.mId)
+            o.s:CopyFromImage(SampledImage.mId, inComputeImage.handle)
         end
 
         SampledImage.CopyDeferredImageFromWindow = function(inWindow)
@@ -240,17 +240,17 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     o.CreateComputeImage = function(inPosition_3f, inDimension_3f, inOptCompatibleSampledImage)
         local ComputeImage = {}
         if inOptCompatibleSampledImage then
-            ComputeImage.mId = Jkr.CreateCustomPainterImage(o.i, o.w,
+            ComputeImage.handle = Jkr.CreateCustomPainterImage(o.i, o.w,
                 math.int(inOptCompatibleSampledImage.mActualSize.x),
                 math.int(inOptCompatibleSampledImage.mActualSize.y))
         else
-            ComputeImage.mId = Jkr.CreateCustomPainterImage(o.i, o.w, math.int(inDimension_3f.x),
+            ComputeImage.handle = Jkr.CreateCustomPainterImage(o.i, o.w, math.int(inDimension_3f.x),
                 math.int(inDimension_3f.y))
         end
 
         ComputeImage.RegisterPainter = function(inPainter, inIndex)
             if not inIndex then inIndex = 0 end
-            ComputeImage.mId:Register(o.i, inPainter.handle, inIndex)
+            ComputeImage.handle:Register(o.i, inPainter.handle, inIndex)
         end
         ComputeImage.BindPainter = function(inPainter)
             inPainter:Bind(o.w, Jkr.CmdParam.None)
@@ -260,7 +260,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             inPainter:Draw(o.w, inPushConstant, inX, inY, inZ, Jkr.CmdParam.None)
         end
         ComputeImage.CopyToSampled = function(inSampledImage)
-            o.s:CopyToImage(inSampledImage.mId, ComputeImage.mId)
+            o.s:CopyToImage(inSampledImage.mId, ComputeImage.handle)
         end
         return ComputeImage
     end

@@ -1,72 +1,47 @@
 require "JkrGUIv2.require"
 
+-- @warning this eats up a lot of memory, @todo keep the locals, locally in this file
+-- but before that, ensure that the multithreaded shader compilation works fine
 Engine.Shader = function()
-    local o                     = {}
+    local o                         = {}
 
-    o.uImage2D                  = function()
-        o.NewLine()
-        o.Append([[
-
-layout(set = 0, binding = 0, rgba8) uniform image2D storageImage;
-    ]])
-        return o.NewLine()
-    end
-
-    o.CInvocationLayout         = function(inX, inY, inZ)
-        o.NewLine()
-        o.Append(
-            string.format("layout(local_size_x = %d, local_size_y = %d, local_size_z = %d) in;", inX,
-                inY, inZ)
-        )
-        return o.NewLine()
-    end
-
-    o.ImagePainterPush          = function()
-        o.NewLine()
-        o.Append(
-            [[
+    ---
+    ---
+    ---
+    --- FOR IMAGE PAINTER COMPUTE SHADER
+    ---
+    ---
+    ---
+    local ImagePainterPush          = [[
 layout(std430, push_constant) uniform pc {
         vec4 mPosDimen;
         vec4 mColor;
         vec4 mParam;
 } push;
     ]]
-        )
-        return o.NewLine()
-    end
 
-    o.ImagePainterPushMatrix2   = function()
-        o.NewLine()
-        o.Append [[
+    local ImagePainterPushMatrix2   = [[
 layout(std430, push_constant) uniform pc {
     mat4 a;
     mat4 b;
 } push;
        ]]
-        return o
-    end
 
-    o.ImagePainterAssistMatrix2 = function()
-        o.NewLine()
-        o.Append [[
+    local ImagePainterAssistMatrix2 = [[
 uvec3 gID = gl_GlobalInvocationID;
 ivec2 image_size = ivec2(imageSize(storageImage));
 ivec2 to_draw_at = ivec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y);
 float x_cart = (float(gl_GlobalInvocationID.x) - float(image_size.x) / float(2)) / (float((image_size.x) / float(2)));
 float y_cart = (float(image_size.y) / float(2) - float(gl_GlobalInvocationID.y)) / (float(image_size.y) / float(2));
 vec2 xy = vec2(x_cart, y_cart);
+ivec2 xy_is = ivec2(to_draw_at.x + image_size.x / 2, to_draw_at.y + image_size.y / 2);
 vec4 p1 = push.a[0];
 vec4 p2 = push.a[1];
 vec4 p3 = push.a[2];
 vec4 p4 = push.a[3];
        ]]
-        return o;
-    end
 
-    o.ImagePainterAssist        = function()
-        o.NewLine()
-        o.Append(
-            [[
+    local ImagePainterAssist        = [[
 uvec3 gID = gl_GlobalInvocationID;
 ivec2 image_size = ivec2(imageSize(storageImage));
 ivec2 to_draw_at = ivec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y);
@@ -77,16 +52,79 @@ float y_cart = (float(image_size.y) / float(2) - float(gl_GlobalInvocationID.y))
 float ColorValueX = x_cart;
 float ColorValueY = y_cart;
 vec2 xy = vec2(x_cart, y_cart);
+ivec2 xy_is = ivec2(to_draw_at.x + image_size.x / 2, to_draw_at.y + image_size.y / 2);
 vec4 p1 = push.mPosDimen;
 vec4 p2 = push.mColor;
 vec4 p3 = push.mParam;
       ]]
+
+    o.uImage2D                      = function(inBinding, inImageName)
+        if not inBinding then inBinding = 0 end
+        if not inImageName then inImageName = "storageImage" end
+        o.NewLine()
+        o.Append(string.format([[
+layout(set = 0, binding = %d, rgba8) uniform image2D %s;
+    ]], inBinding, inImageName))
+        return o.NewLine()
+    end
+
+    o.CInvocationLayout             = function(inX, inY, inZ)
+        o.NewLine()
+        o.Append(
+            string.format("layout(local_size_x = %d, local_size_y = %d, local_size_z = %d) in;", inX,
+                inY, inZ)
         )
         return o.NewLine()
     end
 
+    o.ImagePainterPush              = function()
+        o.NewLine()
+        o.Append(ImagePainterPush)
+        return o.NewLine()
+    end
 
-    local vLayout               = [[
+    o.ImagePainterPushMatrix2       = function()
+        o.NewLine()
+        o.Append(ImagePainterPushMatrix2)
+        return o
+    end
+
+    o.ImagePainterAssistMatrix2     = function()
+        o.NewLine()
+        o.Append(ImagePainterAssistMatrix2)
+        return o;
+    end
+
+    o.ImagePainterAssist            = function()
+        o.NewLine()
+        o.Append(ImagePainterAssist)
+        return o.NewLine()
+    end
+
+    o.ImagePainterAssistConvolution = function(inImageNameFrom, inImageNameTo)
+        o.NewLine()
+        o.Append(string.format(
+            [[
+
+            ]],
+            inImageNameFrom, inImageNameTo
+        ))
+        o.NewLine()
+        o.Append [[
+
+        ]]
+        return o.NewLine()
+    end
+
+    ---
+    ---
+    ---
+    --- MOSTLY FOR 3D
+    ---
+    ---
+    ---
+    ---
+    local vLayout                   = [[
 
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 inNormal;
@@ -94,14 +132,14 @@ layout(location = 2) in vec2 inUV;
 layout(location = 3) in vec3 inColor;
                     ]]
 
-    local push                  = [[
+    local push                      = [[
 
 layout(push_constant, std430) uniform pc {
 	mat4 model;
     mat4 m2;
 } Push;
 ]]
-    local Ubo                   = [[
+    local Ubo                       = [[
 
 layout(set = 0, binding = 0) uniform UBO {
    mat4 view;
@@ -114,7 +152,7 @@ layout(set = 0, binding = 0) uniform UBO {
 } Ubo;
 ]]
 
-    local LinearizeDepth        = [[
+    local LinearizeDepth            = [[
 
 float LinearizeDepth(float depth, float near, float far)
 {
@@ -125,7 +163,7 @@ float LinearizeDepth(float depth, float near, float far)
 }
           ]]
 
-    local ShadowTextureProject  = [[
+    local ShadowTextureProject      = [[
 
 float ShadowTextureProject(vec4 shadowCoord, vec2 off)
 {
@@ -142,7 +180,7 @@ float ShadowTextureProject(vec4 shadowCoord, vec2 off)
 }
 ]]
 
-    local inJointInfluence      = [[
+    local inJointInfluence          = [[
 
 struct JointInfluence {
     vec4 mJointIndices;
@@ -155,7 +193,7 @@ layout(std140, set = 1, binding = 2) readonly buffer JointInfluenceSSBOIn {
 
 ]]
 
-    local inTangent             = [[
+    local inTangent                 = [[
         struct Tangent {
             vec4 mTangent;
         };
@@ -165,13 +203,13 @@ layout(std140, set = 1, binding = 2) readonly buffer JointInfluenceSSBOIn {
         };
     ]]
 
-    local inJointMatrices       = [[
+    local inJointMatrices           = [[
 
 layout(std140, set = 1, binding = 1) readonly buffer JointMatrixSSBOIn {
     mat4 inJointMatrices[ ];
 };
           ]]
-    local BiasMatrix            = [[
+    local BiasMatrix                = [[
 
     const mat4 BiasMatrix = mat4(
     0.5, 0.0, 0.0, 0.0,
@@ -180,7 +218,7 @@ layout(std140, set = 1, binding = 1) readonly buffer JointMatrixSSBOIn {
     0.5, 0.5, 0.0, 1.0 );
     ]]
 
-    local D_GGX                 = [[
+    local D_GGX                     = [[
 // Normal Distribution Function
 float D_GGX(float dotNH, float roughness)
 {
@@ -192,7 +230,7 @@ float D_GGX(float dotNH, float roughness)
 
     ]]
 
-    local G_SchlicksmithGGX     = [[
+    local G_SchlicksmithGGX         = [[
 // Geometric Shadowing Function
 float G_SchlicksmithGGX(float dotNL, float dotNV, float roughness)
 {
@@ -204,7 +242,7 @@ float G_SchlicksmithGGX(float dotNL, float dotNV, float roughness)
 }
     ]]
 
-    local F_Schlick             = [[
+    local F_Schlick                 = [[
 // Fresnel Function
 vec3 F_Schlick(float cosTheta, float metallic)
 {
@@ -220,14 +258,14 @@ vec3 F_Schlick(float cosTheta, vec3 F0)
 
     ]]
 
-    local F_SchlickR            = [[
+    local F_SchlickR                = [[
 vec3 F_SchlickR(float cosTheta, vec3 F0, float roughness)
 {
 	return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
 }
     ]]
 
-    local PrefilteredReflection = [[
+    local PrefilteredReflection     = [[
 vec3 PrefilteredReflection(vec3 R, float roughness)
 {
 	const float MAX_REFLECTION_LOD = 9.0; // todo: param/const
