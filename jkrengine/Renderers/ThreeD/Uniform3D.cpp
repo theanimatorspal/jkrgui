@@ -512,6 +512,7 @@ void Uniform3D::AddSkyboxImage(SkyboxImageType &inType, int inDstBinding, ui inD
     inType.Register(0, inDstBinding, 0, *mVulkanDescriptorSet, inDstSet);
 }
 
+/// @todo Move this function to Tools.hpp
 void Uniform3D::AddTextureFromShapeImage(Jkr::Renderer::Shape &inShapeRenderer,
                                          int inShapeImageId,
                                          int inDstImageBinding,
@@ -559,7 +560,6 @@ void Uniform3D::Build(Simple3D &inSimple3D,
                       Renderer::_3D::glTF_Model &inModel,
                       ui inNodeIndex,
                       bool inShouldSkin,
-                      bool inShouldTextures, // TODO Remove this
                       bool inTangents) {
     if (not mVulkanDescriptorSet) {
         Build(inSimple3D);
@@ -597,15 +597,6 @@ void Uniform3D::Build(Simple3D &inSimple3D,
             void *Data                = InverseBindMatrices.data();
             this->AddStorageBuffer(kstd::BindingIndex::Storage::JointMatrix,
                                    InverseBindMatrices.size() * sizeof(glm::mat4));
-        }
-    }
-    ui BindingIndex = kstd::BindingIndex::Uniform::Images;
-    // TODO : This section of the code remains as is just for Samprahar Returns to work
-    if (inShouldTextures) {
-        for (auto &I : inModel.GetTexturesRef()) {
-            auto &Image = inModel.GetImagesRef()[I.mImageIndex];
-            AddTextureByVector(BindingIndex, Image.mTextureImage, Image.mWidth, Image.mHeight);
-            BindingIndex++;
         }
     }
 }

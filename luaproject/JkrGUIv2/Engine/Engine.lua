@@ -461,7 +461,7 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
     local gltfmodel = inworld3d:GetGLTFModel(gltfmodelindex)
     local shapeindex = inshape3d:Add(gltfmodel) -- this ACUTALLY loads the GLTF Model
     local Meshes = gltfmodel:GetMeshesRef()
-    Engine.GetGLTFInfo(gltfmodel, true)
+    Engine.GetGLTFInfo(gltfmodel)
     local Objects = {}
 
     for MeshIndex = 1, #Meshes, 1 do
@@ -490,9 +490,11 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
                 shouldload,
                 incompilecontext
             )
-            local skinning = false
-            if inskinning then skinning = true end
-            uniform:Build(shader, gltfmodel, 0, skinning, true, true)
+            local allocate_for_skinning = false
+            local allocate_for_tangent = true
+            if inskinning then allocate_for_skinning = true end
+            uniform:Build(shader, gltfmodel, 0, allocate_for_skinning, allocate_for_tangent)
+            uniform:Build(shader, gltfmodel, primitives[PrimitiveIndex])
             -- [[[[[[[[[[[[[[[[[[[[[[[[[[CHANGE THIS LATER]]]]]]]]]]]]]]]]]]]]]]]]]]
 
             local object = Jkr.Object3D()

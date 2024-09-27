@@ -2,12 +2,12 @@
 
 using namespace Jkr::Network;
 
-bool ServerInterface::Start(OnClientValidationFunctionType& inOnClientValidationFunction,
-                            OnClientConnectionFunctionType& inOnClientConnectFunction) {
+bool ServerInterface::Start(OnClientValidationFunctionType &inOnClientValidationFunction,
+                            OnClientConnectionFunctionType &inOnClientConnectFunction) {
     try {
         WaitForClientConnection(inOnClientValidationFunction, inOnClientConnectFunction);
         mThreadContext = std::thread([this]() { mAsioContext.run(); });
-    } catch (const std::exception& e) {
+    } catch (const std::exception &e) {
         ksai_print("[SERVER] Exception: ");
         ksai_print(e.what());
     }
@@ -23,8 +23,8 @@ void ServerInterface::Stop() {
 
 // ASYNC
 void ServerInterface::WaitForClientConnection(
-     OnClientValidationFunctionType& inOnClientValidationFunction,
-     OnClientConnectionFunctionType& inOnClientConnectFunction) {
+     OnClientValidationFunctionType &inOnClientValidationFunction,
+     OnClientConnectionFunctionType &inOnClientConnectFunction) {
     mAsioAcceptor.async_accept([&, this](std::error_code ec, asio::ip::tcp::socket socket) {
         if (not ec) {
             ksai_print("[SERVER]  New Connection: ");
@@ -51,8 +51,8 @@ void ServerInterface::WaitForClientConnection(
     });
 }
 void ServerInterface::MessageClient(sp<Connection> inClient,
-                                    const Message& inMsg,
-                                    OnClientDisConnectionFunctionType& inOnclientDisconnect) {
+                                    const Message &inMsg,
+                                    OnClientDisConnectionFunctionType &inOnclientDisconnect) {
     if (inClient and inClient->IsConnected()) {
         inClient->Send(inMsg);
     } else {
@@ -63,11 +63,11 @@ void ServerInterface::MessageClient(sp<Connection> inClient,
     }
 }
 
-void ServerInterface::MessageAllClient(const Message& inMsg,
-                                       OnClientDisConnectionFunctionType& inOnclientDisconnect,
+void ServerInterface::MessageAllClient(const Message &inMsg,
+                                       OnClientDisConnectionFunctionType &inOnclientDisconnect,
                                        sp<Connection> inIgnoreClient) {
     bool InvalidClientExists = false;
-    for (auto& client : mQConnections) {
+    for (auto &client : mQConnections) {
         if (client and client->IsConnected()) {
             if (client != inIgnoreClient) client->Send(inMsg);
         } else {
@@ -80,7 +80,7 @@ void ServerInterface::MessageAllClient(const Message& inMsg,
                             mQConnections.end());
 }
 
-void ServerInterface::Update(OnMessageFunctionType& inOnMessageFunction,
+void ServerInterface::Update(OnMessageFunctionType &inOnMessageFunction,
                              size_t inMaxMessages,
                              bool inWait) {
 

@@ -109,7 +109,7 @@ void CreateMiscBindings(sol::state &inState) {
                  bool inShouldTexture) {
                   inUniform3D.Build(inS, inModel, inNodeIndex, inShouldskin, inShouldTexture);
               },
-              sol::resolve<void(Simple3D &, glTF_Model &, ui, bool, bool, bool)>(&Uniform3D::Build),
+              sol::resolve<void(Simple3D &, glTF_Model &, ui, bool, bool)>(&Uniform3D::Build),
               sol::resolve<void(Simple3D &, glTF_Model &, glTF_Model::Primitive &)>(
                    &Uniform3D::Build)),
          "BuildByMaterial",

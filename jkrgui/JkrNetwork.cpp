@@ -1,6 +1,7 @@
 #include "JkrLuaExe.hpp"
 #include <Network/Client.hpp>
 #include <Network/Server.hpp>
+#include <Network/Udp.hpp>
 
 using namespace Jkr::Network;
 
@@ -11,7 +12,10 @@ static Jkr::Network::TsQueue<Message> MessageBuffer;
 
 OnClientValidationFunctionType OnClientValidationFunction = [](sp<Connection> inConnection) {};
 
-OnClientConnectionFunctionType OnClientConnectionFunction = [](sp<Connection>) { return true; };
+OnClientConnectionFunctionType OnClientConnectionFunction = [](sp<Connection> inConnection) {
+    std::cout << "A Client has Connected" << "\n";
+    return true;
+};
 
 OnClientDisConnectionFunctionType OnClientDisConnectionFunction = [](sp<Connection>) {
     std::cout << "Client has been disconnected\n";
@@ -33,7 +37,6 @@ static v<s> StartServer(int inPort) {
     Server->Start(OnClientValidationFunction, OnClientConnectionFunction);
 
     v<s> endpoints_string;
-
     asio::io_context io_context;
     std::string host_Name = asio::ip::host_name();
     asio::ip::tcp::resolver resolver(io_context);
@@ -83,6 +86,23 @@ static bool IsIncomingMessagesEmptyClient(int inId) {
 static Message PopFrontIncomingMessagesClient(int inId) {
     return Clients[inId]->GetIncomingQMessages().pop_front();
 }
+
+/* ============================================================
+
+    NETWORK UDP
+
+============================================================== */
+static Jkr::Network::TsQueue<Message> MessageBufferUDP;
+static Up<UDP> UDPHandle;
+auto OnReceive = [](Message inMessage) {
+    std::cout << "MESSAGE RECEIVED\n";
+    MessageBufferUDP.push_back(inMessage);
+};
+void StartUDP(int inPort) { UDPHandle = mu<UDP>(inPort); }
+void SendUDP(const Message &inMessage, std::string inDestination, int inPort) {
+    UDPHandle->Send(inMessage, inDestination, inPort);
+}
+void ReceiveUDP(int inPort) { UDPHandle->Recieve(OnReceive, inPort); }
 
 namespace JkrEXE {
 /* ============================================================
@@ -164,6 +184,10 @@ void CreateNetworkBindings(sol::state &s) {
     Jkr.set_function("SendMessageFromClient", &SendMessageFromClient);
     Jkr.set_function("IsIncomingMessagesEmptyClient", &IsIncomingMessagesEmptyClient);
     Jkr.set_function("PopFrontIncomingMessagesClient", &PopFrontIncomingMessagesClient);
+
+    Jkr.set_function("StartUDP", &StartUDP);
+    Jkr.set_function("SendUDP", &SendUDP);
+    Jkr.set_function("ReceiveUDP", &ReceiveUDP);
 }
 
 } // namespace JkrEXE

@@ -12,6 +12,12 @@ concept IsContainer = requires(T &t) {
 struct MessageHeader {
     int mId        = -1;
     uint32_t mSize = 0;
+    int mP1        = 0;
+    int mP2        = 0;
+    int mP3        = 0;
+    int mP4        = 0;
+    int mP5        = 0;
+    int mP6        = 0;
 };
 
 struct Message {
