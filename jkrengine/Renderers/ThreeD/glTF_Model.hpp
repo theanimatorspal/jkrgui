@@ -235,8 +235,6 @@ class glTF_Model {
         mVertexBuffer.clear();
         mVertexBuffer.shrink_to_fit();
     }
-    void
-    Draw(glTF_Model::Node &inNode, PushCallBack inBindDataCallBack, DrawCallBack inDrawCallBack);
 
     glTF_Model(const std::string_view inFileName) : mFileName(inFileName) {}
 

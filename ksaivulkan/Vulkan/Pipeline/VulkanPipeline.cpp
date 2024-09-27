@@ -35,14 +35,18 @@ void VulkanPipelineBase::FillVertexInputDescriptions(
                         format = vk::Format::eR32G32Sfloat;
                     if (type.basetype == spirv_cross::SPIRType::Int)
                         format = vk::Format::eR32G32Sint;
-                    AttributeSize = static_cast<size_t>(2) * static_cast<uint32_t>(sizeof(float));
+
+                    /// @warning std430 alignment rule is followed here
+                    /// IDK WTF, align EVERYTHING as 16 fucking bytes
+                    AttributeSize = static_cast<size_t>(4) * static_cast<uint32_t>(sizeof(float));
                     break;
                 case 3:
                     if (type.basetype == spirv_cross::SPIRType::Int)
                         format = vk::Format::eR32G32B32Sint;
                     if (type.basetype == spirv_cross::SPIRType::Float)
                         format = vk::Format::eR32G32B32Sfloat;
-                    AttributeSize = static_cast<size_t>(3) * static_cast<uint32_t>(sizeof(float));
+                    /// @warning std430 alignment rule is followed here
+                    AttributeSize = static_cast<size_t>(4) * static_cast<uint32_t>(sizeof(float));
                     break;
                 case 4:
                     if (type.basetype == spirv_cross::SPIRType::Int)

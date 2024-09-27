@@ -154,6 +154,11 @@ void CustomImagePainter::BindImageFromImage(const Window_base &inWindow,
          inImage.mVulkanDescriptorSet->GetDescriptorSetHandle(),
          {});
     auto &Image = inImage.GetPainterParam().GetStorageImage();
+
+    /// @todo Make this better, this is basically stopping parallelization
+    /// This is done to basically prevent the HAZARD READ_AFTER_WRITE
+    /// Since, there are images that is being written on and being loaded from
+    /// both.
     Image.CmdTransitionImageLayout(
          Cmd,
          Image.GetInitialImageLayout(),

@@ -27,10 +27,10 @@ struct LineVertex {
 };
 
 struct Vertex3D {
-    glm::vec3 mPosition;
-    glm::vec3 mNormal;
-    glm::vec2 mUV;
-    glm::vec3 mColor;
+    alignas(16) glm::vec3 mPosition;
+    alignas(16) glm::vec3 mNormal;
+    alignas(8) glm::vec2 mUV;
+    alignas(16) glm::vec3 mColor;
 };
 
 struct Vertex3DExt {

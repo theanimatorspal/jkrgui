@@ -1090,28 +1090,3 @@ void glTF_Model::UpdateAllJoints(UpdateJointsCallBack inCallBack) {
         UpdateJoints(node.get(), inCallBack);
     }
 }
-
-void glTF_Model::Draw(glTF_Model::Node &inNode,
-                      PushCallBack inPushCallBack,
-                      DrawCallBack inDrawCallBack) {
-    if (inNode.mMesh.mPrimitives.size() > 0) {
-        glm::mat4 NodeMatrix            = inNode.mMatrix;
-        glTF_Model::Node *CurrentParent = inNode.mParent;
-        while (CurrentParent) {
-            NodeMatrix    = CurrentParent->mMatrix * NodeMatrix;
-            CurrentParent = CurrentParent->mParent;
-        }
-        inPushCallBack(NodeMatrix);
-        for (glTF_Model::Primitive &primitive : inNode.mMesh.mPrimitives) {
-            if (primitive.mIndexCount > 0) {
-                if (mMaterials.size() > 0) {
-                    glTF_Model::Texture texture =
-                         mTextures[mMaterials[primitive.mMaterialIndex].mBaseColorTextureIndex];
-                    inDrawCallBack(primitive.mIndexCount, texture);
-                } else {
-                    inDrawCallBack(primitive.mIndexCount, std::nullopt);
-                }
-            }
-        }
-    }
-}

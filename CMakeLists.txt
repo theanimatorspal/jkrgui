@@ -16,7 +16,7 @@ add_subdirectory(vendor/lua)
 add_subdirectory(ksaivulkan)
 add_subdirectory(jkrengine)
 add_subdirectory(jkrgui)
-# add_subdirectory(playground)
+add_subdirectory(playground)
 
 export(TARGETS lua FILE luaExport.cmake)
 export(TARGETS ksaivulkan FILE ksaivulkanExport.cmake)

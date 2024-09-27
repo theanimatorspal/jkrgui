@@ -304,11 +304,38 @@
 //     std::cout << soln.strStr("mississipi", "issip") << "\n";
 // }
 
-#include <iostream>
-#include <asio.hpp>
+// #include <iostream>
+// #include <asio.hpp>
 
+// int main() {
+//     asio::io_context io;
+//     asio::steady_timer t(io, asio::chrono::seconds(5));
+//     t.wait();
+// }
+
+struct Vertex3DAligned {
+    alignas(16) glm::vec3 mPosition;
+    alignas(16) glm::vec3 mNormal;
+    alignas(8) glm::vec2 mUV;
+    alignas(16) glm::vec3 mColor;
+};
+
+struct Vertex3DUnAligned {
+    glm::vec3 mPosition;
+    glm::vec3 mNormal;
+    glm::vec2 mUV;
+    glm::vec3 mColor;
+};
 int main() {
-    asio::io_context io;
-    asio::steady_timer t(io, asio::chrono::seconds(5));
-    t.wait();
+    std::cout << "OFFSETOF mPosition ->" << offsetof(Vertex3DAligned, mPosition) << "\n";
+    std::cout << "OFFSETOF mNormal ->" << offsetof(Vertex3DAligned, mNormal) << "\n";
+    std::cout << "OFFSETOF mUV ->" << offsetof(Vertex3DAligned, mUV) << "\n";
+    std::cout << "OFFSETOF mColor ->" << offsetof(Vertex3DAligned, mColor) << "\n";
+
+    std::cout << "\n";
+
+    std::cout << "OFFSETOF mPosition ->" << offsetof(Vertex3DUnAligned, mPosition) << "\n";
+    std::cout << "OFFSETOF mNormal ->" << offsetof(Vertex3DUnAligned, mNormal) << "\n";
+    std::cout << "OFFSETOF mUV ->" << offsetof(Vertex3DUnAligned, mUV) << "\n";
+    std::cout << "OFFSETOF mColor ->" << offsetof(Vertex3DUnAligned, mColor) << "\n";
 }

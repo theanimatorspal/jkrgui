@@ -18,6 +18,10 @@ void CopyWindowDeferredImageToCustomPainterImage(
 /// the inShape3d buffer gets resized. So be sure to load everything and allocate enough space
 /// in the vertex buffer before invoking this function.
 /// @see Renderer::_3D::Shape3D class for further understanding.
+///
+/// @warning Call Register() on the CustomPainterImage before this function, registering the image
+/// is mandatory before registering anyother things
+///
 void RegisterShapeRenderer3DToCustomPainterImage(Jkr::Instance &inInstance,
                                                  Renderer::_3D::Shape &inShape3d,
                                                  Renderer::CustomPainterImage &inCustomPainterImage,

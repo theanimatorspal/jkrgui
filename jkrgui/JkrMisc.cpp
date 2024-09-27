@@ -276,7 +276,7 @@ void CreateMiscBindings(sol::state &inState) {
     });
     Jkr.set_function("RegisterCustomPainterImageToCustomPainterImage",
                      &Jkr::RegisterCustomPainterImageToCustomPainterImage);
-    Jkr.set_function("RegisterShapeRenderer3DToCustomPainterImgae",
+    Jkr.set_function("RegisterShapeRenderer3DToCustomPainterImage",
                      &Jkr::RegisterShapeRenderer3DToCustomPainterImage);
 }
 

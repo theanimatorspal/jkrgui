@@ -258,6 +258,10 @@ void CreateRenderer3DBindings(sol::state &s) {
          &Jkr::Renderer::_3D::Shape::GetVertexCount,
          "GetIndexCount",
          &Jkr::Renderer::_3D::Shape::GetIndexCount,
+         "GetVertexOffsetAbsolute",
+         &Jkr::Renderer::_3D::Shape::GetVertexOffsetAbsolute,
+         "GetIndexOffsetAbsolute",
+         &Jkr::Renderer::_3D::Shape::GetIndexOffsetAbsolute,
          "CheckAndResize",
          sol::resolve<void(size_t, size_t)>(&Jkr::Renderer::_3D::Shape::CheckAndResize));
 }
