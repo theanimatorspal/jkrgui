@@ -20,7 +20,10 @@ class VulkanImageVMA : public VulkanImageBase {
         opt<vk::ImageLayout> inLayout          = std::nullopt;
         opt<vk::Format> inFormat               = std::nullopt;
         opt<vk::ImageViewType> inImageViewType = std::nullopt;
-        ui inImageViewBaseLayer                = 0;
+
+        /// @warning This doesn't appear to be used anywhere, comment if it is used somewhere, or
+        /// remove this
+        ui inImageViewBaseLayer = 0;
     };
 
     VulkanImageVMA() = default;

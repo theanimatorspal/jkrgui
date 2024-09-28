@@ -17,6 +17,7 @@ import java.util.Arrays;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -37,6 +38,16 @@ public class JkrGUIActivity extends SDLActivity {
           static {
                     System.loadLibrary("jkrgui");
           }
+          private SensorManager mSensorManager;
+          private Sensor mAccelerometer;
+          public void InitiateSensors() {
+                   mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE); 
+                   mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+          }
+          // Call InitiateSensors before this
+          public void GetAccelerometerData() {
+                    // @todo Yet to do
+          }
           public void ShowToast(String inString) {
                     runOnUiThread(
                                         () -> {
@@ -44,7 +55,7 @@ public class JkrGUIActivity extends SDLActivity {
                                                                       Toast.LENGTH_SHORT).show();
                                         });
           }
-           public void copyFileOrDir(String path, String inPackageName) {
+          public void copyFileOrDir(String path, String inPackageName) {
                     AssetManager assetManager = this.getAssets();
                     String assets[] = null;
                     try {

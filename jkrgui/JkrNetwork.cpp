@@ -95,14 +95,14 @@ static Message PopFrontIncomingMessagesClient(int inId) {
 static Jkr::Network::TsQueue<Message> MessageBufferUDP;
 static Up<UDP> UDPHandle;
 auto OnReceive = [](Message inMessage) {
-    std::cout << "MESSAGE RECEIVED\n";
+    std::cout << "MESSAGE RECEIVED" << std::endl;
     MessageBufferUDP.push_back(inMessage);
 };
 void StartUDP(int inPort) { UDPHandle = mu<UDP>(inPort); }
 void SendUDP(const Message &inMessage, std::string inDestination, int inPort) {
     UDPHandle->Send(inMessage, inDestination, inPort);
 }
-void ReceiveUDP(int inPort) { UDPHandle->Recieve(OnReceive, inPort); }
+void ReceiveUDP() { UDPHandle->Recieve(OnReceive); }
 
 namespace JkrEXE {
 /* ============================================================

@@ -33,7 +33,6 @@ Up<VulkanImageVMA> PBR::GenerateBRDFLookupTable(Instance &inInstance,
 
     _3D::Simple3D Simple3D(inInstance, inWindow);
     Simple3D.CompileWithCustomRenderPass(inInstance,
-                                         inWindow,
                                          RenderPass,
                                          inFileName,
                                          inVertexShader,
@@ -124,7 +123,6 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance &inInstance,
 
     _3D::Simple3D Simple3D(inInstance, inWindow);
     Simple3D.CompileWithCustomRenderPass(inInstance,
-                                         inWindow,
                                          RenderPass,
                                          inFileName,
                                          inVertexShader,
@@ -323,7 +321,6 @@ Up<VulkanImageVMA> PBR::GeneratePrefilteredCube(Instance &inInstance,
 
     _3D::Simple3D Simple3D(inInstance, inWindow);
     Simple3D.CompileWithCustomRenderPass(inInstance,
-                                         inWindow,
                                          RenderPass,
                                          inFileName,
                                          inVertexShader,

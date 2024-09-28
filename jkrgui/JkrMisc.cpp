@@ -136,6 +136,10 @@ void CreateMiscBindings(sol::state &inState) {
          "Camera3D",
          sol::call_constructor,
          sol::factories([]() { return mu<Camera3D>(); }),
+         "Pitch",
+         &Camera3D::Pitch,
+         "Yaw",
+         &Camera3D::Yaw,
          "SetAttributes",
          &Camera3D::SetAttributes,
          "MoveForward",
@@ -149,6 +153,9 @@ void CreateMiscBindings(sol::state &inState) {
          "SetPerspective",
          sol::overload(sol::resolve<void(float, float, float, float)>(&Camera3D::SetPerspective),
                        sol::resolve<void(void)>(&Camera3D::SetPerspective)),
+         "SetPerspectiveQ",
+         sol::overload(sol::resolve<void(float, float, float, float)>(&Camera3D::SetPerspectiveQ),
+                       sol::resolve<void(void)>(&Camera3D::SetPerspectiveQ)),
          "GetMatrix",
          &Camera3D::GetMatrix);
 

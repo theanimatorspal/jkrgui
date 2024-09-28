@@ -74,7 +74,10 @@ struct World3D {
     ============================================================== */
     void AddWorldInfoToUniform3D(int inId);
     void AddWorldInfoToUniform3DEXT(Uniform3D &inUniform);
+
+    /// @warning @todo Why the heck this function is here?, move it to Uniform3D
     void AddSkyboxToUniform3D(Instance &inInstance, sv inFolderPath, int inId, int inSet);
+
     void AddShadowMapToUniform3D(Window &inWindow, int inId, int inSet);
     void AddWorldPrimitiveToUniform3D(Instance &inInstance, Uniform3D &inUniform3D, int inId);
     void UpdateWorldInfoToUniform3D(Uniform3D &inUniform);

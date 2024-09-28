@@ -1438,26 +1438,34 @@ Basics.GetBasicVertexHeaderWithTangent = function()
         ]]
 end
 
+Basics.GetBasicVertexHeaderWithoutTangent = function()
+    return Deferred.GetBasicVertexHeader()
+end
 
-Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel, materialindex, inskinning)
+
+Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel, materialindex, inskinning, intangent)
+    if intangent == nil then intangent = true end
     if inShaderType == "CONSTANT_COLOR" and incompilecontext == Jkr.CompileContext.Default then
-        local vshader = Basics.GetBasicVertexHeaderWithTangent()
+        local vshader
+        if intangent then
+            vshader = Basics.GetBasicVertexHeaderWithTangent()
+        else
+            vshader = Basics.GetBasicVertexHeaderWithoutTangent()
+        end
+        vshader.GlslMainBegin()
+
         if not inskinning then
-            vshader.GlslMainBegin()
-                .Append [[
+            vshader.Append [[
                     gl_Position = Ubo.proj * Ubo.view * Push.model * vec4(inPosition, 1);
                     vWorldPos = vec3(Push.model * vec4(inPosition, 1));
                     mat3 mNormal = transpose(inverse(mat3(Push.model)));
                     vNormal = mNormal * normalize(inNormal.xyz);
-                    vTangent = mNormal * normalize(inTangent[gl_VertexIndex].mTangent.xyz);
                     vUV = inUV;
                     vColor = inColor;
                     ]]
-                .GlslMainEnd()
         else
             vshader.inJointInfluence()
                 .inJointMatrices()
-                .GlslMainBegin()
                 .Append([[
                         vec4 jweight = inJointInfluence[gl_VertexIndex].mJointWeights;
                         vec4 jindex = inJointInfluence[gl_VertexIndex].mJointIndices;
@@ -1470,12 +1478,22 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
                 .Append [[
                         vec4 Pos = Push.model * skinMat * vec4(inPosition, 1.0f);
                         gl_Position = Ubo.proj * Ubo.view * Pos;
+                        vWorldPos = vec3(Push.model * vec4(inPosition, 1));
+                        mat3 mNormal = transpose(inverse(mat3(Push.model)));
+                        vNormal = mNormal * normalize(inNormal.xyz);
                         vUV = inUV;
-                        vNormal = vec3(Push.model) * inNormal;
-                        vWorldPos = vec3(Pos);
+                        vColor = inColor;
                 ]]
-                .GlslMainEnd()
         end
+        if intangent then
+            vshader.Append
+            [[
+                vTangent = mNormal * normalize(inTangent[gl_VertexIndex].mTangent.xyz);
+            ]]
+        end
+
+        vshader.GlslMainEnd()
+
         local fshader = Basics.GetConstantFragmentHeader()
             .gltfPutMaterialTextures(gltfmodel, materialindex)
             .GlslMainBegin()

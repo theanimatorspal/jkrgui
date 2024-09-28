@@ -14,22 +14,10 @@ class Uniform3D {
     using UniformBufferType = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformBuffer>;
     using StorageBufferType = Jkr::PainterParameter<Jkr::PainterParameterContext::StorageBuffer>;
 
-    /* ============================================================
-
-        GETTER
-
-    ============================================================== */
-
     GETTER &GetImagesRef() { return mImages; }
     GETTER &GetUniformBuffersRef() { return mUniformBuffers; }
     GETTER &GetStorageBuffersRef() { return mStorageBuffers; }
     GETTER &GetVulkanDescriptorSet() { return *mVulkanDescriptorSet; }
-
-    /* ============================================================
-
-        Creator/Builder Pattern
-
-    ============================================================== */
 
     static Up<Uniform3D> CreateByGLTFNodeIndex(Instance &inInstance,
                                                Simple3D &inSimple3D,
@@ -49,12 +37,6 @@ class Uniform3D {
                Renderer::_3D::glTF_Model::Primitive &inPrimitive);
     void
     BuildByMaterial(Simple3D &inSimpe3D, Renderer::_3D::glTF_Model &inModel, int inMaterialIndex);
-
-    /* ============================================================
-
-        Modification Routines
-
-    ============================================================== */
 
     void AddTexture(int inDstBinding, s inFileName, ui inDstSet = 1);
     void AddTextureByVector(

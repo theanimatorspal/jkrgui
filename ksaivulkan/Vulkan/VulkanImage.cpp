@@ -317,6 +317,28 @@ void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(
                                             vk::AccessFlagBits::eMemoryRead);
 }
 
+std::vector<int> VulkanImageBase::GetImageToVector(VulkanQueue<QueueContext::Graphics> &inQueue,
+                                                   VulkanBufferVMA &inStagingBuffer,
+                                                   VulkanCommandBuffer &inBuffer) {
+    ui ImageChannels = 4;
+    auto ImageExtent = mImageProperties.mExtent;
+    auto Size        = ImageChannels * ImageExtent.width * ImageExtent.height;
+    uint32_t size    = ImageChannels * ImageExtent.width * ImageExtent.height;
+    inStagingBuffer.SubmitImmediateCmdCopyFromImage(inQueue, inBuffer, *this);
+    void *MemoryRegion;
+    inStagingBuffer.MapMemoryRegion(&MemoryRegion);
+    std::vector<uint8_t> OutImage;
+    std::vector<int> OutImage_i;
+    OutImage.resize(size);
+    OutImage_i.reserve(size);
+    std::memcpy(OutImage.data(), MemoryRegion, size);
+
+    for (int i = 0; i < OutImage.size(); i++) {
+        OutImage_i.push_back(OutImage[i]);
+    }
+    return OutImage_i;
+}
+
 void VulkanImageBase::FillImageProperties(ImageContext inImageContext, uint32_t inNumSamples) {
     if (mImageProperties.mArrayLayers > 1) {
         mImageProperties.mImageViewType = vk::ImageViewType::e2DArray;

@@ -78,6 +78,10 @@ class VulkanImageBase {
                                   vk::AccessFlags inBeforeAccess,
                                   vk::AccessFlags inAfterAccess);
 
+    std::vector<int> GetImageToVector(VulkanQueue<QueueContext::Graphics> &inQueue,
+                                      VulkanBufferVMA &inStagingBuffer,
+                                      VulkanCommandBuffer &inBuffer);
+
     public:
     void FillImageProperties(ImageContext inImageContext, uint32_t inNumSamples = 1);
     void GetMemoryTypeIndex(vk::MemoryPropertyFlagBits inFlag,
