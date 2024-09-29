@@ -25,6 +25,11 @@ Generator::Generator(Shapes inShape, Arguments inArgs) : mArgs(inArgs), mShape(i
                 mVertexCount = 8;
                 mIndexCount  = 8;
                 break;
+            case Shapes::Zeros3D: {
+                glm::vec2 vi_size = std::get<glm::vec2>(mArgs);
+                mVertexCount      = vi_size.x;
+                mIndexCount       = vi_size.y;
+            } break;
             case Shapes::Triangles3D: {
                 glm::vec2 vi_size = std::get<glm::vec2>(mArgs);
                 mVertexCount      = vi_size.x;
@@ -172,6 +177,10 @@ void Jkr::Generator::operator()(float inX,
                                 ksai::v<kstd::Vertex3D> &modVertices,
                                 ksai::v<ksai::ui> &modIndices) {
     switch (mShape) {
+        case Shapes::Zeros3D: {
+            modVertices.resize(mVertexCount + modVertices.size(), {});
+            modIndices.resize(mIndexCount + modIndices.size(), {});
+        } break;
         case Shapes::Triangles3D: {
             modVertices.resize(mVertexCount * 3 + modVertices.size(), {});
             modIndices.resize(mIndexCount * 3 + modIndices.size(), {});

@@ -89,7 +89,7 @@ class glTF_Model {
 
     struct Mesh {
         v<Primitive> mPrimitives;
-        v<ui> mNodeIndex;
+        ui mNodeIndex;
         BoundingBox mBB;
         BoundingBox mAABB;
     };
@@ -153,6 +153,7 @@ class glTF_Model {
     using DrawCallBack         = std::function<void(ui, opt<Texture>)>;
     using UpdateJointsCallBack = std::function<void(v<glm::mat4> &)>;
 
+    /// @todo Remove all of these, make everything public, except Some
     Node *FindNode(Node *inParent, ui inIndex);
     Node *NodeFromIndex(ui inIndex);
     GETTER GetFileName() const { return sv(mFileName); }
@@ -182,6 +183,10 @@ class glTF_Model {
     GETTER GetNodeIndexByMeshIndex(int inIndex) const { return mMeshes[inIndex].mNodeIndex; }
     glm::mat4 GetNodeMatrix(glTF_Model::Node *inNode);
     glm::mat4 GetNodeMatrixByIndex(int inIndex);
+
+    /// @brief Check if inCheckIfParentNode is Parent of inNode
+    bool IsNodeParentOf(Node *inNode, Node *inCheckIfParentNode);
+    bool IsNodeParentOfByIndex(int inNode, int inCheckIfParentNode);
 
     void Load(ui inInitialVertexOffset = 0);
     void Load(FillVertexCallBack inVertexCallback, FillIndexCallBack inIndexCallback);

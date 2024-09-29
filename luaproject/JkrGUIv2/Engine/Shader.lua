@@ -1232,6 +1232,18 @@ PBR.BasicCompute = Engine.Shader()
     .GlslMainBegin()
     .GlslMainEnd()
 
+PBR.EquirectangularMapToMultiVShader = Engine.Shader()
+    .Header(450)
+    .VLayout()
+    .Push()
+    .Out(0, "vec3", "localPos")
+    .GlslMainBegin()
+    .Append [[
+    localPos = inPosition;
+    gl_Position = Push.model * Push.m2 * vec4(localPos, 1.0);
+    ]]
+    .GlslMainEnd()
+
 
 Deferred = {}
 
@@ -1498,9 +1510,15 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
             .gltfPutMaterialTextures(gltfmodel, materialindex)
             .GlslMainBegin()
         if fshader.gltfMaterialTextures.mBaseColorTexture == true then
-            fshader.Append [[
+            if fshader.gltfMaterialTextures.mEmissiveTextureIndex == true then
+                fshader.Append [[
+                    outFragColor = texture(uBaseColorTexture, vUV) + texture(uEmissiveTexture, vUV);
+                    ]]
+            else
+                fshader.Append [[
                     outFragColor = texture(uBaseColorTexture, vUV);
                     ]]
+            end
         else
             fshader.Append [[
                 outFragColor = vec4(1, 0, 0, 1);

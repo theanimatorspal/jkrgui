@@ -92,17 +92,35 @@ static Message PopFrontIncomingMessagesClient(int inId) {
     NETWORK UDP
 
 ============================================================== */
-static Jkr::Network::TsQueue<Message> MessageBufferUDP;
+static Jkr::Network::TsQueue<std::vector<char>> MessageBufferUDP;
 static Up<UDP> UDPHandle;
-auto OnReceive = [](Message inMessage) {
+
+auto OnReceive = [](v<char> inMessage) {
     std::cout << "MESSAGE RECEIVED" << std::endl;
     MessageBufferUDP.push_back(inMessage);
 };
 void StartUDP(int inPort) { UDPHandle = mu<UDP>(inPort); }
-void SendUDP(const Message &inMessage, std::string inDestination, int inPort) {
+void SendUDP(std::vector<char> inMessage, std::string inDestination, int inPort) {
     UDPHandle->Send(inMessage, inDestination, inPort);
 }
 void ReceiveUDP() { UDPHandle->Recieve(OnReceive); }
+
+template <typename T> std::vector<char> ConvertToVChar(T inT) {
+    std::vector<char> charVec;
+    if constexpr (std::is_standard_layout_v<T>) {
+        charVec.resize(sizeof(T));
+        std::memcpy(charVec.data(), &inT, sizeof(T));
+    }
+    return charVec;
+}
+
+template <typename T> T ConvertFromVChar(std::vector<char> inCharVector) {
+    T out;
+    if constexpr (std::is_standard_layout_v<T>) {
+        std::memcpy(&out, inCharVector.data(), inCharVector.size());
+    }
+    return out;
+}
 
 namespace JkrEXE {
 /* ============================================================
@@ -188,6 +206,20 @@ void CreateNetworkBindings(sol::state &s) {
     Jkr.set_function("StartUDP", &StartUDP);
     Jkr.set_function("SendUDP", &SendUDP);
     Jkr.set_function("ReceiveUDP", &ReceiveUDP);
+    Jkr.set_function("IsMessagesBufferEmptyUDP", [&]() {
+        ReceiveUDP();
+        return MessageBufferUDP.empty();
+    });
+    Jkr.set_function("PopFrontMessagesBufferUDP", [&]() { return MessageBufferUDP.pop_front(); });
+    Jkr.set_function("SetBufferSizeUDP", [&](int inSize) { UDPHandle->SetBufferSize(inSize); });
+    Jkr.set("ConvertFromVChar",
+            sol::overload(&ConvertFromVChar<glm::vec2>,
+                          &ConvertFromVChar<glm::vec3>,
+                          &ConvertFromVChar<glm::vec4>));
+    Jkr.set("ConvertToVChar",
+            &ConvertToVChar<glm::vec2>,
+            &ConvertToVChar<glm::vec3>,
+            &ConvertToVChar<glm::vec4>);
 }
 
 } // namespace JkrEXE

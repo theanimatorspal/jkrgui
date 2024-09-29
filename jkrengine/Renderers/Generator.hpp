@@ -11,6 +11,7 @@ enum class Shapes {
     RectangleWire,
     RectangleFill,
     Bezier2_8Wire,
+    Zeros3D,
     Triangles3D,
     Cube3D,
     Sphere3D,

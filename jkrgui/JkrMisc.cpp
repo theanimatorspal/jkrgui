@@ -176,6 +176,13 @@ void CreateMiscBindings(sol::state &inState) {
          &World3D::Object3D::mIndexCount,
          "mFirstIndex",
          &World3D::Object3D::mFirstIndex,
+         "mP1",
+         &World3D::Object3D::mP1,
+         "mP2",
+         &World3D::Object3D::mP2,
+         "mP3",
+         &World3D::Object3D::mP3,
+
          "mTranslation",
          &World3D::Object3D::mTranslation,
          "mScale",

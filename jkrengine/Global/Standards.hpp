@@ -12,8 +12,8 @@ template <class T> using Sp = std::shared_ptr<T>;
 
 namespace ksai::kstd {
 struct Vertex {
-    glm::vec3 mPosition           = {0, 0, 0};
-    glm::vec2 mTextureCoordinates = {0, 0};
+    alignas(16) glm::vec3 mPosition           = {0, 0, 0};
+    alignas(16) glm::vec2 mTextureCoordinates = {0, 0};
 };
 
 struct VertexEXT {

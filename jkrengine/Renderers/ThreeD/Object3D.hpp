@@ -7,13 +7,13 @@ struct Object3D {
     mat4 GetMatrix();
     mat4 GetTransforms();
     mat4 GetLocalMatrix();
-    vec3 GetContactPoint(Object3D& inObject3D);
-    vec3 GetContactNormal(Object3D& inObject3D);
+    vec3 GetContactPoint(Object3D &inObject3D);
+    vec3 GetContactNormal(Object3D &inObject3D);
     void ApplyTransforms();
-    void SetParent(Object3D* inParent);
-    bool IsCollidingWith(Object3D& inObject);
-    float GetCollisionThreashold(Object3D& inObject);
-    vec3 GetOverlap(Object3D& inObject);
+    void SetParent(Object3D *inParent);
+    bool IsCollidingWith(Object3D &inObject);
+    float GetCollisionThreashold(Object3D &inObject);
+    vec3 GetOverlap(Object3D &inObject);
 
     int mId                 = -1;
     int mAssociatedModel    = -1;
@@ -21,6 +21,13 @@ struct Object3D {
     int mAssociatedSimple3D = -1;
     int mIndexCount         = -1;
     int mFirstIndex         = 0;
+
+    ///@note The following are for other usage,
+    /// I am using it to store glTF's node and mesh
+    /// indices
+    int mP1 = -1;
+    int mP2 = -1;
+    int mP3 = -1;
 
     vec3 mTranslation{};
     vec3 mScale{1.0f};
@@ -41,6 +48,6 @@ struct Object3D {
     mat4 mMatrix2 = glm::identity<mat4>();
 
     private:
-    Object3D* mParent;
+    Object3D *mParent;
 };
 } // namespace Jkr::Renderer::_3D

@@ -67,6 +67,8 @@ void CreateRendererBindings(sol::state &inState) {
                         Jkr::Shapes::RectangleFill,
                         "Bezier2_8Wire",
                         Jkr::Shapes::Bezier2_8Wire,
+                        "Zeros3D",
+                        Jkr::Shapes::Zeros3D,
                         "Triangles3D",
                         Jkr::Shapes::Triangles3D,
                         "Cube3D",

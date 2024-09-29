@@ -204,6 +204,9 @@ void CreateRenderer3DBindings(sol::state &s) {
          sol::call_constructor,
          sol::factories([](string_view inFileName) { return mu<glTF_Model>(inFileName); }),
 
+         "IsNodeParentOfByIndex",
+         &Jkr::Renderer::_3D::glTF_Model::IsNodeParentOfByIndex,
+
          "GetMeshesSize",
          &Jkr::Renderer::_3D::glTF_Model::GetMeshesSize,
          "GetVerticesSize",

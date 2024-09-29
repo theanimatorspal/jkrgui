@@ -4,34 +4,38 @@
 namespace Jkr::Network {
 
 class UDP {
-    using Func = std::function<void(Message)>;
+    ///@todo Inspect for performance, ensure there is no latency anywhere except the network side
+    using Func = std::function<void(std::vector<char>)>;
     using s    = std::string;
     using sv   = std::string_view;
 
     public:
     UDP(int inPort) : mUDPSocket(mContext, asio::ip::udp::endpoint(asio::ip::udp::v4(), inPort)) {
-        mThreadContext = std::thread([this] {
+        mThreadContext = std::thread([this]() {
             try {
                 mContext.run();
-            } catch (const std::exception &e) {
-                ksai_print(e.what());
+            } catch (std::exception &e) {
                 std::cout << e.what() << std::endl;
             }
         });
     }
     ~UDP() {
-        mThreadContext.join();
         mContext.stop();
+        if (mThreadContext.joinable()) {
+            mThreadContext.join();
+        }
     }
-    /// @todo Improve std::string is copied and else.
     void Recieve(Func inMessageRecFunc);
-    void Send(const Message &inMessage, std::string inDestination, int inPort);
+    void Send(v<char> inData, std::string inDestination, int inPort);
+    void SetBufferSize(uint32_t inSize);
 
     private:
     asio::io_context mContext;
     asio::ip::udp::socket mUDPSocket;
-    Message mTemporaryMessageBuffer;
     std::thread mThreadContext;
+
+    ui mBufferSize = 0;
+    v<char> mBuffer;
 };
 
 } // namespace Jkr::Network

@@ -8,7 +8,6 @@ using namespace ksai;
 constexpr float ErrorFactor = 0.05;
 
 glm::mat4 glTF_Model::Node::GetLocalMatrix() {
-    {};
     return glm::translate(glm::mat4(1.0f), mTranslation) * glm::mat4(mRotation) *
            glm::scale(glm::mat4(1.0f), mScale) * mMatrix;
 }
@@ -739,8 +738,8 @@ void glTF_Model::LoadNode(const tinygltf::Node &inputNode,
             primitive.mBB.max        = PosMax;
             primitive.mBB.valid      = true;
             Node->mMesh.mPrimitives.push_back(primitive);
-            Node->mMesh.mNodeIndex.push_back(Node->mIndex); // TODO Might need a cleanup
         }
+        Node->mMesh.mNodeIndex = Node->mIndex;
         for (auto &p : Node->mMesh.mPrimitives) {
             if (p.mBB.valid and not Node->mMesh.mBB.valid) {
                 Node->mMesh.mBB       = p.mBB;
@@ -772,6 +771,18 @@ glm::mat4 glTF_Model::GetNodeMatrix(glTF_Model::Node *inNode) {
         CurrentParent = CurrentParent->mParent;
     }
     return NodeMatrix;
+}
+
+bool glTF_Model::IsNodeParentOf(Node *inNode, Node *inCheckIfParentNode) {
+    if (inNode->mParent == inCheckIfParentNode) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool glTF_Model::IsNodeParentOfByIndex(int inNode, int inCheckIfParentNode) {
+    return IsNodeParentOf(NodeFromIndex(inNode), NodeFromIndex(inCheckIfParentNode));
 }
 
 // POI: Update the joint matrices from the current animation frame and pass them to the GPU

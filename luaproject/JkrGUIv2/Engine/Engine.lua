@@ -142,6 +142,24 @@ Engine.Load = function(self, inEnableValidation)
                     end
                 end
             end,
+
+            --@warning you have to use TCP connection as above to set the UDP's Buffer,
+            --using Jkr.SetBufferSizeUDP() call before receiving or sending anything
+            UDP = function()
+                self.net.StartUDP = function(inPort)
+                    Jkr.StartUDP(inPort)
+                end
+                self.net.SendUDP = function(inMessage, inDestination, inPort)
+                    local msg = Jkr.ConvertToVChar(inMessage)
+                    Jkr.SendUDP(msg, inDestination, inPort)
+                end
+                self.net.listenOnce = function()
+                    if not Jkr.IsMessagesBufferEmptyUDP() then
+                        local msg = Jkr.PopFrontMessagesBufferUDP()
+                        return Jkr.ConvertFromVChar(msg)
+                    end
+                end
+            end
         }
     end
 
@@ -504,10 +522,22 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
             object.mAssociatedSimple3D = shaderindex;
             object.mFirstIndex = inprimitive.mFirstIndex
             object.mIndexCount = inprimitive.mIndexCount
-            local NodeIndices = gltfmodel:GetNodeIndexByMeshIndex(meshindex - 1) --@lua indexes from one
-            object.mMatrix = gltfmodel:GetNodeMatrixByIndex(NodeIndices[1])
+            local nodeIndex = Meshes[meshindex].mNodeIndex
+            object.mMatrix = gltfmodel:GetNodeMatrixByIndex(nodeIndex)
+            object.mP1 = nodeIndex
 
             Objects[#Objects + 1] = object
+        end
+    end
+    -- @warning You've to store this Objects {} table somewhere
+
+    for i = 1, #Objects, 1 do
+        for j = 1, #Objects, 1 do
+            if i ~= j then
+                if gltfmodel:IsNodeParentOfByIndex(Objects[i].mP1, Objects[j].mP1) then
+                    Objects[i]:SetParent(Objects[j])
+                end
+            end
         end
     end
     return Objects
