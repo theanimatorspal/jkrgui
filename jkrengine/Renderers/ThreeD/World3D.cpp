@@ -85,22 +85,24 @@ void World3D::DrawObjectsExplicit(Window_base &inWindow,
                                     ? mShape.GetIndexCount(ExplicitObject.mId)
                                     : ExplicitObject.mIndexCount;
 
-            if (not(simpleIndex == PreviousSimpleIndex)) {
-                mSimple3Ds[simpleIndex]->Bind(inWindow, inParam);
-                PreviousSimpleIndex = simpleIndex;
-            }
-            if (uniformIndex != -1) {
-                mUniforms[uniformIndex]->Bind(
-                     inWindow, *mSimple3Ds[PreviousSimpleIndex], 1, inParam);
-            }
-            PushConstantDefault Push;
-            Push.m1 = ExplicitObject.GetLocalMatrix();
-            Push.m2 = ExplicitObject.mMatrix2;
+            if (ExplicitObject.mDrawable) {
+                if (not(simpleIndex == PreviousSimpleIndex)) {
+                    mSimple3Ds[simpleIndex]->Bind(inWindow, inParam);
+                    PreviousSimpleIndex = simpleIndex;
+                }
+                if (uniformIndex != -1) {
+                    mUniforms[uniformIndex]->Bind(
+                         inWindow, *mSimple3Ds[PreviousSimpleIndex], 1, inParam);
+                }
+                PushConstantDefault Push;
+                Push.m1 = ExplicitObject.GetLocalMatrix();
+                Push.m2 = ExplicitObject.mMatrix2;
 
-            int Offset =
-                 mShape.GetIndexOffsetAbsolute(ExplicitObject.mId) + ExplicitObject.mFirstIndex;
-            mSimple3Ds[simpleIndex]->Draw<PushConstantDefault>(
-                 inWindow, mShape, Push, Offset, indicesCount, 1, inParam);
+                int Offset =
+                     mShape.GetIndexOffsetAbsolute(ExplicitObject.mId) + ExplicitObject.mFirstIndex;
+                mSimple3Ds[simpleIndex]->Draw<PushConstantDefault>(
+                     inWindow, mShape, Push, Offset, indicesCount, 1, inParam);
+            }
         }
     }
 }

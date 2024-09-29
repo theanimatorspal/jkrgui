@@ -478,14 +478,14 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
     local gltfmodelindex = inworld3d:AddGLTFModel(ingltfmodelname)
     local gltfmodel = inworld3d:GetGLTFModel(gltfmodelindex)
     local shapeindex = inshape3d:Add(gltfmodel) -- this ACUTALLY loads the GLTF Model
+    local Nodes = gltfmodel:GetNodesRef()
     local Meshes = gltfmodel:GetMeshesRef()
     Engine.GetGLTFInfo(gltfmodel)
     local Objects = {}
 
-    for MeshIndex = 1, #Meshes, 1 do
-        local meshindex = MeshIndex
+    for NodeIndex = 1, #Nodes, 1 do
         local shouldload = false
-        local primitives = Meshes[MeshIndex].mPrimitives
+        local primitives = Nodes[NodeIndex].mMesh.mPrimitives
 
         for PrimitiveIndex = 1, #primitives, 1 do
             local inprimitive = primitives[PrimitiveIndex]
@@ -522,19 +522,32 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
             object.mAssociatedSimple3D = shaderindex;
             object.mFirstIndex = inprimitive.mFirstIndex
             object.mIndexCount = inprimitive.mIndexCount
-            local nodeIndex = Meshes[meshindex].mNodeIndex
-            object.mMatrix = gltfmodel:GetNodeMatrixByIndex(nodeIndex)
-            object.mP1 = nodeIndex
+            object.mMatrix = Nodes[NodeIndex]:GetLocalMatrix()
+            object.mP1 = NodeIndex
 
             Objects[#Objects + 1] = object
         end
-    end
-    -- @warning You've to store this Objects {} table somewhere
 
+        if #primitives == 0 and #Nodes[NodeIndex].mChildren ~= 0 then
+            local object = Jkr.Object3D()
+            object.mId = shapeindex;
+            object.mAssociatedModel = gltfmodelindex;
+            object.mAssociatedUniform = -1;
+            object.mAssociatedSimple3D = -1;
+            object.mFirstIndex = -1
+            object.mIndexCount = -1
+            object.mDrawable = 0
+            object.mMatrix = Nodes[NodeIndex]:GetLocalMatrix()
+            object.mP1 = NodeIndex
+        end
+    end
+
+    -- @warning You've to store this Objects {} table somewhere
     for i = 1, #Objects, 1 do
         for j = 1, #Objects, 1 do
             if i ~= j then
                 if gltfmodel:IsNodeParentOfByIndex(Objects[i].mP1, Objects[j].mP1) then
+                    print("PARENT")
                     Objects[i]:SetParent(Objects[j])
                 end
             end

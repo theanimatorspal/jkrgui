@@ -327,7 +327,7 @@ glTF_Model::Node *glTF_Model::FindNode(Node *inParent, ui inIndex) {
         return inParent;
     }
     for (auto &child : inParent->mChildren) {
-        NodeFound = FindNode(child.get(), inIndex);
+        NodeFound = FindNode(child, inIndex);
         if (NodeFound) {
             break;
         }
@@ -752,7 +752,8 @@ void glTF_Model::LoadNode(const tinygltf::Node &inputNode,
     }
 
     if (inParent) {
-        inParent->mChildren.push_back(std::move(Node));
+        mNodes.push_back(std::move(Node));
+        inParent->mChildren.push_back(mNodes.back().get());
     } else {
         mNodes.push_back(std::move(Node));
     }
@@ -801,7 +802,7 @@ void glTF_Model::UpdateJoints(glTF_Model::Node *inNode, UpdateJointsCallBack inC
     }
 
     for (auto &child : inNode->mChildren) {
-        UpdateJoints(child.get(), inCallBack);
+        UpdateJoints(child, inCallBack);
     }
 }
 void glTF_Model::UpdateAnimationNormalizedTime(ui inActiveAnimation,

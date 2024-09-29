@@ -99,7 +99,7 @@ class glTF_Model {
 
         Node *mParent;
         uint32_t mIndex;
-        v<Up<Node>> mChildren;
+        v<Node *> mChildren;
 
         Mesh mMesh;
         glm::vec3 mTranslation{};

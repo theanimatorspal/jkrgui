@@ -120,6 +120,29 @@ void CreateRenderer3DBindings(sol::state &s) {
          "mCurrentTime",
          &Jkr::Renderer::_3D::glTF_Model::Animation::mCurrentTime);
 
+    Jkr.new_usertype<Jkr::Renderer::_3D::glTF_Model::Node>(
+         "GLTFNode",
+         sol::call_constructor,
+         sol::default_constructor,
+         "GetLocalMatrix",
+         &Jkr::Renderer::_3D::glTF_Model::Node::GetLocalMatrix,
+         "mIndex",
+         &Jkr::Renderer::_3D::glTF_Model::Node::mIndex,
+         "mMesh",
+         &Jkr::Renderer::_3D::glTF_Model::Node::mMesh,
+         "mTranslation",
+         &Jkr::Renderer::_3D::glTF_Model::Node::mTranslation,
+         "mScale",
+         &Jkr::Renderer::_3D::glTF_Model::Node::mScale,
+         "mRotation",
+         &Jkr::Renderer::_3D::glTF_Model::Node::mRotation,
+         "mSkin",
+         &Jkr::Renderer::_3D::glTF_Model::Node::mSkin,
+         "mMatrix",
+         &Jkr::Renderer::_3D::glTF_Model::Node::mMatrix,
+         "mChildren",
+         &Jkr::Renderer::_3D::glTF_Model::Node::mChildren);
+
     Jkr.new_enum<glTF_Model::Material::AlphaMode>(
          "AlphaMode",
          {{"Opaque", glTF_Model::Material::AlphaMode::Opaque},
@@ -241,6 +264,8 @@ void CreateRenderer3DBindings(sol::state &s) {
          &Jkr::Renderer::_3D::glTF_Model::GetNodeIndexByMeshIndex,
          "GetMeshesRef",
          &Jkr::Renderer::_3D::glTF_Model::GetMeshesRef,
+         "GetNodesRef",
+         &Jkr::Renderer::_3D::glTF_Model::GetNodesRef,
          "GetMaterialsRef",
          &Jkr::Renderer::_3D::glTF_Model::GetMaterialsRef);
     Jkr.new_usertype<Jkr::Renderer::_3D::Shape>(

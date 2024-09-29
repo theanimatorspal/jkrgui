@@ -21,6 +21,7 @@ struct Object3D {
     int mAssociatedSimple3D = -1;
     int mIndexCount         = -1;
     int mFirstIndex         = 0;
+    int mDrawable           = true;
 
     ///@note The following are for other usage,
     /// I am using it to store glTF's node and mesh
