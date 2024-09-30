@@ -804,35 +804,35 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
     o.gltfMaterialTextures     = {}
     o.gltfPutMaterialTextures  = function(inGLTF, inMaterialIndex)
         if inGLTF then
-            local Material = inGLTF:GetMaterialsRef()[inMaterialIndex]
-            if not Material then
-                Material = {}
-            end
-            local binding = 3
-            if (Material.mBaseColorTextureIndex ~= -1) then
-                o.uSampler2D(binding, "uBaseColorTexture").NewLine()
-                o.gltfMaterialTextures.mBaseColorTexture = true
-                binding = binding + 1
-            end
-            if (Material.mMetallicRoughnessTextureIndex ~= -1) then
-                o.uSampler2D(binding, "uMetallicRoughnessTexture").NewLine()
-                o.gltfMaterialTextures.mMetallicRoughnessTexture = true
-                binding = binding + 1
-            end
-            if (Material.mNormalTextureIndex ~= -1) then
-                o.uSampler2D(binding, "uNormalTexture").NewLine()
-                o.gltfMaterialTextures.mNormalTexture = true
-                binding = binding + 1
-            end
-            if (Material.mOcclusionTextureIndex ~= -1) then
-                o.uSampler2D(binding, "uOcclusionTexture").NewLine()
-                o.gltfMaterialTextures.mOcclusionTexture = true
-                binding = binding + 1
-            end
-            if (Material.mEmissiveTextureIndex ~= -1) then
-                o.uSampler2D(binding, "uEmissiveTexture").NewLine()
-                o.gltfMaterialTextures.mEmissiveTextureIndex = true
-                binding = binding + 1
+            local Materials = inGLTF:GetMaterials()
+            local Material = Materials[inMaterialIndex + 1]
+            if Material then
+                local binding = 3
+                if (Material.mBaseColorTextureIndex ~= -1) then
+                    o.uSampler2D(binding, "uBaseColorTexture").NewLine()
+                    o.gltfMaterialTextures.mBaseColorTexture = true
+                    binding = binding + 1
+                end
+                if (Material.mMetallicRoughnessTextureIndex ~= -1) then
+                    o.uSampler2D(binding, "uMetallicRoughnessTexture").NewLine()
+                    o.gltfMaterialTextures.mMetallicRoughnessTexture = true
+                    binding = binding + 1
+                end
+                if (Material.mNormalTextureIndex ~= -1) then
+                    o.uSampler2D(binding, "uNormalTexture").NewLine()
+                    o.gltfMaterialTextures.mNormalTexture = true
+                    binding = binding + 1
+                end
+                if (Material.mOcclusionTextureIndex ~= -1) then
+                    o.uSampler2D(binding, "uOcclusionTexture").NewLine()
+                    o.gltfMaterialTextures.mOcclusionTexture = true
+                    binding = binding + 1
+                end
+                if (Material.mEmissiveTextureIndex ~= -1) then
+                    o.uSampler2D(binding, "uEmissiveTexture").NewLine()
+                    o.gltfMaterialTextures.mEmissiveTextureIndex = true
+                    binding = binding + 1
+                end
             end
         end
         return o
@@ -1244,6 +1244,30 @@ PBR.EquirectangularMapToMultiVShader = Engine.Shader()
     ]]
     .GlslMainEnd()
 
+PBR.EquirectangularMapToMultiFShader = Engine.Shader()
+    .Header(450)
+    .outFragColor()
+    .In(0, "vec3", "localPos")
+    .uSampler2D(0, "equirectangularMap", 0)
+    .Append [[
+    const vec2 invATan = vec2(0.1591, 0.3183);
+    vec2 SampleSphericalMap(vec3 v)
+    {
+        vec2 uv = vec2(atan(v.z, v.x), asin(v.y));
+        uv *= invATan;
+        uv += 0.5;
+        return uv;
+    }
+    ]]
+    .GlslMainBegin()
+    .Append [[
+    vec2 uv = SampleSphericalMap(normalize(localPos));
+    vec3 color = texture(equirectangularMap, uv).rgb;
+    outFragColor = vec4(color, 1.0);
+    ]]
+    .GlslMainEnd()
+
+
 
 Deferred = {}
 
@@ -1377,6 +1401,7 @@ Deferred.GetBasicVertex = function()
         vUV = inUV;
         vColor = inColor;
     ]]
+        .InvertY()
         .GlslMainEnd()
 end
 
@@ -1504,6 +1529,7 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
             ]]
         end
 
+        vshader.InvertY()
         vshader.GlslMainEnd()
 
         local fshader = Basics.GetConstantFragmentHeader()

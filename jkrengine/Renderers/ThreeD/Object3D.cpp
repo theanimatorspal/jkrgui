@@ -2,7 +2,7 @@
 
 using namespace Jkr::Renderer::_3D;
 
-bool Object3D::IsCollidingWith(Object3D& inObject) {
+bool Object3D::IsCollidingWith(Object3D &inObject) {
     const auto AABB1 = inObject.mBoundingBox.GetAABB(inObject.GetLocalMatrix());
     const auto AABB2 = this->mBoundingBox.GetAABB(this->GetLocalMatrix()); // TODO Looks Fishy
     return (AABB1.min.x <= AABB2.max.x and AABB1.max.x >= AABB2.min.x and
@@ -10,7 +10,7 @@ bool Object3D::IsCollidingWith(Object3D& inObject) {
             AABB1.min.z <= AABB2.max.z and AABB1.max.z >= AABB2.min.z);
 }
 
-float Object3D::GetCollisionThreashold(Object3D& inObject) {
+float Object3D::GetCollisionThreashold(Object3D &inObject) {
     const auto AABB1    = inObject.mBoundingBox.GetAABB(inObject.GetLocalMatrix());
     const auto AABB2    = this->mBoundingBox.GetAABB(this->GetLocalMatrix());
 
@@ -32,15 +32,15 @@ float Object3D::GetCollisionThreashold(Object3D& inObject) {
     }
 }
 
-vec3 Object3D::GetContactPoint(Object3D& inObject) {
+vec3 Object3D::GetContactPoint(Object3D &inObject) {
     return (inObject.mTranslation + this->mTranslation) / 2.0f;
 }
 
-vec3 Object3D::GetContactNormal(Object3D& inObject) {
+vec3 Object3D::GetContactNormal(Object3D &inObject) {
     return normalize(this->mTranslation - inObject.mTranslation);
 }
 
-vec3 Object3D::GetOverlap(Object3D& inObject) {
+vec3 Object3D::GetOverlap(Object3D &inObject) {
 
     const auto AABB1 = inObject.mBoundingBox.GetAABB(inObject.GetLocalMatrix());
     const auto AABB2 = this->mBoundingBox.GetAABB(this->GetLocalMatrix());
@@ -52,7 +52,7 @@ vec3 Object3D::GetOverlap(Object3D& inObject) {
     return vec3(overlapX, overlapY, overlapZ);
 }
 
-void Object3D::SetParent(Object3D* inParent) { mParent = inParent; }
+void Object3D::SetParent(Object3D *inParent) { mParent = inParent; }
 
 glm::mat4 Object3D::GetMatrix() { return glm::mat4(mMatrix); }
 
@@ -63,12 +63,9 @@ glm::mat4 Object3D::GetTransforms() {
 
 glm::mat4 Object3D::GetLocalMatrix() {
     if (not mParent) {
-        return glm::translate(glm::mat4(1.0f), mTranslation) * glm::mat4(mRotation) *
-               glm::scale(glm::mat4(1.0f), mScale) * mMatrix;
+        return GetTransforms() * mMatrix;
     } else {
-        return mParent->GetTransforms() *
-               (glm::translate(glm::mat4(1.0f), mTranslation) * glm::mat4(mRotation) *
-                glm::scale(glm::mat4(1.0f), mScale) * mMatrix);
+        return mParent->GetTransforms() * (GetTransforms()) * mMatrix;
     }
 }
 

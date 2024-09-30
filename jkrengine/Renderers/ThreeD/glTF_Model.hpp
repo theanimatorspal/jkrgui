@@ -58,18 +58,18 @@ class glTF_Model {
 
     struct Material {
         enum class AlphaMode { Opaque, Mask, Blend };
-        AlphaMode mAlphaMode                   = AlphaMode::Opaque;
-        float mAlphaCutOff                     = -1.0f;
-        float mMetallicFactor                  = 1.0f;
-        float mRoughnessFactor                 = 1.0f;
-        glm::vec4 mBaseColorFactor             = glm::vec4(1.0f);
-        glm::vec4 mEmissiveFactor              = glm::vec4(1.0f);
-        int32_t mBaseColorTextureIndex         = -1;
-        int32_t mMetallicRoughnessTextureIndex = -1;
-        int32_t mNormalTextureIndex            = -1;
-        int32_t mOcclusionTextureIndex         = -1;
-        int32_t mEmissiveTextureIndex          = -1;
-        bool mDoubleSided                      = false;
+        AlphaMode mAlphaMode               = AlphaMode::Opaque;
+        float mAlphaCutOff                 = -1.0f;
+        float mMetallicFactor              = 1.0f;
+        float mRoughnessFactor             = 1.0f;
+        glm::vec4 mBaseColorFactor         = glm::vec4(1.0f);
+        glm::vec4 mEmissiveFactor          = glm::vec4(1.0f);
+        int mBaseColorTextureIndex         = -1;
+        int mMetallicRoughnessTextureIndex = -1;
+        int mNormalTextureIndex            = -1;
+        int mOcclusionTextureIndex         = -1;
+        int mEmissiveTextureIndex          = -1;
+        bool mDoubleSided                  = false;
         TextureCoordinateSets mTextureCoordinateSets;
         Extension mExtension;
         PbrWorkflows mPbrWorkflows;
@@ -165,6 +165,7 @@ class glTF_Model {
     GETTER &GetImagesRef() { return mImages; }
     GETTER &GetTexturesRef() { return mTextures; }
     GETTER &GetMaterialsRef() { return mMaterials; }
+    GETTER GetMaterials() const { return mMaterials; }
     GETTER &GetNodesRef() { return mNodes; }
     GETTER &GetSkinsRef() { return mSkins; }
     GETTER &GetAnimationsRef() { return mAnimations; }

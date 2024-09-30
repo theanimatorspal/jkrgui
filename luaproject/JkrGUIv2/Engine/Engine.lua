@@ -253,10 +253,10 @@ Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
         .In(2, "vec3", "vWorldPos")
         .In(3, "vec4", "vTangent")
         .In(4, "flat int", "vVertexIndex")
-        .uSamplerCubeMap(21, "samplerIrradiance", 0)
-        .uSamplerCubeMap(22, "prefilteredMap", 0)
+        .uSampler2D(23, "samplerBRDFLUT", 0)
+        .uSamplerCubeMap(24, "samplerIrradiance", 0)
+        .uSamplerCubeMap(25, "prefilteredMap", 0)
         .Ubo()
-        .uSampler2D(10, "samplerBRDFLUT", 1)
         .outFragColor()
         .Push()
         .Append [[
@@ -451,7 +451,7 @@ Engine.CreateObjectByGLTFPrimitiveAndUniform = function(inWorld3d,
     Object3D.mIndexCount = inPrimitive.mIndexCount
     Object3D.mFirstIndex = inPrimitive.mFirstIndex
     local NodeIndices = gltf:GetNodeIndexByMeshIndex(inMeshIndex - 1)
-    Object3D.mMatrix = gltf:GetNodeMatrixByIndex(NodeIndices[1])
+    Object3D.mMatrix = gltf:GetNodeMatrixByIndex(NodeIndices)
 
     return Object3D
 end
@@ -466,7 +466,7 @@ Engine.AddObject = function(modObjectsVector, inId, inAssociatedModel, inUniform
     if inSimple3dIndex then Object.mAssociatedSimple3D = math.floor(inSimple3dIndex) end
     if (inGLTFHandle) then
         local NodeIndices = inGLTFHandle:GetNodeIndexByMeshIndex(inMeshIndex)
-        Object.mMatrix = inGLTFHandle:GetNodeMatrixByIndex(NodeIndices[1])
+        Object.mMatrix = inGLTFHandle:GetNodeMatrixByIndex(NodeIndices)
     end
     modObjectsVector:add(Object)
     return #modObjectsVector
@@ -491,6 +491,7 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
             local inprimitive = primitives[PrimitiveIndex]
             local materialindex = inprimitive.mMaterialIndex
 
+            --@warning THIS IS BEING DUPLICATED, FIX THIS
             -- [[[[[[[[[[[[[[[[[[[[[[[[[[THIS IS NOT OPTIMAL]]]]]]]]]]]]]]]]]]]]]]]]]]
             local uniform3dindex = inworld3d:AddUniform3D(Engine.i)
             local uniform = inworld3d:GetUniform3D(uniform3dindex)
@@ -536,9 +537,11 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
             object.mAssociatedSimple3D = -1;
             object.mFirstIndex = -1
             object.mIndexCount = -1
-            object.mDrawable = 0
+            object.mDrawable = false
             object.mMatrix = Nodes[NodeIndex]:GetLocalMatrix()
             object.mP1 = NodeIndex
+            object.mP2 = 1
+            Objects[#Objects + 1] = object
         end
     end
 
@@ -546,7 +549,7 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
     for i = 1, #Objects, 1 do
         for j = 1, #Objects, 1 do
             if i ~= j then
-                if gltfmodel:IsNodeParentOfByIndex(Objects[i].mP1, Objects[j].mP1) then
+                if gltfmodel:IsNodeParentOf(Nodes[Objects[i].mP1], Nodes[Objects[j].mP1]) then
                     print("PARENT")
                     Objects[i]:SetParent(Objects[j])
                 end

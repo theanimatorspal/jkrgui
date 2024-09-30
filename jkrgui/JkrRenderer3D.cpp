@@ -185,6 +185,8 @@ void CreateRenderer3DBindings(sol::state &s) {
 
     // Bind Material struct
     Jkr.new_usertype<glTF_Model::Material>("Material",
+                                           sol::call_constructor,
+                                           sol::default_constructor,
                                            "mAlphaMode",
                                            &glTF_Model::Material::mAlphaMode,
                                            "mAlphaCutOff",
@@ -229,6 +231,8 @@ void CreateRenderer3DBindings(sol::state &s) {
 
          "IsNodeParentOfByIndex",
          &Jkr::Renderer::_3D::glTF_Model::IsNodeParentOfByIndex,
+         "IsNodeParentOf",
+         &Jkr::Renderer::_3D::glTF_Model::IsNodeParentOf,
 
          "GetMeshesSize",
          &Jkr::Renderer::_3D::glTF_Model::GetMeshesSize,
@@ -267,7 +271,9 @@ void CreateRenderer3DBindings(sol::state &s) {
          "GetNodesRef",
          &Jkr::Renderer::_3D::glTF_Model::GetNodesRef,
          "GetMaterialsRef",
-         &Jkr::Renderer::_3D::glTF_Model::GetMaterialsRef);
+         &Jkr::Renderer::_3D::glTF_Model::GetMaterialsRef,
+         "GetMaterials",
+         &Jkr::Renderer::_3D::glTF_Model::GetMaterials);
     Jkr.new_usertype<Jkr::Renderer::_3D::Shape>(
          "Shape3D",
          sol::call_constructor,

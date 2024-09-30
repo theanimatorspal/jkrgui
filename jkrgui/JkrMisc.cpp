@@ -295,6 +295,8 @@ void CreateMiscBindings(sol::state &inState) {
                      &Jkr::RegisterCustomPainterImageToCustomPainterImage);
     Jkr.set_function("RegisterShapeRenderer3DToCustomPainterImage",
                      &Jkr::RegisterShapeRenderer3DToCustomPainterImage);
+
+    Jkr.set_function("SetupPBR", &Jkr::SetupPBR);
 }
 
 } // namespace JkrEXE

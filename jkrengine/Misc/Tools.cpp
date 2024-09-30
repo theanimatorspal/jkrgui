@@ -131,9 +131,15 @@ static auto EquirectangularToMultiConversion(Jkr::Instance &inInstance,
                                              uint32_t Dim) {
     /// Equirectangular to Multi conversion
     int width, height, nrComponents;
-    float *data = stbi_loadf(inEquirectangularCubeMapHDR.data(), &width, &height, &nrComponents, 0);
+    ///@warning R16G16B16 layout is not supported (in my device), so default RGBA8Unorm is used
+    /// here,
+    /// may have to do some adjustment, lesse. @todo Query the Default supported image formats
+    /// beforehand
+    auto *data = stbi_loadf(inEquirectangularCubeMapHDR.data(), &width, &height, &nrComponents, 4);
     VulkanImageVMA EquirectangularCubeMapHDR;
     EquirectangularCubeMapHDR.Init({
+         .inVMA                 = &inInstance.GetVMA(),
+         .inDevice              = &inInstance.GetDevice(),
          .inWidth               = static_cast<ui>(width),
          .inHeight              = static_cast<ui>(height),
          .inImageContext        = ImageContext::Default,
@@ -159,13 +165,19 @@ static auto EquirectangularToMultiConversion(Jkr::Instance &inInstance,
 
     VulkanSampler EnvMapSampler;
     EnvMapSampler.Init(
-         {.mCreateInfo = vk::SamplerCreateInfo()
+         {.mDevice       = &inInstance.GetDevice(),
+          .mImageContext = ImageContext::Default,
+          .mMinLod       = 0.0f,
+          .mMaxLod       = 1.0f,
+          .mCreateInfo   = vk::SamplerCreateInfo()
                               .setAddressModeU(vk::SamplerAddressMode::eClampToEdge)
                               .setAddressModeV(vk::SamplerAddressMode::eClampToEdge)
                               .setAddressModeW(vk::SamplerAddressMode::eClampToEdge)});
 
     VulkanImageVMA CubeMultiMap;
     CubeMultiMap.Init({
+         .inVMA                 = &inInstance.GetVMA(),
+         .inDevice              = &inInstance.GetDevice(),
          .inWidth               = static_cast<ui>(Dim),
          .inHeight              = static_cast<ui>(Dim),
          .inImageContext        = ImageContext::Default,
@@ -183,6 +195,8 @@ static auto EquirectangularToMultiConversion(Jkr::Instance &inInstance,
 
     VulkanImageVMA OffscreenFBufferImage;
     OffscreenFBufferImage.Init({
+         .inVMA                 = &inInstance.GetVMA(),
+         .inDevice              = &inInstance.GetDevice(),
          .inWidth               = static_cast<ui>(Dim),
          .inHeight              = static_cast<ui>(Dim),
          .inImageContext        = ImageContext::Default,
@@ -246,9 +260,10 @@ static auto EquirectangularToMultiConversion(Jkr::Instance &inInstance,
 
     auto &Cmd            = inInstance.GetUtilCommandBuffer();
     auto &Cmdh           = Cmd.GetCommandBufferHandle();
-    vk::Viewport Viewport((float)Dim, (float)Dim, 0.0f, 1.0f);
+    vk::Viewport Viewport(0, 0, (float)Dim, (float)Dim);
     vk::Rect2D Scissor(vk::Offset2D{0}, vk::Extent2D{Dim, Dim});
-
+    inInstance.GetUtilCommandBufferFence().Wait();
+    inInstance.GetUtilCommandBufferFence().Reset();
     Cmd.Begin();
     for (int i = 0; i < 6; ++i) {
         Cmdh.setViewport(0, Viewport);
@@ -263,7 +278,9 @@ static auto EquirectangularToMultiConversion(Jkr::Instance &inInstance,
              vk::PipelineBindPoint::eGraphics,
              Cmd,
              Shader.GetPainterCache().GetVertexFragmentPipelineLayout(),
-             1);
+             0);
+
+        Shader.BindByCommandBuffer(Cmd);
 
         Shader.DrawByCommandBuffer(
              Cmd, inShape3D, PushBlock, 0, inShape3D.GetIndexCount(inSkyboxModelIndex), 1);
@@ -311,12 +328,10 @@ void SetupPBR(Jkr::Instance &inInstance,
     using namespace std;
     namespace fs           = filesystem;
     fs::path PBRFolderPath = inPBRCacheName;
-    if (fs::exists(inPBRCacheName)) {
+    if ( // fs::exists(inPBRCacheName)
+         false) {
         /// Load the PBR to Uniform Image
     } else {
-        fs::create_directory(inPBRCacheName);
-        auto CurrentPath = fs::current_path();
-        fs::current_path(inPBRCacheName);
         auto CubeMultiMap = EquirectangularToMultiConversion(inInstance,
                                                              inShape3D,
                                                              inSkyboxModelIndex,
@@ -355,7 +370,8 @@ void SetupPBR(Jkr::Instance &inInstance,
                                                inPrefilteredCube_fs,
                                                "",
                                                false);
-        fs::current_path(CurrentPath);
+        fs::current_path(inPBRCacheName);
+        // Save to Disk
     }
 }
 

@@ -188,7 +188,7 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance &inInstance,
 
     Cmd.Begin();
 
-    vk::Viewport Viewport((float)Dim, (float)Dim, 0.0f, 1.0f);
+    vk::Viewport Viewport(0.0f, 1.0f, (float)Dim, (float)Dim);
     vk::Rect2D Scissor(vk::Offset2D{0}, vk::Extent2D{Dim, Dim});
 
     auto Cmdh = Cmd.GetCommandBufferHandle();
@@ -198,6 +198,7 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance &inInstance,
             Viewport.height = static_cast<float>(Dim * std::pow(0.5f, m));
             Cmdh.setViewport(0, Viewport);
             Cmdh.setScissor(0, Scissor);
+
             Cmd.BeginRenderPass(RenderPass,
                                 vk::Extent2D(Dim, Dim),
                                 FrameBuffer,
@@ -250,11 +251,11 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance &inInstance,
                                                 IrradianceCubeMap->GetCurrentImageLayout(),
                                                 vk::ImageLayout::eShaderReadOnlyOptimal,
                                                 vk::PipelineStageFlagBits::eAllCommands,
-                                                vk::PipelineStageFlagBits::eBottomOfPipe,
+                                                vk::PipelineStageFlagBits::eAllCommands,
                                                 vk::AccessFlagBits::eNone,
                                                 vk::AccessFlagBits::eNone);
 
-    //     IrradianceCubeMap->GetImagePropertyRef().mInitialImageLayout =
+    // IrradianceCubeMap->GetImagePropertyRef().mInitialImageLayout =
     //          vk::ImageLayout::eShaderReadOnlyOptimal;
 
     Cmd.End();
@@ -379,8 +380,15 @@ Up<VulkanImageVMA> PBR::GeneratePrefilteredCube(Instance &inInstance,
     inWorld3D.UpdateWorldInfoToUniform3D(Uniform);
 
     Cmd.Begin();
+    inEnvironmentCubeMap.CmdTransitionImageLayout(Cmd,
+                                                  inEnvironmentCubeMap.GetCurrentImageLayout(),
+                                                  inEnvironmentCubeMap.GetCurrentImageLayout(),
+                                                  vk::PipelineStageFlagBits::eAllCommands,
+                                                  vk::PipelineStageFlagBits::eAllCommands,
+                                                  vk::AccessFlagBits::eNone,
+                                                  vk::AccessFlagBits::eNone);
 
-    vk::Viewport Viewport((float)Dim, (float)Dim, 0.0f, 1.0f);
+    vk::Viewport Viewport(0.0f, 1.0f, (float)Dim, (float)Dim);
     vk::Rect2D Scissor(vk::Offset2D{0}, vk::Extent2D{Dim, Dim});
 
     auto Cmdh = Cmd.GetCommandBufferHandle();

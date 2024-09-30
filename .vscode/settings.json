@@ -24,6 +24,7 @@
         "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\Present",
         "visualizerFile": "${workspaceFolder}/Visualizers/glm.natvis",
         "args": [
+            "--gr",
             "--run",
             "asst"
             // "jkrguipr"

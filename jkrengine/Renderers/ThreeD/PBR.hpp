@@ -22,6 +22,8 @@ Up<VulkanImageVMA> GenerateBRDFLookupTable(Instance &inInstance,
                                            std::string_view inFragmentShader,
                                            std::string_view inComputeShader,
                                            bool inShouldLoad);
+///@warning I dont fucking know why this call if called before GeneratePrefilteredCube gives a
+/// HAZARD READ_AFTER_WRITE for inEnvironmentCube, @todo Fix this
 Up<VulkanImageVMA> GenerateIrradianceCube(Instance &inInstance,
                                           Window &inWindow,
                                           _3D::Shape &inShape,

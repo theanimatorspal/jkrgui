@@ -67,8 +67,9 @@ class Uniform3D {
                                     std::string_view inFragmentShader,
                                     std::string_view inComputeShader,
                                     bool inShouldLoad,
-                                    int inDstBinding = kstd::BindingIndex::Uniform::Images,
-                                    int inDstSet     = 1);
+                                    int inDstBinding = 3 +
+                                                       kstd::BindingIndex::Uniform::CubeMapImage,
+                                    int inDstSet = 0);
 
     void AddGenerateIrradianceCube(Instance &inInstance,
                                    Window &inWindow,
@@ -81,8 +82,8 @@ class Uniform3D {
                                    std::string_view inFragmentShader,
                                    std::string_view inComputeShader,
                                    bool inShouldLoad,
-                                   int inDstBinding = kstd::BindingIndex::Uniform::CubeMapImage,
-                                   int inDstSet     = 1);
+                                   int inDstBinding = 4 + kstd::BindingIndex::Uniform::CubeMapImage,
+                                   int inDstSet     = 0);
 
     void AddGeneratePrefilteredCube(Instance &inInstance,
                                     Window &inWindow,
@@ -95,8 +96,9 @@ class Uniform3D {
                                     std::string_view inFragmentShader,
                                     std::string_view inComputeShader,
                                     bool inShouldLoad,
-                                    int inDstBinding = kstd::BindingIndex::Uniform::CubeMapImage,
-                                    int inDstSet     = 1);
+                                    int inDstBinding = 5 +
+                                                       kstd::BindingIndex::Uniform::CubeMapImage,
+                                    int inDstSet = 0);
 
     template <typename T> void UpdateStorageBuffer(int inDstBinding, T inData);
     template <typename T> void UpdateUniformBuffer(int inDstBinding, T inData);
