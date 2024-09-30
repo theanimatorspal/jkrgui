@@ -32,22 +32,57 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 
+import android.hardware.SensorManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.content.Context;
+
 import org.libsdl.app.SDLActivity;
 
-public class JkrGUIActivity extends SDLActivity {
+public class JkrGUIActivity extends SDLActivity implements SensorEventListener{
           static {
                     System.loadLibrary("jkrgui");
           }
+
+
+          // Sensors
+          //
+          //
+          //
+          //
           private SensorManager mSensorManager;
           private Sensor mAccelerometer;
+          private int mAccuracy;
+          private float[] mAccelerometerData;
           public void InitiateSensors() {
                    mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE); 
                    mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+                   mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
           }
+
+          @Override
+	public void onSensorChanged(SensorEvent event) {
+                    if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                              mAccelerometerData = event.values.clone(); // Store accelerometer data
+                    }
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+                    if (sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                              mAccuracy = accuracy; // Store accelerometer data
+                    }
+	}
+
+
           // Call InitiateSensors before this
-          public void GetAccelerometerData() {
-                    // @todo Yet to do
+          public float[] GetAccelerometerData() {
+                    return mAccelerometerData;
           }
+
+
+
           public void ShowToast(String inString) {
                     runOnUiThread(
                                         () -> {

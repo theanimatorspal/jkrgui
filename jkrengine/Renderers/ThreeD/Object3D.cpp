@@ -65,7 +65,7 @@ glm::mat4 Object3D::GetLocalMatrix() {
     if (not mParent) {
         return GetTransforms() * mMatrix;
     } else {
-        return mParent->GetTransforms() * (GetTransforms()) * mMatrix;
+        return mParent->GetLocalMatrix() * (GetTransforms()) * mMatrix;
     }
 }
 

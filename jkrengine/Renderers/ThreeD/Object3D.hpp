@@ -46,7 +46,14 @@ struct Object3D {
     vec3 mForce{0.0f};
     vec3 mTorque{0.0f};
 
+    ///@note this one is used as an extra matrix in the push constant for some extra stuff like
+    /// other information in the shader
     mat4 mMatrix2 = glm::identity<mat4>();
+    ///@note The following are extra matrices, that can be used for
+    /// other purposes.
+    mat4 mMatrix3 = glm::identity<mat4>();
+    mat4 mMatrix4 = glm::identity<mat4>();
+    mat4 mMatrix5 = glm::identity<mat4>();
 
     private:
     Object3D *mParent;

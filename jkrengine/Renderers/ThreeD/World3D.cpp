@@ -67,7 +67,7 @@ struct PushConstantDefault {
 };
 
 void World3D::DrawObjectsExplicit(Window_base &inWindow,
-                                  v<Object3D> &inExplicitObjects,
+                                  v<Object3D *> &inExplicitObjects,
                                   Renderer::CmdParam inParam) {
     if (not inExplicitObjects.empty()) {
         mShape.Bind(inWindow, inParam);
@@ -76,8 +76,8 @@ void World3D::DrawObjectsExplicit(Window_base &inWindow,
 
         int PreviousSimpleIndex = -1;
         for (int i = 0; i < inExplicitObjects.size(); ++i) {
-            auto &ExplicitObject = inExplicitObjects[i];
-            int simpleIndex      = ExplicitObject.mAssociatedSimple3D;
+            auto ExplicitObject = *inExplicitObjects[i];
+            int simpleIndex     = ExplicitObject.mAssociatedSimple3D;
             if (simpleIndex == -1) continue;
             if (ExplicitObject.mId == -1) continue;
             int uniformIndex = ExplicitObject.mAssociatedUniform;

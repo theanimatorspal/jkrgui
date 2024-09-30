@@ -13,6 +13,16 @@ extern "C" JNIEXPORT void JNICALL Java_org_JkrGUI_JkrGUIActivity_InitJNI(JNIEnv 
     g_context = env->NewGlobalRef(thiz);
 }
 
+extern "C" JNIEXPORT void JNICALL Java_org_JkrGUI_JkrGUIActivity_ChangeDirectory(
+     JNIEnv *inenv, jobject thiz, jstring inDirectoryName) {
+
+    jboolean isCopy;
+    auto charrs = inenv->GetStringUTFChars(inDirectoryName, &isCopy);
+    std::string directory(charrs);
+    inenv->ReleaseStringUTFChars(inDirectoryName, charrs);
+    std::filesystem::current_path(directory);
+}
+
 void AndroidShowToast(const char *inMessage) {
     std::string Message = inMessage;
     JNIEnv *env;
@@ -30,15 +40,35 @@ void AndroidShowToast(const char *inMessage) {
     env->CallVoidMethod(g_context, methodId, jMessage);
 }
 
-extern "C" JNIEXPORT void JNICALL Java_org_JkrGUI_JkrGUIActivity_ChangeDirectory(
-     JNIEnv *inenv, jobject thiz, jstring inDirectoryName) {
+glm::vec3 AndroidGetAccelerometerData() {
+    glm::vec3 outValue{};
+    JNIEnv *env;
+    JavaVMAttachArgs args;
+    args.version = JNI_VERSION_1_6;
+    args.name    = NULL;
+    args.group   = NULL;
+    if (g_vm->AttachCurrentThread(&env, &args) != JNI_OK) {
+        ksai_print("Failed to attach current thread");
+        return outValue;
+    }
+    jclass JkrGUIClass = env->FindClass("org/JkrGUI/JkrGUIActivity");
+    jmethodID methodId = env->GetMethodID(JkrGUIClass, "GetAccelerometerData", "()[F");
+    jfloatArray accelerometerDataArray = (jfloatArray)env->CallObjectMethod(g_context, methodId);
+    jfloat *data                       = env->GetFloatArrayElements(accelerometerDataArray, NULL);
+    jsize length                       = env->GetArrayLength(accelerometerDataArray);
 
-    jboolean isCopy;
-    auto charrs = inenv->GetStringUTFChars(inDirectoryName, &isCopy);
-    std::string directory(charrs);
-    inenv->ReleaseStringUTFChars(inDirectoryName, charrs);
-    std::filesystem::current_path(directory);
+    if (length >= 3) {
+        outValue.x = data[0];
+        outValue.y = data[1];
+        outValue.z = data[2];
+    } else {
+        ksai_print("ERROR: Length of Accelerometer Data is <= 3");
+    }
+
+    env->ReleaseFloatArrayElements(accelerometerDataArray, data, 0);
+    return outValue;
 }
+
 #endif
 
 void LuaShowToastNotification(const std::string inMessage) {
@@ -53,6 +83,9 @@ namespace JkrEXE {
 void CreatePlatformBindings(sol::state &inS) {
     auto Jkr = inS["Jkr"].get_or_create<sol::table>();
     Jkr.set_function("ShowToastNotification", LuaShowToastNotification);
+#ifdef ANDROID
+    Jkr.set_function("GetAccelerometerData", AndroidGetAccelerometerData);
+#endif
 }
 
 }; // namespace JkrEXE

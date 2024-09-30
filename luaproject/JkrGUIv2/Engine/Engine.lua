@@ -539,6 +539,8 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
             object.mIndexCount = -1
             object.mDrawable = false
             object.mMatrix = Nodes[NodeIndex]:GetLocalMatrix()
+            ---@note This is supposed to be used for storage of the abovematrix
+            object.mMatrix3 = Nodes[NodeIndex]:GetLocalMatrix()
             object.mP1 = NodeIndex
             object.mP2 = 1
             Objects[#Objects + 1] = object

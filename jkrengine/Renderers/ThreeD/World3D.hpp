@@ -29,7 +29,7 @@ struct World3D {
         GETTERs
 
     ============================================================== */
-    GETTER MakeExplicitObjectsVector() -> v<Object3D> { return {}; }
+    GETTER MakeExplicitObjectsVector() -> v<Object3D *> { return {}; }
     GETTER GetCamera3D(int inId) { return &mCameras[inId]; }
     GETTER GetCurrentCamera() { return &mCameras[mCurrentCamera]; }
     GETTER GetGLTFModel(int inId) { return mGLTFModels[inId].get(); }
@@ -62,7 +62,7 @@ struct World3D {
     int AddUniform3D(Jkr::Instance &inInstance);
     int AddLight3D(glm::vec4 inPosition, glm::vec4 inDirection);
     void DrawObjectsExplicit(Window_base &inWindow,
-                             v<Object3D> &inExplicitObjectIds,
+                             v<Object3D *> &inExplicitObjectIds,
                              Renderer::CmdParam inParam);
     void Event(Jkr::EventManager &inEvent);
     void Update(Jkr::EventManager &inEvent);

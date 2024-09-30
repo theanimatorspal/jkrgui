@@ -199,6 +199,12 @@ void CreateMiscBindings(sol::state &inState) {
 
          "mMatrix2",
          &World3D::Object3D::mMatrix2,
+         "mMatrix3",
+         &World3D::Object3D::mMatrix3,
+         "mMatrix4",
+         &World3D::Object3D::mMatrix4,
+         "mMatrix5",
+         &World3D::Object3D::mMatrix5,
 
          "AppyTransforms",
          &World3D::Object3D::ApplyTransforms,
