@@ -103,7 +103,11 @@ void StartUDP(int inPort) { UDPHandle = mu<UDP>(inPort); }
 void SendUDP(std::vector<char> inMessage, std::string inDestination, int inPort) {
     UDPHandle->Send(inMessage, inDestination, inPort);
 }
+void SendUDPBlocking(std::vector<char> inMessage, std::string inDestination, int inPort) {
+    UDPHandle->SendBlocking(inMessage, inDestination, inPort);
+}
 void ReceiveUDP() { UDPHandle->Recieve(OnReceive); }
+void ReceiveUDPBlocking() { UDPHandle->RecieveBlocking(OnReceive); }
 
 template <typename T> std::vector<char> ConvertToVChar(T inT) {
     std::vector<char> charVec;
@@ -114,7 +118,10 @@ template <typename T> std::vector<char> ConvertToVChar(T inT) {
     return charVec;
 }
 
-template <typename T> T ConvertFromVChar(std::vector<char> inCharVector) {
+///@warning
+///@param t This parameter is just to inform sol2 to get the type of datatype NOT TO MODIFY IT,
+/// just pass a vec2() vec3() or any type from the lua side to get this right
+template <typename T> T ConvertFromVChar(T t, std::vector<char> inCharVector) {
     T out;
     if constexpr (std::is_standard_layout_v<T>) {
         std::memcpy(&out, inCharVector.data(), inCharVector.size());
@@ -205,21 +212,22 @@ void CreateNetworkBindings(sol::state &s) {
 
     Jkr.set_function("StartUDP", &StartUDP);
     Jkr.set_function("SendUDP", &SendUDP);
+    Jkr.set_function("SendUDPBlocking", &SendUDPBlocking);
     Jkr.set_function("ReceiveUDP", &ReceiveUDP);
     Jkr.set_function("IsMessagesBufferEmptyUDP", [&]() {
-        ReceiveUDP();
+        ReceiveUDPBlocking();
         return MessageBufferUDP.empty();
     });
     Jkr.set_function("PopFrontMessagesBufferUDP", [&]() { return MessageBufferUDP.pop_front(); });
     Jkr.set_function("SetBufferSizeUDP", [&](int inSize) { UDPHandle->SetBufferSize(inSize); });
-    Jkr.set("ConvertFromVChar",
-            sol::overload(&ConvertFromVChar<glm::vec2>,
-                          &ConvertFromVChar<glm::vec3>,
-                          &ConvertFromVChar<glm::vec4>));
-    Jkr.set("ConvertToVChar",
-            &ConvertToVChar<glm::vec2>,
-            &ConvertToVChar<glm::vec3>,
-            &ConvertToVChar<glm::vec4>);
+    Jkr.set_function("ConvertFromVChar",
+                     sol::overload(&ConvertFromVChar<glm::vec2>,
+                                   &ConvertFromVChar<glm::vec3>,
+                                   &ConvertFromVChar<glm::vec4>));
+    Jkr.set_function("ConvertToVChar",
+                     sol::overload(&ConvertToVChar<glm::vec2>,
+                                   &ConvertToVChar<glm::vec3>,
+                                   &ConvertToVChar<glm::vec4>));
 }
 
 } // namespace JkrEXE

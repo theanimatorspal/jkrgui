@@ -25,8 +25,15 @@ class UDP {
             mThreadContext.join();
         }
     }
+
+    ///@warning While using Recieve and Send (i.e Asynchronous) don't use any sleep functions,
+    /// as in asynchronous programming everything is done in main thread, YOU SHOULD NOT SLEEP IN
+    /// MAIN THREAD
     void Recieve(Func inMessageRecFunc);
     void Send(v<char> inData, std::string inDestination, int inPort);
+
+    void RecieveBlocking(Func inMessageRecFunc);
+    void SendBlocking(v<char> inData, std::string inDestination, int inPort);
     void SetBufferSize(uint32_t inSize);
 
     private:
