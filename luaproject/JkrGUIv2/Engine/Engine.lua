@@ -253,6 +253,7 @@ Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
         .In(2, "vec3", "vWorldPos")
         .In(3, "vec4", "vTangent")
         .In(4, "flat int", "vVertexIndex")
+        .uSamplerCubeMap(20, "samplerCubeMap", 0)
         .uSampler2D(23, "samplerBRDFLUT", 0)
         .uSamplerCubeMap(24, "samplerIrradiance", 0)
         .uSamplerCubeMap(25, "prefilteredMap", 0)
@@ -375,7 +376,7 @@ vec3 calculateNormal()
 
 
 	vec3 F0 = vec3(0.04);
-	F0 = mix(F0, SRGBtoLINEAR(vec4(ALBEDO, 1.0)).xyz, metallic);
+	F0 = mix(F0, vec4(ALBEDO, 1.0).xyz, metallic);
 	vec3 Lo = vec3(0.0);
 	for(int i = 0; i < Ubo.lights[i].length(); i++) {
 		vec3 L = normalize(Ubo.lights[i].xyz - vWorldPos) * Ubo.lights[i].w;
@@ -383,8 +384,8 @@ vec3 calculateNormal()
 	}
 	
 	vec2 brdf = texture(samplerBRDFLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
-	vec3 reflection = SRGBtoLINEAR(PrefilteredReflection(R, roughness)).rgb;	
-	vec3 irradiance = SRGBtoLINEAR(texture(samplerIrradiance, N)).rgb;
+	vec3 reflection = PrefilteredReflection(R, roughness).rgb;	
+	vec3 irradiance = texture(samplerIrradiance, N).rgb;
 
 	// Diffuse based on irradiance
 	vec3 diffuse = irradiance * ALBEDO;	
@@ -417,7 +418,7 @@ vec3 calculateNormal()
     vec3 color = ambient + Lo;
 
     // Tone mapping exposure = 1.5
-	color = Uncharted2Tonemap(color * 10);
+	color = Uncharted2Tonemap(color * 2.5);
 	color = color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
 	// Gamma correction gamma = 0.3
 	color = pow(color, vec3(1.0f / 2.2));
@@ -457,7 +458,8 @@ Engine.CreateObjectByGLTFPrimitiveAndUniform = function(inWorld3d,
 end
 
 
-Engine.AddObject = function(modObjectsVector, inId, inAssociatedModel, inUniformIndex, inSimple3dIndex, inGLTFHandle,
+Engine.AddObject = function(modObjects, modObjectsVector, inId, inAssociatedModel, inUniformIndex, inSimple3dIndex,
+                            inGLTFHandle,
                             inMeshIndex)
     local Object = Jkr.Object3D()
     if inId then Object.mId = inId end
@@ -468,6 +470,7 @@ Engine.AddObject = function(modObjectsVector, inId, inAssociatedModel, inUniform
         local NodeIndices = inGLTFHandle:GetNodeIndexByMeshIndex(inMeshIndex)
         Object.mMatrix = inGLTFHandle:GetNodeMatrixByIndex(NodeIndices)
     end
+    modObjects[#modObjects + 1] = Object
     modObjectsVector:add(Object)
     return #modObjectsVector
 end

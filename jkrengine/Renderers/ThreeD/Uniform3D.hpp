@@ -15,6 +15,7 @@ class Uniform3D {
     using StorageBufferType = Jkr::PainterParameter<Jkr::PainterParameterContext::StorageBuffer>;
 
     GETTER &GetImagesRef() { return mImages; }
+    GETTER &GetSkyboxImagesRef() { return mSkyboxImages; }
     GETTER &GetUniformBuffersRef() { return mUniformBuffers; }
     GETTER &GetStorageBuffersRef() { return mStorageBuffers; }
     GETTER &GetVulkanDescriptorSet() { return *mVulkanDescriptorSet; }
@@ -118,6 +119,7 @@ class Uniform3D {
 
     private:
     Instance &mInstance;
+    umap<int, Up<SkyboxImageType>> mSkyboxImages;
     umap<int, Up<ImageType>> mImages;
     umap<int, Up<UniformBufferType>> mUniformBuffers;
     umap<int, Up<StorageBufferType>> mStorageBuffers;

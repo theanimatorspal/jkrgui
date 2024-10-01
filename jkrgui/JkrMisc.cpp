@@ -37,7 +37,11 @@ void CreateMiscBindings(sol::state &inState) {
          "GetImageToVector",
          &Jkr::Renderer::CustomPainterImage::GetImageToVector,
          "Register",
-         &Jkr::Renderer::CustomPainterImage::Register);
+         &Jkr::Renderer::CustomPainterImage::Register,
+         "SyncBefore",
+         &Jkr::Renderer::CustomPainterImage::SyncBefore,
+         "SyncAfter",
+         &Jkr::Renderer::CustomPainterImage::SyncAfter);
 
     Jkr.new_usertype<DefaultCustomImagePainterPushConstant>(
          "DefaultCustomImagePainterPushConstant",
@@ -293,16 +297,16 @@ void CreateMiscBindings(sol::state &inState) {
                               &World3D::AddSkyboxToUniform3D);
 
     Jkr.set_function("CopyWindowDeferredImageToShapeImage",
-                     &Jkr::CopyWindowDeferredImageToShapeImage);
+                     &Jkr::Misc::CopyWindowDeferredImageToShapeImage);
     Jkr.set_function("SleepForMiliSeconds", [](int inMiliSeconds) {
         std::this_thread::sleep_for(chrono::nanoseconds(inMiliSeconds * 1000000));
     });
     Jkr.set_function("RegisterCustomPainterImageToCustomPainterImage",
-                     &Jkr::RegisterCustomPainterImageToCustomPainterImage);
+                     &Jkr::Misc::RegisterCustomPainterImageToCustomPainterImage);
     Jkr.set_function("RegisterShapeRenderer3DToCustomPainterImage",
-                     &Jkr::RegisterShapeRenderer3DToCustomPainterImage);
+                     &Jkr::Misc::RegisterShapeRenderer3DToCustomPainterImage);
 
-    Jkr.set_function("SetupPBR", &Jkr::SetupPBR);
+    Jkr.set_function("SetupPBR", &Jkr::Misc::SetupPBR);
 }
 
 } // namespace JkrEXE

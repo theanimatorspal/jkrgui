@@ -1,5 +1,4 @@
 #include "PainterCache.hpp"
-#include <ksai_filestream.hpp>
 
 using namespace Jkr;
 
@@ -152,7 +151,7 @@ static void CreateIfDoesntExist(const std::string_view inFileName) {
 
 void Jkr::PainterCache::StoreSPIRVsToFile(const std::string_view inFileName) {
     CreateIfDoesntExist(inFileName);
-    ksai::fileoutputstream Fstream(std::string(inFileName), std::ios_base::binary);
+    std::ofstream Fstream(std::string(inFileName), std::ios_base::binary);
     uint32_t size_V = mVertexFragmentShaderSPIRV[0].size() * sizeof(uint32_t);
     uint32_t size_F = mVertexFragmentShaderSPIRV[1].size() * sizeof(uint32_t);
     uint32_t size_C = mComputeShaderSPIRV[0].size() * sizeof(uint32_t);
@@ -169,7 +168,7 @@ void Jkr::PainterCache::StoreSPIRVsToFile(const std::string_view inFileName) {
 
 void Jkr::PainterCache::LoadSPIRVsFromFile(const std::string_view inFileName) {
     if (std::filesystem::exists(inFileName)) {
-        ksai::fileinputstream Fstream(std::string(inFileName), std::ios_base::binary);
+        std::ifstream Fstream(std::string(inFileName), std::ios_base::binary);
         uint32_t size_V = 0;
         uint32_t size_F = 0;
         uint32_t size_C = 0;

@@ -1,5 +1,8 @@
 require "JkrGUIv2.Widgets.Basic"
 require "JkrGUIv2.Engine.Shader"
+
+local CompileShaders
+
 Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
     local o = {}
     if not inWidgetRenderer then
@@ -7,33 +10,14 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
     end
 
     o.shaders = {}
-    o.shaders.roundedRectangle = Engine.Shader()
-        .Header(450)
-        .CInvocationLayout(1, 1, 1)
-        .uImage2D()
-        .ImagePainterPushMatrix2()
-        .GlslMainBegin()
-        .ImagePainterAssistMatrix2()
-        .Append [[
-        vec2 center = vec2(p1.x, p1.y);
-        vec2 hw = vec2(p1.z, p1.w);
-        float radius = p3.x;
-        vec2 Q = abs(xy - center) - hw;
-
-        float color = distance(max(Q, vec2(0.0)), vec2(0.0)) + min(max(Q.x, Q.y), 0.0) - radius;
-        color = smoothstep(-0.05, 0.05, -color);
-
-        vec4 old_color = imageLoad(storageImage, to_draw_at);
-        vec4 final_color = vec4(p2.x * color, p2.y * color, p2.z * color, p2.w * color);
-        final_color = mix(final_color, old_color, p3.w);
-
-        imageStore(storageImage, to_draw_at, final_color);
-          ]]
-        .GlslMainEnd().str
+    CompileShaders(o.shaders)
 
     o.prebuilts = {}
-    o.prebuilts.roundedRectanglePainter = Jkr.CreateCustomImagePainter("cache/o.prebuilts.roundedRectangle.glsl",
-        o.shaders.roundedRectangle)
+    o.prebuilts.roundedRectanglePainter =
+        Jkr.CreateCustomImagePainter(
+            "cache/o.prebuilts.roundedRectangle.glsl",
+            o.shaders.roundedRectangle
+        )
     o.prebuilts.roundedRectanglePainter:Store(i, w)
 
     local op = o.prebuilts;
@@ -146,4 +130,30 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         return button
     end
     return o
+end
+
+CompileShaders                   = function(shaders)
+    shaders.roundedRectangle = Engine.Shader()
+        .Header(450)
+        .CInvocationLayout(16, 16, 1)
+        .uImage2D()
+        .ImagePainterPushMatrix2()
+        .GlslMainBegin()
+        .ImagePainterAssistMatrix2()
+        .Append [[
+        vec2 center = vec2(p1.x, p1.y);
+        vec2 hw = vec2(p1.z, p1.w);
+        float radius = p3.x;
+        vec2 Q = abs(xy - center) - hw;
+
+        float color = distance(max(Q, vec2(0.0)), vec2(0.0)) + min(max(Q.x, Q.y), 0.0) - radius;
+        color = smoothstep(-0.05, 0.05, -color);
+
+        vec4 old_color = imageLoad(storageImage, to_draw_at);
+        vec4 final_color = vec4(p2.x * color, p2.y * color, p2.z * color, p2.w * color);
+        final_color = mix(final_color, old_color, p3.w);
+
+        imageStore(storageImage, to_draw_at, final_color);
+          ]]
+        .GlslMainEnd().str
 end

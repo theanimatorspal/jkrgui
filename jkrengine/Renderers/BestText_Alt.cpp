@@ -40,7 +40,26 @@ void Jkr::Renderer::BestText_Alt::UpdatePosOnlyEXT(ImageId inId,
 }
 
 void Jkr::Renderer::BestText_Alt::DrawEXT(
-     ImageId inId, Window_base& inWindow, glm::vec4 inColor, glm::mat4 inMatrix, CmdParam inParam) {
+     ImageId inId, Window_base &inWindow, glm::vec4 inColor, glm::mat4 inMatrix, CmdParam inParam) {
     sh.BindImage(inWindow, inId.mImgId, inParam);
     sh.DrawEXT(inWindow, inColor, inId.mRectId, inId.mRectId, inMatrix, inParam);
+}
+
+v<s> Jkr::Renderer::BestText_Alt::WrapToTextVector(const sv inText,
+                                                   ui inFontId,
+                                                   glm::vec2 inDimensionToBeWrappedTo) {
+    s RemainingText = s(inText);
+    v<s> Texts;
+    glm::vec2 Dimen = bt.GetTextDimensionsEXT(inText, inFontId);
+
+    while (!RemainingText.empty()) {
+        while (Dimen.x >= inDimensionToBeWrappedTo.x) {
+            RemainingText = s(RemainingText.begin(), RemainingText.end() - 1);
+            Dimen         = bt.GetTextDimensionsEXT(RemainingText, inFontId);
+        }
+        Texts.push_back(RemainingText);
+        RemainingText = s(inText.begin() + RemainingText.size(), inText.end());
+    }
+
+    return Texts;
 }

@@ -1,7 +1,123 @@
 ﻿#include "BestText_base.hpp"
 #include <Vendor/Tracy/tracy/Tracy.hpp>
 #include <Vendor/stbi/stb_image_write.h>
-#include <ksai_image.hpp>
+#include <concepts>
+#include <functional>
+#include <type_traits>
+#include "ksai_thread.hpp"
+#include <Vendor/Tracy/tracy/Tracy.hpp>
+#include <cassert>
+#include <climits>
+#include <iostream>
+#include <memory>
+#include <optional>
+#include <string>
+#include <variant>
+#include <vector>
+
+namespace ksai::image {
+
+template <typename... T> using var        = std::variant<T...>;
+using s                                   = std::string;
+using sv                                  = std::string_view;
+
+template <typename T> using v             = std::vector<T>;
+template <typename T> using up            = std::unique_ptr<T>;
+template <typename T> using sp            = std::shared_ptr<T>;
+template <typename T> using opt           = std::optional<T>;
+template <typename T> using optref        = std::optional<std::reference_wrapper<T>>;
+template <typename T, typename U> using p = std::pair<T, U>;
+using Number                              = double;
+using Integer                             = int;
+using std::make_unique;
+using std::move;
+using ui = uint32_t;
+using uc = unsigned char;
+
+template <typename T>
+concept ImageConcept = requires(T &t) {
+    typename T::value_type;
+    typename T::size_type;
+    typename T::iterator;
+    typename T::const_iterator;
+    { std::declval<T>().size() } -> std::same_as<typename T::size_type>;
+    { std::declval<T>().begin() } -> std::same_as<typename T::iterator>;
+    { std::declval<T>().end() } -> std::same_as<typename T::iterator>;
+    { std::declval<T>().cbegin() } -> std::same_as<typename T::const_iterator>;
+    { std::declval<T>().cend() } -> std::same_as<typename T::const_iterator>;
+};
+
+template <typename T, typename U>
+concept ManipulatorConcept = requires(T &t, U &u, int x, int y, int w, int h, int c) {
+    { t(u, u, x, y, w, h, c) } -> std::same_as<void>;
+    { std::is_invocable_v<void, T, U &, U &, int, int, int, int, int> };
+};
+
+inline const auto flipvertically =
+     []<typename T>(const T &from, T &to, int x, int y, int w, int h, int c) {
+         ui fid  = x + y * w * c;
+         ui oid  = x + (h - y - 1) * w * c;
+         to[fid] = from[oid];
+     };
+
+inline const auto fliphorizontally =
+     []<typename T>(const T &from, T &to, int x, int y, int w, int h, int c) {
+         ui fid  = x + y * w * c;
+         ui oid  = (w * c - x - 1) + y * w * c;
+         to[fid] = from[oid];
+     };
+
+template <ImageConcept T, ManipulatorConcept<T> F>
+inline void process(ui inw,
+                    ui inh,
+                    ui inComp,
+                    T &inoutImage,
+                    F &inOp,
+                    optref<ksai::ThreadPool> inThreadPool = std::nullopt) {
+    auto Pro = [=, &inoutImage]() {
+        ZoneScoped;
+        T flippedimage;
+        flippedimage.resize(inoutImage.size());
+
+        for (int y = 0; y < inh; ++y) {
+            for (int x = 0; x < inw * inComp; ++x) {
+                inOp(inoutImage, flippedimage, x, y, inw, inh, inComp);
+            }
+        }
+        inoutImage = flippedimage;
+    };
+
+    if (inThreadPool.has_value()) {
+        inThreadPool.value().get().Add_Job(Pro);
+    } else {
+        Pro();
+    }
+}
+
+template <ImageConcept T, ManipulatorConcept<T> F>
+inline void process(ui inw,
+                    ui inh,
+                    ui inComp,
+                    const T &fromImage,
+                    T &toImage,
+                    F &inOp,
+                    optref<ksai::ThreadPool> inThreadPool = std::nullopt) {
+    ZoneScoped;
+    auto Pro = [=, &fromImage, &toImage]() {
+        for (int y = 0; y < inh; ++y) {
+            for (int x = 0; x < inw * inComp; ++x) {
+                inOp(fromImage, toImage, x, y, inw, inh, inComp);
+            }
+        }
+    };
+    if (inThreadPool.has_value()) {
+        inThreadPool.value().get().Add_Job(Pro);
+    } else {
+        Pro();
+    }
+}
+
+} // namespace ksai::image
 
 using namespace Jkr::Renderer;
 using bb = BestText_base;
@@ -21,7 +137,7 @@ bb::~BestText_base() {
     FT_Done_FreeType(mFtLibrary);
 }
 
-void bb::AddFontFace(const sv inFontFilePathName, size_t inFontSize, ui& outFontId) {
+void bb::AddFontFace(const sv inFontFilePathName, size_t inFontSize, ui &outFontId) {
     ui FaceIndex = mFontFaceCount++;
     mFaces.resize(mFontFaceCount);
     mHbFonts.resize(mFontFaceCount);
@@ -42,15 +158,15 @@ bb::TextDimensions bb::AddText(ui inX,
                                const sv inString,
                                ui inFontShapeId,
                                ui inDepthValue,
-                               v<ui>& outCodePoints,
-                               ui& outId) {
-    hb_buffer_t* hbBuffer = hb_buffer_create();
-    hb_buffer_add_utf8(hbBuffer, reinterpret_cast<const char*>(inString.data()), -1, 0, -1);
+                               v<ui> &outCodePoints,
+                               ui &outId) {
+    hb_buffer_t *hbBuffer = hb_buffer_create();
+    hb_buffer_add_utf8(hbBuffer, reinterpret_cast<const char *>(inString.data()), -1, 0, -1);
     hb_buffer_guess_segment_properties(hbBuffer);
     hb_shape(mHbFonts[inFontShapeId], hbBuffer, 0, 0);
     unsigned int len         = hb_buffer_get_length(hbBuffer);
-    hb_glyph_info_t* info    = hb_buffer_get_glyph_infos(hbBuffer, 0);
-    hb_glyph_position_t* pos = hb_buffer_get_glyph_positions(hbBuffer, 0);
+    hb_glyph_info_t *info    = hb_buffer_get_glyph_infos(hbBuffer, 0);
+    hb_glyph_position_t *pos = hb_buffer_get_glyph_positions(hbBuffer, 0);
 
     LoadTextToKeyMap(len, inFontShapeId, info, pos);
     auto TextDims = GetTextDimensions(inString, inFontShapeId, info, pos, len);
@@ -96,16 +212,16 @@ bb::TextDimensions bb::AddText(ui inX,
 
 bb::TextDimensions bb::RenderTextToImage(sv inString,
                                          ui inFontShapeId,
-                                         v<uc>& outImage,
-                                         ThreadPool& inThreadPool,
+                                         v<uc> &outImage,
+                                         ThreadPool &inThreadPool,
                                          optref<int> outYoff) {
-    hb_buffer_t* hbBuffer = hb_buffer_create();
-    hb_buffer_add_utf8(hbBuffer, reinterpret_cast<const char*>(inString.data()), -1, 0, -1);
+    hb_buffer_t *hbBuffer = hb_buffer_create();
+    hb_buffer_add_utf8(hbBuffer, reinterpret_cast<const char *>(inString.data()), -1, 0, -1);
     hb_buffer_guess_segment_properties(hbBuffer);
     hb_shape(mHbFonts[inFontShapeId], hbBuffer, 0, 0);
     unsigned int len         = hb_buffer_get_length(hbBuffer);
-    hb_glyph_info_t* info    = hb_buffer_get_glyph_infos(hbBuffer, 0);
-    hb_glyph_position_t* pos = hb_buffer_get_glyph_positions(hbBuffer, 0);
+    hb_glyph_info_t *info    = hb_buffer_get_glyph_infos(hbBuffer, 0);
+    hb_glyph_position_t *pos = hb_buffer_get_glyph_positions(hbBuffer, 0);
 
     LoadTextToKeyMap(len, inFontShapeId, info, pos);
 
@@ -121,11 +237,11 @@ bb::TextDimensions bb::RenderTextToImage(sv inString,
     for (int img_index = 0; img_index < len; img_index++) {
         CharacterKey key           = {.mFontShapeId    = inFontShapeId,
                                       .mGlyphCodePoint = info[img_index].codepoint};
-        const auto& CharacterInMap = mCharacterBitmapSet[key];
-        const auto& bmp            = CharacterInMap.second;
-        const auto& info           = CharacterInMap.first.mGlyphInfo;
-        const auto& metrics        = CharacterInMap.first.mGlyphMetrics;
-        const auto& pos            = CharacterInMap.first.mGlyphPos;
+        const auto &CharacterInMap = mCharacterBitmapSet[key];
+        const auto &bmp            = CharacterInMap.second;
+        const auto &info           = CharacterInMap.first.mGlyphInfo;
+        const auto &metrics        = CharacterInMap.first.mGlyphMetrics;
+        const auto &pos            = CharacterInMap.first.mGlyphPos;
         const auto bitmap_width    = CharacterInMap.first.mBitmapWidth;
         const auto bitmap_rows     = CharacterInMap.first.mBitmapRows;
         int advance                = ToPixels(pos.x_advance);
@@ -154,11 +270,11 @@ bb::TextDimensions bb::RenderTextToImage(sv inString,
     for (int img_index = 0; img_index < len; img_index++) {
         CharacterKey key           = {.mFontShapeId    = inFontShapeId,
                                       .mGlyphCodePoint = info[img_index].codepoint};
-        const auto& CharacterInMap = mCharacterBitmapSet[key];
-        const auto& bmp            = CharacterInMap.second;
-        const auto& info           = CharacterInMap.first.mGlyphInfo;
-        const auto& metrics        = CharacterInMap.first.mGlyphMetrics;
-        const auto& pos            = CharacterInMap.first.mGlyphPos;
+        const auto &CharacterInMap = mCharacterBitmapSet[key];
+        const auto &bmp            = CharacterInMap.second;
+        const auto &info           = CharacterInMap.first.mGlyphInfo;
+        const auto &metrics        = CharacterInMap.first.mGlyphMetrics;
+        const auto &pos            = CharacterInMap.first.mGlyphPos;
         const auto bitmap_width    = CharacterInMap.first.mBitmapWidth;
         const auto bitmap_rows     = CharacterInMap.first.mBitmapRows;
         int advance                = CharacterInMap.first.mGlyphPos.x_advance;
@@ -169,7 +285,7 @@ bb::TextDimensions bb::RenderTextToImage(sv inString,
         }
 
         const auto join_img =
-             [=]<typename T>(const T& from, T& to, int x, int y, int w, int h, int c) {
+             [=]<typename T>(const T &from, T &to, int x, int y, int w, int h, int c) {
                  ui maini = drawX * c + x + (outbmp_h - (drawY - y - 1) - 1) * outbmp_w * c;
                  ui biti  = x + y * w * c;
                  to[maini] += from[biti];
@@ -190,6 +306,7 @@ bb::TextDimensions bb::RenderTextToImage(sv inString,
     if (outYoff.has_value()) {
         outYoff.value().get() = (maxY - minY) - maxYBearing;
     }
+    hb_buffer_destroy(hbBuffer);
     return TextDimensions{.mWidth = outbmp_w, .mHeight = outbmp_h};
 }
 
@@ -199,15 +316,15 @@ bb::TextDimensions bb::UpdateText(ui inX,
                                   const sv inString,
                                   ui inFontShapeId,
                                   ui inDepthValue,
-                                  v<ui>& outCodePoints) {
+                                  v<ui> &outCodePoints) {
 
-    hb_buffer_t* hbBuffer = hb_buffer_create();
+    hb_buffer_t *hbBuffer = hb_buffer_create();
     hb_buffer_add_utf8(hbBuffer, inString.data(), -1, 0, -1);
     hb_buffer_guess_segment_properties(hbBuffer);
     hb_shape(mHbFonts[inFontShapeId], hbBuffer, 0, 0);
     unsigned int len         = hb_buffer_get_length(hbBuffer);
-    hb_glyph_info_t* info    = hb_buffer_get_glyph_infos(hbBuffer, 0);
-    hb_glyph_position_t* pos = hb_buffer_get_glyph_positions(hbBuffer, 0);
+    hb_glyph_info_t *info    = hb_buffer_get_glyph_infos(hbBuffer, 0);
+    hb_glyph_position_t *pos = hb_buffer_get_glyph_positions(hbBuffer, 0);
 
     LoadTextToKeyMap(len, inFontShapeId, info, pos);
     auto TextDims = GetTextDimensions(inString, inFontShapeId, info, pos, len);
@@ -249,7 +366,7 @@ bb::TextDimensions bb::UpdateText(ui inX,
 }
 
 bb::TextDimensions bb::GetTextDimensions(
-     const sv inString, ui inFontShapeId, hb_glyph_info_t* info, hb_glyph_position_t* pos, ui len) {
+     const sv inString, ui inFontShapeId, hb_glyph_info_t *info, hb_glyph_position_t *pos, ui len) {
     int originX = 0, originY = 0;
     int minX        = INT_MAX;
     int maxX        = INT_MIN;
@@ -258,10 +375,10 @@ bb::TextDimensions bb::GetTextDimensions(
     int maxYBearing = 0;
     for (int i = 0; i < len; ++i) {
         CharacterKey key = {.mFontShapeId = inFontShapeId, .mGlyphCodePoint = info[i].codepoint};
-        const auto& CharacterInMap = mCharacterBitmapSet[key];
-        const auto& info           = CharacterInMap.first.mGlyphInfo;
-        const auto& metrics        = CharacterInMap.first.mGlyphMetrics;
-        const auto& pos            = CharacterInMap.first.mGlyphPos;
+        const auto &CharacterInMap = mCharacterBitmapSet[key];
+        const auto &info           = CharacterInMap.first.mGlyphInfo;
+        const auto &metrics        = CharacterInMap.first.mGlyphMetrics;
+        const auto &pos            = CharacterInMap.first.mGlyphPos;
         const auto bitmap_width    = CharacterInMap.first.mBitmapWidth;
         const auto bitmap_rows     = CharacterInMap.first.mBitmapRows;
 
@@ -302,8 +419,8 @@ bb::TextDimensions bb::GetTextDimensions(
 void bb::AddRespectiveVerticesAndIndicesAt(unsigned int len,
                                            ui inStartIndex,
                                            ui inDepthValue,
-                                           const ui& inFontShapeId,
-                                           hb_glyph_info_t* info,
+                                           const ui &inFontShapeId,
+                                           hb_glyph_info_t *info,
                                            int inOriginX,
                                            int inOriginY) {
 
@@ -311,11 +428,11 @@ void bb::AddRespectiveVerticesAndIndicesAt(unsigned int len,
 
     for (int i = 0; i < len; ++i) {
         CharacterKey key = {.mFontShapeId = inFontShapeId, .mGlyphCodePoint = info[i].codepoint};
-        const auto& CharacterInMap     = mCharacterBitmapSet[key];
-        const auto& bmp                = CharacterInMap.second;
-        const auto& info               = CharacterInMap.first.mGlyphInfo;
-        const auto& metrics            = CharacterInMap.first.mGlyphMetrics;
-        const auto& pos                = CharacterInMap.first.mGlyphPos;
+        const auto &CharacterInMap     = mCharacterBitmapSet[key];
+        const auto &bmp                = CharacterInMap.second;
+        const auto &info               = CharacterInMap.first.mGlyphInfo;
+        const auto &metrics            = CharacterInMap.first.mGlyphMetrics;
+        const auto &pos                = CharacterInMap.first.mGlyphPos;
         const auto bitmap_width        = CharacterInMap.first.mBitmapWidth;
         const auto bitmap_rows         = CharacterInMap.first.mBitmapRows;
         int offsetX                    = ToPixels(pos.x_offset + metrics.horiBearingX);
@@ -363,9 +480,9 @@ void bb::AddRespectiveVerticesAndIndicesAt(unsigned int len,
 }
 
 void bb::LoadTextToKeyMap(unsigned int len,
-                          const ui& inFontShapeId,
-                          hb_glyph_info_t* info,
-                          hb_glyph_position_t* pos) {
+                          const ui &inFontShapeId,
+                          hb_glyph_info_t *info,
+                          hb_glyph_position_t *pos) {
     /* Load Characters To Keymap */
     {
         for (int i = 0; i < len; ++i) {
@@ -384,7 +501,7 @@ void bb::LoadTextToKeyMap(unsigned int len,
                                              .mBitmapRows   = slot->bitmap.rows,
                                              .mBitmapPitch  = slot->bitmap.pitch};
                 v<uint8_t> BitmapImage;
-                uint8_t* ptr = slot->bitmap.buffer;
+                uint8_t *ptr = slot->bitmap.buffer;
                 int originX = 0, originY = 0;
                 int offsetX   = ToPixels(pos[i].x_offset + slot->metrics.horiBearingX);
                 int offsetY   = ToPixels(pos[i].y_offset + slot->metrics.horiBearingY);
@@ -400,7 +517,7 @@ void bb::LoadTextToKeyMap(unsigned int len,
                 [[maybe_unused]] size_t height = glyphMaxY - glyphMinY + 1;
                 BitmapImage.resize(mImageChannelCount * character_info.mBitmapWidth *
                                    character_info.mBitmapRows);
-                auto* dst = BitmapImage.data();
+                auto *dst = BitmapImage.data();
 
                 if (mImageChannelCount == 4) {
                     ui i = 0;
@@ -421,13 +538,13 @@ void bb::LoadTextToKeyMap(unsigned int len,
 }
 
 bb::TextDimensions bb::GetTextDimensions(const sv inString, ui inFontShapeId) {
-    hb_buffer_t* hbBuffer = hb_buffer_create();
-    hb_buffer_add_utf8(hbBuffer, reinterpret_cast<const char*>(inString.data()), -1, 0, -1);
+    hb_buffer_t *hbBuffer = hb_buffer_create();
+    hb_buffer_add_utf8(hbBuffer, reinterpret_cast<const char *>(inString.data()), -1, 0, -1);
     hb_buffer_guess_segment_properties(hbBuffer);
     hb_shape(mHbFonts[inFontShapeId], hbBuffer, 0, 0);
     unsigned int len         = hb_buffer_get_length(hbBuffer);
-    hb_glyph_info_t* info    = hb_buffer_get_glyph_infos(hbBuffer, 0);
-    hb_glyph_position_t* pos = hb_buffer_get_glyph_positions(hbBuffer, 0);
+    hb_glyph_info_t *info    = hb_buffer_get_glyph_infos(hbBuffer, 0);
+    hb_glyph_position_t *pos = hb_buffer_get_glyph_positions(hbBuffer, 0);
     LoadTextToKeyMap(len, inFontShapeId, info, pos);
     auto td = GetTextDimensions(inString, inFontShapeId, info, pos, len);
     hb_buffer_destroy(hbBuffer);

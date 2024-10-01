@@ -1240,7 +1240,7 @@ PBR.EquirectangularMapToMultiVShader = Engine.Shader()
     .GlslMainBegin()
     .Append [[
     localPos = inPosition;
-    gl_Position = Push.model * Push.m2 * vec4(localPos, 1.0);
+    gl_Position = Push.m2 * vec4(localPos, 1.0);
     ]]
     .GlslMainEnd()
 
@@ -1266,8 +1266,6 @@ PBR.EquirectangularMapToMultiFShader = Engine.Shader()
     outFragColor = vec4(color, 1.0);
     ]]
     .GlslMainEnd()
-
-
 
 Deferred = {}
 
@@ -1423,6 +1421,77 @@ Deferred.BasicFragment = Deferred.GetBasicFragmentHeader()
     ]]
     .GlslMainEnd()
 
+
+TwoDimensionalIPs = {}
+
+TwoDimensionalIPs.ConstantColor = Engine.Shader()
+    .Header(450)
+    .CInvocationLayout(16, 16, 1)
+    .uImage2D()
+    ---@warning for uniform pipelinelayout for descriptors
+    .ImagePainterVIStorageLayout()
+    .ImagePainterPushMatrix2()
+    .GlslMainBegin()
+    .ImagePainterAssistMatrix2()
+    .Append [[
+        imageStore(storageImage, to_draw_at, p4);
+    ]]
+    .GlslMainEnd()
+
+TwoDimensionalIPs.RoundedRectangle = Engine.Shader()
+    .Header(450)
+    .CInvocationLayout(16, 16, 1)
+    .uImage2D()
+    ---@warning for uniform pipelinelayout for descriptors
+    .ImagePainterVIStorageLayout()
+    .ImagePainterPushMatrix2()
+    .GlslMainBegin()
+    .ImagePainterAssistMatrix2()
+    .Append [[
+        vec2 center = vec2(p1.x, p1.y);
+        vec2 hw = vec2(p1.z, p1.w);
+        float radius = p3.x;
+        vec2 Q = abs(xy - center) - hw;
+
+        float color = distance(max(Q, vec2(0.0)), vec2(0.0)) + min(max(Q.x, Q.y), 0.0) - radius;
+        color = smoothstep(-0.05, 0.05, -color);
+
+        vec4 old_color = imageLoad(storageImage, to_draw_at);
+        vec4 final_color = vec4(p2.x * color, p2.y * color, p2.z * color, p2.w * color);
+        final_color = mix(final_color, old_color, p3.w);
+
+        imageStore(storageImage, to_draw_at, final_color);
+          ]]
+    .GlslMainEnd()
+
+---@note @todo Later make this ellipse
+TwoDimensionalIPs.Circle = Engine.Shader()
+    .Header(450)
+    .CInvocationLayout(16, 16, 1)
+    ---@warning for uniform pipelinelayout for descriptors
+    .ImagePainterVIStorageLayout()
+    .uImage2D()
+    .ImagePainterPushMatrix2()
+    .GlslMainBegin()
+    .ImagePainterAssistMatrix2()
+    .Append [[
+        vec2 center = vec2(p1.x, p1.y);
+        float radius = p1.z;
+        vec2 Q = abs(xy - center);
+        float color = length(Q) - radius;
+        //color = smoothstep(-0.05, 0.05, -color);
+        color = -color;
+
+        vec4 old_color = imageLoad(storageImage, to_draw_at);
+        vec4 final_color = vec4(p2.x * color, p2.y * color, p2.z * color, p2.w * color);
+        final_color = mix(final_color, old_color, p3.w);
+        debugPrintfEXT("final_color %f %f %f", final_color.x, final_color.y, final_color.z);
+
+        imageStore(storageImage, to_draw_at, final_color);
+          ]]
+    .GlslMainEnd()
+
+
 Basics = {}
 
 Basics.GetVertexWithTangent = function()
@@ -1547,7 +1616,7 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
             end
         else
             fshader.Append [[
-                outFragColor = vec4(1, 0, 0, 1);
+                outFragColor = vec4(vColor.x, vColor.y, vColor.z, 1);
             ]]
         end
         fshader.GlslMainEnd()

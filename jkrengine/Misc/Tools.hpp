@@ -2,7 +2,7 @@
 #include <Renderers/ThreeD/Shape3D.hpp>
 #include <Window.hpp>
 
-namespace Jkr {
+namespace Jkr::Misc {
 
 /// @brief The Image should've been created with the same size as that of Window's deferred pass
 void CopyWindowDeferredImageToShapeImage(Window &inWindow, Renderer::Shape &inShape2d, int inId);
@@ -33,7 +33,7 @@ void CopyWindowDeferredImageToCustomPainterImage(
 /// @warning Call Register() on the CustomPainterImage before this function, registering the image
 /// is mandatory before registering anyother things
 ///
-void RegisterShapeRenderer3DToCustomPainterImage(Jkr::Instance &inInstance,
+void RegisterShapeRenderer3DToCustomPainterImage(Instance &inInstance,
                                                  Renderer::_3D::Shape &inShape3d,
                                                  Renderer::CustomPainterImage &inCustomPainterImage,
                                                  int inVertexStorageBufferIndex,
@@ -42,7 +42,7 @@ void RegisterShapeRenderer3DToCustomPainterImage(Jkr::Instance &inInstance,
 /// @brief Since Custom Painter Image also has a descriptor, this function registers ANOTHER
 /// custom painter image, to the descriptor of given custom painter image.
 void RegisterCustomPainterImageToCustomPainterImage(
-     Jkr::Instance &inInstance,
+     Instance &inInstance,
      Renderer::CustomPainterImage &inCustomPainterImage,
      Renderer::CustomPainterImage &inCustomPainterImageTobeRegistered,
      int inIndex);
@@ -55,21 +55,22 @@ void RegisterCustomPainterImageToCustomPainterImage(
 ///
 /// @param inPBRCacheName this is the DIRECTORY (Will the created if doesn't exist) which the
 /// function will look for for PBR related Caches.
-void SetupPBR(Jkr::Instance &inInstance,
-              Jkr::Window &inWindow,
+void SetupPBR(Instance &inInstance,
+              Window &inWindow,
               Renderer::_3D::Uniform3D &inUniform3D,
               Renderer::_3D::World3D &inWorld3D,
               Renderer::_3D::Shape &inShape3D,
               int inSkyboxModelIndex,
-              std::string_view inPBRCacheName,
-              std::string_view inCachePrefix,
-              std::string_view inBRDF_vs,
-              std::string_view inBRDF_fs,
-              std::string_view inIrradianceCube_vs,
-              std::string_view inIrradianceCube_fs,
-              std::string_view inPrefilteredCube_vs,
-              std::string_view inPrefilteredCube_fs,
-              std::string_view inEquirectangularToCubeMap_vs,
-              std::string_view inEquirectangularToCubeMap_fs,
-              std::string_view inEnvironmentCubeMapHDR);
-}; // namespace Jkr
+              sv inPBRCacheName,
+              sv inCachePrefix,
+              sv inBRDF_vs,
+              sv inBRDF_fs,
+              sv inIrradianceCube_vs,
+              sv inIrradianceCube_fs,
+              sv inPrefilteredCube_vs,
+              sv inPrefilteredCube_fs,
+              sv inEquirectangularToCubeMap_vs,
+              sv inEquirectangularToCubeMap_fs,
+              sv inEnvironmentCubeMapHDR);
+
+}; // namespace Jkr::Misc

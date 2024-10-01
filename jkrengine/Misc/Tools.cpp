@@ -3,7 +3,7 @@
 #include <Pipeline/VulkanDescriptorUpdateHandler.hpp>
 #include <Renderers/ThreeD/Uniform3D.hpp>
 
-namespace Jkr {
+namespace Jkr::Misc {
 void CopyWindowDeferredImageToShapeImage(Window &inWindow, Renderer::Shape &inShape2d, int inId) {
     using namespace vk;
     auto &DstImage = inShape2d.GetImages()[inId]->GetUniformImage();
@@ -135,7 +135,7 @@ static auto EquirectangularToMultiConversion(Jkr::Instance &inInstance,
     /// here,
     /// may have to do some adjustment, lesse. @todo Query the Default supported image formats
     /// beforehand
-    auto *data = stbi_loadf(inEquirectangularCubeMapHDR.data(), &width, &height, &nrComponents, 4);
+    auto *data = stbi_load(inEquirectangularCubeMapHDR.data(), &width, &height, &nrComponents, 4);
     VulkanImageVMA EquirectangularCubeMapHDR;
     EquirectangularCubeMapHDR.Init({
          .inVMA                 = &inInstance.GetVMA(),
@@ -160,8 +160,10 @@ static auto EquirectangularToMultiConversion(Jkr::Instance &inInstance,
          inInstance.GetDevice(),
          inInstance.GetUtilCommandBufferFence(),
          reinterpret_cast<void **>(&data),
-         width * height * nrComponents,
-         inInstance.GetStagingBuffer(width * height * nrComponents));
+         width * height * 4,
+         inInstance.GetStagingBuffer(width * height * 4));
+
+    stbi_image_free(data);
 
     VulkanSampler EnvMapSampler;
     EnvMapSampler.Init(
@@ -174,13 +176,13 @@ static auto EquirectangularToMultiConversion(Jkr::Instance &inInstance,
                               .setAddressModeV(vk::SamplerAddressMode::eClampToEdge)
                               .setAddressModeW(vk::SamplerAddressMode::eClampToEdge)});
 
-    VulkanImageVMA CubeMultiMap;
-    CubeMultiMap.Init({
+    Up<VulkanImageVMA> CubeMultiMap = MakeUp<VulkanImageVMA>();
+    CubeMultiMap->Init({
          .inVMA                 = &inInstance.GetVMA(),
          .inDevice              = &inInstance.GetDevice(),
          .inWidth               = static_cast<ui>(Dim),
          .inHeight              = static_cast<ui>(Dim),
-         .inImageContext        = ImageContext::Default,
+         .inImageContext        = ImageContext::CubeCompatible,
          .inChannel             = static_cast<ui>(4),
          .inLayerCount          = 6,
          .inSamples             = 1,
@@ -241,14 +243,35 @@ static auto EquirectangularToMultiConversion(Jkr::Instance &inInstance,
     using namespace vk;
     using namespace glm;
 
-    mat4 CaptureProjection = perspective(radians(90.0f), 1.0f, 0.1f, 10.0f);
+    mat4 CaptureProjection = perspective(radians(90.0f), 1.0f, 0.1f, 512.0f);
     v<mat4> CaptureViews   = {
-         lookAt(vec3(0.0f), vec3(1.f, 0.f, 0.f), vec3(0.f, -1.f, 0.f)),
-         lookAt(vec3(0.0f), vec3(-1.f, 0.f, 0.f), vec3(0.f, -1.f, 0.f)),
-         lookAt(vec3(0.0f), vec3(0.f, 1.f, 0.f), vec3(0.f, 0.f, 1.f)),
-         lookAt(vec3(0.0f), vec3(0.f, -1.f, 0.f), vec3(0.f, 0.f, -1.f)),
-         lookAt(vec3(0.0f), vec3(0.f, 0.f, 1.f), vec3(0.f, -1.f, 0.f)),
-         lookAt(vec3(0.0f), vec3(0.f, 0.f, -1.f), vec3(0.f, -1.f, 0.f)),
+         //    lookAt(vec3(0.0f), vec3(1.f, 0.f, 0.f), vec3(0.f, -1.f, 0.f)),
+         //    lookAt(vec3(0.0f), vec3(-1.f, 0.f, 0.f), vec3(0.f, -1.f, 0.f)),
+         //    lookAt(vec3(0.0f), vec3(0.f, 1.f, 0.f), vec3(0.f, 0.f, 1.f)),
+         //    lookAt(vec3(0.0f), vec3(0.f, -1.f, 0.f), vec3(0.f, 0.f, -1.f)),
+         //    lookAt(vec3(0.0f), vec3(0.f, 0.f, 1.f), vec3(0.f, -1.f, 0.f)),
+         //    lookAt(vec3(0.0f), vec3(0.f, 0.f, -1.f), vec3(0.f, -1.f, 0.f)),
+
+         // POSITIVE_X
+         glm::rotate(glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
+                     glm::radians(180.0f),
+                     glm::vec3(1.0f, 0.0f, 0.0f)),
+         // NEGATIVE_X
+         glm::rotate(
+              glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
+              glm::radians(180.0f),
+              glm::vec3(1.0f, 0.0f, 0.0f)),
+
+         // POSITIVE_Y
+         glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
+         // NEGATIVE_Y
+         glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
+
+         // POSITIVE_Z
+         glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
+         // NEGATIVE_Z
+         glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+
     };
     struct PushBlock {
         ///@warning written as model in Shader.lua
@@ -268,7 +291,7 @@ static auto EquirectangularToMultiConversion(Jkr::Instance &inInstance,
     for (int i = 0; i < 6; ++i) {
         Cmdh.setViewport(0, Viewport);
         Cmdh.setScissor(0, Scissor);
-        PushBlock.view = CaptureViews[i];
+        PushBlock.view = CaptureProjection * CaptureViews[i];
         Cmd.BeginRenderPass(
              RenderPass, vk::Extent2D{Dim, Dim}, FrameBuffer, {1.0f, 1.0f, 1.0f, 1.0f, 1.0f});
 
@@ -286,21 +309,21 @@ static auto EquirectangularToMultiConversion(Jkr::Instance &inInstance,
              Cmd, inShape3D, PushBlock, 0, inShape3D.GetIndexCount(inSkyboxModelIndex), 1);
 
         Cmd.EndRenderPass();
-        CubeMultiMap.CmdCopyImageFromImageAfterStage(Cmd,
-                                                     inInstance.GetDevice(),
-                                                     OffscreenFBufferImage,
-                                                     vk::PipelineStageFlagBits::eAllGraphics,
-                                                     vk::AccessFlagBits::eNone,
-                                                     static_cast<int>(Viewport.width),
-                                                     static_cast<int>(Viewport.height),
-                                                     0,
-                                                     0,
-                                                     0,
-                                                     i,
-                                                     1,
-                                                     vk::ImageLayout::eGeneral,
-                                                     vk::ImageLayout::eGeneral,
-                                                     vk::ImageLayout::eShaderReadOnlyOptimal);
+        CubeMultiMap->CmdCopyImageFromImageAfterStage(Cmd,
+                                                      inInstance.GetDevice(),
+                                                      OffscreenFBufferImage,
+                                                      vk::PipelineStageFlagBits::eAllGraphics,
+                                                      vk::AccessFlagBits::eNone,
+                                                      static_cast<int>(Viewport.width),
+                                                      static_cast<int>(Viewport.height),
+                                                      0,
+                                                      0,
+                                                      0,
+                                                      i,
+                                                      1,
+                                                      vk::ImageLayout::eGeneral,
+                                                      vk::ImageLayout::eGeneral,
+                                                      vk::ImageLayout::eShaderReadOnlyOptimal);
     }
     Cmd.End();
     inInstance.GetGraphicsQueue().Submit<SubmitContext::SingleTime>(Cmd);
@@ -351,7 +374,7 @@ void SetupPBR(Jkr::Instance &inInstance,
                                               inWindow,
                                               inShape3D,
                                               inSkyboxModelIndex,
-                                              CubeMultiMap,
+                                              *CubeMultiMap,
                                               inWorld3D,
                                               "cache2/" + s(inCachePrefix) + "IrradianceCube.glsl",
                                               inIrradianceCube_vs,
@@ -362,7 +385,7 @@ void SetupPBR(Jkr::Instance &inInstance,
                                                inWindow,
                                                inShape3D,
                                                inSkyboxModelIndex,
-                                               CubeMultiMap,
+                                               *CubeMultiMap,
                                                inWorld3D,
                                                "cache2/" + s(inCachePrefix) +
                                                     "PrefilteredCube.glsl",
@@ -370,9 +393,17 @@ void SetupPBR(Jkr::Instance &inInstance,
                                                inPrefilteredCube_fs,
                                                "",
                                                false);
-        fs::current_path(inPBRCacheName);
-        // Save to Disk
+
+        Up<Jkr::PainterParameter<PainterParameterContext::SkyboxImage>> SkyboxImage =
+             MakeUp<Jkr::PainterParameter<PainterParameterContext::SkyboxImage>>(inInstance);
+        SkyboxImage->mUniformImagePtr = std::move(CubeMultiMap);
+        SkyboxImage->mSampler         = MakeUp<VulkanSampler>(inInstance.GetDevice());
+
+        inUniform3D.AddSkyboxImage(*SkyboxImage);
+
+        auto &Images = inUniform3D.GetSkyboxImagesRef();
+        Images.insert_or_assign(kstd::BindingIndex::CubeMapImage, mv(SkyboxImage));
     }
 }
 
-}; // namespace Jkr
+}; // namespace Jkr::Misc

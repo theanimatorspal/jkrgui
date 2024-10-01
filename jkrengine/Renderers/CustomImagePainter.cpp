@@ -134,6 +134,38 @@ void Jkr::Renderer::CustomPainterImage::Register(Instance &inInstance,
     mPainterParam->Register(0, inIndex, 0, *mVulkanDescriptorSet);
 }
 
+/// @todo Make this better, this is basically stopping parallelization
+/// This is done to basically prevent the HAZARD READ_AFTER_WRITE
+/// Since, there are images that is being written on and being loaded from
+/// both.
+void Jkr::Renderer::CustomPainterImage::SyncBefore(Window_base &inWindow, ComPar inPar) {
+
+    auto &Cmd   = inWindow.GetCommandBuffers(inPar)[inWindow.GetCurrentFrame()];
+    auto &Image = mPainterParam->GetStorageImage();
+    Image.CmdTransitionImageLayout(
+         Cmd,
+         Image.GetCurrentImageLayout(),
+         vk::ImageLayout::eGeneral,
+         vk::PipelineStageFlagBits::eAllCommands,
+         vk::PipelineStageFlagBits::eComputeShader,
+         vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite,
+         vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite);
+}
+
+void Jkr::Renderer::CustomPainterImage::SyncAfter(Window_base &inWindow, ComPar inPar) {
+
+    auto &Cmd   = inWindow.GetCommandBuffers(inPar)[inWindow.GetCurrentFrame()];
+    auto &Image = mPainterParam->GetStorageImage();
+    Image.CmdTransitionImageLayout(
+         Cmd,
+         Image.GetCurrentImageLayout(),
+         vk::ImageLayout::eGeneral,
+         vk::PipelineStageFlagBits::eComputeShader,
+         vk::PipelineStageFlagBits::eAllCommands,
+         vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite,
+         vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite);
+}
+
 CustomPainterImage::CustomPainterImage(Instance &inInstance,
                                        const Window_base &inWindow,
                                        ui inWidth,
@@ -146,25 +178,13 @@ CustomPainterImage::CustomPainterImage(Instance &inInstance,
 void CustomImagePainter::BindImageFromImage(const Window_base &inWindow,
                                             CustomPainterImage &inImage,
                                             ComPar inPar) {
-    auto &Cmd = inWindow.GetCommandBuffers(inPar)[inWindow.GetCurrentFrame()];
+    auto &Cmd   = inWindow.GetCommandBuffers(inPar)[inWindow.GetCurrentFrame()];
+    auto &Image = inImage.GetPainterParam().GetStorageImage();
+
     Cmd.GetCommandBufferHandle().bindDescriptorSets(
          vk::PipelineBindPoint::eCompute,
          mCustomPainterCache->GetComputePipelineLayout().GetPipelineLayoutHandle(),
          0,
          inImage.mVulkanDescriptorSet->GetDescriptorSetHandle(),
          {});
-    auto &Image = inImage.GetPainterParam().GetStorageImage();
-
-    /// @todo Make this better, this is basically stopping parallelization
-    /// This is done to basically prevent the HAZARD READ_AFTER_WRITE
-    /// Since, there are images that is being written on and being loaded from
-    /// both.
-    Image.CmdTransitionImageLayout(
-         Cmd,
-         Image.GetInitialImageLayout(),
-         vk::ImageLayout::eGeneral,
-         vk::PipelineStageFlagBits::eComputeShader,
-         vk::PipelineStageFlagBits::eComputeShader,
-         vk::AccessFlagBits::eShaderWrite | vk::AccessFlagBits::eShaderRead,
-         vk::AccessFlagBits::eShaderWrite | vk::AccessFlagBits::eShaderRead);
 }
