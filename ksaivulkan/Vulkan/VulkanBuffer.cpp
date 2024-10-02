@@ -105,19 +105,31 @@ void ksai::VulkanBufferBase::CmdCopyFromImage(const VulkanCommandBuffer &inCmdBu
 void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFromImage(
      const VulkanQueue<QueueContext::Graphics> &inQueue,
      const VulkanCommandBuffer &inCmdBuffer,
-     VulkanImageBase &inImage) const {
-    auto ImageExtent  = inImage.GetImageExtent();
+     VulkanImageBase &inImage,
+     vk::ImageLayout inLayout,
+     int inMipLevel,
+     int inLayer,
+     int inLayersToBeCopied,
+     int inImageWidth,
+     int inImageHeight) const {
+    auto ImageExtent = inImage.GetImageExtent();
+    if (inImageWidth > 0) {
+        ImageExtent.width = inImageWidth;
+    }
+    if (inImageHeight > 0) {
+        ImageExtent.width = inImageHeight;
+    }
     auto CopySize     = ImageExtent.width * ImageExtent.height * 4; // TODO don't hardcode this
     auto srcImageProp = inImage.GetImageProperty();
     const vk::CommandBuffer &Cmd = inCmdBuffer.GetCommandBufferHandle();
 
     Cmd.begin(vk::CommandBufferBeginInfo());
-    auto ImageSubResource =
-         vk::ImageSubresourceLayers(srcImageProp.mImageAspect, 0, 0, srcImageProp.mArrayLayers);
+    auto ImageSubResource = vk::ImageSubresourceLayers(
+         srcImageProp.mImageAspect, inMipLevel, inLayer, inLayersToBeCopied);
     auto BufferImageCopy = vk::BufferImageCopy(
          0, 0, 0, ImageSubResource, vk::Offset3D{0}, vk::Extent3D(ImageExtent, 1));
     inImage.CmdTransitionImageLayout(inCmdBuffer,
-                                     vk::ImageLayout::eGeneral,
+                                     inLayout,
                                      vk::ImageLayout::eTransferSrcOptimal,
                                      vk::PipelineStageFlagBits::eComputeShader,
                                      vk::PipelineStageFlagBits::eTransfer,
@@ -129,7 +141,7 @@ void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFromImage(
                           BufferImageCopy);
     inImage.CmdTransitionImageLayout(inCmdBuffer,
                                      vk::ImageLayout::eTransferSrcOptimal,
-                                     vk::ImageLayout::eGeneral,
+                                     inLayout,
                                      vk::PipelineStageFlagBits::eTransfer,
                                      vk::PipelineStageFlagBits::eFragmentShader,
                                      vk::AccessFlagBits::eMemoryRead,

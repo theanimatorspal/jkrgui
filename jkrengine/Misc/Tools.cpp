@@ -336,7 +336,7 @@ void SetupPBR(Jkr::Instance &inInstance,
               Renderer::_3D::World3D &inWorld3D,
               Renderer::_3D::Shape &inShape3D,
               int inSkyboxModelIndex,
-              sv inPBRCacheName,
+              Misc::FileJkr &inJkrFile,
               sv inCachePrefix,
               sv inBRDF_vs,
               sv inBRDF_fs,
@@ -349,8 +349,6 @@ void SetupPBR(Jkr::Instance &inInstance,
               sv inEquirectangularCubeMapHDR) {
     uint32_t Dim = 512;
     using namespace std;
-    namespace fs           = filesystem;
-    fs::path PBRFolderPath = inPBRCacheName;
     if ( // fs::exists(inPBRCacheName)
          false) {
         /// Load the PBR to Uniform Image

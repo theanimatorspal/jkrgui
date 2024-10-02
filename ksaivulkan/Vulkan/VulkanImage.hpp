@@ -78,9 +78,16 @@ class VulkanImageBase {
                                   vk::AccessFlags inBeforeAccess,
                                   vk::AccessFlags inAfterAccess);
 
-    std::vector<int> GetImageToVector(VulkanQueue<QueueContext::Graphics> &inQueue,
-                                      VulkanBufferVMA &inStagingBuffer,
-                                      VulkanCommandBuffer &inBuffer);
+    std::vector<int>
+    SubmitImmediateCmdGetImageToVector(VulkanQueue<QueueContext::Graphics> &inQueue,
+                                       VulkanBufferVMA &inStagingBuffer,
+                                       VulkanCommandBuffer &inBuffer,
+                                       vk::ImageLayout inImageLayout = vk::ImageLayout::eGeneral,
+                                       int inImageWidth              = -1,
+                                       int inImageHeight             = -1,
+                                       int inMipLevel                = 0,
+                                       int inLayer                   = 0,
+                                       int inLayersToBeCopied        = 1);
 
     public:
     void FillImageProperties(ImageContext inImageContext, uint32_t inNumSamples = 1);

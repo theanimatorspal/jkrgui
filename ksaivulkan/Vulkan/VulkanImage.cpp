@@ -317,14 +317,29 @@ void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(
                                             vk::AccessFlagBits::eMemoryRead);
 }
 
-std::vector<int> VulkanImageBase::GetImageToVector(VulkanQueue<QueueContext::Graphics> &inQueue,
-                                                   VulkanBufferVMA &inStagingBuffer,
-                                                   VulkanCommandBuffer &inBuffer) {
+std::vector<int>
+VulkanImageBase::SubmitImmediateCmdGetImageToVector(VulkanQueue<QueueContext::Graphics> &inQueue,
+                                                    VulkanBufferVMA &inStagingBuffer,
+                                                    VulkanCommandBuffer &inBuffer,
+                                                    vk::ImageLayout inLayout,
+                                                    int inImageWidth,
+                                                    int inImageHeight,
+                                                    int inMipLevel,
+                                                    int inLayer,
+                                                    int inLayersToBeCopied) {
     ui ImageChannels = 4;
     auto ImageExtent = mImageProperties.mExtent;
     auto Size        = ImageChannels * ImageExtent.width * ImageExtent.height;
     uint32_t size    = ImageChannels * ImageExtent.width * ImageExtent.height;
-    inStagingBuffer.SubmitImmediateCmdCopyFromImage(inQueue, inBuffer, *this);
+    inStagingBuffer.SubmitImmediateCmdCopyFromImage(inQueue,
+                                                    inBuffer,
+                                                    *this,
+                                                    inLayout,
+                                                    inMipLevel,
+                                                    inLayer,
+                                                    inLayersToBeCopied,
+                                                    inImageWidth,
+                                                    inImageHeight);
     void *MemoryRegion;
     inStagingBuffer.MapMemoryRegion(&MemoryRegion);
     std::vector<uint8_t> OutImage;

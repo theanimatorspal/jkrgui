@@ -1,6 +1,7 @@
 #include <Renderers/TwoD/Shape.hpp>
 #include <Renderers/ThreeD/Shape3D.hpp>
 #include <Window.hpp>
+#include "JkrFile.hpp"
 
 namespace Jkr::Misc {
 
@@ -61,7 +62,7 @@ void SetupPBR(Instance &inInstance,
               Renderer::_3D::World3D &inWorld3D,
               Renderer::_3D::Shape &inShape3D,
               int inSkyboxModelIndex,
-              sv inPBRCacheName,
+              Misc::FileJkr &inJkrFile,
               sv inCachePrefix,
               sv inBRDF_vs,
               sv inBRDF_fs,

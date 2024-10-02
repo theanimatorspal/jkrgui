@@ -4,6 +4,7 @@
 #include "Renderers/TwoD/Shape.hpp"
 #include <Misc/RecycleBin.hpp>
 #include <Misc/Tools.hpp>
+#include <Misc/JkrFile.hpp>
 
 namespace JkrEXE {
 extern void CreateMainBindings(sol::state &s);
@@ -295,6 +296,11 @@ void CreateMiscBindings(sol::state &inState) {
 
                               "AddSkyboxToUniform3D",
                               &World3D::AddSkyboxToUniform3D);
+
+    Jkr.new_usertype<Jkr::Misc::FileJkr>(
+         "FileJkr", sol::call_constructor, sol::factories([](s inName) {
+             return mu<Jkr::Misc::FileJkr>(inName);
+         }));
 
     Jkr.set_function("CopyWindowDeferredImageToShapeImage",
                      &Jkr::Misc::CopyWindowDeferredImageToShapeImage);
