@@ -107,7 +107,8 @@ std::vector<int> CustomPainterImage::GetImageToVector(Instance &inInstance,
     Buffer.SubmitImmediateCmdCopyFromImage(
          inInstance.GetGraphicsQueue(),
          inWindow.GetCommandBuffers(Jkr::Window_base::None)[inWindow.GetCurrentFrame()],
-         mPainterParam->GetStorageImage());
+         mPainterParam->GetStorageImage(),
+         vk::ImageLayout::eGeneral);
     void *MemoryRegion;
     Buffer.MapMemoryRegion(&MemoryRegion);
     std::vector<uint8_t> OutImage;

@@ -50,10 +50,11 @@ Jkr.CreateEventable = function(inFunction)
     return o
 end
 
-Jkr.CreateDrawable = function(inId, inBatchable, inDrawType, inImageId, inColor_4f)
+Jkr.CreateDrawable = function(inId, inBatchable, inDrawType, inImageId, inColor_4f, inPush)
     local o = {}
     o.mBatchable = inBatchable
     o.mImageId = inImageId
+    o.mPush = inPush
     if inColor_4f then
         o.mColor = inColor_4f
     else

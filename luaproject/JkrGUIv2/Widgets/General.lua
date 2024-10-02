@@ -13,14 +13,33 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
     CompileShaders(o.shaders)
 
     o.prebuilts = {}
-    o.prebuilts.roundedRectanglePainter =
+    local op = o.prebuilts
+    op.roundedRectanglePainter =
         Jkr.CreateCustomImagePainter(
-            "cache/o.prebuilts.roundedRectangle.glsl",
+            "cache/op.roundedRectangle.glsl",
             o.shaders.roundedRectangle
         )
-    o.prebuilts.roundedRectanglePainter:Store(i, w)
+    op.roundedRectanglePainter:Store(i, w)
+    op.roundedRectangle = o.CreateComputeImage(vec3(0), vec3(500, 500, 1))
+    op.roundedRectangle.RegisterPainter(op.roundedRectanglePainter)
 
-    local op = o.prebuilts;
+    o.c:PushOneTime(Jkr.CreateDispatchable(function()
+        op.roundedRectangle.BindPainter(op.roundedRectanglePainter)
+        PushConstant = Jkr.Matrix2CustomImagePainterPushConstant()
+        PushConstant.a = mat4(
+            vec4(0.0, 0.0, 0.85, 0.85),
+            vec4(1),
+            vec4(0.1, 0.5, 0.5, 0.0),
+            vec4(0)
+        )
+        op.roundedRectangle.DrawPainter(op.roundedRectanglePainter, PushConstant, 50,
+            50, 1)
+    end), 1)
+    op.sampledImage = o.CreateSampledImage(vec3(math.huge), vec3(500, 500, 1), nil, true,
+        vec4(1))
+    o.c:PushOneTime(Jkr.CreateDispatchable(function()
+        op.roundedRectangle.CopyToSampled(op.sampledImage)
+    end), 1)
 
 
     o.CreateGeneralButton = function(inPosition_3f,
@@ -35,6 +54,22 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                                      inImageFilePath,
                                      inImagePainter)
         local button = {}
+        local push = Jkr.Matrix2CustomImagePainterPushConstant()
+        button.mColor = inColor or vec4(1)
+        push.a = mat4(
+            vec4(0.0, 0.0, 0.9, 0.9),
+            button.mColor,
+            vec4(0.3), -- radius
+            vec4(0)
+        )
+
+        if not inImageFilePath then
+            button.quad = o.CreateQuad(inPosition_3f, inDimension_3f, push, "showImage", op.sampledImage.mId)
+        else
+            button.sampledImage = o.CreateSampledImage(vec3(math.huge), vec3(100, 100, 1), inImageFilePath, true, vec4(1))
+            button.quad = o.CreateQuad(inPosition_3f, inDimension_3f, push, "showImage", button.sampledImage.mId)
+        end
+
         if inDimension_3f.x == 0 or inDimension_3f.y == 0 then
             button.shouldUpdateByDimension = vec3(inDimension_3f.x, inDimension_3f.y, inDimension_3f.z)
             inDimension_3f = vec3(100, 100, 1)
@@ -51,32 +86,8 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         end
 
 
-        button.roundedRectangle = o.CreateComputeImage(inPosition_3f, inDimension_3f)
-        button.roundedRectangle.RegisterPainter(inImagePainter)
 
-        o.c:PushOneTime(Jkr.CreateDispatchable(function()
-            button.roundedRectangle.BindPainter(op.roundedRectanglePainter)
-            local PushConstant
-            if inPushConstantForImagePainter then
-                PushConstant = inPushConstantForImagePainter
-            else
-                PushConstant = Jkr.Matrix2CustomImagePainterPushConstant()
-                PushConstant.a = mat4(
-                    vec4(0.0, 0.0, 0.85, 0.85),
-                    vec4(1),
-                    vec4(0.1, 0.5, 0.5, 0.0),
-                    vec4(0)
-                )
-            end
-            button.roundedRectangle.DrawPainter(op.roundedRectanglePainter, PushConstant, math.int(inDimension_3f.x),
-                math.int(inDimension_3f.y), 1)
-        end), 1)
-
-        button.sampledImage = o.CreateSampledImage(inPosition_3f, inDimension_3f, inImageFilePath, nil, inBackgroundColor)
         if not inImageFilePath then
-            o.c:PushOneTime(Jkr.CreateDispatchable(function()
-                button.roundedRectangle.CopyToSampled(button.sampledImage)
-            end), 1)
             button.sampledText = o.CreateTextLabel(inPosition_3f, inDimension_3f, inFont, inText, inColor)
         else
 
@@ -86,7 +97,15 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
 
         button.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inColor, inBackgroundColor,
                                  inTextOreintation)
-            button.sampledImage:Update(inPosition_3f, inDimension_3f, inBackgroundColor)
+            local push = Jkr.Matrix2CustomImagePainterPushConstant()
+            push.a = mat4(
+                vec4(0.0, 0.0, 0.95, 0.95),
+                inBackgroundColor or button.mColor,
+                vec4(0.001), --radius
+                vec4(0)
+            )
+            button.quad:Update(inPosition_3f, inDimension_3f, push);
+            --button.sampledImage:Update(inPosition_3f, inDimension_3f, inBackgroundColor)
 
             if button.parent then
                 button.parent:Update(inPosition_3f, inDimension_3f)

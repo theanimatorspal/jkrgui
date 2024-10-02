@@ -8,6 +8,25 @@
 
 namespace JkrEXE {
 extern void CreateMainBindings(sol::state &s);
+using namespace Jkr;
+void DrawShape2DWithSimple3D(Window_base &inWindow,
+                             Renderer::_3D::Simple3D &inSimple3D,
+                             Renderer::Shape &inShape,
+                             Matrix2CustomImagePainterPushConstant inC,
+                             ui inStartShapeId,
+                             ui inEndShapeId,
+                             Window_base::ParameterContext inParam) {
+
+    inSimple3D.GetPainter().Draw_EXT<Matrix2CustomImagePainterPushConstant>(
+         inC,
+         inWindow,
+         inShape.GetEndIndexOffsetAbsolute(inEndShapeId) -
+              inShape.GetIndexOffsetAbsolute(inStartShapeId),
+         1,
+         inShape.GetIndexOffsetAbsolute(inStartShapeId),
+         0,
+         inParam);
+}
 
 void CreateMiscBindings(sol::state &inState) {
     auto Jkr = inState["Jkr"].get_or_create<sol::table>();
@@ -313,6 +332,7 @@ void CreateMiscBindings(sol::state &inState) {
                      &Jkr::Misc::RegisterShapeRenderer3DToCustomPainterImage);
 
     Jkr.set_function("SetupPBR", &Jkr::Misc::SetupPBR);
+    Jkr.set_function("DrawShape2DWithSimple3D", &DrawShape2DWithSimple3D);
 }
 
 } // namespace JkrEXE

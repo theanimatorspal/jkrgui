@@ -10,7 +10,7 @@ project("jkrengine")
 if(ANDROID)
 find_package(JNI REQUIRED)
 endif()
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_JKRGUI_DIR}/out/build/${CMAKE_PRESET_NAME}/playground/")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_JKRGUI_DIR}/out/build/${CMAKE_PRESET_NAME}/jkrgui/")
 # Add subdirectories for building
 add_subdirectory(vendor/lua)
 add_subdirectory(ksaivulkan)

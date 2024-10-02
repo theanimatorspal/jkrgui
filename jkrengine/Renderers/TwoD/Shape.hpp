@@ -9,6 +9,8 @@
 
 namespace Jkr::Renderer {
 enum class FillType { Fill, Image, ContinousLine };
+///@Warning Remove the code for USE_VARIABLE_DES_INDEXING from everywhere.
+
 class Shape : public Shape_base, Renderer_base {
     using sb              = Shape_base;
     using rb              = Renderer_base;

@@ -73,6 +73,7 @@ struct FileJkr {
         size_type mLocation;
         size_type mSize;
     };
+    GETTER GetFileName() const { return mFileName; }
 
     FileJkr(s inFileName);
     ~FileJkr();
@@ -109,6 +110,7 @@ struct FileJkr {
     ///@note this is what it is going to be written to the file after you hit Commit
     v<char> mCommittedData;
     std::fstream mFile;
+    s mFileName;
 };
 
 } // namespace Jkr::Misc

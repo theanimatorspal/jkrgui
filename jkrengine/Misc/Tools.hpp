@@ -1,5 +1,6 @@
 #include <Renderers/TwoD/Shape.hpp>
 #include <Renderers/ThreeD/Shape3D.hpp>
+#include <Renderers/ThreeD/Simple3D.hpp>
 #include <Window.hpp>
 #include "JkrFile.hpp"
 
@@ -73,5 +74,27 @@ void SetupPBR(Instance &inInstance,
               sv inEquirectangularToCubeMap_vs,
               sv inEquirectangularToCubeMap_fs,
               sv inEnvironmentCubeMapHDR);
+
+///@brief This assists to use external shaders for Shape (2D rendering), using Simple3D, the simple
+/// 3D should be created externally and should be compatible with the shape2d shaders. Shape2d is a
+/// renderer I wrote way back, Nearly every thing is dependent upon that, so I
+/// am not changing anything there, I am writing another function for that purpose
+///
+///@warning Use Shape::SetFillMode for binding descriptors and Bind the Simple3D BEFORE calling the
+/// following function, if the Simple3D takes an image then set it FillMode::Image and
+/// FillMode::Fill if else
+///@warning This function is defined in JkrMisc.cpp in jkrgui executable
+/// NOT USABLE IN C++ right now @todo Fix this with proper standard rules in Standards.hpp with the
+/// push constant layout standards for everything and use those from there.
+struct Matrix2CustomImagePainterPushConstant {
+    glm::mat4 a, b;
+};
+void DrawShape2DWithSimple3D(Window_base &inWindow,
+                             Renderer::_3D::Simple3D &inSimple3D,
+                             Renderer::Shape &inShape,
+                             Matrix2CustomImagePainterPushConstant inC,
+                             ui inStartShapeId,
+                             ui inEndShapeId,
+                             Window_base::ParameterContext inParam);
 
 }; // namespace Jkr::Misc

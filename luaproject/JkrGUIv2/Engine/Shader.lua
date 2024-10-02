@@ -1421,6 +1421,58 @@ Deferred.BasicFragment = Deferred.GetBasicFragmentHeader()
     ]]
     .GlslMainEnd()
 
+Shape2DShaders = {}
+Shape2DShaders.GeneralVShader = Engine.Shader()
+    .Header(450)
+    .In(0, "vec3", "inPosition")
+    .In(1, "vec2", "inTexCoord")
+    .Out(0, "vec2", "outTexCoord")
+    .ImagePainterPushMatrix2()
+    .GlslMainBegin()
+    .Append [[
+	vec4 dx = vec4(inPosition.x, inPosition.y, inPosition.z, 1.0);
+	gl_Position = push.b * dx;
+	outTexCoord = inTexCoord;
+]]
+    .GlslMainEnd()
+
+Shape2DShaders.RoundedRectangleFShader = Engine.Shader()
+    .Header(450)
+    .outFragColor()
+    .In(0, "vec2", "inTexCoord")
+    .ImagePainterPushMatrix2()
+    .GlslMainBegin()
+    .Append [[
+    vec4 p1 = push.a[0];
+    vec4 p2 = push.a[1]; // Color
+    vec4 p3 = push.a[3]; // Has Radius
+    vec2 center = vec2(p1.x, p1.y);
+    vec2 hw = vec2(p1.z, p1.w);
+    float radius = p3.x;
+    vec2 xy = inTexCoord * 2.0f - vec2(1.0f);
+    vec2 Q = abs(xy - center) - hw;
+
+    float color = distance(max(Q, vec2(0.0)), vec2(0.0)) + min(max(Q.x, Q.y), 0.0) - radius;
+    color = smoothstep(-0.05, 0.05, -color);
+    outFragColor = p2 * color;
+    ]].GlslMainEnd()
+
+Shape2DShaders.ShowImageFShader = Engine.Shader()
+    .Header(450)
+    .outFragColor()
+    .In(0, "vec2", "inTexCoord")
+    .Append [[
+        layout(set = 0, binding = 0) uniform sampler2D image;
+    ]]
+    .ImagePainterPushMatrix2()
+    .GlslMainBegin()
+    .Append [[
+    vec4 p1 = push.a[0];
+    vec4 p2 = push.a[1]; // Color
+    vec4 p3 = push.a[3]; // Has Radius
+    outFragColor = p2 * texture(image, inTexCoord);
+    ]].GlslMainEnd()
+
 
 TwoDimensionalIPs = {}
 

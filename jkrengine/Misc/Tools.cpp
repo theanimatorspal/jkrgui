@@ -2,6 +2,7 @@
 #include "Renderers/ThreeD/World3D.hpp"
 #include <Pipeline/VulkanDescriptorUpdateHandler.hpp>
 #include <Renderers/ThreeD/Uniform3D.hpp>
+#include "JkrFile.hpp"
 
 namespace Jkr::Misc {
 void CopyWindowDeferredImageToShapeImage(Window &inWindow, Renderer::Shape &inShape2d, int inId) {
@@ -327,7 +328,7 @@ static auto EquirectangularToMultiConversion(Jkr::Instance &inInstance,
     }
     Cmd.End();
     inInstance.GetGraphicsQueue().Submit<SubmitContext::SingleTime>(Cmd);
-    return std::move(CubeMultiMap);
+    return std::make_tuple(std::move(CubeMultiMap), width, height, nrComponents);
 }
 
 void SetupPBR(Jkr::Instance &inInstance,
@@ -353,13 +354,14 @@ void SetupPBR(Jkr::Instance &inInstance,
          false) {
         /// Load the PBR to Uniform Image
     } else {
-        auto CubeMultiMap = EquirectangularToMultiConversion(inInstance,
-                                                             inShape3D,
-                                                             inSkyboxModelIndex,
-                                                             inEquirectangularCubeMapHDR,
-                                                             inEquirectangularToCubeMap_vs,
-                                                             inEquirectangularToCubeMap_fs,
-                                                             Dim);
+        auto [CubeMultiMap, width, height, nrComponents] =
+             EquirectangularToMultiConversion(inInstance,
+                                              inShape3D,
+                                              inSkyboxModelIndex,
+                                              inEquirectangularCubeMapHDR,
+                                              inEquirectangularToCubeMap_vs,
+                                              inEquirectangularToCubeMap_fs,
+                                              Dim);
         inUniform3D.AddGenerateBRDFLookupTable(inInstance,
                                                inWindow,
                                                "cache2/" + s(inCachePrefix) +

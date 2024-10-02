@@ -141,4 +141,5 @@
     "Lua.diagnostics.globals": [
         "StateId"
     ],
+    "vim.enableNeovim": true
 }
