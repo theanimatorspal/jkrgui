@@ -257,11 +257,6 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
 }
 
 JKR_EXPORT int main(int ArgCount, char **ArgStrings) {
-    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-    // FILE *file;
-    // if (fopen_s(&file, "leaks.txt", "w") == 0) {
-    //     _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
-    // }
 
 #ifndef ANDROID
     ProcessCmdLine(ArgCount, ArgStrings);
@@ -271,6 +266,5 @@ JKR_EXPORT int main(int ArgCount, char **ArgStrings) {
     } catch (const std::exception &e) {
         std::cout << "ERROR:: " << e.what() << "\n";
     }
-    //    _CrtDumpMemoryLeaks();
     return 0;
 }
