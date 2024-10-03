@@ -1,6 +1,4 @@
-﻿#define _CRTDBG_MAP_ALLOC
-#include <crtdbg.h>
-#define TRACY_IMPORTS
+﻿#define TRACY_IMPORTS
 #include "EventManager.hpp"
 #include "JkrLuaExe.hpp"
 #include <SDLWindow.hpp>
