@@ -1,5 +1,6 @@
 #include "Tools.hpp"
 #include "Renderers/ThreeD/World3D.hpp"
+#include <Renderers/ThreeD/PBR.hpp>
 #include <Pipeline/VulkanDescriptorUpdateHandler.hpp>
 #include <Renderers/ThreeD/Uniform3D.hpp>
 #include "JkrFile.hpp"
@@ -149,11 +150,12 @@ static auto EquirectangularToMultiConversion(Jkr::Instance &inInstance,
          .inSamples             = 1,
          .inMips                = 1,
          .inCreateOnlyImageView = false,
-         .inUsageBits           = std::nullopt,
-         .inLayout              = std::nullopt,
-         .inFormat              = std::nullopt,
-         .inImageViewType       = std::nullopt,
-         .inImageViewBaseLayer  = 0,
+         .inUsageBits           = vk::ImageUsageFlagBits::eTransferDst |
+                        vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eSampled,
+         .inLayout             = std::nullopt,
+         .inFormat             = std::nullopt,
+         .inImageViewType      = std::nullopt,
+         .inImageViewBaseLayer = 0,
     });
     EquirectangularCubeMapHDR.SubmitImmediateCmdCopyFromDataWithStagingBuffer(
          inInstance.GetTransferQueue(),
@@ -189,11 +191,12 @@ static auto EquirectangularToMultiConversion(Jkr::Instance &inInstance,
          .inSamples             = 1,
          .inMips                = 1,
          .inCreateOnlyImageView = false,
-         .inUsageBits           = std::nullopt,
-         .inLayout              = std::nullopt,
-         .inFormat              = std::nullopt,
-         .inImageViewType       = std::nullopt,
-         .inImageViewBaseLayer  = 0,
+         .inUsageBits           = vk::ImageUsageFlagBits::eTransferDst |
+                        vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eSampled,
+         .inLayout             = std::nullopt,
+         .inFormat             = std::nullopt,
+         .inImageViewType      = std::nullopt,
+         .inImageViewBaseLayer = 0,
     });
 
     VulkanImageVMA OffscreenFBufferImage;
@@ -323,13 +326,18 @@ static auto EquirectangularToMultiConversion(Jkr::Instance &inInstance,
                                                       i,
                                                       1,
                                                       vk::ImageLayout::eGeneral,
-                                                      vk::ImageLayout::eGeneral,
+                                                      vk::ImageLayout::eShaderReadOnlyOptimal,
                                                       vk::ImageLayout::eShaderReadOnlyOptimal);
     }
     Cmd.End();
     inInstance.GetGraphicsQueue().Submit<SubmitContext::SingleTime>(Cmd);
     return std::make_tuple(std::move(CubeMultiMap), width, height, nrComponents);
 }
+
+static std::string CubeMultiMapString    = "CUBE_MULTI_MAP";
+static std::string IrradianceCubeString  = "IRRADIANCE_CUBE";
+static std::string PrefilteredCubeString = "PREFILTERED_CUBE";
+static std::string BRDFLookupTableString = "BRDF_LOOKUP_TABLE";
 
 void SetupPBR(Jkr::Instance &inInstance,
               Jkr::Window &inWindow,
@@ -348,11 +356,188 @@ void SetupPBR(Jkr::Instance &inInstance,
               sv inEquirectangularToCubeMap_vs,
               sv inEquirectangularToCubeMap_fs,
               sv inEquirectangularCubeMapHDR) {
-    uint32_t Dim = 512;
+    uint32_t Dim       = 512;
+    std::string prefix = s(inCachePrefix);
     using namespace std;
-    if ( // fs::exists(inPBRCacheName)
-         false) {
-        /// Load the PBR to Uniform Image
+    if (inJkrFile.GetFileContents().contains(prefix + CubeMultiMapString)) {
+        Up<VulkanImageVMA> CubeMultiMap = MakeUp<VulkanImageVMA>();
+        CubeMultiMap->Init({
+             .inVMA                 = &inInstance.GetVMA(),
+             .inDevice              = &inInstance.GetDevice(),
+             .inWidth               = static_cast<ui>(Dim),
+             .inHeight              = static_cast<ui>(Dim),
+             .inImageContext        = ImageContext::CubeCompatible,
+             .inChannel             = static_cast<ui>(4),
+             .inLayerCount          = 6,
+             .inSamples             = 1,
+             .inMips                = 1,
+             .inCreateOnlyImageView = false,
+             .inUsageBits           = vk::ImageUsageFlagBits::eTransferDst |
+                            vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eSampled,
+             .inLayout             = std::nullopt,
+             .inFormat             = std::nullopt,
+             .inImageViewType      = std::nullopt,
+             .inImageViewBaseLayer = 0,
+        });
+        {
+            auto Vector = inJkrFile.Read<v<char>>((prefix + CubeMultiMapString).c_str());
+            auto data   = Vector.data();
+            CubeMultiMap->SubmitImmediateCmdCopyFromDataWithStagingBuffer(
+                 inInstance.GetTransferQueue(),
+                 inInstance.GetUtilCommandBuffer(),
+                 inInstance.GetDevice(),
+                 inInstance.GetUtilCommandBufferFence(),
+                 reinterpret_cast<void **>(&data),
+                 Vector.size(),
+                 inInstance.GetStagingBuffer(Vector.size()),
+                 vk::ImageLayout::eShaderReadOnlyOptimal,
+                 -1,
+                 -1,
+                 0,
+                 0,
+                 6);
+        }
+        Up<VulkanImageVMA> BRDFLUTImage =
+             MakeUp<VulkanImageVMA>(inInstance.GetVMA(),
+                                    inInstance.GetDevice(),
+                                    Jkr::Renderer::PBR::BRDFLUTDimension,
+                                    Jkr::Renderer::PBR::BRDFLUTDimension,
+                                    ImageContext::Default,
+                                    4,
+                                    1,
+                                    1,
+                                    1,
+                                    vk::ImageUsageFlagBits::eSampled);
+        {
+            auto Vector = inJkrFile.Read<v<char>>((prefix + BRDFLookupTableString).c_str());
+            auto data   = Vector.data();
+            BRDFLUTImage->SubmitImmediateCmdCopyFromDataWithStagingBuffer(
+                 inInstance.GetTransferQueue(),
+                 inInstance.GetUtilCommandBuffer(),
+                 inInstance.GetDevice(),
+                 inInstance.GetUtilCommandBufferFence(),
+                 reinterpret_cast<void **>(&data),
+                 Vector.size(),
+                 inInstance.GetStagingBuffer(Vector.size()),
+                 vk::ImageLayout::eShaderReadOnlyOptimal,
+                 -1,
+                 -1,
+                 0,
+                 0,
+                 1);
+        }
+
+        auto IrradianceCubeMap = MakeUp<VulkanImageVMA>(
+             inInstance.GetVMA(),
+             inInstance.GetDevice(),
+             Jkr::Renderer::PBR::IrradianceCubeDimension,
+             Jkr::Renderer::PBR::IrradianceCubeDimension,
+             ImageContext::CubeCompatible,
+             4,
+             6,
+             1,
+             static_cast<uint32_t>(floor(log2(Jkr::Renderer::PBR::IrradianceCubeDimension)) + 1),
+             vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eTransferSrc,
+             vk::ImageLayout::eUndefined);
+
+        for (int mip = 0; mip < IrradianceCubeMap->GetImageProperty().mMipLevels; ++mip) {
+            auto Vector = inJkrFile.Read<v<char>>(
+                 (prefix + IrradianceCubeString + std::to_string(mip)).c_str());
+            auto data = Vector.data();
+            IrradianceCubeMap->SubmitImmediateCmdCopyFromDataWithStagingBuffer(
+                 inInstance.GetTransferQueue(),
+                 inInstance.GetUtilCommandBuffer(),
+                 inInstance.GetDevice(),
+                 inInstance.GetUtilCommandBufferFence(),
+                 reinterpret_cast<void **>(&data),
+                 Vector.size(),
+                 inInstance.GetStagingBuffer(Vector.size()),
+                 vk::ImageLayout::eShaderReadOnlyOptimal,
+                 static_cast<int>(IrradianceCubeMap->GetImageExtent().width * std::pow(0.5f, mip)),
+                 static_cast<int>(IrradianceCubeMap->GetImageExtent().height * std::pow(0.5f, mip)),
+                 mip,
+                 0,
+                 6);
+        }
+
+        auto PrefilteredCubeMapImage = MakeUp<VulkanImageVMA>(
+             inInstance.GetVMA(),
+             inInstance.GetDevice(),
+             Jkr::Renderer::PBR::PrefilteredCubeDimension,
+             Jkr::Renderer::PBR::PrefilteredCubeDimension,
+             ImageContext::CubeCompatible,
+             4,
+             6,
+             1,
+             static_cast<uint32_t>(floor(log2(Jkr::Renderer::PBR::PrefilteredCubeDimension)) + 1),
+             vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eTransferSrc,
+             vk::ImageLayout::eUndefined);
+
+        for (int mip = 0; mip < PrefilteredCubeMapImage->GetImageProperty().mMipLevels; ++mip) {
+            auto Vector = inJkrFile.Read<v<char>>(
+                 (prefix + PrefilteredCubeString + std::to_string(mip)).c_str());
+            auto data = Vector.data();
+            PrefilteredCubeMapImage->SubmitImmediateCmdCopyFromDataWithStagingBuffer(
+                 inInstance.GetTransferQueue(),
+                 inInstance.GetUtilCommandBuffer(),
+                 inInstance.GetDevice(),
+                 inInstance.GetUtilCommandBufferFence(),
+                 reinterpret_cast<void **>(&data),
+                 Vector.size(),
+                 inInstance.GetStagingBuffer(Vector.size()),
+                 vk::ImageLayout::eShaderReadOnlyOptimal,
+                 static_cast<int>(PrefilteredCubeMapImage->GetImageExtent().width *
+                                  std::pow(0.5f, mip)),
+                 static_cast<int>(PrefilteredCubeMapImage->GetImageExtent().height *
+                                  std::pow(0.5f, mip)),
+                 mip,
+                 0,
+                 6);
+        }
+
+        /// Load the PBR to Uniform
+        {
+            auto &SkyboxImages = inUniform3D.GetSkyboxImagesRef();
+            Up<Jkr::PainterParameter<PainterParameterContext::SkyboxImage>> SkyboxImage =
+                 MakeUp<Jkr::PainterParameter<PainterParameterContext::SkyboxImage>>(inInstance);
+            SkyboxImage->mUniformImagePtr = std::move(CubeMultiMap);
+            SkyboxImage->mSampler         = MakeUp<VulkanSampler>(inInstance.GetDevice());
+            inUniform3D.AddSkyboxImage(*SkyboxImage); // This Registers it
+            SkyboxImages.insert_or_assign(kstd::BindingIndex::CubeMapImage, mv(SkyboxImage));
+
+            auto &UniformImages = inUniform3D.GetImagesRef();
+            Up<Jkr::PainterParameter<PainterParameterContext::UniformImage>> BRDFlut =
+                 MakeUp<Jkr::PainterParameter<PainterParameterContext::UniformImage>>(inInstance);
+            BRDFlut->mUniformImagePtr = std::move(BRDFLUTImage);
+            BRDFlut->mSampler =
+                 MakeUp<VulkanSampler>(inInstance.GetDevice(), ImageContext::CubeCompatible);
+            BRDFlut->Register(
+                 0, inUniform3D.BrdfLUTBindingIndex, 0, inUniform3D.GetVulkanDescriptorSet());
+            UniformImages[inUniform3D.BrdfLUTBindingIndex] = std::move(BRDFlut);
+
+            Up<Jkr::PainterParameter<PainterParameterContext::UniformImage>> IrradianceCube =
+                 MakeUp<Jkr::PainterParameter<PainterParameterContext::UniformImage>>(inInstance);
+            IrradianceCube->mUniformImagePtr = std::move(IrradianceCubeMap);
+            IrradianceCube->mSampler =
+                 MakeUp<VulkanSampler>(inInstance.GetDevice(), ImageContext::CubeCompatible);
+            IrradianceCube->Register(0,
+                                     inUniform3D.IrradianceCubeBindingIndex,
+                                     0,
+                                     inUniform3D.GetVulkanDescriptorSet());
+            UniformImages[inUniform3D.IrradianceCubeBindingIndex] = std::move(IrradianceCube);
+
+            Up<Jkr::PainterParameter<PainterParameterContext::UniformImage>> PrefilteredCube =
+                 MakeUp<Jkr::PainterParameter<PainterParameterContext::UniformImage>>(inInstance);
+            PrefilteredCube->mUniformImagePtr = std::move(PrefilteredCubeMapImage);
+            PrefilteredCube->mSampler =
+                 MakeUp<VulkanSampler>(inInstance.GetDevice(), ImageContext::CubeCompatible);
+            PrefilteredCube->Register(0,
+                                      inUniform3D.PrefilteredCubeBindingIndex,
+                                      0,
+                                      inUniform3D.GetVulkanDescriptorSet());
+            UniformImages[inUniform3D.PrefilteredCubeBindingIndex] = std::move(PrefilteredCube);
+        }
+
     } else {
         auto [CubeMultiMap, width, height, nrComponents] =
              EquirectangularToMultiConversion(inInstance,
@@ -393,6 +578,87 @@ void SetupPBR(Jkr::Instance &inInstance,
                                                inPrefilteredCube_fs,
                                                "",
                                                false);
+
+        {
+            ///@warning @warning @warning @todo 4 is hardcoded here, Fix This
+            /// actually 4 is hardcoded everywhere, sigh.
+            ///@warning All 6 layers of images are copied
+            inJkrFile.Write(
+                 (prefix + CubeMultiMapString).c_str(),
+                 CubeMultiMap->SubmitImmediateCmdGetImageToVector(
+                      inInstance.GetTransferQueue(),
+                      inInstance.GetStagingBuffer(CubeMultiMap->GetImageExtent().width *
+                                                  CubeMultiMap->GetImageExtent().height * 4 * 6),
+                      inInstance.GetUtilCommandBuffer(),
+                      inInstance.GetUtilCommandBufferFence(),
+                      vk::ImageLayout::eShaderReadOnlyOptimal,
+                      -1,
+                      -1,
+                      0,
+                      0,
+                      6));
+
+            auto &BRDFLookupTable =
+                 inUniform3D.GetImagesRef()[inUniform3D.BrdfLUTBindingIndex]->GetUniformImage();
+            inJkrFile.Write(
+                 (prefix + BRDFLookupTableString).c_str(),
+                 BRDFLookupTable.SubmitImmediateCmdGetImageToVector(
+                      inInstance.GetTransferQueue(),
+                      inInstance.GetStagingBuffer(BRDFLookupTable.GetImageExtent().width *
+                                                  BRDFLookupTable.GetImageExtent().height * 4 * 6),
+                      inInstance.GetUtilCommandBuffer(),
+                      inInstance.GetUtilCommandBufferFence(),
+                      vk::ImageLayout::eShaderReadOnlyOptimal,
+                      -1,
+                      -1,
+                      0,
+                      0,
+                      1));
+
+            auto &IrradianceCube =
+                 inUniform3D.GetImagesRef()[inUniform3D.IrradianceCubeBindingIndex]
+                      ->GetUniformImage();
+            auto &PrefilteredCube =
+                 inUniform3D.GetImagesRef()[inUniform3D.PrefilteredCubeBindingIndex]
+                      ->GetUniformImage();
+
+            for (int mip = 0; mip < IrradianceCube.GetImageProperty().mMipLevels; ++mip) {
+                inJkrFile.Write((prefix + IrradianceCubeString + to_string(mip)).c_str(),
+                                IrradianceCube.SubmitImmediateCmdGetImageToVector(
+                                     inInstance.GetTransferQueue(),
+                                     inInstance.GetStagingBuffer(
+                                          IrradianceCube.GetImageExtent().width *
+                                          IrradianceCube.GetImageExtent().height * 4 * 6),
+                                     inInstance.GetUtilCommandBuffer(),
+                                     inInstance.GetUtilCommandBufferFence(),
+                                     vk::ImageLayout::eShaderReadOnlyOptimal,
+                                     static_cast<int>(IrradianceCube.GetImageExtent().width *
+                                                      std::pow(0.5f, mip)),
+                                     static_cast<int>(IrradianceCube.GetImageExtent().height *
+                                                      std::pow(0.5f, mip)),
+                                     mip,
+                                     0,
+                                     6));
+            }
+            for (int mip = 0; mip < PrefilteredCube.GetImageProperty().mMipLevels; ++mip) {
+                inJkrFile.Write((prefix + PrefilteredCubeString + to_string(mip)).c_str(),
+                                PrefilteredCube.SubmitImmediateCmdGetImageToVector(
+                                     inInstance.GetTransferQueue(),
+                                     inInstance.GetStagingBuffer(
+                                          PrefilteredCube.GetImageExtent().width *
+                                          PrefilteredCube.GetImageExtent().height * 4 * 6),
+                                     inInstance.GetUtilCommandBuffer(),
+                                     inInstance.GetUtilCommandBufferFence(),
+                                     vk::ImageLayout::eShaderReadOnlyOptimal,
+                                     static_cast<int>(PrefilteredCube.GetImageExtent().width *
+                                                      std::pow(0.5f, mip)),
+                                     static_cast<int>(PrefilteredCube.GetImageExtent().height *
+                                                      std::pow(0.5f, mip)),
+                                     mip,
+                                     0,
+                                     6));
+            }
+        }
 
         Up<Jkr::PainterParameter<PainterParameterContext::SkyboxImage>> SkyboxImage =
              MakeUp<Jkr::PainterParameter<PainterParameterContext::SkyboxImage>>(inInstance);

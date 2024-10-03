@@ -1,5 +1,5 @@
 {
-    "workbench.colorTheme": "GitHub Light",
+    "workbench.colorTheme": "3a78b13e-dbf2-410f-bb20-12b57bff7735",
     "git.enableSmartCommit": true,
     "git.confirmSync": false,
     "gitlens.currentLine.enabled": false,
@@ -21,12 +21,12 @@
     "cmake.clearOutputBeforeBuild": true,
     "cmake.debugConfig": {
         "console": "externalTerminal",
-        "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\Present",
+        "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\PBR",
         "visualizerFile": "${workspaceFolder}/Visualizers/glm.natvis",
         "args": [
             "--gr",
             "--run",
-            "jkrguipr"
+            "app"
             // "jkrguipr"
             // "--android-environment",
             // "--appname \"tester\"",

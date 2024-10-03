@@ -13,6 +13,9 @@ class Uniform3D {
     using ImageType         = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
     using UniformBufferType = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformBuffer>;
     using StorageBufferType = Jkr::PainterParameter<Jkr::PainterParameterContext::StorageBuffer>;
+    const int BrdfLUTBindingIndex         = 3 + kstd::BindingIndex::Uniform::CubeMapImage;
+    const int IrradianceCubeBindingIndex  = 4 + kstd::BindingIndex::Uniform::CubeMapImage;
+    const int PrefilteredCubeBindingIndex = 5 + kstd::BindingIndex::Uniform::CubeMapImage;
 
     GETTER &GetImagesRef() { return mImages; }
     GETTER &GetSkyboxImagesRef() { return mSkyboxImages; }

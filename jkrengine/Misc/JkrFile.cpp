@@ -6,6 +6,7 @@ using namespace ksai;
 using namespace std;
 
 FileJkr::FileJkr(s inFileName) {
+    mFileName   = inFileName;
     bool exists = false;
     if (filesystem::exists(inFileName)) {
         mFile = std::fstream(inFileName, ios_base::in | ios_base::out | ios_base::binary);
@@ -35,7 +36,7 @@ FileJkr::FileJkr(s inFileName) {
                 mData.resize(Datasize);
                 mFile.read(mData.data(), Datasize);
             } else {
-                assert(false && "ERROR: This file is not right, probably not jkrgui file");
+                std::cout << "This File Seems not to be a JkrGUI file, it will be overriden\n";
             }
         } catch (const std::exception &e) {
             std::cout << "ERROR:" << e.what() << std::endl;

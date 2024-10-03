@@ -44,7 +44,13 @@ class VulkanImageBase {
          const VulkanFence &inFence,
          void **inData,
          vk::DeviceSize inSize,
-         VulkanBufferVMA &inStagingBuffer);
+         VulkanBufferVMA &inStagingBuffer,
+         vk::ImageLayout inImageLayout = vk::ImageLayout::eGeneral,
+         int inImageWidth              = -1,
+         int inImageHeight             = -1,
+         int inMipLevel                = 0,
+         int inLayer                   = 0,
+         int inLayersToBeCopied        = 1);
     void SubmitImmediateCmdCopyFromDataWithStagingBuffer(
          const VulkanQueue<QueueContext::Graphics> &inQueue,
          const VulkanCommandBuffer &inCmdBuffer,
@@ -78,10 +84,12 @@ class VulkanImageBase {
                                   vk::AccessFlags inBeforeAccess,
                                   vk::AccessFlags inAfterAccess);
 
-    std::vector<int>
+    ///@warning Assumes the precision of each channel to be 1 byte
+    std::vector<char>
     SubmitImmediateCmdGetImageToVector(VulkanQueue<QueueContext::Graphics> &inQueue,
                                        VulkanBufferVMA &inStagingBuffer,
                                        VulkanCommandBuffer &inBuffer,
+                                       VulkanFence &inCommandBufferFence,
                                        vk::ImageLayout inImageLayout = vk::ImageLayout::eGeneral,
                                        int inImageWidth              = -1,
                                        int inImageHeight             = -1,

@@ -93,36 +93,6 @@ void GlslMain()
                )""";
 }
 
-std::vector<int> CustomPainterImage::GetImageToVector(Instance &inInstance,
-                                                      const Window_base &inWindow) {
-    ui ImageChannels = 4;
-    auto ImageExtent = mPainterParam->GetStorageImage().GetImageExtent();
-    auto Size        = ImageChannels * ImageExtent.width * ImageExtent.height;
-    uint32_t size    = ImageChannels * ImageExtent.width * ImageExtent.height;
-    VulkanBufferVMA Buffer(inInstance.GetVMA(),
-                           inInstance.GetDevice(),
-                           size,
-                           BufferContext::Storage,
-                           MemoryType::HostVisibleAndCoherenet);
-    Buffer.SubmitImmediateCmdCopyFromImage(
-         inInstance.GetGraphicsQueue(),
-         inWindow.GetCommandBuffers(Jkr::Window_base::None)[inWindow.GetCurrentFrame()],
-         mPainterParam->GetStorageImage(),
-         vk::ImageLayout::eGeneral);
-    void *MemoryRegion;
-    Buffer.MapMemoryRegion(&MemoryRegion);
-    std::vector<uint8_t> OutImage;
-    std::vector<int> OutImage_i;
-    OutImage.resize(size);
-    OutImage_i.reserve(size);
-    std::memcpy(OutImage.data(), MemoryRegion, size);
-
-    for (int i = 0; i < OutImage.size(); i++) {
-        OutImage_i.push_back(OutImage[i]);
-    }
-    return OutImage_i;
-}
-
 void Jkr::Renderer::CustomPainterImage::Register(Instance &inInstance,
                                                  CustomImagePainter &inPainter,
                                                  int inIndex) {

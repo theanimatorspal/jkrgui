@@ -74,6 +74,7 @@ struct FileJkr {
         size_type mSize;
     };
     GETTER GetFileName() const { return mFileName; }
+    GETTER &GetFileContents() { return mFileContents; }
 
     FileJkr(s inFileName);
     ~FileJkr();
@@ -84,7 +85,7 @@ struct FileJkr {
 
         if (not mFileContents.contains(s(inId))) {
             std::cout << "WROTE::> " << header.mId << " : " << header.mLocation << " : "
-                      << header.mSize << "\n";
+                      << header.mSize << std::endl;
 
             mFileContents[s(inId)] = header;
             PushVector(mHeader, Serialize(header));
@@ -94,7 +95,7 @@ struct FileJkr {
     template <typename T> T Read(const char inId[IdSize]) {
         auto header = mFileContents[s(inId)];
         std::cout << "READ::> " << header.mId << " : " << header.mLocation << " : " << header.mSize
-                  << "\n";
+                  << std::endl;
         auto out = v<char>(mData.begin() + header.mLocation,
                            mData.begin() + header.mLocation + header.mSize);
 

@@ -15,6 +15,9 @@ class World3D;
 using namespace ksai;
 using namespace Jkr;
 namespace PBR {
+const int BRDFLUTDimension         = 512;
+const int PrefilteredCubeDimension = 512;
+const int IrradianceCubeDimension  = 64;
 Up<VulkanImageVMA> GenerateBRDFLookupTable(Instance &inInstance,
                                            Window &inWindow,
                                            std::string_view inFileName,

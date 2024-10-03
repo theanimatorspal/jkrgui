@@ -105,6 +105,7 @@ void ksai::VulkanBufferBase::CmdCopyFromImage(const VulkanCommandBuffer &inCmdBu
 void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFromImage(
      const VulkanQueue<QueueContext::Graphics> &inQueue,
      const VulkanCommandBuffer &inCmdBuffer,
+     const VulkanFence &inFence,
      VulkanImageBase &inImage,
      vk::ImageLayout inLayout,
      int inMipLevel,
@@ -117,11 +118,16 @@ void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFromImage(
         ImageExtent.width = inImageWidth;
     }
     if (inImageHeight > 0) {
-        ImageExtent.width = inImageHeight;
+        ImageExtent.height = inImageHeight;
     }
-    auto CopySize     = ImageExtent.width * ImageExtent.height * 4; // TODO don't hardcode this
-    auto srcImageProp = inImage.GetImageProperty();
+    /// @warning @todo don't hardcode this
+    auto CopySize                = ImageExtent.width * ImageExtent.height * 4;
+    auto srcImageProp            = inImage.GetImageProperty();
     const vk::CommandBuffer &Cmd = inCmdBuffer.GetCommandBufferHandle();
+
+    ///@warning IDK Why fence is there for submit immediate @todo Understand this better
+    inFence.Wait();
+    inFence.Reset();
 
     Cmd.begin(vk::CommandBufferBeginInfo());
     auto ImageSubResource = vk::ImageSubresourceLayers(
@@ -147,7 +153,7 @@ void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFromImage(
                                      vk::AccessFlagBits::eMemoryRead,
                                      vk::AccessFlagBits::eMemoryRead);
     Cmd.end();
-    inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer);
+    inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer, inFence);
 }
 
 void VulkanBufferBase::FillBufferUsage(vk::BufferCreateInfo &inInfo,

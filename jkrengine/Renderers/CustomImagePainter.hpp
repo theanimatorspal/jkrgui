@@ -12,7 +12,6 @@ struct CustomPainterImage {
     void SyncBefore(Window_base &inWindow, ComPar inPar = ComPar::None);
     void SyncAfter(Window_base &inWindow, ComPar inPar = ComPar::None);
     void Register(Instance &inInstance, CustomImagePainter &inPainterCache, int inIndex = 0);
-    std::vector<int> GetImageToVector(Instance &inInstance, const Window_base &inWindow);
 
     GETTER &GetPainterParam() { return *mPainterParam; }
     GETTER &GetDescriptorSet() { return *mVulkanDescriptorSet; }

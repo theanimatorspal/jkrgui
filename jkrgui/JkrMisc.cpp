@@ -54,8 +54,8 @@ void CreateMiscBindings(sol::state &inState) {
                   return mu<Jkr::Renderer::CustomPainterImage>(
                        inInstance, inWindow, inWidth, inHeight);
               }),
-         "GetImageToVector",
-         &Jkr::Renderer::CustomPainterImage::GetImageToVector,
+         //     "GetImageToVector",
+         //     &Jkr::Renderer::CustomPainterImage::GetImageToVector,
          "Register",
          &Jkr::Renderer::CustomPainterImage::Register,
          "SyncBefore",

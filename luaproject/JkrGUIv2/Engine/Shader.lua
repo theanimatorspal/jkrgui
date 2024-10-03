@@ -1183,7 +1183,7 @@ PBR.PreFilterEnvMapF = Engine.Shader()
     consts.numSamples = uint(Push.m2[0].y);
     vec3 N = normalize(inPos);
     vec3 color = PrefilterEnvMap(N, consts.roughness);
-    debugPrintfEXT("PrefilterCubeMap:: Roughness: %f, Samples: %d, color: (%f, %f, %f)\n", consts.roughness, consts.numSamples, color.x, color.y, color.z);
+    //debugPrintfEXT("PrefilterCubeMap:: Roughness: %f, Samples: %d, color: (%f, %f, %f)\n", consts.roughness, consts.numSamples, color.x, color.y, color.z);
     outFragColor = vec4(color, 1.0);
 
     ]]
@@ -1228,7 +1228,7 @@ PBR.IrradianceCubeF = Engine.Shader()
 		}
 	}
     color  = PI * color / float(sampleCount);
-    debugPrintfEXT("deltaPhi = %f, deltaTheta = %f, color: (%f, %f, %f)\n", consts.deltaPhi, consts.deltaTheta, color.x, color.y, color.z);
+    //debugPrintfEXT("deltaPhi = %f, deltaTheta = %f, color: (%f, %f, %f)\n", consts.deltaPhi, consts.deltaTheta, color.x, color.y, color.z);
 	outFragColor = vec4(color, 1.0);
     ]]
     .GlslMainEnd()
@@ -1544,7 +1544,7 @@ TwoDimensionalIPs.Circle = Engine.Shader()
         vec4 old_color = imageLoad(storageImage, to_draw_at);
         vec4 final_color = vec4(p2.x * color, p2.y * color, p2.z * color, p2.w * color);
         final_color = mix(final_color, old_color, p3.w);
-        debugPrintfEXT("final_color %f %f %f", final_color.x, final_color.y, final_color.z);
+        //debugPrintfEXT("final_color %f %f %f", final_color.x, final_color.y, final_color.z);
 
         imageStore(storageImage, to_draw_at, final_color);
           ]]
