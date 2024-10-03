@@ -1,18 +1,6 @@
 require "JkrGUIv2.require"
 
--- @warning this eats up a lot of memory, @todo keep the locals, locally in this file
--- but before that, ensure that the multithreaded shader compilation works fine
-Engine.Shader = function()
-    local o                                       = {}
-
-    ---
-    ---
-    ---
-    --- FOR IMAGE PAINTER COMPUTE SHADER
-    ---
-    ---
-    ---
-    local ImagePainterPush                        = [[
+local ImagePainterPush          = [[
 layout(std430, push_constant) uniform pc {
         vec4 mPosDimen;
         vec4 mColor;
@@ -20,14 +8,14 @@ layout(std430, push_constant) uniform pc {
 } push;
     ]]
 
-    local ImagePainterPushMatrix2                 = [[
+local ImagePainterPushMatrix2   = [[
 layout(std430, push_constant) uniform pc {
     mat4 a;
     mat4 b;
 } push;
        ]]
 
-    local ImagePainterAssistMatrix2               = [[
+local ImagePainterAssistMatrix2 = [[
 uvec3 gID = gl_GlobalInvocationID;
 ivec2 image_size = ivec2(imageSize(storageImage));
 ivec2 to_draw_at = ivec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y);
@@ -41,7 +29,7 @@ vec4 p3 = push.a[2];
 vec4 p4 = push.a[3];
        ]]
 
-    local ImagePainterAssist                      = [[
+local ImagePainterAssist        = [[
 uvec3 gID = gl_GlobalInvocationID;
 ivec2 image_size = ivec2(imageSize(storageImage));
 ivec2 to_draw_at = ivec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y);
@@ -58,71 +46,8 @@ vec4 p2 = push.mColor;
 vec4 p3 = push.mParam;
       ]]
 
-    o.uImage2D                                    = function(inBinding, inImageName)
-        if not inBinding then inBinding = 0 end
-        if not inImageName then inImageName = "storageImage" end
-        o.NewLine()
-        o.Append(string.format([[
-layout(set = 0, binding = %d, rgba8) uniform image2D %s;
-    ]], inBinding, inImageName))
-        return o.NewLine()
-    end
 
-    o.CInvocationLayout                           = function(inX, inY, inZ)
-        o.NewLine()
-        o.Append(
-            string.format("layout(local_size_x = %d, local_size_y = %d, local_size_z = %d) in;", inX,
-                inY, inZ)
-        )
-        return o.NewLine()
-    end
-
-    o.ImagePainterPush                            = function()
-        o.NewLine()
-        o.Append(ImagePainterPush)
-        return o.NewLine()
-    end
-
-    o.ImagePainterPushMatrix2                     = function()
-        o.NewLine()
-        o.Append(ImagePainterPushMatrix2)
-        return o
-    end
-
-    o.ImagePainterAssistMatrix2                   = function()
-        o.NewLine()
-        o.Append(ImagePainterAssistMatrix2)
-        return o;
-    end
-
-    o.ImagePainterAssist                          = function()
-        o.NewLine()
-        o.Append(ImagePainterAssist)
-        return o.NewLine()
-    end
-
-    o.ImagePainterAssistConvolution               = function(inImageNameFrom, inImageNameTo)
-        o.NewLine()
-        o.Append(string.format(
-            [[
-
-            ]],
-            inImageNameFrom, inImageNameTo
-        ))
-        o.NewLine()
-        o.Append [[
-
-        ]]
-        return o.NewLine()
-    end
-
-    ---
-    ---
-    --- CUSTOM IMAGE PAINTER FOR 3D
-    ---
-    --- binding = 14 for storageVertex, and 15 for storageIndex
-
-    local storageVIBufferLayoutCustomImagePainter = [[
+local storageVIBufferLayoutCustomImagePainter = [[
         struct Vertex {
             vec3 mPosition;
             vec3 mNormal;
@@ -144,21 +69,8 @@ layout(set = 0, binding = %d, rgba8) uniform image2D %s;
         };
     ]]
 
-    o.vertexStorageBufferIndex                    = 14
-    o.indexStorageBufferIndex                     = 15
 
-    o.ImagePainterVIStorageLayout                 = function()
-        o.NewLine()
-        o.Append(storageVIBufferLayoutCustomImagePainter)
-        return o.NewLine()
-    end
-
-    ---
-    ---
-    --- MOSTLY FOR 3D
-    ---
-    ---
-    local vLayout                                 = [[
+local vLayout               = [[
 
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 inNormal;
@@ -166,14 +78,14 @@ layout(location = 2) in vec2 inUV;
 layout(location = 3) in vec3 inColor;
                     ]]
 
-    local push                                    = [[
+local push                  = [[
 
 layout(push_constant, std430) uniform pc {
 	mat4 model;
     mat4 m2;
 } Push;
 ]]
-    local Ubo                                     = [[
+local Ubo                   = [[
 
 layout(set = 0, binding = 0) uniform UBO {
    mat4 view;
@@ -186,7 +98,7 @@ layout(set = 0, binding = 0) uniform UBO {
 } Ubo;
 ]]
 
-    local LinearizeDepth                          = [[
+local LinearizeDepth        = [[
 
 float LinearizeDepth(float depth, float near, float far)
 {
@@ -197,7 +109,7 @@ float LinearizeDepth(float depth, float near, float far)
 }
           ]]
 
-    local ShadowTextureProject                    = [[
+local ShadowTextureProject  = [[
 
 float ShadowTextureProject(vec4 shadowCoord, vec2 off)
 {
@@ -214,7 +126,7 @@ float ShadowTextureProject(vec4 shadowCoord, vec2 off)
 }
 ]]
 
-    local inJointInfluence                        = [[
+local inJointInfluence      = [[
 
 struct JointInfluence {
     vec4 mJointIndices;
@@ -227,7 +139,7 @@ layout(std140, set = 1, binding = 2) readonly buffer JointInfluenceSSBOIn {
 
 ]]
 
-    local inTangent                               = [[
+local inTangent             = [[
         struct Tangent {
             vec4 mTangent;
         };
@@ -237,13 +149,13 @@ layout(std140, set = 1, binding = 2) readonly buffer JointInfluenceSSBOIn {
         };
     ]]
 
-    local inJointMatrices                         = [[
+local inJointMatrices       = [[
 
 layout(std140, set = 1, binding = 1) readonly buffer JointMatrixSSBOIn {
     mat4 inJointMatrices[ ];
 };
           ]]
-    local BiasMatrix                              = [[
+local BiasMatrix            = [[
 
     const mat4 BiasMatrix = mat4(
     0.5, 0.0, 0.0, 0.0,
@@ -252,7 +164,7 @@ layout(std140, set = 1, binding = 1) readonly buffer JointMatrixSSBOIn {
     0.5, 0.5, 0.0, 1.0 );
     ]]
 
-    local D_GGX                                   = [[
+local D_GGX                 = [[
 // Normal Distribution Function
 float D_GGX(float dotNH, float roughness)
 {
@@ -264,7 +176,7 @@ float D_GGX(float dotNH, float roughness)
 
     ]]
 
-    local G_SchlicksmithGGX                       = [[
+local G_SchlicksmithGGX     = [[
 // Geometric Shadowing Function
 float G_SchlicksmithGGX(float dotNL, float dotNV, float roughness)
 {
@@ -276,7 +188,7 @@ float G_SchlicksmithGGX(float dotNL, float dotNV, float roughness)
 }
     ]]
 
-    local F_Schlick                               = [[
+local F_Schlick             = [[
 // Fresnel Function
 vec3 F_Schlick(float cosTheta, float metallic)
 {
@@ -292,14 +204,14 @@ vec3 F_Schlick(float cosTheta, vec3 F0)
 
     ]]
 
-    local F_SchlickR                              = [[
+local F_SchlickR            = [[
 vec3 F_SchlickR(float cosTheta, vec3 F0, float roughness)
 {
 	return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
 }
     ]]
 
-    local PrefilteredReflection                   = [[
+local PrefilteredReflection = [[
 vec3 PrefilteredReflection(vec3 R, float roughness)
 {
 	const float MAX_REFLECTION_LOD = 9.0; // todo: param/const
@@ -313,7 +225,7 @@ vec3 PrefilteredReflection(vec3 R, float roughness)
     ]]
 
 
-    local BRDF                 = [[
+local BRDF                 = [[
 // Specular BRDF composition
 vec3 BRDF(vec3 L, vec3 V, vec3 N, float metallic, float roughness)
 {
@@ -344,7 +256,7 @@ vec3 BRDF(vec3 L, vec3 V, vec3 N, float metallic, float roughness)
 }
     ]]
 
-    local BRDF_LUT             = [[
+local BRDF_LUT             = [[
 vec2 BRDF(float NoV, float roughness)
 {
 	// Normal always points along z-axis for the 2D lookup
@@ -374,8 +286,8 @@ vec2 BRDF(float NoV, float roughness)
 
     ]]
 
-    local Uncharted2Tonemap    =
-    [[
+local Uncharted2Tonemap    =
+[[
         // From http://filmicworlds.com/blog/filmic-tonemapping-operators/
 vec3 Uncharted2Tonemap(vec3 color)
 {
@@ -390,7 +302,7 @@ vec3 Uncharted2Tonemap(vec3 color)
 }
     ]]
 
-    local Random               = [[
+local Random               = [[
 // Based omn http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
 float Random(vec2 co)
 {
@@ -404,7 +316,7 @@ float Random(vec2 co)
 
        ]]
 
-    local Hammerslay2d         = [[
+local Hammerslay2d         = [[
 vec2 Hammersley2d(uint i, uint N)
 {
 	// Radical inverse based on http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
@@ -418,7 +330,7 @@ vec2 Hammersley2d(uint i, uint N)
 }
        ]]
 
-    local ImportanceSample_GGX = [[
+local ImportanceSample_GGX = [[
         // Based on http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_slides.pdf
 vec3 ImportanceSample_GGX(vec2 Xi, float roughness, vec3 normal)
 {
@@ -439,7 +351,7 @@ vec3 ImportanceSample_GGX(vec2 Xi, float roughness, vec3 normal)
 }
        ]]
 
-    local SRGBtoLINEAR         = [[
+local SRGBtoLINEAR         = [[
 
 vec4 SRGBtoLINEAR(vec4 srgbIn)
 {
@@ -476,7 +388,7 @@ vec3 SRGBtoLINEAR(vec3 srgbIn)
 
 
 
-    local PrefilterEnvMap      = [[
+local PrefilterEnvMap      = [[
 
 vec3 PrefilterEnvMap(vec3 R, float roughness)
 {
@@ -514,7 +426,7 @@ vec3 PrefilterEnvMap(vec3 R, float roughness)
 
 ]]
 
-    local SpecularContribution = [[
+local SpecularContribution = [[
 vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float roughness)
 {
 	// Precalculate vectors and dot products	
@@ -544,33 +456,128 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
 }
 ]]
 
-    o.str                      = ""
 
-    o.Append                   = function(inStr)
+
+-- @warning this eats up a lot of memory, @todo keep the locals, locally in this file
+-- but before that, ensure that the multithreaded shader compilation works fine
+Engine.Shader = function()
+    local o                         = {}
+
+    ---
+    ---
+    ---
+    --- FOR IMAGE PAINTER COMPUTE SHADER
+    ---
+    ---
+    ---
+
+    o.uImage2D                      = function(inBinding, inImageName)
+        if not inBinding then inBinding = 0 end
+        if not inImageName then inImageName = "storageImage" end
+        o.NewLine()
+        o.Append(string.format([[
+layout(set = 0, binding = %d, rgba8) uniform image2D %s;
+    ]], inBinding, inImageName))
+        return o.NewLine()
+    end
+
+    o.CInvocationLayout             = function(inX, inY, inZ)
+        o.NewLine()
+        o.Append(
+            string.format("layout(local_size_x = %d, local_size_y = %d, local_size_z = %d) in;", inX,
+                inY, inZ)
+        )
+        return o.NewLine()
+    end
+
+    o.ImagePainterPush              = function()
+        o.NewLine()
+        o.Append(ImagePainterPush)
+        return o.NewLine()
+    end
+
+    o.ImagePainterPushMatrix2       = function()
+        o.NewLine()
+        o.Append(ImagePainterPushMatrix2)
+        return o
+    end
+
+    o.ImagePainterAssistMatrix2     = function()
+        o.NewLine()
+        o.Append(ImagePainterAssistMatrix2)
+        return o;
+    end
+
+    o.ImagePainterAssist            = function()
+        o.NewLine()
+        o.Append(ImagePainterAssist)
+        return o.NewLine()
+    end
+
+    o.ImagePainterAssistConvolution = function(inImageNameFrom, inImageNameTo)
+        o.NewLine()
+        o.Append(string.format(
+            [[
+
+            ]],
+            inImageNameFrom, inImageNameTo
+        ))
+        o.NewLine()
+        o.Append [[
+
+        ]]
+        return o.NewLine()
+    end
+
+    ---
+    ---
+    --- CUSTOM IMAGE PAINTER FOR 3D
+    ---
+    --- binding = 14 for storageVertex, and 15 for storageIndex
+
+
+    o.vertexStorageBufferIndex    = 14
+    o.indexStorageBufferIndex     = 15
+
+    o.ImagePainterVIStorageLayout = function()
+        o.NewLine()
+        o.Append(storageVIBufferLayoutCustomImagePainter)
+        return o.NewLine()
+    end
+
+    ---
+    ---
+    --- MOSTLY FOR 3D
+    ---
+    ---
+
+    o.str                         = ""
+
+    o.Append                      = function(inStr)
         o.str = o.str .. inStr
         return o.NewLine()
     end
 
-    o.DontAppend               = function(inStr)
+    o.DontAppend                  = function(inStr)
         return o -- do nothing
     end
 
-    o.Clear                    = function()
+    o.Clear                       = function()
         o.str = ""
         return o
     end
 
-    o.NewLine                  = function()
+    o.NewLine                     = function()
         o.str = o.str .. "\n"
         return o
     end
 
-    o.Indent                   = function()
+    o.Indent                      = function()
         o.str = o.str .. "\t"
         return o
     end
 
-    o.Header                   = function(inVersion)
+    o.Header                      = function(inVersion)
         o.str = o.str .. string.format("#version %d", inVersion)
         o.NewLine()
         o.str = o.str .. "#extension GL_EXT_debug_printf : enable"
@@ -578,61 +585,61 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
         return o.NewLine()
     end
 
-    o.VLayout                  = function()
+    o.VLayout                     = function()
         o.str = o.str .. vLayout
         return o.NewLine()
     end
 
-    o.Out                      = function(inLocation, inType, inName)
+    o.Out                         = function(inLocation, inType, inName)
         o.str = o.str .. string.format("layout (location = %d) out %s %s;", inLocation, inType, inName)
         return o.NewLine()
     end
 
-    o.In                       = function(inLocation, inType, inName)
+    o.In                          = function(inLocation, inType, inName)
         o.str = o.str .. string.format("layout (location = %d) in %s %s;", inLocation, inType, inName)
         return o.NewLine()
     end
 
-    o.outFragColor             = function()
+    o.outFragColor                = function()
         o.str = o.str .. "layout( location = 0 ) out vec4 outFragColor;"
         return o.NewLine()
     end
 
-    o.Push                     = function()
+    o.Push                        = function()
         o.str = o.str .. push
         return o.NewLine()
     end
 
-    o.Ubo                      = function()
+    o.Ubo                         = function()
         o.str = o.str .. Ubo
         return o.NewLine()
     end
 
-    o.GlslMainBegin            = function()
+    o.GlslMainBegin               = function()
         o.str = o.str .. "void GlslMain()"
         o.NewLine()
         o.str = o.str .. "{"
         return o.NewLine()
     end
 
-    o.GlslMainEnd              = function()
+    o.GlslMainEnd                 = function()
         o.str = o.str .. "}"
         return o.NewLine()
     end
 
-    o.ShadowGLPosition         = function()
+    o.ShadowGLPosition            = function()
         o.Indent()
         o.str = o.str .. "gl_Position = Ubo.proj * Ubo.shadowMatrix * Push.model * vec4(inPosition, 1.0);"
         return o.NewLine()
     end
 
-    o.InvertY                  = function()
+    o.InvertY                     = function()
         o.Indent()
         o.str = o.str .. "gl_Position.y = -gl_Position.y;"
         return o.NewLine()
     end
 
-    o.uSampler2D               = function(inBinding, inName, inSet)
+    o.uSampler2D                  = function(inBinding, inName, inSet)
         if inSet then
             o.str = o.str ..
                 string.format("layout(set = %d, binding = %d) uniform sampler2D %s;", inSet, inBinding, inName)
@@ -643,7 +650,7 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
         return o.NewLine()
     end
 
-    o.uSamplerCubeMap          = function(inBinding, inName, inSet)
+    o.uSamplerCubeMap             = function(inBinding, inName, inSet)
         if (inSet) then
             o.str = o.str ..
                 string.format("layout(set = %d, binding = %d) uniform samplerCube %s;", inSet, inBinding, inName)
@@ -654,145 +661,145 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
         return o.NewLine()
     end
 
-    o.LinearizeDepth           = function()
+    o.LinearizeDepth              = function()
         o.NewLine()
         o.str = o.str .. LinearizeDepth
         return o.NewLine()
     end
 
-    o.ShadowTextureProject     = function()
+    o.ShadowTextureProject        = function()
         o.NewLine()
         o.str = o.str .. ShadowTextureProject
         return o.NewLine()
     end
 
-    o.inJointInfluence         = function()
+    o.inJointInfluence            = function()
         o.Append(inJointInfluence)
         return o.NewLine()
     end
 
-    o.inJointMatrices          = function()
+    o.inJointMatrices             = function()
         o.Append(inJointMatrices)
         return o.NewLine()
     end
 
-    o.inTangent                = function()
+    o.inTangent                   = function()
         o.Append(inTangent)
         return o.NewLine()
     end
 
-    o.BiasMatrix               = function()
+    o.BiasMatrix                  = function()
         o.Append(BiasMatrix)
         return o.NewLine()
     end
 
-    o.PI                       = function()
+    o.PI                          = function()
         o.Append("const float PI = 3.14159;")
         return o.NewLine()
     end
 
-    o.D_GGX                    = function()
+    o.D_GGX                       = function()
         o.NewLine()
         o.Append(D_GGX)
         return o.NewLine()
     end
 
-    o.G_SchlicksmithGGX        = function()
+    o.G_SchlicksmithGGX           = function()
         o.NewLine()
         o.Append(G_SchlicksmithGGX)
         return o.NewLine()
     end
 
-    o.F_Schlick                = function()
+    o.F_Schlick                   = function()
         o.NewLine()
         o.Append(F_Schlick)
         return o.NewLine()
     end
 
-    o.F_SchlickR               = function()
+    o.F_SchlickR                  = function()
         o.NewLine()
         o.Append(F_SchlickR)
         return o.NewLine()
     end
 
-    o.BRDF                     = function()
+    o.BRDF                        = function()
         o.NewLine()
         o.Append(BRDF)
         return o.NewLine()
     end
 
-    o.Uncharted2Tonemap        = function()
+    o.Uncharted2Tonemap           = function()
         o.NewLine()
         o.Append(Uncharted2Tonemap)
         return o.NewLine()
     end
 
-    o.SRGBtoLINEAR             = function()
+    o.SRGBtoLINEAR                = function()
         o.NewLine()
         o.Append(SRGBtoLINEAR)
         return o.NewLine()
     end
 
-    o.Random                   = function()
+    o.Random                      = function()
         o.NewLine()
         o.Append(Random)
         return o.NewLine()
     end
 
-    o.Hammerslay2d             = function()
+    o.Hammerslay2d                = function()
         o.NewLine()
         o.Append(Hammerslay2d)
         return o.NewLine()
     end
 
-    o.ImportanceSample_GGX     = function()
+    o.ImportanceSample_GGX        = function()
         o.NewLine()
         o.Append(ImportanceSample_GGX)
         return o.NewLine()
     end
 
-    o.PrefilterEnvMap          = function()
+    o.PrefilterEnvMap             = function()
         o.NewLine()
         o.Append(PrefilterEnvMap)
         return o.NewLine()
     end
 
-    o.PrefilteredReflection    = function()
+    o.PrefilteredReflection       = function()
         o.NewLine()
         o.Append(PrefilteredReflection)
         return o.NewLine()
     end
 
-    o.SpecularContribution     = function()
+    o.SpecularContribution        = function()
         o.NewLine()
         o.Append(SpecularContribution)
         return o.NewLine()
     end
 
-    o.BRDF_LUT                 = function()
+    o.BRDF_LUT                    = function()
         o.NewLine()
         o.Append(BRDF_LUT)
         return o.NewLine()
     end
 
-    o.MaterialColorBegin       = function()
+    o.MaterialColorBegin          = function()
         o.str = o.str .. "vec3 MaterialColor()"
         o.NewLine()
         o.str = o.str .. "{"
         return o.NewLine()
     end
 
-    o.MaterialColorEnd         = function()
+    o.MaterialColorEnd            = function()
         o.str = o.str .. "}"
         return o.NewLine()
     end
 
-    o.Define                   = function(inName, inValue)
+    o.Define                      = function(inName, inValue)
         o.str = o.str .. string.format("#define %s %s", inName, inValue)
         return o.NewLine().NewLine()
     end
 
-    o.Print                    = function()
+    o.Print                       = function()
         local lineNumber = 13
 
         for line in o.str:gmatch("[^\n]+") do
@@ -801,8 +808,8 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
         end
         return o
     end
-    o.gltfMaterialTextures     = {}
-    o.gltfPutMaterialTextures  = function(inGLTF, inMaterialIndex)
+    o.gltfMaterialTextures        = {}
+    o.gltfPutMaterialTextures     = function(inGLTF, inMaterialIndex)
         if inGLTF then
             local Materials = inGLTF:GetMaterials()
             local Material = Materials[inMaterialIndex + 1]

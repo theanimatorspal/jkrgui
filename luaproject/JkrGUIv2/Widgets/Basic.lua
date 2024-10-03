@@ -378,31 +378,50 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     o.Draw = function(self)
         -- Optimize this
         self.s:BindShapes(self.w, Jkr.CmdParam.UI)
-        for i = 1, #self.c.mDrawables, 1 do
-            local drawable = self.c.mDrawables[i]
-            self.s:BindFillMode(Jkr.FillType.Image, self.w, Jkr.CmdParam.UI)
-            if drawable.mDrawType == "IMAGE" then
-                self.s:BindImage(self.w, drawable.mImageId, Jkr.CmdParam.UI)
-                self.s:Draw(self.w, drawable.mColor, drawable.mId, drawable.mId, self.UIMatrix,
-                    Jkr.CmdParam.UI)
-            end
 
-            local shader = o.shape2dShaders[drawable.mDrawType]
-            if shader then
-                if drawable.mImageId then
-                    self.s:BindFillMode(Jkr.FillType.Image, self.w, Jkr.CmdParam.UI)
-                    self.s:BindImage(self.w, drawable.mImageId, Jkr.CmdParam.UI)
-                else
-                    self.s:BindFillMode(Jkr.FillType.Fill, self.w, Jkr.CmdParam.UI)
-                end
+        for key, value in pairs(self.c.mDrawTypeToDrawablesMap) do
+            if key ~= "TEXT" and key ~= "IMAGE" then
+                local shader = o.shape2dShaders[key]
                 shader:Bind(self.w, Jkr.CmdParam.UI)
-                drawable.mPush.b = self.UIMatrix
-                Jkr.DrawShape2DWithSimple3D(self.w, shader, self.s.handle, drawable.mPush, drawable.mId, drawable.mId,
-                    Jkr.CmdParam.UI)
+                local drawables = value
+                local drawables_count = #value
+                for i = 1, drawables_count, 1 do
+                    local drawable = drawables[i]
+                    if drawable.mImageId then
+                        self.s:BindFillMode(Jkr.FillType.Image, self.w, Jkr.CmdParam.UI)
+                        self.s:BindImage(self.w, drawable.mImageId, Jkr.CmdParam.UI)
+                    else
+                        self.s:BindFillMode(Jkr.FillType.Fill, self.w, Jkr.CmdParam.UI)
+                    end
+                    drawable.mPush.b = self.UIMatrix
+                    Jkr.DrawShape2DWithSimple3D(self.w, shader, self.s.handle, drawable.mPush, drawable.mId, drawable
+                        .mId,
+                        Jkr.CmdParam.UI)
+                end
             end
+        end
 
-            if drawable.mDrawType == "TEXT" then
-                self.t:Draw(drawable.mId, self.w, drawable.mColor, self.UIMatrix, Jkr.CmdParam.UI)
+        self.s:BindFillMode(Jkr.FillType.Image, self.w, Jkr.CmdParam.UI)
+        do
+            local drawables = self.c.mDrawTypeToDrawablesMap["IMAGE"]
+            if drawables then
+                local drawables_count = #drawables
+                for i = 1, drawables_count, 1 do
+                    local drawable = drawables[i]
+                    self.s:BindImage(self.w, drawable.mImageId, Jkr.CmdParam.UI)
+                    self.t:Draw(drawable.mId, self.w, drawable.mColor, self.UIMatrix, Jkr.CmdParam.UI)
+                end
+            end
+        end
+
+        do
+            local drawables = self.c.mDrawTypeToDrawablesMap["TEXT"]
+            if drawables then
+                local drawables_count = #drawables
+                for i = 1, drawables_count, 1 do
+                    local drawable = drawables[i]
+                    self.t:Draw(drawable.mId, self.w, drawable.mColor, self.UIMatrix, Jkr.CmdParam.UI)
+                end
             end
         end
     end

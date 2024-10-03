@@ -82,8 +82,17 @@ Jkr.CreateCallBuffers = function() -- Similar to Comptable in JrkGUI v1
     o.mOneTimeDispatchables = {}
     o.mOneTimeUpdatables = {}
 
+    o.mDrawTypeToDrawablesMap = {}
+    local itd = o.mDrawTypeToDrawablesMap
+
     o.Push = function(self, inCall)
         if inCall.mDrawType then
+            if inCall.mDrawType then
+                if not itd[inCall.mDrawType] then
+                    itd[inCall.mDrawType] = {}
+                end
+                itd[inCall.mDrawType][#itd[inCall.mDrawType] + 1] = inCall
+            end
             self.mDrawables[#self.mDrawables + 1] = inCall
             return #self.mDrawables
         elseif inCall.mUpdate then
@@ -100,26 +109,20 @@ Jkr.CreateCallBuffers = function() -- Similar to Comptable in JrkGUI v1
     o.PushOneTime = function(self, inCall, inFrame)
         if inCall.mDrawType then
             -- Optimize this
-            if self.mOneTimeDrawables[inFrame] then
-                self.mOneTimeDrawables[inFrame][#self.mOneTimeDrawables[inFrame] + 1] = inCall
-            else
+            if not self.mOneTimeDrawables[inFrame] then
                 self.mOneTimeDrawables[inFrame] = {}
-                self.mOneTimeDrawables[inFrame][#self.mOneTimeDrawables[inFrame] + 1] = inCall
             end
+            self.mOneTimeDrawables[inFrame][#self.mOneTimeDrawables[inFrame] + 1] = inCall
         elseif inCall.mUpdate then
-            if self.mOneTimeUpdatables[inFrame] then
-                self.mOneTimeUpdatables[inFrame][#self.mOneTimeUpdatables[inFrame] + 1] = inCall
-            else
+            if not self.mOneTimeUpdatables[inFrame] then
                 self.mOneTimeUpdatables[inFrame] = {}
-                self.mOneTimeUpdatables[inFrame][#self.mOneTimeUpdatables[inFrame] + 1] = inCall
             end
+            self.mOneTimeUpdatables[inFrame][#self.mOneTimeUpdatables[inFrame] + 1] = inCall
         elseif inCall.mDispatch then
-            if self.mOneTimeDispatchables[inFrame] then
-                self.mOneTimeDispatchables[inFrame][#self.mOneTimeDispatchables[inFrame] + 1] = inCall
-            else
+            if not self.mOneTimeDispatchables[inFrame] then
                 self.mOneTimeDispatchables[inFrame] = {}
-                self.mOneTimeDispatchables[inFrame][#self.mOneTimeDispatchables[inFrame] + 1] = inCall
             end
+            self.mOneTimeDispatchables[inFrame][#self.mOneTimeDispatchables[inFrame] + 1] = inCall
         end
     end
 
