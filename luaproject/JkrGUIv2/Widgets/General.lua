@@ -50,18 +50,13 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                                      inText,
                                      inColor,
                                      inBackgroundColor,
-                                     inPushConstantForImagePainter,
+                                     inPushConstantForImagePainter, ---@todo Remove this
                                      inImageFilePath,
                                      inImagePainter)
         local button = {}
         local push = Jkr.Matrix2CustomImagePainterPushConstant()
-        button.mColor = inColor or vec4(1)
-        push.a = mat4(
-            vec4(0.0, 0.0, 0.9, 0.9),
-            button.mColor,
-            vec4(0.3), -- radius
-            vec4(0)
-        )
+        button.mColor = inBackgroundColor or vec4(1)
+        push.a = mat4(vec4(0.0), button.mColor, vec4(0.3), vec4(0.0))
 
         if not inImageFilePath then
             button.quad = o.CreateQuad(inPosition_3f, inDimension_3f, push, "showImage", op.sampledImage.mId)
@@ -85,33 +80,27 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             inImagePainter = o.prebuilts.roundedRectanglePainter
         end
 
-
-
-        if not inImageFilePath then
+        if not inImageFilePath and inFont and inText then
             button.sampledText = o.CreateTextLabel(inPosition_3f, inDimension_3f, inFont, inText, inColor)
-        else
-
         end
 
         button.padding = 10
-
-        button.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inColor, inBackgroundColor,
+        button.Update = function(self,
+                                 inPosition_3f,
+                                 inDimension_3f,
+                                 inFont,
+                                 inText,
+                                 inColor,
+                                 inBackgroundColor,
                                  inTextOreintation)
             local push = Jkr.Matrix2CustomImagePainterPushConstant()
-            push.a = mat4(
-                vec4(0.0, 0.0, 0.95, 0.95),
-                inBackgroundColor or button.mColor,
-                vec4(0.001), --radius
-                vec4(0)
-            )
+            push.a = mat4(vec4(0.0), inBackgroundColor or button.mColor, vec4(0.0), vec4(0))
             button.quad:Update(inPosition_3f, inDimension_3f, push);
-            --button.sampledImage:Update(inPosition_3f, inDimension_3f, inBackgroundColor)
-
             if button.parent then
                 button.parent:Update(inPosition_3f, inDimension_3f)
             end
 
-            if not inImageFilePath then
+            if not inImageFilePath and button.sampledText then
                 local DelDim = vec3(0, 0, 0)
                 local fontDim = button.sampledText.mFont:GetTextDimension(inText or Copy(button.sampledText.mText) or
                     " ")
@@ -137,7 +126,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                 end
             end
 
-            if inText then
+            if inText and button.sampledText then
                 button.sampledText.mText = Copy(inText)
             end
         end
@@ -148,6 +137,19 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
 
         return button
     end
+
+    o.CreateSlider = function(inPosition_3f, inDimension_3f, inRangeStart, inRangeEnd, inDefaultValue)
+        local o = {}
+        o.defaultValue = inDefaultValue
+        o.knob = o.CreateGeneralButton(inPosition_3f, inDimension_3f)
+        o.background = o.CreateGeneralButton(inPosition_3f, inDimension_3f)
+        o.Update = function(inPosition_3f, inDimension_3f, inValue)
+
+        end
+        return o
+    end
+
+
     return o
 end
 

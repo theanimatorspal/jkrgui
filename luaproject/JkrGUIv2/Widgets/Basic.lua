@@ -375,12 +375,9 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         self.c:Update()
     end
 
-    o.Draw = function(self)
-        -- Optimize this
-        self.s:BindShapes(self.w, Jkr.CmdParam.UI)
-
-        for key, value in pairs(self.c.mDrawTypeToDrawablesMap) do
-            if key ~= "TEXT" and key ~= "IMAGE" then
+    o.DrawAll = function(self, inMap)
+        for key, value in pairs(inMap) do
+            if key ~= "TEXT" and key ~= "IMAGE" and key ~= "SCISSOR_VIEWPORT" then
                 local shader = o.shape2dShaders[key]
                 shader:Bind(self.w, Jkr.CmdParam.UI)
                 local drawables = value
@@ -402,8 +399,9 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         end
 
         self.s:BindFillMode(Jkr.FillType.Image, self.w, Jkr.CmdParam.UI)
+        ---@todo Remove this
         do
-            local drawables = self.c.mDrawTypeToDrawablesMap["IMAGE"]
+            local drawables = inMap["IMAGE"]
             if drawables then
                 local drawables_count = #drawables
                 for i = 1, drawables_count, 1 do
@@ -415,7 +413,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         end
 
         do
-            local drawables = self.c.mDrawTypeToDrawablesMap["TEXT"]
+            local drawables = inMap["TEXT"]
             if drawables then
                 local drawables_count = #drawables
                 for i = 1, drawables_count, 1 do
@@ -424,6 +422,16 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
                 end
             end
         end
+
+        if inMap["SCISSOR_VIEWPORT"] then
+
+        end
+    end
+
+
+    o.Draw = function(self)
+        self.s:BindShapes(self.w, Jkr.CmdParam.UI)
+        self:DrawAll(self.c.mDrawTypeToDrawablesMap)
     end
 
     o.Dispatch = function(self)
