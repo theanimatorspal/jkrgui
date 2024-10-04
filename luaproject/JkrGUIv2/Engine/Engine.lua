@@ -485,6 +485,7 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
     local Meshes = gltfmodel:GetMeshesRef()
     Engine.GetGLTFInfo(gltfmodel)
     local Objects = {}
+    local materials = {}
 
     for NodeIndex = 1, #Nodes, 1 do
         local shouldload = false
@@ -493,37 +494,41 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
         for PrimitiveIndex = 1, #primitives, 1 do
             local inprimitive = primitives[PrimitiveIndex]
             local materialindex = inprimitive.mMaterialIndex
+            if not materials[materialindex] then
+                local uniform3dindex = inworld3d:AddUniform3D(Engine.i)
+                local uniform = inworld3d:GetUniform3D(uniform3dindex)
+                local shaderindex = inworld3d:AddSimple3D(Engine.i, w)
+                local shader = inworld3d:GetSimple3D(shaderindex)
+                local vshader, fshader = Engine.GetAppropriateShader(inshadertype, incompilecontext, gltfmodel,
+                    materialindex,
+                    inskinning)
+                shader:CompileEXT(
+                    Engine.i,
+                    w,
+                    "cache/constant_color.glsl",
+                    vshader.str,
+                    fshader.str,
+                    "",
+                    shouldload,
+                    incompilecontext
+                )
+                local allocate_for_skinning = false
+                local allocate_for_tangent = true
+                if inskinning then allocate_for_skinning = true end
+                uniform:Build(shader, gltfmodel, 0, allocate_for_skinning, allocate_for_tangent)
+                uniform:Build(shader, gltfmodel, primitives[PrimitiveIndex])
+                materials[materialindex] = { shaderindex = shaderindex, uniformindex = uniform3dindex }
+            end
 
             --@warning THIS IS BEING DUPLICATED, FIX THIS
             -- [[[[[[[[[[[[[[[[[[[[[[[[[[THIS IS NOT OPTIMAL]]]]]]]]]]]]]]]]]]]]]]]]]]
-            local uniform3dindex = inworld3d:AddUniform3D(Engine.i)
-            local uniform = inworld3d:GetUniform3D(uniform3dindex)
-            local shaderindex = inworld3d:AddSimple3D(Engine.i, w)
-            local shader = inworld3d:GetSimple3D(shaderindex)
-            local vshader, fshader = Engine.GetAppropriateShader(inshadertype, incompilecontext, gltfmodel, materialindex,
-                inskinning)
-            shader:CompileEXT(
-                Engine.i,
-                w,
-                "cache/constant_color.glsl",
-                vshader.str,
-                fshader.str,
-                "",
-                shouldload,
-                incompilecontext
-            )
-            local allocate_for_skinning = false
-            local allocate_for_tangent = true
-            if inskinning then allocate_for_skinning = true end
-            uniform:Build(shader, gltfmodel, 0, allocate_for_skinning, allocate_for_tangent)
-            uniform:Build(shader, gltfmodel, primitives[PrimitiveIndex])
             -- [[[[[[[[[[[[[[[[[[[[[[[[[[CHANGE THIS LATER]]]]]]]]]]]]]]]]]]]]]]]]]]
 
             local object = Jkr.Object3D()
             object.mId = shapeindex;
             object.mAssociatedModel = gltfmodelindex;
-            object.mAssociatedUniform = uniform3dindex;
-            object.mAssociatedSimple3D = shaderindex;
+            object.mAssociatedUniform = materials[materialindex].uniformindex;
+            object.mAssociatedSimple3D = materials[materialindex].shaderindex;
             object.mFirstIndex = inprimitive.mFirstIndex
             object.mIndexCount = inprimitive.mIndexCount
             object.mMatrix = Nodes[NodeIndex]:GetLocalMatrix()
