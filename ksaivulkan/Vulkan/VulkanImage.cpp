@@ -3,7 +3,7 @@
 #include "vulkan/vulkan_enums.hpp"
 #include <VulkanBufferVMA.hpp>
 #include <iostream>
-
+#include <Vendor/stbi/stb_image_write.h>
 using namespace ksai;
 
 ksai::VulkanImageBase::VulkanImageBase(const VulkanDevice &inDevice, bool inDestroyImageView) {
@@ -344,11 +344,11 @@ VulkanImageBase::SubmitImmediateCmdGetImageToVector(VulkanQueue<QueueContext::Gr
     ///@todo @warning Hard Coded Image Channels
     ui ImageChannels = 4;
     auto ImageExtent = mImageProperties.mExtent;
-    if (inImageWidth > -1) {
+    if (inImageWidth > 0) {
         ImageExtent.width = inImageWidth;
     }
-    if (inImageHeight > -1) {
-        ImageExtent.width = inImageHeight;
+    if (inImageHeight > 0) {
+        ImageExtent.height = inImageHeight;
     }
     inStagingBuffer.SubmitImmediateCmdCopyFromImage(inQueue,
                                                     inBuffer,
@@ -366,6 +366,12 @@ VulkanImageBase::SubmitImmediateCmdGetImageToVector(VulkanQueue<QueueContext::Gr
     uint32_t size = ImageChannels * ImageExtent.width * ImageExtent.height * inLayersToBeCopied;
     OutImage.resize(size);
     std::memcpy(OutImage.data(), MemoryRegion, size);
+    // static int i = 0;
+    // stbi_write_bmp(s("FILE DBG " + std::to_string(i++) + ".bmp").c_str(),
+    //                ImageExtent.width,
+    //                ImageExtent.height,
+    //                4,
+    //                OutImage.data());
 
     return OutImage;
 }

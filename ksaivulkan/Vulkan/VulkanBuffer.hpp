@@ -46,7 +46,7 @@ class VulkanBufferBase {
                                          int inLayer              = 0,
                                          int inLayersToBeCopied   = 1,
                                          int inImageWidth         = -1,
-                                         int inImageHeight        = -1) const;
+                                         int inImageHeight        = -1);
 
     void CmdCopyFrom(const VulkanCommandBuffer &inCmdBuffer,
                      VulkanBufferBase &inBuffer,

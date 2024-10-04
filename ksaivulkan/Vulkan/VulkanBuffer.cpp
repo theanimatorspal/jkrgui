@@ -112,7 +112,7 @@ void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFromImage(
      int inLayer,
      int inLayersToBeCopied,
      int inImageWidth,
-     int inImageHeight) const {
+     int inImageHeight) {
     auto ImageExtent = inImage.GetImageExtent();
     if (inImageWidth > 0) {
         ImageExtent.width = inImageWidth;
@@ -120,8 +120,9 @@ void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFromImage(
     if (inImageHeight > 0) {
         ImageExtent.height = inImageHeight;
     }
+
     /// @warning @todo don't hardcode this
-    auto CopySize                = ImageExtent.width * ImageExtent.height * 4;
+    auto CopySize                = ImageExtent.width * ImageExtent.height * 4 * inLayersToBeCopied;
     auto srcImageProp            = inImage.GetImageProperty();
     const vk::CommandBuffer &Cmd = inCmdBuffer.GetCommandBufferHandle();
 
@@ -154,6 +155,7 @@ void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFromImage(
                                      vk::AccessFlagBits::eMemoryRead);
     Cmd.end();
     inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer, inFence);
+    inQueue.Wait();
 }
 
 void VulkanBufferBase::FillBufferUsage(vk::BufferCreateInfo &inInfo,

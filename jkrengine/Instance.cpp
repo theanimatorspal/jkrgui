@@ -55,5 +55,8 @@ VulkanBufferVMA &Jkr::Instance::GetStagingBuffer(size_t inSize) {
                                          BufferContext::Staging,
                                          MemoryType::HostVisibleAndCoherenet});
     }
+    void *data;
+    mVulkanStagingBufferPool->MapMemoryRegion(&data);
+    std::memset(data, 0, mVulkanStagingBufferPool->GetBufferSize());
     return *mVulkanStagingBufferPool;
 }

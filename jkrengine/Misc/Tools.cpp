@@ -334,10 +334,10 @@ static auto EquirectangularToMultiConversion(Jkr::Instance &inInstance,
     return std::make_tuple(std::move(CubeMultiMap), width, height, nrComponents);
 }
 
-static std::string CubeMultiMapString    = "CUBE_MULTI_MAP";
-static std::string IrradianceCubeString  = "IRRADIANCE_CUBE";
-static std::string PrefilteredCubeString = "PREFILTERED_CUBE";
-static std::string BRDFLookupTableString = "BRDF_LOOKUP_TABLE";
+static const std::string CubeMultiMapString    = "CUBE_MULTI_MAP";
+static const std::string IrradianceCubeString  = "IRRADIANCE_CUBE";
+static const std::string PrefilteredCubeString = "PREFILTERED_CUBE";
+static const std::string BRDFLookupTableString = "BRDF_LOOKUP_TABLE";
 
 void SetupPBR(Jkr::Instance &inInstance,
               Jkr::Window &inWindow,
@@ -356,10 +356,12 @@ void SetupPBR(Jkr::Instance &inInstance,
               sv inEquirectangularToCubeMap_vs,
               sv inEquirectangularToCubeMap_fs,
               sv inEquirectangularCubeMapHDR) {
-    uint32_t Dim       = 512;
+    uint32_t Dim = 512;
+    inInstance.GetStagingBuffer(512 * 512 * 10 * 24);
     std::string prefix = s(inCachePrefix);
     using namespace std;
     if (inJkrFile.GetFileContents().contains(prefix + CubeMultiMapString)) {
+
         Up<VulkanImageVMA> CubeMultiMap = MakeUp<VulkanImageVMA>();
         CubeMultiMap->Init({
              .inVMA                 = &inInstance.GetVMA(),
@@ -397,6 +399,7 @@ void SetupPBR(Jkr::Instance &inInstance,
                  0,
                  6);
         }
+
         Up<VulkanImageVMA> BRDFLUTImage =
              MakeUp<VulkanImageVMA>(inInstance.GetVMA(),
                                     inInstance.GetDevice(),
@@ -518,8 +521,13 @@ void SetupPBR(Jkr::Instance &inInstance,
             Up<Jkr::PainterParameter<PainterParameterContext::UniformImage>> IrradianceCube =
                  MakeUp<Jkr::PainterParameter<PainterParameterContext::UniformImage>>(inInstance);
             IrradianceCube->mUniformImagePtr = std::move(IrradianceCubeMap);
-            IrradianceCube->mSampler =
-                 MakeUp<VulkanSampler>(inInstance.GetDevice(), ImageContext::CubeCompatible);
+            IrradianceCube->mSampler         = MakeUp<VulkanSampler>(
+                 inInstance.GetDevice(),
+                 ImageContext::CubeCompatible,
+                 0.0,
+                 static_cast<float>(static_cast<uint32_t>(floor(
+                                         log2((float)Renderer::PBR::IrradianceCubeDimension))) +
+                                    1));
             IrradianceCube->Register(0,
                                      inUniform3D.IrradianceCubeBindingIndex,
                                      0,
@@ -529,8 +537,14 @@ void SetupPBR(Jkr::Instance &inInstance,
             Up<Jkr::PainterParameter<PainterParameterContext::UniformImage>> PrefilteredCube =
                  MakeUp<Jkr::PainterParameter<PainterParameterContext::UniformImage>>(inInstance);
             PrefilteredCube->mUniformImagePtr = std::move(PrefilteredCubeMapImage);
-            PrefilteredCube->mSampler =
-                 MakeUp<VulkanSampler>(inInstance.GetDevice(), ImageContext::CubeCompatible);
+            PrefilteredCube->mSampler         = MakeUp<VulkanSampler>(
+                 inInstance.GetDevice(),
+                 ImageContext::CubeCompatible,
+                 0.0,
+                 static_cast<float>(static_cast<uint32_t>(floor(
+                                         log2((float)Renderer::PBR::PrefilteredCubeDimension))) +
+                                    1));
+
             PrefilteredCube->Register(0,
                                       inUniform3D.PrefilteredCubeBindingIndex,
                                       0,
@@ -615,11 +629,30 @@ void SetupPBR(Jkr::Instance &inInstance,
                       0,
                       1));
 
-            auto &IrradianceCube =
-                 inUniform3D.GetImagesRef()[inUniform3D.IrradianceCubeBindingIndex]
-                      ->GetUniformImage();
             auto &PrefilteredCube =
                  inUniform3D.GetImagesRef()[inUniform3D.PrefilteredCubeBindingIndex]
+                      ->GetUniformImage();
+            for (int mip = 0; mip < PrefilteredCube.GetImageProperty().mMipLevels; ++mip) {
+                inJkrFile.Write((prefix + PrefilteredCubeString + to_string(mip)).c_str(),
+                                PrefilteredCube.SubmitImmediateCmdGetImageToVector(
+                                     inInstance.GetTransferQueue(),
+                                     inInstance.GetStagingBuffer(
+                                          PrefilteredCube.GetImageExtent().width *
+                                          PrefilteredCube.GetImageExtent().height * 4 * 6),
+                                     inInstance.GetUtilCommandBuffer(),
+                                     inInstance.GetUtilCommandBufferFence(),
+                                     vk::ImageLayout::eShaderReadOnlyOptimal,
+                                     static_cast<int>(PrefilteredCube.GetImageExtent().width *
+                                                      std::pow(0.5f, mip)),
+                                     static_cast<int>(PrefilteredCube.GetImageExtent().height *
+                                                      std::pow(0.5f, mip)),
+                                     mip,
+                                     0,
+                                     6));
+            }
+
+            auto &IrradianceCube =
+                 inUniform3D.GetImagesRef()[inUniform3D.IrradianceCubeBindingIndex]
                       ->GetUniformImage();
 
             for (int mip = 0; mip < IrradianceCube.GetImageProperty().mMipLevels; ++mip) {
@@ -635,24 +668,6 @@ void SetupPBR(Jkr::Instance &inInstance,
                                      static_cast<int>(IrradianceCube.GetImageExtent().width *
                                                       std::pow(0.5f, mip)),
                                      static_cast<int>(IrradianceCube.GetImageExtent().height *
-                                                      std::pow(0.5f, mip)),
-                                     mip,
-                                     0,
-                                     6));
-            }
-            for (int mip = 0; mip < PrefilteredCube.GetImageProperty().mMipLevels; ++mip) {
-                inJkrFile.Write((prefix + PrefilteredCubeString + to_string(mip)).c_str(),
-                                PrefilteredCube.SubmitImmediateCmdGetImageToVector(
-                                     inInstance.GetTransferQueue(),
-                                     inInstance.GetStagingBuffer(
-                                          PrefilteredCube.GetImageExtent().width *
-                                          PrefilteredCube.GetImageExtent().height * 4 * 6),
-                                     inInstance.GetUtilCommandBuffer(),
-                                     inInstance.GetUtilCommandBufferFence(),
-                                     vk::ImageLayout::eShaderReadOnlyOptimal,
-                                     static_cast<int>(PrefilteredCube.GetImageExtent().width *
-                                                      std::pow(0.5f, mip)),
-                                     static_cast<int>(PrefilteredCube.GetImageExtent().height *
                                                       std::pow(0.5f, mip)),
                                      mip,
                                      0,

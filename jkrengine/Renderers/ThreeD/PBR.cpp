@@ -152,10 +152,13 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance &inInstance,
         mat4 m2 = mat4(vec4(0), vec4(0), vec4(0), vec4(0));
     } PushBlock;
 
-    // float DeltaPhi = (2.0f * float(M_PI)) / 180.0f;
-    //  float DeltaTheta                = (0.5f * float(M_PI)) / 64.0f;
-    float DeltaPhi                  = (2.0f * float(M_PI)) / 32.0f;
-    float DeltaTheta                = (0.5f * float(M_PI)) / 16.0f;
+    //     float DeltaPhi   = (2.0f * float(M_PI)) / 180.0f;
+    //     float DeltaTheta = (0.5f * float(M_PI)) / 64.0f;
+    //     float DeltaPhi                  = (2.0f * float(M_PI)) / 32.0f;
+    //     float DeltaTheta                = (0.5f * float(M_PI)) / 16.0f;
+    ///@warning IDK Device gets lost
+    float DeltaPhi                  = 1;
+    float DeltaTheta                = 1;
 
     PushBlock.m2[0].x               = DeltaPhi;
     PushBlock.m2[0].y               = DeltaTheta;
@@ -186,7 +189,7 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance &inInstance,
 
     Cmd.Begin();
 
-    vk::Viewport Viewport(0.0f, 1.0f, (float)Dim, (float)Dim);
+    vk::Viewport Viewport(0.0f, 0.0f, (float)Dim, (float)Dim);
     vk::Rect2D Scissor(vk::Offset2D{0}, vk::Extent2D{Dim, Dim});
 
     auto Cmdh = Cmd.GetCommandBufferHandle();

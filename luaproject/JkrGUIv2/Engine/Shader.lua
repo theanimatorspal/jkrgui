@@ -1221,17 +1221,22 @@ PBR.IrradianceCubeF = Engine.Shader()
 
 	for (float phi = 0.0; phi < TWO_PI; phi += consts.deltaPhi) {
 		for (float theta = 0.0; theta < HALF_PI; theta += consts.deltaTheta) {
-			vec3 tempVec = cos(phi) * right + sin(phi) * up;
-			vec3 sampleVector = cos(theta) * N + sin(theta) * tempVec;
-			color += texture(samplerEnv, sampleVector).rgb * cos(theta) * sin(theta);
+            float sinTheta = sin(theta);
+            float sinPhi = sin(phi);
+            float cosPhi = cos(phi);
+            float cosTheta = cos(theta);
+			vec3 tangentSample = vec3(sinTheta * cosPhi, sinTheta * sinPhi, cosTheta);
+			vec3 sampleVector = tangentSample.x * right + tangentSample.y * up + tangentSample.z * N;
+			color += texture(samplerEnv, sampleVector).rgb * cosTheta * sinTheta;
 			sampleCount++;
 		}
 	}
+
     color  = PI * color / float(sampleCount);
     //debugPrintfEXT("deltaPhi = %f, deltaTheta = %f, color: (%f, %f, %f)\n", consts.deltaPhi, consts.deltaTheta, color.x, color.y, color.z);
 	outFragColor = vec4(color, 1.0);
     ]]
-    .GlslMainEnd()
+    .GlslMainEnd().Print()
 
 
 PBR.BasicCompute = Engine.Shader()
