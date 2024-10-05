@@ -131,7 +131,7 @@
     "cmake.showOptionsMovedNotification": false,
     "C_Cpp.intelliSenseEngine": "disabled",
     "cmake.showConfigureWithDebuggerNotification": false,
-    "breadcrumbs.enabled": false,
+    "breadcrumbs.enabled": true,
     "workbench.activityBar.location": "bottom",
     "notebook.output.fontSize": 10,
     "workbench.layoutControl.enabled": false,

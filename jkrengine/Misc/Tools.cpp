@@ -687,4 +687,134 @@ void SetupPBR(Jkr::Instance &inInstance,
     }
 }
 
+static auto ImgToFile(auto &ini, auto &inJkrFile, auto image_prefix, auto &img) {
+    for (int mip = 0; mip < img.GetImageProperty().mMipLevels; ++mip) {
+        ///@note Property is also being written here
+        inJkrFile.Write((image_prefix + "PROPS").c_str(), img.GetImageProperty());
+        inJkrFile.Write(
+             (image_prefix + "IMAGE").data(),
+             img.SubmitImmediateCmdGetImageToVector(
+                  ini.GetTransferQueue(),
+                  ini.GetStagingBuffer(img.GetImageExtent().width * img.GetImageExtent().height *
+                                       4 * img.GetImageProperty().mArrayLayers),
+                  ini.GetUtilCommandBuffer(),
+                  ini.GetUtilCommandBufferFence(),
+                  vk::ImageLayout::eShaderReadOnlyOptimal,
+                  img.GetImageExtent().width * std::pow(0.5f, mip),
+                  img.GetImageExtent().height * std::pow(0.5f, mip),
+                  mip,
+                  0,
+                  img.GetImageProperty().mArrayLayers));
+    }
+}
+
+static auto FileToImage(Instance &ini, FileJkr &inJkrFile, auto image_prefix) {
+    Up<VulkanImageVMA> Image = mu<VulkanImageVMA>();
+    ImageProperties Props    = inJkrFile.Read<ImageProperties>(image_prefix + "PROPS");
+    VulkanImageVMA::CreateInfo Info;
+    Info.inVMA             = &ini.GetVMA();
+    Info.inDevice          = &ini.GetDevice();
+    Info.inImageProperties = Props;
+    Image->Init(Info);
+    v<char> image_Vec = inJkrFile.Read<v<char>>(image_prefix + "IMAGE");
+    void *data        = image_Vec.data();
+    size_t size       = Props.mExtent.width * Props.mExtent.height * Props.mArrayLayers;
+    for (int mip = 0; mip < Props.mMipLevels; ++mip) {
+        Image->SubmitImmediateCmdCopyFromDataWithStagingBuffer(
+             ini.GetTransferQueue(),
+             ini.GetUtilCommandBuffer(),
+             ini.GetDevice(),
+             ini.GetUtilCommandBufferFence(),
+             &data,
+             size,
+             ini.GetStagingBuffer(size),
+             vk::ImageLayout::eShaderReadOnlyOptimal,
+             Image->GetImageExtent().width * std::pow(0.5f, mip),
+             Image->GetImageExtent().height * std::pow(0.5f, mip),
+             mip,
+             0,
+             Props.mArrayLayers);
+    }
+
+    return std::move(Image);
+}
+
+up<Renderer::_3D::Uniform3D> SerializeUniform3D(Instance &ini,
+                                                sv inIdName,
+                                                Misc::FileJkr &inJkrFile,
+                                                Renderer::_3D::Uniform3D &inUniform3D) {
+    auto prefix            = s(inIdName);
+    auto image_prefix      = prefix + "IMG";
+    auto ubuffer_prefix    = prefix + "BUF";
+    auto storagebuf_prefix = prefix + "STG";
+    auto skybox_prefix     = prefix + "SKY";
+    using Header           = int[Misc::IdSize]; /// @warning Misc::IdSize  uniform entries are
+                                                /// supported, should be more than enough
+                                                /// Here location is type + string(data[id]) like
+                                                /// prefix + "IMG" + 0, 1, 2
+    bool file_has_data = inJkrFile.GetFileContents().contains(image_prefix) or
+                         inJkrFile.GetFileContents().contains(ubuffer_prefix) or
+                         inJkrFile.GetFileContents().contains(storagebuf_prefix) or
+                         inJkrFile.GetFileContents().contains(skybox_prefix);
+    if (not file_has_data) {
+        {
+            Header img_header{-1};
+            auto &images = inUniform3D.GetImagesRef();
+            for (int i = 0; auto &[key, value] : images) {
+                img_header[i] = key;
+                ImgToFile(
+                     ini, inJkrFile, image_prefix + std::to_string(key), value->GetUniformImage());
+                ++i;
+            }
+            inJkrFile.Write(image_prefix.c_str(), img_header);
+        }
+        {
+            auto &sboxes = inUniform3D.GetSkyboxImagesRef();
+            Header sbox_header{-1};
+            for (int i = 0; auto &[key, value] : sboxes) {
+                sbox_header[i] = key;
+                ImgToFile(
+                     ini, inJkrFile, skybox_prefix + std::to_string(key), value->GetUniformImage());
+                ++i;
+            }
+            inJkrFile.Write(skybox_prefix.c_str(), sbox_header);
+        }
+        {
+            auto &buffers = inUniform3D.GetUniformBuffersRef();
+            Header ubuf_header{-1};
+            for (int i = 0; auto &[key, value] : buffers) {
+                ubuf_header[i] = key;
+                inJkrFile.Write(
+                     (ubuffer_prefix + std::to_string(key)).c_str(),
+                     value->GetUniformBuffer().SubmitImmediateGetBufferToVector(
+                          ini.GetTransferQueue(),
+                          ini.GetStagingBuffer(value->GetUniformBuffer().GetBufferSize()),
+                          ini.GetUtilCommandBuffer(),
+                          ini.GetUtilCommandBufferFence()));
+                ++i;
+            }
+            inJkrFile.Write(image_prefix.c_str(), ubuf_header);
+        }
+        {
+            auto &sbuffers = inUniform3D.GetStorageBuffersRef();
+            Header sbuf_header{-1};
+            for (int i = 0; auto &[key, value] : sbuffers) {
+                sbuf_header[i] = key;
+                inJkrFile.Write(
+                     (storagebuf_prefix + std::to_string(key)).c_str(),
+                     value->GetStorageBuffer().SubmitImmediateGetBufferToVector(
+                          ini.GetTransferQueue(),
+                          ini.GetStagingBuffer(value->GetStorageBuffer().GetBufferSize()),
+                          ini.GetUtilCommandBuffer(),
+                          ini.GetUtilCommandBufferFence()));
+                ++i;
+            }
+            inJkrFile.Write(image_prefix.c_str(), sbuf_header);
+        }
+
+    } else {
+        return nullptr;
+    }
+    return nullptr;
+}
 }; // namespace Jkr::Misc

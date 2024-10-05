@@ -55,6 +55,9 @@ void VulkanImageVMA::Init(CreateInfo inCreateInfo) {
     if (inCreateInfo.inImageViewType.has_value()) {
         mImageProperties.mImageViewType = inCreateInfo.inImageViewType.value();
     }
+    if (inCreateInfo.inImageProperties.has_value()) {
+        mImageProperties = inCreateInfo.inImageProperties.value();
+    }
     vk::ImageTiling Tiling;
     GetImageTiling(mImageProperties.mImageFormat, mImageProperties.mImageFormatFeature, Tiling);
     auto ImageCreateInfo = vk::ImageCreateInfo(mImageProperties.mFlags,
@@ -72,8 +75,12 @@ void VulkanImageVMA::Init(CreateInfo inCreateInfo) {
     AllocationCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
     VkImage Image_C;
     VkImageCreateInfo ImageCreateInfo_C = ImageCreateInfo;
-    vmaCreateImage(
-         inCreateInfo.inVMA->GetVMAHandle(), &ImageCreateInfo_C, &AllocationCreateInfo, &Image_C, &mAllocation, nullptr);
+    vmaCreateImage(inCreateInfo.inVMA->GetVMAHandle(),
+                   &ImageCreateInfo_C,
+                   &AllocationCreateInfo,
+                   &Image_C,
+                   &mAllocation,
+                   nullptr);
     mImage = Image_C;
     CreateImageView(mImage);
     mInitialized = true;

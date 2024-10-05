@@ -146,11 +146,22 @@ void CreateBasicBindings(sol::state &s) {
          &Jkr::Window::GetOffscreenFrameDimension,
 
          "SetScissor",
-         &Jkr::Window::SetScissor,
+         [](Window &inWindow,
+            glm::vec3 inVec3,
+            glm::vec3 inDimesnion,
+            Jkr::Window::ParameterContext incontext) {
+             inWindow.SetScissor(inVec3.x, inVec3.y, inDimesnion.x, inDimesnion.y, incontext);
+         },
          "SetDefaultScissor",
          &Jkr::Window::SetDefaultScissor,
          "SetViewport",
-         &Jkr::Window::SetViewport,
+         [](Window &inWindow,
+            glm::vec3 inVec3,
+            glm::vec3 inDimesnion,
+            Jkr::Window::ParameterContext incontext) {
+             inWindow.SetViewport(
+                  inVec3.x, inVec3.y, inDimesnion.x, inDimesnion.y, 0, 1, incontext);
+         },
          "SetDefaultViewport",
          &Jkr::Window::SetDefaultViewport);
 

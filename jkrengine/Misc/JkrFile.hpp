@@ -5,7 +5,8 @@
 namespace Jkr::Misc {
 
 using namespace ksai;
-using size_type      = size_t;
+using size_type = size_t;
+///@todo Rename this to FileHeaderIdSize or something similar
 constexpr int IdSize = 128;
 
 template <typename T>

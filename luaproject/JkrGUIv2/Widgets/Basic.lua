@@ -182,6 +182,27 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         return font
     end
 
+    ---@note Scissor are viewport both are created unifiedly i.e. both should always be in the same dimension
+
+    o.CreateScissor = function(inPosition_3f, inDimension_3f, inShouldSetViewport)
+        ---@warning mImageId -> inPosition_3f
+        ---@warning mColor -> inDimension_3f
+        ---@warning mPush -> inShouldSetViewport
+        return o.c:Push(Jkr.CreateDrawable("START", false, "SCISSOR_VIEWPORT", inPosition_3f, inDimension_3f,
+            inShouldSetViewport))
+    end
+
+    o.mCurrentScissor = 1
+
+    o.SetCurrentScissor = function(inScissorId)
+        if not inScissorId then
+            o.mCurrentScissor = 1
+        else
+            o.mCurrentScissor = inScissorId
+        end
+    end
+
+
     -- @warning inShape2DShader refers to the STRING value of o.shape2dShaders.<shader>
     -- e.g. for rounded rectangle use "roundedRectangle"
     -- @warning the second matrix in the push constant cannot be used for anything because it will be sent with the UIMatrix
@@ -195,7 +216,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         quad.DrawId = o.c:Push(Jkr.CreateDrawable(quad.rect, true,
             inShape2DShader,
             inSampledImageId,
-            nil, inPushConstant))
+            nil, inPushConstant), o.mCurrentScissor)
 
         quad.Update = function(self, inPosition_3f, inDimension_3f, inPushConstant)
             local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill,
@@ -217,7 +238,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         textLabel.mText = inText
         textLabel.mFont = inFont
         textLabel.mId = o.t:Add(inFont.mId, inPosition_3f, inText)
-        textLabel.PushId = o.c:Push(Jkr.CreateDrawable(textLabel.mId, nil, "TEXT", nil, inColor))
+        textLabel.PushId = o.c:Push(Jkr.CreateDrawable(textLabel.mId, nil, "TEXT", nil, inColor), o.mCurrentScissor)
 
         textLabel.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inColor)
             if inFont then self.mFont = inFont end
@@ -247,28 +268,30 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             SampledImage.mId = o.s:AddImage(inDimension_3f.x, inDimension_3f.y)
             SampledImage.mActualSize = vec2(inDimension_3f.x, inDimension_3f.y)
         end
-        local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill, uvec2(inDimension_3f.x, inDimension_3f.y))
-        SampledImage.imageViewRect = o.s:Add(Rectangle, inPosition_3f)
-        SampledImage.mColor = vec4(1, 1, 1, 1)
+        -- local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill, uvec2(inDimension_3f.x, inDimension_3f.y))
+        -- SampledImage.imageViewRect = o.s:Add(Rectangle, inPosition_3f)
+        -- SampledImage.mColor = vec4(1, 1, 1, 1)
+
         if (inColor) then
             SampledImage.mColor = inColor
         end
 
-        if (not inNoDraw) then
-            SampledImage.DrawId = o.c:Push(Jkr.CreateDrawable(SampledImage.imageViewRect, false,
-                "IMAGE",
-                SampledImage.mId,
-                SampledImage.mColor))
-        end
+        ---@note @warning Sampled IMage is not for drawing
+        -- if (not inNoDraw) then
+        --     -- SampledImage.DrawId = o.c:Push(Jkr.CreateDrawable(SampledImage.imageViewRect, false,
+        --     --     "IMAGE",
+        --     --     SampledImage.mId,
+        --     --     SampledImage.mColor), o.mCurrentScissor)
+        -- end
 
-        SampledImage.Update = function(self, inPosition_3f, inDimension_3f, inColor)
-            local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill,
-                uvec2(inDimension_3f.x, inDimension_3f.y))
-            o.s:Update(SampledImage.imageViewRect, Rectangle, inPosition_3f)
-            if inColor then
-                o.c.mDrawables[self.DrawId].mColor = inColor
-            end
-        end
+        -- SampledImage.Update = function(self, inPosition_3f, inDimension_3f, inColor)
+        --     -- local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill,
+        --     --     uvec2(inDimension_3f.x, inDimension_3f.y))
+        --     -- o.s:Update(SampledImage.imageViewRect, Rectangle, inPosition_3f)
+        --     -- if inColor then
+        --     --     o.c.mDrawables[self.DrawId].mColor = inColor
+        --     -- end
+        -- end
 
         SampledImage.CopyToCompute = function(inComputeImage)
             o.s:CopyFromImage(SampledImage.mId, inComputeImage.handle)
@@ -375,63 +398,71 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         self.c:Update()
     end
 
+    local w = o.w
+    local s = o.s
+    local cmdparam = Jkr.CmdParam.UI
+    local image_filltype = Jkr.FillType.Image
+    local fill_filltype = Jkr.FillType.Fill
+    local ui_matrix = o.UIMatrix
     o.DrawAll = function(self, inMap)
         for key, value in pairs(inMap) do
             if key ~= "TEXT" and key ~= "IMAGE" and key ~= "SCISSOR_VIEWPORT" then
                 local shader = o.shape2dShaders[key]
-                shader:Bind(self.w, Jkr.CmdParam.UI)
+                shader:Bind(w, cmdparam)
                 local drawables = value
                 local drawables_count = #value
                 for i = 1, drawables_count, 1 do
                     local drawable = drawables[i]
                     if drawable.mImageId then
-                        self.s:BindFillMode(Jkr.FillType.Image, self.w, Jkr.CmdParam.UI)
-                        self.s:BindImage(self.w, drawable.mImageId, Jkr.CmdParam.UI)
+                        s:BindFillMode(image_filltype, w, cmdparam)
+                        s:BindImage(w, drawable.mImageId, cmdparam)
                     else
-                        self.s:BindFillMode(Jkr.FillType.Fill, self.w, Jkr.CmdParam.UI)
+                        s:BindFillMode(fill_filltype, w, cmdparam)
                     end
-                    drawable.mPush.b = self.UIMatrix
-                    Jkr.DrawShape2DWithSimple3D(self.w, shader, self.s.handle, drawable.mPush, drawable.mId, drawable
+                    drawable.mPush.b = ui_matrix
+                    Jkr.DrawShape2DWithSimple3D(w, shader, s.handle, drawable.mPush, drawable.mId, drawable
                         .mId,
-                        Jkr.CmdParam.UI)
+                        cmdparam)
                 end
             end
         end
 
-        self.s:BindFillMode(Jkr.FillType.Image, self.w, Jkr.CmdParam.UI)
-        ---@todo Remove this
-        do
-            local drawables = inMap["IMAGE"]
-            if drawables then
-                local drawables_count = #drawables
-                for i = 1, drawables_count, 1 do
-                    local drawable = drawables[i]
-                    self.s:BindImage(self.w, drawable.mImageId, Jkr.CmdParam.UI)
-                    self.t:Draw(drawable.mId, self.w, drawable.mColor, self.UIMatrix, Jkr.CmdParam.UI)
-                end
-            end
-        end
 
+        s:BindFillMode(image_filltype, self.w, cmdparam)
         do
             local drawables = inMap["TEXT"]
             if drawables then
                 local drawables_count = #drawables
                 for i = 1, drawables_count, 1 do
                     local drawable = drawables[i]
-                    self.t:Draw(drawable.mId, self.w, drawable.mColor, self.UIMatrix, Jkr.CmdParam.UI)
+                    self.t:Draw(drawable.mId, w, drawable.mColor, ui_matrix, cmdparam)
                 end
             end
         end
-
-        if inMap["SCISSOR_VIEWPORT"] then
-
-        end
     end
 
-
     o.Draw = function(self)
-        self.s:BindShapes(self.w, Jkr.CmdParam.UI)
-        self:DrawAll(self.c.mDrawTypeToDrawablesMap)
+        self.s:BindShapes(w, cmdparam)
+        local SVs = o.c.mSVs
+        local DrawablesInSVs = o.c.mDrawablesInSVs
+        local count = #SVs
+        ---@note The First one is always without Scissors
+        o:DrawAll(DrawablesInSVs[1])
+        for i = 2, count, 1 do
+            local sv = SVs[i]
+
+            ---@note SetScissor + Viewport
+            if sv.mPush then
+                o.w:SetViewport(sv.mImageId, sv.mColor, cmdparam)
+            end
+            o.w:SetScissor(sv.mImageId, sv.mColor, cmdparam)
+
+            o:DrawAll(DrawablesInSVs[i])
+
+            ---@note ResetScissor + Viewport
+            o.w:SetDefaultViewport(cmdparam)
+            o.w:SetDefaultScissor(cmdparam)
+        end
     end
 
     o.Dispatch = function(self)

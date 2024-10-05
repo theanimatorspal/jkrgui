@@ -1,8 +1,9 @@
 #include "VulkanBuffer.hpp"
+#include "VulkanBufferVMA.hpp"
 
 using namespace ksai;
 
-ksai::VulkanBufferBase::VulkanBufferBase(const VulkanDevice &inDevice) { Init({&inDevice}); }
+VulkanBufferBase::VulkanBufferBase(const VulkanDevice &inDevice) { Init({&inDevice}); }
 
 void VulkanBufferBase::Init(CreateInfo inCreateInfo) {
     mDevice         = &inCreateInfo.inDevice->GetDeviceHandle();
@@ -16,7 +17,7 @@ VulkanBufferBase::~VulkanBufferBase() {
     if (mInitialized) Destroy();
 };
 
-void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFrom(
+void VulkanBufferBase::SubmitImmediateCmdCopyFrom(
      const VulkanQueue<QueueContext::Graphics> &inQueue,
      const VulkanCommandBuffer &inCmdBuffer,
      void *inData) {
@@ -46,24 +47,24 @@ void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFrom(
     mDevice->destroyBuffer(StagingBuffer);
 }
 
-void ksai::VulkanBufferBase::CmdCopyFrom(const VulkanCommandBuffer &inCmdBuffer,
-                                         VulkanBufferBase &inBuffer,
-                                         vk::DeviceSize FromBufferOffset,
-                                         vk::DeviceSize ToBufferOffset,
-                                         vk::DeviceSize inSizeToCopy) {
+void VulkanBufferBase::CmdCopyFrom(const VulkanCommandBuffer &inCmdBuffer,
+                                   VulkanBufferBase &inBuffer,
+                                   vk::DeviceSize FromBufferOffset,
+                                   vk::DeviceSize ToBufferOffset,
+                                   vk::DeviceSize inSizeToCopy) {
     vk::BufferCopy BufferCopyRegion =
          vk::BufferCopy(FromBufferOffset, ToBufferOffset, inSizeToCopy);
     inCmdBuffer.GetCommandBufferHandle().copyBuffer(
          inBuffer.mBufferHandle, mBufferHandle, BufferCopyRegion);
 }
 
-void ksai::VulkanBufferBase::SetBarrier(const VulkanCommandBuffer &inCmdBuffer,
-                                        vk::DeviceSize inDstBufferOffset,
-                                        vk::DeviceSize inSizeToCopy,
-                                        vk::AccessFlags inBeforeAccess,
-                                        vk::AccessFlags inAfterAccess,
-                                        vk::PipelineStageFlags inBeforeStages,
-                                        vk::PipelineStageFlags inAfterStages) {
+void VulkanBufferBase::SetBarrier(const VulkanCommandBuffer &inCmdBuffer,
+                                  vk::DeviceSize inDstBufferOffset,
+                                  vk::DeviceSize inSizeToCopy,
+                                  vk::AccessFlags inBeforeAccess,
+                                  vk::AccessFlags inAfterAccess,
+                                  vk::PipelineStageFlags inBeforeStages,
+                                  vk::PipelineStageFlags inAfterStages) {
     vk::BufferMemoryBarrier Barrier(inBeforeAccess,
                                     inAfterAccess,
                                     VK_QUEUE_FAMILY_IGNORED,
@@ -75,10 +76,10 @@ void ksai::VulkanBufferBase::SetBarrier(const VulkanCommandBuffer &inCmdBuffer,
          inBeforeStages, inAfterStages, vk::DependencyFlagBits::eByRegion, {}, Barrier, {});
 }
 
-void ksai::VulkanBufferBase::GetMemoryTypeIndex(vk::MemoryPropertyFlags inFlag,
-                                                vk::Buffer inBuffer,
-                                                vk::DeviceSize &outSize,
-                                                uint32_t &outIndex) {
+void VulkanBufferBase::GetMemoryTypeIndex(vk::MemoryPropertyFlags inFlag,
+                                          vk::Buffer inBuffer,
+                                          vk::DeviceSize &outSize,
+                                          uint32_t &outIndex) {
     vk::PhysicalDeviceMemoryProperties memoryProperties = mPhysicalDevice->getMemoryProperties();
     vk::MemoryRequirements memoryRequirements = mDevice->getBufferMemoryRequirements(inBuffer);
     uint32_t typeBits                         = memoryRequirements.memoryTypeBits;
@@ -95,14 +96,14 @@ void ksai::VulkanBufferBase::GetMemoryTypeIndex(vk::MemoryPropertyFlags inFlag,
     }
 }
 
-void ksai::VulkanBufferBase::CmdCopyFromImage(const VulkanCommandBuffer &inCmdBuffer,
-                                              const VulkanImageBase &inImage,
-                                              vk::PipelineStageFlags inAfterStage,
-                                              vk::AccessFlags inAfterAccessFlags) const {
+void VulkanBufferBase::CmdCopyFromImage(const VulkanCommandBuffer &inCmdBuffer,
+                                        const VulkanImageBase &inImage,
+                                        vk::PipelineStageFlags inAfterStage,
+                                        vk::AccessFlags inAfterAccessFlags) const {
     // TODO
 }
 
-void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFromImage(
+void VulkanBufferBase::SubmitImmediateCmdCopyFromImage(
      const VulkanQueue<QueueContext::Graphics> &inQueue,
      const VulkanCommandBuffer &inCmdBuffer,
      const VulkanFence &inFence,
@@ -156,6 +157,28 @@ void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFromImage(
     Cmd.end();
     inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer, inFence);
     inQueue.Wait();
+}
+
+v<char> VulkanBufferBase::SubmitImmediateGetBufferToVector(
+     const VulkanQueue<QueueContext::Graphics> &inQueue,
+     VulkanBufferVMA &inStagingBuffer,
+     const VulkanCommandBuffer &inCmdBuffer,
+     const VulkanFence &inFence) {
+    inFence.Wait();
+    inFence.Reset();
+    inCmdBuffer.Begin();
+    vk::BufferCopy BufferCopy(0, 0, mSize);
+    inCmdBuffer.GetCommandBufferHandle().copyBuffer(
+         mBufferHandle, inStagingBuffer.GetBufferHandle(), BufferCopy);
+    inCmdBuffer.End();
+    inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer, inFence);
+    inQueue.Wait();
+    v<char> outdata;
+    outdata.resize(mSize);
+    void *data;
+    inStagingBuffer.MapMemoryRegion(&data);
+    std::memcpy(outdata.data(), data, mSize);
+    return outdata;
 }
 
 void VulkanBufferBase::FillBufferUsage(vk::BufferCreateInfo &inInfo,

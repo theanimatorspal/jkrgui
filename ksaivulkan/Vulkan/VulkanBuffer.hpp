@@ -48,6 +48,11 @@ class VulkanBufferBase {
                                          int inImageWidth         = -1,
                                          int inImageHeight        = -1);
 
+    v<char> SubmitImmediateGetBufferToVector(const VulkanQueue<QueueContext::Graphics> &inQueue,
+                                             VulkanBufferVMA &inStagingBuffer,
+                                             const VulkanCommandBuffer &inCmdBuffer,
+                                             const VulkanFence &inFence);
+
     void CmdCopyFrom(const VulkanCommandBuffer &inCmdBuffer,
                      VulkanBufferBase &inBuffer,
                      vk::DeviceSize FromBufferOffset,
