@@ -77,10 +77,10 @@ void SetupPBR(Instance &inInstance,
 
 ///@brief This serializes the Uniform3D
 ///@return Uniform3D IF there's already an entry in the file
-up<Renderer::_3D::Uniform3D> SerializeUniform3D(Instance &ini,
-                                                sv inIdName,
-                                                Misc::FileJkr &inJkrFile,
-                                                Renderer::_3D::Uniform3D &inUniform3D);
+void SerializeDeserializeUniform3D(Instance &ini,
+                                   sv inIdName,
+                                   Misc::FileJkr &inJkrFile,
+                                   Renderer::_3D::Uniform3D &inUniform3D);
 
 ///@brief This assists to use external shaders for Shape (2D rendering), using Simple3D, the simple
 /// 3D should be created externally and should be compatible with the shape2d shaders. Shape2d is a

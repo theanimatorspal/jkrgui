@@ -710,13 +710,13 @@ static auto ImgToFile(auto &ini, auto &inJkrFile, auto image_prefix, auto &img) 
 
 static auto FileToImage(Instance &ini, FileJkr &inJkrFile, auto image_prefix) {
     Up<VulkanImageVMA> Image = mu<VulkanImageVMA>();
-    ImageProperties Props    = inJkrFile.Read<ImageProperties>(image_prefix + "PROPS");
+    ImageProperties Props    = inJkrFile.Read<ImageProperties>((image_prefix + "PROPS").c_str());
     VulkanImageVMA::CreateInfo Info;
     Info.inVMA             = &ini.GetVMA();
     Info.inDevice          = &ini.GetDevice();
     Info.inImageProperties = Props;
     Image->Init(Info);
-    v<char> image_Vec = inJkrFile.Read<v<char>>(image_prefix + "IMAGE");
+    v<char> image_Vec = inJkrFile.Read<v<char>>((image_prefix + "IMAGE").c_str());
     void *data        = image_Vec.data();
     size_t size       = Props.mExtent.width * Props.mExtent.height * Props.mArrayLayers;
     for (int mip = 0; mip < Props.mMipLevels; ++mip) {
@@ -739,28 +739,27 @@ static auto FileToImage(Instance &ini, FileJkr &inJkrFile, auto image_prefix) {
     return std::move(Image);
 }
 
-up<Renderer::_3D::Uniform3D> SerializeUniform3D(Instance &ini,
-                                                sv inIdName,
-                                                Misc::FileJkr &inJkrFile,
-                                                Renderer::_3D::Uniform3D &inUniform3D) {
+void SerializeDeserializeUniform3D(Instance &ini,
+                                   sv inIdName,
+                                   Misc::FileJkr &inJkrFile,
+                                   Renderer::_3D::Uniform3D &inUniform3D) {
     auto prefix            = s(inIdName);
     auto image_prefix      = prefix + "IMG";
     auto ubuffer_prefix    = prefix + "BUF";
     auto storagebuf_prefix = prefix + "STG";
     auto skybox_prefix     = prefix + "SKY";
-    using Header           = int[Misc::IdSize]; /// @warning Misc::IdSize  uniform entries are
-                                                /// supported, should be more than enough
-                                                /// Here location is type + string(data[id]) like
-                                                /// prefix + "IMG" + 0, 1, 2
+    ///@warning  Only 255 bindings are possible of each type
+    using Header       = v<char>;
     bool file_has_data = inJkrFile.GetFileContents().contains(image_prefix) or
                          inJkrFile.GetFileContents().contains(ubuffer_prefix) or
                          inJkrFile.GetFileContents().contains(storagebuf_prefix) or
                          inJkrFile.GetFileContents().contains(skybox_prefix);
     if (not file_has_data) {
         {
-            Header img_header{-1};
+            Header img_header;
             auto &images = inUniform3D.GetImagesRef();
             for (int i = 0; auto &[key, value] : images) {
+                img_header.push_back(0);
                 img_header[i] = key;
                 ImgToFile(
                      ini, inJkrFile, image_prefix + std::to_string(key), value->GetUniformImage());
@@ -770,8 +769,9 @@ up<Renderer::_3D::Uniform3D> SerializeUniform3D(Instance &ini,
         }
         {
             auto &sboxes = inUniform3D.GetSkyboxImagesRef();
-            Header sbox_header{-1};
+            Header sbox_header;
             for (int i = 0; auto &[key, value] : sboxes) {
+                sbox_header.push_back(0);
                 sbox_header[i] = key;
                 ImgToFile(
                      ini, inJkrFile, skybox_prefix + std::to_string(key), value->GetUniformImage());
@@ -781,8 +781,9 @@ up<Renderer::_3D::Uniform3D> SerializeUniform3D(Instance &ini,
         }
         {
             auto &buffers = inUniform3D.GetUniformBuffersRef();
-            Header ubuf_header{-1};
+            Header ubuf_header;
             for (int i = 0; auto &[key, value] : buffers) {
+                ubuf_header.push_back(0);
                 ubuf_header[i] = key;
                 inJkrFile.Write(
                      (ubuffer_prefix + std::to_string(key)).c_str(),
@@ -797,8 +798,9 @@ up<Renderer::_3D::Uniform3D> SerializeUniform3D(Instance &ini,
         }
         {
             auto &sbuffers = inUniform3D.GetStorageBuffersRef();
-            Header sbuf_header{-1};
+            Header sbuf_header;
             for (int i = 0; auto &[key, value] : sbuffers) {
+                sbuf_header.push_back(0);
                 sbuf_header[i] = key;
                 inJkrFile.Write(
                      (storagebuf_prefix + std::to_string(key)).c_str(),
@@ -813,8 +815,68 @@ up<Renderer::_3D::Uniform3D> SerializeUniform3D(Instance &ini,
         }
 
     } else {
-        return nullptr;
+        using ImageType         = Jkr::Renderer::_3D::Uniform3D::ImageType;
+        using SkyboxImageType   = Jkr::Renderer::_3D::Uniform3D::SkyboxImageType;
+        using UniformBufferType = Jkr::Renderer::_3D::Uniform3D::UniformBufferType;
+        using StorageBufferType = Jkr::Renderer::_3D::Uniform3D::StorageBufferType;
+        {
+            Header img_header = inJkrFile.Read<Header>(image_prefix.c_str());
+            for (char key : img_header) {
+                auto Image = FileToImage(ini, inJkrFile, image_prefix + std::to_string(key));
+                up<ImageType> Param     = mu<ImageType>(ini);
+                Param->mSampler         = mu<VulkanSampler>(ini.GetDevice());
+                Param->mUniformImagePtr = mv(Image);
+                Param->Register(0, key, 0, inUniform3D.GetVulkanDescriptorSet());
+                inUniform3D.GetImagesRef()[key] = mv(Param);
+            }
+        }
+        {
+            Header skbox_header = inJkrFile.Read<Header>(skybox_prefix.c_str());
+            for (char key : skbox_header) {
+                auto Image = FileToImage(ini, inJkrFile, skybox_prefix + std::to_string(key));
+                up<SkyboxImageType> Param = mu<SkyboxImageType>(ini);
+                Param->mSampler           = mu<VulkanSampler>(ini.GetDevice());
+                Param->mUniformImagePtr   = mv(Image);
+                Param->Register(0, key, 0, inUniform3D.GetVulkanDescriptorSet());
+                inUniform3D.GetSkyboxImagesRef()[(int)key] = mv(Param);
+            }
+        }
+        {
+            Header ubuf_header = inJkrFile.Read<Header>(ubuffer_prefix.c_str());
+            for (char key : ubuf_header) {
+                auto Buffer =
+                     inJkrFile.Read<v<char>>((ubuffer_prefix + std::to_string(key)).c_str());
+                auto data                     = Buffer.data();
+                up<VulkanBufferVMA> VMABuffer = mu<VulkanBufferVMA>();
+                VMABuffer->Init({&ini.GetVMA(),
+                                 &ini.GetDevice(),
+                                 Buffer.size(),
+                                 BufferContext::Uniform,
+                                 MemoryType::HostVisibleAndCoherenet});
+                up<UniformBufferType> Param = mu<UniformBufferType>(ini);
+                Param->mUniformBufferPtr    = mv(VMABuffer);
+                Param->Register(0, key, 0, inUniform3D.GetVulkanDescriptorSet());
+                inUniform3D.GetUniformBuffersRef()[(int)key] = mv(Param);
+            }
+        }
+        {
+            Header sbuf_header = inJkrFile.Read<Header>(storagebuf_prefix.c_str());
+            for (char key : sbuf_header) {
+                auto Buffer =
+                     inJkrFile.Read<v<char>>((storagebuf_prefix + std::to_string(key)).c_str());
+                auto data                     = Buffer.data();
+                up<VulkanBufferVMA> VMABuffer = mu<VulkanBufferVMA>();
+                VMABuffer->Init({&ini.GetVMA(),
+                                 &ini.GetDevice(),
+                                 Buffer.size(),
+                                 BufferContext::Storage,
+                                 MemoryType::DeviceLocal});
+                up<StorageBufferType> Param = mu<StorageBufferType>(ini);
+                Param->mStorageBufferPtr    = mv(VMABuffer);
+                Param->Register(0, key, 0, inUniform3D.GetVulkanDescriptorSet());
+                inUniform3D.GetStorageBuffersRef()[(int)key] = mv(Param);
+            }
+        }
     }
-    return nullptr;
-}
 }; // namespace Jkr::Misc
+} // namespace Jkr::Misc
