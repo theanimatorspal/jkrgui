@@ -76,11 +76,24 @@ void SetupPBR(Instance &inInstance,
               sv inEnvironmentCubeMapHDR);
 
 ///@brief This serializes the Uniform3D
-///@return Uniform3D IF there's already an entry in the file
 void SerializeDeserializeUniform3D(Instance &ini,
                                    sv inIdName,
                                    Misc::FileJkr &inJkrFile,
                                    Renderer::_3D::Uniform3D &inUniform3D);
+
+///@brief Serializes a Whole World
+void SerializeDeserializeWorld3D(Instance &ini,
+                                 sv inIdName,
+                                 Misc::FileJkr &inJkrFile,
+                                 Renderer::_3D::World3D &inWorld3D);
+///@brief If the painter cache is there in the file, it will load it, if not it will compile and
+/// store in the file
+void StoreLoadSimple3D(Instance &ini,
+                       sv inIdName,
+                       Misc::FileJkr &inJkrFile,
+                       const std::string_view inVertexShader   = "",
+                       const std::string_view inFragmentShader = "",
+                       const std::string_view inComputeShader  = "");
 
 ///@brief This assists to use external shaders for Shape (2D rendering), using Simple3D, the simple
 /// 3D should be created externally and should be compatible with the shape2d shaders. Shape2d is a

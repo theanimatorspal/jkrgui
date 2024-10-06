@@ -878,5 +878,6 @@ void SerializeDeserializeUniform3D(Instance &ini,
             }
         }
     }
-}; // namespace Jkr::Misc
+}
+
 } // namespace Jkr::Misc

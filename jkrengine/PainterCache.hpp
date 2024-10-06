@@ -37,10 +37,16 @@ class ShaderModules {
     std::vector<VulkanShaderModule> mComputeShaderModule;
 };
 
+namespace Misc {
+class FileJkr;
+}
+
 class PainterCache {
     public:
     explicit PainterCache(Instance &inInstance,
                           PipelinePropertiesContext inContext = PipelinePropertiesContext::Default);
+    void SetCacheFile(Jkr::Misc::FileJkr *inFileJkr) { mCacheFile = inFileJkr; };
+    GETTER GetCacheFile() { return mCacheFile; }
     PainterCache &Store(const std::string_view fileName,
                         const std::string_view inVertexShader   = "",
                         const std::string_view inFragmentShader = "",
@@ -91,5 +97,8 @@ class PainterCache {
     Up<ComputeDescriptorSetLayout> mPtrComputeDescriptorSetLayout     = nullptr;
     Up<ComputeDescriptorSetLayout> mPtrComputeDescriptorSetLayout_EXT = nullptr;
     Up<VulkanPipelineLayout<1>> mPtrComputePipelineLayout             = nullptr;
+
+    private:
+    Jkr::Misc::FileJkr *mCacheFile = nullptr;
 };
 } // namespace Jkr

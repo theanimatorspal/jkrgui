@@ -6,6 +6,9 @@
 #include "Window.hpp"
 #include <string_view>
 
+namespace Jkr::Misc {
+class FileJkr;
+}
 namespace Jkr::Renderer::_3D {
 class Simple3D {
     public:
@@ -18,7 +21,6 @@ class Simple3D {
     };
     GETTER &GetPainter() { return *mPainter; }
     GETTER &GetPainterCache() { return *mPainterCache; }
-
     void SetPipelineContext(PipelineContext inPipelineContext) {
         mPipelineContext = inPipelineContext;
     }

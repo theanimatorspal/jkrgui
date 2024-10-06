@@ -333,6 +333,13 @@ void CreateMiscBindings(sol::state &inState) {
 
     Jkr.set_function("SetupPBR", &Jkr::Misc::SetupPBR);
     Jkr.set_function("DrawShape2DWithSimple3D", &DrawShape2DWithSimple3D);
+    Jkr.set_function("SetCacheFile",
+                     [](Jkr::Renderer::_3D::Simple3D &inSimple3D, Misc::FileJkr *inFile) {
+                         inSimple3D.GetPainterCache().SetCacheFile(inFile);
+                     });
+    Jkr.set_function("GetCacheFile", [](Jkr::Renderer::_3D::Simple3D &inSimple3D) {
+        return inSimple3D.GetPainterCache().GetCacheFile();
+    });
 }
 
 } // namespace JkrEXE
