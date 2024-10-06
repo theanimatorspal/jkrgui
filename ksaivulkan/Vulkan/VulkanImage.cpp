@@ -3,7 +3,7 @@
 #include "vulkan/vulkan_enums.hpp"
 #include <VulkanBufferVMA.hpp>
 #include <iostream>
-
+#include <Vendor/stbi/stb_image_write.h>
 using namespace ksai;
 
 ksai::VulkanImageBase::VulkanImageBase(const VulkanDevice &inDevice, bool inDestroyImageView) {
@@ -37,7 +37,13 @@ void ksai::VulkanImageBase::SubmitImmediateCmdCopyFromDataWithStagingBuffer(
      const VulkanFence &inFence,
      void **inData,
      vk::DeviceSize inSize,
-     VulkanBufferVMA &inStagingBuffer) {
+     VulkanBufferVMA &inStagingBuffer,
+     vk::ImageLayout inImageLayout,
+     int inImageWidth,
+     int inImageHeight,
+     int inMipLevel,
+     int inLayer,
+     int inLayersToBeCopied) {
 
     void *MapRegion;
     inStagingBuffer.MapMemoryRegion(&MapRegion);
@@ -46,14 +52,21 @@ void ksai::VulkanImageBase::SubmitImmediateCmdCopyFromDataWithStagingBuffer(
     inFence.Wait();
     inFence.Reset();
     inCmdBuffer.Begin();
+    auto ImageProperties = mImageProperties;
+    if (inImageWidth > 0) {
+        ImageProperties.mExtent.width = inImageWidth;
+    }
+    if (inImageHeight > 0) {
+        ImageProperties.mExtent.height = inImageHeight;
+    }
     vk::ImageSubresourceLayers ImageSubResourceLayer(
-         mImageProperties.mImageAspect, 0, 0, mImageProperties.mArrayLayers);
+         ImageProperties.mImageAspect, inMipLevel, inLayer, inLayersToBeCopied);
     vk::BufferImageCopy Copy(0,
-                             mImageProperties.mExtent.width,
-                             mImageProperties.mExtent.height,
+                             ImageProperties.mExtent.width,
+                             ImageProperties.mExtent.height,
                              ImageSubResourceLayer,
                              vk::Offset3D(0, 0, 0),
-                             vk::Extent3D(mImageProperties.mExtent, 1));
+                             vk::Extent3D(ImageProperties.mExtent, 1));
     CmdTransitionImageLayout(inCmdBuffer,
                              vk::ImageLayout::eUndefined,
                              vk::ImageLayout::eTransferDstOptimal,
@@ -315,6 +328,52 @@ void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(
                                             vk::PipelineStageFlagBits::eFragmentShader,
                                             vk::AccessFlagBits::eMemoryRead,
                                             vk::AccessFlagBits::eMemoryRead);
+}
+
+std::vector<char>
+VulkanImageBase::SubmitImmediateCmdGetImageToVector(VulkanQueue<QueueContext::Graphics> &inQueue,
+                                                    VulkanBufferVMA &inStagingBuffer,
+                                                    VulkanCommandBuffer &inBuffer,
+                                                    VulkanFence &inCommandBufferFence,
+                                                    vk::ImageLayout inLayout,
+                                                    int inImageWidth,
+                                                    int inImageHeight,
+                                                    int inMipLevel,
+                                                    int inLayer,
+                                                    int inLayersToBeCopied) {
+    ///@todo @warning Hard Coded Image Channels
+    ui ImageChannels = 4;
+    auto ImageExtent = mImageProperties.mExtent;
+    if (inImageWidth > 0) {
+        ImageExtent.width = inImageWidth;
+    }
+    if (inImageHeight > 0) {
+        ImageExtent.height = inImageHeight;
+    }
+    inStagingBuffer.SubmitImmediateCmdCopyFromImage(inQueue,
+                                                    inBuffer,
+                                                    inCommandBufferFence,
+                                                    *this,
+                                                    inLayout,
+                                                    inMipLevel,
+                                                    inLayer,
+                                                    inLayersToBeCopied,
+                                                    inImageWidth,
+                                                    inImageHeight);
+    void *MemoryRegion;
+    inStagingBuffer.MapMemoryRegion(&MemoryRegion);
+    std::vector<char> OutImage;
+    uint32_t size = ImageChannels * ImageExtent.width * ImageExtent.height * inLayersToBeCopied;
+    OutImage.resize(size);
+    std::memcpy(OutImage.data(), MemoryRegion, size);
+    // static int i = 0;
+    // stbi_write_bmp(s("FILE DBG " + std::to_string(i++) + ".bmp").c_str(),
+    //                ImageExtent.width,
+    //                ImageExtent.height,
+    //                4,
+    //                OutImage.data());
+
+    return OutImage;
 }
 
 void VulkanImageBase::FillImageProperties(ImageContext inImageContext, uint32_t inNumSamples) {

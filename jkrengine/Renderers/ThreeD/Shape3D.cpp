@@ -5,6 +5,23 @@
 #include <filesystem>
 
 using namespace Jkr::Renderer::_3D;
+///@warning Code repetition
+
+Shape::Shape(Instance &inInstance) : mInstance(inInstance) {
+#ifndef JKR_NO_STAGING_BUFFERS
+    rb::CreateStagingBuffers(inInstance,
+                             gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
+                             gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
+#endif
+    mPrimitive = MakeUp<Primitive>(inInstance,
+                                   gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
+                                   gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
+    mPrimitive->SetIndexCount(mTotalNoOfIndicesRendererCanHold);
+
+#ifndef JKR_NO_STAGING_BUFFERS
+//	mGlobalkj
+#endif
+}
 
 Shape::Shape(Instance &inInstance, Window_base &inCompatibleWindow) : mInstance(inInstance) {
 #ifndef JKR_NO_STAGING_BUFFERS

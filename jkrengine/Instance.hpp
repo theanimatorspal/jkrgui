@@ -33,12 +33,16 @@ class Instance {
     GETTER &GetQueueContext() const { return *mQueueContext; }
     GETTER &GetDevice() const { return *mDevice; }
     GETTER &GetGraphicsQueue() const { return *mGraphicsPresentQueue; };
+    ///@todo This function is going to be having different queue in the future, but for now, use
+    /// this GETTER to the the queue for any transfer operations
+    GETTER &GetTransferQueue() const { return *mGraphicsPresentQueue; };
     GETTER &GetCommandPool() const { return *mCommandPool; }
     GETTER &GetUtilCommandBuffer() const { return *mUtilCommandBuffer; }
     GETTER &GetUtilCommandBufferFence() const { return *mUtilCommandBufferFence; }
     GETTER &GetDescriptorPool() const { return *mDescriptorPool; }
     GETTER &GetVMA() const { return *mVmaAllocator; }
     GETTER &GetThreadPool() { return mThreadPool; }
+    ///@warning This is not thread safe
     VulkanBufferVMA &GetStagingBuffer(size_t inSize);
 
     private:

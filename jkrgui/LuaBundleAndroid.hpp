@@ -719,8 +719,12 @@ Jkr.CreateCustomImagePainter = function(inCacheFileName, inComputeShader)
         o.handle:Bind(w, inCmdParam)
     end
 
+    -- @warning this inComputeImage.handle breaks dependency principle,
+    --- please fix this on refactor, since this doesn't know anything about
+    --- underlying abstracted type, "inComputeImage" from Basics.lua,
+    ---  this should only accept the type that this actually knows
     o.BindImageFromImage = function(self, w, inComputeImage, inCmdParam)
-        o.handle:BindImageFromImage(w, inComputeImage.mId, inCmdParam)
+        o.handle:BindImageFromImage(w, inComputeImage.handle, inCmdParam)
     end
 
     o.Draw = function(self, w, inPushConstant, inX, inY, inZ, inCmdParam)
@@ -819,74 +823,58 @@ function Copy(inElement)
     end
 end
 
+function IterateEachElementRecursively(inElement, inFunc_val)
+    if type(inElement) == "table" then
+        for key, value in pairs(inElement) do
+            inFunc_val(value)
+            IterateEachElementRecursively(value, inFunc_val)
+        end
+    end
+end
 
+
+-- @warning this eats up a lot of memory, @todo keep the locals, locally in this file
+-- but before that, ensure that the multithreaded shader compilation works fine
 Engine.Shader = function()
-    local o                     = {}
+    local o                                       = {}
 
-    o.uImage2D                  = function()
-        o.NewLine()
-        o.Append([[
-
-layout(set = 0, binding = 0, rgba8) uniform image2D storageImage;
-    ]])
-        return o.NewLine()
-    end
-
-    o.CInvocationLayout         = function(inX, inY, inZ)
-        o.NewLine()
-        o.Append(
-            string.format("layout(local_size_x = %d, local_size_y = %d, local_size_z = %d) in;", inX,
-                inY, inZ)
-        )
-        return o.NewLine()
-    end
-
-    o.ImagePainterPush          = function()
-        o.NewLine()
-        o.Append(
-            [[
+    ---
+    ---
+    ---
+    --- FOR IMAGE PAINTER COMPUTE SHADER
+    ---
+    ---
+    ---
+    local ImagePainterPush                        = [[
 layout(std430, push_constant) uniform pc {
         vec4 mPosDimen;
         vec4 mColor;
         vec4 mParam;
 } push;
     ]]
-        )
-        return o.NewLine()
-    end
 
-    o.ImagePainterPushMatrix2   = function()
-        o.NewLine()
-        o.Append [[
+    local ImagePainterPushMatrix2                 = [[
 layout(std430, push_constant) uniform pc {
     mat4 a;
     mat4 b;
 } push;
        ]]
-        return o
-    end
 
-    o.ImagePainterAssistMatrix2 = function()
-        o.NewLine()
-        o.Append [[
+    local ImagePainterAssistMatrix2               = [[
 uvec3 gID = gl_GlobalInvocationID;
 ivec2 image_size = ivec2(imageSize(storageImage));
 ivec2 to_draw_at = ivec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y);
 float x_cart = (float(gl_GlobalInvocationID.x) - float(image_size.x) / float(2)) / (float((image_size.x) / float(2)));
 float y_cart = (float(image_size.y) / float(2) - float(gl_GlobalInvocationID.y)) / (float(image_size.y) / float(2));
 vec2 xy = vec2(x_cart, y_cart);
+ivec2 xy_is = ivec2(to_draw_at.x + image_size.x / 2, to_draw_at.y + image_size.y / 2);
 vec4 p1 = push.a[0];
 vec4 p2 = push.a[1];
 vec4 p3 = push.a[2];
 vec4 p4 = push.a[3];
        ]]
-        return o;
-    end
 
-    o.ImagePainterAssist        = function()
-        o.NewLine()
-        o.Append(
-            [[
+    local ImagePainterAssist                      = [[
 uvec3 gID = gl_GlobalInvocationID;
 ivec2 image_size = ivec2(imageSize(storageImage));
 ivec2 to_draw_at = ivec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y);
@@ -897,16 +885,113 @@ float y_cart = (float(image_size.y) / float(2) - float(gl_GlobalInvocationID.y))
 float ColorValueX = x_cart;
 float ColorValueY = y_cart;
 vec2 xy = vec2(x_cart, y_cart);
+ivec2 xy_is = ivec2(to_draw_at.x + image_size.x / 2, to_draw_at.y + image_size.y / 2);
 vec4 p1 = push.mPosDimen;
 vec4 p2 = push.mColor;
 vec4 p3 = push.mParam;
       ]]
+
+    o.uImage2D                                    = function(inBinding, inImageName)
+        if not inBinding then inBinding = 0 end
+        if not inImageName then inImageName = "storageImage" end
+        o.NewLine()
+        o.Append(string.format([[
+layout(set = 0, binding = %d, rgba8) uniform image2D %s;
+    ]], inBinding, inImageName))
+        return o.NewLine()
+    end
+
+    o.CInvocationLayout                           = function(inX, inY, inZ)
+        o.NewLine()
+        o.Append(
+            string.format("layout(local_size_x = %d, local_size_y = %d, local_size_z = %d) in;", inX,
+                inY, inZ)
         )
         return o.NewLine()
     end
 
+    o.ImagePainterPush                            = function()
+        o.NewLine()
+        o.Append(ImagePainterPush)
+        return o.NewLine()
+    end
 
-    local vLayout               = [[
+    o.ImagePainterPushMatrix2                     = function()
+        o.NewLine()
+        o.Append(ImagePainterPushMatrix2)
+        return o
+    end
+
+    o.ImagePainterAssistMatrix2                   = function()
+        o.NewLine()
+        o.Append(ImagePainterAssistMatrix2)
+        return o;
+    end
+
+    o.ImagePainterAssist                          = function()
+        o.NewLine()
+        o.Append(ImagePainterAssist)
+        return o.NewLine()
+    end
+
+    o.ImagePainterAssistConvolution               = function(inImageNameFrom, inImageNameTo)
+        o.NewLine()
+        o.Append(string.format(
+            [[
+
+            ]],
+            inImageNameFrom, inImageNameTo
+        ))
+        o.NewLine()
+        o.Append [[
+
+        ]]
+        return o.NewLine()
+    end
+
+    ---
+    ---
+    --- CUSTOM IMAGE PAINTER FOR 3D
+    ---
+    --- binding = 14 for storageVertex, and 15 for storageIndex
+
+    local storageVIBufferLayoutCustomImagePainter = [[
+        struct Vertex {
+            vec3 mPosition;
+            vec3 mNormal;
+            vec2 mUV;
+            vec3 mColor;
+
+        };
+
+        layout(std430, set = 0, binding = 14) buffer VerticesSSBOIn {
+            Vertex inVertices[];
+        };
+
+        struct Index {
+            uint mId;
+        };
+
+        layout(std430, set = 0, binding = 15) buffer IndicesSSBOIn {
+            Index inIndices[];
+        };
+    ]]
+
+    o.vertexStorageBufferIndex                    = 14
+    o.indexStorageBufferIndex                     = 15
+
+    o.ImagePainterVIStorageLayout                 = function()
+        o.NewLine()
+        o.Append(storageVIBufferLayoutCustomImagePainter)
+        return o.NewLine()
+    end
+
+    ---
+    ---
+    --- MOSTLY FOR 3D
+    ---
+    ---
+    local vLayout                                 = [[
 
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 inNormal;
@@ -914,14 +999,14 @@ layout(location = 2) in vec2 inUV;
 layout(location = 3) in vec3 inColor;
                     ]]
 
-    local push                  = [[
+    local push                                    = [[
 
 layout(push_constant, std430) uniform pc {
 	mat4 model;
     mat4 m2;
 } Push;
 ]]
-    local Ubo                   = [[
+    local Ubo                                     = [[
 
 layout(set = 0, binding = 0) uniform UBO {
    mat4 view;
@@ -934,7 +1019,7 @@ layout(set = 0, binding = 0) uniform UBO {
 } Ubo;
 ]]
 
-    local LinearizeDepth        = [[
+    local LinearizeDepth                          = [[
 
 float LinearizeDepth(float depth, float near, float far)
 {
@@ -945,7 +1030,7 @@ float LinearizeDepth(float depth, float near, float far)
 }
           ]]
 
-    local ShadowTextureProject  = [[
+    local ShadowTextureProject                    = [[
 
 float ShadowTextureProject(vec4 shadowCoord, vec2 off)
 {
@@ -962,7 +1047,7 @@ float ShadowTextureProject(vec4 shadowCoord, vec2 off)
 }
 ]]
 
-    local inJointInfluence      = [[
+    local inJointInfluence                        = [[
 
 struct JointInfluence {
     vec4 mJointIndices;
@@ -975,7 +1060,7 @@ layout(std140, set = 1, binding = 2) readonly buffer JointInfluenceSSBOIn {
 
 ]]
 
-    local inTangent             = [[
+    local inTangent                               = [[
         struct Tangent {
             vec4 mTangent;
         };
@@ -985,13 +1070,13 @@ layout(std140, set = 1, binding = 2) readonly buffer JointInfluenceSSBOIn {
         };
     ]]
 
-    local inJointMatrices       = [[
+    local inJointMatrices                         = [[
 
 layout(std140, set = 1, binding = 1) readonly buffer JointMatrixSSBOIn {
     mat4 inJointMatrices[ ];
 };
           ]]
-    local BiasMatrix            = [[
+    local BiasMatrix                              = [[
 
     const mat4 BiasMatrix = mat4(
     0.5, 0.0, 0.0, 0.0,
@@ -1000,7 +1085,7 @@ layout(std140, set = 1, binding = 1) readonly buffer JointMatrixSSBOIn {
     0.5, 0.5, 0.0, 1.0 );
     ]]
 
-    local D_GGX                 = [[
+    local D_GGX                                   = [[
 // Normal Distribution Function
 float D_GGX(float dotNH, float roughness)
 {
@@ -1012,7 +1097,7 @@ float D_GGX(float dotNH, float roughness)
 
     ]]
 
-    local G_SchlicksmithGGX     = [[
+    local G_SchlicksmithGGX                       = [[
 // Geometric Shadowing Function
 float G_SchlicksmithGGX(float dotNL, float dotNV, float roughness)
 {
@@ -1024,7 +1109,7 @@ float G_SchlicksmithGGX(float dotNL, float dotNV, float roughness)
 }
     ]]
 
-    local F_Schlick             = [[
+    local F_Schlick                               = [[
 // Fresnel Function
 vec3 F_Schlick(float cosTheta, float metallic)
 {
@@ -1040,14 +1125,14 @@ vec3 F_Schlick(float cosTheta, vec3 F0)
 
     ]]
 
-    local F_SchlickR            = [[
+    local F_SchlickR                              = [[
 vec3 F_SchlickR(float cosTheta, vec3 F0, float roughness)
 {
 	return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
 }
     ]]
 
-    local PrefilteredReflection = [[
+    local PrefilteredReflection                   = [[
 vec3 PrefilteredReflection(vec3 R, float roughness)
 {
 	const float MAX_REFLECTION_LOD = 9.0; // todo: param/const
@@ -1552,35 +1637,35 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
     o.gltfMaterialTextures     = {}
     o.gltfPutMaterialTextures  = function(inGLTF, inMaterialIndex)
         if inGLTF then
-            local Material = inGLTF:GetMaterialsRef()[inMaterialIndex]
-            if not Material then
-                Material = {}
-            end
-            local binding = 3
-            if (Material.mBaseColorTextureIndex ~= -1) then
-                o.uSampler2D(binding, "uBaseColorTexture").NewLine()
-                o.gltfMaterialTextures.mBaseColorTexture = true
-                binding = binding + 1
-            end
-            if (Material.mMetallicRoughnessTextureIndex ~= -1) then
-                o.uSampler2D(binding, "uMetallicRoughnessTexture").NewLine()
-                o.gltfMaterialTextures.mMetallicRoughnessTexture = true
-                binding = binding + 1
-            end
-            if (Material.mNormalTextureIndex ~= -1) then
-                o.uSampler2D(binding, "uNormalTexture").NewLine()
-                o.gltfMaterialTextures.mNormalTexture = true
-                binding = binding + 1
-            end
-            if (Material.mOcclusionTextureIndex ~= -1) then
-                o.uSampler2D(binding, "uOcclusionTexture").NewLine()
-                o.gltfMaterialTextures.mOcclusionTexture = true
-                binding = binding + 1
-            end
-            if (Material.mEmissiveTextureIndex ~= -1) then
-                o.uSampler2D(binding, "uEmissiveTexture").NewLine()
-                o.gltfMaterialTextures.mEmissiveTextureIndex = true
-                binding = binding + 1
+            local Materials = inGLTF:GetMaterials()
+            local Material = Materials[inMaterialIndex + 1]
+            if Material then
+                local binding = 3
+                if (Material.mBaseColorTextureIndex ~= -1) then
+                    o.uSampler2D(binding, "uBaseColorTexture").NewLine()
+                    o.gltfMaterialTextures.mBaseColorTexture = true
+                    binding = binding + 1
+                end
+                if (Material.mMetallicRoughnessTextureIndex ~= -1) then
+                    o.uSampler2D(binding, "uMetallicRoughnessTexture").NewLine()
+                    o.gltfMaterialTextures.mMetallicRoughnessTexture = true
+                    binding = binding + 1
+                end
+                if (Material.mNormalTextureIndex ~= -1) then
+                    o.uSampler2D(binding, "uNormalTexture").NewLine()
+                    o.gltfMaterialTextures.mNormalTexture = true
+                    binding = binding + 1
+                end
+                if (Material.mOcclusionTextureIndex ~= -1) then
+                    o.uSampler2D(binding, "uOcclusionTexture").NewLine()
+                    o.gltfMaterialTextures.mOcclusionTexture = true
+                    binding = binding + 1
+                end
+                if (Material.mEmissiveTextureIndex ~= -1) then
+                    o.uSampler2D(binding, "uEmissiveTexture").NewLine()
+                    o.gltfMaterialTextures.mEmissiveTextureIndex = true
+                    binding = binding + 1
+                end
             end
         end
         return o
@@ -1842,10 +1927,10 @@ vec3 calculateNormal()
 	vec3 color = ambient + Lo;
 
 	// Tone mapping exposure = 1.5
-	color = Uncharted2Tonemap(color * 2.5);
+	color = Uncharted2Tonemap(color * 1.5);
 	color = color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
 	// Gamma correction gamma = 0.3
-	color = pow(color, vec3(1.0f / 1.3));
+	color = pow(color, vec3(1.0f / 0.3));
 
 	outFragColor = vec4(color, 1.0);
     ]]
@@ -1980,6 +2065,42 @@ PBR.BasicCompute = Engine.Shader()
     .GlslMainBegin()
     .GlslMainEnd()
 
+PBR.EquirectangularMapToMultiVShader = Engine.Shader()
+    .Header(450)
+    .VLayout()
+    .Push()
+    .Out(0, "vec3", "localPos")
+    .GlslMainBegin()
+    .Append [[
+    localPos = inPosition;
+    gl_Position = Push.model * Push.m2 * vec4(localPos, 1.0);
+    ]]
+    .GlslMainEnd()
+
+PBR.EquirectangularMapToMultiFShader = Engine.Shader()
+    .Header(450)
+    .outFragColor()
+    .In(0, "vec3", "localPos")
+    .uSampler2D(0, "equirectangularMap", 0)
+    .Append [[
+    const vec2 invATan = vec2(0.1591, 0.3183);
+    vec2 SampleSphericalMap(vec3 v)
+    {
+        vec2 uv = vec2(atan(v.z, v.x), asin(v.y));
+        uv *= invATan;
+        uv += 0.5;
+        return uv;
+    }
+    ]]
+    .GlslMainBegin()
+    .Append [[
+    vec2 uv = SampleSphericalMap(normalize(localPos));
+    vec3 color = texture(equirectangularMap, uv).rgb;
+    outFragColor = vec4(color, 1.0);
+    ]]
+    .GlslMainEnd()
+
+
 
 Deferred = {}
 
@@ -2113,6 +2234,7 @@ Deferred.GetBasicVertex = function()
         vUV = inUV;
         vColor = inColor;
     ]]
+        .InvertY()
         .GlslMainEnd()
 end
 
@@ -2186,26 +2308,34 @@ Basics.GetBasicVertexHeaderWithTangent = function()
         ]]
 end
 
+Basics.GetBasicVertexHeaderWithoutTangent = function()
+    return Deferred.GetBasicVertexHeader()
+end
 
-Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel, materialindex, inskinning)
+
+Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel, materialindex, inskinning, intangent)
+    if intangent == nil then intangent = true end
     if inShaderType == "CONSTANT_COLOR" and incompilecontext == Jkr.CompileContext.Default then
-        local vshader = Basics.GetBasicVertexHeaderWithTangent()
+        local vshader
+        if intangent then
+            vshader = Basics.GetBasicVertexHeaderWithTangent()
+        else
+            vshader = Basics.GetBasicVertexHeaderWithoutTangent()
+        end
+        vshader.GlslMainBegin()
+
         if not inskinning then
-            vshader.GlslMainBegin()
-                .Append [[
+            vshader.Append [[
                     gl_Position = Ubo.proj * Ubo.view * Push.model * vec4(inPosition, 1);
                     vWorldPos = vec3(Push.model * vec4(inPosition, 1));
                     mat3 mNormal = transpose(inverse(mat3(Push.model)));
                     vNormal = mNormal * normalize(inNormal.xyz);
-                    vTangent = mNormal * normalize(inTangent[gl_VertexIndex].mTangent.xyz);
                     vUV = inUV;
                     vColor = inColor;
                     ]]
-                .GlslMainEnd()
         else
             vshader.inJointInfluence()
                 .inJointMatrices()
-                .GlslMainBegin()
                 .Append([[
                         vec4 jweight = inJointInfluence[gl_VertexIndex].mJointWeights;
                         vec4 jindex = inJointInfluence[gl_VertexIndex].mJointIndices;
@@ -2218,19 +2348,36 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
                 .Append [[
                         vec4 Pos = Push.model * skinMat * vec4(inPosition, 1.0f);
                         gl_Position = Ubo.proj * Ubo.view * Pos;
+                        vWorldPos = vec3(Push.model * vec4(inPosition, 1));
+                        mat3 mNormal = transpose(inverse(mat3(Push.model)));
+                        vNormal = mNormal * normalize(inNormal.xyz);
                         vUV = inUV;
-                        vNormal = vec3(Push.model) * inNormal;
-                        vWorldPos = vec3(Pos);
+                        vColor = inColor;
                 ]]
-                .GlslMainEnd()
         end
+        if intangent then
+            vshader.Append
+            [[
+                vTangent = mNormal * normalize(inTangent[gl_VertexIndex].mTangent.xyz);
+            ]]
+        end
+
+        vshader.InvertY()
+        vshader.GlslMainEnd()
+
         local fshader = Basics.GetConstantFragmentHeader()
             .gltfPutMaterialTextures(gltfmodel, materialindex)
             .GlslMainBegin()
         if fshader.gltfMaterialTextures.mBaseColorTexture == true then
-            fshader.Append [[
+            if fshader.gltfMaterialTextures.mEmissiveTextureIndex == true then
+                fshader.Append [[
+                    outFragColor = texture(uBaseColorTexture, vUV) + texture(uEmissiveTexture, vUV);
+                    ]]
+            else
+                fshader.Append [[
                     outFragColor = texture(uBaseColorTexture, vUV);
                     ]]
+            end
         else
             fshader.Append [[
                 outFragColor = vec4(1, 0, 0, 1);
@@ -2292,326 +2439,184 @@ local lerp = Jmath.Lerp
 Engine.Load = function(self, inEnableValidation)
     self.i = Jkr.CreateInstance(inEnableValidation)
     self.e = Jkr.CreateEventManager()
-    print("INSTANCE:: ", self.i)
     self.mt = Jkr.MultiThreading(self.i)
-    self.gate = {
-        run = function(f, t)
-            self.mt:AddJobFIndex(f, t)
-        end
-    }
-    setmetatable(self.gate, {
-        __index = function(_, key)
-            return self.mt:Get(key, StateId)
-        end,
-        __newindex = function(_, k, v)
-            if k == "_run" and type(v) == "function" then
-                self.mt:AddJobF(v)
-            elseif type(k) == "number" then
-                self.mt:AddJobFIndex(v, k)
-            else
-                self.mt:Inject(k, v)
+
+    self.PrepareMultiThreadingAndNetworking = function(self)
+        self.gate = {
+            run = function(f, t)
+                self.mt:AddJobFIndex(f, t)
             end
-        end,
-    })
+        }
+        setmetatable(self.gate, {
+            __index = function(_, key)
+                return self.mt:Get(key, StateId)
+            end,
+            __newindex = function(_, k, v)
+                if k == "_run" and type(v) == "function" then
+                    self.mt:AddJobF(v)
+                elseif type(k) == "number" then
+                    self.mt:AddJobFIndex(v, k)
+                else
+                    self.mt:Inject(k, v)
+                end
+            end,
+        })
 
-    self.port = 6345
-    self.net = {}
+        self.port = 6345
+        self.net = {}
+        self.net = {
+            Server = function(inport)
+                self.net.Start = function()
+                    if not inport then inport = self.port else self.port = inport end
+                    return Jkr.StartServer(self.port)
+                end
 
-
-    self.net = {
-        Server = function()
-            Jkr.StartServer(self.port)
-
-            self.net.listenOnce = function(FileName)
-                if not Jkr.IsMessagesBufferEmpty() then
-                    local msg = Jkr.PopFrontMessagesBuffer()
-                    local id = msg.mHeader.mId
-                    if id == 1 then
-                        local name = msg:GetString()
-                        if string.sub(name, #name, #name) == ":" then -- in this format "name.txt:" then it is a file
-                            self.net.listenOnce(string.sub(name, 1, #name - 1))
-                        else
-                            return name
+                self.net.listenOnce = function(FileName)
+                    if not Jkr.IsMessagesBufferEmpty() then
+                        local msg = Jkr.PopFrontMessagesBuffer()
+                        local id = msg.mHeader.mId
+                        if id == 1 then
+                            local name = msg:GetString()
+                            if string.sub(name, #name, #name) == ":" then -- in this format "name.txt:" then it is a file
+                                self.net.listenOnce(string.sub(name, 1, #name - 1))
+                            else
+                                return name
+                            end
+                        elseif id == 2 then
+                            return msg:GetFloat()
+                        elseif id == 3 then
+                            return load(msg:GetFunction())
+                        elseif id == 4 then
+                            msg:GetFile(FileName)
+                        elseif id == 5 then
+                            print("Message Error: Invalid Message ID in the header");
                         end
-                    elseif id == 2 then
-                        return msg:GetFloat()
-                    elseif id == 3 then
-                        return load(msg:GetFunction())
-                    elseif id == 4 then
-                        msg:GetFile(FileName)
-                    elseif id == 5 then
-                        print("Message Error: Invalid Message ID in the header");
                     end
                 end
-            end
 
-            self.net.BroadCast = function(inToSend)
-                local msg = Jkr.Message()
-                if type(inToSend) == "string" then
-                    if string.sub(inToSend, 1, 1) == ":" and string.sub(inToSend, #inToSend, #inToSend) == ":" then -- represents a file :name.txt: in this way
-                        local fileName = string.sub(inToSend, 2, #inToSend - 1)
-                        local fileNameToBeSent = string.sub(inToSend, 2, #inToSend)
-                        self.net.BroadCast(fileNameToBeSent) -- send the filename in name.txt: this way
-                        msg.mHeader.mId = 4
-                        msg:InsertFile(fileName)             -- and then send the file
-                    else
-                        msg.mHeader.mId = 1
-                        msg:InsertString(inToSend)
-                    end
-                end
-                if type(inToSend) == "number" then
-                    msg.mHeader.mId = 2
-                    msg:InsertFloat(inToSend)
-                end
-                if type(inToSend) == "function" then
-                    msg.mHeader.mId = 3
-                    msg:InsertFunction(inToSend)
-                end
-                -- TODO Improve this client ID
-                Jkr.BroadcastServer(msg)
-            end
-        end,
-
-        Client = function(inIp)
-            Jkr.AddClient()
-            Jkr.ConnectFromClient(0, inIp, self.port)
-            self.net.SendToServer = function(inToSend)
-                local msg = Jkr.Message()
-                if type(inToSend) == "string" then
-                    if string.sub(inToSend, 1, 1) == ":" and string.sub(inToSend, #inToSend, #inToSend) == ":" then -- represents a file :name.txt: in this way
-                        local fileName = string.sub(inToSend, 2, #inToSend - 1)
-                        local fileNameToBeSent = string.sub(inToSend, 2, #inToSend)
-                        self.net.SendToServer(fileNameToBeSent) -- send the filename in name.txt: this way
-                        msg.mHeader.mId = 4
-                        msg:InsertFile(fileName)                -- and then send the file
-                    else
-                        msg.mHeader.mId = 1
-                        msg:InsertString(inToSend)
-                    end
-                end
-                if type(inToSend) == "number" then
-                    msg.mHeader.mId = 2
-                    msg:InsertFloat(inToSend)
-                end
-                if type(inToSend) == "function" then
-                    msg.mHeader.mId = 3
-                    msg:InsertFunction(inToSend)
-                end
-                -- TODO Improve this client ID
-                Jkr.SendMessageFromClient(0, msg)
-            end
-
-            self.net.listenOnce = function(inFileName)
-                if not Jkr.IsIncomingMessagesEmptyClient(0) then
-                    local msg = Jkr.PopFrontIncomingMessagesClient(0)
-                    local id = msg.mHeader.mId
-                    if id == 1 then
-                        local name = msg:GetString()
-                        if string.sub(name, #name, #name) == ":" then -- in this format "name.txt:" then it is a file
-                            self.net.listenOnce(string.sub(name, 1, #name - 1))
+                self.net.BroadCast = function(inToSend)
+                    local msg = Jkr.Message()
+                    if type(inToSend) == "string" then
+                        if string.sub(inToSend, 1, 1) == ":" and string.sub(inToSend, #inToSend, #inToSend) == ":" then -- represents a file :name.txt: in this way
+                            local fileName = string.sub(inToSend, 2, #inToSend - 1)
+                            local fileNameToBeSent = string.sub(inToSend, 2, #inToSend)
+                            self.net.BroadCast(fileNameToBeSent) -- send the filename in name.txt: this way
+                            msg.mHeader.mId = 4
+                            msg:InsertFile(fileName)             -- and then send the file
                         else
-                            return name
+                            msg.mHeader.mId = 1
+                            msg:InsertString(inToSend)
                         end
-                    elseif id == 2 then
-                        return msg:GetFloat()
-                    elseif id == 3 then
-                        return load(msg:GetFunction())
-                    elseif id == 4 then
-                        return msg:GetFile(inFileName)
-                    elseif id == 5 then
-                        print("Message Error: Invalid Message ID in the header");
+                    end
+                    if type(inToSend) == "number" then
+                        msg.mHeader.mId = 2
+                        msg:InsertFloat(inToSend)
+                    end
+                    if type(inToSend) == "function" then
+                        msg.mHeader.mId = 3
+                        msg:InsertFunction(inToSend)
+                    end
+                    -- TODO Improve this client ID
+                    Jkr.BroadcastServer(msg)
+                end
+            end,
+
+            Client = function()
+                self.net.Start = function(inIp, inId)
+                    if not inId then inId = 0 end
+                    Jkr.AddClient()
+                    Jkr.ConnectFromClient(inId, inIp, self.port)
+                end
+                self.net.SendToServer = function(inToSend)
+                    local msg = Jkr.Message()
+                    if type(inToSend) == "string" then
+                        if string.sub(inToSend, 1, 1) == ":" and string.sub(inToSend, #inToSend, #inToSend) == ":" then -- represents a file :name.txt: in this way
+                            local fileName = string.sub(inToSend, 2, #inToSend - 1)
+                            local fileNameToBeSent = string.sub(inToSend, 2, #inToSend)
+                            self.net.SendToServer(fileNameToBeSent) -- send the filename in name.txt: this way
+                            msg.mHeader.mId = 4
+                            msg:InsertFile(fileName)                -- and then send the file
+                        else
+                            msg.mHeader.mId = 1
+                            msg:InsertString(inToSend)
+                        end
+                    end
+                    if type(inToSend) == "number" then
+                        msg.mHeader.mId = 2
+                        msg:InsertFloat(inToSend)
+                    end
+                    if type(inToSend) == "function" then
+                        msg.mHeader.mId = 3
+                        msg:InsertFunction(inToSend)
+                    end
+                    -- TODO Improve this client ID
+                    Jkr.SendMessageFromClient(0, msg)
+                end
+
+                self.net.listenOnce = function(inFileName)
+                    if not Jkr.IsIncomingMessagesEmptyClient(0) then
+                        local msg = Jkr.PopFrontIncomingMessagesClient(0)
+                        local id = msg.mHeader.mId
+                        if id == 1 then
+                            local name = msg:GetString()
+                            if string.sub(name, #name, #name) == ":" then -- in this format "name.txt:" then it is a file
+                                self.net.listenOnce(string.sub(name, 1, #name - 1))
+                            else
+                                return name
+                            end
+                        elseif id == 2 then
+                            return msg:GetFloat()
+                        elseif id == 3 then
+                            return load(msg:GetFunction())
+                        elseif id == 4 then
+                            return msg:GetFile(inFileName)
+                        elseif id == 5 then
+                            print("Message Error: Invalid Message ID in the header");
+                        end
+                    end
+                end
+            end,
+
+            --@warning you have to use TCP connection as above to set the UDP's Buffer,
+            --using Jkr.SetBufferSizeUDP() call before receiving or sending anything
+            UDP = function()
+                self.net.StartUDP = function(inPort)
+                    Jkr.StartUDP(inPort)
+                end
+                self.net.SendUDP = function(inMessage, inDestination, inPort)
+                    local msg = Jkr.ConvertToVChar(inMessage)
+                    Jkr.SendUDP(msg, inDestination, inPort)
+                end
+                self.net.listenOnce = function()
+                    if not Jkr.IsMessagesBufferEmptyUDP() then
+                        local msg = Jkr.PopFrontMessagesBufferUDP()
+                        return Jkr.ConvertFromVChar(msg)
                     end
                 end
             end
-        end,
-    }
-end
-
-Engine.GravitationalForce = 10
-
-Engine.MakeRigidBody = function(inObject, inType)
-    local o = {}
-    local object = inObject
-    o.object = inObject
-    local scale = object.mScale
-    local y = scale.y
-    local x = scale.x
-    local z = scale.z
-    object.mIBody = mat3(
-        vec3(1 / 12 * (y * y + z * z), 0, 0),
-        vec3(0, 1 / 12 * (x * x + z * z), 0),
-        vec3(0, 0, 1 / 12 * (x * x + y * y))
-    )
-    object.mMomentum = vec3(0)
-    object.mVelocity = object.mMomentum / object.mMass
-    object.mAngularVelocity = vec3(0)
-    object.mAngularMomentum = object.mIBody * object.mAngularVelocity
-    object.mForce = vec3(0.0, -object.mMass * Engine.GravitationalForce, 0.0)
-    object.mTorque = vec3(0)
-
-    local IWorld = mat3(0)
-    local IWorld_inv = mat3(0)
-
-    -- local ComputeAuxiliary = function()
-    --           local Rmat = object.mRotation:GetMatrix3x3()
-    --           IWorld = Rmat * object.mIBody * Jmath.Transpose(Rmat)
-    --           IWorld_inv = Rmat * Jmath.Inverse(object.mIBody) * Jmath.Transpose(Rmat)
-    --           object.mAngularVelocity = IWorld_inv * object.mAngularMomentum
-    -- end
-
-    -- local CalculateTorque = function()
-
-    -- end
-
-    o.ResetForces = function()
-        object.mForce = vec3(0, -object.mMass * Engine.GravitationalForce, 0)
-        object.mTorque = vec3(0)
+        }
     end
 
-    if inType == "STATIC" then
-        o.mStaticTranslation = vec3(object.mTranslation)
-        o.mStatic = true
-        object.mMass = 10
-        o.Simulate = function(dt)
-            object.mTranslation = object.mTranslation + object.mVelocity * dt
-            object.mTranslation = o.mStaticTranslation
-        end
-    else
-        o.Simulate = function(dt)
-            object.mVelocity = object.mVelocity + object.mForce / object.mMass * dt
-            object.mTranslation = object.mTranslation + object.mVelocity * dt
-        end
+    self:PrepareMultiThreadingAndNetworking()
+    self.MakeGlobals = function()
+        _G.mt = self.mt
+        _G.gate = self.gate
+        _G.net = self.net
+        _G.i = self.i
+        _G.e = self.e
     end
-    return o
-end
 
-local GetVelocityAfterCollision = function(inObject1, inObject2, e, inStatic)
-    if inStatic then
-        return vec3(0)
-    end
-    local m1 = inObject1.mMass
-    local m2 = inObject2.mMass
-    local v1 = inObject1.mVelocity
-    local v2 = inObject2.mVelocity
-    return (m1 * v1 + m2 * v2 - m2 * (v1 - v2) * e) / (m1 + m2)
-end
-
-local abs = math.abs
-Engine.SimulateRigidBody = function(inObjectsTable, dt, e, inCallback)
-    local ObjectsSize = #inObjectsTable
-    for i = 1, ObjectsSize, 1 do
-        local O1 = inObjectsTable[i].object
-        inObjectsTable[i].Simulate(dt)
-        for j = i + 1, ObjectsSize, 1 do
-            local O2 = inObjectsTable[j].object
-            local CollisionThreasold = O1:GetCollisionThreashold(O2)
-            if CollisionThreasold > 0.0 then
-                inCallback(i, j)
-                O1.mVelocity = GetVelocityAfterCollision(O1, O2, e,
-                    inObjectsTable[i].mStatic)
-                O2.mVelocity = GetVelocityAfterCollision(O2, O1, e,
-                    inObjectsTable[j].mStatic)
-                if CollisionThreasold > 0.000001 then
-                    local ContactNormal = O1:GetContactNormal(O2)
-                    local absX = math.abs(ContactNormal.x)
-                    local absY = math.abs(ContactNormal.y)
-                    local absZ = math.abs(ContactNormal.z)
-
-                    if absX > absY and absX > absZ then
-                        O1.mTranslation.x = O1.mTranslation.x +
-                            ContactNormal.x * 0.01
-                    elseif absY > absZ then
-                        O1.mTranslation.y = O1.mTranslation.y +
-                            ContactNormal.y * 0.01
-                    else
-                        O1.mTranslation.z = O1.mTranslation.z +
-                            ContactNormal.z * 0.01
-                    end
-                end
-            end
-        end
-    end
-end
-
-Engine.SimulateRigidBodySubSteps = function(inObjectsTable, dt, inSubsteps, e, inCallback)
-    local SubSteps = 10
-    if inSubsteps then
-        SubSteps = inSubsteps
-    end
-    local newdt = dt / SubSteps
-    for i = 1, SubSteps, 1 do
-        Engine.SimulateRigidBody(inObjectsTable, newdt, e, inCallback)
-    end
+    -- in multithreading, in threads other than main thread,
+    -- Globalify the main handles for convenience
+    self.mt:Inject("Engine", self)
+    self.mt:Inject("mt", self.mt)
+    self.mt:Inject("gate", self.gate)
 end
 
 
-Engine.AnimateObject = function(inCallBuffer, inO1, inO2, inO, inStepValue, inStartingFrame)
-    local Frame = 1
-    local Value = 0.0
-    local StepValue = 0.1
-    if inStartingFrame then Frame = inStartingFrame end
-    if inStepValue then StepValue = inStepValue end
-
-    local c = inCallBuffer
-    while Value <= 1.0 do
-        local Value_ = Value
-        c.PushOneTime(
-            Jkr.CreateUpdatable(
-                function()
-                    if (inO1.mPosition_3f) then
-                        local NewTranslation = lerp(inO1.mPosition_3f, inO2.mPosition_3f, Value_)
-                        inO.mTranslation = NewTranslation
-                    end
-                    if (inO1.mRotation_Qf) then
-                        local NewRotation = lerp(inO1.mRotation_Qf, inO2.mRotation_Qf, Value_)
-                        inO.mRotation = NewRotation
-                    end
-                    if (inO1.mScale_3f) then
-                        local NewScale = lerp(inO1.mScale_3f, inO2.mScale_3f, Value_)
-                        inO.mScale = NewScale
-                    end
-                end
-            ), Frame
-        )
-        Value = Value + StepValue
-        Frame = Frame + 1
-    end
-    return Frame
-end
-
-Engine.Animate_4f = function(inCallBuffer, inV1, inV2, inV, inStepValue, inStartingFrame)
-    local Frame = 1
-    local Value = 0.0
-    local StepValue = 0.1
-    if inStartingFrame then Frame = inStartingFrame end
-    if inStepValue then StepValue = inStepValue end
-
-    local c = inCallBuffer
-    while Value <= 1.0 do
-        local Value_ = Value
-        c.PushOneTime(
-            Jkr.CreateUpdatable(
-                function()
-                    local vv = lerp(inV1, inV2, Value_)
-                    inV.x = vv.x
-                    inV.y = vv.y
-                    inV.z = vv.z
-                    inV.w = vv.w
-                    --print(string.format("from %f, to: %f, value: %f, value_X: %f", inV1.x, inV2.x, vv.x, Value_))
-                end
-            ), Frame
-        )
-        Value = Value + StepValue
-        Frame = Frame + 1
-    end
-    return Frame
-end
-
-
-Engine.PrintGLTFInfo = function(inLoadedGLTF, inShouldPrint)
-    if (inShouldPrint) then
-        io.write(string.format(
-            [[
+Engine.PrintGLTFInfo = function(inLoadedGLTF)
+    io.write(string.format(
+        [[
 GLTF:-
 Vertices = %d,
 Indices = %d,
@@ -2623,17 +2628,16 @@ Skins = %d,
 Animations = %d,
 Meshes = %d
                 ]],
-            inLoadedGLTF:GetVerticesSize(),
-            inLoadedGLTF:GetIndicesSize(),
-            inLoadedGLTF:GetImagesSize(),
-            inLoadedGLTF:GetTexturesSize(),
-            inLoadedGLTF:GetMaterialsSize(),
-            inLoadedGLTF:GetNodesSize(),
-            inLoadedGLTF:GetSkinsSize(),
-            inLoadedGLTF:GetAnimationsSize(),
-            inLoadedGLTF:GetMeshesSize()
-        ))
-    end
+        inLoadedGLTF:GetVerticesSize(),
+        inLoadedGLTF:GetIndicesSize(),
+        inLoadedGLTF:GetImagesSize(),
+        inLoadedGLTF:GetTexturesSize(),
+        inLoadedGLTF:GetMaterialsSize(),
+        inLoadedGLTF:GetNodesSize(),
+        inLoadedGLTF:GetSkinsSize(),
+        inLoadedGLTF:GetAnimationsSize(),
+        inLoadedGLTF:GetMeshesSize()
+    ))
 end
 
 Engine.GetGLTFInfo = Engine.PrintGLTFInfo
@@ -2683,10 +2687,10 @@ Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
         .In(2, "vec3", "vWorldPos")
         .In(3, "vec4", "vTangent")
         .In(4, "flat int", "vVertexIndex")
-        .uSamplerCubeMap(21, "samplerIrradiance", 0)
-        .uSamplerCubeMap(22, "prefilteredMap", 0)
+        .uSampler2D(23, "samplerBRDFLUT", 0)
+        .uSamplerCubeMap(24, "samplerIrradiance", 0)
+        .uSamplerCubeMap(25, "prefilteredMap", 0)
         .Ubo()
-        .uSampler2D(10, "samplerBRDFLUT", 1)
         .outFragColor()
         .Push()
         .Append [[
@@ -2847,10 +2851,10 @@ vec3 calculateNormal()
     vec3 color = ambient + Lo;
 
     // Tone mapping exposure = 1.5
-	color = Uncharted2Tonemap(color * 2);
+	color = Uncharted2Tonemap(color * 10);
 	color = color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
 	// Gamma correction gamma = 0.3
-	color = pow(color, vec3(1.0f / 2));
+	color = pow(color, vec3(1.0f / 2.2));
 
 	outFragColor = vec4(color + Emissive, 1.0);
     ]]
@@ -2881,7 +2885,7 @@ Engine.CreateObjectByGLTFPrimitiveAndUniform = function(inWorld3d,
     Object3D.mIndexCount = inPrimitive.mIndexCount
     Object3D.mFirstIndex = inPrimitive.mFirstIndex
     local NodeIndices = gltf:GetNodeIndexByMeshIndex(inMeshIndex - 1)
-    Object3D.mMatrix = gltf:GetNodeMatrixByIndex(NodeIndices[1])
+    Object3D.mMatrix = gltf:GetNodeMatrixByIndex(NodeIndices)
 
     return Object3D
 end
@@ -2896,7 +2900,7 @@ Engine.AddObject = function(modObjectsVector, inId, inAssociatedModel, inUniform
     if inSimple3dIndex then Object.mAssociatedSimple3D = math.floor(inSimple3dIndex) end
     if (inGLTFHandle) then
         local NodeIndices = inGLTFHandle:GetNodeIndexByMeshIndex(inMeshIndex)
-        Object.mMatrix = inGLTFHandle:GetNodeMatrixByIndex(NodeIndices[1])
+        Object.mMatrix = inGLTFHandle:GetNodeMatrixByIndex(NodeIndices)
     end
     modObjectsVector:add(Object)
     return #modObjectsVector
@@ -2908,19 +2912,20 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
     local gltfmodelindex = inworld3d:AddGLTFModel(ingltfmodelname)
     local gltfmodel = inworld3d:GetGLTFModel(gltfmodelindex)
     local shapeindex = inshape3d:Add(gltfmodel) -- this ACUTALLY loads the GLTF Model
+    local Nodes = gltfmodel:GetNodesRef()
     local Meshes = gltfmodel:GetMeshesRef()
-    Engine.GetGLTFInfo(gltfmodel, true)
+    Engine.GetGLTFInfo(gltfmodel)
     local Objects = {}
 
-    for MeshIndex = 1, #Meshes, 1 do
-        local meshindex = MeshIndex
+    for NodeIndex = 1, #Nodes, 1 do
         local shouldload = false
-        local primitives = Meshes[MeshIndex].mPrimitives
+        local primitives = Nodes[NodeIndex].mMesh.mPrimitives
 
         for PrimitiveIndex = 1, #primitives, 1 do
             local inprimitive = primitives[PrimitiveIndex]
             local materialindex = inprimitive.mMaterialIndex
 
+            --@warning THIS IS BEING DUPLICATED, FIX THIS
             -- [[[[[[[[[[[[[[[[[[[[[[[[[[THIS IS NOT OPTIMAL]]]]]]]]]]]]]]]]]]]]]]]]]]
             local uniform3dindex = inworld3d:AddUniform3D(Engine.i)
             local uniform = inworld3d:GetUniform3D(uniform3dindex)
@@ -2938,9 +2943,11 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
                 shouldload,
                 incompilecontext
             )
-            local skinning = false
-            if inskinning then skinning = true end
-            uniform:Build(shader, gltfmodel, 0, skinning, true, true)
+            local allocate_for_skinning = false
+            local allocate_for_tangent = true
+            if inskinning then allocate_for_skinning = true end
+            uniform:Build(shader, gltfmodel, 0, allocate_for_skinning, allocate_for_tangent)
+            uniform:Build(shader, gltfmodel, primitives[PrimitiveIndex])
             -- [[[[[[[[[[[[[[[[[[[[[[[[[[CHANGE THIS LATER]]]]]]]]]]]]]]]]]]]]]]]]]]
 
             local object = Jkr.Object3D()
@@ -2950,10 +2957,39 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
             object.mAssociatedSimple3D = shaderindex;
             object.mFirstIndex = inprimitive.mFirstIndex
             object.mIndexCount = inprimitive.mIndexCount
-            local NodeIndices = gltfmodel:GetNodeIndexByMeshIndex(meshindex - 1) --@lua indexes from one
-            object.mMatrix = gltfmodel:GetNodeMatrixByIndex(NodeIndices[1])
+            object.mMatrix = Nodes[NodeIndex]:GetLocalMatrix()
+            object.mP1 = NodeIndex
 
             Objects[#Objects + 1] = object
+        end
+
+        if #primitives == 0 and #Nodes[NodeIndex].mChildren ~= 0 then
+            local object = Jkr.Object3D()
+            object.mId = shapeindex;
+            object.mAssociatedModel = gltfmodelindex;
+            object.mAssociatedUniform = -1;
+            object.mAssociatedSimple3D = -1;
+            object.mFirstIndex = -1
+            object.mIndexCount = -1
+            object.mDrawable = false
+            object.mMatrix = Nodes[NodeIndex]:GetLocalMatrix()
+            ---@note This is supposed to be used for storage of the abovematrix
+            object.mMatrix3 = Nodes[NodeIndex]:GetLocalMatrix()
+            object.mP1 = NodeIndex
+            object.mP2 = 1
+            Objects[#Objects + 1] = object
+        end
+    end
+
+    -- @warning You've to store this Objects {} table somewhere
+    for i = 1, #Objects, 1 do
+        for j = 1, #Objects, 1 do
+            if i ~= j then
+                if gltfmodel:IsNodeParentOf(Nodes[Objects[i].mP1], Nodes[Objects[j].mP1]) then
+                    print("PARENT")
+                    Objects[i]:SetParent(Objects[j])
+                end
+            end
         end
     end
     return Objects
@@ -3171,7 +3207,7 @@ Jkr.HLayout = {
 
         return Obj
     end,
-    AddComponents = function(self, inComponentListTable, inRatioTable)
+    Add = function(self, inComponentListTable, inRatioTable)
         self.mComponents = inComponentListTable
         self.mRatioTable = inRatioTable
         return self
@@ -3227,7 +3263,7 @@ Jkr.VLayout = {
         self.__call = Jkr.HLayout.New
         return Obj
     end,
-    AddComponents = function(self, inComponentListTable, inRatioTable)
+    Add = function(self, inComponentListTable, inRatioTable)
         self.mComponents = inComponentListTable
         self.mRatioTable = inRatioTable
         return self
@@ -3274,7 +3310,7 @@ Jkr.StackLayout = {
         self.__index = self
         return Obj
     end,
-    AddComponents = function(self, inComponentListTable)
+    Add = function(self, inComponentListTable)
         self.mComponents = inComponentListTable
         return self
     end,
@@ -3298,7 +3334,8 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     o.i = i
     o.w = w
     o.s = Jkr.CreateShapeRenderer(o.i, o.w)
-    o.t = Jkr.CreateTextRendererBestTextAlt(o.i, o.s)
+    o.t = Jkr.CreateTextRendererBestTextAlt(o.i, o.s) -- for now the idea has been dropped
+
     o.c = Jkr.CreateCallBuffers()
     o.e = Jkr.CreateCallExecutor(o.c)
     o.WindowDimension = o.w:GetWindowDimension()
@@ -3375,7 +3412,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         end
 
         SampledImage.CopyToCompute = function(inComputeImage)
-            o.s:CopyFromImage(SampledImage.mId, inComputeImage.mId)
+            o.s:CopyFromImage(SampledImage.mId, inComputeImage.handle)
         end
 
         SampledImage.CopyDeferredImageFromWindow = function(inWindow)
@@ -3392,17 +3429,17 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     o.CreateComputeImage = function(inPosition_3f, inDimension_3f, inOptCompatibleSampledImage)
         local ComputeImage = {}
         if inOptCompatibleSampledImage then
-            ComputeImage.mId = Jkr.CreateCustomPainterImage(o.i, o.w,
+            ComputeImage.handle = Jkr.CreateCustomPainterImage(o.i, o.w,
                 math.int(inOptCompatibleSampledImage.mActualSize.x),
                 math.int(inOptCompatibleSampledImage.mActualSize.y))
         else
-            ComputeImage.mId = Jkr.CreateCustomPainterImage(o.i, o.w, math.int(inDimension_3f.x),
+            ComputeImage.handle = Jkr.CreateCustomPainterImage(o.i, o.w, math.int(inDimension_3f.x),
                 math.int(inDimension_3f.y))
         end
 
         ComputeImage.RegisterPainter = function(inPainter, inIndex)
             if not inIndex then inIndex = 0 end
-            ComputeImage.mId:Register(o.i, inPainter.handle, inIndex)
+            ComputeImage.handle:Register(o.i, inPainter.handle, inIndex)
         end
         ComputeImage.BindPainter = function(inPainter)
             inPainter:Bind(o.w, Jkr.CmdParam.None)
@@ -3412,7 +3449,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             inPainter:Draw(o.w, inPushConstant, inX, inY, inZ, Jkr.CmdParam.None)
         end
         ComputeImage.CopyToSampled = function(inSampledImage)
-            o.s:CopyToImage(inSampledImage.mId, ComputeImage.mId)
+            o.s:CopyToImage(inSampledImage.mId, ComputeImage.handle)
         end
         return ComputeImage
     end
@@ -3546,16 +3583,36 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
     local op = o.prebuilts;
 
 
-    o.CreatePressButton = function(inPosition_3f, inDimension_3f, inOnClickFunction, inContinous, inFont, inText,
-                                   inColor, inBackgroundColor, inPushConstantForImagePainter, inImageFilePath)
+    o.CreateGeneralButton = function(inPosition_3f,
+                                     inDimension_3f,
+                                     inOnClickFunction,
+                                     inContinous,
+                                     inFont,
+                                     inText,
+                                     inColor,
+                                     inBackgroundColor,
+                                     inPushConstantForImagePainter,
+                                     inImageFilePath,
+                                     inImagePainter)
         local button = {}
+        if inDimension_3f.x == 0 or inDimension_3f.y == 0 then
+            button.shouldUpdateByDimension = vec3(inDimension_3f.x, inDimension_3f.y, inDimension_3f.z)
+            inDimension_3f = vec3(100, 100, 1)
+        end
+
         if (inOnClickFunction) then
             button.parent = o.CreateButton(inPosition_3f, inDimension_3f, inOnClickFunction, inContinous)
             setmetatable(button, button.parent)
             button.__index = button.parent
         end
+
+        if not inImagePainter then
+            inImagePainter = o.prebuilts.roundedRectanglePainter
+        end
+
+
         button.roundedRectangle = o.CreateComputeImage(inPosition_3f, inDimension_3f)
-        button.roundedRectangle.RegisterPainter(o.prebuilts.roundedRectanglePainter)
+        button.roundedRectangle.RegisterPainter(inImagePainter)
 
         o.c:PushOneTime(Jkr.CreateDispatchable(function()
             button.roundedRectangle.BindPainter(op.roundedRectanglePainter)
@@ -3575,7 +3632,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                 math.int(inDimension_3f.y), 1)
         end), 1)
 
-        button.sampledImage = o.CreateSampledImage(inPosition_3f, inDimension_3f, nil, nil, inBackgroundColor)
+        button.sampledImage = o.CreateSampledImage(inPosition_3f, inDimension_3f, inImageFilePath, nil, inBackgroundColor)
         if not inImageFilePath then
             o.c:PushOneTime(Jkr.CreateDispatchable(function()
                 button.roundedRectangle.CopyToSampled(button.sampledImage)
@@ -3585,17 +3642,18 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
 
         end
 
-        if button.sampledText then
-            button.sampledText.__backupText = ""
-        end
+        button.padding = 10
 
-        button.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inColor, inBackgroundColor)
+        button.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inColor, inBackgroundColor,
+                                 inTextOreintation)
+            button.sampledImage:Update(inPosition_3f, inDimension_3f, inBackgroundColor)
+
             if button.parent then
                 button.parent:Update(inPosition_3f, inDimension_3f)
             end
-            button.sampledImage:Update(inPosition_3f, inDimension_3f, inBackgroundColor)
-            local DelDim = vec3(0, 0, 0)
+
             if not inImageFilePath then
+                local DelDim = vec3(0, 0, 0)
                 local fontDim = button.sampledText.mFont:GetTextDimension(inText or Copy(button.sampledText.mText) or
                     " ")
                 DelDim = vec3((inDimension_3f.x - fontDim.x) / 2, (inDimension_3f.y - fontDim.y) / 2, 0)
@@ -3606,10 +3664,27 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                     DelDim = vec3((inDimension_3f.x - fontDim.x) / 2, (inDimension_3f.y - fontDim.y) / 2, 0)
                 end
                 button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, substr, inColor)
-                if inText then
-                    button.sampledText.mText = Copy(inText)
+
+                if inTextOreintation then
+                    if inTextOreintation == "LEFT" then
+                        DelDim.x = button.padding
+                        button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, substr, inColor)
+                    end
+                    if inTextOreintation == "RIGHT" then
+                        DelDim.x = inPosition_3f.x - fontDim.x - button.padding
+                        DelDim.x = inPosition_3f.x
+                        button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, substr, inColor)
+                    end
                 end
             end
+
+            if inText then
+                button.sampledText.mText = Copy(inText)
+            end
+        end
+
+        if button.shouldUpdateByDimension then
+            button:Update(inPosition_3f, button.shouldUpdateByDimension)
         end
 
         return button

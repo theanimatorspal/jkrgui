@@ -1,8 +1,9 @@
 #include "VulkanBuffer.hpp"
+#include "VulkanBufferVMA.hpp"
 
 using namespace ksai;
 
-ksai::VulkanBufferBase::VulkanBufferBase(const VulkanDevice &inDevice) { Init({&inDevice}); }
+VulkanBufferBase::VulkanBufferBase(const VulkanDevice &inDevice) { Init({&inDevice}); }
 
 void VulkanBufferBase::Init(CreateInfo inCreateInfo) {
     mDevice         = &inCreateInfo.inDevice->GetDeviceHandle();
@@ -16,7 +17,7 @@ VulkanBufferBase::~VulkanBufferBase() {
     if (mInitialized) Destroy();
 };
 
-void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFrom(
+void VulkanBufferBase::SubmitImmediateCmdCopyFrom(
      const VulkanQueue<QueueContext::Graphics> &inQueue,
      const VulkanCommandBuffer &inCmdBuffer,
      void *inData) {
@@ -46,24 +47,24 @@ void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFrom(
     mDevice->destroyBuffer(StagingBuffer);
 }
 
-void ksai::VulkanBufferBase::CmdCopyFrom(const VulkanCommandBuffer &inCmdBuffer,
-                                         VulkanBufferBase &inBuffer,
-                                         vk::DeviceSize FromBufferOffset,
-                                         vk::DeviceSize ToBufferOffset,
-                                         vk::DeviceSize inSizeToCopy) {
+void VulkanBufferBase::CmdCopyFrom(const VulkanCommandBuffer &inCmdBuffer,
+                                   VulkanBufferBase &inBuffer,
+                                   vk::DeviceSize FromBufferOffset,
+                                   vk::DeviceSize ToBufferOffset,
+                                   vk::DeviceSize inSizeToCopy) {
     vk::BufferCopy BufferCopyRegion =
          vk::BufferCopy(FromBufferOffset, ToBufferOffset, inSizeToCopy);
     inCmdBuffer.GetCommandBufferHandle().copyBuffer(
          inBuffer.mBufferHandle, mBufferHandle, BufferCopyRegion);
 }
 
-void ksai::VulkanBufferBase::SetBarrier(const VulkanCommandBuffer &inCmdBuffer,
-                                        vk::DeviceSize inDstBufferOffset,
-                                        vk::DeviceSize inSizeToCopy,
-                                        vk::AccessFlags inBeforeAccess,
-                                        vk::AccessFlags inAfterAccess,
-                                        vk::PipelineStageFlags inBeforeStages,
-                                        vk::PipelineStageFlags inAfterStages) {
+void VulkanBufferBase::SetBarrier(const VulkanCommandBuffer &inCmdBuffer,
+                                  vk::DeviceSize inDstBufferOffset,
+                                  vk::DeviceSize inSizeToCopy,
+                                  vk::AccessFlags inBeforeAccess,
+                                  vk::AccessFlags inAfterAccess,
+                                  vk::PipelineStageFlags inBeforeStages,
+                                  vk::PipelineStageFlags inAfterStages) {
     vk::BufferMemoryBarrier Barrier(inBeforeAccess,
                                     inAfterAccess,
                                     VK_QUEUE_FAMILY_IGNORED,
@@ -75,10 +76,10 @@ void ksai::VulkanBufferBase::SetBarrier(const VulkanCommandBuffer &inCmdBuffer,
          inBeforeStages, inAfterStages, vk::DependencyFlagBits::eByRegion, {}, Barrier, {});
 }
 
-void ksai::VulkanBufferBase::GetMemoryTypeIndex(vk::MemoryPropertyFlags inFlag,
-                                                vk::Buffer inBuffer,
-                                                vk::DeviceSize &outSize,
-                                                uint32_t &outIndex) {
+void VulkanBufferBase::GetMemoryTypeIndex(vk::MemoryPropertyFlags inFlag,
+                                          vk::Buffer inBuffer,
+                                          vk::DeviceSize &outSize,
+                                          uint32_t &outIndex) {
     vk::PhysicalDeviceMemoryProperties memoryProperties = mPhysicalDevice->getMemoryProperties();
     vk::MemoryRequirements memoryRequirements = mDevice->getBufferMemoryRequirements(inBuffer);
     uint32_t typeBits                         = memoryRequirements.memoryTypeBits;
@@ -95,29 +96,48 @@ void ksai::VulkanBufferBase::GetMemoryTypeIndex(vk::MemoryPropertyFlags inFlag,
     }
 }
 
-void ksai::VulkanBufferBase::CmdCopyFromImage(const VulkanCommandBuffer &inCmdBuffer,
-                                              const VulkanImageBase &inImage,
-                                              vk::PipelineStageFlags inAfterStage,
-                                              vk::AccessFlags inAfterAccessFlags) const {
+void VulkanBufferBase::CmdCopyFromImage(const VulkanCommandBuffer &inCmdBuffer,
+                                        const VulkanImageBase &inImage,
+                                        vk::PipelineStageFlags inAfterStage,
+                                        vk::AccessFlags inAfterAccessFlags) const {
     // TODO
 }
 
-void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFromImage(
+void VulkanBufferBase::SubmitImmediateCmdCopyFromImage(
      const VulkanQueue<QueueContext::Graphics> &inQueue,
      const VulkanCommandBuffer &inCmdBuffer,
-     VulkanImageBase &inImage) const {
-    auto ImageExtent  = inImage.GetImageExtent();
-    auto CopySize     = ImageExtent.width * ImageExtent.height * 4; // TODO don't hardcode this
-    auto srcImageProp = inImage.GetImageProperty();
+     const VulkanFence &inFence,
+     VulkanImageBase &inImage,
+     vk::ImageLayout inLayout,
+     int inMipLevel,
+     int inLayer,
+     int inLayersToBeCopied,
+     int inImageWidth,
+     int inImageHeight) {
+    auto ImageExtent = inImage.GetImageExtent();
+    if (inImageWidth > 0) {
+        ImageExtent.width = inImageWidth;
+    }
+    if (inImageHeight > 0) {
+        ImageExtent.height = inImageHeight;
+    }
+
+    /// @warning @todo don't hardcode this
+    auto CopySize                = ImageExtent.width * ImageExtent.height * 4 * inLayersToBeCopied;
+    auto srcImageProp            = inImage.GetImageProperty();
     const vk::CommandBuffer &Cmd = inCmdBuffer.GetCommandBufferHandle();
 
+    ///@warning IDK Why fence is there for submit immediate @todo Understand this better
+    inFence.Wait();
+    inFence.Reset();
+
     Cmd.begin(vk::CommandBufferBeginInfo());
-    auto ImageSubResource =
-         vk::ImageSubresourceLayers(srcImageProp.mImageAspect, 0, 0, srcImageProp.mArrayLayers);
+    auto ImageSubResource = vk::ImageSubresourceLayers(
+         srcImageProp.mImageAspect, inMipLevel, inLayer, inLayersToBeCopied);
     auto BufferImageCopy = vk::BufferImageCopy(
          0, 0, 0, ImageSubResource, vk::Offset3D{0}, vk::Extent3D(ImageExtent, 1));
     inImage.CmdTransitionImageLayout(inCmdBuffer,
-                                     vk::ImageLayout::eGeneral,
+                                     inLayout,
                                      vk::ImageLayout::eTransferSrcOptimal,
                                      vk::PipelineStageFlagBits::eComputeShader,
                                      vk::PipelineStageFlagBits::eTransfer,
@@ -129,45 +149,45 @@ void ksai::VulkanBufferBase::SubmitImmediateCmdCopyFromImage(
                           BufferImageCopy);
     inImage.CmdTransitionImageLayout(inCmdBuffer,
                                      vk::ImageLayout::eTransferSrcOptimal,
-                                     vk::ImageLayout::eGeneral,
+                                     inLayout,
                                      vk::PipelineStageFlagBits::eTransfer,
                                      vk::PipelineStageFlagBits::eFragmentShader,
                                      vk::AccessFlagBits::eMemoryRead,
                                      vk::AccessFlagBits::eMemoryRead);
     Cmd.end();
-    inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer);
+    inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer, inFence);
+    inQueue.Wait();
+}
+
+v<char> VulkanBufferBase::SubmitImmediateGetBufferToVector(
+     const VulkanQueue<QueueContext::Graphics> &inQueue,
+     VulkanBufferVMA &inStagingBuffer,
+     const VulkanCommandBuffer &inCmdBuffer,
+     const VulkanFence &inFence) {
+    inFence.Wait();
+    inFence.Reset();
+    inCmdBuffer.Begin();
+    vk::BufferCopy BufferCopy(0, 0, mSize);
+    inCmdBuffer.GetCommandBufferHandle().copyBuffer(
+         mBufferHandle, inStagingBuffer.GetBufferHandle(), BufferCopy);
+    inCmdBuffer.End();
+    inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer, inFence);
+    inQueue.Wait();
+    v<char> outdata;
+    outdata.resize(mSize);
+    void *data;
+    inStagingBuffer.MapMemoryRegion(&data);
+    std::memcpy(outdata.data(), data, mSize);
+    return outdata;
 }
 
 void VulkanBufferBase::FillBufferUsage(vk::BufferCreateInfo &inInfo,
                                        BufferContext inBufferContext,
                                        MemoryType inBufferStorageType) {
-    // if (inBufferContext == BufferContext::Vertex)
-    //     inInfo.setUsage(vk::BufferUsageFlagBits::eVertexBuffer |
-    //                     vk::BufferUsageFlagBits::eTransferDst);
-    // else if (inBufferContext == BufferContext::Index)
-    //     inInfo.setUsage(vk::BufferUsageFlagBits::eIndexBuffer |
-    //                     vk::BufferUsageFlagBits::eTransferDst);
-    // else if (inBufferContext == BufferContext::Uniform)
-    //     inInfo.setUsage(vk::BufferUsageFlagBits::eUniformBuffer |
-    //                     vk::BufferUsageFlagBits::eTransferDst);
-    // else if (inBufferContext == BufferContext::Storage)
-    //     inInfo.setUsage(vk::BufferUsageFlagBits::eStorageBuffer |
-    //                     vk::BufferUsageFlagBits::eTransferDst);
-    // else if (inBufferContext == (BufferContext::Vertex | BufferContext::Storage))
-    //     inInfo.setUsage(vk::BufferUsageFlagBits::eStorageBuffer |
-    //                     vk::BufferUsageFlagBits::eVertexBuffer |
-    //                     vk::BufferUsageFlagBits::eTransferDst);
-    // else if (inBufferContext == BufferContext::Staging)
-    //     inInfo.setUsage(vk::BufferUsageFlagBits::eTransferSrc);
-    // else if (inBufferContext == (BufferContext::Uniform | BufferContext::Storage))
-    //     inInfo.setUsage(vk::BufferUsageFlagBits::eStorageBuffer |
-    //                     vk::BufferUsageFlagBits::eUniformBuffer |
-    //                     vk::BufferUsageFlagBits::eTransferDst);
-
-    // if (inBufferContext == (BufferContext::Staging | BufferContext::Index)) {
-    //     inInfo.setUsage(vk::BufferUsageFlagBits::eIndexBuffer |
-    //                     vk::BufferUsageFlagBits::eStorageBuffer);
-    // }
+    /// @warning This effectively makes the BufferContext flags meaningless.
+    /// This is done since, for now, the usage type for a buffer / image doesn't mean anything
+    /// for performance. If later, if there is any specific hardware feature that might arrive,
+    /// this might be important for then. But for now, @todo for later.
     inInfo.setUsage(vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndexBuffer |
                     vk::BufferUsageFlagBits::eStorageBuffer |
                     vk::BufferUsageFlagBits::eUniformBuffer |

@@ -26,6 +26,8 @@ void CreateTextRendererBindings(sol::state &inState) {
          "Update",
          &BestText_Alt::UpdateEXT,
          "UpdatePosOnly",
-         &BestText_Alt::UpdatePosOnlyEXT);
+         &BestText_Alt::UpdatePosOnlyEXT,
+         "WrapToTextVector",
+         &BestText_Alt::WrapToTextVector);
 }
 } // namespace JkrEXE

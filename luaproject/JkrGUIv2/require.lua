@@ -130,15 +130,14 @@ layout(location = 1) in vec2 inTexCoord;
 layout(location = 0) out vec2 outTexCoord;
 
 layout(push_constant, std430) uniform pc {
-	mat4 Matrix;
-	vec4 Color;
-	vec4 mParams;
+	mat4 Matrix1;
+	mat4 Matrix2;
 } push;
 
 
 void GlslMain() {
 	vec4 dx = vec4(inPosition.x, inPosition.y, inPosition.z, 1.0);
-	gl_Position = push.Matrix * dx;
+	gl_Position = push.Matrix2 * dx;
 	outTexCoord = inTexCoord;
 }
            ]]
@@ -151,14 +150,13 @@ layout(location = 0) out vec4 outColor;
 layout(location = 0) in vec2 inTexCoord;
 
 layout(push_constant, std430) uniform pc {
-	mat4 Matrix;
-	vec4 Color;
-	vec4 mParams;
+	mat4 Matrix1;
+	mat4 Matrix2;
 } push;
 
 void GlslMain()
 {
-	outColor = push.Color;
+	outColor = push.Matrix1[1];
 }
                 ]]
             elseif inRenderer == "ShapeImage" then
@@ -171,17 +169,18 @@ layout(set = 0, binding = 0) uniform sampler2D image;
 layout(location = 0) in vec2 inTexCoord;
 
 layout(push_constant, std430) uniform pc {
-	mat4 Matrix;
-	vec4 Color;
-	vec4 mParams;
+	mat4 Matrix1;
+	mat4 Matrix2;
 } push;
 
 void GlslMain()
 {
+    vec4 color_in = push.Matrix1[1];
 	vec4 color = texture(image, inTexCoord);
-	outColor = vec4(color.r * push.Color.r, color.g * push.Color.g, color.b * push.Color.b, color.a * push.Color.a);
+	outColor = vec4(color.r * color_in.r, color.g * color_in.g, color.b * color_in.b, color.a * color_in.a);
 }
                 ]]
+                -- @warning @todo remove this
             elseif inRenderer == "ShapeImageVarDes" then
                 return [[
 #version 450
@@ -250,6 +249,8 @@ void GlslMain()
             ]]
         end
     end
+
+    -- @warning @todo Remove all of the following
 
     --[============================================================[
          3D RENDERER RESOURCES
@@ -411,38 +412,42 @@ Jkr.GetDefaultCache = function(inInstance, inRend)
         end
         return DefaultCaches["Line"]
     elseif inRend == "Shape" then
-        DefaultCaches["Shape"] = Jkr.ShapeRendererResources()
-        DefaultCaches["Shape"]:Add(
-            inInstance,
-            Jkr.FillType.Fill,
-            Jkr.PipelineProperties.Default,
-            "cache2/ShapeFillCache.glsl",
-            Jkr.GetDefaultResource("ShapeFill", "Vertex"),
-            Jkr.GetDefaultResource("ShapeFill", "Fragment"),
-            Jkr.GetDefaultResource(nil, "Compute"),
-            ShouldLoadCaches_b
-        )
-        DefaultCaches["Shape"]:Add(
-            inInstance,
-            Jkr.FillType.Image,
-            Jkr.PipelineProperties.Default,
-            "cache2/ShapeImageCache.glsl",
-            Jkr.GetDefaultResource("ShapeImage", "Vertex"),
-            Jkr.GetDefaultResource("ShapeImage", "Fragment"),
-            Jkr.GetDefaultResource(nil, "Compute"),
-            ShouldLoadCaches_b
-        )
-        DefaultCaches["Shape"]:Add(
-            inInstance,
-            Jkr.FillType.ContinousLine,
-            Jkr.PipelineProperties.Line,
-            "cache2/ShapeFillCache.glsl",
-            Jkr.GetDefaultResource("ShapeFill", "Vertex"),
-            Jkr.GetDefaultResource("ShapeFill", "Fragment"),
-            Jkr.GetDefaultResource(nil, "Compute"),
-            ShouldLoadCaches_b
-        )
-        return DefaultCaches["Shape"]
+        if DefaultCaches["Shape"] then
+            return DefaultCaches["Shape"]
+        else
+            DefaultCaches["Shape"] = Jkr.ShapeRendererResources()
+            DefaultCaches["Shape"]:Add(
+                inInstance,
+                Jkr.FillType.Fill,
+                Jkr.PipelineProperties.Default,
+                "cache2/ShapeFillCache.glsl",
+                Jkr.GetDefaultResource("ShapeFill", "Vertex"),
+                Jkr.GetDefaultResource("ShapeFill", "Fragment"),
+                Jkr.GetDefaultResource(nil, "Compute"),
+                ShouldLoadCaches_b
+            )
+            DefaultCaches["Shape"]:Add(
+                inInstance,
+                Jkr.FillType.Image,
+                Jkr.PipelineProperties.Default,
+                "cache2/ShapeImageCache.glsl",
+                Jkr.GetDefaultResource("ShapeImage", "Vertex"),
+                Jkr.GetDefaultResource("ShapeImage", "Fragment"),
+                Jkr.GetDefaultResource(nil, "Compute"),
+                ShouldLoadCaches_b
+            )
+            DefaultCaches["Shape"]:Add(
+                inInstance,
+                Jkr.FillType.ContinousLine,
+                Jkr.PipelineProperties.Line,
+                "cache2/ShapeFillCache.glsl",
+                Jkr.GetDefaultResource("ShapeFill", "Vertex"),
+                Jkr.GetDefaultResource("ShapeFill", "Fragment"),
+                Jkr.GetDefaultResource(nil, "Compute"),
+                ShouldLoadCaches_b
+            )
+            return DefaultCaches["Shape"]
+        end
     end
 end
 
@@ -715,8 +720,12 @@ Jkr.CreateCustomImagePainter = function(inCacheFileName, inComputeShader)
         o.handle:Bind(w, inCmdParam)
     end
 
+    -- @warning this inComputeImage.handle breaks dependency principle,
+    --- please fix this on refactor, since this doesn't know anything about
+    --- underlying abstracted type, "inComputeImage" from Basics.lua,
+    ---  this should only accept the type that this actually knows
     o.BindImageFromImage = function(self, w, inComputeImage, inCmdParam)
-        o.handle:BindImageFromImage(w, inComputeImage.mId, inCmdParam)
+        o.handle:BindImageFromImage(w, inComputeImage.handle, inCmdParam)
     end
 
     o.Draw = function(self, w, inPushConstant, inX, inY, inZ, inCmdParam)

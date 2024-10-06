@@ -13,23 +13,15 @@ class Uniform3D {
     using ImageType         = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
     using UniformBufferType = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformBuffer>;
     using StorageBufferType = Jkr::PainterParameter<Jkr::PainterParameterContext::StorageBuffer>;
-
-    /* ============================================================
-
-        GETTER
-
-    ============================================================== */
+    const int BrdfLUTBindingIndex         = 3 + kstd::BindingIndex::Uniform::CubeMapImage;
+    const int IrradianceCubeBindingIndex  = 4 + kstd::BindingIndex::Uniform::CubeMapImage;
+    const int PrefilteredCubeBindingIndex = 5 + kstd::BindingIndex::Uniform::CubeMapImage;
 
     GETTER &GetImagesRef() { return mImages; }
+    GETTER &GetSkyboxImagesRef() { return mSkyboxImages; }
     GETTER &GetUniformBuffersRef() { return mUniformBuffers; }
     GETTER &GetStorageBuffersRef() { return mStorageBuffers; }
     GETTER &GetVulkanDescriptorSet() { return *mVulkanDescriptorSet; }
-
-    /* ============================================================
-
-        Creator/Builder Pattern
-
-    ============================================================== */
 
     static Up<Uniform3D> CreateByGLTFNodeIndex(Instance &inInstance,
                                                Simple3D &inSimple3D,
@@ -43,19 +35,12 @@ class Uniform3D {
                Renderer::_3D::glTF_Model &inModel,
                ui inNodeIndex        = 0,
                bool inShouldSkin     = false,
-               bool inShouldTextures = false,
                bool inShouldTangents = false);
     void Build(Simple3D &inSimple3D,
                Renderer::_3D::glTF_Model &inModel,
                Renderer::_3D::glTF_Model::Primitive &inPrimitive);
     void
     BuildByMaterial(Simple3D &inSimpe3D, Renderer::_3D::glTF_Model &inModel, int inMaterialIndex);
-
-    /* ============================================================
-
-        Modification Routines
-
-    ============================================================== */
 
     void AddTexture(int inDstBinding, s inFileName, ui inDstSet = 1);
     void AddTextureByVector(
@@ -86,8 +71,9 @@ class Uniform3D {
                                     std::string_view inFragmentShader,
                                     std::string_view inComputeShader,
                                     bool inShouldLoad,
-                                    int inDstBinding = kstd::BindingIndex::Uniform::Images,
-                                    int inDstSet     = 1);
+                                    int inDstBinding = 3 +
+                                                       kstd::BindingIndex::Uniform::CubeMapImage,
+                                    int inDstSet = 0);
 
     void AddGenerateIrradianceCube(Instance &inInstance,
                                    Window &inWindow,
@@ -100,8 +86,8 @@ class Uniform3D {
                                    std::string_view inFragmentShader,
                                    std::string_view inComputeShader,
                                    bool inShouldLoad,
-                                   int inDstBinding = kstd::BindingIndex::Uniform::CubeMapImage,
-                                   int inDstSet     = 1);
+                                   int inDstBinding = 4 + kstd::BindingIndex::Uniform::CubeMapImage,
+                                   int inDstSet     = 0);
 
     void AddGeneratePrefilteredCube(Instance &inInstance,
                                     Window &inWindow,
@@ -114,8 +100,9 @@ class Uniform3D {
                                     std::string_view inFragmentShader,
                                     std::string_view inComputeShader,
                                     bool inShouldLoad,
-                                    int inDstBinding = kstd::BindingIndex::Uniform::CubeMapImage,
-                                    int inDstSet     = 1);
+                                    int inDstBinding = 5 +
+                                                       kstd::BindingIndex::Uniform::CubeMapImage,
+                                    int inDstSet = 0);
 
     template <typename T> void UpdateStorageBuffer(int inDstBinding, T inData);
     template <typename T> void UpdateUniformBuffer(int inDstBinding, T inData);
@@ -135,6 +122,7 @@ class Uniform3D {
 
     private:
     Instance &mInstance;
+    umap<int, Up<SkyboxImageType>> mSkyboxImages;
     umap<int, Up<ImageType>> mImages;
     umap<int, Up<UniformBufferType>> mUniformBuffers;
     umap<int, Up<StorageBufferType>> mStorageBuffers;

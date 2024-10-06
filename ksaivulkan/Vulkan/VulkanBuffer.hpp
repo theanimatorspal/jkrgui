@@ -33,9 +33,25 @@ class VulkanBufferBase {
     void SubmitImmediateCmdCopyFrom(const VulkanQueue<QueueContext::Graphics> &inQueue,
                                     const VulkanCommandBuffer &inCmdBuffer,
                                     void *inData);
+    ///@note internal mechanisms for handling image layout transitions are not effective so,
+    /// this is required (the inLayout Parameter), for this to work, the inLayout parameter should
+    /// be equal to the layout of the image it will have before the copy. After the copy, this
+    /// function will restore the image layout to inLayout.
     void SubmitImmediateCmdCopyFromImage(const VulkanQueue<QueueContext::Graphics> &inQueue,
                                          const VulkanCommandBuffer &inCmdBuffer,
-                                         VulkanImageBase &inImage) const;
+                                         const VulkanFence &inFence,
+                                         VulkanImageBase &inImage,
+                                         vk::ImageLayout inLayout = vk::ImageLayout::eGeneral,
+                                         int inMipLevel           = 0,
+                                         int inLayer              = 0,
+                                         int inLayersToBeCopied   = 1,
+                                         int inImageWidth         = -1,
+                                         int inImageHeight        = -1);
+
+    v<char> SubmitImmediateGetBufferToVector(const VulkanQueue<QueueContext::Graphics> &inQueue,
+                                             VulkanBufferVMA &inStagingBuffer,
+                                             const VulkanCommandBuffer &inCmdBuffer,
+                                             const VulkanFence &inFence);
 
     void CmdCopyFrom(const VulkanCommandBuffer &inCmdBuffer,
                      VulkanBufferBase &inBuffer,

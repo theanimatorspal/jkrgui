@@ -1,5 +1,4 @@
 #include "PainterCache.hpp"
-#include <ksai_filestream.hpp>
 
 using namespace Jkr;
 
@@ -60,7 +59,7 @@ Jkr::ShaderModules::~ShaderModules() {
 Jkr::PainterCache::PainterCache(Instance &inInstance, PipelinePropertiesContext inContext)
     : mInstance(inInstance), mPipelineContext(inContext) {}
 
-#ifndef JKR_USE_VARIABLE_DES_INDEXING
+/// @todo later implement inVardescount, for performance
 Jkr::PainterCache &Jkr::PainterCache::Load(const std::string &fileName, ui inVardescount) {
     time.reset();
     LoadSPIRVsFromFile(fileName);
@@ -143,91 +142,6 @@ Jkr::PainterCache &Jkr::PainterCache::Store(const std::string_view fileName,
     return *this;
 }
 
-#else
-Jkr::PainterCache &Jkr::PainterCache::Load(const std::string &fileName,
-                                           uint32_t inVariableDescirptorCount) {
-    time.reset();
-    LoadSPIRVsFromFile(fileName);
-
-    mShaderModulesPtr = MakeUp<ShaderModules>(mInstance.GetDevice(),
-                                              mVertexFragmentShaderSPIRV[0],
-                                              mVertexFragmentShaderSPIRV[1],
-                                              mComputeShaderSPIRV[0]);
-    time.elapsed("Shader Compilation Load Cached");
-
-    time.reset();
-    mPtrVertexFragmentDescriptorSetLayout = MakeUp<
-         VulkanDescriptorSetLayout<2, ShaderModuleContext::Vertex, ShaderModuleContext::Fragment>>(
-         mInstance.GetDevice(),
-         mShaderModulesPtr->GetShaderModulesArray(),
-         inVariableDescirptorCount);
-    mPtrVertexFragmentPipelineLayout =
-         MakeUp<VulkanPipelineLayout<2>>(mInstance.GetDevice(),
-                                         *mPtrVertexFragmentDescriptorSetLayout,
-                                         mShaderModulesPtr->GetShaderModulesArray());
-    mPtrPipelineCache = MakeUp<VulkanPipelineCache>(mInstance.GetDevice(), fileName);
-
-    mPtrComputeDescriptorSetLayout =
-         MakeUp<VulkanDescriptorSetLayout<1, ShaderModuleContext::Compute>>(
-              mInstance.GetDevice(),
-              mShaderModulesPtr->GetComputeShaderModuleArray(),
-              inVariableDescirptorCount);
-    mPtrComputePipelineLayout =
-         MakeUp<VulkanPipelineLayout<1>>(mInstance.GetDevice(),
-                                         *mPtrComputeDescriptorSetLayout,
-                                         mShaderModulesPtr->GetComputeShaderModuleArray());
-    time.elapsed("Shader Descriptor + Pipeline Reflection");
-
-    return *this;
-}
-
-Jkr::PainterCache &Jkr::PainterCache::Store(const std::string &fileName,
-                                            const std::string &inVertexShader,
-                                            const std::string &inFragmentShader,
-                                            const std::string &inComputeShader,
-                                            uint32_t inVariableDescriptorCount) {
-    time.reset();
-    ShaderCompiler Compiler(inVertexShader,
-                            inFragmentShader,
-                            mVertexFragmentShaderSPIRV[0],
-                            mVertexFragmentShaderSPIRV[1]);
-    ShaderCompiler ComputeCompiler(inComputeShader, mComputeShaderSPIRV[0]);
-    mShaderModulesPtr = MakeUp<ShaderModules>(mInstance.GetDevice(),
-                                              mVertexFragmentShaderSPIRV[0],
-                                              mVertexFragmentShaderSPIRV[1],
-                                              mComputeShaderSPIRV[0]);
-    time.elapsed("Shader Compilation");
-
-    time.reset();
-    mPtrVertexFragmentDescriptorSetLayout = MakeUp<
-         VulkanDescriptorSetLayout<2, ShaderModuleContext::Vertex, ShaderModuleContext::Fragment>>(
-         mInstance.GetDevice(),
-         mShaderModulesPtr->GetShaderModulesArray(),
-         inVariableDescriptorCount);
-    mPtrVertexFragmentPipelineLayout =
-         MakeUp<VulkanPipelineLayout<2>>(mInstance.GetDevice(),
-                                         *mPtrVertexFragmentDescriptorSetLayout,
-                                         mShaderModulesPtr->GetShaderModulesArray());
-    mPtrPipelineCache = MakeUp<VulkanPipelineCache>(mInstance.GetDevice(), fileName);
-
-    mPtrComputeDescriptorSetLayout =
-         MakeUp<VulkanDescriptorSetLayout<1, ShaderModuleContext::Compute>>(
-              mInstance.GetDevice(),
-              mShaderModulesPtr->GetComputeShaderModuleArray(),
-              inVariableDescriptorCount);
-    mPtrComputePipelineLayout =
-         MakeUp<VulkanPipelineLayout<1>>(mInstance.GetDevice(),
-                                         *mPtrComputeDescriptorSetLayout,
-                                         mShaderModulesPtr->GetComputeShaderModuleArray());
-    time.elapsed("Shader Descriptor + Pipeline Reflection");
-
-    StoreSPIRVsToFile(fileName);
-
-    return *this;
-}
-
-#endif
-
 static void CreateIfDoesntExist(const std::string_view inFileName) {
     auto Directory = inFileName.substr(0, inFileName.find_last_of('/'));
     if (not std::filesystem::exists(Directory)) {
@@ -237,7 +151,7 @@ static void CreateIfDoesntExist(const std::string_view inFileName) {
 
 void Jkr::PainterCache::StoreSPIRVsToFile(const std::string_view inFileName) {
     CreateIfDoesntExist(inFileName);
-    ksai::fileoutputstream Fstream(std::string(inFileName), std::ios_base::binary);
+    std::ofstream Fstream(std::string(inFileName), std::ios_base::binary);
     uint32_t size_V = mVertexFragmentShaderSPIRV[0].size() * sizeof(uint32_t);
     uint32_t size_F = mVertexFragmentShaderSPIRV[1].size() * sizeof(uint32_t);
     uint32_t size_C = mComputeShaderSPIRV[0].size() * sizeof(uint32_t);
@@ -253,22 +167,23 @@ void Jkr::PainterCache::StoreSPIRVsToFile(const std::string_view inFileName) {
 }
 
 void Jkr::PainterCache::LoadSPIRVsFromFile(const std::string_view inFileName) {
-    CreateIfDoesntExist(inFileName);
-    ksai::fileinputstream Fstream(std::string(inFileName), std::ios_base::binary);
-    uint32_t size_V = 0;
-    uint32_t size_F = 0;
-    uint32_t size_C = 0;
-    Fstream.read(reinterpret_cast<char *>(&size_V), sizeof(uint32_t));
-    Fstream.read(reinterpret_cast<char *>(&size_F), sizeof(uint32_t));
-    Fstream.read(reinterpret_cast<char *>(&size_C), sizeof(uint32_t));
+    if (std::filesystem::exists(inFileName)) {
+        std::ifstream Fstream(std::string(inFileName), std::ios_base::binary);
+        uint32_t size_V = 0;
+        uint32_t size_F = 0;
+        uint32_t size_C = 0;
+        Fstream.read(reinterpret_cast<char *>(&size_V), sizeof(uint32_t));
+        Fstream.read(reinterpret_cast<char *>(&size_F), sizeof(uint32_t));
+        Fstream.read(reinterpret_cast<char *>(&size_C), sizeof(uint32_t));
 
-    mVertexFragmentShaderSPIRV[0].resize(size_V / sizeof(uint32_t));
-    mVertexFragmentShaderSPIRV[1].resize(size_F / sizeof(uint32_t));
-    mComputeShaderSPIRV[0].resize(size_C / sizeof(uint32_t));
-    Fstream.read(reinterpret_cast<char *>(mVertexFragmentShaderSPIRV[0].data()),
-                 mVertexFragmentShaderSPIRV[0].size() * sizeof(uint32_t));
-    Fstream.read(reinterpret_cast<char *>(mVertexFragmentShaderSPIRV[1].data()),
-                 mVertexFragmentShaderSPIRV[1].size() * sizeof(uint32_t));
-    Fstream.read(reinterpret_cast<char *>(mComputeShaderSPIRV[0].data()),
-                 mComputeShaderSPIRV[0].size() * sizeof(uint32_t));
+        mVertexFragmentShaderSPIRV[0].resize(size_V / sizeof(uint32_t));
+        mVertexFragmentShaderSPIRV[1].resize(size_F / sizeof(uint32_t));
+        mComputeShaderSPIRV[0].resize(size_C / sizeof(uint32_t));
+        Fstream.read(reinterpret_cast<char *>(mVertexFragmentShaderSPIRV[0].data()),
+                     mVertexFragmentShaderSPIRV[0].size() * sizeof(uint32_t));
+        Fstream.read(reinterpret_cast<char *>(mVertexFragmentShaderSPIRV[1].data()),
+                     mVertexFragmentShaderSPIRV[1].size() * sizeof(uint32_t));
+        Fstream.read(reinterpret_cast<char *>(mComputeShaderSPIRV[0].data()),
+                     mComputeShaderSPIRV[0].size() * sizeof(uint32_t));
+    }
 }

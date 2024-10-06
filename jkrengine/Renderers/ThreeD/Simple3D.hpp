@@ -63,7 +63,6 @@ class Simple3D {
 
     void CompileWithCustomRenderPass(
          Jkr::Instance &inInstance,
-         Jkr::Window &inCompatibleWindow,
          Jkr::VulkanRenderPassBase &inRenderPass,
          std::string_view inFilename,
          std::string_view inVertexShader,
@@ -95,6 +94,9 @@ class Simple3D {
     template <typename T>
     void
     Dispatch(Jkr::Window_base &inWindow, Shape &inShape3D, T inPush, int inX, int inY, int inZ);
+
+    Simple3D() = default;
+    ///@warning This is not needed, remove this.
     Simple3D(Jkr::Instance &inInstance, Jkr::Window_base &inCompatibleWindow) {}
 
     private:

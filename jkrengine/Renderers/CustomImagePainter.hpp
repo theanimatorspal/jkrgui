@@ -5,11 +5,13 @@ namespace Jkr::Renderer {
 using Image = PainterParameter<Jkr::PainterParameterContext::StorageImage>;
 class CustomImagePainter;
 class Shape;
+using ComPar = Jkr::Window_base::ParameterContext;
 
 struct CustomPainterImage {
     CustomPainterImage(Instance &inInstance, const Window_base &inWindow, ui inWidth, ui inHeight);
+    void SyncBefore(Window_base &inWindow, ComPar inPar = ComPar::None);
+    void SyncAfter(Window_base &inWindow, ComPar inPar = ComPar::None);
     void Register(Instance &inInstance, CustomImagePainter &inPainterCache, int inIndex = 0);
-    std::vector<int> GetImageToVector(Instance &inInstance, const Window_base &inWindow);
 
     GETTER &GetPainterParam() { return *mPainterParam; }
     GETTER &GetDescriptorSet() { return *mVulkanDescriptorSet; }
@@ -18,7 +20,6 @@ struct CustomPainterImage {
 };
 
 struct CustomImagePainter {
-    using ComPar = Jkr::Window_base::ParameterContext;
     CustomImagePainter(
          sv inName, sv inComputeShaderFunction, sv inPushConstantSignature, ui inX, ui inY, ui inZ);
     CustomImagePainter(sv inName, sv inComputeShader);
@@ -28,6 +29,10 @@ struct CustomImagePainter {
     void Bind(const Window_base &inWindow, ComPar inPar = ComPar::None) {
         mPainter->BindComputePipeline(inWindow, inPar);
     }
+    ///@warning this is nonsensical design, this resides here because
+    /// PipelineLayout is required for binding descriptor sets (from the CustomPainterImage)
+    ///@note Any CustomImagePainter's layout that has a single image will work here, so no
+    /// need to rebind CustomImagePainter
     void BindImageFromImage(const Window_base &inWindow,
                             CustomPainterImage &inImage,
                             ComPar inPar = ComPar::None);

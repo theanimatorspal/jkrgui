@@ -19,14 +19,6 @@
 #define GETTER inline auto
 #define SETTER inline void
 
-#ifdef max
-#undef max
-#endif
-
-#ifdef min
-#undef min
-#endif
-
 void *operator new(std::size_t count);
 void operator delete(void *ptr) noexcept;
 
@@ -64,7 +56,7 @@ template <typename... T> inline void ksai_print(std::string_view inT, T &&...t) 
 #ifdef ANDROID
     __android_log_print(6, inT.data(), t...);
 #else
-    // printf(inT.data(), t...);
+    printf(inT.data(), t...);
 #endif // ANDROID
 }
 
@@ -72,7 +64,7 @@ template <typename... T> inline void ksai_print(const char *inT, T &&...t) {
 #ifdef ANDROID
     __android_log_print(6, inT, t...);
 #else
-    // printf(inT.data(), t...);
+    printf(inT, t...);
 #endif // ANDROID
 }
 
@@ -93,8 +85,5 @@ template <typename T> inline void ksai_print(T inT) {
 
 #else
     std::cout << inT << "\n";
-    // printf(inT);
-    //  printf(inT.data(), t...);
-    //  printf("\n");
 #endif // ANDROID
 }

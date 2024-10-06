@@ -16,33 +16,37 @@ class EventManager {
     EventManager() { mBoundRect2Ds.reserve(100); }
     void ProcessEventsEXT(Window &inWindow);
     void ProcessEvents();
-    GETTER ShouldQuit() const { return should_quit; }
-    GETTER GetEventHandle() const { return mEvent; }
-    GETTER GetMousePos() const { return mMousePos; }
-    GETTER GetRelativeMousePos() const { return mRelativePos; }
-    GETTER GetMouseButtonValue() const { return mCurrentPushedMouseButton; }
-    GETTER IsKeyPressedContinous(int inScanCode) const { return (bool)mKeyboardState[inScanCode]; }
-    GETTER IsKeyReleased(SDL_Keycode inKey) {
-        return mEvent.type == SDL_KEYUP and mEvent.key.keysym.sym == inKey;
-    }
-    GETTER IsKeyPressed(SDL_Keycode inKey) {
-        return mEvent.type == SDL_KEYDOWN and mEvent.key.keysym.sym == inKey;
-    }
-    GETTER IsLeftButtonPressedContinous() const {
-        return (SDL_BUTTON(SDL_BUTTON_LEFT) bitand this->GetMouseButtonValue()) != 0;
-    }
-    GETTER IsRightButtonPressedContinous() const {
-        return (SDL_BUTTON(SDL_BUTTON_RIGHT) bitand this->GetMouseButtonValue()) != 0;
-    }
-    GETTER IsLeftButtonPressed() const {
-        return (mEvent.type == SDL_MOUSEBUTTONDOWN) && (mEvent.button.button == SDL_BUTTON_LEFT);
-    }
-    GETTER IsRightButtonPressed() const {
-        return (mEvent.type == SDL_MOUSEBUTTONDOWN) && (mEvent.button.button == SDL_BUTTON_RIGHT);
-    }
-    GETTER IsCloseWindowEvent() const { return mCloseWindowEvent; }
+    bool ShouldQuit() const;
+    SDL_Event GetEventHandle() const;
+    bool IsKeyPressedContinous(int inScanCode) const;
+    bool IsKeyReleased(SDL_Keycode inKey);
+    bool IsKeyPressed(SDL_Keycode inKey);
+
+    /// Mouse Inputs
+    glm::ivec2 GetMousePos() const;
+    glm::ivec2 GetRelativeMousePos() const;
+    int GetMouseButtonValue() const;
+    bool IsLeftButtonPressedContinous() const;
+    bool IsRightButtonPressedContinous() const;
+    bool IsLeftButtonPressed() const;
+    bool IsRightButtonPressed() const;
+    bool IsCloseWindowEvent() const;
+
+    /// Touch Events
+    bool IsFingerDownEvent() const;
+    bool IsFingerUpEvent() const;
+    bool IsFingerMotionEvent() const;
+    bool IsMultiGestureEvent() const;
+    glm::vec3 GetTouchLocation() const;         // x, y, pressure
+    glm::vec3 GetTouchRelativeLocation() const; // x, y, pressure
+    glm::vec4 GetMultiGesture() const;          // x, y, d_dist, d_theta
+    uint32_t GetTouchId() const;
+
+    /// Text Input
     void StartTextInput() { SDL_StartTextInput(); }
     void StopTextInput() { SDL_StopTextInput(); }
+
+    /// Bounded Rectangle
     bool IsMouseWithinAtTopOfStack(uint32_t inId, uint32_t inDepthValue);
     bool IsMouseWithin(uint32_t inId, uint32_t inDepthValue);
     uint32_t SetBoundedRect(glm::vec2 inXy, glm::vec2 inWh, uint32_t inDepthValue);
@@ -61,6 +65,7 @@ class EventManager {
     private:
     std::vector<std::function<void()>> mEventCallBack;
     std::unordered_map<uint32_t, std::vector<BoundRect2D>> mBoundRect2Ds;
+    std::vector<glm::vec4> mTouches; // x, y, pressure, id
     glm::vec2 mFrameSize;
     glm::vec2 mWindowSize;
     glm::vec2 mOffscreenByWindowSize;

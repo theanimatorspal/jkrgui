@@ -4,12 +4,12 @@
 #include <SDLWindow.hpp>
 #include <CLI11/CLI11.hpp>
 #ifndef ANDROID
+#ifndef __APPLE__
 #include <TracyLua.hpp>
+#endif
 #else
 #include "LuaBundleAndroid.hpp"
 #endif
-
-#include "LuaBundleAndroid.hpp"
 
 // For Command Line Stuff
 bool FlagBuild                        = false;
@@ -60,7 +60,9 @@ void CreateMainBindings(sol::state &s) {
     CreatePlatformBindings(s);
     CreateNetworkBindings(s);
 #ifndef ANDROID
+#ifndef __APPLE__
     tracy::LuaRegister(s);
+#endif
 #endif
 }
 } // namespace JkrEXE
@@ -253,6 +255,7 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
 }
 
 JKR_EXPORT int main(int ArgCount, char **ArgStrings) {
+
 #ifndef ANDROID
     ProcessCmdLine(ArgCount, ArgStrings);
 #endif

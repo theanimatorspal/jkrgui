@@ -4,9 +4,29 @@
 #include "Renderers/TwoD/Shape.hpp"
 #include <Misc/RecycleBin.hpp>
 #include <Misc/Tools.hpp>
+#include <Misc/JkrFile.hpp>
 
 namespace JkrEXE {
 extern void CreateMainBindings(sol::state &s);
+using namespace Jkr;
+void DrawShape2DWithSimple3D(Window_base &inWindow,
+                             Renderer::_3D::Simple3D &inSimple3D,
+                             Renderer::Shape &inShape,
+                             Matrix2CustomImagePainterPushConstant inC,
+                             ui inStartShapeId,
+                             ui inEndShapeId,
+                             Window_base::ParameterContext inParam) {
+
+    inSimple3D.GetPainter().Draw_EXT<Matrix2CustomImagePainterPushConstant>(
+         inC,
+         inWindow,
+         inShape.GetEndIndexOffsetAbsolute(inEndShapeId) -
+              inShape.GetIndexOffsetAbsolute(inStartShapeId),
+         1,
+         inShape.GetIndexOffsetAbsolute(inStartShapeId),
+         0,
+         inParam);
+}
 
 void CreateMiscBindings(sol::state &inState) {
     auto Jkr = inState["Jkr"].get_or_create<sol::table>();
@@ -34,10 +54,14 @@ void CreateMiscBindings(sol::state &inState) {
                   return mu<Jkr::Renderer::CustomPainterImage>(
                        inInstance, inWindow, inWidth, inHeight);
               }),
-         "GetImageToVector",
-         &Jkr::Renderer::CustomPainterImage::GetImageToVector,
+         //     "GetImageToVector",
+         //     &Jkr::Renderer::CustomPainterImage::GetImageToVector,
          "Register",
-         &Jkr::Renderer::CustomPainterImage::Register);
+         &Jkr::Renderer::CustomPainterImage::Register,
+         "SyncBefore",
+         &Jkr::Renderer::CustomPainterImage::SyncBefore,
+         "SyncAfter",
+         &Jkr::Renderer::CustomPainterImage::SyncAfter);
 
     Jkr.new_usertype<DefaultCustomImagePainterPushConstant>(
          "DefaultCustomImagePainterPushConstant",
@@ -109,7 +133,7 @@ void CreateMiscBindings(sol::state &inState) {
                  bool inShouldTexture) {
                   inUniform3D.Build(inS, inModel, inNodeIndex, inShouldskin, inShouldTexture);
               },
-              sol::resolve<void(Simple3D &, glTF_Model &, ui, bool, bool, bool)>(&Uniform3D::Build),
+              sol::resolve<void(Simple3D &, glTF_Model &, ui, bool, bool)>(&Uniform3D::Build),
               sol::resolve<void(Simple3D &, glTF_Model &, glTF_Model::Primitive &)>(
                    &Uniform3D::Build)),
          "BuildByMaterial",
@@ -136,6 +160,10 @@ void CreateMiscBindings(sol::state &inState) {
          "Camera3D",
          sol::call_constructor,
          sol::factories([]() { return mu<Camera3D>(); }),
+         "Pitch",
+         &Camera3D::Pitch,
+         "Yaw",
+         &Camera3D::Yaw,
          "SetAttributes",
          &Camera3D::SetAttributes,
          "MoveForward",
@@ -149,6 +177,9 @@ void CreateMiscBindings(sol::state &inState) {
          "SetPerspective",
          sol::overload(sol::resolve<void(float, float, float, float)>(&Camera3D::SetPerspective),
                        sol::resolve<void(void)>(&Camera3D::SetPerspective)),
+         "SetPerspectiveQ",
+         sol::overload(sol::resolve<void(float, float, float, float)>(&Camera3D::SetPerspectiveQ),
+                       sol::resolve<void(void)>(&Camera3D::SetPerspectiveQ)),
          "GetMatrix",
          &Camera3D::GetMatrix);
 
@@ -169,6 +200,16 @@ void CreateMiscBindings(sol::state &inState) {
          &World3D::Object3D::mIndexCount,
          "mFirstIndex",
          &World3D::Object3D::mFirstIndex,
+         "mDrawable",
+         &World3D::Object3D::mDrawable,
+
+         "mP1",
+         &World3D::Object3D::mP1,
+         "mP2",
+         &World3D::Object3D::mP2,
+         "mP3",
+         &World3D::Object3D::mP3,
+
          "mTranslation",
          &World3D::Object3D::mTranslation,
          "mScale",
@@ -182,6 +223,12 @@ void CreateMiscBindings(sol::state &inState) {
 
          "mMatrix2",
          &World3D::Object3D::mMatrix2,
+         "mMatrix3",
+         &World3D::Object3D::mMatrix3,
+         "mMatrix4",
+         &World3D::Object3D::mMatrix4,
+         "mMatrix5",
+         &World3D::Object3D::mMatrix5,
 
          "AppyTransforms",
          &World3D::Object3D::ApplyTransforms,
@@ -269,11 +316,23 @@ void CreateMiscBindings(sol::state &inState) {
                               "AddSkyboxToUniform3D",
                               &World3D::AddSkyboxToUniform3D);
 
+    Jkr.new_usertype<Jkr::Misc::FileJkr>(
+         "FileJkr", sol::call_constructor, sol::factories([](s inName) {
+             return mu<Jkr::Misc::FileJkr>(inName);
+         }));
+
     Jkr.set_function("CopyWindowDeferredImageToShapeImage",
-                     &Jkr::CopyWindowDeferredImageToShapeImage);
+                     &Jkr::Misc::CopyWindowDeferredImageToShapeImage);
     Jkr.set_function("SleepForMiliSeconds", [](int inMiliSeconds) {
         std::this_thread::sleep_for(chrono::nanoseconds(inMiliSeconds * 1000000));
     });
+    Jkr.set_function("RegisterCustomPainterImageToCustomPainterImage",
+                     &Jkr::Misc::RegisterCustomPainterImageToCustomPainterImage);
+    Jkr.set_function("RegisterShapeRenderer3DToCustomPainterImage",
+                     &Jkr::Misc::RegisterShapeRenderer3DToCustomPainterImage);
+
+    Jkr.set_function("SetupPBR", &Jkr::Misc::SetupPBR);
+    Jkr.set_function("DrawShape2DWithSimple3D", &DrawShape2DWithSimple3D);
 }
 
 } // namespace JkrEXE

@@ -7,9 +7,7 @@ namespace Jkr::Network {
 class ServerInterface {
     public:
     ServerInterface(uint16_t inPort)
-        : mAsioAcceptor(mAsioContext, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), inPort)) {
-        std::cout << mAsioAcceptor.local_endpoint().address() << "\n";
-    }
+        : mAsioAcceptor(mAsioContext, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), inPort)) {}
     ~ServerInterface() { Stop(); }
     bool Start(OnClientValidationFunctionType &inOnClientValidationFunction,
                OnClientConnectionFunctionType &inOnClientConnectFunction);
@@ -35,5 +33,7 @@ class ServerInterface {
 
     asio::ip::tcp::acceptor mAsioAcceptor;
     uint32_t mIdCounter = 10000;
+
+    /// UDP
 };
 } // namespace Jkr::Network

@@ -11,7 +11,7 @@ namespace JkrEXE {
 using namespace std;
 using namespace Jkr::Renderer;
 struct ShapeRendererResources {
-    void Add(Jkr::Instance& inInstance,
+    void Add(Jkr::Instance &inInstance,
              FillType inFillType,
              PipelinePropertiesContext inContext,
              std::string_view inFileName,
@@ -22,7 +22,7 @@ struct ShapeRendererResources {
     std::unordered_map<FillType, up<PainterCache>> mCaches;
 };
 
-void CreateRendererBindings(sol::state& inState) {
+void CreateRendererBindings(sol::state &inState) {
     auto Jkr = inState["Jkr"].get_or_create<sol::table>();
     using namespace Jkr::Renderer;
     auto CmdParamEnumType       = Jkr.new_enum<false>("CmdParam",
@@ -67,6 +67,10 @@ void CreateRendererBindings(sol::state& inState) {
                         Jkr::Shapes::RectangleFill,
                         "Bezier2_8Wire",
                         Jkr::Shapes::Bezier2_8Wire,
+                        "Zeros3D",
+                        Jkr::Shapes::Zeros3D,
+                        "Triangles3D",
+                        Jkr::Shapes::Triangles3D,
                         "Cube3D",
                         Jkr::Shapes::Cube3D,
                         "Sphere3D",
@@ -92,9 +96,9 @@ void CreateRendererBindings(sol::state& inState) {
     Jkr.new_usertype<Jkr::Renderer::Shape>(
          "ShapeRenderer",
          sol::call_constructor,
-         sol::factories([](Jkr::Instance& inInstance,
-                           Jkr::Window& inCompatibleWindow,
-                           ShapeRendererResources& inResources) {
+         sol::factories([](Jkr::Instance &inInstance,
+                           Jkr::Window &inCompatibleWindow,
+                           ShapeRendererResources &inResources) {
              return mu<Jkr::Renderer::Shape>(inInstance, inCompatibleWindow, inResources.mCaches);
          }),
          "Add",
@@ -120,15 +124,15 @@ void CreateRendererBindings(sol::state& inState) {
          "BindFillMode",
          &Jkr::Renderer::Shape::BindFillMode,
          "CopyToImage",
-         sol::resolve<uint32_t, CustomPainterImage&>(&Jkr::Renderer::Shape::CopyToImage),
+         sol::resolve<uint32_t, CustomPainterImage &>(&Jkr::Renderer::Shape::CopyToImage),
          "CopyFromImage",
-         sol::resolve<uint32_t, CustomPainterImage&>(&Jkr::Renderer::Shape::CopyFromImage));
+         sol::resolve<uint32_t, CustomPainterImage &>(&Jkr::Renderer::Shape::CopyFromImage));
 
     Jkr.new_usertype<Jkr::Renderer::Line>(
          "LineRenderer",
          sol::call_constructor,
          sol::factories(
-              [](Jkr::Instance& inInstance, Jkr::Window& inWindow, Jkr::PainterCache& inCache) {
+              [](Jkr::Instance &inInstance, Jkr::Window &inWindow, Jkr::PainterCache &inCache) {
                   return mu<Jkr::Renderer::Line>(inInstance, inWindow, inCache);
               }),
          "Add",
@@ -143,7 +147,7 @@ void CreateRendererBindings(sol::state& inState) {
          &Jkr::Renderer::Line::DrawEXT);
 }
 
-inline void ShapeRendererResources::Add(Jkr::Instance& inInstance,
+inline void ShapeRendererResources::Add(Jkr::Instance &inInstance,
                                         FillType inFillType,
                                         PipelinePropertiesContext inContext,
                                         std::string_view inFileName,

@@ -4,6 +4,7 @@ using namespace ksai;
 
 Jkr::Renderer::BestText_Alt::ImageId
 Jkr::Renderer::BestText_Alt::AddEXT(ui inFontId, glm::vec3 inPos, const sv inText) {
+    // ZoneScoped;
     ImageId outId;
     Jkr::Renderer::BestText_base::TextDimensions dimens;
     v<uc> img = bt.RenderTextToImage(inFontId, inText, dimens, i.GetThreadPool());
@@ -17,10 +18,11 @@ Jkr::Renderer::BestText_Alt::AddEXT(ui inFontId, glm::vec3 inPos, const sv inTex
     return outId;
 }
 
+static std::mutex ProtectImageUpdate;
 void Jkr::Renderer::BestText_Alt::UpdateEXT(ImageId inId,
                                             ui inFontId,
                                             glm::vec3 inPos,
-                                            const sv inText) {
+                                            const s inText) {
     Jkr::Renderer::BestText_base::TextDimensions dimens;
     v<uc> img = bt.RenderTextToImage(inFontId, inText, dimens, i.GetThreadPool());
     sh.UpdateImage(inId.mImgId, img, dimens.mWidth, dimens.mHeight);
@@ -40,7 +42,27 @@ void Jkr::Renderer::BestText_Alt::UpdatePosOnlyEXT(ImageId inId,
 }
 
 void Jkr::Renderer::BestText_Alt::DrawEXT(
-     ImageId inId, Window_base& inWindow, glm::vec4 inColor, glm::mat4 inMatrix, CmdParam inParam) {
+     ImageId inId, Window_base &inWindow, glm::vec4 inColor, glm::mat4 inMatrix, CmdParam inParam) {
     sh.BindImage(inWindow, inId.mImgId, inParam);
     sh.DrawEXT(inWindow, inColor, inId.mRectId, inId.mRectId, inMatrix, inParam);
+}
+
+v<s> Jkr::Renderer::BestText_Alt::WrapToTextVector(const sv inText,
+                                                   ui inFontId,
+                                                   glm::vec2 inDimensionToBeWrappedTo) {
+    // ZoneScoped;
+    s RemainingText = s(inText);
+    v<s> Texts;
+    glm::vec2 Dimen = bt.GetTextDimensionsEXT(inText, inFontId);
+
+    while (!RemainingText.empty()) {
+        while (Dimen.x >= inDimensionToBeWrappedTo.x) {
+            RemainingText = s(RemainingText.begin(), RemainingText.end() - 1);
+            Dimen         = bt.GetTextDimensionsEXT(RemainingText, inFontId);
+        }
+        Texts.push_back(RemainingText);
+        RemainingText = s(inText.begin() + RemainingText.size(), inText.end());
+    }
+
+    return Texts;
 }

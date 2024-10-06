@@ -9,6 +9,8 @@
 
 namespace Jkr::Renderer {
 enum class FillType { Fill, Image, ContinousLine };
+///@Warning Remove the code for USE_VARIABLE_DES_INDEXING from everywhere.
+
 class Shape : public Shape_base, Renderer_base {
     using sb              = Shape_base;
     using rb              = Renderer_base;
@@ -70,9 +72,8 @@ class Shape : public Shape_base, Renderer_base {
 
     private:
     struct PushConstant {
-        glm::mat4 mMatrix;
-        glm::vec4 mColor;
-        glm::vec4 mParams;
+        glm::mat4 mMatrix1;
+        glm::mat4 mMatrix2;
     };
     uint32_t mTotalNoOfVerticesRendererCanHold = rb::InitialRendererElementArraySize;
     uint32_t mTotalNoOfIndicesRendererCanHold  = rb::InitialRendererElementArraySize;

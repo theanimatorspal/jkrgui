@@ -12,8 +12,8 @@ template <class T> using Sp = std::shared_ptr<T>;
 
 namespace ksai::kstd {
 struct Vertex {
-    glm::vec3 mPosition           = {0, 0, 0};
-    glm::vec2 mTextureCoordinates = {0, 0};
+    alignas(16) glm::vec3 mPosition           = {0, 0, 0};
+    alignas(16) glm::vec2 mTextureCoordinates = {0, 0};
 };
 
 struct VertexEXT {
@@ -27,10 +27,10 @@ struct LineVertex {
 };
 
 struct Vertex3D {
-    glm::vec3 mPosition;
-    glm::vec3 mNormal;
-    glm::vec2 mUV;
-    glm::vec3 mColor;
+    alignas(16) glm::vec3 mPosition;
+    alignas(16) glm::vec3 mNormal;
+    alignas(8) glm::vec2 mUV;
+    alignas(16) glm::vec3 mColor;
 };
 
 struct Vertex3DExt {
@@ -85,5 +85,6 @@ struct WorldInfoUniform {
     alignas(16) glm::mat4 mShadowMatrix;
     alignas(16) glm::vec4 mLightsDirections[LightCount];
 };
+constexpr int GeneralUsageDescriptorSetIndex3D = 1;
 
 } // namespace ksai::kstd

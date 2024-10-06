@@ -15,6 +15,9 @@ class World3D;
 using namespace ksai;
 using namespace Jkr;
 namespace PBR {
+const int BRDFLUTDimension         = 512;
+const int PrefilteredCubeDimension = 512;
+const int IrradianceCubeDimension  = 512;
 Up<VulkanImageVMA> GenerateBRDFLookupTable(Instance &inInstance,
                                            Window &inWindow,
                                            std::string_view inFileName,
@@ -22,6 +25,8 @@ Up<VulkanImageVMA> GenerateBRDFLookupTable(Instance &inInstance,
                                            std::string_view inFragmentShader,
                                            std::string_view inComputeShader,
                                            bool inShouldLoad);
+///@warning I dont fucking know why this call if called before GeneratePrefilteredCube gives a
+/// HAZARD READ_AFTER_WRITE for inEnvironmentCube, @todo Fix this
 Up<VulkanImageVMA> GenerateIrradianceCube(Instance &inInstance,
                                           Window &inWindow,
                                           _3D::Shape &inShape,

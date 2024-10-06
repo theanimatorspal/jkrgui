@@ -50,10 +50,11 @@ Jkr.CreateEventable = function(inFunction)
     return o
 end
 
-Jkr.CreateDrawable = function(inId, inBatchable, inDrawType, inImageId, inColor_4f)
+Jkr.CreateDrawable = function(inId, inBatchable, inDrawType, inImageId, inColor_4f, inPush)
     local o = {}
     o.mBatchable = inBatchable
     o.mImageId = inImageId
+    o.mPush = inPush
     if inColor_4f then
         o.mColor = inColor_4f
     else
@@ -81,10 +82,43 @@ Jkr.CreateCallBuffers = function() -- Similar to Comptable in JrkGUI v1
     o.mOneTimeDispatchables = {}
     o.mOneTimeUpdatables = {}
 
-    o.Push = function(self, inCall)
-        if inCall.mDrawType then
+    local sv_index_count = 1 ---@note Current Scissor OR Viewport
+    o.mSVs = {}
+    o.mDrawablesInSVs = {}
+    o.mDrawablesInSVs[1] = {}
+    o.mSVs[1] = {}
+
+    o.PushDraw = function(self, inCall, inSVid)
+        local itd = self.mDrawables
+        if inCall.mDrawType == "SCISSOR_VIEWPORT" then
+            sv_index_count = sv_index_count + 1
+            local sv_elements = {}
+            self.mDrawablesInSVs[sv_index_count] = sv_elements
+            self.mSVs[sv_index_count] = inCall
+            return sv_index_count
+        else
+            if not itd[inCall.mDrawType] then
+                itd[inCall.mDrawType] = {}
+            end
+
+            itd[inCall.mDrawType][#itd[inCall.mDrawType] + 1] = inCall
             self.mDrawables[#self.mDrawables + 1] = inCall
+
+            if not self.mDrawablesInSVs[inSVid][inCall.mDrawType] then
+                self.mDrawablesInSVs[inSVid][inCall.mDrawType] = {}
+            end
+
+            local l = self.mDrawablesInSVs[inSVid][inCall.mDrawType]
+            l[#l + 1] = inCall
+
             return #self.mDrawables
+        end
+    end
+
+    ---@note this inSVid is only needed for draw parameters
+    o.Push = function(self, inCall, inSVId)
+        if inCall.mDrawType then
+            return o:PushDraw(inCall, inSVId)
         elseif inCall.mUpdate then
             self.mUpdatables[#self.mUpdatables + 1] = inCall
             return #self.mUpdatables
@@ -96,29 +130,24 @@ Jkr.CreateCallBuffers = function() -- Similar to Comptable in JrkGUI v1
             return #self.mEventables
         end
     end
+
     o.PushOneTime = function(self, inCall, inFrame)
         if inCall.mDrawType then
             -- Optimize this
-            if self.mOneTimeDrawables[inFrame] then
-                self.mOneTimeDrawables[inFrame][#self.mOneTimeDrawables[inFrame] + 1] = inCall
-            else
+            if not self.mOneTimeDrawables[inFrame] then
                 self.mOneTimeDrawables[inFrame] = {}
-                self.mOneTimeDrawables[inFrame][#self.mOneTimeDrawables[inFrame] + 1] = inCall
             end
+            self.mOneTimeDrawables[inFrame][#self.mOneTimeDrawables[inFrame] + 1] = inCall
         elseif inCall.mUpdate then
-            if self.mOneTimeUpdatables[inFrame] then
-                self.mOneTimeUpdatables[inFrame][#self.mOneTimeUpdatables[inFrame] + 1] = inCall
-            else
+            if not self.mOneTimeUpdatables[inFrame] then
                 self.mOneTimeUpdatables[inFrame] = {}
-                self.mOneTimeUpdatables[inFrame][#self.mOneTimeUpdatables[inFrame] + 1] = inCall
             end
+            self.mOneTimeUpdatables[inFrame][#self.mOneTimeUpdatables[inFrame] + 1] = inCall
         elseif inCall.mDispatch then
-            if self.mOneTimeDispatchables[inFrame] then
-                self.mOneTimeDispatchables[inFrame][#self.mOneTimeDispatchables[inFrame] + 1] = inCall
-            else
+            if not self.mOneTimeDispatchables[inFrame] then
                 self.mOneTimeDispatchables[inFrame] = {}
-                self.mOneTimeDispatchables[inFrame][#self.mOneTimeDispatchables[inFrame] + 1] = inCall
             end
+            self.mOneTimeDispatchables[inFrame][#self.mOneTimeDispatchables[inFrame] + 1] = inCall
         end
     end
 

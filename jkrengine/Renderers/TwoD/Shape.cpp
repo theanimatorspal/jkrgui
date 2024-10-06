@@ -323,6 +323,7 @@ void Shape::Update(ui inId, Jkr::Generator &inShape, float inX, float inY, float
 }
 
 void Shape::Dispatch(Window_base &inWindow, CmdParam inParam) {
+    mInstance.GetThreadPool().Wait();
 #ifndef JKR_NO_STAGING_BUFFERS
     if (!rb::IsCopyRegionsEmpty()) {
         rb::CmdCopyToPrimitiveFromStagingBuffer(
@@ -404,8 +405,8 @@ void Shape::Draw(Window_base &inWindow,
                                   -100.0f) *
                        inMatrix;
     PushConstant Push;
-    Push.mColor  = inColor;
-    Push.mMatrix = Matrix;
+    Push.mMatrix1[1] = inColor;
+    Push.mMatrix2    = Matrix;
 
 #ifdef JKR_USE_VARIABLE_DES_INDEXING
     Push.mParams.r = mCurrentImageIndex;
@@ -520,8 +521,8 @@ void Jkr::Renderer::Shape::DrawEXT(Window_base &inWindow,
                                    glm::mat4 inMatrix,
                                    CmdParam inParam) {
     PushConstant Push;
-    Push.mColor  = inColor;
-    Push.mMatrix = inMatrix;
+    Push.mMatrix1[1] = inColor;
+    Push.mMatrix2    = inMatrix;
 
 #ifdef JKR_USE_VARIABLE_DES_INDEXING
     Push.mParams.r = mCurrentImageIndex;

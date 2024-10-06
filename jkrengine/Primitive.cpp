@@ -1,6 +1,8 @@
 #include "Primitive.hpp"
 
 // TODO Make these thread safe
+/// @warning There are a lot of bad codes here
+/// @todo fix this on refactor pass later
 static std::mutex PriMutex;
 
 Jkr::Primitive::Primitive(Instance &inInstance) : mInstance(inInstance) {}

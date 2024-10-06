@@ -58,18 +58,18 @@ class glTF_Model {
 
     struct Material {
         enum class AlphaMode { Opaque, Mask, Blend };
-        AlphaMode mAlphaMode                   = AlphaMode::Opaque;
-        float mAlphaCutOff                     = -1.0f;
-        float mMetallicFactor                  = 1.0f;
-        float mRoughnessFactor                 = 1.0f;
-        glm::vec4 mBaseColorFactor             = glm::vec4(1.0f);
-        glm::vec4 mEmissiveFactor              = glm::vec4(1.0f);
-        int32_t mBaseColorTextureIndex         = -1;
-        int32_t mMetallicRoughnessTextureIndex = -1;
-        int32_t mNormalTextureIndex            = -1;
-        int32_t mOcclusionTextureIndex         = -1;
-        int32_t mEmissiveTextureIndex          = -1;
-        bool mDoubleSided                      = false;
+        AlphaMode mAlphaMode               = AlphaMode::Opaque;
+        float mAlphaCutOff                 = -1.0f;
+        float mMetallicFactor              = 1.0f;
+        float mRoughnessFactor             = 1.0f;
+        glm::vec4 mBaseColorFactor         = glm::vec4(1.0f);
+        glm::vec4 mEmissiveFactor          = glm::vec4(1.0f);
+        int mBaseColorTextureIndex         = -1;
+        int mMetallicRoughnessTextureIndex = -1;
+        int mNormalTextureIndex            = -1;
+        int mOcclusionTextureIndex         = -1;
+        int mEmissiveTextureIndex          = -1;
+        bool mDoubleSided                  = false;
         TextureCoordinateSets mTextureCoordinateSets;
         Extension mExtension;
         PbrWorkflows mPbrWorkflows;
@@ -89,7 +89,7 @@ class glTF_Model {
 
     struct Mesh {
         v<Primitive> mPrimitives;
-        v<ui> mNodeIndex;
+        ui mNodeIndex;
         BoundingBox mBB;
         BoundingBox mAABB;
     };
@@ -99,7 +99,7 @@ class glTF_Model {
 
         Node *mParent;
         uint32_t mIndex;
-        v<Up<Node>> mChildren;
+        v<Node *> mChildren;
 
         Mesh mMesh;
         glm::vec3 mTranslation{};
@@ -153,6 +153,7 @@ class glTF_Model {
     using DrawCallBack         = std::function<void(ui, opt<Texture>)>;
     using UpdateJointsCallBack = std::function<void(v<glm::mat4> &)>;
 
+    /// @todo Remove all of these, make everything public, except Some
     Node *FindNode(Node *inParent, ui inIndex);
     Node *NodeFromIndex(ui inIndex);
     GETTER GetFileName() const { return sv(mFileName); }
@@ -164,6 +165,7 @@ class glTF_Model {
     GETTER &GetImagesRef() { return mImages; }
     GETTER &GetTexturesRef() { return mTextures; }
     GETTER &GetMaterialsRef() { return mMaterials; }
+    GETTER GetMaterials() const { return mMaterials; }
     GETTER &GetNodesRef() { return mNodes; }
     GETTER &GetSkinsRef() { return mSkins; }
     GETTER &GetAnimationsRef() { return mAnimations; }
@@ -182,6 +184,10 @@ class glTF_Model {
     GETTER GetNodeIndexByMeshIndex(int inIndex) const { return mMeshes[inIndex].mNodeIndex; }
     glm::mat4 GetNodeMatrix(glTF_Model::Node *inNode);
     glm::mat4 GetNodeMatrixByIndex(int inIndex);
+
+    /// @brief Check if inCheckIfParentNode is Parent of inNode
+    bool IsNodeParentOf(Node *inNode, Node *inCheckIfParentNode);
+    bool IsNodeParentOfByIndex(int inNode, int inCheckIfParentNode);
 
     void Load(ui inInitialVertexOffset = 0);
     void Load(FillVertexCallBack inVertexCallback, FillIndexCallBack inIndexCallback);
@@ -235,8 +241,6 @@ class glTF_Model {
         mVertexBuffer.clear();
         mVertexBuffer.shrink_to_fit();
     }
-    void
-    Draw(glTF_Model::Node &inNode, PushCallBack inBindDataCallBack, DrawCallBack inDrawCallBack);
 
     glTF_Model(const std::string_view inFileName) : mFileName(inFileName) {}
 
