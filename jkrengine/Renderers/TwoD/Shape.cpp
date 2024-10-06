@@ -323,6 +323,7 @@ void Shape::Update(ui inId, Jkr::Generator &inShape, float inX, float inY, float
 }
 
 void Shape::Dispatch(Window_base &inWindow, CmdParam inParam) {
+    mInstance.GetThreadPool().Wait();
 #ifndef JKR_NO_STAGING_BUFFERS
     if (!rb::IsCopyRegionsEmpty()) {
         rb::CmdCopyToPrimitiveFromStagingBuffer(

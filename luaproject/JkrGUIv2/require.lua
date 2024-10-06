@@ -412,38 +412,42 @@ Jkr.GetDefaultCache = function(inInstance, inRend)
         end
         return DefaultCaches["Line"]
     elseif inRend == "Shape" then
-        DefaultCaches["Shape"] = Jkr.ShapeRendererResources()
-        DefaultCaches["Shape"]:Add(
-            inInstance,
-            Jkr.FillType.Fill,
-            Jkr.PipelineProperties.Default,
-            "cache2/ShapeFillCache.glsl",
-            Jkr.GetDefaultResource("ShapeFill", "Vertex"),
-            Jkr.GetDefaultResource("ShapeFill", "Fragment"),
-            Jkr.GetDefaultResource(nil, "Compute"),
-            ShouldLoadCaches_b
-        )
-        DefaultCaches["Shape"]:Add(
-            inInstance,
-            Jkr.FillType.Image,
-            Jkr.PipelineProperties.Default,
-            "cache2/ShapeImageCache.glsl",
-            Jkr.GetDefaultResource("ShapeImage", "Vertex"),
-            Jkr.GetDefaultResource("ShapeImage", "Fragment"),
-            Jkr.GetDefaultResource(nil, "Compute"),
-            ShouldLoadCaches_b
-        )
-        DefaultCaches["Shape"]:Add(
-            inInstance,
-            Jkr.FillType.ContinousLine,
-            Jkr.PipelineProperties.Line,
-            "cache2/ShapeFillCache.glsl",
-            Jkr.GetDefaultResource("ShapeFill", "Vertex"),
-            Jkr.GetDefaultResource("ShapeFill", "Fragment"),
-            Jkr.GetDefaultResource(nil, "Compute"),
-            ShouldLoadCaches_b
-        )
-        return DefaultCaches["Shape"]
+        if DefaultCaches["Shape"] then
+            return DefaultCaches["Shape"]
+        else
+            DefaultCaches["Shape"] = Jkr.ShapeRendererResources()
+            DefaultCaches["Shape"]:Add(
+                inInstance,
+                Jkr.FillType.Fill,
+                Jkr.PipelineProperties.Default,
+                "cache2/ShapeFillCache.glsl",
+                Jkr.GetDefaultResource("ShapeFill", "Vertex"),
+                Jkr.GetDefaultResource("ShapeFill", "Fragment"),
+                Jkr.GetDefaultResource(nil, "Compute"),
+                ShouldLoadCaches_b
+            )
+            DefaultCaches["Shape"]:Add(
+                inInstance,
+                Jkr.FillType.Image,
+                Jkr.PipelineProperties.Default,
+                "cache2/ShapeImageCache.glsl",
+                Jkr.GetDefaultResource("ShapeImage", "Vertex"),
+                Jkr.GetDefaultResource("ShapeImage", "Fragment"),
+                Jkr.GetDefaultResource(nil, "Compute"),
+                ShouldLoadCaches_b
+            )
+            DefaultCaches["Shape"]:Add(
+                inInstance,
+                Jkr.FillType.ContinousLine,
+                Jkr.PipelineProperties.Line,
+                "cache2/ShapeFillCache.glsl",
+                Jkr.GetDefaultResource("ShapeFill", "Vertex"),
+                Jkr.GetDefaultResource("ShapeFill", "Fragment"),
+                Jkr.GetDefaultResource(nil, "Compute"),
+                ShouldLoadCaches_b
+            )
+            return DefaultCaches["Shape"]
+        end
     end
 end
 

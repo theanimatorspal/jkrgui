@@ -22,7 +22,7 @@ struct BestText_Alt {
         : sh(inSh), bt(inBestText), i(inInstance) {}
 
     ImageId AddEXT(ui inFontId, glm::vec3 inPos, const sv inText);
-    void UpdateEXT(ImageId inId, ui inFontId, glm::vec3 inPos, const sv inText);
+    void UpdateEXT(ImageId inId, ui inFontId, glm::vec3 inPos, const s inText);
     void UpdatePosOnlyEXT(ImageId inId, ui inFontId, glm::vec3 inPos, const sv inText);
     void DrawEXT(ImageId inId,
                  Window_base &inWindow,

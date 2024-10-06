@@ -144,8 +144,9 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     local o = {}
     o.i = i
     o.w = w
-    o.s = Jkr.CreateShapeRenderer(o.i, o.w)
-    o.t = Jkr.CreateTextRendererBestTextAlt(o.i, o.s) -- for now the idea has been dropped
+    o.s = Jkr.CreateShapeRenderer(o.i, o.w, Jkr.GetDefaultCache(o.i, "Shape"))
+    o.st = Jkr.CreateShapeRenderer(o.i, o.w, Jkr.GetDefaultCache(o.i, "Shape"))
+    o.t = Jkr.CreateTextRendererBestTextAlt(o.i, o.st)
 
     o.c = Jkr.CreateCallBuffers()
     o.e = Jkr.CreateCallExecutor(o.c)
@@ -241,6 +242,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         textLabel.PushId = o.c:Push(Jkr.CreateDrawable(textLabel.mId, nil, "TEXT", nil, inColor), o.mCurrentScissor)
 
         textLabel.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inColor)
+            --tracy.ZoneBeginN("luatextUpdate")
             if inFont then self.mFont = inFont end
             if inText then self.mText = inText end
             if inText then
@@ -251,6 +253,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             if inColor then
                 o.c.mDrawables[self.PushId].mColor = inColor
             end
+            --tracy.ZoneEnd()
         end
 
         textLabel.Remove = function(self)
@@ -400,14 +403,19 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
 
     local w = o.w
     local s = o.s
+    local st = o.st
+    local t = o.t
     local cmdparam = Jkr.CmdParam.UI
     local image_filltype = Jkr.FillType.Image
     local fill_filltype = Jkr.FillType.Fill
     local ui_matrix = o.UIMatrix
-    o.DrawAll = function(self, inMap)
+    local s2ds = o.shape2dShaders
+    local DrawAll = function(inMap)
+        tracy.ZoneBeginN("luamainDrawALL")
+        s:BindShapes(w, cmdparam)
         for key, value in pairs(inMap) do
             if key ~= "TEXT" and key ~= "IMAGE" and key ~= "SCISSOR_VIEWPORT" then
-                local shader = o.shape2dShaders[key]
+                local shader = s2ds[key]
                 shader:Bind(w, cmdparam)
                 local drawables = value
                 local drawables_count = #value
@@ -428,26 +436,28 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         end
 
 
-        s:BindFillMode(image_filltype, self.w, cmdparam)
+        s:BindFillMode(image_filltype, w, cmdparam)
+        st:BindShapes(w, cmdparam)
         do
             local drawables = inMap["TEXT"]
             if drawables then
                 local drawables_count = #drawables
                 for i = 1, drawables_count, 1 do
                     local drawable = drawables[i]
-                    self.t:Draw(drawable.mId, w, drawable.mColor, ui_matrix, cmdparam)
+                    t:Draw(drawable.mId, w, drawable.mColor, ui_matrix, cmdparam)
                 end
             end
         end
+        tracy.ZoneEnd()
     end
 
     o.Draw = function(self)
-        self.s:BindShapes(w, cmdparam)
+        tracy.ZoneBeginN("luamainDraw")
         local SVs = o.c.mSVs
         local DrawablesInSVs = o.c.mDrawablesInSVs
         local count = #SVs
         ---@note The First one is always without Scissors
-        o:DrawAll(DrawablesInSVs[1])
+        DrawAll(DrawablesInSVs[1])
         for i = 2, count, 1 do
             local sv = SVs[i]
 
@@ -463,10 +473,12 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             o.w:SetDefaultViewport(cmdparam)
             o.w:SetDefaultScissor(cmdparam)
         end
+        tracy.ZoneEnd()
     end
 
     o.Dispatch = function(self)
-        self.s:Dispatch(self.w, Jkr.CmdParam.None)
+        s:Dispatch(w, Jkr.CmdParam.None)
+        st:Dispatch(w, Jkr.CmdParam.None)
         self.c:Dispatch()
     end
 

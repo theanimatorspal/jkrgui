@@ -75,7 +75,6 @@ inline void process(ui inw,
                     F &inOp,
                     optref<ksai::ThreadPool> inThreadPool = std::nullopt) {
     auto Pro = [=, &inoutImage]() {
-        ZoneScoped;
         T flippedimage;
         flippedimage.resize(inoutImage.size());
 
@@ -102,7 +101,6 @@ inline void process(ui inw,
                     T &toImage,
                     F &inOp,
                     optref<ksai::ThreadPool> inThreadPool = std::nullopt) {
-    ZoneScoped;
     auto Pro = [=, &fromImage, &toImage]() {
         for (int y = 0; y < inh; ++y) {
             for (int x = 0; x < inw * inComp; ++x) {
@@ -267,11 +265,11 @@ bb::TextDimensions bb::RenderTextToImage(sv inString,
     originY         = -minY;
 
     int maxYBearing = 0;
+
     for (int img_index = 0; img_index < len; img_index++) {
         CharacterKey key           = {.mFontShapeId    = inFontShapeId,
                                       .mGlyphCodePoint = info[img_index].codepoint};
         const auto &CharacterInMap = mCharacterBitmapSet[key];
-        const auto &bmp            = CharacterInMap.second;
         const auto &info           = CharacterInMap.first.mGlyphInfo;
         const auto &metrics        = CharacterInMap.first.mGlyphMetrics;
         const auto &pos            = CharacterInMap.first.mGlyphPos;
@@ -284,20 +282,28 @@ bb::TextDimensions bb::RenderTextToImage(sv inString,
             maxYBearing = ToPixels(metrics.horiBearingY);
         }
 
-        const auto join_img =
-             [=]<typename T>(const T &from, T &to, int x, int y, int w, int h, int c) {
-                 ui maini = drawX * c + x + (outbmp_h - (drawY - y - 1) - 1) * outbmp_w * c;
-                 ui biti  = x + y * w * c;
-                 to[maini] += from[biti];
-             };
+        auto Pro = [=, &outImage, this]() {
+            auto &bmp_ = mCharacterBitmapSet[key].second;
+            for (int y = 0; y < bitmap_rows; ++y) {
+                for (int x = 0; x < bitmap_width * mImageChannelCount; ++x) {
+                    ui maini = drawX * mImageChannelCount + x +
+                               (outbmp_h - (drawY - y - 1) - 1) * outbmp_w * mImageChannelCount;
+                    ui biti = x + y * bitmap_width * mImageChannelCount;
+                    outImage[maini] += bmp_[biti];
+                }
+            }
+        };
 
-        ksai::image::process(bitmap_width,
-                             bitmap_rows,
-                             mImageChannelCount,
-                             mCharacterBitmapSet[key].second,
-                             outImage,
-                             join_img,
-                             inThreadPool);
+        inThreadPool.Add_Job(Pro);
+
+        // ksai::image::process(bitmap_width,
+        //                      bitmap_rows,
+        //                      mImageChannelCount,
+        //                      mCharacterBitmapSet[key].second,
+        //                      outImage,
+        //                      join_img,
+        //                      inThreadPool);
+
         int PixelAdvance = ToPixels(advance);
         originX += PixelAdvance;
     }

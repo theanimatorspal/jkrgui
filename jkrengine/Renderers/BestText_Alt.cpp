@@ -4,6 +4,7 @@ using namespace ksai;
 
 Jkr::Renderer::BestText_Alt::ImageId
 Jkr::Renderer::BestText_Alt::AddEXT(ui inFontId, glm::vec3 inPos, const sv inText) {
+    // ZoneScoped;
     ImageId outId;
     Jkr::Renderer::BestText_base::TextDimensions dimens;
     v<uc> img = bt.RenderTextToImage(inFontId, inText, dimens, i.GetThreadPool());
@@ -17,10 +18,11 @@ Jkr::Renderer::BestText_Alt::AddEXT(ui inFontId, glm::vec3 inPos, const sv inTex
     return outId;
 }
 
+static std::mutex ProtectImageUpdate;
 void Jkr::Renderer::BestText_Alt::UpdateEXT(ImageId inId,
                                             ui inFontId,
                                             glm::vec3 inPos,
-                                            const sv inText) {
+                                            const s inText) {
     Jkr::Renderer::BestText_base::TextDimensions dimens;
     v<uc> img = bt.RenderTextToImage(inFontId, inText, dimens, i.GetThreadPool());
     sh.UpdateImage(inId.mImgId, img, dimens.mWidth, dimens.mHeight);
@@ -48,6 +50,7 @@ void Jkr::Renderer::BestText_Alt::DrawEXT(
 v<s> Jkr::Renderer::BestText_Alt::WrapToTextVector(const sv inText,
                                                    ui inFontId,
                                                    glm::vec2 inDimensionToBeWrappedTo) {
+    // ZoneScoped;
     s RemainingText = s(inText);
     v<s> Texts;
     glm::vec2 Dimen = bt.GetTextDimensionsEXT(inText, inFontId);

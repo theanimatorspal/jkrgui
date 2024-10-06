@@ -25,10 +25,9 @@
         "args": [
             "--gr",
             "--run",
-            "asst",
+            // "asst",
             // "app"
-            // "app"
-            // "jkrguipr"
+            "jkrguipr"
             // "--android-environment",
             // "--appname \"tester\"",
             // "--dirname \"android\"",
