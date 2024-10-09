@@ -294,6 +294,7 @@ bb::TextDimensions bb::RenderTextToImage(sv inString,
             }
         };
 
+        // Pro();
         inThreadPool.Add_Job(Pro);
 
         // ksai::image::process(bitmap_width,

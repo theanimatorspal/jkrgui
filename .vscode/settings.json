@@ -18,16 +18,17 @@
     "cmake.options.statusBarVisibility": "icon",
     "cmake.parallelJobs": 8,
     "cmake.clearOutputBeforeBuild": true,
+    "cmake.loadCompileCommands": false,
     "cmake.debugConfig": {
         "console": "externalTerminal",
-        "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\Present",
+        "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\PBR",
         "visualizerFile": "${workspaceFolder}/Visualizers/glm.natvis",
         "args": [
             "--gr",
             "--run",
             // "asst",
-            // "app"
-            "jkrguipr"
+            "app"
+            // "jkrguipr"
             // "--android-environment",
             // "--appname \"tester\"",
             // "--dirname \"android\"",

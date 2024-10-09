@@ -880,4 +880,134 @@ void SerializeDeserializeUniform3D(Instance &ini,
     }
 }
 
+void SerializeDeserializeWorld3D(Instance &ini,
+                                 Window &inw,
+                                 sv inIdName,
+                                 Misc::FileJkr &inJkrFile,
+                                 Renderer::_3D::World3D &inWorld3D) {
+    auto &Cameras   = inWorld3D.GetCamras();
+    auto &Models    = inWorld3D.GetModels();
+    auto &Uniforms  = inWorld3D.GetUniforms();
+    auto &Simple3Ds = inWorld3D.GetSimple3Ds();
+    ///@note This should have been already added in the inJkrFile
+    //     auto &Simple3Ds = inWorld3D.GetSimple3Ds();
+    auto &Lights = inWorld3D.GetLights();
+    auto Prefix  = s(inIdName);
+
+    if (inJkrFile.GetFileContents().contains((Prefix))) {
+        v<Renderer::_3D::Camera3D> Cams =
+             inJkrFile.Read<decltype(Cams)>((Prefix + "CAMERAS").c_str());
+        v<Renderer::_3D::World3D::Light3D> Lights =
+             inJkrFile.Read<decltype(Lights)>((Prefix + "LIGHT3D").c_str());
+
+        v<Renderer::_3D::Simple3D::CompileContext> CompileContexts =
+             inJkrFile.Read<decltype(CompileContexts)>((Prefix + "COMPILE_CONTEXTS").c_str());
+
+        for (int i = 0; i < CompileContexts.size(); ++i) {
+            inWorld3D.AddSimple3D(ini, inw);
+            auto &s3d = inWorld3D.GetSimple3Ds()[i];
+            s3d->GetPainterCache().ReadFromCacheFile(inJkrFile,
+                                                     Prefix + "SIMPLE3Ds" + std::to_string(i));
+            s3d->Compile(ini, inw, " ", " ", " ", " ", true, CompileContexts[i]);
+        }
+
+        size_type uniformSize = inJkrFile.Read<size_type>((Prefix + "UNIFORM_SIZE").c_str());
+        for (int i = 0; i < uniformSize; ++i) {
+            inWorld3D.AddUniform3D(ini);
+            auto Simple3DEntryName = inJkrFile.Read<std::string>(
+                 (Prefix + "UNIFORMS" + std::to_string(i) + "SIMPLE3DINDEX").c_str());
+            auto AssociatedSimple3D = inJkrFile.Read<int>(Simple3DEntryName.c_str());
+            inWorld3D.GetUniforms()[i]->Build(*inWorld3D.GetSimple3Ds()[AssociatedSimple3D]);
+            SerializeDeserializeUniform3D(ini,
+                                          s(inIdName) + "UNIFORMS" + std::to_string(i),
+                                          inJkrFile,
+                                          *inWorld3D.GetUniforms()[i]);
+        }
+    } else {
+        inJkrFile.Write((Prefix + "CAMERAS").c_str(), Cameras);
+        inJkrFile.Write((Prefix + "LIGHTS").c_str(), Lights);
+
+        ///@note CompileContexts are required for compilation of Shaders during Read
+        v<Renderer::_3D::Simple3D::CompileContext> CompileContexts;
+        CompileContexts.resize(Simple3Ds.size());
+
+        ///@note This is needed as the Uniforms don't store which INDEX of the shader is that
+        /// associated with, since I am using reflections, I have to "Build" the uniform by a shader
+        ///@note the Simple3D.GetPainterCache().GetCacheFileEntryName() is set while calling the
+        /// WriteToCacheFile() function for the painter cache, as shown below *CacheFileEntryName*
+        umap<std::string, int> CacheFileEntryNameToWorldSimple3DIndex;
+        for (int i = 0; auto &Simple3D : Simple3Ds) {
+            auto CacheFileEntryName = Prefix + "SIMPLE3Ds" + std::to_string(i);
+            Simple3D->GetPainterCache().WriteToCacheFile(inJkrFile, CacheFileEntryName);
+            CacheFileEntryNameToWorldSimple3DIndex[CacheFileEntryName] = i;
+            CompileContexts[i] = Simple3D->GetCompileContext();
+            ++i;
+        }
+        inJkrFile.Write((Prefix + "COMPILE_CONTEXTS").c_str(), CompileContexts);
+
+        inJkrFile.Write((Prefix + "UNIFORM_SIZE").c_str(), Uniforms.size());
+        for (int i = 0; auto &Uniform : Uniforms) {
+            ///@note Here
+            inJkrFile.Write((Prefix + "UNIFORMS" + std::to_string(i) + "SIMPLE3DINDEX").c_str(),
+                            CacheFileEntryNameToWorldSimple3DIndex[Uniform->GetAssociatedSimple3D()
+                                                                        ->GetPainterCache()
+                                                                        .GetCacheFileEntryName()]);
+            SerializeDeserializeUniform3D(
+                 ini, s(inIdName) + "UNIFORMS" + std::to_string(i), inJkrFile, *Uniform);
+            ++i;
+        }
+
+        inJkrFile.Write(Prefix.c_str(), true);
+    }
+}
+
+void SerializeDeserializeShape3D(Instance &ini,
+                                 sv inIdName,
+                                 Misc::FileJkr &inJkrFile,
+                                 Renderer::_3D::Shape &inShape) {
+    auto vid = s(inIdName) + "vbuffer";
+    auto iid = s(inIdName) + "fbuffer";
+    if (not inJkrFile.GetFileContents().contains(vid.c_str())) {
+        auto &vBuffer = *inShape.GetPrimitive().GetVertexBufferPtr();
+        auto vBufferVector =
+             inShape.GetPrimitive().GetVertexBufferPtr()->SubmitImmediateGetBufferToVector(
+                  ini.GetGraphicsQueue(),
+                  ini.GetStagingBuffer(vBuffer.GetBufferSize()),
+                  ini.GetUtilCommandBuffer(),
+                  ini.GetUtilCommandBufferFence());
+        auto &iBuffer = *inShape.GetPrimitive().GetIndexBufferPtr();
+        auto iBufferVector =
+             iBuffer.SubmitImmediateGetBufferToVector(ini.GetGraphicsQueue(),
+                                                      ini.GetStagingBuffer(vBuffer.GetBufferSize()),
+                                                      ini.GetUtilCommandBuffer(),
+                                                      ini.GetUtilCommandBufferFence());
+        inJkrFile.Write(vid.c_str(), vBufferVector);
+        inJkrFile.Write(iid.c_str(), iBufferVector);
+    } else {
+        up<Primitive> Pri = MakeUp<Primitive>(ini);
+        auto vBuffer      = inJkrFile.Read<v<char>>(vid.c_str());
+        auto iBuffer      = inJkrFile.Read<v<char>>(iid.c_str());
+        ///@warning here, NON-Integrated GPUs are not handled, and will also not be handled for now
+        /// it will be handled later, as there are a lot of @todo Refactors to be done
+        Pri->GetIndexBufferPtr()  = MakeUp<VulkanBufferVMA>(ini.GetVMA(),
+                                                           ini.GetDevice(),
+                                                           iBuffer.size(),
+                                                           BufferContext::Index,
+                                                           MemoryType::HostVisibleAndCoherenet);
+        Pri->GetVertexBufferPtr() = MakeUp<VulkanBufferVMA>(ini.GetVMA(),
+                                                            ini.GetDevice(),
+                                                            vBuffer.size(),
+                                                            BufferContext::Vertex,
+                                                            MemoryType::HostVisibleAndCoherenet);
+
+        Pri->GetIndexBufferPtr()->SubmitImmediateCmdCopyFrom(
+             ini.GetTransferQueue(), ini.GetUtilCommandBuffer(), iBuffer.data());
+        Pri->GetVertexBufferPtr()->SubmitImmediateCmdCopyFrom(
+             ini.GetTransferQueue(), ini.GetUtilCommandBuffer(), vBuffer.data());
+        Pri->SetIndexCount(iBuffer.size() / 4);
+
+        inShape.GetPrimitivePtr() = mv(Pri);
+    }
+}
+
 } // namespace Jkr::Misc

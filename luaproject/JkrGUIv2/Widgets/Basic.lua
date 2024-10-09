@@ -341,44 +341,43 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
 
     o.CreateButton = function(inPosition_3f, inDimension_3f, inOnClickFunction, inContinous)
         local Button = {}
-        Button.mBoundedRect = {}
-        Button.mBoundedRect.mDepthValue = math.int(inPosition_3f.z)
-        Button.mBoundedRect.mId = e:SetBoundedRect(vec2(inPosition_3f.x, inPosition_3f.y),
+        Button.mDepthValue = math.int(inPosition_3f.z)
+        Button.mId = e:SetBoundedRect(vec2(inPosition_3f.x, inPosition_3f.y),
             vec2(inDimension_3f.x, inDimension_3f.y), math.int(inPosition_3f.z))
         Button.mOnClickFunction = function() end
         Button.mOnHoverFunction = function() end
         if (inOnClickFunction) then
             Button.mOnClickFunction = inOnClickFunction
-        end
-        if inContinous then
-            Button.mBoundedRect.mPushId = o.c:Push(Jkr.CreateUpdatable(
-                function()
-                    local over = e:IsMouseWithinAtTopOfStack(
-                        Button.mBoundedRect.mId,
-                        Button.mBoundedRect.mDepthValue
-                    )
-                    if e:IsLeftButtonPressedContinous() and over then
-                        Button.mOnClickFunction()
+            if inContinous then
+                Button.mPushId = o.c:Push(Jkr.CreateUpdatable(
+                    function()
+                        local over = e:IsMouseWithinAtTopOfStack(
+                            Button.mId,
+                            Button.mDepthValue
+                        )
+                        if e:IsLeftButtonPressedContinous() and over then
+                            Button.mOnClickFunction()
+                        end
                     end
-                end
-            ))
-        else
-            Button.mBoundedRect.mPushId = o.c:Push(Jkr.CreateEventable(
-                function()
-                    local over = e:IsMouseWithinAtTopOfStack(
-                        Button.mBoundedRect.mId,
-                        Button.mBoundedRect.mDepthValue
-                    )
-                    if e:IsLeftButtonPressed() and over then
-                        Button.mOnClickFunction()
+                ))
+            else
+                Button.mPushId = o.c:Push(Jkr.CreateEventable(
+                    function()
+                        local over = e:IsMouseWithinAtTopOfStack(
+                            Button.mId,
+                            Button.mDepthValue
+                        )
+                        if e:IsLeftButtonPressed() and over then
+                            Button.mOnClickFunction()
+                        end
                     end
-                end
-            ))
+                ))
+            end
         end
         Button.Update = function(self, inPosition_3f, inDimension_3f)
-            Button.mBoundedRect.mDepthValue = math.int(inPosition_3f.z)
-            e:UpdateBoundedRect(Button.mBoundedRect.mId, vec2(inPosition_3f.x, inPosition_3f.y),
-                vec2(inDimension_3f.x, inDimension_3f.y), Button.mBoundedRect.mDepthValue)
+            Button.mDepthValue = math.int(inPosition_3f.z)
+            e:UpdateBoundedRect(Button.mId, vec2(inPosition_3f.x, inPosition_3f.y),
+                vec2(inDimension_3f.x, inDimension_3f.y), Button.mDepthValue)
         end
         return Button
     end
@@ -436,7 +435,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         end
 
 
-        s:BindFillMode(image_filltype, w, cmdparam)
+        st:BindFillMode(image_filltype, w, cmdparam)
         st:BindShapes(w, cmdparam)
         do
             local drawables = inMap["TEXT"]

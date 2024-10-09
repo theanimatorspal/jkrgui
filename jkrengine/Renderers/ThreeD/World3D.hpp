@@ -16,6 +16,15 @@ using Simple3D = Renderer::_3D::Simple3D;
 using Shape3D  = Renderer::_3D::Shape;
 using namespace ksai::kstd;
 
+namespace Misc {
+class FileJkr;
+void SerializeDeserializeWorld3D(Instance &ini,
+                                 sv inIdName,
+                                 Misc::FileJkr &inJkrFile,
+                                 Renderer::_3D::World3D &inWorld3D);
+
+} // namespace Misc
+
 struct World3D {
     using Object3D    = Jkr::Renderer::_3D::Object3D;
     using BoundingBox = Renderer::_3D::glTF_Model::BoundingBox;
@@ -40,6 +49,12 @@ struct World3D {
         return mSkyboxImages[inId]->GetUniformImage();
     }
     WorldInfoUniform GetWorldInfo();
+
+    GETTER &GetCamras() { return mCameras; }
+    GETTER &GetModels() { return mGLTFModels; }
+    GETTER &GetUniforms() { return mUniforms; }
+    GETTER &GetSimple3Ds() { return mSimple3Ds; }
+    GETTER &GetLights() { return mLights; }
 
     /* ============================================================
 

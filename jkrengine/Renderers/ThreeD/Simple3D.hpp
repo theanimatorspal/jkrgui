@@ -21,6 +21,7 @@ class Simple3D {
     };
     GETTER &GetPainter() { return *mPainter; }
     GETTER &GetPainterCache() { return *mPainterCache; }
+    GETTER GetCompileContext() const { return mCompileContext; }
     void SetPipelineContext(PipelineContext inPipelineContext) {
         mPipelineContext = inPipelineContext;
     }
@@ -102,6 +103,7 @@ class Simple3D {
     Simple3D(Jkr::Instance &inInstance, Jkr::Window_base &inCompatibleWindow) {}
 
     private:
+    CompileContext mCompileContext   = CompileContext::Default;
     PipelineContext mPipelineContext = PipelineContext::Default;
     Up<Painter> mPainter;
     Up<PainterCache> mPainterCache;

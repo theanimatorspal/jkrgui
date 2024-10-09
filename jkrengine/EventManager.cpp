@@ -22,10 +22,10 @@ void Jkr::EventManager::ProcessEventsEXT(Window &inWindow) {
             default:
                 break;
         }
-        SDL_GetRelativeMouseState(&mRelativePos.x, &mRelativePos.y);
     }
     int NumKeys;
     mKeyboardState = SDL_GetKeyboardState(&NumKeys);
+    SDL_GetRelativeMouseState(&mRelativePos.x, &mRelativePos.y);
 }
 
 void Jkr::EventManager::ProcessEvents() {
@@ -90,8 +90,8 @@ void Jkr::EventManager::SetEventCallBack(const std::function<void()> &inEventCal
 
 bool Jkr::EventManager::ShouldQuit() const { return should_quit; }
 SDL_Event Jkr::EventManager::GetEventHandle() const { return mEvent; }
-glm::ivec2 Jkr::EventManager::GetMousePos() const { return mMousePos; }
-glm::ivec2 Jkr::EventManager::GetRelativeMousePos() const { return mRelativePos; }
+glm::vec2 Jkr::EventManager::GetMousePos() const { return mMousePos; }
+glm::vec2 Jkr::EventManager::GetRelativeMousePos() const { return mRelativePos; }
 int Jkr::EventManager::GetMouseButtonValue() const { return mCurrentPushedMouseButton; }
 
 bool Jkr::EventManager::IsKeyPressedContinous(int inScanCode) const {

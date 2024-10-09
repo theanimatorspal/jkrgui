@@ -371,7 +371,6 @@ void CreateGLMBindings(sol::state &lua) {
          "Clamp",
          sol::overload(
               [](float value, float min, float max) { return std::clamp(value, min, max); },
-              [](double value, double min, double max) { return std::clamp(value, min, max); },
               [](int value, int min, int max) { return std::clamp(value, min, max); }));
 
     Jmath.set_function("Inverse",

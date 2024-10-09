@@ -151,54 +151,75 @@ static void CreateIfDoesntExist(const std::string_view inFileName) {
 }
 
 void Jkr::PainterCache::StoreSPIRVsToFile(const std::string_view inFileName) {
-    if (not mCacheFile) {
-        CreateIfDoesntExist(inFileName);
-        std::ofstream Fstream(std::string(inFileName), std::ios_base::binary);
-        uint32_t size_V = mVertexFragmentShaderSPIRV[0].size() * sizeof(uint32_t);
-        uint32_t size_F = mVertexFragmentShaderSPIRV[1].size() * sizeof(uint32_t);
-        uint32_t size_C = mComputeShaderSPIRV[0].size() * sizeof(uint32_t);
-        Fstream.write(reinterpret_cast<char *>(&size_V), sizeof(uint32_t));
-        Fstream.write(reinterpret_cast<char *>(&size_F), sizeof(uint32_t));
-        Fstream.write(reinterpret_cast<char *>(&size_C), sizeof(uint32_t));
-        Fstream.write(reinterpret_cast<char *>(mVertexFragmentShaderSPIRV[0].data()),
-                      mVertexFragmentShaderSPIRV[0].size() * sizeof(uint32_t));
-        Fstream.write(reinterpret_cast<char *>(mVertexFragmentShaderSPIRV[1].data()),
-                      mVertexFragmentShaderSPIRV[1].size() * sizeof(uint32_t));
-        Fstream.write(reinterpret_cast<char *>(mComputeShaderSPIRV[0].data()),
-                      mComputeShaderSPIRV[0].size() * sizeof(uint32_t));
-    } else {
-        mCacheFile->Write((s(inFileName) + "VS").c_str(), mVertexFragmentShaderSPIRV[0]);
-        mCacheFile->Write((s(inFileName) + "FS").c_str(), mVertexFragmentShaderSPIRV[1]);
-        mCacheFile->Write((s(inFileName) + "CS").c_str(), mComputeShaderSPIRV[0]);
+    if (not(mVertexFragmentShaderSPIRV[0].empty() or mVertexFragmentShaderSPIRV[1].empty())) {
+        if (not mCacheFile) {
+            CreateIfDoesntExist(inFileName);
+            std::ofstream Fstream(std::string(inFileName), std::ios_base::binary);
+            uint32_t size_V = mVertexFragmentShaderSPIRV[0].size() * sizeof(uint32_t);
+            uint32_t size_F = mVertexFragmentShaderSPIRV[1].size() * sizeof(uint32_t);
+            uint32_t size_C = mComputeShaderSPIRV[0].size() * sizeof(uint32_t);
+            Fstream.write(reinterpret_cast<char *>(&size_V), sizeof(uint32_t));
+            Fstream.write(reinterpret_cast<char *>(&size_F), sizeof(uint32_t));
+            Fstream.write(reinterpret_cast<char *>(&size_C), sizeof(uint32_t));
+            Fstream.write(reinterpret_cast<char *>(mVertexFragmentShaderSPIRV[0].data()),
+                          mVertexFragmentShaderSPIRV[0].size() * sizeof(uint32_t));
+            Fstream.write(reinterpret_cast<char *>(mVertexFragmentShaderSPIRV[1].data()),
+                          mVertexFragmentShaderSPIRV[1].size() * sizeof(uint32_t));
+            Fstream.write(reinterpret_cast<char *>(mComputeShaderSPIRV[0].data()),
+                          mComputeShaderSPIRV[0].size() * sizeof(uint32_t));
+        } else {
+            mCacheFile->Write((s(inFileName) + "VS").c_str(), mVertexFragmentShaderSPIRV[0]);
+            mCacheFile->Write((s(inFileName) + "FS").c_str(), mVertexFragmentShaderSPIRV[1]);
+            mCacheFile->Write((s(inFileName) + "CS").c_str(), mComputeShaderSPIRV[0]);
+        }
     }
+    mCacheFileEntryName = s(inFileName);
 }
 
 void Jkr::PainterCache::LoadSPIRVsFromFile(const std::string_view inFileName) {
-    if (not mCacheFile) {
-        if (std::filesystem::exists(inFileName)) {
-            std::ifstream Fstream(std::string(inFileName), std::ios_base::binary);
-            uint32_t size_V = 0;
-            uint32_t size_F = 0;
-            uint32_t size_C = 0;
-            Fstream.read(reinterpret_cast<char *>(&size_V), sizeof(uint32_t));
-            Fstream.read(reinterpret_cast<char *>(&size_F), sizeof(uint32_t));
-            Fstream.read(reinterpret_cast<char *>(&size_C), sizeof(uint32_t));
+    ///@note if mVertexFragmentShaderSPIRV[0] size is > 0 means it has already been loaded with
+    /// other means (possibly a JkrFile)
+    if (mVertexFragmentShaderSPIRV[0].empty() or mVertexFragmentShaderSPIRV[1].empty()) {
+        if (not mCacheFile) {
+            if (std::filesystem::exists(inFileName)) {
+                std::ifstream Fstream(std::string(inFileName), std::ios_base::binary);
+                uint32_t size_V = 0;
+                uint32_t size_F = 0;
+                uint32_t size_C = 0;
+                Fstream.read(reinterpret_cast<char *>(&size_V), sizeof(uint32_t));
+                Fstream.read(reinterpret_cast<char *>(&size_F), sizeof(uint32_t));
+                Fstream.read(reinterpret_cast<char *>(&size_C), sizeof(uint32_t));
 
-            mVertexFragmentShaderSPIRV[0].resize(size_V / sizeof(uint32_t));
-            mVertexFragmentShaderSPIRV[1].resize(size_F / sizeof(uint32_t));
-            mComputeShaderSPIRV[0].resize(size_C / sizeof(uint32_t));
-            Fstream.read(reinterpret_cast<char *>(mVertexFragmentShaderSPIRV[0].data()),
-                         mVertexFragmentShaderSPIRV[0].size() * sizeof(uint32_t));
-            Fstream.read(reinterpret_cast<char *>(mVertexFragmentShaderSPIRV[1].data()),
-                         mVertexFragmentShaderSPIRV[1].size() * sizeof(uint32_t));
-            Fstream.read(reinterpret_cast<char *>(mComputeShaderSPIRV[0].data()),
-                         mComputeShaderSPIRV[0].size() * sizeof(uint32_t));
+                mVertexFragmentShaderSPIRV[0].resize(size_V / sizeof(uint32_t));
+                mVertexFragmentShaderSPIRV[1].resize(size_F / sizeof(uint32_t));
+                mComputeShaderSPIRV[0].resize(size_C / sizeof(uint32_t));
+                Fstream.read(reinterpret_cast<char *>(mVertexFragmentShaderSPIRV[0].data()),
+                             mVertexFragmentShaderSPIRV[0].size() * sizeof(uint32_t));
+                Fstream.read(reinterpret_cast<char *>(mVertexFragmentShaderSPIRV[1].data()),
+                             mVertexFragmentShaderSPIRV[1].size() * sizeof(uint32_t));
+                Fstream.read(reinterpret_cast<char *>(mComputeShaderSPIRV[0].data()),
+                             mComputeShaderSPIRV[0].size() * sizeof(uint32_t));
+            }
+        } else {
+            mVertexFragmentShaderSPIRV[0] =
+                 mCacheFile->Read<v<uint32_t>>((s(inFileName) + "VS").c_str());
+            mVertexFragmentShaderSPIRV[1] =
+                 mCacheFile->Read<v<uint32_t>>((s(inFileName) + "FS").c_str());
+            mComputeShaderSPIRV[0] = mCacheFile->Read<v<uint32_t>>((s(inFileName) + "CS").c_str());
         }
-    } else {
-        mVertexFragmentShaderSPIRV[0] =
-             mCacheFile->Read<v<uint32_t>>((s(inFileName) + "VS").c_str());
-        mVertexFragmentShaderSPIRV[1] =
-             mCacheFile->Read<v<uint32_t>>((s(inFileName) + "FS").c_str());
-        mComputeShaderSPIRV[0] = mCacheFile->Read<v<uint32_t>>((s(inFileName) + "CS").c_str());
     }
+    mCacheFileEntryName = s(inFileName);
+}
+
+void Jkr::PainterCache::WriteToCacheFile(Jkr::Misc::FileJkr &inFileJkr, std::string inEntry) {
+    inFileJkr.Write((inEntry + "VS").c_str(), mVertexFragmentShaderSPIRV[0]);
+    inFileJkr.Write((inEntry + "FS").c_str(), mVertexFragmentShaderSPIRV[1]);
+    inFileJkr.Write((inEntry + "CS").c_str(), mComputeShaderSPIRV[0]);
+    mCacheFileEntryName = inEntry;
+}
+void Jkr::PainterCache::ReadFromCacheFile(Jkr::Misc::FileJkr &inFileJkr, std::string inEntry) {
+    mVertexFragmentShaderSPIRV[0] = inFileJkr.Read<v<uint32_t>>((inEntry + "VS").c_str());
+    mVertexFragmentShaderSPIRV[1] = inFileJkr.Read<v<uint32_t>>((inEntry + "FS").c_str());
+    mComputeShaderSPIRV[0]        = inFileJkr.Read<v<uint32_t>>((inEntry + "CS").c_str());
+    mCacheFileEntryName           = inEntry;
 }

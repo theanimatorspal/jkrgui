@@ -7,7 +7,7 @@
 using namespace Jkr::Renderer::_3D;
 ///@warning Code repetition
 
-Shape::Shape(Instance &inInstance) : mInstance(inInstance) {
+Shape::Shape(Instance &inInstance) : mInstance(&inInstance) {
 #ifndef JKR_NO_STAGING_BUFFERS
     rb::CreateStagingBuffers(inInstance,
                              gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
@@ -23,7 +23,7 @@ Shape::Shape(Instance &inInstance) : mInstance(inInstance) {
 #endif
 }
 
-Shape::Shape(Instance &inInstance, Window_base &inCompatibleWindow) : mInstance(inInstance) {
+Shape::Shape(Instance &inInstance, Window_base &inCompatibleWindow) : mInstance(&inInstance) {
 #ifndef JKR_NO_STAGING_BUFFERS
     rb::CreateStagingBuffers(inInstance,
                              gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
@@ -119,7 +119,7 @@ void Shape::CheckAndResize(size_t inIndicesSize, size_t inVerticesSize) {
 
     if (ResizeRequired) {
         mPrimitive.reset();
-        mPrimitive = MakeUp<Primitive>(mInstance,
+        mPrimitive = MakeUp<Primitive>(*mInstance,
                                        gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
                                        gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
         mPrimitive->SetIndexCount(mTotalNoOfIndicesRendererCanHold);
@@ -127,7 +127,7 @@ void Shape::CheckAndResize(size_t inIndicesSize, size_t inVerticesSize) {
         gb::Resize(mTotalNoOfVerticesRendererCanHold, mTotalNoOfIndicesRendererCanHold);
 
 #ifndef JKR_NO_STAGING_BUFFERS
-        rb::ResizeStagingBuffer(mInstance,
+        rb::ResizeStagingBuffer(*mInstance,
                                 gb::VertexCountToBytes(mTotalNoOfVerticesRendererCanHold),
                                 gb::IndexCountToBytes(mTotalNoOfIndicesRendererCanHold));
         rb::CopyToStagingBuffers(gb::GetVertexBufferData(),
@@ -161,7 +161,7 @@ void Shape::CheckAndResize(const glTF_Model &inModel) {
 }
 
 void Shape::Bind(Window_base &inWindow, ComPar inCompar) {
-    mPrimitive->Bind(mInstance, inWindow, inCompar);
+    mPrimitive->Bind(*mInstance, inWindow, inCompar);
 }
 
 ui Shape::AddEXT(Generator &inGenerator, glm::vec3 inPosition) {

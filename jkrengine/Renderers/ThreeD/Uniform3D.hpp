@@ -22,6 +22,7 @@ class Uniform3D {
     GETTER &GetUniformBuffersRef() { return mUniformBuffers; }
     GETTER &GetStorageBuffersRef() { return mStorageBuffers; }
     GETTER &GetVulkanDescriptorSet() { return *mVulkanDescriptorSet; }
+    GETTER GetAssociatedSimple3D() { return mAssociatedSimple3D; }
 
     static Up<Uniform3D> CreateByGLTFNodeIndex(Instance &inInstance,
                                                Simple3D &inSimple3D,
@@ -29,6 +30,8 @@ class Uniform3D {
                                                ui inNodeIndex    = 0,
                                                bool inShouldSkin = false);
 
+    ///@warning For the following functions inSimple3D should exists for the lifetime of Uniform3D
+    /// as mAssociatedSimple3D is a pointer to inSimple3D
     void Build(Simple3D &inSimple3D);
     void Build(Simple3D &inSimple3D, VulkanDescriptorPool &inPool);
     void Build(Simple3D &inSimple3D,
@@ -127,6 +130,8 @@ class Uniform3D {
     umap<int, Up<UniformBufferType>> mUniformBuffers;
     umap<int, Up<StorageBufferType>> mStorageBuffers;
     Up<VulkanDescriptorSet> mVulkanDescriptorSet;
+
+    Simple3D *mAssociatedSimple3D = nullptr;
 };
 
 template <typename T> inline void Uniform3D::UpdateUniformBuffer(int inDstBinding, T inData) {

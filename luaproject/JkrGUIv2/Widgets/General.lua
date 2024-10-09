@@ -85,6 +85,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         end
 
         button.padding = 10
+        ---@warning Bad Design, Fix in Refactoring
         button.Update = function(self,
                                  inPosition_3f,
                                  inDimension_3f,
@@ -138,15 +139,70 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         return button
     end
 
-    o.CreateSlider = function(inPosition_3f, inDimension_3f, inRangeStart, inRangeEnd, inDefaultValue)
-        local o = {}
-        o.defaultValue = inDefaultValue
-        o.knob = o.CreateGeneralButton(inPosition_3f, inDimension_3f)
-        o.background = o.CreateGeneralButton(inPosition_3f, inDimension_3f)
-        o.Update = function(inPosition_3f, inDimension_3f, inValue)
+    o.CreateSlider = function(inPosition_3f, inDimension_3f, inRangeStart, inRangeEnd, inDefaultValue, inStep)
+        local slider = {}
+        local z_difference = 10
+        local knob = o.CreateGeneralButton(vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z - z_difference),
+            inDimension_3f)
+        local background = o.CreateGeneralButton(inPosition_3f, inDimension_3f)
+        local knob_button = o.CreateButton(vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z - z_difference),
+            inDimension_3f)
+        slider.range_start = inRangeStart
+        slider.range_end = inRangeEnd
+        slider.current_value = inDefaultValue
+        slider.knob_width = 0.1 * inDimension_3f.x
+        slider.knob_height_offset = 5
+        slider.knob_color = vec4(0.5)
+        slider.step = inStep
 
+
+
+        local current_pos, current_dim, knob_pos, knob_dim,
+        background_pos, background_dim, normalized_pos
+
+        slider.Update = function(self, inPosition_3f, inDimension_3f, inValue)
+            current_pos, current_dim = inPosition_3f, inDimension_3f
+            if not inValue then inValue = slider.current_value else slider.current_value = inValue end
+            normalized_pos = (slider.current_value - slider.range_start) / (slider.range_end - slider.range_start)
+            knob_pos = vec3(
+                -slider.knob_width / 2 + Jmath.Lerp(inPosition_3f.x,
+                    inPosition_3f.x + inDimension_3f.x,
+                    normalized_pos),
+                inPosition_3f.y - slider.knob_height_offset,
+                inPosition_3f.z - z_difference
+            )
+            knob_dim = vec3(slider.knob_width, inDimension_3f.y + slider.knob_height_offset * 2,
+                inDimension_3f.z)
+            background_pos = inPosition_3f
+            background_dim = inDimension_3f
+
+            knob:Update(knob_pos, knob_dim, nil, nil, nil, slider.knob_color)
+            background:Update(background_pos, background_dim)
+            knob_button:Update(knob_pos, knob_dim)
         end
-        return o
+
+        local isMoving = false
+        o.c:Push(Jkr.CreateUpdatable(function()
+            local mouseRel = e:GetRelativeMousePos().x
+            if e:IsLeftButtonPressedContinous() and (e:IsMouseWithinAtTopOfStack(knob_button.mId, knob_button.mDepthValue)) then
+                isMoving = true
+            end
+
+            if e:IsLeftButtonPressedContinous() and isMoving then
+                local oldValue = slider.current_value
+                local knob_x = current_pos.x + normalized_pos * current_dim.x
+                knob_x = Jmath.Clamp(knob_x + mouseRel, current_pos.x, current_dim.x + current_pos.x)
+                local newValue = Jmath.Lerp(slider.range_start, slider.range_end,
+                    (knob_x - current_pos.x) / current_dim.x)
+                slider.current_value = newValue
+                slider:Update(current_pos, current_dim)
+            else
+                isMoving = false
+            end
+        end), o.mCurrentScissor)
+
+        slider:Update(inPosition_3f, inDimension_3f, inDefaultValue)
+        return slider
     end
 
 

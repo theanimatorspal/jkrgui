@@ -46,6 +46,9 @@ class PainterCache {
     explicit PainterCache(Instance &inInstance,
                           PipelinePropertiesContext inContext = PipelinePropertiesContext::Default);
     void SetCacheFile(Jkr::Misc::FileJkr *inFileJkr) { mCacheFile = inFileJkr; };
+    void WriteToCacheFile(Jkr::Misc::FileJkr &inFileJkr, std::string inEntry);
+    void ReadFromCacheFile(Jkr::Misc::FileJkr &inFileJkr, std::string inEntry);
+    std::string GetCacheFileEntryName() const { return mCacheFileEntryName; }
     GETTER GetCacheFile() { return mCacheFile; }
     PainterCache &Store(const std::string_view fileName,
                         const std::string_view inVertexShader   = "",
@@ -56,8 +59,6 @@ class PainterCache {
 
     GETTER &GetPipelineContext() const { return mPipelineContext; }
     GETTER &GetPipelineCache() const { return *mPtrPipelineCache; }
-
-    public:
     GETTER &GetVertexFragmentDescriptorSetLayout() const {
         return *mPtrVertexFragmentDescriptorSetLayout;
     }
@@ -65,8 +66,6 @@ class PainterCache {
     GETTER &GetVertexFragmentShaderModulesArray() const {
         return mShaderModulesPtr->GetShaderModulesArray();
     }
-
-    public:
     GETTER &GetComputePipelineDescriptorSetLayout() const {
         return *mPtrComputeDescriptorSetLayout;
     }
@@ -100,5 +99,6 @@ class PainterCache {
 
     private:
     Jkr::Misc::FileJkr *mCacheFile = nullptr;
+    std::string mCacheFileEntryName;
 };
 } // namespace Jkr

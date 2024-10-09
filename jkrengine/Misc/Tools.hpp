@@ -83,29 +83,29 @@ void SerializeDeserializeUniform3D(Instance &ini,
 
 ///@brief Serializes a Whole World
 void SerializeDeserializeWorld3D(Instance &ini,
+                                 Window &inw,
                                  sv inIdName,
                                  Misc::FileJkr &inJkrFile,
                                  Renderer::_3D::World3D &inWorld3D);
-///@brief If the painter cache is there in the file, it will load it, if not it will compile and
-/// store in the file
-void StoreLoadSimple3D(Instance &ini,
-                       sv inIdName,
-                       Misc::FileJkr &inJkrFile,
-                       const std::string_view inVertexShader   = "",
-                       const std::string_view inFragmentShader = "",
-                       const std::string_view inComputeShader  = "");
+///@brief This function is to be used with the SerializeDeserializeWorld3D function
+void SerializeDeserializeShape3D(Instance &ini,
+                                 sv inIdName,
+                                 Misc::FileJkr &inJkrFile,
+                                 Renderer::_3D::Shape &inShape);
 
-///@brief This assists to use external shaders for Shape (2D rendering), using Simple3D, the simple
-/// 3D should be created externally and should be compatible with the shape2d shaders. Shape2d is a
-/// renderer I wrote way back, Nearly every thing is dependent upon that, so I
-/// am not changing anything there, I am writing another function for that purpose
+///@brief This assists to use external shaders for Shape (2D rendering), using Simple3D, the
+/// simple
+/// 3D should be created externally and should be compatible with the shape2d shaders. Shape2d
+/// is a renderer I wrote way back, Nearly every thing is dependent upon that, so I am not
+/// changing anything there, I am writing another function for that purpose
 ///
-///@warning Use Shape::SetFillMode for binding descriptors and Bind the Simple3D BEFORE calling the
+///@warning Use Shape::SetFillMode for binding descriptors and Bind the Simple3D BEFORE calling
+/// the
 /// following function, if the Simple3D takes an image then set it FillMode::Image and
 /// FillMode::Fill if else
 ///@warning This function is defined in JkrMisc.cpp in jkrgui executable
-/// NOT USABLE IN C++ right now @todo Fix this with proper standard rules in Standards.hpp with the
-/// push constant layout standards for everything and use those from there.
+/// NOT USABLE IN C++ right now @todo Fix this with proper standard rules in Standards.hpp with
+/// the push constant layout standards for everything and use those from there.
 struct Matrix2CustomImagePainterPushConstant {
     glm::mat4 a, b;
 };

@@ -11,8 +11,8 @@ class Primitive {
     using IndexBufferType  = VulkanBufferVMA;
 
     public:
-    GETTER &GetVertexBufferPtr() const { return mVertexBufferPtr; }
-    GETTER &GetIndexBufferPtr() const { return mIndexBufferPtr; }
+    GETTER &GetVertexBufferPtr() { return mVertexBufferPtr; }
+    GETTER &GetIndexBufferPtr() { return mIndexBufferPtr; }
     GETTER GetIndexCount() const { return mIndexCount; }
     void SetIndexCount(uint32_t inIndex) { mIndexCount = inIndex; }
     void Bind(Instance &inInstance, const Window_base &inWindow, CmdParam inCmdParam);

@@ -135,6 +135,7 @@ void Simple3D::Compile(Jkr::Instance &inInstance,
                        std::string_view inComputeShader,
                        bool inShouldLoad,
                        CompileContext inContext) {
+    mCompileContext = inContext;
     switch (inContext) {
         case CompileContext::Default:
             CompileDefault(inInstance,

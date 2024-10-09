@@ -92,6 +92,7 @@ struct FileJkr {
             PushVector(mHeader, Serialize(header));
             PushVector(mData, data);
         }
+        mWrites++;
     }
     template <typename T> T Read(const char inId[IdSize]) {
         auto header = mFileContents[s(inId)];
@@ -113,6 +114,7 @@ struct FileJkr {
     v<char> mCommittedData;
     std::fstream mFile;
     s mFileName;
+    int mWrites = 0;
 };
 
 } // namespace Jkr::Misc

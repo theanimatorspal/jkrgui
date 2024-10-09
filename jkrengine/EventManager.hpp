@@ -23,8 +23,8 @@ class EventManager {
     bool IsKeyPressed(SDL_Keycode inKey);
 
     /// Mouse Inputs
-    glm::ivec2 GetMousePos() const;
-    glm::ivec2 GetRelativeMousePos() const;
+    glm::vec2 GetMousePos() const;
+    glm::vec2 GetRelativeMousePos() const;
     int GetMouseButtonValue() const;
     bool IsLeftButtonPressedContinous() const;
     bool IsRightButtonPressedContinous() const;

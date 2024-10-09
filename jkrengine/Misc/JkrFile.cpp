@@ -49,16 +49,18 @@ FileJkr::FileJkr(s inFileName) {
 FileJkr::~FileJkr() { Commit(); }
 
 void FileJkr::Commit() {
-    auto fileheader_start = Serialize(Header{"HEADER_START", 0, mHeader.size()});
-    auto &headercontents  = mHeader;
-    auto fileheader_end   = Serialize(Header{"HEADER_END", 0, mData.size()});
-    auto &data            = mData;
+    if (mWrites > 0) {
+        auto fileheader_start = Serialize(Header{"HEADER_START", 0, mHeader.size()});
+        auto &headercontents  = mHeader;
+        auto fileheader_end   = Serialize(Header{"HEADER_END", 0, mData.size()});
+        auto &data            = mData;
 
-    mFile.seekg(0, ios_base::beg);
-    mFile.write(fileheader_start.data(), fileheader_start.size());
-    mFile.write(headercontents.data(), headercontents.size());
-    mFile.write(fileheader_end.data(), fileheader_end.size());
-    mFile.write(data.data(), data.size());
+        mFile.seekg(0, ios_base::beg);
+        mFile.write(fileheader_start.data(), fileheader_start.size());
+        mFile.write(headercontents.data(), headercontents.size());
+        mFile.write(fileheader_end.data(), fileheader_end.size());
+        mFile.write(data.data(), data.size());
+    }
 }
 
 } // namespace Jkr::Misc

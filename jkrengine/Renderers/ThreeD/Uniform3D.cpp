@@ -92,6 +92,7 @@ void Uniform3D::Build(Simple3D &inSimple3D) {
          mInstance.GetDevice(),
          mInstance.GetDescriptorPool(),
          inSimple3D.GetPainterCache().GetVertexFragmentDescriptorSetLayout());
+    mAssociatedSimple3D = &inSimple3D;
 }
 
 void Uniform3D::Build(Simple3D &inSimple3D, VulkanDescriptorPool &inPool) {
@@ -99,6 +100,7 @@ void Uniform3D::Build(Simple3D &inSimple3D, VulkanDescriptorPool &inPool) {
          mInstance.GetDevice(),
          inPool,
          inSimple3D.GetPainterCache().GetVertexFragmentDescriptorSetLayout());
+    mAssociatedSimple3D = &inSimple3D;
 }
 
 void Uniform3D::Build(Simple3D &inSimple3D,

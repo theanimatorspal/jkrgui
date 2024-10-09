@@ -17,7 +17,6 @@ class VulkanBufferBase {
     struct CreateInfo {
         const VulkanDevice *inDevice;
     };
-
     VulkanBufferBase() = default;
     ~VulkanBufferBase();
     VulkanBufferBase(VulkanBufferBase &other)             = delete;
@@ -30,6 +29,8 @@ class VulkanBufferBase {
 
     vk::Buffer operator()(VulkanBufferBase &) { return mBufferHandle; }
     VulkanBufferBase(const VulkanDevice &inDevice);
+    ///@warning Staning Buffer is being created from inside here, delete this
+    /// I mean improve this function, similar to the improved functions from VulkanIMage
     void SubmitImmediateCmdCopyFrom(const VulkanQueue<QueueContext::Graphics> &inQueue,
                                     const VulkanCommandBuffer &inCmdBuffer,
                                     void *inData);

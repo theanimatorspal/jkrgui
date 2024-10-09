@@ -20,6 +20,8 @@ class Shape : public Renderer_base, public Shape_base {
 
     public:
     GETTER &GetPrimitive() { return *mPrimitive; }
+    GETTER &GetPrimitivePtr() { return mPrimitive; }
+    Shape() = default;
     Shape(Instance &inInstance);
     Shape(Instance &inInstance, Window_base &inCompatibleWindow);
     void Add(glTF_Model &inModel, ui &outId);
@@ -43,7 +45,7 @@ class Shape : public Renderer_base, public Shape_base {
     void CopyToPrimitive(ui inOffsetId, ui inModelId);
     Up<Primitive> mPrimitive;
 
-    Instance &mInstance;
+    Instance *mInstance;
 
     ui mTotalNoOfVerticesRendererCanHold = rb::InitialRendererElementArraySize;
     ui mTotalNoOfIndicesRendererCanHold  = rb::InitialRendererElementArraySize;
