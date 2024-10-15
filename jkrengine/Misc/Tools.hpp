@@ -3,6 +3,7 @@
 #include <Renderers/ThreeD/Simple3D.hpp>
 #include <Window.hpp>
 #include "JkrFile.hpp"
+#include "Renderers/ThreeD/World3D.hpp"
 
 namespace Jkr::Misc {
 
@@ -49,21 +50,17 @@ void RegisterCustomPainterImageToCustomPainterImage(
      Renderer::CustomPainterImage &inCustomPainterImageTobeRegistered,
      int inIndex);
 
-/// @brief This function stores the BRDF Lookup table, pre filtered cube and irradiance cube
-/// onto the folder name provided, if the folder with the PBR Data doesn't exist.
-/// if the folder with the PBR Data exists, it will load those onto the uniform3d specified.
-///
 /// @note This function also supports HDR file formats. (.hdr) for skybox/cubemap.
-///
-/// @param inPBRCacheName this is the DIRECTORY (Will the created if doesn't exist) which the
-/// function will look for for PBR related Caches.
 void SetupPBR(Instance &inInstance,
               Window &inWindow,
               Renderer::_3D::Uniform3D &inUniform3D,
               Renderer::_3D::World3D &inWorld3D,
               Renderer::_3D::Shape &inShape3D,
               int inSkyboxModelIndex,
+
+              ///@todo Remove this
               Misc::FileJkr &inJkrFile,
+
               sv inCachePrefix,
               sv inBRDF_vs,
               sv inBRDF_fs,
@@ -92,6 +89,11 @@ void SerializeDeserializeShape3D(Instance &ini,
                                  sv inIdName,
                                  Misc::FileJkr &inJkrFile,
                                  Renderer::_3D::Shape &inShape);
+
+///@brief for Objects in World3D
+void SerializeDeserializeObjectVector(sv inIdName,
+                                      v<Renderer::_3D::Object3D> &inObject3d,
+                                      Misc::FileJkr &inJkrFile);
 
 ///@brief This assists to use external shaders for Shape (2D rendering), using Simple3D, the
 /// simple

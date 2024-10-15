@@ -343,6 +343,8 @@ void CreateMiscBindings(sol::state &inState) {
 
     Jkr.set_function("SerializeDeserializeWorld3D", &Jkr::Misc::SerializeDeserializeWorld3D);
     Jkr.set_function("SerializeDeserializeShape3D", &Jkr::Misc::SerializeDeserializeShape3D);
+    Jkr.set_function("SerializeDeserializeObjectVector",
+                     &Jkr::Misc::SerializeDeserializeObjectVector);
 }
 
 } // namespace JkrEXE

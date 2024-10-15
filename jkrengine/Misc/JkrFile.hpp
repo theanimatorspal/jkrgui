@@ -41,7 +41,7 @@ template <typename T> T Retrive(v<char> inData) {
         std::memcpy(&out, inData.data(), inData.size());
     } else if constexpr (IsContainer<T>) {
         size_type sizeOfUnderlyingType = sizeof(typename T::value_type);
-        assert(inData.size() % sizeOfUnderlyingType == 0 && "Yeah, data is not valid here");
+        assert(inData.size() % sizeOfUnderlyingType == 0 && "Yeah, data should be valid here");
         size_type size = inData.size() / sizeOfUnderlyingType;
         out.resize(size);
         std::memcpy(out.data(), inData.data(), inData.size());

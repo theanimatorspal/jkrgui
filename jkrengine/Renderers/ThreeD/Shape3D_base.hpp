@@ -7,24 +7,23 @@
 
 namespace Jkr::Renderer::_3D {
 using namespace ksai::kstd;
+using namespace ksai;
 class Shape;
 
 class Shape_base {
-    private:
+    public:
     struct VertexIndexMemOffset {
         uint32_t mVertexOffset;
         uint32_t mIndexOffset;
-        size_t mVertexSize;
-        size_t mIndexSize;
+        uint32_t mVertexSize;
+        uint32_t mIndexSize;
     };
-
-    public:
     Shape_base() {}
-    void Add(const std::vector<Vertex3D>& inVertices,
+    void Add(const std::vector<Vertex3D> &inVertices,
              const std::vector<uint32_t> inIndices,
-             uint32_t& outId);
-    void Update(uint32_t& inId,
-                const std::vector<Vertex3D>& inVertices,
+             uint32_t &outId);
+    void Update(uint32_t &inId,
+                const std::vector<Vertex3D> &inVertices,
                 const std::vector<uint32_t> inIndices);
     void Resize(size_t inNewVertexSize, size_t inNewIndexSize);
 
@@ -33,6 +32,11 @@ class Shape_base {
     GETTER GetIndexCount(uint32_t inId) const { return mIds[inId].mIndexSize; }
     GETTER GetVertexOffsetAbsolute(uint32_t inId) const { return mIds[inId].mVertexOffset; }
     GETTER GetIndexOffsetAbsolute(uint32_t inId) const { return mIds[inId].mIndexOffset; }
+
+    GETTER GetSerializablesRefs() {
+        return std::make_tuple(
+             &mIds, &mVertices, &mIndices, &mCurrentVertexPointer, &mCurrentIndexPointer);
+    }
 
     protected:
     GETTER GetVertexBufferData() { return mVertices.data(); }
