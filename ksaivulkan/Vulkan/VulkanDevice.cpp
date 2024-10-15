@@ -7,19 +7,20 @@
 
 using namespace ksai;
 
-VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice,
-                           const VulkanQueueContext& inQueueContext,
+VulkanDevice::VulkanDevice(const VulkanPhysicalDevice &inPhysicalDevice,
+                           const VulkanQueueContext &inQueueContext,
                            VulkanDeviceFeatureSet inFeatureSet)
     : mPhysicalDevice(&inPhysicalDevice.GetPhysicalDeviceHandle()) {
     Init({&inPhysicalDevice, &inQueueContext, inFeatureSet});
 }
 
 void VulkanDevice::Init(CreateInfo inCreateInfo) {
-    mPhysicalDevice      = &inCreateInfo.mPhysicalDevice->GetPhysicalDeviceHandle();
-    auto& inQueueContext = *inCreateInfo.mQueueContext;
-    auto inFeatureSet    = inCreateInfo.mFeatureSet;
+    mVulkanPhysicalDevice = inCreateInfo.mPhysicalDevice;
+    mPhysicalDevice       = &inCreateInfo.mPhysicalDevice->GetPhysicalDeviceHandle();
+    auto &inQueueContext  = *inCreateInfo.mQueueContext;
+    auto inFeatureSet     = inCreateInfo.mFeatureSet;
 
-    float QueuePriority  = 0.0f;
+    float QueuePriority   = 0.0f;
     vk::DeviceQueueCreateInfo deviceQueueCreateInfo(
          vk::DeviceQueueCreateFlags(),
          static_cast<ui>(inQueueContext.GetGraphicsQueueFamilyIndex()),
@@ -28,8 +29,8 @@ void VulkanDevice::Init(CreateInfo inCreateInfo) {
     v<vk::ExtensionProperties> extensionsProperties =
          mPhysicalDevice->enumerateDeviceExtensionProperties();
     v<vk::LayerProperties> layerProperties = mPhysicalDevice->enumerateDeviceLayerProperties();
-    v<char const*> deviceLayerNames;
-    v<char const*> deviceExtensionNames;
+    v<char const *> deviceLayerNames;
+    v<char const *> deviceExtensionNames;
     deviceExtensionNames.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 #ifdef __APPLE__
     deviceExtensionNames.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);

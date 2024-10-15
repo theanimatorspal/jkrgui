@@ -46,7 +46,10 @@ FileJkr::FileJkr(s inFileName) {
     }
 }
 
-FileJkr::~FileJkr() { Commit(); }
+FileJkr::~FileJkr() {
+    Commit();
+    std::cout << mDebugStringStream.str() << std::endl;
+}
 
 void FileJkr::Commit() {
     if (mWrites > 0) {

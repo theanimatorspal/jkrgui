@@ -688,11 +688,11 @@ void SetupPBR(Jkr::Instance &inInstance,
 }
 
 static auto ImgToFile(auto &ini, auto &inJkrFile, auto image_prefix, auto &img) {
+    inJkrFile.Write((image_prefix + "PROPS").c_str(), img.GetImageProperty());
     for (int mip = 0; mip < img.GetImageProperty().mMipLevels; ++mip) {
         ///@note Property is also being written here
-        inJkrFile.Write((image_prefix + "PROPS").c_str(), img.GetImageProperty());
         inJkrFile.Write(
-             (image_prefix + "IMAGE").data(),
+             (image_prefix + "IMAGE" + std::to_string(mip)).data(),
              img.SubmitImmediateCmdGetImageToVector(
                   ini.GetTransferQueue(),
                   ini.GetStagingBuffer(img.GetImageExtent().width * img.GetImageExtent().height *
@@ -716,18 +716,19 @@ static auto FileToImage(Instance &ini, FileJkr &inJkrFile, auto image_prefix) {
     Info.inDevice          = &ini.GetDevice();
     Info.inImageProperties = Props;
     Image->Init(Info);
-    v<char> image_Vec = inJkrFile.Read<v<char>>((image_prefix + "IMAGE").c_str());
-    void *data        = image_Vec.data();
-    size_t size       = Props.mExtent.width * Props.mExtent.height * Props.mArrayLayers;
+    ///@warning HardCoded 4
     for (int mip = 0; mip < Props.mMipLevels; ++mip) {
+        v<char> image_Vec =
+             inJkrFile.Read<v<char>>((image_prefix + "IMAGE" + std::to_string(mip)).c_str());
+        void *data = image_Vec.data();
         Image->SubmitImmediateCmdCopyFromDataWithStagingBuffer(
              ini.GetTransferQueue(),
              ini.GetUtilCommandBuffer(),
              ini.GetDevice(),
              ini.GetUtilCommandBufferFence(),
              &data,
-             size,
-             ini.GetStagingBuffer(size),
+             image_Vec.size(),
+             ini.GetStagingBuffer(image_Vec.size()),
              vk::ImageLayout::eShaderReadOnlyOptimal,
              Image->GetImageExtent().width * std::pow(0.5f, mip),
              Image->GetImageExtent().height * std::pow(0.5f, mip),
@@ -757,31 +758,38 @@ void SerializeDeserializeUniform3D(Instance &ini,
     if (not file_has_data) {
         {
             Header img_header;
+            v<int> image_binding_set;
             auto &images = inUniform3D.GetImagesRef();
             for (int i = 0; auto &[key, value] : images) {
                 img_header.push_back(0);
                 img_header[i] = key;
                 ImgToFile(
                      ini, inJkrFile, image_prefix + std::to_string(key), value->GetUniformImage());
+                image_binding_set.push_back(value->GetSet());
                 ++i;
             }
             inJkrFile.Write(image_prefix.c_str(), img_header);
+            inJkrFile.Write((image_prefix + "BSET").c_str(), image_binding_set);
         }
         {
             auto &sboxes = inUniform3D.GetSkyboxImagesRef();
+            v<int> skybox_binding_set;
             Header sbox_header;
             for (int i = 0; auto &[key, value] : sboxes) {
                 sbox_header.push_back(0);
                 sbox_header[i] = key;
                 ImgToFile(
                      ini, inJkrFile, skybox_prefix + std::to_string(key), value->GetUniformImage());
+                skybox_binding_set.push_back(value->GetSet());
                 ++i;
             }
             inJkrFile.Write(skybox_prefix.c_str(), sbox_header);
+            inJkrFile.Write((skybox_prefix + "BSET").c_str(), skybox_binding_set);
         }
         {
             auto &buffers = inUniform3D.GetUniformBuffersRef();
             Header ubuf_header;
+            v<int> buffer_binding_set;
             for (int i = 0; auto &[key, value] : buffers) {
                 ubuf_header.push_back(0);
                 ubuf_header[i] = key;
@@ -792,26 +800,31 @@ void SerializeDeserializeUniform3D(Instance &ini,
                           ini.GetStagingBuffer(value->GetUniformBuffer().GetBufferSize()),
                           ini.GetUtilCommandBuffer(),
                           ini.GetUtilCommandBufferFence()));
+                buffer_binding_set.push_back(value->GetSet());
                 ++i;
             }
-            inJkrFile.Write(image_prefix.c_str(), ubuf_header);
+            inJkrFile.Write(ubuffer_prefix.c_str(), ubuf_header);
+            inJkrFile.Write((ubuffer_prefix + "BSET").c_str(), buffer_binding_set);
         }
         {
             auto &sbuffers = inUniform3D.GetStorageBuffersRef();
             Header sbuf_header;
+            v<int> sbuffer_binding_set;
             for (int i = 0; auto &[key, value] : sbuffers) {
                 sbuf_header.push_back(0);
                 sbuf_header[i] = key;
                 inJkrFile.Write(
                      (storagebuf_prefix + std::to_string(key)).c_str(),
-                     value->GetStorageBuffer().SubmitImmediateGetBufferToVector(
+                     value->mStorageBufferCoherentPtr->SubmitImmediateGetBufferToVector(
                           ini.GetTransferQueue(),
-                          ini.GetStagingBuffer(value->GetStorageBuffer().GetBufferSize()),
+                          ini.GetStagingBuffer(value->GetStorageBufferCoherent().GetBufferSize()),
                           ini.GetUtilCommandBuffer(),
                           ini.GetUtilCommandBufferFence()));
+                sbuffer_binding_set.push_back(value->GetSet());
                 ++i;
             }
-            inJkrFile.Write(image_prefix.c_str(), sbuf_header);
+            inJkrFile.Write(storagebuf_prefix.c_str(), sbuf_header);
+            inJkrFile.Write((storagebuf_prefix + "BSET").c_str(), sbuffer_binding_set);
         }
 
     } else {
@@ -820,30 +833,37 @@ void SerializeDeserializeUniform3D(Instance &ini,
         using UniformBufferType = Jkr::Renderer::_3D::Uniform3D::UniformBufferType;
         using StorageBufferType = Jkr::Renderer::_3D::Uniform3D::StorageBufferType;
         {
-            Header img_header = inJkrFile.Read<Header>(image_prefix.c_str());
-            for (char key : img_header) {
+            Header img_header        = inJkrFile.Read<Header>(image_prefix.c_str());
+            v<int> image_binding_set = inJkrFile.Read<v<int>>((image_prefix + "BSET").c_str());
+            for (int i = 0; char key : img_header) {
                 auto Image = FileToImage(ini, inJkrFile, image_prefix + std::to_string(key));
                 up<ImageType> Param     = mu<ImageType>(ini);
                 Param->mSampler         = mu<VulkanSampler>(ini.GetDevice());
                 Param->mUniformImagePtr = mv(Image);
-                Param->Register(0, key, 0, inUniform3D.GetVulkanDescriptorSet());
-                inUniform3D.GetImagesRef()[key] = mv(Param);
+                Param->Register(
+                     0, (int)key, 0, inUniform3D.GetVulkanDescriptorSet(), image_binding_set[i]);
+                inUniform3D.GetImagesRef()[(int)key] = mv(Param);
+                ++i;
             }
         }
         {
-            Header skbox_header = inJkrFile.Read<Header>(skybox_prefix.c_str());
-            for (char key : skbox_header) {
+            Header skbox_header       = inJkrFile.Read<Header>(skybox_prefix.c_str());
+            v<int> skybox_binding_set = inJkrFile.Read<v<int>>((skybox_prefix + "BSET").c_str());
+            for (int i = 0; char key : skbox_header) {
                 auto Image = FileToImage(ini, inJkrFile, skybox_prefix + std::to_string(key));
                 up<SkyboxImageType> Param = mu<SkyboxImageType>(ini);
                 Param->mSampler           = mu<VulkanSampler>(ini.GetDevice());
                 Param->mUniformImagePtr   = mv(Image);
-                Param->Register(0, key, 0, inUniform3D.GetVulkanDescriptorSet());
+                Param->Register(
+                     0, (int)key, 0, inUniform3D.GetVulkanDescriptorSet(), skybox_binding_set[i]);
                 inUniform3D.GetSkyboxImagesRef()[(int)key] = mv(Param);
+                ++i;
             }
         }
         {
-            Header ubuf_header = inJkrFile.Read<Header>(ubuffer_prefix.c_str());
-            for (char key : ubuf_header) {
+            Header ubuf_header         = inJkrFile.Read<Header>(ubuffer_prefix.c_str());
+            v<int> ubuffer_binding_set = inJkrFile.Read<v<int>>((ubuffer_prefix + "BSET").c_str());
+            for (int i = 0; char key : ubuf_header) {
                 auto Buffer =
                      inJkrFile.Read<v<char>>((ubuffer_prefix + std::to_string(key)).c_str());
                 auto data                     = Buffer.data();
@@ -855,13 +875,17 @@ void SerializeDeserializeUniform3D(Instance &ini,
                                  MemoryType::HostVisibleAndCoherenet});
                 up<UniformBufferType> Param = mu<UniformBufferType>(ini);
                 Param->mUniformBufferPtr    = mv(VMABuffer);
-                Param->Register(0, key, 0, inUniform3D.GetVulkanDescriptorSet());
+                Param->Register(
+                     0, (int)key, 0, inUniform3D.GetVulkanDescriptorSet(), ubuffer_binding_set[i]);
                 inUniform3D.GetUniformBuffersRef()[(int)key] = mv(Param);
+                ++i;
             }
         }
         {
             Header sbuf_header = inJkrFile.Read<Header>(storagebuf_prefix.c_str());
-            for (char key : sbuf_header) {
+            v<int> sbuffer_binding_set =
+                 inJkrFile.Read<v<int>>((storagebuf_prefix + "BSET").c_str());
+            for (int i = 0; char key : sbuf_header) {
                 auto Buffer =
                      inJkrFile.Read<v<char>>((storagebuf_prefix + std::to_string(key)).c_str());
                 auto data                     = Buffer.data();
@@ -870,14 +894,17 @@ void SerializeDeserializeUniform3D(Instance &ini,
                                  &ini.GetDevice(),
                                  Buffer.size(),
                                  BufferContext::Storage,
-                                 MemoryType::DeviceLocal});
-                up<StorageBufferType> Param = mu<StorageBufferType>(ini);
-                Param->mStorageBufferPtr    = mv(VMABuffer);
-                Param->Register(0, key, 0, inUniform3D.GetVulkanDescriptorSet());
+                                 MemoryType::HostVisibleAndCoherenet});
+                up<StorageBufferType> Param      = mu<StorageBufferType>(ini);
+                Param->mStorageBufferCoherentPtr = mv(VMABuffer);
+                Param->RegisterCoherent(
+                     0, (int)key, 0, inUniform3D.GetVulkanDescriptorSet(), sbuffer_binding_set[i]);
                 inUniform3D.GetStorageBuffersRef()[(int)key] = mv(Param);
+                ++i;
             }
         }
     }
+    ini.GetTransferQueue().Wait();
 }
 
 void SerializeDeserializeWorld3D(Instance &ini,
@@ -889,23 +916,26 @@ void SerializeDeserializeWorld3D(Instance &ini,
     auto &Models    = inWorld3D.GetModels();
     auto &Uniforms  = inWorld3D.GetUniforms();
     auto &Simple3Ds = inWorld3D.GetSimple3Ds();
-    ///@note This should have been already added in the inJkrFile
-    //     auto &Simple3Ds = inWorld3D.GetSimple3Ds();
-    auto &Lights = inWorld3D.GetLights();
-    auto Prefix  = s(inIdName);
+    auto &Lights    = inWorld3D.GetLights();
+
+    auto Prefix     = s(inIdName);
 
     if (inJkrFile.GetFileContents().contains((Prefix))) {
-        v<Renderer::_3D::Camera3D> Cams =
-             inJkrFile.Read<decltype(Cams)>((Prefix + "CAMERAS").c_str());
-        v<Renderer::_3D::World3D::Light3D> Lights =
-             inJkrFile.Read<decltype(Lights)>((Prefix + "LIGHT3D").c_str());
+        Cameras.resize(0);
+        Models.resize(0);
+        Uniforms.resize(0);
+        Simple3Ds.resize(0);
+        Lights.resize(0);
+        Cameras = inJkrFile.Read<v<Renderer::_3D::Camera3D>>((Prefix + "CAMERAS").c_str());
+        Lights  = inJkrFile.Read<v<Renderer::_3D::World3D::Light3D>>((Prefix + "LIGHTS").c_str());
 
         v<Renderer::_3D::Simple3D::CompileContext> CompileContexts =
              inJkrFile.Read<decltype(CompileContexts)>((Prefix + "COMPILE_CONTEXTS").c_str());
 
         for (int i = 0; i < CompileContexts.size(); ++i) {
             inWorld3D.AddSimple3D(ini, inw);
-            auto &s3d = inWorld3D.GetSimple3Ds()[i];
+            auto &s3d                 = inWorld3D.GetSimple3Ds()[i];
+            s3d->GetPainterCachePtr() = mu<PainterCache>(ini);
             s3d->GetPainterCache().ReadFromCacheFile(inJkrFile,
                                                      Prefix + "SIMPLE3Ds" + std::to_string(i));
             s3d->Compile(ini, inw, " ", " ", " ", " ", true, CompileContexts[i]);
@@ -914,9 +944,9 @@ void SerializeDeserializeWorld3D(Instance &ini,
         size_type uniformSize = inJkrFile.Read<size_type>((Prefix + "UNIFORM_SIZE").c_str());
         for (int i = 0; i < uniformSize; ++i) {
             inWorld3D.AddUniform3D(ini);
-            auto Simple3DEntryName = inJkrFile.Read<std::string>(
-                 (Prefix + "UNIFORMS" + std::to_string(i) + "SIMPLE3DINDEX").c_str());
+            auto Simple3DEntryName  = Prefix + "UNIFORMS" + std::to_string(i) + "SIMPLE3DINDEX";
             auto AssociatedSimple3D = inJkrFile.Read<int>(Simple3DEntryName.c_str());
+            std::cout << "UNIFORM i = " << i << "; SIMPLE" << AssociatedSimple3D << "\n";
             inWorld3D.GetUniforms()[i]->Build(*inWorld3D.GetSimple3Ds()[AssociatedSimple3D]);
             SerializeDeserializeUniform3D(ini,
                                           s(inIdName) + "UNIFORMS" + std::to_string(i),
@@ -948,10 +978,11 @@ void SerializeDeserializeWorld3D(Instance &ini,
         inJkrFile.Write((Prefix + "UNIFORM_SIZE").c_str(), Uniforms.size());
         for (int i = 0; auto &Uniform : Uniforms) {
             ///@note Here
+            auto AssociatedSimple3D = CacheFileEntryNameToWorldSimple3DIndex
+                 [Uniform->GetAssociatedSimple3D()->GetPainterCache().GetCacheFileEntryName()];
+            std::cout << "UNIFORM i = " << i << "; SIMPLE" << AssociatedSimple3D << "\n";
             inJkrFile.Write((Prefix + "UNIFORMS" + std::to_string(i) + "SIMPLE3DINDEX").c_str(),
-                            CacheFileEntryNameToWorldSimple3DIndex[Uniform->GetAssociatedSimple3D()
-                                                                        ->GetPainterCache()
-                                                                        .GetCacheFileEntryName()]);
+                            AssociatedSimple3D);
             SerializeDeserializeUniform3D(
                  ini, s(inIdName) + "UNIFORMS" + std::to_string(i), inJkrFile, *Uniform);
             ++i;

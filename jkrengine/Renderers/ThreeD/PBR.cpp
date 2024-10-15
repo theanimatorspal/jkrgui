@@ -106,18 +106,18 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance &inInstance,
 
     VulkanCommandBuffer Cmd(inInstance.GetDevice(), inInstance.GetCommandPool());
 
-    //     Cmd.Begin();
-    //     OffscreenFBufferImage.CmdTransitionImageLayout(
-    //          Cmd,
-    //          OffscreenFBufferImage.GetCurrentImageLayout(),
-    //          vk::ImageLayout::eColorAttachmentOptimal,
-    //          vk::PipelineStageFlagBits::eAllCommands,
-    //          vk::PipelineStageFlagBits::eAllCommands, // TODO Improve this
-    //          vk::AccessFlagBits::eNone,
-    //          vk::AccessFlagBits::eNone);
-    //     Cmd.End();
-    //     inInstance.GetGraphicsQueue().Submit<SubmitContext::SingleTime>(Cmd);
-    //     inInstance.GetGraphicsQueue().Wait();
+    Cmd.Begin();
+    OffscreenFBufferImage.CmdTransitionImageLayout(
+         Cmd,
+         OffscreenFBufferImage.GetCurrentImageLayout(),
+         vk::ImageLayout::eColorAttachmentOptimal,
+         vk::PipelineStageFlagBits::eAllCommands,
+         vk::PipelineStageFlagBits::eAllCommands, // TODO Improve this
+         vk::AccessFlagBits::eNone,
+         vk::AccessFlagBits::eNone);
+    Cmd.End();
+    inInstance.GetGraphicsQueue().Submit<SubmitContext::SingleTime>(Cmd);
+    inInstance.GetGraphicsQueue().Wait();
 
     _3D::Simple3D Simple3D(inInstance, inWindow);
     Simple3D.CompileWithCustomRenderPass(inInstance,

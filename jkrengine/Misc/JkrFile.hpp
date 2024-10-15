@@ -85,8 +85,8 @@ struct FileJkr {
         strcpy(header.mId, inId);
 
         if (not mFileContents.contains(s(inId))) {
-            std::cout << "WROTE::> " << header.mId << " : " << header.mLocation << " : "
-                      << header.mSize << std::endl;
+            mDebugStringStream << "WROTE::> " << header.mId << " : " << header.mLocation << " : "
+                               << header.mSize / 1024.0f << " KiB\n";
 
             mFileContents[s(inId)] = header;
             PushVector(mHeader, Serialize(header));
@@ -96,8 +96,8 @@ struct FileJkr {
     }
     template <typename T> T Read(const char inId[IdSize]) {
         auto header = mFileContents[s(inId)];
-        std::cout << "READ::> " << header.mId << " : " << header.mLocation << " : " << header.mSize
-                  << std::endl;
+        mDebugStringStream << "READ::> " << header.mId << " : " << header.mLocation << " : "
+                           << header.mSize / 1024.0f << " KiB" << std::endl;
         auto out = v<char>(mData.begin() + header.mLocation,
                            mData.begin() + header.mLocation + header.mSize);
 
@@ -109,6 +109,9 @@ struct FileJkr {
     v<char> mData;
     v<char> mHeader;
     umap<s, Header> mFileContents; // This is for retrieval
+
+    ///@note This is for debugging, IDK why it is not printing whole thing (std::cout)
+    std::stringstream mDebugStringStream;
 
     ///@note this is what it is going to be written to the file after you hit Commit
     v<char> mCommittedData;

@@ -22,7 +22,9 @@ void Simple3D::CompileDefault(Jkr::Instance &inInstance,
                               std::string_view inFragmentShader,
                               std::string_view inComputeShader,
                               bool inShouldLoad) {
-    mPainterCache = mu<PainterCache>(inInstance);
+    if (not mPainterCache) {
+        mPainterCache = mu<PainterCache>(inInstance);
+    }
     using namespace std;
     if (not inShouldLoad) {
         mPainterCache->Store(string(inFileName),
@@ -65,7 +67,9 @@ void Simple3D::CompileWithCustomRenderPass(Jkr::Instance &inInstance,
                                            PipelineContext inPipelineContext) {
 
     mPipelineContext = inPipelineContext;
-    mPainterCache    = mu<PainterCache>(inInstance);
+    if (not mPainterCache) {
+        mPainterCache = mu<PainterCache>(inInstance);
+    }
     using namespace std;
     if (not inShouldLoad) {
         mPainterCache->Store(string(inFilename),
@@ -87,7 +91,9 @@ void Simple3D::CompileForDeferredOffscreen(Jkr::Instance &inInstance,
                                            bool inShouldLoad) {
 
     mPipelineContext = PipelineContext::DefaultSingleSampled; // TODO Modify for multi sampeld
-    mPainterCache    = mu<PainterCache>(inInstance);
+    if (not mPainterCache) {
+        mPainterCache = mu<PainterCache>(inInstance);
+    }
     using namespace std;
     if (not inShouldLoad) {
         mPainterCache->Store(string(inFilename),
@@ -111,7 +117,9 @@ void Simple3D::CompileForDeferredCompositionOffscreen(Jkr::Instance &inInstance,
                                                       std::string_view inComputeShader,
                                                       bool inShouldLoad) {
     mPipelineContext = PipelineContext::DefaultSingleSampled;
-    mPainterCache    = mu<PainterCache>(inInstance);
+    if (not mPainterCache) {
+        mPainterCache = mu<PainterCache>(inInstance);
+    }
     using namespace std;
     if (not inShouldLoad) {
         mPainterCache->Store(string(inFilename),

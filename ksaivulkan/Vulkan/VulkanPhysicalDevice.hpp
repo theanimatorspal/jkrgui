@@ -11,12 +11,14 @@ namespace ksai {
 class VulkanPhysicalDevice {
     public:
     operator vk::PhysicalDevice() const { return mPhysicalDevice; }
-    VulkanPhysicalDevice(const VulkanInstance& inInstance);
+    VulkanPhysicalDevice(const VulkanInstance &inInstance);
     ~VulkanPhysicalDevice();
-    GETTER& GetPhysicalDeviceHandle() const { return mPhysicalDevice; }
+    GETTER &GetPhysicalDeviceHandle() const { return mPhysicalDevice; }
+    GETTER &GetVulkanInstance() const { return *mVulkanInstance; }
 
     private:
-    const vk::Instance* mInstance = nullptr;
+    const vk::Instance *mInstance = nullptr;
+    const VulkanInstance *mVulkanInstance;
     vk::PhysicalDevice mPhysicalDevice;
     vk::PhysicalDeviceProperties mPhysicalDeviceProperties;
     vk::SampleCountFlags mMaxSampleCount;

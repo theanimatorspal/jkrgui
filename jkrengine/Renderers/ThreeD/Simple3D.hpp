@@ -21,6 +21,7 @@ class Simple3D {
     };
     GETTER &GetPainter() { return *mPainter; }
     GETTER &GetPainterCache() { return *mPainterCache; }
+    GETTER &GetPainterCachePtr() { return mPainterCache; }
     GETTER GetCompileContext() const { return mCompileContext; }
     void SetPipelineContext(PipelineContext inPipelineContext) {
         mPipelineContext = inPipelineContext;

@@ -36,6 +36,8 @@ class VulkanImageBase {
     GETTER &GetCurrentImageLayoutRef() { return mImageProperties.mCurrentImageLayout; }
     GETTER &GetImagePropertyRef() { return mImageProperties; }
 
+    void SetDebugUtilsName(s inS);
+
     VulkanImageBase(const VulkanDevice &inDevice, bool inDestroyImageView = true);
     void SubmitImmediateCmdCopyFromDataWithStagingBuffer(
          const VulkanQueue<QueueContext::Graphics> &inQueue,
@@ -45,7 +47,7 @@ class VulkanImageBase {
          void **inData,
          vk::DeviceSize inSize,
          VulkanBufferVMA &inStagingBuffer,
-         vk::ImageLayout inImageLayout = vk::ImageLayout::eGeneral,
+         vk::ImageLayout inImageLayout = vk::ImageLayout::eShaderReadOnlyOptimal,
          int inImageWidth              = -1,
          int inImageHeight             = -1,
          int inMipLevel                = 0,
@@ -72,8 +74,8 @@ class VulkanImageBase {
          int inToMipLevel                          = 0,
          int inToBaseArrayLayer                    = 0,
          int inArrayLayersToBeCopied               = 1,
-         vk::ImageLayout inSrcImageLayoutTobeSetTo = vk::ImageLayout::eGeneral,
-         vk::ImageLayout inDstImageLayoutTobeSetTo = vk::ImageLayout::eGeneral,
+         vk::ImageLayout inSrcImageLayoutTobeSetTo = vk::ImageLayout::eShaderReadOnlyOptimal,
+         vk::ImageLayout inDstImageLayoutTobeSetTo = vk::ImageLayout::eShaderReadOnlyOptimal,
          opt<vk::ImageLayout> inSrcImageLayoutFrom = std::nullopt,
          opt<vk::ImageLayout> inDstImageLayoutFrom = std::nullopt);
     void CmdTransitionImageLayout(const VulkanCommandBuffer &inBuffer,
@@ -117,6 +119,7 @@ class VulkanImageBase {
     protected:
     const vk::PhysicalDevice *mPhysicalDevice;
     const vk::Device *mDevice;
+    const VulkanDevice *mVulkanDevice;
     vk::Image mImage         = nullptr;
     vk::ImageView mImageView = nullptr;
     ImageProperties mImageProperties;

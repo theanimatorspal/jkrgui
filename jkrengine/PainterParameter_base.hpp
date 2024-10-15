@@ -33,6 +33,8 @@ using UniformSamplerType        = VulkanSampler;
 
 class PainterParameterBase {
     public:
+    GETTER GetBinding() const { return mBinding; }
+    GETTER GetSet() const { return mSet; }
     PainterParameterBase(Instance &inInstance)
         : mInstance(inInstance), mVulkanDescriptorSetHandler(mInstance.GetDevice()) {}
     ~PainterParameterBase()                              = default;
@@ -74,6 +76,8 @@ class PainterParameterBase {
     Instance &mInstance;
     VulkanDescriptorUpdateHandler mVulkanDescriptorSetHandler;
     static std::mutex mMutex;
+    int mBinding = -1;
+    int mSet     = -1;
 
     private:
     void SetupImage(Up<VulkanSampler> &inUniformImageSampler,

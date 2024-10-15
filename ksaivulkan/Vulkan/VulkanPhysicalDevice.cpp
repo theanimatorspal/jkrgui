@@ -2,8 +2,9 @@
 #include <cassert>
 using namespace ksai;
 
-VulkanPhysicalDevice::VulkanPhysicalDevice(const VulkanInstance& inInstance)
+VulkanPhysicalDevice::VulkanPhysicalDevice(const VulkanInstance &inInstance)
     : mInstance(&inInstance.GetInstanceHandle()) {
+    mVulkanInstance = &inInstance;
     mPhysicalDevice = mInstance->enumeratePhysicalDevices().front();
     ksai_print("NO OF PHYSICAL DEVICES:");
     ksai_print(std::to_string(mInstance->enumeratePhysicalDevices().size()).c_str());

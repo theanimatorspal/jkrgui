@@ -75,22 +75,28 @@ Jkr::PainterCache &Jkr::PainterCache::Load(const std::string &fileName, ui inVar
                                               mComputeShaderSPIRV[0]);
 
     time.reset();
-    mPtrVertexFragmentDescriptorSetLayout = MakeUp<
-         VulkanDescriptorSetLayout<2, ShaderModuleContext::Vertex, ShaderModuleContext::Fragment>>(
-         mInstance.GetDevice(), mShaderModulesPtr->GetShaderModulesArray());
-    mPtrVertexFragmentPipelineLayout =
-         MakeUp<VulkanPipelineLayout<2>>(mInstance.GetDevice(),
-                                         *mPtrVertexFragmentDescriptorSetLayout,
-                                         mShaderModulesPtr->GetShaderModulesArray());
-    mPtrPipelineCache = MakeUp<VulkanPipelineCache>(mInstance.GetDevice(), fileName);
+    if (mShaderModulesPtr->GetShaderModulesArray().size() != 0) {
+        mPtrVertexFragmentDescriptorSetLayout =
+             MakeUp<VulkanDescriptorSetLayout<2,
+                                              ShaderModuleContext::Vertex,
+                                              ShaderModuleContext::Fragment>>(
+                  mInstance.GetDevice(), mShaderModulesPtr->GetShaderModulesArray());
+        mPtrVertexFragmentPipelineLayout =
+             MakeUp<VulkanPipelineLayout<2>>(mInstance.GetDevice(),
+                                             *mPtrVertexFragmentDescriptorSetLayout,
+                                             mShaderModulesPtr->GetShaderModulesArray());
+        mPtrPipelineCache = MakeUp<VulkanPipelineCache>(mInstance.GetDevice(), fileName);
+    }
 
-    mPtrComputeDescriptorSetLayout =
-         MakeUp<VulkanDescriptorSetLayout<1, ShaderModuleContext::Compute>>(
-              mInstance.GetDevice(), mShaderModulesPtr->GetComputeShaderModuleArray());
-    mPtrComputePipelineLayout =
-         MakeUp<VulkanPipelineLayout<1>>(mInstance.GetDevice(),
-                                         *mPtrComputeDescriptorSetLayout,
-                                         mShaderModulesPtr->GetComputeShaderModuleArray());
+    if (mShaderModulesPtr->GetComputeShaderModuleArray().size() != 0) {
+        mPtrComputeDescriptorSetLayout =
+             MakeUp<VulkanDescriptorSetLayout<1, ShaderModuleContext::Compute>>(
+                  mInstance.GetDevice(), mShaderModulesPtr->GetComputeShaderModuleArray());
+        mPtrComputePipelineLayout =
+             MakeUp<VulkanPipelineLayout<1>>(mInstance.GetDevice(),
+                                             *mPtrComputeDescriptorSetLayout,
+                                             mShaderModulesPtr->GetComputeShaderModuleArray());
+    }
     time.elapsed("Shader Descriptor + Pipeline Reflection");
 
     return *this;

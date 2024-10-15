@@ -9,8 +9,10 @@ class VulkanInstance {
         bool mEnableValiation = false;
     };
     operator vk::Instance() const { return mInstance; }
+    ///@note @todo remove this or complete this
     using DeletionQueueType = std::vector<std::function<void(void)>>;
     GETTER &GetInstanceHandle() const { return mInstance; }
+    GETTER IsValidationEnabled() const { return mValidationEnabled; }
     static DeletionQueueType &GetDeletionQueueRef();
     static std::mutex &GetDeletionMutexRef();
 
@@ -27,6 +29,7 @@ class VulkanInstance {
 
     void Init(CreateInfo inCreateInfo);
     void Destroy();
+    vk::DynamicLoader mDynamicLoader;
 
     private:
     static DeletionQueueType gDeletionQueue;
@@ -35,6 +38,7 @@ class VulkanInstance {
     v<char const *> mInstanceLayerNames;
     v<char const *> mInstanceExtensionNames;
     static std::mutex mDeletionMutex;
-    bool mInitialized = false;
+    bool mInitialized       = false;
+    bool mValidationEnabled = false;
 };
 } // namespace ksai

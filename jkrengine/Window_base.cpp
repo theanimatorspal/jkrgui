@@ -29,12 +29,14 @@ Window_base::Window_base(Instance &inInstance,
                                   mOffscreenFrameSize.y,
                                   &mSurface,
                                   4});
+    mColorImageRenderTarget.SetDebugUtilsName("ColorImageRenderTarget");
     mDepthImage.Init({dptr,
                       ImageContext::DepthImage,
                       mOffscreenFrameSize.x,
                       mOffscreenFrameSize.y,
                       nullptr,
                       4});
+    mDepthImage.SetDebugUtilsName("DepthImage");
     mRenderPass =
          std::move(VulkanRenderPass<ksai::RenderPassContext::MSAA>(mInstance->GetDevice(),
                                                                    mSurface.GetSurfaceImageFormat(),
@@ -98,12 +100,14 @@ Window_base::Window_base(Instance &inInstance,
                                   mOffscreenFrameSize.y,
                                   &mSurface,
                                   4});
+
     mDepthImage.Init({dptr,
                       ImageContext::DepthImage,
                       mOffscreenFrameSize.x,
                       mOffscreenFrameSize.y,
                       nullptr,
                       4});
+
     mRenderPass =
          std::move(VulkanRenderPass<ksai::RenderPassContext::MSAA>(mInstance->GetDevice(),
                                                                    vk::Format::eR8G8B8A8Unorm,

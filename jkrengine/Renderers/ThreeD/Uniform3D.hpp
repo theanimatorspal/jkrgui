@@ -107,6 +107,8 @@ class Uniform3D {
                                                        kstd::BindingIndex::Uniform::CubeMapImage,
                                     int inDstSet = 0);
 
+    ///@warning Storage Buffer also has the memory type as coherent, @todo For dedicated GPUs
+    /// solution must be thought
     template <typename T> void UpdateStorageBuffer(int inDstBinding, T inData);
     template <typename T> void UpdateUniformBuffer(int inDstBinding, T inData);
     void UpdateStorageBuffer(int inDstBinding, void **inData, size_t inSize);
@@ -128,7 +130,7 @@ class Uniform3D {
     umap<int, Up<SkyboxImageType>> mSkyboxImages;
     umap<int, Up<ImageType>> mImages;
     umap<int, Up<UniformBufferType>> mUniformBuffers;
-    umap<int, Up<StorageBufferType>> mStorageBuffers;
+    umap<int, Up<StorageBufferType>> mStorageBuffers; /// Coherent
     Up<VulkanDescriptorSet> mVulkanDescriptorSet;
 
     Simple3D *mAssociatedSimple3D = nullptr;

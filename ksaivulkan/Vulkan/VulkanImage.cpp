@@ -78,7 +78,7 @@ void ksai::VulkanImageBase::SubmitImmediateCmdCopyFromDataWithStagingBuffer(
          inStagingBuffer.GetBufferHandle(), mImage, vk::ImageLayout::eTransferDstOptimal, Copy);
     CmdTransitionImageLayout(inCmdBuffer,
                              vk::ImageLayout::eTransferDstOptimal,
-                             vk::ImageLayout::eGeneral,
+                             inImageLayout,
                              vk::PipelineStageFlagBits::eTransfer,
                              vk::PipelineStageFlagBits::eBottomOfPipe,
                              vk::AccessFlagBits::eTransferWrite,
@@ -86,7 +86,7 @@ void ksai::VulkanImageBase::SubmitImmediateCmdCopyFromDataWithStagingBuffer(
     inCmdBuffer.End();
     inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer, inFence);
     // inStagingBuffer.UnMapMemoryRegion();
-    //	inQueue.Wait();
+    // inQueue.Wait();
 }
 
 void VulkanImageBase::SubmitImmediateCmdCopyFromDataWithStagingBuffer(
@@ -531,7 +531,8 @@ void VulkanImage::Init(CreateInfo inCreateInfo) {
     }
     CreateImageAndBindMemory(mImage, mDeviceMemory);
     CreateImageView(mImage);
-    mInitialized = true;
+    mInitialized  = true;
+    mVulkanDevice = inCreateInfo.mDevice;
 }
 
 void VulkanImage::Destroy() {
@@ -542,5 +543,25 @@ void VulkanImage::Destroy() {
 VulkanImage::~VulkanImage() {
     if (mInitialized) {
         Destroy();
+    }
+}
+
+void VulkanImageBase::SetDebugUtilsName(s inS) {
+    if (mVulkanDevice->GetVulkanInstance().IsValidationEnabled()) {
+        auto vkSetDebugUtilsObjectNameEXT_ =
+             (PFN_vkSetDebugUtilsObjectNameEXT)mVulkanDevice->GetVulkanInstance()
+                  .GetInstanceHandle()
+                  .getProcAddr("vkSetDebugUtilsObjectNameEXT");
+
+        if (vkSetDebugUtilsObjectNameEXT_) {
+            VkDebugUtilsObjectNameInfoEXT Info = {};
+            Info.sType                         = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+            Info.objectType                    = VK_OBJECT_TYPE_IMAGE;
+            Info.objectHandle                  = (uint64_t)(VkImage)mImage;
+            Info.pObjectName                   = inS.c_str();
+            vkSetDebugUtilsObjectNameEXT_((VkDevice)*mDevice, &Info);
+        } else {
+            assert(false && "Could not loadup the function vkSetDebugUtilsObjectNameEXT");
+        }
     }
 }

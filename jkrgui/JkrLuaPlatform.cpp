@@ -1,8 +1,8 @@
 #include "ksai_config.hpp"
 #include "JkrLuaExe.hpp"
 #ifdef __WIN32__
-#include <Windows.h>
-#include <commdlg.h.>
+// #include <Windows.h>
+// #include <commdlg.h.>
 #endif
 
 #ifdef ANDROID
@@ -101,43 +101,42 @@ void CreatePlatformBindings(sol::state &inS) {
 #endif
 
 #ifdef __WIN32__
-    Jkr.set_function(
-         "GetFilePathByFilePicker",
-         [](std::string inDescriptionOfFileType, std::string inFileTypeExtension) -> std::string {
-             OPENFILENAME ofn;
-             char szFile[512];
+    // Jkr.set_function(
+    //      "GetFilePathByFilePicker",
+    //      [](std::string inDescriptionOfFileType, std::string inFileTypeExtension) -> std::string
+    //      {
+    //          OPENFILENAME ofn;
+    //          char szFile[512];
 
-             // List of filters (description, extension)
-             std::vector<std::pair<std::string, std::string>> filters = {
-                  {inDescriptionOfFileType, inFileTypeExtension},
-                  // {"Image Files", "*.jpg;*.png;*.bmp"},
-                  {"All Files", "*.*"}};
+    //          // List of filters (description, extension)
+    //          std::vector<std::pair<std::string, std::string>> filters = {
+    //               {inDescriptionOfFileType, inFileTypeExtension},
+    //               // {"Image Files", "*.jpg;*.png;*.bmp"},
+    //               {"All Files", "*.*"}};
 
-             // Create the filter string
-             std::string filterStr = CreateFilterString(filters);
+    //          // Create the filter string
+    //          std::string filterStr = CreateFilterString(filters);
 
-             // Initialize the OPENFILENAME structure
-             ZeroMemory(&ofn, sizeof(ofn));
-             ofn.lStructSize    = sizeof(ofn);
-             ofn.hwndOwner      = NULL;
-             ofn.lpstrFile      = szFile;
-             ofn.lpstrFile[0]   = '\0';
-             ofn.nMaxFile       = sizeof(szFile);
-             ofn.lpstrFilter    = filterStr.c_str(); // Assign the dynamically created filter string
-             ofn.nFilterIndex   = 1;
-             ofn.lpstrFileTitle = NULL;
-             ofn.nMaxFileTitle  = 0;
-             ofn.lpstrInitialDir = NULL;
-             ofn.Flags           = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+    //          // Initialize the OPENFILENAME structure
+    //          ZeroMemory(&ofn, sizeof(ofn));
+    //          ofn.lStructSize    = sizeof(ofn);
+    //          ofn.hwndOwner      = NULL;
+    //          ofn.lpstrFile      = szFile;
+    //          ofn.lpstrFile[0]   = '\0';
+    //          ofn.nMaxFile       = sizeof(szFile);
+    //          ofn.lpstrFilter    = filterStr.c_str(); // Assign the dynamically created filter
+    //          string ofn.nFilterIndex   = 1; ofn.lpstrFileTitle = NULL; ofn.nMaxFileTitle  = 0;
+    //          ofn.lpstrInitialDir = NULL;
+    //          ofn.Flags           = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
-             // Display the Open dialog box
-             if (GetOpenFileName(&ofn) == TRUE) {
-                 std::cout << "Selected file: " << ofn.lpstrFile << std::endl;
-             } else {
-                 std::cout << "File selection cancelled." << std::endl;
-             }
-             return std::string(szFile);
-         });
+    //          // Display the Open dialog box
+    //          if (GetOpenFileName(&ofn) == TRUE) {
+    //              std::cout << "Selected file: " << ofn.lpstrFile << std::endl;
+    //          } else {
+    //              std::cout << "File selection cancelled." << std::endl;
+    //          }
+    //          return std::string(szFile);
+    //      });
 #endif
 }
 
