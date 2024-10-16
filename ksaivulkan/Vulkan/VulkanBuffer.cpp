@@ -3,7 +3,7 @@
 
 using namespace ksai;
 
-VulkanBufferBase::VulkanBufferBase(const VulkanDevice &inDevice) { Init({&inDevice}); }
+VulkanBufferBase::VulkanBufferBase(VulkanDevice &inDevice) { Init({&inDevice}); }
 
 void VulkanBufferBase::Init(CreateInfo inCreateInfo) {
     mDevice         = &inCreateInfo.inDevice->GetDeviceHandle();
@@ -17,10 +17,9 @@ VulkanBufferBase::~VulkanBufferBase() {
     if (mInitialized) Destroy();
 };
 
-void VulkanBufferBase::SubmitImmediateCmdCopyFrom(
-     const VulkanQueue<QueueContext::Graphics> &inQueue,
-     const VulkanCommandBuffer &inCmdBuffer,
-     void *inData) {
+void VulkanBufferBase::SubmitImmediateCmdCopyFrom(VulkanQueue<QueueContext::Graphics> &inQueue,
+                                                  VulkanCommandBuffer &inCmdBuffer,
+                                                  void *inData) {
     uint32_t MemoryIndex;
     vk::DeviceSize MemorySize;
     GetMemoryTypeIndex(vk::MemoryPropertyFlagBits::eHostVisible |
@@ -37,7 +36,7 @@ void VulkanBufferBase::SubmitImmediateCmdCopyFrom(
     uint8_t *pData = static_cast<uint8_t *>(mDevice->mapMemory(StagingBufferMemory, 0, MemorySize));
     std::memcpy(pData, inData, MemorySize);
     mDevice->unmapMemory(StagingBufferMemory);
-    const vk::CommandBuffer &Cmd = inCmdBuffer.GetCommandBufferHandle();
+    vk::CommandBuffer &Cmd = inCmdBuffer.GetCommandBufferHandle();
     Cmd.begin(vk::CommandBufferBeginInfo());
     std::array<vk::BufferCopy, 1> Regions = {vk::BufferCopy(0, 0, MemorySize)};
     inCmdBuffer.GetCommandBufferHandle().copyBuffer(StagingBuffer, mBufferHandle, Regions);
@@ -47,7 +46,7 @@ void VulkanBufferBase::SubmitImmediateCmdCopyFrom(
     mDevice->destroyBuffer(StagingBuffer);
 }
 
-void VulkanBufferBase::CmdCopyFrom(const VulkanCommandBuffer &inCmdBuffer,
+void VulkanBufferBase::CmdCopyFrom(VulkanCommandBuffer &inCmdBuffer,
                                    VulkanBufferBase &inBuffer,
                                    vk::DeviceSize FromBufferOffset,
                                    vk::DeviceSize ToBufferOffset,
@@ -58,7 +57,7 @@ void VulkanBufferBase::CmdCopyFrom(const VulkanCommandBuffer &inCmdBuffer,
          inBuffer.mBufferHandle, mBufferHandle, BufferCopyRegion);
 }
 
-void VulkanBufferBase::SetBarrier(const VulkanCommandBuffer &inCmdBuffer,
+void VulkanBufferBase::SetBarrier(VulkanCommandBuffer &inCmdBuffer,
                                   vk::DeviceSize inDstBufferOffset,
                                   vk::DeviceSize inSizeToCopy,
                                   vk::AccessFlags inBeforeAccess,
@@ -96,24 +95,23 @@ void VulkanBufferBase::GetMemoryTypeIndex(vk::MemoryPropertyFlags inFlag,
     }
 }
 
-void VulkanBufferBase::CmdCopyFromImage(const VulkanCommandBuffer &inCmdBuffer,
-                                        const VulkanImageBase &inImage,
+void VulkanBufferBase::CmdCopyFromImage(VulkanCommandBuffer &inCmdBuffer,
+                                        VulkanImageBase &inImage,
                                         vk::PipelineStageFlags inAfterStage,
                                         vk::AccessFlags inAfterAccessFlags) const {
     // TODO
 }
 
-void VulkanBufferBase::SubmitImmediateCmdCopyFromImage(
-     const VulkanQueue<QueueContext::Graphics> &inQueue,
-     const VulkanCommandBuffer &inCmdBuffer,
-     const VulkanFence &inFence,
-     VulkanImageBase &inImage,
-     vk::ImageLayout inLayout,
-     int inMipLevel,
-     int inLayer,
-     int inLayersToBeCopied,
-     int inImageWidth,
-     int inImageHeight) {
+void VulkanBufferBase::SubmitImmediateCmdCopyFromImage(VulkanQueue<QueueContext::Graphics> &inQueue,
+                                                       VulkanCommandBuffer &inCmdBuffer,
+                                                       VulkanFence &inFence,
+                                                       VulkanImageBase &inImage,
+                                                       vk::ImageLayout inLayout,
+                                                       int inMipLevel,
+                                                       int inLayer,
+                                                       int inLayersToBeCopied,
+                                                       int inImageWidth,
+                                                       int inImageHeight) {
     auto ImageExtent = inImage.GetImageExtent();
     if (inImageWidth > 0) {
         ImageExtent.width = inImageWidth;
@@ -123,9 +121,9 @@ void VulkanBufferBase::SubmitImmediateCmdCopyFromImage(
     }
 
     /// @warning @todo don't hardcode this
-    auto CopySize                = ImageExtent.width * ImageExtent.height * 4 * inLayersToBeCopied;
-    auto srcImageProp            = inImage.GetImageProperty();
-    const vk::CommandBuffer &Cmd = inCmdBuffer.GetCommandBufferHandle();
+    auto CopySize          = ImageExtent.width * ImageExtent.height * 4 * inLayersToBeCopied;
+    auto srcImageProp      = inImage.GetImageProperty();
+    vk::CommandBuffer &Cmd = inCmdBuffer.GetCommandBufferHandle();
 
     ///@warning IDK Why fence is there for submit immediate @todo Understand this better
     inFence.Wait();
@@ -159,11 +157,11 @@ void VulkanBufferBase::SubmitImmediateCmdCopyFromImage(
     inQueue.Wait();
 }
 
-v<char> VulkanBufferBase::SubmitImmediateGetBufferToVector(
-     const VulkanQueue<QueueContext::Graphics> &inQueue,
-     VulkanBufferVMA &inStagingBuffer,
-     const VulkanCommandBuffer &inCmdBuffer,
-     const VulkanFence &inFence) {
+v<char>
+VulkanBufferBase::SubmitImmediateGetBufferToVector(VulkanQueue<QueueContext::Graphics> &inQueue,
+                                                   VulkanBufferVMA &inStagingBuffer,
+                                                   VulkanCommandBuffer &inCmdBuffer,
+                                                   VulkanFence &inFence) {
     inFence.Wait();
     inFence.Reset();
     inCmdBuffer.Begin();
@@ -209,7 +207,7 @@ void VulkanBuffer::UnMapMemoryRegion() {
     }
 }
 
-VulkanBuffer::VulkanBuffer(const VulkanDevice &inDevice,
+VulkanBuffer::VulkanBuffer(VulkanDevice &inDevice,
                            size_t inSize,
                            BufferContext inBufferContext,
                            MemoryType inBufferMemoryType) {

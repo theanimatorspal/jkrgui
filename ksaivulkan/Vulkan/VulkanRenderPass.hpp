@@ -20,10 +20,10 @@ class VulkanRenderPassBase {
 template <RenderPassContext inRenderPassContext>
 class VulkanRenderPass : public VulkanRenderPassBase {
     public:
-    VulkanRenderPass()                                         = default;
-    VulkanRenderPass(const VulkanRenderPass &other)            = delete;
-    VulkanRenderPass &operator=(const VulkanRenderPass &other) = delete;
-    VulkanRenderPass(VulkanRenderPass &&other)                 = default;
+    VulkanRenderPass()                                   = default;
+    VulkanRenderPass(VulkanRenderPass &other)            = delete;
+    VulkanRenderPass &operator=(VulkanRenderPass &other) = delete;
+    VulkanRenderPass(VulkanRenderPass &&other)           = default;
     VulkanRenderPass &operator=(VulkanRenderPass &&other) {
         mDevice           = std::move(other.mDevice);
         mRenderPass       = std::move(other.mRenderPass);
@@ -32,21 +32,21 @@ class VulkanRenderPass : public VulkanRenderPassBase {
         return *this;
     }
 
-    VulkanRenderPass(const VulkanDevice &inDevice) : mDevice(&inDevice.GetDeviceHandle()) {}
-    VulkanRenderPass(const VulkanDevice &inDevice,
-                     const VulkanSurface &inSurface, /// @todo change this as below
-                     const VulkanImage &inDepthImage);
-    VulkanRenderPass(const VulkanDevice &inDevice, VulkanImageBase &inDepthImage);
-    VulkanRenderPass(const VulkanDevice &inDevice,
-                     const vk::Format inImageFormat,
-                     const VulkanImage &inColorImageTarget,
-                     const VulkanImage &inDepthImage,
+    VulkanRenderPass(VulkanDevice &inDevice) : mDevice(&inDevice.GetDeviceHandle()) {}
+    VulkanRenderPass(VulkanDevice &inDevice,
+                     VulkanSurface &inSurface, /// @todo change this as below
+                     VulkanImage &inDepthImage);
+    VulkanRenderPass(VulkanDevice &inDevice, VulkanImageBase &inDepthImage);
+    VulkanRenderPass(VulkanDevice &inDevice,
+                     vk::Format inImageFormat,
+                     VulkanImage &inColorImageTarget,
+                     VulkanImage &inDepthImage,
                      vk::SampleCountFlagBits inMSAASamples);
-    VulkanRenderPass(const VulkanDevice &inDevice,
-                     const VulkanImageBase &inPositionImage,
-                     const VulkanImageBase &inNormalImage,
-                     const VulkanImageBase &inAlbedoImage,
-                     const VulkanImageBase &inDepthImage);
+    VulkanRenderPass(VulkanDevice &inDevice,
+                     VulkanImageBase &inPositionImage,
+                     VulkanImageBase &inNormalImage,
+                     VulkanImageBase &inAlbedoImage,
+                     VulkanImageBase &inDepthImage);
     ~VulkanRenderPass() {
         if (mRenderPass) {
             mDevice->destroyRenderPass(mRenderPass);
@@ -54,7 +54,7 @@ class VulkanRenderPass : public VulkanRenderPassBase {
     }
 
     private:
-    const vk::Device *mDevice = nullptr;
+    vk::Device *mDevice = nullptr;
 };
 
 } // namespace ksai

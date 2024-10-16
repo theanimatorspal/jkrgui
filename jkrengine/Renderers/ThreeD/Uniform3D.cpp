@@ -181,8 +181,7 @@ void Uniform3D::Bind(Window_base &inWindow,
                      Simple3D &inSimple3D,
                      int inSet,
                      Window_base::ParameterContext inParam) {
-    const VulkanCommandBuffer &Cmd =
-         inWindow.GetCommandBuffers(inParam)[inWindow.GetCurrentFrame()];
+    VulkanCommandBuffer &Cmd = inWindow.GetCommandBuffers(inParam)[inWindow.GetCurrentFrame()];
     mVulkanDescriptorSet->Bind(vk::PipelineBindPoint::eGraphics,
                                Cmd,
                                inSimple3D.GetPainterCache().GetVertexFragmentPipelineLayout(),

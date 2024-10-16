@@ -8,21 +8,21 @@ class VulkanInstance {
     struct CreateInfo {
         bool mEnableValiation = false;
     };
-    operator vk::Instance() const { return mInstance; }
+    operator vk::Instance() { return mInstance; }
     ///@note @todo remove this or complete this
     using DeletionQueueType = std::vector<std::function<void(void)>>;
-    GETTER &GetInstanceHandle() const { return mInstance; }
-    GETTER IsValidationEnabled() const { return mValidationEnabled; }
+    GETTER &GetInstanceHandle() { return mInstance; }
+    GETTER IsValidationEnabled() { return mValidationEnabled; }
     static DeletionQueueType &GetDeletionQueueRef();
     static std::mutex &GetDeletionMutexRef();
 
     VulkanInstance() = default;
     ~VulkanInstance();
-    VulkanInstance(const VulkanInstance &other)            = delete;
-    VulkanInstance &operator=(const VulkanInstance &other) = delete;
+    VulkanInstance(VulkanInstance &other)             = delete;
+    VulkanInstance &operator=(VulkanInstance &other)  = delete;
 
-    VulkanInstance(VulkanInstance &&other)                 = default;
-    VulkanInstance &operator=(VulkanInstance &&other)      = default;
+    VulkanInstance(VulkanInstance &&other)            = default;
+    VulkanInstance &operator=(VulkanInstance &&other) = default;
 
     VulkanInstance(bool inEnableValidation = false);
     VulkanInstance(vk::Instance inInstance) : mInstance(inInstance) {}

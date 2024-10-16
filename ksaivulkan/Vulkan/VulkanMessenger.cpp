@@ -10,22 +10,27 @@
 #include <vulkan/vulkan_raii.hpp>
 using namespace ksai;
 
-VKAPI_ATTR VkBool32 VKAPI_CALL KsaiDebugMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                                                          VkDebugUtilsMessageTypeFlagsEXT messageTypes,
-                                                          VkDebugUtilsMessengerCallbackDataEXT const *pCallbackData,
-                                                          void * /*pUserData*/) {
+VKAPI_ATTR VkBool32 VKAPI_CALL
+KsaiDebugMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+                           VkDebugUtilsMessageTypeFlagsEXT messageTypes,
+                           VkDebugUtilsMessengerCallbackDataEXT const *pCallbackData,
+                           void * /*pUserData*/) {
 
     ksai_print("Triggered VALIDATION ERROR:::: JKR");
 
     std::ostringstream message;
-    message << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(messageSeverity)) << ": "
-            << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(messageTypes)) << ":\n";
+    message << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(messageSeverity))
+            << ": " << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(messageTypes))
+            << ":\n";
     message << "\tmessageIDName   = <" << pCallbackData->pMessageIdName << ">\n";
     message << "\tmessageIdNumber = " << pCallbackData->messageIdNumber << "\n";
 
     std::string callbackDataMessage = pCallbackData->pMessage;
     std::replace_if(
-         callbackDataMessage.begin(), callbackDataMessage.end(), [](char c) { return c == ',' || c == ';' || c == '|'; }, '\n');
+         callbackDataMessage.begin(),
+         callbackDataMessage.end(),
+         [](char c) { return c == ',' || c == ';' || c == '|'; },
+         '\n');
 
     message << "\tmessage         = (\n\n" << callbackDataMessage << "\n)\n\n";
 
@@ -48,10 +53,13 @@ VKAPI_ATTR VkBool32 VKAPI_CALL KsaiDebugMessengerCallback(VkDebugUtilsMessageSev
         for (uint32_t i = 0; i < pCallbackData->objectCount; i++) {
             message << "\t\tObject " << i << "\n";
             message << "\t\t\tobjectType   = "
-                    << vk::to_string(static_cast<vk::ObjectType>(pCallbackData->pObjects[i].objectType)) << "\n";
+                    << vk::to_string(
+                            static_cast<vk::ObjectType>(pCallbackData->pObjects[i].objectType))
+                    << "\n";
             message << "\t\t\tobjectHandle = " << pCallbackData->pObjects[i].objectHandle << "\n";
             if (pCallbackData->pObjects[i].pObjectName) {
-                message << "\t\t\tobjectName   = <" << pCallbackData->pObjects[i].pObjectName << ">\n";
+                message << "\t\t\tobjectName   = <" << pCallbackData->pObjects[i].pObjectName
+                        << ">\n";
             }
         }
     }
@@ -88,46 +96,56 @@ VKAPI_ATTR VkBool32 VKAPI_CALL KsaiDebugMessengerCallback(VkDebugUtilsMessageSev
 PFN_vkCreateDebugUtilsMessengerEXT pfnVkCreateDebugUtilsMessengerEXT;
 PFN_vkDestroyDebugUtilsMessengerEXT pfnVkDestroyDebugUtilsMessengerEXT;
 
-VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugUtilsMessengerEXT(VkInstance instance,
-                                                              const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
-                                                              const VkAllocationCallbacks *pAllocator,
-                                                              VkDebugUtilsMessengerEXT *pMessenger) {
+VKAPI_ATTR VkResult VKAPI_CALL
+vkCreateDebugUtilsMessengerEXT(VkInstance instance,
+                               const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
+                               const VkAllocationCallbacks *pAllocator,
+                               VkDebugUtilsMessengerEXT *pMessenger) {
     return pfnVkCreateDebugUtilsMessengerEXT(instance, pCreateInfo, pAllocator, pMessenger);
 }
 
-VKAPI_ATTR void VKAPI_CALL vkDestroyDebugUtilsMessengerEXT(VkInstance instance,
-                                                           VkDebugUtilsMessengerEXT messenger,
-                                                           VkAllocationCallbacks const *pAllocator) {
+VKAPI_ATTR void VKAPI_CALL
+vkDestroyDebugUtilsMessengerEXT(VkInstance instance,
+                                VkDebugUtilsMessengerEXT messenger,
+                                VkAllocationCallbacks const *pAllocator) {
     return pfnVkDestroyDebugUtilsMessengerEXT(instance, messenger, pAllocator);
 }
 
-VulkanMessenger::VulkanMessenger(const VulkanInstance &inInstance) : mInstance(inInstance.GetInstanceHandle()) {
+VulkanMessenger::VulkanMessenger(VulkanInstance &inInstance)
+    : mInstance(inInstance.GetInstanceHandle()) {
 #if defined(_DEBUG)
-    const auto &Instance = inInstance.GetInstanceHandle();
-    pfnVkCreateDebugUtilsMessengerEXT =
-         reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(Instance.getProcAddr("vkCreateDebugUtilsMessengerEXT"));
+    const auto &Instance              = inInstance.GetInstanceHandle();
+    pfnVkCreateDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
+         Instance.getProcAddr("vkCreateDebugUtilsMessengerEXT"));
     if (!pfnVkCreateDebugUtilsMessengerEXT) {
-        std::cout << "GetInstanceProcAddr: Unable to find pfnVkCreateDebugUtilsMessengerEXT function." << std::endl;
+        std::cout
+             << "GetInstanceProcAddr: Unable to find pfnVkCreateDebugUtilsMessengerEXT function."
+             << std::endl;
         ksai_print("Unable to Find pfnVkCreateDebg");
     }
 
-    pfnVkDestroyDebugUtilsMessengerEXT =
-         reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(Instance.getProcAddr("vkDestroyDebugUtilsMessengerEXT"));
+    pfnVkDestroyDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
+         Instance.getProcAddr("vkDestroyDebugUtilsMessengerEXT"));
     if (!pfnVkDestroyDebugUtilsMessengerEXT) {
-        std::cout << "GetInstanceProcAddr: Unable to find pfnVkDestroyDebugUtilsMessengerEXT function." << std::endl;
+        std::cout
+             << "GetInstanceProcAddr: Unable to find pfnVkDestroyDebugUtilsMessengerEXT function."
+             << std::endl;
         ksai_print("Unable to Find pfnVkCreateDebg");
         exit(1);
     }
 
-    vk::DebugUtilsMessageSeverityFlagsEXT severityFlags(vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
-                                                        vk::DebugUtilsMessageSeverityFlagBitsEXT::eError |
-                                                        vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo);
+    vk::DebugUtilsMessageSeverityFlagsEXT severityFlags(
+         vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
+         vk::DebugUtilsMessageSeverityFlagBitsEXT::eError |
+         vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo);
     vk::DebugUtilsMessageTypeFlagsEXT messageTypeFlags(
-         vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
-         vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation | vk::DebugUtilsMessageTypeFlagBitsEXT::eDeviceAddressBinding);
+         vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
+         vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
+         vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation |
+         vk::DebugUtilsMessageTypeFlagBitsEXT::eDeviceAddressBinding);
 
-    auto DebugUtilsMessengerCreateInfo =
-         vk::DebugUtilsMessengerCreateInfoEXT({}, severityFlags, messageTypeFlags, &KsaiDebugMessengerCallback);
+    auto DebugUtilsMessengerCreateInfo = vk::DebugUtilsMessengerCreateInfoEXT(
+         {}, severityFlags, messageTypeFlags, &KsaiDebugMessengerCallback);
 #if !defined(ANDROID) // My Android device Doesn't Support this
     mMessenger = Instance.createDebugUtilsMessengerEXT(DebugUtilsMessengerCreateInfo);
 #endif

@@ -9,18 +9,17 @@ void ksai::VulkanQueueBase::Wait() const {
     std::scoped_lock<std::mutex> Lock(SubmitMutex);
     mQueue.waitIdle();
 }
-ksai::VulkanQueueBase::VulkanQueueBase(const VulkanQueueContext &inQueueContext,
-                                       const VulkanDevice &inDevice)
+ksai::VulkanQueueBase::VulkanQueueBase(VulkanQueueContext &inQueueContext, VulkanDevice &inDevice)
     : mDevice(inDevice.GetDeviceHandle()), mQueueContext(inQueueContext) {}
 
 /* Color Attachment */
 template <>
 template <>
 void VulkanQueue<QueueContext::Graphics>::Submit<SubmitContext::ColorAttachment>(
-     const VulkanSemaphore &inImageAvailableSemaphore,
-     const VulkanSemaphore &inRenderFinishedSemaphore,
-     const VulkanFence &inFlightFence,
-     const VulkanCommandBuffer &inCommandBuffer) const {
+     VulkanSemaphore &inImageAvailableSemaphore,
+     VulkanSemaphore &inRenderFinishedSemaphore,
+     VulkanFence &inFlightFence,
+     VulkanCommandBuffer &inCommandBuffer) const {
     vk::PipelineStageFlags WaitFlags(vk::PipelineStageFlagBits::eColorAttachmentOutput);
     vk::SubmitInfo info;
     info = vk::SubmitInfo(inImageAvailableSemaphore.GetSemaphoreHandle(),
@@ -35,7 +34,7 @@ void VulkanQueue<QueueContext::Graphics>::Submit<SubmitContext::ColorAttachment>
 template <>
 template <>
 void VulkanQueue<QueueContext::Graphics>::Submit<SubmitContext::SingleTime>(
-     const VulkanCommandBuffer &inCommandBuffer) const {
+     VulkanCommandBuffer &inCommandBuffer) const {
     vk::SubmitInfo SubmitInfo({}, {}, inCommandBuffer.GetCommandBufferHandle(), {});
     std::scoped_lock<std::mutex> Lock(SubmitMutex);
     mQueue.submit(SubmitInfo);
@@ -45,7 +44,7 @@ void VulkanQueue<QueueContext::Graphics>::Submit<SubmitContext::SingleTime>(
 template <>
 template <>
 void VulkanQueue<QueueContext::Graphics>::Submit<SubmitContext::SingleTime>(
-     const VulkanCommandBuffer &inCommandBuffer, const VulkanFence &inFence) const {
+     VulkanCommandBuffer &inCommandBuffer, VulkanFence &inFence) const {
     vk::SubmitInfo SubmitInfo({}, {}, inCommandBuffer.GetCommandBufferHandle(), {});
     std::scoped_lock<std::mutex> Lock(SubmitMutex);
     mQueue.submit(SubmitInfo, inFence.GetFenceHandle());
@@ -55,8 +54,8 @@ void VulkanQueue<QueueContext::Graphics>::Submit<SubmitContext::SingleTime>(
 template <>
 template <>
 ui VulkanQueue<QueueContext::Graphics>::Present<SubmitContext::ColorAttachment>(
-     const VulkanSwapChain &inSwapChain,
-     const VulkanSemaphore &inRenderFinishedSemaphore,
+     VulkanSwapChain &inSwapChain,
+     VulkanSemaphore &inRenderFinishedSemaphore,
      ui inImageIndex) const {
     auto PresentInfoKHR = vk::PresentInfoKHR(inRenderFinishedSemaphore.GetSemaphoreHandle(),
                                              inSwapChain.GetSwapChainHandle(),

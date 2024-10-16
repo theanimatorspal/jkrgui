@@ -10,8 +10,8 @@ Jkr::Primitive::~Primitive() { std::scoped_lock<std::mutex> Lock(PriMutex); }
 
 #ifndef JKR_NO_STAGING_BUFFERS
 Jkr::Primitive::Primitive(Instance &inInstance,
-                          const vk::ArrayProxyNoTemporaries<kstd::Vertex> &inVertices,
-                          const vk::ArrayProxyNoTemporaries<kstd::ui32> &inIndices)
+                          vk::ArrayProxyNoTemporaries<kstd::Vertex> &inVertices,
+                          vk::ArrayProxyNoTemporaries<kstd::ui32> &inIndices)
     : mInstance(inInstance), mIndexCount(inIndices.size()) {
     std::scoped_lock<std::mutex> Lock(PriMutex);
     mVertexBufferPtr =
@@ -35,8 +35,8 @@ Jkr::Primitive::Primitive(Instance &inInstance,
 }
 
 Jkr::Primitive::Primitive(Instance &inInstance,
-                          const vk::ArrayProxyNoTemporaries<kstd::VertexEXT> &inVertices,
-                          const vk::ArrayProxyNoTemporaries<kstd::ui32> &inIndices,
+                          vk::ArrayProxyNoTemporaries<kstd::VertexEXT> &inVertices,
+                          vk::ArrayProxyNoTemporaries<kstd::ui32> &inIndices,
                           int inExtParameter_DoesNotDoAnything)
     : mInstance(inInstance), mIndexCount(inIndices.size()) {
     std::scoped_lock<std::mutex> Lock(PriMutex);
@@ -74,8 +74,8 @@ Jkr::Primitive::Primitive(Instance &inInstance,
 }
 #else
 Jkr::Primitive::Primitive(Instance &inInstance,
-                          const vk::ArrayProxyNoTemporaries<kstd::Vertex> &inVertices,
-                          const vk::ArrayProxyNoTemporaries<kstd::ui32> &inIndices)
+                          vk::ArrayProxyNoTemporaries<kstd::Vertex> &inVertices,
+                          vk::ArrayProxyNoTemporaries<kstd::ui32> &inIndices)
     : mInstance(inInstance), mIndexCount(inIndices.size()) {
     std::scoped_lock<std::mutex> Lock(PriMutex);
     mVertexBufferPtr =
@@ -101,8 +101,8 @@ Jkr::Primitive::Primitive(Instance &inInstance,
 }
 
 Jkr::Primitive::Primitive(Instance &inInstance,
-                          const vk::ArrayProxyNoTemporaries<kstd::VertexEXT> &inVertices,
-                          const vk::ArrayProxyNoTemporaries<kstd::ui32> &inIndices,
+                          vk::ArrayProxyNoTemporaries<kstd::VertexEXT> &inVertices,
+                          vk::ArrayProxyNoTemporaries<kstd::ui32> &inIndices,
                           int inExtParameter_DoesNotDoAnything)
     : mInstance(inInstance), mIndexCount(inIndices.size()) {
     std::scoped_lock<std::mutex> Lock(PriMutex);
@@ -148,7 +148,7 @@ Jkr::Primitive::Primitive(Instance &inInstance,
 }
 #endif
 
-void Jkr::Primitive::Bind(Instance &inInstance, const Window_base &inWindow, CmdParam inCmdParam) {
+void Jkr::Primitive::Bind(Instance &inInstance, Window_base &inWindow, CmdParam inCmdParam) {
     auto &Cmd = inWindow.GetCommandBuffers(inCmdParam)[inWindow.GetCurrentFrame()];
     GetVertexBufferPtr()->Bind<BufferContext::Vertex>(Cmd);
     GetIndexBufferPtr()->Bind<BufferContext::Index>(Cmd);

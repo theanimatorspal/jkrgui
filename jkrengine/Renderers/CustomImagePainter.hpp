@@ -8,7 +8,7 @@ class Shape;
 using ComPar = Jkr::Window_base::ParameterContext;
 
 struct CustomPainterImage {
-    CustomPainterImage(Instance &inInstance, const Window_base &inWindow, ui inWidth, ui inHeight);
+    CustomPainterImage(Instance &inInstance, Window_base &inWindow, ui inWidth, ui inHeight);
     void SyncBefore(Window_base &inWindow, ComPar inPar = ComPar::None);
     void SyncAfter(Window_base &inWindow, ComPar inPar = ComPar::None);
     void Register(Instance &inInstance, CustomImagePainter &inPainterCache, int inIndex = 0);
@@ -26,14 +26,14 @@ struct CustomImagePainter {
     GETTER &GetPainter() { return *mPainter; }
     void Load(Instance &inInstance, Window_base &inWindow);
     void Store(Instance &inInstance, Window_base &inWindow);
-    void Bind(const Window_base &inWindow, ComPar inPar = ComPar::None) {
+    void Bind(Window_base &inWindow, ComPar inPar = ComPar::None) {
         mPainter->BindComputePipeline(inWindow, inPar);
     }
     ///@warning this is nonsensical design, this resides here because
     /// PipelineLayout is required for binding descriptor sets (from the CustomPainterImage)
     ///@note Any CustomImagePainter's layout that has a single image will work here, so no
     /// need to rebind CustomImagePainter
-    void BindImageFromImage(const Window_base &inWindow,
+    void BindImageFromImage(Window_base &inWindow,
                             CustomPainterImage &inImage,
                             ComPar inPar = ComPar::None);
     template <class T>

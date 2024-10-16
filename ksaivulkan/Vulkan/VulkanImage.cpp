@@ -6,7 +6,7 @@
 #include <Vendor/stbi/stb_image_write.h>
 using namespace ksai;
 
-ksai::VulkanImageBase::VulkanImageBase(const VulkanDevice &inDevice, bool inDestroyImageView) {
+ksai::VulkanImageBase::VulkanImageBase(VulkanDevice &inDevice, bool inDestroyImageView) {
     Init({&inDevice, inDestroyImageView});
 }
 
@@ -31,10 +31,10 @@ void ksai::VulkanImageBase::Destroy() {
     mInitialized = false;
 }
 void ksai::VulkanImageBase::SubmitImmediateCmdCopyFromDataWithStagingBuffer(
-     const VulkanQueue<QueueContext::Graphics> &inQueue,
-     const VulkanCommandBuffer &inCmdBuffer,
-     const VulkanDevice &inDevice,
-     const VulkanFence &inFence,
+     VulkanQueue<QueueContext::Graphics> &inQueue,
+     VulkanCommandBuffer &inCmdBuffer,
+     VulkanDevice &inDevice,
+     VulkanFence &inFence,
      void **inData,
      vk::DeviceSize inSize,
      VulkanBufferVMA &inStagingBuffer,
@@ -48,7 +48,7 @@ void ksai::VulkanImageBase::SubmitImmediateCmdCopyFromDataWithStagingBuffer(
     void *MapRegion;
     inStagingBuffer.MapMemoryRegion(&MapRegion);
     std::memcpy(MapRegion, *inData, inSize);
-    const vk::CommandBuffer &Cmd = inCmdBuffer.GetCommandBufferHandle();
+    vk::CommandBuffer &Cmd = inCmdBuffer.GetCommandBufferHandle();
     inFence.Wait();
     inFence.Reset();
     inCmdBuffer.Begin();
@@ -90,10 +90,10 @@ void ksai::VulkanImageBase::SubmitImmediateCmdCopyFromDataWithStagingBuffer(
 }
 
 void VulkanImageBase::SubmitImmediateCmdCopyFromDataWithStagingBuffer(
-     const VulkanQueue<QueueContext::Graphics> &inQueue,
-     const VulkanCommandBuffer &inCmdBuffer,
-     const VulkanDevice &inDevice,
-     const VulkanFence &inFence,
+     VulkanQueue<QueueContext::Graphics> &inQueue,
+     VulkanCommandBuffer &inCmdBuffer,
+     VulkanDevice &inDevice,
+     VulkanFence &inFence,
      vk::DeviceSize inSize,
      std::span<void **> inLayerImageDatas,
      VulkanBufferVMA &StagingBuffer) {
@@ -103,7 +103,7 @@ void VulkanImageBase::SubmitImmediateCmdCopyFromDataWithStagingBuffer(
     for (int i = 0; i < inLayerImageDatas.size(); i++) {
         std::memcpy((char *)MapRegion + i * inSize, *inLayerImageDatas[i], inSize);
     }
-    const vk::CommandBuffer &Cmd = inCmdBuffer.GetCommandBufferHandle();
+    vk::CommandBuffer &Cmd = inCmdBuffer.GetCommandBufferHandle();
     inFence.Wait();
     inFence.Reset();
     inCmdBuffer.Begin();
@@ -135,7 +135,7 @@ void VulkanImageBase::SubmitImmediateCmdCopyFromDataWithStagingBuffer(
     inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer, inFence);
 }
 
-void ksai::VulkanImageBase::CmdTransitionImageLayout(const VulkanCommandBuffer &inBuffer,
+void ksai::VulkanImageBase::CmdTransitionImageLayout(VulkanCommandBuffer &inBuffer,
                                                      vk::ImageLayout inOldImageLayout,
                                                      vk::ImageLayout inNewImageLayout,
                                                      vk::PipelineStageFlags inBeforeStage,
@@ -240,8 +240,8 @@ void ksai::VulkanImageBase::CreateImageView(vk::Image &inImage) {
 }
 
 void ksai::VulkanImageBase::CmdCopyImageFromImageAfterStage(
-     const VulkanCommandBuffer &inCmdBuffer,
-     const VulkanDevice &inDevice,
+     VulkanCommandBuffer &inCmdBuffer,
+     VulkanDevice &inDevice,
      VulkanImageBase &inImage,
      vk::PipelineStageFlags inAfterStage,
      vk::AccessFlags inAfterStageAccessflags,
@@ -455,14 +455,14 @@ void VulkanImage::MoveMembers(ksai::VulkanImage &Other) {
     Other.mDeviceMemory      = nullptr;
 }
 
-VulkanImage::VulkanImage(const VulkanDevice &inDevice, ImageContext inImageContext) {
+VulkanImage::VulkanImage(VulkanDevice &inDevice, ImageContext inImageContext) {
     CreateInfo info;
     info.mDevice       = &inDevice;
     info.mImageContext = inImageContext;
     Init(info);
 }
 
-VulkanImage::VulkanImage(const VulkanDevice &inDevice,
+VulkanImage::VulkanImage(VulkanDevice &inDevice,
                          ui inWidth,
                          ui inHeight,
                          ImageContext inImageContext) {
@@ -474,8 +474,8 @@ VulkanImage::VulkanImage(const VulkanDevice &inDevice,
     Init(info);
 }
 
-VulkanImage::VulkanImage(const VulkanDevice &inDevice,
-                         const VulkanSurface &inSurface,
+VulkanImage::VulkanImage(VulkanDevice &inDevice,
+                         VulkanSurface &inSurface,
                          ui inMSAASamples,
                          ImageContext inImageContext) {
     CreateInfo info;
@@ -486,9 +486,9 @@ VulkanImage::VulkanImage(const VulkanDevice &inDevice,
     Init(info);
 }
 
-VulkanImage::VulkanImage(const VulkanDevice &inDevice,
-                         const VulkanSurface &inSurface,
-                         const vk::Image &inImage,
+VulkanImage::VulkanImage(VulkanDevice &inDevice,
+                         VulkanSurface &inSurface,
+                         vk::Image &inImage,
                          vk::ImageView &inImageView,
                          ImageContext inImageContext)
     : VulkanImageBase(inDevice) {
@@ -509,8 +509,8 @@ void VulkanImage::ExplicitDestroy() {
     }
 }
 
-VulkanImageExternalHandled::VulkanImageExternalHandled(const VulkanDevice &inDevice,
-                                                       const VulkanSurface &inSurface,
+VulkanImageExternalHandled::VulkanImageExternalHandled(VulkanDevice &inDevice,
+                                                       VulkanSurface &inSurface,
                                                        vk::Image inImage,
                                                        vk::ImageView inImageView)
     : VulkanImageBase(inDevice, false) {

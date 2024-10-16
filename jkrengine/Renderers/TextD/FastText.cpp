@@ -4,9 +4,7 @@ using namespace Jkr::Renderer;
 using fb = FastText_base;
 using rb = Renderer_base;
 
-FastText::FastText(Instance &inInstance,
-                   const Window_base &inCompatibleWindow,
-                   const PainterCache &inCache)
+FastText::FastText(Instance &inInstance, Window_base &inCompatibleWindow, PainterCache &inCache)
     : FastText_base("res/ksai_fast_text/Font32.fnt"), mInstance(inInstance) {
     // TODO Improve this renderer
     mImage = MakeUp<ImageType>(inInstance);

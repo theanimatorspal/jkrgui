@@ -16,8 +16,8 @@ void VulkanBufferVMA::UnMapMemoryRegion() {
     }
 }
 
-VulkanBufferVMA::VulkanBufferVMA(const VulkanVMA &inVMA,
-                                 const VulkanDevice &inDevice,
+VulkanBufferVMA::VulkanBufferVMA(VulkanVMA &inVMA,
+                                 VulkanDevice &inDevice,
                                  size_t inSize,
                                  BufferContext inBufferContext,
                                  MemoryType inBufferStorageType) {

@@ -10,16 +10,16 @@ class VulkanBufferVMA;
 class VulkanImageBase {
     public:
     struct CreateInfo {
-        const VulkanDevice *mDevice;
+        VulkanDevice *mDevice;
         bool mDestroyImageView = true;
     };
 
     VulkanImageBase() = default;
     ~VulkanImageBase();
-    VulkanImageBase(const VulkanImageBase &other)            = delete;
-    VulkanImageBase &operator=(const VulkanImageBase &other) = delete;
-    VulkanImageBase(VulkanImageBase &&other)                 = default;
-    VulkanImageBase &operator=(VulkanImageBase &&other)      = default;
+    VulkanImageBase(VulkanImageBase &other)             = delete;
+    VulkanImageBase &operator=(VulkanImageBase &other)  = delete;
+    VulkanImageBase(VulkanImageBase &&other)            = default;
+    VulkanImageBase &operator=(VulkanImageBase &&other) = default;
     operator vk::Image() const { return mImage; }
 
     void Init(CreateInfo inCreateInfo);
@@ -38,12 +38,12 @@ class VulkanImageBase {
 
     void SetDebugUtilsName(s inS);
 
-    VulkanImageBase(const VulkanDevice &inDevice, bool inDestroyImageView = true);
+    VulkanImageBase(VulkanDevice &inDevice, bool inDestroyImageView = true);
     void SubmitImmediateCmdCopyFromDataWithStagingBuffer(
-         const VulkanQueue<QueueContext::Graphics> &inQueue,
-         const VulkanCommandBuffer &inCmdBuffer,
-         const VulkanDevice &inDevice,
-         const VulkanFence &inFence,
+         VulkanQueue<QueueContext::Graphics> &inQueue,
+         VulkanCommandBuffer &inCmdBuffer,
+         VulkanDevice &inDevice,
+         VulkanFence &inFence,
          void **inData,
          vk::DeviceSize inSize,
          VulkanBufferVMA &inStagingBuffer,
@@ -53,17 +53,17 @@ class VulkanImageBase {
          int inMipLevel                = 0,
          int inLayer                   = 0,
          int inLayersToBeCopied        = 1);
-    void SubmitImmediateCmdCopyFromDataWithStagingBuffer(
-         const VulkanQueue<QueueContext::Graphics> &inQueue,
-         const VulkanCommandBuffer &inCmdBuffer,
-         const VulkanDevice &inDevice,
-         const VulkanFence &inFence,
-         vk::DeviceSize inSize,
-         std::span<void **> inLayerImageDatas,
-         VulkanBufferVMA &inStagingBuffer);
+    void
+    SubmitImmediateCmdCopyFromDataWithStagingBuffer(VulkanQueue<QueueContext::Graphics> &inQueue,
+                                                    VulkanCommandBuffer &inCmdBuffer,
+                                                    VulkanDevice &inDevice,
+                                                    VulkanFence &inFence,
+                                                    vk::DeviceSize inSize,
+                                                    std::span<void **> inLayerImageDatas,
+                                                    VulkanBufferVMA &inStagingBuffer);
     void CmdCopyImageFromImageAfterStage(
-         const VulkanCommandBuffer &inCmdBuffer,
-         const VulkanDevice &inDevice,
+         VulkanCommandBuffer &inCmdBuffer,
+         VulkanDevice &inDevice,
          VulkanImageBase &inImage,
          vk::PipelineStageFlags inAfterStage,
          vk::AccessFlags inAfterStageAccessFlags,
@@ -78,7 +78,7 @@ class VulkanImageBase {
          vk::ImageLayout inDstImageLayoutTobeSetTo = vk::ImageLayout::eShaderReadOnlyOptimal,
          opt<vk::ImageLayout> inSrcImageLayoutFrom = std::nullopt,
          opt<vk::ImageLayout> inDstImageLayoutFrom = std::nullopt);
-    void CmdTransitionImageLayout(const VulkanCommandBuffer &inBuffer,
+    void CmdTransitionImageLayout(VulkanCommandBuffer &inBuffer,
                                   vk::ImageLayout inOldImageLayout,
                                   vk::ImageLayout inNewImageLayout,
                                   vk::PipelineStageFlags inBeforeStage,
@@ -117,9 +117,9 @@ class VulkanImageBase {
     void CreateImageView(vk::Image &inImage);
 
     protected:
-    const vk::PhysicalDevice *mPhysicalDevice;
-    const vk::Device *mDevice;
-    const VulkanDevice *mVulkanDevice;
+    vk::PhysicalDevice *mPhysicalDevice;
+    vk::Device *mDevice;
+    VulkanDevice *mVulkanDevice;
     vk::Image mImage         = nullptr;
     vk::ImageView mImageView = nullptr;
     ImageProperties mImageProperties;
@@ -131,21 +131,21 @@ class VulkanImageBase {
 class VulkanImage : public VulkanImageBase {
     public:
     struct CreateInfo {
-        const VulkanDevice *mDevice      = nullptr;
-        ImageContext mImageContext       = ImageContext::Default;
-        opt<ui> mWidth                   = std::nullopt;
-        opt<ui> mHeight                  = std::nullopt;
-        const VulkanSurface *mSurface    = nullptr;
-        ui mMSAASamples                  = 1;
-        const vk::Image *inImage         = nullptr;
-        const vk::ImageView *inImageView = nullptr;
+        VulkanDevice *mDevice      = nullptr;
+        ImageContext mImageContext = ImageContext::Default;
+        opt<ui> mWidth             = std::nullopt;
+        opt<ui> mHeight            = std::nullopt;
+        VulkanSurface *mSurface    = nullptr;
+        ui mMSAASamples            = 1;
+        vk::Image *inImage         = nullptr;
+        vk::ImageView *inImageView = nullptr;
     };
 
     VulkanImage() = default;
     ~VulkanImage();
-    VulkanImage(const VulkanImage &other)            = delete;
-    VulkanImage &operator=(const VulkanImage &other) = delete;
-    VulkanImage(VulkanImage &&other)                 = default;
+    VulkanImage(VulkanImage &other)            = delete;
+    VulkanImage &operator=(VulkanImage &other) = delete;
+    VulkanImage(VulkanImage &&other)           = default;
     VulkanImage &operator=(VulkanImage &&Other) noexcept {
         ExplicitDestroy();
         MoveMembers(Other);
@@ -155,15 +155,15 @@ class VulkanImage : public VulkanImageBase {
     void Destroy();
 
     void MoveMembers(ksai::VulkanImage &Other);
-    VulkanImage(const VulkanDevice &inDevice, ImageContext inImageContext);
-    VulkanImage(const VulkanDevice &inDevice, ui inWidth, ui inHeight, ImageContext inImageContext);
-    VulkanImage(const VulkanDevice &inDevice,
-                const VulkanSurface &inSurface,
+    VulkanImage(VulkanDevice &inDevice, ImageContext inImageContext);
+    VulkanImage(VulkanDevice &inDevice, ui inWidth, ui inHeight, ImageContext inImageContext);
+    VulkanImage(VulkanDevice &inDevice,
+                VulkanSurface &inSurface,
                 ui inMSAASamples            = 1,
                 ImageContext inImageContext = ImageContext::Default);
-    VulkanImage(const VulkanDevice &inDevice,
-                const VulkanSurface &inSurface,
-                const vk::Image &inImage,
+    VulkanImage(VulkanDevice &inDevice,
+                VulkanSurface &inSurface,
+                vk::Image &inImage,
                 vk::ImageView &inImageView,
                 ImageContext inImageContext);
 
@@ -177,15 +177,15 @@ class VulkanImage : public VulkanImageBase {
 
 class VulkanImageExternalHandled : public VulkanImageBase {
     public:
-    VulkanImageExternalHandled()                                                   = default;
-    ~VulkanImageExternalHandled()                                                  = default;
-    VulkanImageExternalHandled(const VulkanImageExternalHandled &other)            = delete;
-    VulkanImageExternalHandled &operator=(const VulkanImageExternalHandled &other) = delete;
-    VulkanImageExternalHandled(VulkanImageExternalHandled &&other)                 = default;
-    VulkanImageExternalHandled &operator=(VulkanImageExternalHandled &&other)      = default;
+    VulkanImageExternalHandled()                                              = default;
+    ~VulkanImageExternalHandled()                                             = default;
+    VulkanImageExternalHandled(VulkanImageExternalHandled &other)             = delete;
+    VulkanImageExternalHandled &operator=(VulkanImageExternalHandled &other)  = delete;
+    VulkanImageExternalHandled(VulkanImageExternalHandled &&other)            = default;
+    VulkanImageExternalHandled &operator=(VulkanImageExternalHandled &&other) = default;
 
-    VulkanImageExternalHandled(const VulkanDevice &inDevice,
-                               const VulkanSurface &inSurface,
+    VulkanImageExternalHandled(VulkanDevice &inDevice,
+                               VulkanSurface &inSurface,
                                vk::Image inImage,
                                vk::ImageView inImageView);
 };

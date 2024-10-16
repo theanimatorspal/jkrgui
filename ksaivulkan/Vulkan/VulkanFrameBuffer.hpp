@@ -21,9 +21,9 @@ class VulkanFrameBuffer : public VulkanFrameBufferBase {
             Destroy();
         }
     }
-    VulkanFrameBuffer(const VulkanFrameBuffer &other)            = delete;
-    VulkanFrameBuffer &operator=(const VulkanFrameBuffer &other) = delete;
-    VulkanFrameBuffer(VulkanFrameBuffer &&other)                 = default;
+    VulkanFrameBuffer(VulkanFrameBuffer &other)            = delete;
+    VulkanFrameBuffer &operator=(VulkanFrameBuffer &other) = delete;
+    VulkanFrameBuffer(VulkanFrameBuffer &&other)           = default;
     VulkanFrameBuffer &operator=(VulkanFrameBuffer &&Other);
 
     /**
@@ -33,9 +33,7 @@ class VulkanFrameBuffer : public VulkanFrameBufferBase {
      * like Init(device, renderPass, extent2d, imageview1, imageview2);
      *
      */
-    void Init(const VulkanDevice &inDevice,
-              const VulkanRenderPassBase &inRenderPass,
-              const auto &...inT) {
+    void Init(VulkanDevice &inDevice, VulkanRenderPassBase &inRenderPass, const auto &...inT) {
         mDevice = &inDevice.GetDeviceHandle();
         (
              [&] {
@@ -60,15 +58,15 @@ class VulkanFrameBuffer : public VulkanFrameBufferBase {
     }
 
     void Destroy();
-    VulkanFrameBuffer(const VulkanDevice &inDevice,
-                      const VulkanRenderPassBase &inRenderPass,
+    VulkanFrameBuffer(VulkanDevice &inDevice,
+                      VulkanRenderPassBase &inRenderPass,
                       const auto &...inT) {
         Init(inDevice, inRenderPass, inT...);
     }
     void ExplicitlyDestroy();
 
     private:
-    const vk::Device *mDevice;
+    vk::Device *mDevice;
     std::vector<vk::ImageView> Attachments;
     vk::Extent2D mExtent;
     bool mInitialized = false;

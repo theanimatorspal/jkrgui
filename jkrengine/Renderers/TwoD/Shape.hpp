@@ -15,7 +15,7 @@ class Shape : public Shape_base, Renderer_base {
     using sb              = Shape_base;
     using rb              = Renderer_base;
     using CopyCommandType = std::function<void(
-         const ksai::VulkanCommandBuffer &, ksai::VulkanImageBase &, ksai::VulkanImageBase &)>;
+         ksai::VulkanCommandBuffer &, ksai::VulkanImageBase &, ksai::VulkanImageBase &)>;
 
     public:
     GETTER &GetImages() { return mImages; }

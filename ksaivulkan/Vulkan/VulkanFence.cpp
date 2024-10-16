@@ -6,7 +6,7 @@ using namespace ksai;
 #include <iostream>
 #include <limits>
 
-VulkanFence::VulkanFence(const VulkanDevice &inDevice) { Init({&inDevice}); }
+VulkanFence::VulkanFence(VulkanDevice &inDevice) { Init({&inDevice}); }
 
 VulkanFence::~VulkanFence() {
     if (mInitialized) {

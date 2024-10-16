@@ -13,9 +13,7 @@ class FastText : public FastText_base, Renderer_base {
     using rb = Renderer_base;
 
     public:
-    FastText(Instance &inInstance,
-             const Window_base &inCompatibleWindow,
-             const PainterCache &inCache);
+    FastText(Instance &inInstance, Window_base &inCompatibleWindow, PainterCache &inCache);
     fb::TextDimensions AddText(const std::string_view inText,
                                uint32_t inX,
                                uint32_t inY,

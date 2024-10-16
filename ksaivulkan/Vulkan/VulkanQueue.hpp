@@ -10,50 +10,50 @@ class VulkanSwapChain;
 class VulkanQueueBase {
     public:
     operator vk::Queue() const { return mQueue; }
-    VulkanQueueBase(const VulkanQueueContext& inQueueContext, const VulkanDevice& inDevice);
+    VulkanQueueBase(VulkanQueueContext &inQueueContext, VulkanDevice &inDevice);
     void Wait() const;
-    GETTER& GetQueueHandle() const { return mQueue; }
-    GETTER& GetQueueContext() { return mQueueContext; }
+    GETTER &GetQueueHandle() const { return mQueue; }
+    GETTER &GetQueueContext() { return mQueueContext; }
 
     protected:
-    const vk::Device& mDevice;
-    const VulkanQueueContext& mQueueContext;
+    vk::Device &mDevice;
+    VulkanQueueContext &mQueueContext;
     vk::Queue mQueue;
 };
 
 template <QueueContext inContext> class VulkanQueue : public VulkanQueueBase {
     public:
-    VulkanQueue(const VulkanQueueContext& inQueueContext, const VulkanDevice& inDevice);
+    VulkanQueue(VulkanQueueContext &inQueueContext, VulkanDevice &inDevice);
     ~VulkanQueue();
 
     template <SubmitContext inSubmitContext>
-    void Submit(const VulkanSemaphore& inImageAvailableSemaphore,
-                const VulkanSemaphore& inRenderFinishedSemaphore,
-                const VulkanFence& inFlightFence,
-                const VulkanCommandBuffer& inCommandBuffer) const;
+    void Submit(VulkanSemaphore &inImageAvailableSemaphore,
+                VulkanSemaphore &inRenderFinishedSemaphore,
+                VulkanFence &inFlightFence,
+                VulkanCommandBuffer &inCommandBuffer) const;
 
     template <SubmitContext inSubmitContext>
-    void Submit(const VulkanCommandBuffer& inCommandBuffer) const;
+    void Submit(VulkanCommandBuffer &inCommandBuffer) const;
 
     template <SubmitContext inSubmitContext>
-    void Submit(const VulkanCommandBuffer& inCommandBuffer, const VulkanFence& inFence) const;
+    void Submit(VulkanCommandBuffer &inCommandBuffer, VulkanFence &inFence) const;
 
     template <SubmitContext inSubmitContext>
-    ui Present(const VulkanSwapChain& inSwapChain,
-               const VulkanSemaphore& inRenderFinishedSemaphore,
+    ui Present(VulkanSwapChain &inSwapChain,
+               VulkanSemaphore &inRenderFinishedSemaphore,
                ui inImageIndex) const;
 };
 
 template <QueueContext inContext>
-inline VulkanQueue<inContext>::VulkanQueue(const VulkanQueueContext& inQueueContext,
-                                           const VulkanDevice& inDevice)
+inline VulkanQueue<inContext>::VulkanQueue(VulkanQueueContext &inQueueContext,
+                                           VulkanDevice &inDevice)
     : VulkanQueueBase(inQueueContext, inDevice) {}
 
 template <QueueContext inContext> inline VulkanQueue<inContext>::~VulkanQueue() {}
 
 template <>
-inline VulkanQueue<QueueContext::Graphics>::VulkanQueue(const VulkanQueueContext& inQueueContext,
-                                                        const VulkanDevice& inDevice)
+inline VulkanQueue<QueueContext::Graphics>::VulkanQueue(VulkanQueueContext &inQueueContext,
+                                                        VulkanDevice &inDevice)
     : VulkanQueueBase(inQueueContext, inDevice) {
     mQueue = mDevice.getQueue(inQueueContext.GetGraphicsQueueFamilyIndex(), 0);
 }

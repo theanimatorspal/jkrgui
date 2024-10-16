@@ -9,34 +9,34 @@ enum class VulkanDeviceFeatureSet { Default, Minimal, Extensive };
 class VulkanDevice {
     public:
     struct CreateInfo {
-        const VulkanPhysicalDevice *mPhysicalDevice = nullptr;
-        const VulkanQueueContext *mQueueContext     = nullptr;
-        VulkanDeviceFeatureSet mFeatureSet          = VulkanDeviceFeatureSet::Extensive;
+        VulkanPhysicalDevice *mPhysicalDevice = nullptr;
+        VulkanQueueContext *mQueueContext     = nullptr;
+        VulkanDeviceFeatureSet mFeatureSet    = VulkanDeviceFeatureSet::Extensive;
     };
 
     VulkanDevice() = default;
     ~VulkanDevice();
-    VulkanDevice(const VulkanDevice &other)            = delete;
-    VulkanDevice &operator=(const VulkanDevice &other) = delete;
-    VulkanDevice(VulkanDevice &&other)                 = default;
-    VulkanDevice &operator=(VulkanDevice &&other)      = default;
+    VulkanDevice(VulkanDevice &other)             = delete;
+    VulkanDevice &operator=(VulkanDevice &other)  = delete;
+    VulkanDevice(VulkanDevice &&other)            = default;
+    VulkanDevice &operator=(VulkanDevice &&other) = default;
     operator vk::Device() const { return mDevice; }
 
     void Init(CreateInfo inCreateInfo);
     void Destroy();
 
-    VulkanDevice(const VulkanPhysicalDevice &inPhysicalDevice,
-                 const VulkanQueueContext &inQueueContext,
+    VulkanDevice(VulkanPhysicalDevice &inPhysicalDevice,
+                 VulkanQueueContext &inQueueContext,
                  VulkanDeviceFeatureSet inFeatureSet = VulkanDeviceFeatureSet::Extensive);
-    void Wait() const;
-    GETTER &GetDeviceHandle() const { return mDevice; }
-    GETTER &GetPhysicalDeviceHandle() const { return *mPhysicalDevice; }
-    GETTER &GetVulkanInstance() const { return mVulkanPhysicalDevice->GetVulkanInstance(); }
+    void Wait();
+    GETTER &GetDeviceHandle() { return mDevice; }
+    GETTER &GetPhysicalDeviceHandle() { return *mPhysicalDevice; }
+    GETTER &GetVulkanInstance() { return mVulkanPhysicalDevice->GetVulkanInstance(); }
 
     private:
     std::vector<vk::QueueFamilyProperties> mQueueFamilyProperties;
-    const vk::PhysicalDevice *mPhysicalDevice;
-    const VulkanPhysicalDevice *mVulkanPhysicalDevice;
+    vk::PhysicalDevice *mPhysicalDevice;
+    VulkanPhysicalDevice *mVulkanPhysicalDevice;
     vk::Device mDevice = nullptr;
     bool mInitialized  = false;
 };

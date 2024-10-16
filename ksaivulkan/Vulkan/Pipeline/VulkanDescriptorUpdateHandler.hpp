@@ -7,9 +7,9 @@
 namespace ksai {
 class VulkanDescriptorUpdateHandler {
     public:
-    VulkanDescriptorUpdateHandler(const VulkanDevice &inDevice) : mDevice(inDevice) {}
+    VulkanDescriptorUpdateHandler(VulkanDevice &inDevice) : mDevice(inDevice) {}
     void RW(BufferContext inBufferContext,
-            const VulkanDescriptorSet &inDescriptorSet,
+            VulkanDescriptorSet &inDescriptorSet,
             VulkanBufferBase &inBuffer,
             vk::DeviceSize inOffset,
             uint32_t inDstBinding,
@@ -17,21 +17,21 @@ class VulkanDescriptorUpdateHandler {
             uint32_t inDstSet = 0);
 
     void RW(ImageContext inImageContext,
-            const VulkanDescriptorSet &inDescriptorSet,
-            const VulkanImageBase &inImage,
-            const VulkanSampler &inSampler,
+            VulkanDescriptorSet &inDescriptorSet,
+            VulkanImageBase &inImage,
+            VulkanSampler &inSampler,
             uint32_t inDstBinding,
             uint32_t inDstArrayElement,
             uint32_t inDstSet = 0);
 
-    void RW(const VulkanDescriptorSet &inDescriptorSet,
-            const VulkanSampler &inSampler,
+    void RW(VulkanDescriptorSet &inDescriptorSet,
+            VulkanSampler &inSampler,
             uint32_t inDstBinding,
             uint32_t inDstArrayElement,
             uint32_t inDstSet = 0);
 
     private:
-    const VulkanDevice &mDevice;
+    VulkanDevice &mDevice;
     std::vector<vk::WriteDescriptorSet> mDescriptorWrites;
 };
 } // namespace ksai

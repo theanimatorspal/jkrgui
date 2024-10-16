@@ -17,23 +17,23 @@ class Window_base : public SDLWindow {
     using FrameBufferType       = VulkanFrameBuffer;
     enum ParameterContext : int { None = -3, UI = -1, Background = -1 };
 
-    Window_base()                                    = default;
-    Window_base(const Window_base &other)            = delete;
-    Window_base &operator=(const Window_base &other) = delete;
-    Window_base(Window_base &&other)                 = default;
+    Window_base()                              = default;
+    Window_base(Window_base &other)            = delete;
+    Window_base &operator=(Window_base &other) = delete;
+    Window_base(Window_base &&other)           = default;
 
-    virtual const std::array<VulkanCommandBuffer, mMaxFramesInFlight> &
-    GetCommandBuffers(ParameterContext inParameter) const {
+    virtual std::array<VulkanCommandBuffer, mMaxFramesInFlight> &
+    GetCommandBuffers(ParameterContext inParameter) {
         return mCommandBuffers;
     }
-    const VulkanCommandPool &GetCommandPool() const { return mCommandPool; }
-    GETTER GetOffscreenFrameDimension() const {
+    VulkanCommandPool &GetCommandPool() { return mCommandPool; }
+    GETTER GetOffscreenFrameDimension() {
         return glm::vec2(mOffscreenFrameSize.x, mOffscreenFrameSize.y);
     }
-    GETTER &GetCurrentFrame() const { return mCurrentFrame; } // TODO Remove this reference
-    GETTER &GetInstance() const { return *mInstance; }
-    GETTER &GetRenderPass() const { return mRenderPass; }
-    GETTER &GetSwapChainImages() const { return mSwapChainImages; }
+    GETTER &GetCurrentFrame() { return mCurrentFrame; } // TODO Remove this reference
+    GETTER &GetInstance() { return *mInstance; }
+    GETTER &GetRenderPass() { return mRenderPass; }
+    GETTER &GetSwapChainImages() { return mSwapChainImages; }
     GETTER &GetSurface() { return mSurface; }
     void SetScissor(
          int inX, int inY, int inW, int inH, ParameterContext inContext = ParameterContext::UI);

@@ -4,18 +4,18 @@
 namespace ksai {
 class VulkanDescriptorPoolBase {
     public:
-    VulkanDescriptorPoolBase(const VulkanDevice& inDevice) : mDevice(inDevice.GetDeviceHandle()) {}
+    VulkanDescriptorPoolBase(VulkanDevice &inDevice) : mDevice(inDevice.GetDeviceHandle()) {}
     ~VulkanDescriptorPoolBase() {
         mDevice.waitIdle();
         mDevice.destroyDescriptorPool(mPool);
     }
 
     public:
-    GETTER& GetDescriptorPoolHandle() const { return mPool; }
+    GETTER &GetDescriptorPoolHandle() const { return mPool; }
     GETTER GetMaxDescriptorSets() const { return mMaxDescriptorSets; }
 
     protected:
-    const vk::Device& mDevice;
+    vk::Device &mDevice;
     vk::DescriptorPool mPool = nullptr;
     int mMaxDescriptorSets   = 0;
 };
@@ -24,7 +24,7 @@ class VulkanDescriptorPoolBase {
 namespace ksai {
 class VulkanDescriptorPool : public VulkanDescriptorPoolBase {
     public:
-    VulkanDescriptorPool(const VulkanDevice& inDevice, int inMaxDescriptorSets, int PoolSize)
+    VulkanDescriptorPool(VulkanDevice &inDevice, int inMaxDescriptorSets, int PoolSize)
         : VulkanDescriptorPoolBase(inDevice), mPoolContext(PoolSize) {
         mPool = inDevice.GetDeviceHandle().createDescriptorPool(
              vk::DescriptorPoolCreateInfo(vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
@@ -34,6 +34,6 @@ class VulkanDescriptorPool : public VulkanDescriptorPoolBase {
     }
 
     private:
-    const VulkanDescriptorPoolContext mPoolContext;
+    VulkanDescriptorPoolContext mPoolContext;
 };
 } // namespace ksai

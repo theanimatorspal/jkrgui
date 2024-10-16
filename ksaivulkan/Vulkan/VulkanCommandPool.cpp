@@ -1,8 +1,7 @@
 #include "VulkanCommandPool.hpp"
 using namespace ksai;
 
-VulkanCommandPool::VulkanCommandPool(const VulkanDevice &inDevice,
-                                     const VulkanQueueContext &inContext) {
+VulkanCommandPool::VulkanCommandPool(VulkanDevice &inDevice, VulkanQueueContext &inContext) {
     Init({&inDevice, &inContext});
 }
 

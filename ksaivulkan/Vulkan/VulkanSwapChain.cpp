@@ -1,7 +1,7 @@
 #include "VulkanSwapChain.hpp"
 using namespace ksai;
 
-ksai::VulkanSwapChainBase::VulkanSwapChainBase(const VulkanDevice &inDevice) { Init({&inDevice}); }
+ksai::VulkanSwapChainBase::VulkanSwapChainBase(VulkanDevice &inDevice) { Init({&inDevice}); }
 
 void VulkanSwapChainBase::Init(CreateInfo inCreateInfo) {
     mDevice      = &inCreateInfo.mDevice->GetDeviceHandle();
@@ -35,15 +35,14 @@ void ksai::VulkanSwapChainBase::ExplicitlyDestroyOldSwapChain() {
 }
 
 std::pair<uint32_t, uint32_t>
-ksai::VulkanSwapChainBase::AcquireNextImage(const VulkanSemaphore &inSemapore) {
+ksai::VulkanSwapChainBase::AcquireNextImage(VulkanSemaphore &inSemapore) {
     vk::ResultValue<uint32_t> Result = mDevice->acquireNextImageKHR(
          mSwapChain, std::numeric_limits<uint32_t>::max(), inSemapore.GetSemaphoreHandle());
     return std::pair<uint32_t, uint32_t>(static_cast<uint32_t>(Result.result),
                                          static_cast<uint32_t>(Result.value));
 }
 
-v<VulkanImages> VulkanSwapChain::GetVulkanImages(const VulkanDevice &inDevice,
-                                                 const VulkanSurface &inSurface) {
+v<VulkanImages> VulkanSwapChain::GetVulkanImages(VulkanDevice &inDevice, VulkanSurface &inSurface) {
     v<VulkanImages> Vectors;
     for (int i = 0; i < mSwapChainImageViews.size(); i++) {
         auto Image = VulkanImageExternalHandled(
@@ -53,9 +52,9 @@ v<VulkanImages> VulkanSwapChain::GetVulkanImages(const VulkanDevice &inDevice,
     return Vectors;
 }
 
-VulkanSwapChain::VulkanSwapChain(const VulkanDevice &inDevice,
-                                 const VulkanQueueContext &inQueueContext,
-                                 const VulkanSurface &inSurface,
+VulkanSwapChain::VulkanSwapChain(VulkanDevice &inDevice,
+                                 VulkanQueueContext &inQueueContext,
+                                 VulkanSurface &inSurface,
                                  optref<VulkanSwapChainBase> inOldSwapChain,
                                  sz inMaxFramesInFlight) {
     Init({&inDevice, &inQueueContext, &inSurface, inOldSwapChain, inMaxFramesInFlight});

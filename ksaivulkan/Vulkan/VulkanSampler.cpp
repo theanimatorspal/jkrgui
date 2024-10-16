@@ -1,14 +1,14 @@
 #include "VulkanSampler.hpp"
 
 using namespace ksai;
-VulkanSampler::VulkanSampler(const VulkanDevice &inDevice,
+VulkanSampler::VulkanSampler(VulkanDevice &inDevice,
                              ImageContext inImageContext,
                              float inMinLod,
                              float inMaxLod) {
     Init({&inDevice, inImageContext, inMinLod, inMaxLod});
 }
 
-VulkanSampler::VulkanSampler(const VulkanDevice &inDevice, vk::SamplerCreateInfo inCreateInfo) {
+VulkanSampler::VulkanSampler(VulkanDevice &inDevice, vk::SamplerCreateInfo inCreateInfo) {
     Init({.mDevice = &inDevice, .mCreateInfo = inCreateInfo});
 }
 

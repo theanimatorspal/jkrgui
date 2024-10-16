@@ -7,7 +7,7 @@ namespace ksai {
 class VulkanVMA {
     public:
     operator VmaAllocator() const { return mAllocator; }
-    VulkanVMA(const VulkanInstance& inInstance, const VulkanDevice& inDevice) {
+    VulkanVMA(VulkanInstance &inInstance, VulkanDevice &inDevice) {
         auto info             = VmaAllocatorCreateInfo();
         info.device           = inDevice.GetDeviceHandle();
         info.instance         = inInstance.GetInstanceHandle();
@@ -16,7 +16,7 @@ class VulkanVMA {
         vmaCreateAllocator(&info, &mAllocator);
     }
     ~VulkanVMA() { vmaDestroyAllocator(mAllocator); }
-    GETTER& GetVMAHandle() const { return mAllocator; }
+    GETTER &GetVMAHandle() const { return mAllocator; }
 
     private:
     VmaAllocator mAllocator;

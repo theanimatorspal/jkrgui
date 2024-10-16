@@ -1,8 +1,7 @@
 #include "VulkanPipelineCache.hpp"
 #include <iostream>
 
-ksai::VulkanPipelineCache::VulkanPipelineCache(const VulkanDevice& inDevice,
-                                               std::string_view inFileName)
+ksai::VulkanPipelineCache::VulkanPipelineCache(VulkanDevice &inDevice, std::string_view inFileName)
     : mName(inFileName), mDevice(inDevice.GetDeviceHandle()) {
     //   FILE *PtrReadFile = fopen(inFileName.c_str(), "rb");
     //   mPipelineCacheSize = GetFileSizeUtil(PtrReadFile);
@@ -53,18 +52,18 @@ std::vector<uint8_t> ksai::VulkanPipelineCache::Get() {
     return {};
 }
 
-void ksai::VulkanPipelineCache::CheckCacheData(std::string& inFileName) {
+void ksai::VulkanPipelineCache::CheckCacheData(std::string &inFileName) {
     if (mPipelineCacheData != nullptr) {
         uint32_t headerLength                   = 0;
         uint32_t cacheHeaderVersion             = 0;
         uint32_t vendorID                       = 0;
         uint32_t deviceID                       = 0;
         uint8_t pipelineCacheUUID[VK_UUID_SIZE] = {};
-        memcpy(&headerLength, (uint8_t*)mPipelineCacheData + 0, 4);
-        memcpy(&cacheHeaderVersion, (uint8_t*)mPipelineCacheData + 4, 4);
-        memcpy(&vendorID, (uint8_t*)mPipelineCacheData + 8, 4);
-        memcpy(&deviceID, (uint8_t*)mPipelineCacheData + 12, 4);
-        memcpy(pipelineCacheUUID, (uint8_t*)mPipelineCacheData + 16, VK_UUID_SIZE);
+        memcpy(&headerLength, (uint8_t *)mPipelineCacheData + 0, 4);
+        memcpy(&cacheHeaderVersion, (uint8_t *)mPipelineCacheData + 4, 4);
+        memcpy(&vendorID, (uint8_t *)mPipelineCacheData + 8, 4);
+        memcpy(&deviceID, (uint8_t *)mPipelineCacheData + 12, 4);
+        memcpy(pipelineCacheUUID, (uint8_t *)mPipelineCacheData + 16, VK_UUID_SIZE);
         bool badCache = false;
 
         if (headerLength <= 0) {
@@ -119,7 +118,7 @@ void ksai::VulkanPipelineCache::CheckCacheData(std::string& inFileName) {
     }
 }
 
-size_t ksai::VulkanPipelineCache::GetFileSizeUtil(FILE* inFile) {
+size_t ksai::VulkanPipelineCache::GetFileSizeUtil(FILE *inFile) {
     int CacheSize = 0;
     if (inFile) {
         fseek(inFile, 0, SEEK_END);

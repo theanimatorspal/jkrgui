@@ -1,6 +1,6 @@
 #include "VulkanShaderModule.hpp"
 
-ksai::VulkanShaderModule::VulkanShaderModule(const VulkanDevice &inDevice,
+ksai::VulkanShaderModule::VulkanShaderModule(VulkanDevice &inDevice,
                                              const std::vector<uint32_t> &inSPIRV,
                                              bool inShouldDestroy) {
     Init({&inDevice, &inSPIRV, inShouldDestroy});

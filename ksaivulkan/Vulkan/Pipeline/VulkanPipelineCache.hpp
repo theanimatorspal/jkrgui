@@ -7,7 +7,7 @@
 namespace ksai {
 class VulkanPipelineCache {
     public:
-    VulkanPipelineCache(const VulkanDevice &inDevice, std::string_view inFileName);
+    VulkanPipelineCache(VulkanDevice &inDevice, std::string_view inFileName);
     ~VulkanPipelineCache();
     GETTER &GetPipelineCacheHandle() const { return mPipelineCache; }
     std::vector<uint8_t> Get();
@@ -15,7 +15,7 @@ class VulkanPipelineCache {
 
     private:
     std::string mName;
-    const vk::Device &mDevice;
+    vk::Device &mDevice;
     vk::PipelineCache mPipelineCache;
 
     private:

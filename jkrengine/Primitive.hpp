@@ -15,15 +15,15 @@ class Primitive {
     GETTER &GetIndexBufferPtr() { return mIndexBufferPtr; }
     GETTER GetIndexCount() const { return mIndexCount; }
     void SetIndexCount(uint32_t inIndex) { mIndexCount = inIndex; }
-    void Bind(Instance &inInstance, const Window_base &inWindow, CmdParam inCmdParam);
+    void Bind(Instance &inInstance, Window_base &inWindow, CmdParam inCmdParam);
 
     Primitive(Instance &inInstance);
     Primitive(Instance &inInstance,
-              const vk::ArrayProxyNoTemporaries<kstd::Vertex> &inVertices,
-              const vk::ArrayProxyNoTemporaries<kstd::ui32> &inIndices);
+              vk::ArrayProxyNoTemporaries<kstd::Vertex> &inVertices,
+              vk::ArrayProxyNoTemporaries<kstd::ui32> &inIndices);
     Primitive(Instance &inInstance,
-              const vk::ArrayProxyNoTemporaries<kstd::VertexEXT> &inVertices,
-              const vk::ArrayProxyNoTemporaries<kstd::ui32> &inIndices,
+              vk::ArrayProxyNoTemporaries<kstd::VertexEXT> &inVertices,
+              vk::ArrayProxyNoTemporaries<kstd::ui32> &inIndices,
               int inExtParameter_DoesNotDoAnything);
     Primitive(Instance &inInstance,
               vk::DeviceSize inVertexBufferSizeInBytes,

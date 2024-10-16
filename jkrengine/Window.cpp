@@ -68,8 +68,7 @@ void Window::Refresh() {
 }
 
 namespace Jkr {
-const std::array<VulkanCommandBuffer, 2U> &
-Window::GetCommandBuffers(ParameterContext inParameter) const {
+std::array<VulkanCommandBuffer, 2U> &Window::GetCommandBuffers(ParameterContext inParameter) {
     switch (inParameter) {
         case Window_base::None:
             return mCommandBuffers;

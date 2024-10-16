@@ -19,7 +19,7 @@ class ShaderCompiler {
 
 class ShaderModules {
     public:
-    ShaderModules(const VulkanDevice &inDevice,
+    ShaderModules(VulkanDevice &inDevice,
                   const std::vector<uint32_t> &inVertexShaderSPIRV   = {},
                   const std::vector<uint32_t> &inFragmentShaderSPIRV = {},
                   const std::vector<uint32_t> &inComputeShaderSPIRV  = {});
@@ -32,7 +32,7 @@ class ShaderModules {
     GETTER &GetComputeShaderModuleArray() const { return mComputeShaderModule; }
 
     private:
-    const VulkanDevice &mDevice;
+    VulkanDevice &mDevice;
     std::vector<VulkanShaderModule> mVertexFragmentShaderModules;
     std::vector<VulkanShaderModule> mComputeShaderModule;
 };
@@ -57,8 +57,8 @@ class PainterCache {
                         ui inVarDescount                        = -1);
     PainterCache &Load(const std::string &fileName, ui inVarDescount = -1);
 
-    GETTER &GetPipelineContext() const { return mPipelineContext; }
-    GETTER &GetPipelineCache() const { return *mPtrPipelineCache; }
+    GETTER &GetPipelineContext() { return mPipelineContext; }
+    GETTER &GetPipelineCache() { return *mPtrPipelineCache; }
     GETTER &GetVertexFragmentDescriptorSetLayout() const {
         return *mPtrVertexFragmentDescriptorSetLayout;
     }

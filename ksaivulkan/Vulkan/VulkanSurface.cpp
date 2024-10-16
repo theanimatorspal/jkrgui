@@ -9,7 +9,7 @@
 #undef max
 
 using namespace ksai;
-VulkanSurface::VulkanSurface(const VulkanInstance &inInstance, SDL_Window *inWindow) {
+VulkanSurface::VulkanSurface(VulkanInstance &inInstance, SDL_Window *inWindow) {
     Init({&inInstance, inWindow});
 }
 
@@ -20,7 +20,7 @@ VulkanSurface::~VulkanSurface() {
 }
 
 VulkanSurface &
-VulkanSurface::ProcessCurrentSurfaceConditions(const VulkanPhysicalDevice &inPhysicalDevice,
+VulkanSurface::ProcessCurrentSurfaceConditions(VulkanPhysicalDevice &inPhysicalDevice,
                                                vk::PresentModeKHR inMode) {
     ProcessCurrentSurfaceExtents(inPhysicalDevice);
     mPresentMode = inMode;
@@ -42,8 +42,7 @@ VulkanSurface::ProcessCurrentSurfaceConditions(const VulkanPhysicalDevice &inPhy
     return *this;
 }
 
-VulkanSurface &
-VulkanSurface::ProcessCurrentSurfaceExtents(const VulkanPhysicalDevice &inPhysicalDevice) {
+VulkanSurface &VulkanSurface::ProcessCurrentSurfaceExtents(VulkanPhysicalDevice &inPhysicalDevice) {
     const auto &mPhysicalDevice               = inPhysicalDevice.GetPhysicalDeviceHandle();
     std::vector<vk::SurfaceFormatKHR> formats = mPhysicalDevice.getSurfaceFormatsKHR(mSurface);
     assert(!formats.empty());

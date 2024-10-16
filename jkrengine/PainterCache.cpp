@@ -28,7 +28,7 @@ ShaderCompiler::ShaderCompiler(const std::string_view inComputeShaderString,
     }
 }
 
-Jkr::ShaderModules::ShaderModules(const VulkanDevice &inDevice,
+Jkr::ShaderModules::ShaderModules(VulkanDevice &inDevice,
                                   const std::vector<uint32_t> &inVertexShaderSPIRV,
                                   const std::vector<uint32_t> &inFragmentShaderSPIRV,
                                   const std::vector<uint32_t> &inComputeShaderSPIRV)

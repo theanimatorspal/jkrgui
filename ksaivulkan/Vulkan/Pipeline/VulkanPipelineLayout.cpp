@@ -3,10 +3,9 @@
 using namespace ksai;
 
 template <>
-VulkanPipelineLayout<2>::VulkanPipelineLayout(
-     const VulkanDevice &inDevice,
-     const VulkanDescriptorSetLayoutBase &inDescriptorSetLayout,
-     const std::vector<VulkanShaderModule> &inModules)
+VulkanPipelineLayout<2>::VulkanPipelineLayout(VulkanDevice &inDevice,
+                                              VulkanDescriptorSetLayoutBase &inDescriptorSetLayout,
+                                              const std::vector<VulkanShaderModule> &inModules)
     : VulkanPipelineLayoutBase(inDevice), mModules(inModules) {
     std::vector<vk::PushConstantRange> PushConstantRanges;
     auto &VertexCompiler    = mModules[0].GetShaderResourcesCompilerHandle();
@@ -23,10 +22,9 @@ VulkanPipelineLayout<2>::VulkanPipelineLayout(
 }
 
 template <>
-VulkanPipelineLayout<1>::VulkanPipelineLayout(
-     const VulkanDevice &inDevice,
-     const VulkanDescriptorSetLayoutBase &inDescriptorSetLayout,
-     const std::vector<VulkanShaderModule> &inModules)
+VulkanPipelineLayout<1>::VulkanPipelineLayout(VulkanDevice &inDevice,
+                                              VulkanDescriptorSetLayoutBase &inDescriptorSetLayout,
+                                              const std::vector<VulkanShaderModule> &inModules)
     : VulkanPipelineLayoutBase(inDevice), mModules(inModules) {
     std::vector<vk::PushConstantRange> PushConstantRanges;
     auto &ComputeCompiler  = mModules[0].GetShaderResourcesCompilerHandle();

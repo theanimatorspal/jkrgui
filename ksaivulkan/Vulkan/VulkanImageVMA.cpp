@@ -1,8 +1,8 @@
 #include "VulkanImageVMA.hpp"
 
 using namespace ksai;
-VulkanImageVMA::VulkanImageVMA(const VulkanVMA &inVMA,
-                               const VulkanDevice &inDevice,
+VulkanImageVMA::VulkanImageVMA(VulkanVMA &inVMA,
+                               VulkanDevice &inDevice,
                                ui inWidth,
                                ui inHeight,
                                ImageContext inImageContext,

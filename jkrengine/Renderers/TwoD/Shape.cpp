@@ -173,7 +173,7 @@ void Shape::CopyFromImage(uint32_t inId,
     mImagesToBeCopiedFrom.push_back(inPainterImage.GetPainterParam().GetStorageImagePtr());
 
     mImageCopyCommands.push_back(
-         [&](const ksai::VulkanCommandBuffer &inCmd,
+         [&](ksai::VulkanCommandBuffer &inCmd,
              ksai::VulkanImageBase &inDstImage, // TODO: improve this, here this is flipped
              ksai::VulkanImageBase &inSrcImage) {
              auto srcImgProp = inSrcImage.GetImageProperty();
@@ -239,7 +239,7 @@ void Shape::CopyToImage(ui inId, ui inWidth, ui inHeight, CustomPainterImage &in
     mImagesToBeCopiedIds.push_back(inId);
     mImagesToBeCopiedFrom.push_back(inPainterImage.GetPainterParam().GetStorageImagePtr());
 
-    mImageCopyCommands.push_back([&](const ksai::VulkanCommandBuffer &inCmd,
+    mImageCopyCommands.push_back([&](ksai::VulkanCommandBuffer &inCmd,
                                      ksai::VulkanImageBase &inSrcImage,
                                      ksai::VulkanImageBase &inDstImage) {
         auto srcImgProp = inSrcImage.GetImageProperty();
@@ -340,7 +340,7 @@ void Shape::Dispatch(Window_base &inWindow, CmdParam inParam) {
         auto id        = mImagesToBeCopiedIds[i];
         auto &srcImage = mImagesToBeCopiedFrom[i];
 
-        const ksai::VulkanCommandBuffer &cmd =
+        ksai::VulkanCommandBuffer &cmd =
              inWindow.GetCommandBuffers(inParam)[inWindow.GetCurrentFrame()];
         func(cmd, *srcImage, mImages[id]->GetUniformImage());
     }

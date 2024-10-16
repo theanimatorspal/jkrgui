@@ -5,7 +5,7 @@
 using namespace ksai;
 using vb = VulkanCommandBuffer;
 
-vb::VulkanCommandBuffer(const VulkanDevice &inDevice, const VulkanCommandPool &inPool, vb::Type inContext) {
+vb::VulkanCommandBuffer(VulkanDevice &inDevice, VulkanCommandPool &inPool, vb::Type inContext) {
     Init({&inDevice, &inPool, inContext});
 }
 
@@ -13,11 +13,11 @@ void VulkanCommandBuffer::Init(CreateInfo inCreateInfo) {
     mDevice = &inCreateInfo.inDevice->GetDeviceHandle();
     vk::CommandBufferAllocateInfo CommandBufferAllocateInfo;
     if (inCreateInfo.inContext == Type::Primary) {
-        CommandBufferAllocateInfo =
-             vk::CommandBufferAllocateInfo(inCreateInfo.inPool->GetCommandPoolHandle(), vk::CommandBufferLevel::ePrimary, 1);
+        CommandBufferAllocateInfo = vk::CommandBufferAllocateInfo(
+             inCreateInfo.inPool->GetCommandPoolHandle(), vk::CommandBufferLevel::ePrimary, 1);
     } else {
-        CommandBufferAllocateInfo =
-             vk::CommandBufferAllocateInfo(inCreateInfo.inPool->GetCommandPoolHandle(), vk::CommandBufferLevel::eSecondary, 1);
+        CommandBufferAllocateInfo = vk::CommandBufferAllocateInfo(
+             inCreateInfo.inPool->GetCommandPoolHandle(), vk::CommandBufferLevel::eSecondary, 1);
     }
 
     mBuffer      = mDevice->allocateCommandBuffers(CommandBufferAllocateInfo).front();
@@ -32,14 +32,15 @@ vb::~VulkanCommandBuffer() {
 }
 
 template <>
-void vb::BeginRenderPass<vb::RenderPassBeginContext::Inline>(const VulkanRenderPassBase &inRenderPass,
-                                                             const vk::Extent2D inExtent,
-                                                             const VulkanFrameBufferBase &inFrameBuffer,
+void vb::BeginRenderPass<vb::RenderPassBeginContext::Inline>(VulkanRenderPassBase &inRenderPass,
+                                                             vk::Extent2D inExtent,
+                                                             VulkanFrameBufferBase &inFrameBuffer,
                                                              std::array<float, 5> inClearValue,
-                                                             int inClearValueCount) const {
+                                                             int inClearValueCount) {
     std::vector<vk::ClearValue> ClearValues;
-    ClearValues.resize(inClearValueCount,
-                       vk::ClearColorValue(inClearValue[0], inClearValue[1], inClearValue[2], inClearValue[3]));
+    ClearValues.resize(
+         inClearValueCount,
+         vk::ClearColorValue(inClearValue[0], inClearValue[1], inClearValue[2], inClearValue[3]));
     ClearValues[inClearValueCount - 1] = vk::ClearDepthStencilValue(inClearValue[4]);
     auto RenderPassBeginInfo           = vk::RenderPassBeginInfo()
                                     .setRenderPass(inRenderPass.GetRenderPassHandle())
@@ -48,21 +49,28 @@ void vb::BeginRenderPass<vb::RenderPassBeginContext::Inline>(const VulkanRenderP
                                     .setClearValues(ClearValues);
 
     mBuffer.beginRenderPass(RenderPassBeginInfo, vk::SubpassContents::eInline);
-    mBuffer.setViewport(
-         0, vk::Viewport(0.0f, 0.0f, static_cast<float>(inExtent.width), static_cast<float>(inExtent.height), 0.0f, 1.0f));
+    mBuffer.setViewport(0,
+                        vk::Viewport(0.0f,
+                                     0.0f,
+                                     static_cast<float>(inExtent.width),
+                                     static_cast<float>(inExtent.height),
+                                     0.0f,
+                                     1.0f));
     mBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), inExtent));
 }
 
 template <>
-void vb::BeginRenderPass<vb::RenderPassBeginContext::SecondaryCommandBuffers>(const VulkanRenderPassBase &inRenderPass,
-                                                                              const vk::Extent2D inExtent,
-                                                                              const VulkanFrameBufferBase &inFrameBuffer,
-                                                                              std::array<float, 5> inClearValue,
-                                                                              int inClearValueCount) const {
+void vb::BeginRenderPass<vb::RenderPassBeginContext::SecondaryCommandBuffers>(
+     VulkanRenderPassBase &inRenderPass,
+     vk::Extent2D inExtent,
+     VulkanFrameBufferBase &inFrameBuffer,
+     std::array<float, 5> inClearValue,
+     int inClearValueCount) {
 
     std::vector<vk::ClearValue> ClearValues;
-    ClearValues.resize(inClearValueCount,
-                       vk::ClearColorValue(inClearValue[0], inClearValue[1], inClearValue[2], inClearValue[3]));
+    ClearValues.resize(
+         inClearValueCount,
+         vk::ClearColorValue(inClearValue[0], inClearValue[1], inClearValue[2], inClearValue[3]));
     ClearValues[inClearValueCount - 1] = vk::ClearDepthStencilValue(inClearValue[4]);
     auto RenderPassBeginInfo           = vk::RenderPassBeginInfo()
                                     .setRenderPass(inRenderPass.GetRenderPassHandle())
@@ -74,18 +82,20 @@ void vb::BeginRenderPass<vb::RenderPassBeginContext::SecondaryCommandBuffers>(co
     mBuffer.beginRenderPass(RenderPassBeginInfo, vk::SubpassContents::eSecondaryCommandBuffers);
 }
 
-void vb::EndRenderPass() const { mBuffer.endRenderPass(); }
+void vb::EndRenderPass() { mBuffer.endRenderPass(); }
 
-template <> void vb::Begin<vb::BeginContext::Normal>() const { mBuffer.begin(vk::CommandBufferBeginInfo()); }
+template <> void vb::Begin<vb::BeginContext::Normal>() {
+    mBuffer.begin(vk::CommandBufferBeginInfo());
+}
 
-template <> void vb::Begin<vb::BeginContext::ContinueRenderPass>() const {
+template <> void vb::Begin<vb::BeginContext::ContinueRenderPass>() {
     mBuffer.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eRenderPassContinue));
 }
 
 template <>
 void vb::Begin<vb::BeginContext::ContinueRenderPass>(VulkanRenderPassBase &inRenderPass,
                                                      ui inSubpass,
-                                                     VulkanFrameBufferBase &inFrameBuffer) const {
+                                                     VulkanFrameBufferBase &inFrameBuffer) {
     vk::CommandBufferBeginInfo info(vk::CommandBufferUsageFlagBits::eRenderPassContinue);
     vk::CommandBufferInheritanceInfo inheritanceInfo(
          inRenderPass.GetRenderPassHandle(), inSubpass, inFrameBuffer.GetFrameBufferHandle());
@@ -94,9 +104,8 @@ void vb::Begin<vb::BeginContext::ContinueRenderPass>(VulkanRenderPassBase &inRen
 }
 
 template <>
-void vb::Begin<vb::BeginContext::ContinueRenderPassAndOneTimeSubmit>(VulkanRenderPassBase &inRenderPass,
-                                                                     ui inSubpass,
-                                                                     VulkanFrameBufferBase &inFrameBuffer) const {
+void vb::Begin<vb::BeginContext::ContinueRenderPassAndOneTimeSubmit>(
+     VulkanRenderPassBase &inRenderPass, ui inSubpass, VulkanFrameBufferBase &inFrameBuffer) {
     vk::CommandBufferBeginInfo info(vk::CommandBufferUsageFlagBits::eRenderPassContinue |
                                     vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
     vk::CommandBufferInheritanceInfo inheritanceInfo(

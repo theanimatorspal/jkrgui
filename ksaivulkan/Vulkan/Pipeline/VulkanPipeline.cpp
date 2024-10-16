@@ -85,11 +85,11 @@ void VulkanPipelineBase::FillVertexInputDescriptions(
 namespace ksai {
 template <>
 VulkanPipeline<2, PipelineContext::Default>::VulkanPipeline(
-     const VulkanDevice &inDevice,
+     VulkanDevice &inDevice,
      VulkanPipelineCache &inCache,
-     const VulkanPipelineContextBase &inContext,
-     const VulkanRenderPassBase &inRenderPass,
-     const VulkanPipelineLayoutBase &inLayout,
+     VulkanPipelineContextBase &inContext,
+     VulkanRenderPassBase &inRenderPass,
+     VulkanPipelineLayoutBase &inLayout,
      const std::vector<VulkanShaderModule> &inModules)
     : VulkanPipelineBase(inDevice) {
     BuildPipeline(inCache, inContext, inRenderPass, inLayout, inModules, PipelineContext::Default);
@@ -100,20 +100,20 @@ VulkanPipeline<2, PipelineContext::Default>::VulkanPipeline(
 namespace ksai {
 template <>
 VulkanPipeline<1, PipelineContext::Compute>::VulkanPipeline(
-     const VulkanDevice &inDevice,
+     VulkanDevice &inDevice,
      VulkanPipelineCache &inCache,
-     const VulkanPipelineContextBase &inContext,
-     const VulkanRenderPassBase &inRenderPass,
-     const VulkanPipelineLayoutBase &inLayout,
+     VulkanPipelineContextBase &inContext,
+     VulkanRenderPassBase &inRenderPass,
+     VulkanPipelineLayoutBase &inLayout,
      const std::vector<VulkanShaderModule> &inModules)
     : VulkanPipelineBase(inDevice) {
     BuildPipeline(inCache, inContext, inRenderPass, inLayout, inModules, PipelineContext::Compute);
 }
 
 void VulkanPipelineBase::BuildPipeline(VulkanPipelineCache &inCache,
-                                       const VulkanPipelineContextBase &inContext,
-                                       const VulkanRenderPassBase &inRenderPass,
-                                       const VulkanPipelineLayoutBase &inLayout,
+                                       VulkanPipelineContextBase &inContext,
+                                       VulkanRenderPassBase &inRenderPass,
+                                       VulkanPipelineLayoutBase &inLayout,
                                        const std::vector<VulkanShaderModule> &inModules,
                                        PipelineContext inPipelineContext,
                                        ui inSubpass) {
@@ -261,7 +261,7 @@ void VulkanPipelineBase::BuildPipeline(VulkanPipelineCache &inCache,
     }
 }
 
-void VulkanPipelineBase::DrawIndexed(const VulkanCommandBuffer &inCmdBuffer,
+void VulkanPipelineBase::DrawIndexed(VulkanCommandBuffer &inCmdBuffer,
                                      int32_t inIndexCount,
                                      int32_t inInstanceCount,
                                      int32_t inFirstIndex,
@@ -277,7 +277,7 @@ VulkanPipelineBase::~VulkanPipelineBase() {
     }
 }
 
-VulkanPipelineBase::VulkanPipelineBase(const VulkanDevice &inDevice) { Init({&inDevice}); }
+VulkanPipelineBase::VulkanPipelineBase(VulkanDevice &inDevice) { Init({&inDevice}); }
 
 void VulkanPipelineBase::Init(CreateInfo info) {
     mDevice      = &info.inDevice->GetDeviceHandle();

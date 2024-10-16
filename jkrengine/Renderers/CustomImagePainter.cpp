@@ -138,7 +138,7 @@ void Jkr::Renderer::CustomPainterImage::SyncAfter(Window_base &inWindow, ComPar 
 }
 
 CustomPainterImage::CustomPainterImage(Instance &inInstance,
-                                       const Window_base &inWindow,
+                                       Window_base &inWindow,
                                        ui inWidth,
                                        ui inHeight) {
     mPainterParam = mu<Image>(inInstance);
@@ -146,7 +146,7 @@ CustomPainterImage::CustomPainterImage(Instance &inInstance,
     Painter::OptimizeParameter(inInstance, *mPainterParam, inWindow);
 }
 
-void CustomImagePainter::BindImageFromImage(const Window_base &inWindow,
+void CustomImagePainter::BindImageFromImage(Window_base &inWindow,
                                             CustomPainterImage &inImage,
                                             ComPar inPar) {
     auto &Cmd   = inWindow.GetCommandBuffers(inPar)[inWindow.GetCurrentFrame()];

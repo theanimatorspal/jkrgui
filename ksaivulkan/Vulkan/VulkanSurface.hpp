@@ -14,26 +14,26 @@ namespace ksai {
 class VulkanSurface {
     public:
     struct CreateInfo {
-        const VulkanInstance *mInstance;
+        VulkanInstance *mInstance;
         SDL_Window *mWindow;
     };
 
     VulkanSurface() = default;
     ~VulkanSurface();
-    VulkanSurface(const VulkanSurface &other)            = delete;
-    VulkanSurface &operator=(const VulkanSurface &other) = delete;
-    VulkanSurface(VulkanSurface &&other)                 = default;
-    VulkanSurface &operator=(VulkanSurface &&other)      = default;
+    VulkanSurface(VulkanSurface &other)             = delete;
+    VulkanSurface &operator=(VulkanSurface &other)  = delete;
+    VulkanSurface(VulkanSurface &&other)            = default;
+    VulkanSurface &operator=(VulkanSurface &&other) = default;
     operator vk::SurfaceKHR() const { return mSurface; }
 
     void Init(CreateInfo inCreateInfo);
     void Destroy();
 
-    VulkanSurface(const VulkanInstance &inInstance, SDL_Window *inWindow);
+    VulkanSurface(VulkanInstance &inInstance, SDL_Window *inWindow);
     VulkanSurface &
-    ProcessCurrentSurfaceConditions(const VulkanPhysicalDevice &inPhysicalDevice,
+    ProcessCurrentSurfaceConditions(VulkanPhysicalDevice &inPhysicalDevice,
                                     vk::PresentModeKHR inMode = vk::PresentModeKHR::eFifo);
-    VulkanSurface &ProcessCurrentSurfaceExtents(const VulkanPhysicalDevice &inPhysicalDevice);
+    VulkanSurface &ProcessCurrentSurfaceExtents(VulkanPhysicalDevice &inPhysicalDevice);
     GETTER &GetSurfaceHandle() const { return mSurface; }
     GETTER &GetWindowHandle() const { return mWindow; }
     GETTER &GetSurfaceCapabilities() const { return mSurfaceCapabilities; }
@@ -45,9 +45,9 @@ class VulkanSurface {
     GETTER GetColorSpace() const { return mColorSpace; }
 
     private:
-    const vk::Instance *mInstance = nullptr;
-    vk::SurfaceKHR mSurface       = nullptr;
-    SDL_Window *mWindow           = nullptr;
+    vk::Instance *mInstance = nullptr;
+    vk::SurfaceKHR mSurface = nullptr;
+    SDL_Window *mWindow     = nullptr;
     vk::Format mSurfaceImageFormat;
     vk::ColorSpaceKHR mColorSpace;
     vk::SurfaceCapabilitiesKHR mSurfaceCapabilities;

@@ -17,7 +17,7 @@ class BestText : public BestText_base, Renderer_base {
 
     public:
     BestText(Instance &inInstance,
-             const Window &inCompatibleWindow,
+             Window &inCompatibleWindow,
              const PainterCache &inCache,
              ui inVarDesCount = 5000);
     bb::TextDimensions AddText(
@@ -73,7 +73,7 @@ class BestText : public BestText_base, Renderer_base {
 
     public:
     BestText(Instance &inInstance,
-             const Window_base &inCompatibleWindow,
+             Window_base &inCompatibleWindow,
              const PainterCache &inCache,
              ui inVarDesCount = 5000)
         : mInstance(inInstance) {}

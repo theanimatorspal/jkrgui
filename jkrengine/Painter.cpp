@@ -4,8 +4,8 @@
 using namespace Jkr;
 
 Jkr::Painter::Painter(Instance &inInstance,
-                      const Window_base &inWindow,
-                      const PainterCache &inCache,
+                      Window_base &inWindow,
+                      PainterCache &inCache,
                       PipelineContext inPipelineContext)
     : mInstance(inInstance),
       mGUIPainterCache(inCache),
@@ -26,8 +26,8 @@ Jkr::Painter::Painter(Instance &inInstance,
 }
 
 Jkr::Painter::Painter(Instance &inInstance,
-                      const Window_base &inWindow,
-                      const PainterCache &inCache,
+                      Window_base &inWindow,
+                      PainterCache &inCache,
                       uint32_t inNoOfVariableDescriptorCount)
     : mInstance(inInstance),
       mGUIPainterCache(inCache),
@@ -49,8 +49,8 @@ Jkr::Painter::Painter(Instance &inInstance,
 }
 
 Jkr::Painter::Painter(Instance &inInstance,
-                      const VulkanRenderPassBase &inRenderPass,
-                      const PainterCache &inCache,
+                      VulkanRenderPassBase &inRenderPass,
+                      PainterCache &inCache,
                       PipelineContext inPipelineContext)
     : mInstance(inInstance),
       mGUIPainterCache(inCache),
@@ -70,10 +70,9 @@ Jkr::Painter::Painter(Instance &inInstance,
                                          PipelineContext::Compute);
 }
 
-void Painter::OptimizeParameter(
-     Instance &inInstance,
-     const PainterParameter<PainterParameterContext::StorageImage> &inImage,
-     const Window_base &inWindow) {
+void Painter::OptimizeParameter(Instance &inInstance,
+                                PainterParameter<PainterParameterContext::StorageImage> &inImage,
+                                Window_base &inWindow) {
     inInstance.GetUtilCommandBufferFence().Wait();
     inInstance.GetUtilCommandBufferFence().Reset();
     inInstance.GetUtilCommandBuffer().Begin();
@@ -85,9 +84,9 @@ void Painter::OptimizeParameter(
 
 void Jkr::Painter::OptimizeImageParameter(
      Instance &inInstance,
-     const VulkanCommandBuffer &inBuffer,
-     const PainterParameter<PainterParameterContext::StorageImage> &inImage,
-     const Window_base &inWindow) {
+     VulkanCommandBuffer &inBuffer,
+     PainterParameter<PainterParameterContext::StorageImage> &inImage,
+     Window_base &inWindow) {
     inImage.GetStorageImage().CmdTransitionImageLayout(inBuffer,
                                                        vk::ImageLayout::eUndefined,
                                                        vk::ImageLayout::eGeneral,
@@ -99,7 +98,7 @@ void Jkr::Painter::OptimizeImageParameter(
 
 using namespace Jkr;
 
-void Jkr::Painter::BindComputePipeline(const Window_base &inWindow, CmdParam inParam) {
+void Jkr::Painter::BindComputePipeline(Window_base &inWindow, CmdParam inParam) {
     auto index = inWindow.GetCurrentFrame();
     auto &Cmd  = inWindow.GetCommandBuffers(inParam)[index];
     mVulkanComputePipeline.Bind<PipelineContext::Compute>(Cmd);
@@ -109,20 +108,18 @@ void Jkr::Painter::BindComputePipeline(VulkanCommandBuffer &inBuffer) {
     mVulkanComputePipeline.Bind<PipelineContext::Compute>(inBuffer);
 }
 
-void Painter::BindDrawPipeline(const Primitive &inPrimitive,
-                               const Window_base &inWindow,
-                               CmdParam inCmdParam) {
+void Painter::BindDrawPipeline(Primitive &inPrimitive, Window_base &inWindow, CmdParam inCmdParam) {
     auto index = inWindow.GetCurrentFrame();
     auto &Cmd  = inWindow.GetCommandBuffers(inCmdParam)[index];
     mVulkanPipeline.Bind<PipelineContext::Default>(Cmd);
 }
 
-void Painter::BindDrawPipeline(const Window_base &inWindow, CmdParam inCmdParam) {
+void Painter::BindDrawPipeline(Window_base &inWindow, CmdParam inCmdParam) {
     auto index = inWindow.GetCurrentFrame();
     auto &Cmd  = inWindow.GetCommandBuffers(inCmdParam)[index];
     mVulkanPipeline.Bind<PipelineContext::Default>(Cmd);
 }
 
-void Painter::BindDrawPipeline(const VulkanCommandBuffer &inCommandBuffer) {
+void Painter::BindDrawPipeline(VulkanCommandBuffer &inCommandBuffer) {
     mVulkanPipeline.Bind<PipelineContext::Default>(inCommandBuffer);
 }

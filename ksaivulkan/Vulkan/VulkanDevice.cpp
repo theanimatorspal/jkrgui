@@ -7,8 +7,8 @@
 
 using namespace ksai;
 
-VulkanDevice::VulkanDevice(const VulkanPhysicalDevice &inPhysicalDevice,
-                           const VulkanQueueContext &inQueueContext,
+VulkanDevice::VulkanDevice(VulkanPhysicalDevice &inPhysicalDevice,
+                           VulkanQueueContext &inQueueContext,
                            VulkanDeviceFeatureSet inFeatureSet)
     : mPhysicalDevice(&inPhysicalDevice.GetPhysicalDeviceHandle()) {
     Init({&inPhysicalDevice, &inQueueContext, inFeatureSet});
@@ -100,7 +100,7 @@ void VulkanDevice::Destroy() {
     mInitialized = false;
 }
 
-void VulkanDevice::Wait() const { mDevice.waitIdle(); }
+void VulkanDevice::Wait() { mDevice.waitIdle(); }
 
 VulkanDevice::~VulkanDevice() {
     if (mInitialized) {

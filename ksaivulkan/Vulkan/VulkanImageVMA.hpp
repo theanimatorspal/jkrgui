@@ -6,8 +6,8 @@ namespace ksai {
 class VulkanImageVMA : public VulkanImageBase {
     public:
     struct CreateInfo {
-        const VulkanVMA *inVMA;
-        const VulkanDevice *inDevice;
+        VulkanVMA *inVMA;
+        VulkanDevice *inDevice;
         ui inWidth;
         ui inHeight;
         ImageContext inImageContext            = ImageContext::Default;
@@ -31,17 +31,17 @@ class VulkanImageVMA : public VulkanImageBase {
 
     VulkanImageVMA() = default;
     ~VulkanImageVMA();
-    VulkanImageVMA(const VulkanImageVMA &other)            = delete;
-    VulkanImageVMA &operator=(const VulkanImageVMA &other) = delete;
-    VulkanImageVMA(VulkanImageVMA &&other)                 = default;
-    VulkanImageVMA &operator=(VulkanImageVMA &&other)      = default;
+    VulkanImageVMA(VulkanImageVMA &other)             = delete;
+    VulkanImageVMA &operator=(VulkanImageVMA &other)  = delete;
+    VulkanImageVMA(VulkanImageVMA &&other)            = default;
+    VulkanImageVMA &operator=(VulkanImageVMA &&other) = default;
 
     void Init(CreateInfo inCreateInfo);
     void Init(ImageProperties inProperties);
     void Destroy();
 
-    VulkanImageVMA(const VulkanVMA &inVMA,
-                   const VulkanDevice &inDevice,
+    VulkanImageVMA(VulkanVMA &inVMA,
+                   VulkanDevice &inDevice,
                    ui inWidth,
                    ui inHeight,
                    ImageContext inImageContext,
@@ -54,7 +54,7 @@ class VulkanImageVMA : public VulkanImageBase {
                    opt<vk::Format> inFormat             = std::nullopt);
 
     private:
-    const VulkanVMA *mVMA;
+    VulkanVMA *mVMA;
     VmaAllocation mAllocation;
     bool mInitialized = false;
 };

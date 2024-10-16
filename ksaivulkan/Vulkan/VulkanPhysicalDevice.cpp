@@ -2,7 +2,7 @@
 #include <cassert>
 using namespace ksai;
 
-VulkanPhysicalDevice::VulkanPhysicalDevice(const VulkanInstance &inInstance)
+VulkanPhysicalDevice::VulkanPhysicalDevice(VulkanInstance &inInstance)
     : mInstance(&inInstance.GetInstanceHandle()) {
     mVulkanInstance = &inInstance;
     mPhysicalDevice = mInstance->enumeratePhysicalDevices().front();

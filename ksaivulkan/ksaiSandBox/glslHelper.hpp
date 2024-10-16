@@ -7,8 +7,8 @@ namespace SpirvHelper {
 void Init();
 void Finalize();
 void InitResources(TBuiltInResource &Resources);
-EShLanguage FindLanguage(const vk::ShaderStageFlagBits shader_type);
-bool GLSLtoSPV(const vk::ShaderStageFlagBits shader_type,
+EShLanguage FindLanguage(vk::ShaderStageFlagBits shader_type);
+bool GLSLtoSPV(vk::ShaderStageFlagBits shader_type,
                const char *pshader,
                std::vector<unsigned int> &spirv);
 }; // namespace SpirvHelper

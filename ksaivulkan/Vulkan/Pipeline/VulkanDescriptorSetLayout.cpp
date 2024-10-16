@@ -7,9 +7,9 @@ constexpr int MaxSetCount        = 4;
 
 void VulkanDescriptorSetLayoutBase::FillDescriptorLayoutBindings(
      ShaderModuleContext Context,
-     const spirv_cross::ShaderResources& inResources,
-     const spirv_cross::Compiler& inGlslCompiler,
-     std::vector<vk::DescriptorSetLayoutBinding>& inDescriptorSetLayoutBindings,
+     const spirv_cross::ShaderResources &inResources,
+     const spirv_cross::Compiler &inGlslCompiler,
+     std::vector<vk::DescriptorSetLayoutBinding> &inDescriptorSetLayoutBindings,
      int inSet) {
     auto ShaderStageFlag = vk::ShaderStageFlagBits::eVertex;
     if (Context == ShaderModuleContext::Vertex)
@@ -19,35 +19,35 @@ void VulkanDescriptorSetLayoutBase::FillDescriptorLayoutBindings(
     else if (Context == ShaderModuleContext::Compute)
         ShaderStageFlag = vk::ShaderStageFlagBits::eCompute;
 
-    for (auto& u : inResources.uniform_buffers) {
+    for (auto &u : inResources.uniform_buffers) {
         uint32_t set     = inGlslCompiler.get_decoration(u.id, spv::DecorationDescriptorSet);
         uint32_t binding = inGlslCompiler.get_decoration(u.id, spv::DecorationBinding);
         auto dbinding    = vk::DescriptorSetLayoutBinding(
              binding, vk::DescriptorType::eUniformBuffer, 1, ShaderStageFlag, nullptr);
         if (set == inSet) CheckAndPushBindings(inDescriptorSetLayoutBindings, dbinding);
     }
-    for (auto& u : inResources.sampled_images) {
+    for (auto &u : inResources.sampled_images) {
         uint32_t set     = inGlslCompiler.get_decoration(u.id, spv::DecorationDescriptorSet);
         uint32_t binding = inGlslCompiler.get_decoration(u.id, spv::DecorationBinding);
         auto dbinding    = vk::DescriptorSetLayoutBinding(
              binding, vk::DescriptorType::eCombinedImageSampler, 1, ShaderStageFlag, nullptr);
         if (set == inSet) CheckAndPushBindings(inDescriptorSetLayoutBindings, dbinding);
     }
-    for (auto& u : inResources.storage_buffers) {
+    for (auto &u : inResources.storage_buffers) {
         uint32_t set     = inGlslCompiler.get_decoration(u.id, spv::DecorationDescriptorSet);
         uint32_t binding = inGlslCompiler.get_decoration(u.id, spv::DecorationBinding);
         auto dbinding    = vk::DescriptorSetLayoutBinding(
              binding, vk::DescriptorType::eStorageBuffer, 1, ShaderStageFlag);
         if (set == inSet) CheckAndPushBindings(inDescriptorSetLayoutBindings, dbinding);
     }
-    for (auto& u : inResources.storage_images) {
+    for (auto &u : inResources.storage_images) {
         uint32_t set     = inGlslCompiler.get_decoration(u.id, spv::DecorationDescriptorSet);
         uint32_t binding = inGlslCompiler.get_decoration(u.id, spv::DecorationBinding);
         auto dbinding    = vk::DescriptorSetLayoutBinding(
              binding, vk::DescriptorType::eStorageImage, 1, ShaderStageFlag, nullptr);
         if (set == inSet) CheckAndPushBindings(inDescriptorSetLayoutBindings, dbinding);
     }
-    for (auto& u : inResources.separate_samplers) {
+    for (auto &u : inResources.separate_samplers) {
         uint32_t set     = inGlslCompiler.get_decoration(u.id, spv::DecorationDescriptorSet);
         uint32_t binding = inGlslCompiler.get_decoration(u.id, spv::DecorationBinding);
         auto dbinding    = vk::DescriptorSetLayoutBinding(
@@ -60,13 +60,13 @@ template <>
 VulkanDescriptorSetLayout<NoOfShaderModules,
                           ShaderModuleContext::Vertex,
                           ShaderModuleContext::Fragment>::
-     VulkanDescriptorSetLayout(const VulkanDevice& inDevice,
-                               const std::vector<VulkanShaderModule>& inModules)
+     VulkanDescriptorSetLayout(VulkanDevice &inDevice,
+                               const std::vector<VulkanShaderModule> &inModules)
     : VulkanDescriptorSetLayoutBase(inDevice), mModules(inModules) {
-    auto& VertexShaderCompiler    = mModules[0].GetShaderResourcesCompilerHandle();
-    auto& VertexShaderResources   = mModules[0].GetShaderResourcesHandle();
-    auto& FragmentShaderCompiler  = mModules[1].GetShaderResourcesCompilerHandle();
-    auto& FragmentShaderResources = mModules[1].GetShaderResourcesHandle();
+    auto &VertexShaderCompiler    = mModules[0].GetShaderResourcesCompilerHandle();
+    auto &VertexShaderResources   = mModules[0].GetShaderResourcesHandle();
+    auto &FragmentShaderCompiler  = mModules[1].GetShaderResourcesCompilerHandle();
+    auto &FragmentShaderResources = mModules[1].GetShaderResourcesHandle();
 
     for (int set = 0; set < MaxSetCount; ++set) {
         std::vector<vk::DescriptorSetLayoutBinding> DescriptorSetLayoutBindings;
@@ -89,13 +89,13 @@ VulkanDescriptorSetLayout<NoOfShaderModules,
 
 template <>
 VulkanDescriptorSetLayout<1, ShaderModuleContext::Compute>::VulkanDescriptorSetLayout(
-     const VulkanDevice& inDevice, const std::vector<VulkanShaderModule>& inModules)
+     VulkanDevice &inDevice, const std::vector<VulkanShaderModule> &inModules)
     : VulkanDescriptorSetLayoutBase(inDevice), mModules(inModules) {
 
     for (int set = 0; set < MaxSetCount; ++set) {
         std::vector<vk::DescriptorSetLayoutBinding> DescriptorSetLayoutBindings;
-        auto& ComputeShaderCompiler  = mModules[0].GetShaderResourcesCompilerHandle();
-        auto& ComputeShaderResources = mModules[0].GetShaderResourcesHandle();
+        auto &ComputeShaderCompiler  = mModules[0].GetShaderResourcesCompilerHandle();
+        auto &ComputeShaderResources = mModules[0].GetShaderResourcesHandle();
         FillDescriptorLayoutBindings(ShaderModuleContext::Compute,
                                      ComputeShaderResources,
                                      ComputeShaderCompiler,
@@ -115,15 +115,15 @@ template <>
 VulkanDescriptorSetLayout<NoOfShaderModules,
                           ShaderModuleContext::Vertex,
                           ShaderModuleContext::Fragment>::
-     VulkanDescriptorSetLayout(const VulkanDevice& inDevice,
-                               const std::vector<VulkanShaderModule>& inModules,
+     VulkanDescriptorSetLayout(VulkanDevice &inDevice,
+                               const std::vector<VulkanShaderModule> &inModules,
                                uint32_t inVariableSizedDescriptorMaxCount)
     : VulkanDescriptorSetLayoutBase(inDevice), mModules(inModules) {
     std::vector<vk::DescriptorSetLayoutBinding> DescriptorSetLayoutBindings;
-    auto& VertexShaderCompiler    = mModules[0].GetShaderResourcesCompilerHandle();
-    auto& VertexShaderResources   = mModules[0].GetShaderResourcesHandle();
-    auto& FragmentShaderCompiler  = mModules[1].GetShaderResourcesCompilerHandle();
-    auto& FragmentShaderResources = mModules[1].GetShaderResourcesHandle();
+    auto &VertexShaderCompiler    = mModules[0].GetShaderResourcesCompilerHandle();
+    auto &VertexShaderResources   = mModules[0].GetShaderResourcesHandle();
+    auto &FragmentShaderCompiler  = mModules[1].GetShaderResourcesCompilerHandle();
+    auto &FragmentShaderResources = mModules[1].GetShaderResourcesHandle();
     FillDescriptorLayoutBindings(ShaderModuleContext::Vertex,
                                  VertexShaderResources,
                                  VertexShaderCompiler,
@@ -156,13 +156,13 @@ VulkanDescriptorSetLayout<NoOfShaderModules,
 
 template <>
 VulkanDescriptorSetLayout<1, ShaderModuleContext::Compute>::VulkanDescriptorSetLayout(
-     const VulkanDevice& inDevice,
-     const std::vector<VulkanShaderModule>& inModules,
+     VulkanDevice &inDevice,
+     const std::vector<VulkanShaderModule> &inModules,
      uint32_t inVariableSizedDescriptorMaxCount)
     : VulkanDescriptorSetLayoutBase(inDevice), mModules(inModules) {
     std::vector<vk::DescriptorSetLayoutBinding> DescriptorSetLayoutBindings;
-    auto& ComputeShaderCompiler  = mModules[0].GetShaderResourcesCompilerHandle();
-    auto& ComputeShaderResources = mModules[0].GetShaderResourcesHandle();
+    auto &ComputeShaderCompiler  = mModules[0].GetShaderResourcesCompilerHandle();
+    auto &ComputeShaderResources = mModules[0].GetShaderResourcesHandle();
     FillDescriptorLayoutBindings(ShaderModuleContext::Compute,
                                  ComputeShaderResources,
                                  ComputeShaderCompiler,
@@ -189,30 +189,30 @@ VulkanDescriptorSetLayout<1, ShaderModuleContext::Compute>::VulkanDescriptorSetL
 }
 #endif
 
-ksai::VulkanDescriptorSetLayoutBase::VulkanDescriptorSetLayoutBase(const VulkanDevice& inDevice)
+ksai::VulkanDescriptorSetLayoutBase::VulkanDescriptorSetLayoutBase(VulkanDevice &inDevice)
     : mDevice(inDevice.GetDeviceHandle()) {}
 
 ksai::VulkanDescriptorSetLayoutBase::~VulkanDescriptorSetLayoutBase() {
-    for (auto& DescLayout : mDescriptorSetLayouts) {
+    for (auto &DescLayout : mDescriptorSetLayouts) {
         mDevice.destroyDescriptorSetLayout(DescLayout);
     }
 }
 
 void ksai::VulkanDescriptorSetLayoutBase::FillDescriptorLayoutBindings(
-     const spirv_cross::ShaderResources& inResources,
-     const spirv_cross::Compiler& inGlslComp,
-     std::vector<vk::DescriptorSetLayoutBinding>& DescriptorSetLayoutBindings,
+     const spirv_cross::ShaderResources &inResources,
+     const spirv_cross::Compiler &inGlslComp,
+     std::vector<vk::DescriptorSetLayoutBinding> &DescriptorSetLayoutBindings,
      int inSet) {
     FillDescriptorLayoutBindings(
          ShaderModuleContext::Vertex, inResources, inGlslComp, DescriptorSetLayoutBindings, inSet);
 }
 
 void ksai::VulkanDescriptorSetLayoutBase::CheckAndPushBindings(
-     std::vector<vk::DescriptorSetLayoutBinding>& inDescriptorSetLayoutBindings,
+     std::vector<vk::DescriptorSetLayoutBinding> &inDescriptorSetLayoutBindings,
      vk::DescriptorSetLayoutBinding inBinding) {
     auto SearchIndex           = std::find_if(inDescriptorSetLayoutBindings.begin(),
                                     inDescriptorSetLayoutBindings.end(),
-                                    [&](vk::DescriptorSetLayoutBinding& Binding) {
+                                    [&](vk::DescriptorSetLayoutBinding &Binding) {
                                         return Binding.binding == inBinding.binding;
                                     });
 

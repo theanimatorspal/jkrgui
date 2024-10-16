@@ -107,7 +107,7 @@ void SpirvHelper::InitResources(TBuiltInResource &Resources) {
     Resources.limits.generalConstantMatrixVectorIndexing  = 1;
 }
 
-EShLanguage SpirvHelper::FindLanguage(const vk::ShaderStageFlagBits shader_type) {
+EShLanguage SpirvHelper::FindLanguage(vk::ShaderStageFlagBits shader_type) {
     switch (shader_type) {
         case vk::ShaderStageFlagBits::eVertex:
             return EShLangVertex;
@@ -126,7 +126,7 @@ EShLanguage SpirvHelper::FindLanguage(const vk::ShaderStageFlagBits shader_type)
     }
 }
 
-bool SpirvHelper::GLSLtoSPV(const vk::ShaderStageFlagBits shader_type,
+bool SpirvHelper::GLSLtoSPV(vk::ShaderStageFlagBits shader_type,
                             const char *pshader,
                             std::vector<unsigned int> &spirv) {
     EShLanguage stage = FindLanguage(shader_type);

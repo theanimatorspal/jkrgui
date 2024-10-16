@@ -2,7 +2,7 @@
 
 using namespace ksai;
 
-VulkanSemaphore::VulkanSemaphore(const VulkanDevice &inDevice) { Init({&inDevice}); }
+VulkanSemaphore::VulkanSemaphore(VulkanDevice &inDevice) { Init({&inDevice}); }
 
 VulkanSemaphore::~VulkanSemaphore() {
     if (mInitialized) {

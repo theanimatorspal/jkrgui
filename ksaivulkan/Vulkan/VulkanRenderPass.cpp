@@ -6,9 +6,9 @@
 using namespace ksai;
 
 template <>
-VulkanRenderPass<RenderPassContext::Default>::VulkanRenderPass(const VulkanDevice &inDevice,
-                                                               const VulkanSurface &inSurface,
-                                                               const VulkanImage &inDepthImage)
+VulkanRenderPass<RenderPassContext::Default>::VulkanRenderPass(VulkanDevice &inDevice,
+                                                               VulkanSurface &inSurface,
+                                                               VulkanImage &inDepthImage)
     : mDevice(&inDevice.GetDeviceHandle()) {
     mColorAttachmentCount             = 1;
     vk::Format SurfaceSwapChainFormat = inSurface.GetSurfaceImageFormat();
@@ -78,7 +78,7 @@ VulkanRenderPass<RenderPassContext::Default>::VulkanRenderPass(const VulkanDevic
 }
 
 template <>
-VulkanRenderPass<RenderPassContext::Shadow>::VulkanRenderPass(const VulkanDevice &inDevice,
+VulkanRenderPass<RenderPassContext::Shadow>::VulkanRenderPass(VulkanDevice &inDevice,
                                                               VulkanImageBase &inDepthImage)
     : mDevice(&inDevice.GetDeviceHandle()) {
     mColorAttachmentCount       = 0;
@@ -127,10 +127,10 @@ VulkanRenderPass<RenderPassContext::Shadow>::VulkanRenderPass(const VulkanDevice
 }
 
 template <>
-VulkanRenderPass<RenderPassContext::MSAA>::VulkanRenderPass(const VulkanDevice &inDevice,
-                                                            const vk::Format inImageFormat,
-                                                            const VulkanImage &inColorImageTarget,
-                                                            const VulkanImage &inDepthImage,
+VulkanRenderPass<RenderPassContext::MSAA>::VulkanRenderPass(VulkanDevice &inDevice,
+                                                            vk::Format inImageFormat,
+                                                            VulkanImage &inColorImageTarget,
+                                                            VulkanImage &inDepthImage,
                                                             vk::SampleCountFlagBits inMSAASamples)
     : mDevice(&inDevice.GetDeviceHandle()) {
     mColorAttachmentCount             = 1;
@@ -231,7 +231,7 @@ VulkanRenderPass<RenderPassContext::MSAA>::VulkanRenderPass(const VulkanDevice &
 
 template <>
 VulkanRenderPass<RenderPassContext::SingleColorAttachment>::VulkanRenderPass(
-     const VulkanDevice &inDevice, VulkanImageBase &inColorImage)
+     VulkanDevice &inDevice, VulkanImageBase &inColorImage)
     : mDevice(&inDevice.GetDeviceHandle()) {
     mColorAttachmentCount = 1;
     vk::AttachmentDescription ColorAttachment =
@@ -278,12 +278,11 @@ VulkanRenderPass<RenderPassContext::SingleColorAttachment>::VulkanRenderPass(
 }
 
 template <>
-VulkanRenderPass<RenderPassContext::Deferred>::VulkanRenderPass(
-     const VulkanDevice &inDevice,
-     const VulkanImageBase &inPositionImage,
-     const VulkanImageBase &inNormalImage,
-     const VulkanImageBase &inAlbedoImage,
-     const VulkanImageBase &inDepthImage)
+VulkanRenderPass<RenderPassContext::Deferred>::VulkanRenderPass(VulkanDevice &inDevice,
+                                                                VulkanImageBase &inPositionImage,
+                                                                VulkanImageBase &inNormalImage,
+                                                                VulkanImageBase &inAlbedoImage,
+                                                                VulkanImageBase &inDepthImage)
     : mDevice(&inDevice.GetDeviceHandle()) {
     mColorAttachmentCount = 3;
 

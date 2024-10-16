@@ -3,7 +3,7 @@
 #ifdef JKR_USE_VARIABLE_DES_INDEXING
 
 Jkr::Renderer::BestText::BestText(Instance &inInstance,
-                                  const Window &inCompatibleWindow,
+                                  Window &inCompatibleWindow,
                                   const PainterCache &inCache,
                                   uint32_t inVarDesCount)
     : mInstance(inInstance) {

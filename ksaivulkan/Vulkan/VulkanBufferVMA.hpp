@@ -8,8 +8,8 @@ namespace ksai {
 class VulkanBufferVMA : public VulkanBufferBase {
     public:
     struct CreateInfo {
-        const VulkanVMA *inVMA;
-        const VulkanDevice *inDevice;
+        VulkanVMA *inVMA;
+        VulkanDevice *inDevice;
         size_t inSize;
         BufferContext inBufferContext;
         MemoryType inBufferMemoryType;
@@ -33,14 +33,14 @@ class VulkanBufferVMA : public VulkanBufferBase {
     }
 
     public:
-    VulkanBufferVMA(const VulkanVMA &inVMA,
-                    const VulkanDevice &inDevice,
+    VulkanBufferVMA(VulkanVMA &inVMA,
+                    VulkanDevice &inDevice,
                     size_t inSize,
                     BufferContext inBufferContext,
                     MemoryType inBufferStorageType);
 
     private:
-    const VulkanVMA *mAllocator;
+    VulkanVMA *mAllocator;
     VmaAllocation mAllocation;
     bool mMemoryMapped        = false;
     bool mInitialized         = false;

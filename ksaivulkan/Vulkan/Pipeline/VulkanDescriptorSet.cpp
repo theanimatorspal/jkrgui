@@ -4,18 +4,17 @@ using namespace ksai;
 static std::mutex mMutex;
 
 ksai::VulkanDescriptorSet::VulkanDescriptorSet(
-     const VulkanDevice &inDevice,
-     const VulkanDescriptorPoolBase &inDescriptorPool,
-     const VulkanDescriptorSetLayoutBase &inDescriptorSetLayout) {
+     VulkanDevice &inDevice,
+     VulkanDescriptorPoolBase &inDescriptorPool,
+     VulkanDescriptorSetLayoutBase &inDescriptorSetLayout) {
     Init({&inDevice, &inDescriptorPool, &inDescriptorSetLayout});
 }
 
 // TODO Fix this
-ksai::VulkanDescriptorSet::VulkanDescriptorSet(
-     const VulkanDevice &inDevice,
-     const VulkanDescriptorPoolBase &inDescriptorPool,
-     const VulkanDescriptorSetLayoutBase &inDescriptorSetLayout,
-     uint32_t inNoOfVarDescriptorSets) {
+ksai::VulkanDescriptorSet::VulkanDescriptorSet(VulkanDevice &inDevice,
+                                               VulkanDescriptorPoolBase &inDescriptorPool,
+                                               VulkanDescriptorSetLayoutBase &inDescriptorSetLayout,
+                                               uint32_t inNoOfVarDescriptorSets) {
     vk::DescriptorSetAllocateInfo DescriptorSetAllocateInfo(
          inDescriptorPool.GetDescriptorPoolHandle(),
          inDescriptorSetLayout.GetDescriptorLayoutHandle());
@@ -34,8 +33,8 @@ ksai::VulkanDescriptorSet::VulkanDescriptorSet(
 }
 
 void VulkanDescriptorSet::Bind(vk::PipelineBindPoint inBindPoint,
-                               const VulkanCommandBuffer &inBuffer,
-                               const VulkanPipelineLayoutBase &inPipelineLayout,
+                               VulkanCommandBuffer &inBuffer,
+                               VulkanPipelineLayoutBase &inPipelineLayout,
                                int inSet) {
     inBuffer.GetCommandBufferHandle().bindDescriptorSets(inBindPoint,
                                                          inPipelineLayout.GetPipelineLayoutHandle(),

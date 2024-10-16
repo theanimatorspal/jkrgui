@@ -9,26 +9,26 @@ class VulkanBufferBase;
 class VulkanSwapChainBase {
     public:
     struct CreateInfo {
-        const VulkanDevice *mDevice;
+        VulkanDevice *mDevice;
     };
 
-    VulkanSwapChainBase()                                            = default;
-    VulkanSwapChainBase(const VulkanSwapChainBase &other)            = default;
-    VulkanSwapChainBase &operator=(const VulkanSwapChainBase &other) = default;
-    VulkanSwapChainBase(VulkanSwapChainBase &&other)                 = default;
-    VulkanSwapChainBase &operator=(VulkanSwapChainBase &&other)      = default;
+    VulkanSwapChainBase()                                       = default;
+    VulkanSwapChainBase(VulkanSwapChainBase &other)             = default;
+    VulkanSwapChainBase &operator=(VulkanSwapChainBase &other)  = default;
+    VulkanSwapChainBase(VulkanSwapChainBase &&other)            = default;
+    VulkanSwapChainBase &operator=(VulkanSwapChainBase &&other) = default;
     operator vk::SwapchainKHR() const { return mSwapChain; }
 
     void Init(CreateInfo inCreateInfo);
 
-    VulkanSwapChainBase(const VulkanDevice &inDevice);
+    VulkanSwapChainBase(VulkanDevice &inDevice);
     ~VulkanSwapChainBase() = default;
     void ExplicitlyDestroy();
     void ExplicitlyDestroyOldSwapChain();
 
     public:
     using ImageResult = p<ui, ui>;
-    ImageResult AcquireNextImage(const VulkanSemaphore &inSemapore);
+    ImageResult AcquireNextImage(VulkanSemaphore &inSemapore);
     static bool ImageIsNotOk(ImageResult inResult) {
         return (inResult.first != static_cast<ui>(vk::Result::eSuccess)) and
                (inResult.first != static_cast<ui>(vk::Result::eSuboptimalKHR));
@@ -48,7 +48,7 @@ class VulkanSwapChainBase {
     GETTER &GetSwapChainImageViews() { return mSwapChainImageViews; }
 
     protected:
-    const vk::Device *mDevice;
+    vk::Device *mDevice;
     vk::SwapchainKHR mSwapChain;
     vk::Extent2D mSwapChainImageExtent;
     v<vk::Image> mSwapChainImages;
@@ -66,18 +66,18 @@ using VulkanImages = VulkanImageExternalHandled;
 class VulkanSwapChain : public VulkanSwapChainBase {
     public:
     struct CreateInfo {
-        const VulkanDevice *mDevice             = nullptr;
-        const VulkanQueueContext *mQueueContext = nullptr;
-        const VulkanSurface *mSurface           = nullptr;
+        VulkanDevice *mDevice             = nullptr;
+        VulkanQueueContext *mQueueContext = nullptr;
+        VulkanSurface *mSurface           = nullptr;
         optref<VulkanSwapChainBase> mOldSwapChain;
         sz mMaxFramesInFlight = 2;
     };
 
     VulkanSwapChain() = default;
     ~VulkanSwapChain();
-    VulkanSwapChain(const VulkanSwapChain &other)            = delete;
-    VulkanSwapChain &operator=(const VulkanSwapChain &other) = delete;
-    VulkanSwapChain(VulkanSwapChain &&other)                 = default;
+    VulkanSwapChain(VulkanSwapChain &other)            = delete;
+    VulkanSwapChain &operator=(VulkanSwapChain &other) = delete;
+    VulkanSwapChain(VulkanSwapChain &&other)           = default;
     VulkanSwapChain &operator=(VulkanSwapChain &&Other) noexcept {
         ExplicitlyDestroy();
         ExplicitlyDestroyOldSwapChain();
@@ -102,11 +102,11 @@ class VulkanSwapChain : public VulkanSwapChainBase {
     void Init(CreateInfo inCreateInfo);
     void Destroy();
 
-    v<VulkanImages> GetVulkanImages(const VulkanDevice &inDevice, const VulkanSurface &inSurface);
+    v<VulkanImages> GetVulkanImages(VulkanDevice &inDevice, VulkanSurface &inSurface);
 
-    VulkanSwapChain(const VulkanDevice &inDevice,
-                    const VulkanQueueContext &inQueueContext,
-                    const VulkanSurface &inSurface,
+    VulkanSwapChain(VulkanDevice &inDevice,
+                    VulkanQueueContext &inQueueContext,
+                    VulkanSurface &inSurface,
                     optref<VulkanSwapChainBase> inOldSwapChain = std::nullopt,
                     sz inMaxFramesInFlight                     = 2);
 

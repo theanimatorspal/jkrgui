@@ -7,7 +7,7 @@ void Simple3D::Bind(Window_base &inWindow, CmdParam inParam) {
     mPainter->BindDrawPipeline(inWindow, inParam);
 }
 
-void Simple3D::BindByCommandBuffer(const VulkanCommandBuffer &inBuffer) {
+void Simple3D::BindByCommandBuffer(VulkanCommandBuffer &inBuffer) {
     mPainter->BindDrawPipeline(inBuffer);
 }
 
