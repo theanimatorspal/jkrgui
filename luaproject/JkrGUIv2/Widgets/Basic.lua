@@ -203,6 +203,12 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         end
     end
 
+    o.UpdateScissor = function(inScissorId, inPosition_3f, inDimension_3f, inShouldSetViewport)
+        o.c.mSVs[inScissorId].mImageId = inPosition_3f
+        o.c.mSVs[inScissorId].mColor = inDimension_3f
+        o.c.mSVs[inScissorId].mPush = inShouldSetViewport
+    end
+
 
     -- @warning inShape2DShader refers to the STRING value of o.shape2dShaders.<shader>
     -- e.g. for rounded rectangle use "roundedRectangle"
@@ -473,6 +479,26 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             o.w:SetDefaultScissor(cmdparam)
         end
         tracy.ZoneEnd()
+    end
+
+    o.DrawExplicit = function(self, inScissorIds)
+        local DrawablesInSVs = o.c.mDrawablesInSVs
+        local count = #inScissorIds
+        for i = 1, count, 1 do
+            local sv = inScissorIds[i]
+
+            ---@note SetScissor + Viewport
+            if sv.mPush then
+                o.w:SetViewport(sv.mImageId, sv.mColor, cmdparam)
+            end
+            o.w:SetScissor(sv.mImageId, sv.mColor, cmdparam)
+
+            o:DrawAll(DrawablesInSVs[i])
+
+            ---@note ResetScissor + Viewport
+            o.w:SetDefaultViewport(cmdparam)
+            o.w:SetDefaultScissor(cmdparam)
+        end
     end
 
     o.Dispatch = function(self)

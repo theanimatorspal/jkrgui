@@ -12,7 +12,7 @@ class Window : public Window_base {
     using PC                       = ParameterContext;
 
     public:
-    ///
+    /// @brief
     ///
     ///
     ///
@@ -53,7 +53,8 @@ class Window : public Window_base {
     ///
     ///
     ///
-    ///
+    ///@note remove these two, @todo these are to be unified to one function
+    /// maybe call it "Wait"
     void BeginUpdates();
     void EndUpdates();
     void BeginDispatches();
@@ -70,6 +71,9 @@ class Window : public Window_base {
     void BeginDraws(float r, float g, float b, float a, float d);
     void EndDraws();
     void Present();
+
+    ///@note this is for Windowless Window <to only submit but not present>
+    void Submit();
     void Refresh();
 
     ///

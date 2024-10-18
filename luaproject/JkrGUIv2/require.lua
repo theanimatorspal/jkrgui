@@ -85,7 +85,7 @@ ImportShared = function(inLibName)
         libName = "lib" .. inLibName .. ".so"
     end
     local f = package.loadlib(libName, "luaopen_" .. inLibName)
-    f()
+    return f()
 end
 
 Jkr.GetDefaultResource = function(inRenderer, inShaderType, inX, inY, inZ)
@@ -830,5 +830,12 @@ function IterateEachElementRecursively(inElement, inFunc_val)
             inFunc_val(value)
             IterateEachElementRecursively(value, inFunc_val)
         end
+    end
+end
+
+function FillTable(inTable, inValue)
+    local count = #inTable
+    for i = 1, count, 1 do
+        inTable[i] = nil
     end
 end

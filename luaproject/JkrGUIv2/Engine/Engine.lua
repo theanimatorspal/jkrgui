@@ -568,3 +568,40 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
     end
     return Objects
 end
+
+
+Engine.CreateWorld3D = function(w, inshaper3d)
+    local gworld3d = Jkr.World3D(inshaper3d)
+    local gcamera3d = Jkr.Camera3D()
+    gcamera3d:SetAttributes(vec3(0, 0, 0), vec3(0, 30, 30))
+    gcamera3d:SetPerspective(0.3, 16 / 9, 0.1, 10000)
+    gworld3d:AddCamera(gcamera3d)
+    local gdummypiplineindex = gworld3d:AddSimple3D(Engine.i, w);
+    local gdummypipline = gworld3d:GetSimple3D(gdummypiplineindex)
+    local light0 = {
+        pos = vec4(-1, -2, 2, 4),
+        dir = Jmath.Normalize(vec4(0, 0, 0, 0) - vec4(10, 10, -10, 1))
+    }
+    gworld3d:AddLight3D(light0.pos, light0.dir)
+
+    local vshader, fshader = Engine.GetAppropriateShader("CONSTANT_COLOR",
+        Jkr.CompileContext.Default, nil, nil, false, false
+    )
+
+    gdummypipline:CompileEXT(
+        Engine.i,
+        w,
+        "cache/dummyshader.glsl",
+        vshader.str,
+        fshader.str,
+        "",
+        false,
+        Jkr.CompileContext.Default
+    )
+
+    local globaluniformindex = gworld3d:AddUniform3D(Engine.i)
+    local globaluniformhandle = gworld3d:GetUniform3D(globaluniformindex)
+    globaluniformhandle:Build(gdummypipline) -- EUTA PIPELINE BANAUNU PRXA
+    gworld3d:AddWorldInfoToUniform3D(globaluniformindex)
+    return gworld3d
+end

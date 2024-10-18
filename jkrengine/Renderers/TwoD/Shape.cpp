@@ -192,7 +192,7 @@ void Shape::CopyFromImage(uint32_t inId,
              //  dst is compute image
 
              inSrcImage.CmdTransitionImageLayout(inCmd,
-                                                 vk::ImageLayout::eGeneral,
+                                                 vk::ImageLayout::eShaderReadOnlyOptimal,
                                                  vk::ImageLayout::eTransferSrcOptimal,
                                                  vk::PipelineStageFlagBits::eFragmentShader,
                                                  vk::PipelineStageFlagBits::eTransfer,
@@ -227,7 +227,7 @@ void Shape::CopyFromImage(uint32_t inId,
              /* Source Image From Src Optimal To General  */
              inSrcImage.CmdTransitionImageLayout(inCmd,
                                                  vk::ImageLayout::eTransferSrcOptimal,
-                                                 vk::ImageLayout::eGeneral,
+                                                 vk::ImageLayout::eShaderReadOnlyOptimal,
                                                  vk::PipelineStageFlagBits::eTransfer,
                                                  vk::PipelineStageFlagBits::eFragmentShader,
                                                  vk::AccessFlagBits::eMemoryRead,
@@ -264,7 +264,7 @@ void Shape::CopyToImage(ui inId, ui inWidth, ui inHeight, CustomPainterImage &in
 
         /* Destination Image From General To Dst Optimal  */
         inDstImage.CmdTransitionImageLayout(inCmd,
-                                            vk::ImageLayout::eGeneral,
+                                            vk::ImageLayout::eShaderReadOnlyOptimal,
                                             vk::ImageLayout::eTransferDstOptimal,
                                             vk::PipelineStageFlagBits::eFragmentShader,
                                             vk::PipelineStageFlagBits::eTransfer,
@@ -279,7 +279,7 @@ void Shape::CopyToImage(ui inId, ui inWidth, ui inHeight, CustomPainterImage &in
 
         inDstImage.CmdTransitionImageLayout(inCmd,
                                             vk::ImageLayout::eTransferDstOptimal,
-                                            vk::ImageLayout::eGeneral,
+                                            vk::ImageLayout::eShaderReadOnlyOptimal,
                                             vk::PipelineStageFlagBits::eTransfer,
                                             vk::PipelineStageFlagBits::eFragmentShader,
                                             vk::AccessFlagBits::eMemoryWrite,

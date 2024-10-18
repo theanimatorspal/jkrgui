@@ -167,6 +167,16 @@ void Window::Present() {
     }
 }
 
+void Window::Submit() {
+    mCommandBuffers[mCurrentFrame].End();
+
+    mInstance->GetGraphicsQueue().Submit<SubmitContext::ColorAttachment>(
+         mImageAvailableSemaphores[mCurrentFrame],
+         mRenderFinishedSemaphores[mCurrentFrame],
+         mFences[mCurrentFrame],
+         mCommandBuffers[mCurrentFrame]);
+}
+
 void Window::BeginUIs() {
     mSecondaryCommandBuffersUI[mCurrentFrame]
          .Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPassAndOneTimeSubmit>(

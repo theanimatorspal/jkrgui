@@ -31,6 +31,11 @@ void DrawShape2DWithSimple3D(Window_base &inWindow,
 void CreateMiscBindings(sol::state &inState) {
     auto Jkr = inState["Jkr"].get_or_create<sol::table>();
 
+    Jkr.set_function("Table", [](sol::this_state inState, int inArrayLength, int inHashlength) {
+        sol::state_view state = inState.lua_state();
+        return state.create_table(inArrayLength, inHashlength);
+    });
+
     Jkr.new_usertype<Jkr::Misc::RecycleBin<int>>(
          "RecycleBin",
          sol::call_constructor,
@@ -323,6 +328,8 @@ void CreateMiscBindings(sol::state &inState) {
 
     Jkr.set_function("CopyWindowDeferredImageToShapeImage",
                      &Jkr::Misc::CopyWindowDeferredImageToShapeImage);
+    Jkr.set_function("CopyWindowRenderTargetImageToShapeImage",
+                     &Jkr::Misc::CopyWindowRenderTargetImageToShapeImage);
     Jkr.set_function("SleepForMiliSeconds", [](int inMiliSeconds) {
         std::this_thread::sleep_for(chrono::nanoseconds(inMiliSeconds * 1000000));
     });

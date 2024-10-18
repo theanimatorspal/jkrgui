@@ -32,6 +32,8 @@ class BestText_base {
         int mYBearing;
         int mDelY;
     };
+
+    ///@todo Remove this
     enum class AlignH { Center, Left, Right };
     enum class AlignV { Center, Top, Bottom };
     struct TextProperty {

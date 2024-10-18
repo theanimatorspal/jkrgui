@@ -121,6 +121,8 @@ void CreateBasicBindings(sol::state &s) {
          &Jkr::Window::EndDraws,
          "Present",
          &Jkr::Window::Present,
+         "Submit",
+         &Jkr::Window::Submit,
 
          "BeginUIs",
          &Jkr::Window::BeginUIs,
