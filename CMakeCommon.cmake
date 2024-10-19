@@ -3,13 +3,29 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 cmake_policy(SET CMP0069 NEW) 
 set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+
+
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
+endif()
 
 if(WIN32)
     add_definitions(-DWIN32_LEAN_AND_MEAN -DNOMINMAX)
 endif()
-
 include(FetchContent)
+
+
+# Fetch SDL2
+FetchContent_Declare(
+  SDL2
+  GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+  GIT_TAG release-2.30.8       # Use the specific tag for version 2.30.8
+  GIT_SHALLOW TRUE             # Fetch only the latest commit
+)
+
+# Make the content available
+FetchContent_MakeAvailable(SDL2)
+
 
 # Fetch SPIRV-Headers
 FetchContent_Declare(
@@ -295,7 +311,7 @@ function(configure_target TARGET_NAME)
     elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
         target_link_libraries(${TARGET_NAME}
             ${Vulkan_LIBRARIES}
-            SDL2
+            SDL2d
             SPIRVd
             MachineIndependentd
             SPIRV-Toolsd
