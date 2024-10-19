@@ -35,7 +35,11 @@ class Window_base : public SDLWindow {
     GETTER &GetRenderPass() { return mRenderPass; }
     GETTER &GetSwapChainImages() { return mSwapChainImages; }
     GETTER &GetSurface() { return mSurface; }
-    GETTER &GetColorImageRenderTarget() { return mColorImageRenderTarget; }
+    ///@todo Rename this
+    ///@warning For offscreen window (headless), there is only one offscreen image, since
+    /// presentation is not being done
+    GETTER &GetColorImageRenderTarget() { return mOffscreenImages[0]; }
+
     void SetScissor(
          int inX, int inY, int inW, int inH, ParameterContext inContext = ParameterContext::UI);
     void SetDefaultScissor(ParameterContext inContext = ParameterContext::UI);

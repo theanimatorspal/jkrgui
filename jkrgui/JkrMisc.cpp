@@ -321,6 +321,10 @@ void CreateMiscBindings(sol::state &inState) {
                               "AddSkyboxToUniform3D",
                               &World3D::AddSkyboxToUniform3D);
 
+    Jkr.set_function("SleepForMiliSeconds", [](int inMiliSeconds) {
+        std::this_thread::sleep_for(chrono::nanoseconds(inMiliSeconds * 1000000));
+    });
+
     Jkr.new_usertype<Jkr::Misc::FileJkr>(
          "FileJkr", sol::call_constructor, sol::factories([](s inName) {
              return mu<Jkr::Misc::FileJkr>(inName);
@@ -330,9 +334,9 @@ void CreateMiscBindings(sol::state &inState) {
                      &Jkr::Misc::CopyWindowDeferredImageToShapeImage);
     Jkr.set_function("CopyWindowRenderTargetImageToShapeImage",
                      &Jkr::Misc::CopyWindowRenderTargetImageToShapeImage);
-    Jkr.set_function("SleepForMiliSeconds", [](int inMiliSeconds) {
-        std::this_thread::sleep_for(chrono::nanoseconds(inMiliSeconds * 1000000));
-    });
+    Jkr.set_function("CopyWindowRenderTargetImageToCustomPainterImage",
+                     &Jkr::Misc::CopyWindowRenderTargetImageToCustomPainterImage);
+
     Jkr.set_function("RegisterCustomPainterImageToCustomPainterImage",
                      &Jkr::Misc::RegisterCustomPainterImageToCustomPainterImage);
     Jkr.set_function("RegisterShapeRenderer3DToCustomPainterImage",

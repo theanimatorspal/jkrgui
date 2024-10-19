@@ -171,10 +171,7 @@ void Window::Submit() {
     mCommandBuffers[mCurrentFrame].End();
 
     mInstance->GetGraphicsQueue().Submit<SubmitContext::ColorAttachment>(
-         mImageAvailableSemaphores[mCurrentFrame],
-         mRenderFinishedSemaphores[mCurrentFrame],
-         mFences[mCurrentFrame],
-         mCommandBuffers[mCurrentFrame]);
+         mCommandBuffers[mCurrentFrame], mFences[mCurrentFrame]);
 }
 
 void Window::BeginUIs() {

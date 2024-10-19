@@ -68,7 +68,7 @@ void CreateBasicBindings(sol::state &s) {
                  int inThreadsCount) {
                   int NoOfCmdBufferPerThread = 2;
                   std::vector<ui> CmdBufferCountPerThreadVec;
-                  CmdBufferCountPerThreadVec.resize(NoOfCmdBufferPerThread);
+                  CmdBufferCountPerThreadVec.resize(inThreadsCount, NoOfCmdBufferPerThread);
                   return std::make_unique<Jkr::Window>(inInstance,
                                                        CmdBufferCountPerThreadVec,
                                                        inOffscreenFrameHeight,

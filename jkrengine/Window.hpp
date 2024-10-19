@@ -27,14 +27,6 @@ class Window : public Window_base {
     void BeginShadowPass(float ind);
     void EndShadowPass();
 
-    ///
-    ///
-    ///
-    ///
-    ///
-    ///
-    ///
-    ///
     /// @todo Name this Correctly
     void PrepareDeferredPass();
     /// @todo Name this Correctly
@@ -46,28 +38,16 @@ class Window : public Window_base {
     void EndDeferredDraws();
     void PresentDeferred();
 
-    ///
-    ///
-    ///
-    ///
-    ///
-    ///
-    ///
     ///@note remove these two, @todo these are to be unified to one function
-    /// maybe call it "Wait"
+    ///@warning these doesn't actually mean to begin updates
+    ///@todo rename this to Wait
     void BeginUpdates();
+    ///@todo rename this to AcquireNextImage
     void EndUpdates();
     void BeginDispatches();
     void EndDispatches();
 
-    ///
-    ///
-    ///
-    ///
-    ///
-    ///
-    ///
-    ///
+    ///@brief begins the main command buffer
     void BeginDraws(float r, float g, float b, float a, float d);
     void EndDraws();
     void Present();
@@ -76,14 +56,6 @@ class Window : public Window_base {
     void Submit();
     void Refresh();
 
-    ///
-    ///
-    ///
-    ///
-    ///
-    ///
-    ///
-    ///
     void BeginUIs();
     void EndUIs();
     void ExecuteUIs();

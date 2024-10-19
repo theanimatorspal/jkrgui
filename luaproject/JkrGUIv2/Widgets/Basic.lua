@@ -268,6 +268,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         return textLabel
     end
 
+    ---@todo remove inNoDraw paramter
     o.CreateSampledImage = function(inPosition_3f, inDimension_3f, inFileName, inNoDraw, inColor)
         local SampledImage = {}
         if (inFileName) then
@@ -341,6 +342,9 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         end
         ComputeImage.CopyToSampled = function(inSampledImage)
             o.s:CopyToImage(inSampledImage.mId, ComputeImage.handle)
+        end
+        ComputeImage.CopyFromWindowTargetImage = function(inw)
+            Jkr.CopyWindowRenderTargetImageToCustomPainterImage(o.w, inw, ComputeImage.handle)
         end
         return ComputeImage
     end
@@ -416,7 +420,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     local ui_matrix = o.UIMatrix
     local s2ds = o.shape2dShaders
     local DrawAll = function(inMap)
-        tracy.ZoneBeginN("luamainDrawALL")
+        -- tracy.ZoneBeginN("luamainDrawALL")
         s:BindShapes(w, cmdparam)
         for key, value in pairs(inMap) do
             if key ~= "TEXT" and key ~= "IMAGE" and key ~= "SCISSOR_VIEWPORT" then
@@ -453,7 +457,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
                 end
             end
         end
-        tracy.ZoneEnd()
+        -- tracy.ZoneEnd()
     end
 
     o.Draw = function(self)
@@ -472,7 +476,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             end
             o.w:SetScissor(sv.mImageId, sv.mColor, cmdparam)
 
-            o:DrawAll(DrawablesInSVs[i])
+            DrawAll(DrawablesInSVs[i])
 
             ---@note ResetScissor + Viewport
             o.w:SetDefaultViewport(cmdparam)
@@ -493,7 +497,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             end
             o.w:SetScissor(sv.mImageId, sv.mColor, cmdparam)
 
-            o:DrawAll(DrawablesInSVs[i])
+            DrawAll(DrawablesInSVs[i])
 
             ---@note ResetScissor + Viewport
             o.w:SetDefaultViewport(cmdparam)

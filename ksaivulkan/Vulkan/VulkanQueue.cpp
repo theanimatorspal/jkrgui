@@ -30,6 +30,16 @@ void VulkanQueue<QueueContext::Graphics>::Submit<SubmitContext::ColorAttachment>
     mQueue.submit(info, inFlightFence.GetFenceHandle());
 }
 
+template <>
+template <>
+void VulkanQueue<QueueContext::Graphics>::Submit<SubmitContext::ColorAttachment>(
+     VulkanCommandBuffer &inCommandBuffer, VulkanFence &inFlightFence) const {
+    vk::SubmitInfo info;
+    info = vk::SubmitInfo({}, {}, inCommandBuffer.GetCommandBufferHandle(), {});
+    std::scoped_lock<std::mutex> Lock(SubmitMutex);
+    mQueue.submit(info, inFlightFence.GetFenceHandle());
+}
+
 /* Single Time*/
 template <>
 template <>

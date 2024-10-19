@@ -17,18 +17,24 @@ void CopyWindowRenderTargetImageToShapeImage(Window &inWindow,
                                              int inId);
 
 void CopyWindowDeferredImageToCustomPainterImage(
-     Window &inWindow, Renderer::CustomPainterImage &inCustomPainterImage);
+     Window &inWindow,
+     Window &inWindowWithDeferredImage,
+     Renderer::CustomPainterImage &inCustomPainterImage);
+void CopyWindowRenderTargetImageToCustomPainterImage(
+     Window &inWindow,
+     Window &inWindowWithRenderTargetImage,
+     Renderer::CustomPainterImage &inCustomPainterImage);
 
 /// @brief This function takes shape3d as a parameter and CustomPainterImage as a parameter for
 /// registering the vertex buffer and index buffer of shape3d into the descriptor set of
 /// CustomPainterImage as storage buffers.
 ///
-/// @param inShape3d This has the primitive (vertex, index buffers) to be registered to descriptor
-/// of inCustomImagePainter
+/// @param inShape3d This has the primitive (vertex, index buffers) to be registered to
+/// descriptor of inCustomImagePainter
 ///
 /// @param inCustomImagePainter This has the image and a descriptor (bad design but too late to
-/// change) to which the primitive of inShape3d (vertex, index buffer) is registered in the given
-/// binding
+/// change) to which the primitive of inShape3d (vertex, index buffer) is registered in the
+/// given binding
 ///
 /// @param  inVertexStorageBufferIndex the binding index for storage buffer of Vertex Buffer
 /// @param  inIndexStorageBufferIndex the binding index for storage buffer of Index Buffer
@@ -40,8 +46,8 @@ void CopyWindowDeferredImageToCustomPainterImage(
 /// @see Renderer::_3D::Shape3D class for further understanding. (it reallocates itself like
 /// std::vector)
 ///
-/// @warning Call Register() on the CustomPainterImage before this function, registering the image
-/// is mandatory before registering anyother things
+/// @warning Call Register() on the CustomPainterImage before this function, registering the
+/// image is mandatory before registering anyother things
 ///
 void RegisterShapeRenderer3DToCustomPainterImage(Instance &inInstance,
                                                  Renderer::_3D::Shape &inShape3d,

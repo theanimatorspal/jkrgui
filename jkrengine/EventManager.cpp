@@ -91,7 +91,10 @@ void Jkr::EventManager::SetEventCallBack(const std::function<void()> &inEventCal
 bool Jkr::EventManager::ShouldQuit() const { return should_quit; }
 SDL_Event Jkr::EventManager::GetEventHandle() const { return mEvent; }
 glm::vec2 Jkr::EventManager::GetMousePos() const { return mMousePos; }
-glm::vec2 Jkr::EventManager::GetRelativeMousePos() const { return mRelativePos; }
+glm::vec2 Jkr::EventManager::GetRelativeMousePos() const {
+    return glm::vec2(mRelativePos.x * mOffscreenByWindowSize.x,
+                     mRelativePos.y * mOffscreenByWindowSize.y);
+}
 int Jkr::EventManager::GetMouseButtonValue() const { return mCurrentPushedMouseButton; }
 
 bool Jkr::EventManager::IsKeyPressedContinous(int inScanCode) const {

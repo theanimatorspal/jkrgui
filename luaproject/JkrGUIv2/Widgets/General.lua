@@ -210,7 +210,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                                      inTitlebarBackColor, inContentBackColor, inShouldSetViewport)
         local ws = {}
         local z_difference = 10
-        local titlebarheight = 10
+        local titlebarheight = 20
         local titlebarpos = vec3(inPosition_3f.x, inPosition_3f.y - titlebarheight, inPosition_3f.z + z_difference)
         local titlebardimen = vec3(inDimension_3f.x, titlebarheight, inDimension_3f.z)
         local backgroundpos = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z + z_difference)
@@ -252,6 +252,13 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
 
         ws.Update = function(self, inPosition_3f, inDimension_3f)
             o.UpdateScissor(ws.mId, inPosition_3f, inDimension_3f, mShouldSetViewport)
+            local titlebarpos = vec3(inPosition_3f.x, inPosition_3f.y - titlebarheight, inPosition_3f.z + z_difference)
+            local titlebardimen = vec3(inDimension_3f.x, titlebarheight, inDimension_3f.z)
+            local backgroundpos = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z + z_difference)
+            mTitlebar:Update(titlebarpos, titlebardimen)
+            mTitlebarButton:Update(titlebarpos, titlebardimen)
+            mBackground:Update(backgroundpos, inDimension_3f)
+
             if not mShouldSetViewport then
                 mCentralComponent:Update(inPosition_3f, inDimension_3f)
             end
@@ -260,7 +267,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         end
 
         o.c:Push(Jkr.CreateUpdatable(function()
-            local mouseRel = e:GetRelativeMousePos().x
+            local mouseRel = e:GetRelativeMousePos()
             if e:IsLeftButtonPressedContinous() and (e:IsMouseWithinAtTopOfStack(mTitlebarButton.mId, mTitlebarButton.mDepthValue)) then
                 isMoving = true
             end

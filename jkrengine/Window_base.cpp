@@ -114,11 +114,43 @@ Window_base::Window_base(Instance &inInstance,
                                                                    mColorImageRenderTarget,
                                                                    mDepthImage,
                                                                    vk::SampleCountFlagBits::e4));
+    mOffscreenImages.resize(1);
+    for (int i = 0; i < mOffscreenImages.size(); i++) {
+        mOffscreenImages[i].Init(ksai::VulkanImageVMA::CreateInfo{
+             &mInstance->GetVMA(),
+             &mInstance->GetDevice(),
+             mOffscreenFrameSize.x,
+             mOffscreenFrameSize.y,
+             ksai::ImageContext::Default,
+             4,
+             1,
+             1,
+             1,
+             false,
+             vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferSrc,
+             vk::ImageLayout::eUndefined,
+             vk::Format::eR8G8B8A8Unorm});
+        mFrameBuffers.emplace_back(MakeUp<FrameBufferType>(inInstance.GetDevice(),
+                                                           mRenderPass,
+                                                           mColorImageRenderTarget,
+                                                           mDepthImage,
+                                                           mOffscreenImages[i]));
+    }
 }
 
 void Window_base::SetScissor(int inX, int inY, int inW, int inH, ParameterContext inContext) {
-    GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setScissor(
-         0, vk::Rect2D{vk::Offset2D{inX, inY}, vk::Extent2D{(ui)inW, (ui)inH}});
+    if (inX < 0) {
+        inW = inW + inX;
+        inX = 0;
+    } else if (inY < 0) {
+        inH = inH + inY;
+        inY = 0;
+    }
+
+    if (inW > 0 && inH > 0) {
+        GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setScissor(
+             0, vk::Rect2D{vk::Offset2D{inX, inY}, vk::Extent2D{(ui)inW, (ui)inH}});
+    }
 }
 
 void Window_base::SetDefaultScissor(ParameterContext inContext) {
@@ -128,8 +160,17 @@ void Window_base::SetDefaultScissor(ParameterContext inContext) {
 
 void Window_base::SetViewport(
      int inX, int inY, int inW, int inH, float inMind, float inMaxD, ParameterContext inContext) {
-    GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setViewport(
-         0, vk::Viewport(inX, inY, inW, inH, inMind, inMaxD));
+    if (inX < 0) {
+        inW = inW + inX;
+        inX = 0;
+    } else if (inY < 0) {
+        inH = inH + inY;
+        inY = 0;
+    }
+    if (inW > 0 && inH > 0) {
+        GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setViewport(
+             0, vk::Viewport(inX, inY, inW, inH, inMind, inMaxD));
+    }
 }
 
 void Window_base::SetDefaultViewport(ParameterContext inContext) {
