@@ -9,6 +9,43 @@ if(WIN32)
     add_definitions(-DWIN32_LEAN_AND_MEAN -DNOMINMAX)
 endif()
 
+include(FetchContent)
+
+# Fetch SPIRV-Headers
+FetchContent_Declare(
+  spirv-headers
+  GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
+  GIT_TAG vulkan-sdk-1.3.275.0     
+  GIT_SHALLOW TRUE          
+)
+FetchContent_MakeAvailable(spirv-headers)
+
+# Fetch SPIRV-Tools
+set(SPIRV_TOOLS_BUILD_STATIC ON CACHE BOOL "Build SPIRV-Tools as a static library" FORCE)
+set(SPIRV_SKIP_TESTS ON CACHE BOOL "Disable tests in SPIRV-Tools" FORCE)
+set(SPIRV_SKIP_EXECUTABLES ON CACHE BOOL "Disable executables in SPIRV-Tools" FORCE)
+FetchContent_Declare(
+  spirv-tools
+  GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
+  GIT_TAG vulkan-sdk-1.3.275.0     
+  GIT_SHALLOW TRUE          
+)
+FetchContent_MakeAvailable(spirv-tools)
+
+# Fetch glslang
+set(ENABLE_SPVREMAPPER OFF CACHE BOOL "Disable building spirv-remap tool" FORCE)
+set(ENABLE_GLSLANG_BINARIES OFF CACHE BOOL "Disable building glslangValidator and other binaries" FORCE)
+set(BUILD_TESTING OFF CACHE BOOL "Disable testing in glslang" FORCE)
+FetchContent_Declare(
+  glslang
+  GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
+  GIT_TAG vulkan-sdk-1.3.275.0  
+  GIT_SHALLOW TRUE            
+)
+FetchContent_MakeAvailable(glslang)
+
+
+
 # Include directories
 include_directories(${CMAKE_JKRGUI_DIR}/application)
 include_directories(${CMAKE_JKRGUI_DIR}/jkrengine)
