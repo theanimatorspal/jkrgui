@@ -150,6 +150,9 @@ void Window_base::SetScissor(int inX, int inY, int inW, int inH, ParameterContex
     if (inW > 0 && inH > 0) {
         GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setScissor(
              0, vk::Rect2D{vk::Offset2D{inX, inY}, vk::Extent2D{(ui)inW, (ui)inH}});
+    } else {
+        GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setScissor(
+             0, vk::Rect2D{vk::Offset2D{inX, inY}, vk::Extent2D{(ui)1, (ui)1}});
     }
 }
 
@@ -170,6 +173,9 @@ void Window_base::SetViewport(
     if (inW > 0 && inH > 0) {
         GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setViewport(
              0, vk::Viewport(inX, inY, inW, inH, inMind, inMaxD));
+    } else {
+        GetCommandBuffers(inContext)[mCurrentFrame].GetCommandBufferHandle().setViewport(
+             0, vk::Viewport(inX, inY, 1, 1, inMind, inMaxD));
     }
 }
 
