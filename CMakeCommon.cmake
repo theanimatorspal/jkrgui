@@ -124,7 +124,7 @@ endif()
 include_directories(${VULKAN_INCLUDE_PATH})
 # Link directories based on platform
 if(ANDROID)
-    link_directories("${CMAKE_JKRGUI_DIR}/libs/Android/")
+    link_directories("${CMAKE_JKRGUI_DIR}/libs/Android/${CMAKE_ANDROID_ARCH_ABI}/")
 else()
     link_directories(${VULKAN_LIBRARY_PATH})
     link_directories("${CMAKE_JKRGUI_DIR}/libs/")

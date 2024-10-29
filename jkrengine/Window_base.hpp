@@ -39,6 +39,7 @@ class Window_base : public SDLWindow {
     ///@warning For offscreen window (headless), there is only one offscreen image, since
     /// presentation is not being done
     GETTER &GetColorImageRenderTarget() { return mOffscreenImages[0]; }
+    GETTER &GetDepthImage() { return mDepthImage; }
 
     void SetScissor(
          int inX, int inY, int inW, int inH, ParameterContext inContext = ParameterContext::UI);

@@ -244,6 +244,8 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         local mCurrentPosition = inPosition_3f
         local mCurrentDimension = inDimension_3f
         local mShouldSetViewport = inShouldSetViewport
+        ws.mCurrentPosition = inPosition_3f
+        ws.mCurrentDimension = inDimension_3f
 
         local mCentralComponent
         ws.SetCentralComponent = function(inComponent)
@@ -264,6 +266,8 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             end
             mCurrentPosition = inPosition_3f
             mCurrentDimension = inDimension_3f
+            ws.mCurrentPosition = inPosition_3f
+            ws.mCurrentDimension = inDimension_3f
         end
 
         o.c:Push(Jkr.CreateUpdatable(function()
@@ -283,6 +287,30 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             end
         end))
         return ws
+    end
+
+    o.CreateTextParagraph = function(inPosition_3f, inDimension_3f, inText, inFont, inMaxRows, inTextColor)
+        local tp = {}
+        local texts = {}
+        local font = inFont
+        for i = 1, inMaxRows, 1 do
+            texts[#texts + 1] = o.CreateTextLabel(vec3(0, 0, 0), vec3(0, 0, 0), inFont, " ", inTextColor)
+        end
+
+        tp.Update = function(self, inPosition_3f, inDimension_3f, inText, inFont)
+            if inFont then font = inFont end
+            local WrappedTexts = font:WrapToTextVector(inText, inFont.mId, vec2(inDimension_3f.x, inDimension_3f.y))
+            local olddim = vec3(0, 0, 0)
+            for i = 1, #texts, 1 do
+                local dim = font:GetTextDimension(WrappedTexts[i])
+                local pos = vec3(inPosition_3f.x, inPosition_3f.y + olddim.y, inPosition_3f.z)
+                texts[i]:Update()
+                olddim.x = dim.x
+                olddim.y = dim.y
+            end
+        end
+
+        return tp
     end
 
 

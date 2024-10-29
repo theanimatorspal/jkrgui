@@ -19,6 +19,7 @@ VulkanBufferBase::~VulkanBufferBase() {
 
 void VulkanBufferBase::SubmitImmediateCmdCopyFrom(VulkanQueue<QueueContext::Graphics> &inQueue,
                                                   VulkanCommandBuffer &inCmdBuffer,
+                                                  VulkanFence &inFence,
                                                   void *inData) {
     uint32_t MemoryIndex;
     vk::DeviceSize MemorySize;
@@ -37,11 +38,14 @@ void VulkanBufferBase::SubmitImmediateCmdCopyFrom(VulkanQueue<QueueContext::Grap
     std::memcpy(pData, inData, MemorySize);
     mDevice->unmapMemory(StagingBufferMemory);
     vk::CommandBuffer &Cmd = inCmdBuffer.GetCommandBufferHandle();
+    inFence.Wait();
+    inFence.Reset();
     Cmd.begin(vk::CommandBufferBeginInfo());
     std::array<vk::BufferCopy, 1> Regions = {vk::BufferCopy(0, 0, MemorySize)};
     inCmdBuffer.GetCommandBufferHandle().copyBuffer(StagingBuffer, mBufferHandle, Regions);
     Cmd.end();
-    inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer);
+    inQueue.Submit<SubmitContext::SingleTime>(inCmdBuffer, inFence);
+    inQueue.Wait();
     mDevice->freeMemory(StagingBufferMemory);
     mDevice->destroyBuffer(StagingBuffer);
 }

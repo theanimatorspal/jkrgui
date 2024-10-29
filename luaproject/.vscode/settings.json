@@ -1,98 +1,147 @@
 {
-          "workbench.colorTheme": "Quiet Light",
-          "git.enableSmartCommit": true,
-          "git.confirmSync": false,
-          "gitlens.currentLine.enabled": false,
-          "gitlens.hovers.currentLine.over": "line",
-          "gitlens.codeLens.enabled": false,
-          "gitlens.blame.heatmap.location": "left",
-          "explorer.decorations.colors": false,
-          "explorer.decorations.badges": false,
-          /*CMAKE*/
-          "cmake.allowCommentsInPresetsFile": true,
-          "cmake.useCMakePresets": "always",
-          "cmake.configureOnOpen": true,
-          "cmake.options.statusBarVisibility": "compact",
-          "cmake.parallelJobs": 8,
-          "cmake.clearOutputBeforeBuild": true,
-          /* EDITOR */
-          "editor.matchBrackets": "near",
-          "editor.fontFamily": "Segoe Print",
-          "editor.fontWeight": "normal",
-          "editor.fontSize": 24,
-          "editor.tabSize": 10,
-          "editor.tokenColorCustomizations": {
-                    "textMateRules": [
-                              {
-                                        "scope": "keyword",
-                                        "settings": {
-                                                  "fontStyle": "italic",
-                                                  "foreground": "#80000f"
-                                        }
-                              },
-                              {
-                                        "scope": "'variable.parameter",
-                                        "settings": {
-                                                  "fontStyle": "italic",
-                                                  "foreground": "#00aa09"
-                                        }
-                              },
-                              {
-                                        "scope": "variable.language",
-                                        "settings": {
-                                                  "fontStyle": "italic",
-                                                  "foreground": "#0f09ff"
-                                        }
-                              },
-                              {
-                                        "scope": "string",
-                                        "settings": {
-                                                  "foreground": "#aa08f0"
-                                        }
-                              },
-                              {
-                                        "scope": "entity.name.function",
-                                        "settings": {
-                                                  "fontStyle": "italic bold",
-                                                  "foreground": "#0f89ff"
-                                        }
-                              }
-                    ]
-          },
-          "editor.renderLineHighlight": "none",
-          "editor.stickyScroll.enabled": false,
-          "editor.guides.indentation": false,
-          "editor.formatOnSave": true,
-          "editor.inlayHints.fontSize": 20,
-          "editor.inlayHints.enabled": "offUnlessPressed",
-          "editor.minimap.enabled": false,
-          "editor.formatOnType": true,
-          "editor.smoothScrolling": true,
-          "editor.fontVariations": true,
-          "editor.showFoldingControls": "never",
-          "editor.lineNumbers": "on",
-          "editor.foldingHighlight": true,
-          "editor.foldingImportsByDefault": false,
-          "workbench.sideBar.location": "right",
-          "[cpp]": {
-                    "editor.wordBasedSuggestions": "allDocuments",
-                    "editor.suggest.insertMode": "replace",
-                    "editor.semanticHighlighting.enabled": true,
-          },
-          "[log][Log]": {
-                    "editor.fontSize": 13, // whatever value you want
-                    "editor.fontFamily": "Consolas, 'Courier New', monospace"
-          },
-          /* WORKBENCH */
-          "workbench.iconTheme": "material-icon-theme",
-          "workbench.editor.showTabs": "none",
-          "explorer.confirmDelete": false,
-          "cmake.showOptionsMovedNotification": false,
-          "C_Cpp.intelliSenseEngine": "disabled",
-          "cmake.showConfigureWithDebuggerNotification": false,
-          "breadcrumbs.enabled": false,
-          "workbench.activityBar.location": "bottom",
-          "notebook.output.fontSize": 10,
-          "workbench.layoutControl.enabled": false,
-          "workbench.panel.defaultLocation": "right",
+    "git.enableSmartCommit": true,
+    "git.confirmSync": false,
+    "gitlens.currentLine.enabled": false,
+    "gitlens.hovers.currentLine.over": "line",
+    "gitlens.codeLens.enabled": false,
+    "gitlens.blame.heatmap.location": "left",
+    "explorer.decorations.colors": false,
+    "explorer.decorations.badges": false,
+    "clangd.arguments": [
+        "-header-insertion=never",
+    ],
+    /*CMAKE*/
+    "window.zoomLevel": -1,
+    "cmake.allowCommentsInPresetsFile": true,
+    "cmake.useCMakePresets": "always",
+    "cmake.configureOnOpen": true,
+    "cmake.options.statusBarVisibility": "icon",
+    "cmake.parallelJobs": 0,
+    "cmake.clearOutputBeforeBuild": true,
+    "cmake.loadCompileCommands": false,
+    "cmake.debugConfig": {
+        "console": "externalTerminal",
+        "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\Present",
+        "visualizerFile": "${workspaceFolder}/Visualizers/glm.natvis",
+        "args": [
+            "--gr",
+            "--run",
+            // "asst",
+            "app"
+            // "jkrguipr"
+            // "--android-environment",
+            // "--appname \"tester\"",
+            // "--dirname \"android\"",
+            // "--repl",
+            // "--generate-run",
+            // "--gr",
+        ]
+    },
+    /* EDITOR */
+    "editor.matchBrackets": "near",
+    "editor.fontFamily": "JetBrains Mono",
+    "editor.fontWeight": "normal",
+    "editor.fontSize": 20,
+    "editor.tabSize": 10,
+    "editor.tokenColorCustomizations": {
+        "textMateRules": [
+            {
+                "scope": "keyword",
+                "settings": {
+                    "fontStyle": "underline",
+                    "foreground": "#8850ff"
+                }
+            },
+            {
+                "scope": "'variable.parameter",
+                "settings": {
+                    "foreground": "#00aa09"
+                }
+            },
+            {
+                "scope": "variable.language",
+                "settings": {
+                    "foreground": "#0f09ff"
+                }
+            },
+            {
+                "scope": "string",
+                "settings": {
+                    "foreground": "#aa08f0"
+                }
+            },
+            {
+                "scope": "entity.name.function",
+                "settings": {
+                    "fontStyle": "bold",
+                    "foreground": "#0f89ff"
+                }
+            },
+            {
+                "scope": [
+                    "comment.block",
+                    "comment.line",
+                    "comment.block.documentation"
+                ],
+                "settings": {
+                    "foreground": "#FF0000",
+                    "fontStyle": "bold"
+                }
+            }
+        ]
+    },
+    "editor.renderLineHighlight": "none",
+    "editor.occurrencesHighlight": "off",
+    "editor.selectionHighlight": false,
+    "editor.semanticHighlighting.enabled": false,
+    "editor.stickyScroll.enabled": false,
+    "editor.guides.indentation": false,
+    "editor.formatOnSave": true,
+    "editor.inlayHints.fontSize": 20,
+    "editor.inlayHints.enabled": "offUnlessPressed",
+    "editor.minimap.enabled": false,
+    "editor.formatOnType": true,
+    "editor.smoothScrolling": true,
+    "editor.fontVariations": true,
+    "editor.showFoldingControls": "never",
+    "editor.lineNumbers": "on",
+    "editor.foldingHighlight": true,
+    "editor.foldingImportsByDefault": false,
+    "workbench.sideBar.location": "left",
+    "[cpp]": {
+        "editor.wordBasedSuggestions": "allDocuments",
+        "editor.suggest.insertMode": "replace",
+        "editor.semanticHighlighting.enabled": true,
+    },
+    "[lua]": {
+        "editor.quickSuggestions": {
+            "comments": "inline",
+            "other": "on",
+            "strings": "on"
+        },
+        "editor.semanticHighlighting.enabled": true,
+    },
+    "[log][Log]": {
+        "editor.fontSize": 13, // whatever value you want
+        "editor.fontFamily": "Fira Code"
+    },
+    /* WORKBENCH */
+    "workbench.editor.showTabs": "none",
+    "explorer.confirmDelete": false,
+    "cmake.showOptionsMovedNotification": false,
+    "C_Cpp.intelliSenseEngine": "disabled",
+    "cmake.showConfigureWithDebuggerNotification": false,
+    "breadcrumbs.enabled": true,
+    "workbench.activityBar.location": "bottom",
+    "notebook.output.fontSize": 10,
+    "workbench.layoutControl.enabled": false,
+    "workbench.panel.defaultLocation": "right",
+    "Lua.format.defaultConfig": {
+        "indent_style": "space",
+        "indent_size": "10"
+    },
+    "Lua.diagnostics.globals": [
+        "StateId"
+    ],
+    "vim.enableNeovim": true
 }

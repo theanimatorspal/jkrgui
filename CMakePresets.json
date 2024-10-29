@@ -98,11 +98,21 @@
       }
     },
     {
-      "name": "android-x86_64",
-      "displayName": "Android x86_64",
+      "name": "android-x86_64 Debug",
+      "displayName": "Android x86_64 Debug",
       "inherits": "android",
       "cacheVariables": {
-        "CMAKE_ANDROID_ARCH_ABI": "x86_64"
+        "CMAKE_ANDROID_ARCH_ABI": "x86_64",
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "android-x86_64 Release",
+      "displayName": "Android x86_64 Debug",
+      "inherits": "android",
+      "cacheVariables": {
+        "CMAKE_ANDROID_ARCH_ABI": "x86_64",
+        "CMAKE_BUILD_TYPE": "Release"
       }
     },
     {

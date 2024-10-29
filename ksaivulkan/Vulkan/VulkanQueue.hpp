@@ -9,10 +9,10 @@ class VulkanCommandBuffer;
 class VulkanSwapChain;
 class VulkanQueueBase {
     public:
-    operator vk::Queue() const { return mQueue; }
+    operator vk::Queue() { return mQueue; }
     VulkanQueueBase(VulkanQueueContext &inQueueContext, VulkanDevice &inDevice);
-    void Wait() const;
-    GETTER &GetQueueHandle() const { return mQueue; }
+    void Wait();
+    GETTER &GetQueueHandle() { return mQueue; }
     GETTER &GetQueueContext() { return mQueueContext; }
 
     protected:
@@ -30,18 +30,17 @@ template <QueueContext inContext> class VulkanQueue : public VulkanQueueBase {
     void Submit(VulkanSemaphore &inImageAvailableSemaphore,
                 VulkanSemaphore &inRenderFinishedSemaphore,
                 VulkanFence &inFlightFence,
-                VulkanCommandBuffer &inCommandBuffer) const;
+                VulkanCommandBuffer &inCommandBuffer);
+
+    template <SubmitContext inSubmitContext> void Submit(VulkanCommandBuffer &inCommandBuffer);
 
     template <SubmitContext inSubmitContext>
-    void Submit(VulkanCommandBuffer &inCommandBuffer) const;
-
-    template <SubmitContext inSubmitContext>
-    void Submit(VulkanCommandBuffer &inCommandBuffer, VulkanFence &inFence) const;
+    void Submit(VulkanCommandBuffer &inCommandBuffer, VulkanFence &inFence);
 
     template <SubmitContext inSubmitContext>
     ui Present(VulkanSwapChain &inSwapChain,
                VulkanSemaphore &inRenderFinishedSemaphore,
-               ui inImageIndex) const;
+               ui inImageIndex);
 };
 
 template <QueueContext inContext>

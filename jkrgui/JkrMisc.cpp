@@ -326,16 +326,33 @@ void CreateMiscBindings(sol::state &inState) {
     });
 
     Jkr.new_usertype<Jkr::Misc::FileJkr>(
-         "FileJkr", sol::call_constructor, sol::factories([](s inName) {
-             return mu<Jkr::Misc::FileJkr>(inName);
-         }));
+         "FileJkr",
+         sol::call_constructor,
+         sol::factories([](s inName) { return mu<Jkr::Misc::FileJkr>(inName); }),
+         "WriteObject3DVector",
+         sol::overload(&Jkr::Misc::FileJkr::Write<v<Object3D>>,
+                       [](Jkr::Misc::FileJkr &inFileJkr, std::string inId, v<Object3D *> inO3Ds) {
+                           v<Object3D> Obj3ds;
+                           for (auto ptr : inO3Ds) {
+                               Obj3ds.push_back(*ptr);
+                           }
+                           inFileJkr.Write(inId.c_str(), Obj3ds);
+                       }),
+         "ReadObject3DVector",
+         &Jkr::Misc::FileJkr::Read<v<Object3D>>,
+         "WriteFunction",
+         &Jkr::Misc::FileJkr::Write<sol::function>,
+         "ReadFunction",
+         &Jkr::Misc::FileJkr::Read<sol::function>);
+
+    Jkr.set_function("SyncSubmitPresent", &Jkr::Window::SyncSubmitPresent);
 
     Jkr.set_function("CopyWindowDeferredImageToShapeImage",
                      &Jkr::Misc::CopyWindowDeferredImageToShapeImage);
     Jkr.set_function("CopyWindowRenderTargetImageToShapeImage",
                      &Jkr::Misc::CopyWindowRenderTargetImageToShapeImage);
-    Jkr.set_function("CopyWindowRenderTargetImageToCustomPainterImage",
-                     &Jkr::Misc::CopyWindowRenderTargetImageToCustomPainterImage);
+    Jkr.set_function("CopyWindowDepthImageToCustomPainterImage",
+                     &Jkr::Misc::CopyWindowDepthImageToCustomPainterImage);
 
     Jkr.set_function("RegisterCustomPainterImageToCustomPainterImage",
                      &Jkr::Misc::RegisterCustomPainterImageToCustomPainterImage);

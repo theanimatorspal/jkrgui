@@ -16,7 +16,7 @@
     "cmake.useCMakePresets": "always",
     "cmake.configureOnOpen": true,
     "cmake.options.statusBarVisibility": "icon",
-    "cmake.parallelJobs": 8,
+    "cmake.parallelJobs": 0,
     "cmake.clearOutputBeforeBuild": true,
     "cmake.loadCompileCommands": false,
     "cmake.debugConfig": {

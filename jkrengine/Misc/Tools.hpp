@@ -24,6 +24,9 @@ void CopyWindowRenderTargetImageToCustomPainterImage(
      Window &inWindow,
      Window &inWindowWithRenderTargetImage,
      Renderer::CustomPainterImage &inCustomPainterImage);
+void CopyWindowDepthImageToCustomPainterImage(Window &inWindow,
+                                              Window &inWindowWithRenderTargetImage,
+                                              Renderer::CustomPainterImage &inCustomPainterImage);
 
 /// @brief This function takes shape3d as a parameter and CustomPainterImage as a parameter for
 /// registering the vertex buffer and index buffer of shape3d into the descriptor set of

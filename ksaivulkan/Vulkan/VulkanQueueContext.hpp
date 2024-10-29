@@ -5,7 +5,7 @@ namespace ksai {
 
 enum class QueueContext { Graphics, Present, Compute };
 
-enum class SubmitContext { SingleTime, ColorAttachment, DepthAttachment };
+enum class SubmitContext { General, SingleTime, ColorAttachment, DepthAttachment };
 
 template <size_t MaxFramesInFlight>
 

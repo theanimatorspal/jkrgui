@@ -188,6 +188,52 @@ void CopyWindowRenderTargetImageToCustomPainterImage(
                                       AccessFlagBits::eMemoryWrite,
                                       AccessFlagBits::eMemoryRead);
 }
+
+void CopyWindowDepthImageToCustomPainterImage(Window &inWindow,
+                                              Window &inWindowWithDepthImage,
+                                              Renderer::CustomPainterImage &inCustomPainterImage) {
+    using namespace vk;
+    auto &DstImage = inCustomPainterImage.GetPainterParam().GetStorageImage();
+    auto &SrcImage = inWindowWithDepthImage.GetDepthImage();
+    ImageSubresourceLayers SrcSubLayers(ImageAspectFlagBits::eColor, 0, 0, 1);
+    ImageSubresourceLayers DstSubLayers(ImageAspectFlagBits::eColor, 0, 0, 1);
+    auto &cmd =
+         inWindow.GetCommandBuffers(Window::ParameterContext::None)[inWindow.GetCurrentFrame()];
+    SrcImage.CmdTransitionImageLayout(cmd,
+                                      ImageLayout::eShaderReadOnlyOptimal,
+                                      ImageLayout::eTransferSrcOptimal,
+                                      PipelineStageFlagBits::eColorAttachmentOutput,
+                                      PipelineStageFlagBits::eTransfer,
+                                      AccessFlagBits::eMemoryWrite,
+                                      AccessFlagBits::eMemoryRead);
+    DstImage.CmdTransitionImageLayout(cmd,
+                                      ImageLayout::eUndefined,
+                                      ImageLayout::eTransferDstOptimal,
+                                      PipelineStageFlagBits::eAllGraphics,
+                                      PipelineStageFlagBits::eTransfer,
+                                      AccessFlagBits::eMemoryRead,
+                                      AccessFlagBits::eMemoryWrite);
+
+    ImageCopy Copy;
+    Copy.setSrcOffset(Offset3D{0, 0, 0})
+         .setDstOffset(Offset3D{0, 0, 0})
+         .setExtent(Extent3D{SrcImage.GetImageExtent(), 1})
+         .setSrcSubresource(SrcSubLayers)
+         .setDstSubresource(DstSubLayers);
+    cmd.GetCommandBufferHandle().copyImage(SrcImage.GetImageHandle(),
+                                           ImageLayout::eTransferSrcOptimal,
+                                           DstImage.GetImageHandle(),
+                                           ImageLayout::eTransferDstOptimal,
+                                           Copy);
+    DstImage.CmdTransitionImageLayout(cmd,
+                                      ImageLayout::eTransferDstOptimal,
+                                      ImageLayout::eGeneral,
+                                      PipelineStageFlagBits::eTransfer,
+                                      PipelineStageFlagBits::eFragmentShader,
+                                      AccessFlagBits::eMemoryWrite,
+                                      AccessFlagBits::eMemoryRead);
+}
+
 void RegisterShapeRenderer3DToCustomPainterImage(Jkr::Instance &inInstance,
                                                  Renderer::_3D::Shape &inShape3d,
                                                  Renderer::CustomPainterImage &inCustomPainterImage,
@@ -693,8 +739,10 @@ void SerializeDeserializeUniform3D(Instance &ini,
                                  BufferContext::Uniform,
                                  MemoryType::HostVisibleAndCoherenet});
 
-                VMABuffer->SubmitImmediateCmdCopyFrom(
-                     ini.GetTransferQueue(), ini.GetUtilCommandBuffer(), Buffer.data());
+                VMABuffer->SubmitImmediateCmdCopyFrom(ini.GetTransferQueue(),
+                                                      ini.GetUtilCommandBuffer(),
+                                                      ini.GetUtilCommandBufferFence(),
+                                                      Buffer.data());
                 up<UniformBufferType> Param = mu<UniformBufferType>(ini);
                 Param->mUniformBufferPtr    = mv(VMABuffer);
                 Param->Register(
@@ -703,6 +751,7 @@ void SerializeDeserializeUniform3D(Instance &ini,
                 ++i;
             }
         }
+
         {
             Header sbuf_header = inJkrFile.Read<Header>(storagebuf_prefix.c_str());
             v<int> sbuffer_binding_set =
@@ -717,8 +766,10 @@ void SerializeDeserializeUniform3D(Instance &ini,
                                  Buffer.size(),
                                  BufferContext::Storage,
                                  MemoryType::HostVisibleAndCoherenet});
-                VMABuffer->SubmitImmediateCmdCopyFrom(
-                     ini.GetTransferQueue(), ini.GetUtilCommandBuffer(), Buffer.data());
+                VMABuffer->SubmitImmediateCmdCopyFrom(ini.GetTransferQueue(),
+                                                      ini.GetUtilCommandBuffer(),
+                                                      ini.GetUtilCommandBufferFence(),
+                                                      Buffer.data());
                 up<StorageBufferType> Param      = mu<StorageBufferType>(ini);
                 Param->mStorageBufferCoherentPtr = mv(VMABuffer);
                 Param->RegisterCoherent(
@@ -867,10 +918,14 @@ void SerializeDeserializeShape3D(Instance &ini,
                                                             BufferContext::Vertex,
                                                             MemoryType::HostVisibleAndCoherenet);
 
-        Pri->GetIndexBufferPtr()->SubmitImmediateCmdCopyFrom(
-             ini.GetTransferQueue(), ini.GetUtilCommandBuffer(), iBuffer.data());
-        Pri->GetVertexBufferPtr()->SubmitImmediateCmdCopyFrom(
-             ini.GetTransferQueue(), ini.GetUtilCommandBuffer(), vBuffer.data());
+        Pri->GetIndexBufferPtr()->SubmitImmediateCmdCopyFrom(ini.GetTransferQueue(),
+                                                             ini.GetUtilCommandBuffer(),
+                                                             ini.GetUtilCommandBufferFence(),
+                                                             iBuffer.data());
+        Pri->GetVertexBufferPtr()->SubmitImmediateCmdCopyFrom(ini.GetTransferQueue(),
+                                                              ini.GetUtilCommandBuffer(),
+                                                              ini.GetUtilCommandBufferFence(),
+                                                              vBuffer.data());
         Pri->SetIndexCount(iBuffer.size() / sizeof(uint32_t));
         inShape.GetPrimitivePtr() = mv(Pri);
 
@@ -898,3 +953,52 @@ void SerializeDeserializeObjectVector(sv inName,
 }
 
 } // namespace Jkr::Misc
+
+namespace Jkr {
+///@note
+///@param inSw inSubmitWindow the window that has to be submitted before present (this should be a
+/// NoWindow Window i.e. Create the Window using Jkr.CreateWindowNoWindow in lua and appropriate
+/// constructor in C++)
+///@param inPw inPresentWindow the window to present to
+void Window::SyncSubmitPresent(Window &inSw, Window &inPw) {
+    auto Scf = inSw.mCurrentFrame;
+    auto Pcf = inPw.mCurrentFrame;
+
+    vk::PipelineStageFlags SWaitFlags(vk::PipelineStageFlagBits::eTopOfPipe);
+    vk::SubmitInfo sinfo;
+    sinfo = vk::SubmitInfo({},
+                           {},
+                           inSw.mCommandBuffers[Scf].GetCommandBufferHandle(),
+                           inSw.mRenderFinishedSemaphores[Scf].GetSemaphoreHandle());
+
+    auto PWaitFlags =
+         std::to_array({vk::PipelineStageFlags(vk::PipelineStageFlagBits::eColorAttachmentOutput),
+                        vk::PipelineStageFlags(vk::PipelineStageFlagBits::eTopOfPipe)});
+    vk::SubmitInfo pinfo;
+    auto Arr = std::to_array({inPw.mImageAvailableSemaphores[Pcf].GetSemaphoreHandle(),
+                              inSw.mRenderFinishedSemaphores[Scf].GetSemaphoreHandle()});
+    pinfo    = vk::SubmitInfo(Arr,
+                           PWaitFlags,
+                           inPw.mCommandBuffers[Pcf].GetCommandBufferHandle(),
+                           inPw.mRenderFinishedSemaphores[Pcf].GetSemaphoreHandle());
+
+    inSw.mInstance->GetGraphicsQueue().GetQueueHandle().submit(sinfo,
+                                                               inSw.mFences[Scf].GetFenceHandle());
+    inPw.mInstance->GetGraphicsQueue().GetQueueHandle().submit(pinfo,
+                                                               inPw.mFences[Pcf].GetFenceHandle());
+    {
+        uint32_t Result =
+             inPw.mInstance->GetGraphicsQueue().Present<SubmitContext::ColorAttachment>(
+                  inPw.mSwapChain,
+                  inPw.mRenderFinishedSemaphores[inPw.mCurrentFrame],
+                  inPw.mAcquiredImageIndex);
+
+        if (inPw.mSwapChain.ImageIsNotOptimal(Result)) {
+            inPw.Refresh();
+        } else {
+            inPw.mCurrentFrame = (inPw.mCurrentFrame + 1) % mMaxFramesInFlight;
+        }
+    }
+    inSw.mCurrentFrame = (inSw.mCurrentFrame + 1) % mMaxFramesInFlight;
+}
+} // namespace Jkr

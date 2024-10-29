@@ -5,6 +5,7 @@
 
 out/*.*
 libs/Android/*.*
+libs/Android/
 
 # User-specific files
 *.rsuser

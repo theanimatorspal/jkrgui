@@ -91,9 +91,11 @@ Jkr::Primitive::Primitive(Instance &inInstance,
                                               MemoryType::HostVisibleAndHostCached);
     mVertexBufferPtr->SubmitImmediateCmdCopyFrom(mInstance.GetGraphicsQueue(),
                                                  mInstance.GetUtilCommandBuffer(),
+                                                 mInstance.GetUtilCommandBufferFence(),
                                                  reinterpret_cast<void *>(inVertices.data()));
     mIndexBufferPtr->SubmitImmediateCmdCopyFrom(mInstance.GetGraphicsQueue(),
                                                 mInstance.GetUtilCommandBuffer(),
+                                                mInstance.GetUtilCommandBufferFence(),
                                                 reinterpret_cast<void *>(inIndices.data()));
     mInstance.GetGraphicsQueue().Wait();
     mVertexBufferPtr->MapMemoryRegion(&mVertexBufferMappedMemory);
@@ -119,9 +121,11 @@ Jkr::Primitive::Primitive(Instance &inInstance,
                                               MemoryType::HostVisibleAndHostCached);
     mVertexBufferPtr->SubmitImmediateCmdCopyFrom(mInstance.GetGraphicsQueue(),
                                                  mInstance.GetUtilCommandBuffer(),
+                                                 mInstance.GetUtilCommandBufferFence(),
                                                  reinterpret_cast<void *>(inVertices.data()));
     mIndexBufferPtr->SubmitImmediateCmdCopyFrom(mInstance.GetGraphicsQueue(),
                                                 mInstance.GetUtilCommandBuffer(),
+                                                mInstance.GetUtilCommandBufferFence(),
                                                 reinterpret_cast<void *>(inIndices.data()));
     mInstance.GetGraphicsQueue().Wait();
     mVertexBufferPtr->MapMemoryRegion(&mVertexBufferMappedMemory);

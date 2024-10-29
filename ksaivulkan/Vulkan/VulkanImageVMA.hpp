@@ -10,12 +10,15 @@ class VulkanImageVMA : public VulkanImageBase {
         VulkanDevice *inDevice;
         ui inWidth;
         ui inHeight;
-        ImageContext inImageContext            = ImageContext::Default;
-        ui inChannel                           = 4;
-        ui inLayerCount                        = 1;
-        ui inSamples                           = 1;
-        ui inMips                              = 1;
+        ImageContext inImageContext = ImageContext::Default;
+        ui inChannel                = 4;
+        ui inLayerCount             = 1;
+        ui inSamples                = 1;
+        ui inMips                   = 1;
+
+        ///@note Todo Remove this
         bool inCreateOnlyImageView             = false;
+
         opt<vk::ImageUsageFlags> inUsageBits   = std::nullopt;
         opt<vk::ImageLayout> inLayout          = std::nullopt;
         opt<vk::Format> inFormat               = std::nullopt;

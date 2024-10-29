@@ -27,32 +27,28 @@ class Window : public Window_base {
     void BeginShadowPass(float ind);
     void EndShadowPass();
 
-    /// @todo Name this Correctly
-    void PrepareDeferredPass();
-    /// @todo Name this Correctly
-    void BuildDeferredPass(Renderer::_3D::Simple3D &inCompositionSimple3D,
-                           Renderer::_3D::World3D &inWorld);
+    void BuildDeferredPass();
+    void PrepareDeferredPass(Renderer::_3D::Simple3D &inCompositionSimple3D,
+                             Renderer::_3D::World3D &inWorld);
     void ExecuteDeferredComposition(Renderer::_3D::Simple3D &inCompositionSimple3D,
                                     Renderer::_3D::World3D &inWorld);
     void BeginDeferredDraws(float r, float g, float b, float a, float d);
     void EndDeferredDraws();
     void PresentDeferred();
 
-    ///@note remove these two, @todo these are to be unified to one function
-    ///@warning these doesn't actually mean to begin updates
-    ///@todo rename this to Wait
-    void BeginUpdates();
-    ///@todo rename this to AcquireNextImage
-    void EndUpdates();
-    void BeginDispatches();
-    void EndDispatches();
+    void Wait();
+    void AcquireImage();
+    ///@brief begins the command buffer recording (for primary command buffer)
+    ///@note all the dispatches should happen *after* the call of BeginRecording
+    void BeginRecording();
+    void EndRecording();
 
-    ///@brief begins the main command buffer
+    ///@brief begins the renderpass
     void BeginDraws(float r, float g, float b, float a, float d);
     void EndDraws();
+    void BlitImage();
     void Present();
-
-    ///@note this is for Windowless Window <to only submit but not present>
+    ///@param inShouldNotSubmit if true, it will only end the command buffer but not submit it
     void Submit();
     void Refresh();
 
@@ -62,6 +58,8 @@ class Window : public Window_base {
     void BeginThreadCommandBuffer(int inThreadId);
     void EndThreadCommandBuffer(int inThreadId);
     void ExecuteThreadCommandBuffer(int inThreadId);
+
+    static void SyncSubmitPresent(Window &inSubmitWindow, Window &inPresentWindow);
 
     Window(Instance &inInstance,
            const sv inTitle,

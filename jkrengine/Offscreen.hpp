@@ -2,6 +2,8 @@
 #include "PainterParameter.hpp"
 #include "PainterParameter_base.hpp"
 
+constexpr int CASCADE_COUNT = 4;
+
 namespace Jkr {
 class PainterCache;
 class Painter;
@@ -17,7 +19,14 @@ using namespace ksai;
 struct ShadowPass {
     using FrameBufferType = VulkanFrameBuffer;
     using DepthImageType  = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
+    using ImageType       = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
     using RenderPassType  = VulkanRenderPass<RenderPassContext::Shadow>;
+    struct Cascade {
+        VulkanFrameBuffer mFrameBuffer;
+        vk::ImageView mImageView;
+        float mSplitDepth;
+        glm::mat4 mViewProjMatrix;
+    };
     GETTER &GetRenderPass() { return *mRenderpass; }
     GETTER &GetFrameBuffer() { return *mFrameBuffer; }
     GETTER &GetDepthImagePainterParameter() { return *mImage; }
@@ -29,6 +38,9 @@ struct ShadowPass {
     Up<DepthImageType> mImage;
     Up<RenderPassType> mRenderpass;
     Up<FrameBufferType> mFrameBuffer;
+
+    std::array<Cascade, CASCADE_COUNT> mCascades;
+    Up<RenderPassType> mCascadedRenderpass;
 };
 
 struct DeferredPass {

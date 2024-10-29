@@ -26,13 +26,13 @@ class VulkanFrameBuffer : public VulkanFrameBufferBase {
     VulkanFrameBuffer(VulkanFrameBuffer &&other)           = default;
     VulkanFrameBuffer &operator=(VulkanFrameBuffer &&Other);
 
-    /**
-     * @brief Can accept VulkanImage, VulkanImageVMA or vk::ImageView
-     *
-     * for vk::ImageView, a vk::Extent object has to be passed with the ImageViews
-     * like Init(device, renderPass, extent2d, imageview1, imageview2);
-     *
-     */
+    ///
+    /// @brief Can accept VulkanImage, VulkanImageVMA or vk::ImageView
+    ///
+    /// for vk::ImageView, a vk::Extent object has to be passed with the ImageViews
+    /// like Init(device, renderPass, extent2d, imageview1, imageview2);
+    ///
+    ///
     void Init(VulkanDevice &inDevice, VulkanRenderPassBase &inRenderPass, const auto &...inT) {
         mDevice = &inDevice.GetDeviceHandle();
         (

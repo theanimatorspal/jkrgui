@@ -13,6 +13,34 @@ ShadowPass::ShadowPass(Instance &inInstance, ui inWidth, ui inHeight) : mInstanc
     mRenderpass = mu<RenderPassType>(inInstance.GetDevice(), mImage->GetDepthImage());
     mFrameBuffer =
          mu<FrameBufferType>(inInstance.GetDevice(), *mRenderpass, mImage->GetDepthImage());
+
+    mImage                   = mu<ImageType>(inInstance);
+    mImage->mUniformImagePtr = mu<VulkanImageVMA>();
+    auto &CascadeImage       = *mImage->mUniformImagePtr;
+    mImage->mUniformImagePtr->Init(
+         {&inInstance.GetVMA(),
+          &inInstance.GetDevice(),
+          inWidth,
+          inHeight,
+          ImageContext::DepthImage,
+          4,
+          CASCADE_COUNT,
+          1,
+          1,
+          false,
+          vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eDepthStencilAttachment,
+          std::nullopt,
+          std::nullopt,
+          vk::ImageViewType::e2DArray});
+
+    CascadeImage.BuildImageViewsByLayers();
+    auto ImageViews     = CascadeImage.GetImageViews();
+    mCascadedRenderpass = mu<RenderPassType>(inInstance.GetDevice(), CascadeImage);
+
+    for (int i = 0; auto &Cascade : mCascades) {
+        Cascade.mFrameBuffer.Init(inInstance.GetDevice(), *mCascadedRenderpass, ImageViews[i]);
+        ++i;
+    }
 }
 
 Jkr::DeferredPass::DeferredPass(Instance &inInstance, ui inWidth, ui inHeight, int inFramesInFlight)

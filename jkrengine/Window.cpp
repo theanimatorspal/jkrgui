@@ -79,23 +79,23 @@ std::array<VulkanCommandBuffer, 2U> &Window::GetCommandBuffers(ParameterContext 
     }
 }
 
-void Window::BeginUpdates() {
+void Window::Wait() {
     mFences[mCurrentFrame].Wait();
     mFences[mCurrentFrame].Reset();
 }
 
-void Window::EndUpdates() {
+void Window::AcquireImage() {
     std::pair<uint32_t, uint32_t> SwapChainResult =
          mSwapChain.AcquireNextImage(mImageAvailableSemaphores[mCurrentFrame]);
     mAcquiredImageIndex = SwapChainResult.second;
 }
 
-void Window::BeginDispatches() {
+void Window::BeginRecording() {
     mCommandBuffers[mCurrentFrame].Reset();
     mCommandBuffers[mCurrentFrame].Begin();
 }
 
-void Window::EndDispatches() {}
+void Window::EndRecording() { mCommandBuffers[mCurrentFrame].End(); }
 
 void Window::BeginDraws(
      float r = 0.1f, float g = 0.1f, float b = 0.1f, float a = 0.1f, float d = 1.0f) {
@@ -110,7 +110,7 @@ void Window::BeginDraws(
 
 void Window::EndDraws() { mCommandBuffers[mCurrentFrame].EndRenderPass(); }
 
-void Window::Present() {
+void Window::BlitImage() {
     using namespace vk;
     auto &AquiredImage = mSwapChainImages[mAcquiredImageIndex];
     ImageSubresourceLayers SrcSubLayers(ImageAspectFlagBits::eColor, 0, 0, 1);
@@ -149,9 +149,8 @@ void Window::Present() {
                                           vk::PipelineStageFlagBits::eBottomOfPipe,
                                           vk::AccessFlagBits::eMemoryWrite,
                                           vk::AccessFlagBits::eMemoryRead);
-
-    mCommandBuffers[mCurrentFrame].End();
-
+}
+void Window::Present() {
     mInstance->GetGraphicsQueue().Submit<SubmitContext::ColorAttachment>(
          mImageAvailableSemaphores[mCurrentFrame],
          mRenderFinishedSemaphores[mCurrentFrame],
@@ -168,10 +167,9 @@ void Window::Present() {
 }
 
 void Window::Submit() {
-    mCommandBuffers[mCurrentFrame].End();
-
     mInstance->GetGraphicsQueue().Submit<SubmitContext::ColorAttachment>(
          mCommandBuffers[mCurrentFrame], mFences[mCurrentFrame]);
+    mCurrentFrame = (mCurrentFrame + 1) % mMaxFramesInFlight;
 }
 
 void Window::BeginUIs() {
@@ -204,7 +202,6 @@ void Window::BeginShadowPass(float ind) {
          {1.0f, 1.0f, 1.0f, 1.0f, ind});
 }
 void Window::EndShadowPass() {
-
     mCommandBuffers[mCurrentFrame].EndRenderPass();
     mShadowPass->GetDepthImagePainterParameter().GetDepthImage().CmdTransitionImageLayout(
          mCommandBuffers[mCurrentFrame],
@@ -237,13 +234,13 @@ void Window::BuildShadowPass() {
     mShadowPass = mu<ShadowPass>(*mInstance, mOffscreenFrameSize.x, mOffscreenFrameSize.y);
 }
 
-void Window::PrepareDeferredPass() {
+void Window::BuildDeferredPass() {
     mDeferredPass = mu<DeferredPass>(
          *mInstance, mOffscreenFrameSize.x, mOffscreenFrameSize.y, mMaxFramesInFlight);
 }
 
-void Window::BuildDeferredPass(Renderer::_3D::Simple3D &inCompositionSimple3D,
-                               Renderer::_3D::World3D &inWorld) {
+void Window::PrepareDeferredPass(Renderer::_3D::Simple3D &inCompositionSimple3D,
+                                 Renderer::_3D::World3D &inWorld) {
     mDeferredPass->Prepare(inCompositionSimple3D, inWorld);
 }
 

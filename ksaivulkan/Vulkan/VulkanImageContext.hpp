@@ -2,7 +2,15 @@
 #include <vulkan/vulkan.hpp>
 
 namespace ksai {
-enum class ImageContext { Default, Unknown, ExternalHandled, DepthImage, Storage, CubeCompatible, ColorAttach };
+enum class ImageContext {
+    Default,
+    Unknown,
+    ExternalHandled,
+    DepthImage,
+    Storage,
+    CubeCompatible,
+    ColorAttach
+};
 
 struct ImageProperties {
     vk::Format mImageFormat                       = vk::Format::eR16G16B16A16Sfloat;

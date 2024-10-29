@@ -486,10 +486,12 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     end
 
     o.DrawExplicit = function(self, inScissorIds)
+        local SVs = o.c.mSVs
         local DrawablesInSVs = o.c.mDrawablesInSVs
         local count = #inScissorIds
         for i = 1, count, 1 do
-            local sv = inScissorIds[i]
+            local j = inScissorIds[i]
+            local sv = SVs[j]
 
             ---@note SetScissor + Viewport
             if sv.mPush then
@@ -497,7 +499,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             end
             o.w:SetScissor(sv.mImageId, sv.mColor, cmdparam)
 
-            DrawAll(DrawablesInSVs[i])
+            DrawAll(DrawablesInSVs[j])
 
             ---@note ResetScissor + Viewport
             o.w:SetDefaultViewport(cmdparam)
