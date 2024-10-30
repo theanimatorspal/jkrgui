@@ -1487,30 +1487,37 @@ Shape2DShaders.ShowImageFShader = Engine.Shader()
 
 
 TwoDimensionalIPs = {}
+TwoDimensionalIPs.Header = function()
+    return Engine.Shader()
+        .Header(450)
+        .CInvocationLayout(16, 16, 1)
+        .uImage2D()
+        ---@warning for uniform pipelinelayout for descriptors
+        .ImagePainterVIStorageLayout()
+        .ImagePainterPushMatrix2()
+        .GlslMainBegin()
+        .ImagePainterAssistMatrix2()
+end
 
-TwoDimensionalIPs.ConstantColor = Engine.Shader()
-    .Header(450)
-    .CInvocationLayout(16, 16, 1)
-    .uImage2D()
-    ---@warning for uniform pipelinelayout for descriptors
-    .ImagePainterVIStorageLayout()
-    .ImagePainterPushMatrix2()
-    .GlslMainBegin()
-    .ImagePainterAssistMatrix2()
+TwoDimensionalIPs.HeaderWithoutBegin = function()
+    return Engine.Shader()
+        .Header(450)
+        .CInvocationLayout(16, 16, 1)
+        .uImage2D()
+        ---@warning for uniform pipelinelayout for descriptors
+        .ImagePainterVIStorageLayout()
+        .ImagePainterPushMatrix2()
+end
+
+TwoDimensionalIPs.ConstantColor =
+    TwoDimensionalIPs.Header()
     .Append [[
         imageStore(storageImage, to_draw_at, p4);
     ]]
     .GlslMainEnd()
 
-TwoDimensionalIPs.RoundedRectangle = Engine.Shader()
-    .Header(450)
-    .CInvocationLayout(16, 16, 1)
-    .uImage2D()
-    ---@warning for uniform pipelinelayout for descriptors
-    .ImagePainterVIStorageLayout()
-    .ImagePainterPushMatrix2()
-    .GlslMainBegin()
-    .ImagePainterAssistMatrix2()
+TwoDimensionalIPs.RoundedRectangle =
+    TwoDimensionalIPs.Header()
     .Append [[
         vec2 center = vec2(p1.x, p1.y);
         vec2 hw = vec2(p1.z, p1.w);
@@ -1529,15 +1536,8 @@ TwoDimensionalIPs.RoundedRectangle = Engine.Shader()
     .GlslMainEnd()
 
 ---@note @todo Later make this ellipse
-TwoDimensionalIPs.Circle = Engine.Shader()
-    .Header(450)
-    .CInvocationLayout(16, 16, 1)
-    ---@warning for uniform pipelinelayout for descriptors
-    .ImagePainterVIStorageLayout()
-    .uImage2D()
-    .ImagePainterPushMatrix2()
-    .GlslMainBegin()
-    .ImagePainterAssistMatrix2()
+TwoDimensionalIPs.Circle =
+    TwoDimensionalIPs.Header()
     .Append [[
         vec2 center = vec2(p1.x, p1.y);
         float radius = p1.z;
@@ -1554,6 +1554,44 @@ TwoDimensionalIPs.Circle = Engine.Shader()
         imageStore(storageImage, to_draw_at, final_color);
           ]]
     .GlslMainEnd()
+
+TwoDimensionalIPs.Line =
+    TwoDimensionalIPs.HeaderWithoutBegin()
+    .Append [[
+    float plot(vec2 st, float pct){
+        return  smoothstep( pct-0.05, pct, st.y) -
+                smoothstep( pct, pct+0.05, st.y);
+    }
+    ]]
+    .GlslMainBegin()
+    .ImagePainterAssistMatrix2()
+    .Append [[
+        vec2 pos = vec2(p1.x, p1.y);
+        vec2 dimen = vec2(p1.z, p1.w);
+        vec4 color = p2;
+        ivec2 offset = ivec2(int(p1.x), int(p1.y));
+
+        x_cart = (float(gl_GlobalInvocationID.x) - float(dimen.x) / float(2)) / (float((dimen.x) / float(2)));
+        y_cart = (float(dimen.y) / float(2) - float(gl_GlobalInvocationID.y)) / (float(dimen.y) / float(2));
+        xy.x = x_cart;
+        xy.y = y_cart;
+
+        float y = -xy.x;
+        float pct = plot(xy, y);
+        if (to_draw_at.x <= int(dimen.x) && to_draw_at.y <= int(dimen.y))
+        {
+            imageStore(storageImage, to_draw_at + offset, vec4(pct));
+        }
+    ]]
+    .GlslMainEnd().Print()
+
+TwoDimensionalIPs.Clear = TwoDimensionalIPs.Header()
+    .Append [[
+    imageStore(storageImage, to_draw_at, p1);
+    ]]
+    .GlslMainEnd()
+
+
 
 
 Basics = {}

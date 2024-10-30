@@ -21,7 +21,7 @@
     "cmake.loadCompileCommands": false,
     "cmake.debugConfig": {
         "console": "externalTerminal",
-        "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\Present",
+        "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\csec",
         "visualizerFile": "${workspaceFolder}/Visualizers/glm.natvis",
         "args": [
             "--gr",
@@ -143,5 +143,5 @@
     "Lua.diagnostics.globals": [
         "StateId"
     ],
-    "vim.enableNeovim": true
+    "vim.enableNeovim": true,
 }

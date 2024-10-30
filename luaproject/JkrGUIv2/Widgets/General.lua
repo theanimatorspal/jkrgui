@@ -210,7 +210,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                                      inTitlebarBackColor, inContentBackColor, inShouldSetViewport)
         local ws = {}
         local z_difference = 10
-        local titlebarheight = 20
+        local titlebarheight = inFont:GetTextDimension("X").y + 10
         local titlebarpos = vec3(inPosition_3f.x, inPosition_3f.y - titlebarheight, inPosition_3f.z + z_difference)
         local titlebardimen = vec3(inDimension_3f.x, titlebarheight, inDimension_3f.z)
         local backgroundpos = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z + z_difference)
@@ -264,6 +264,56 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             if not mShouldSetViewport then
                 mCentralComponent:Update(inPosition_3f, inDimension_3f)
             end
+            mCurrentPosition = inPosition_3f
+            mCurrentDimension = inDimension_3f
+            ws.mCurrentPosition = inPosition_3f
+            ws.mCurrentDimension = inDimension_3f
+        end
+
+        o.c:Push(Jkr.CreateUpdatable(function()
+            local mouseRel = e:GetRelativeMousePos()
+            if e:IsLeftButtonPressedContinous() and (e:IsMouseWithinAtTopOfStack(mTitlebarButton.mId, mTitlebarButton.mDepthValue)) then
+                isMoving = true
+            end
+            if e:IsLeftButtonPressedContinous() and isMoving then
+                ws.Update(nil,
+                    vec3(mCurrentPosition.x + mouseRel.x,
+                        mCurrentPosition.y + mouseRel.y,
+                        mCurrentPosition.z),
+                    mCurrentDimension
+                )
+            else
+                isMoving = false
+            end
+        end))
+        return ws
+    end
+
+    o.CreateMovableButton = function(inPosition_3f, inDimension_3f, inFont, inTitle, inTitlebarTextColor,
+                                     inTitlebarBackColor)
+        local ws = {}
+        local mTitlebar = o.CreateGeneralButton(inPosition_3f,
+            inDimension_3f,
+            nil,
+            nil,
+            inFont,
+            inTitle,
+            inTitlebarTextColor,
+            inTitlebarBackColor, nil, nil)
+
+        local mTitlebarButton = o.CreateButton(inPosition_3f, inDimension_3f)
+
+        local isMoving = false
+        local mCurrentPosition = inPosition_3f
+        local mCurrentDimension = inDimension_3f
+        ws.mCurrentPosition = inPosition_3f
+        ws.mCurrentDimension = inDimension_3f
+
+
+        ws.Update = function(self, inPosition_3f, inDimension_3f)
+            mTitlebar:Update(inPosition_3f, inDimension_3f)
+            mTitlebarButton:Update(inPosition_3f, inDimension_3f)
+
             mCurrentPosition = inPosition_3f
             mCurrentDimension = inDimension_3f
             ws.mCurrentPosition = inPosition_3f
