@@ -52,6 +52,7 @@ class EventManager {
     uint32_t SetBoundedRect(glm::vec2 inXy, glm::vec2 inWh, uint32_t inDepthValue);
     void UpdateBoundedRect(uint32_t inId, glm::vec2 inXy, glm::vec2 inWh, uint32_t inDepthValue);
     void SetEventCallBack(const std::function<void()> &inEventCallBack);
+    void RemoveEventCallBacks();
 
     private:
     SDL_Event mEvent;

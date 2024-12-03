@@ -88,6 +88,8 @@ void Jkr::EventManager::SetEventCallBack(const std::function<void()> &inEventCal
     mEventCallBack.push_back(inEventCallBack);
 }
 
+void Jkr::EventManager::RemoveEventCallBacks() { mEventCallBack.clear(); }
+
 bool Jkr::EventManager::ShouldQuit() const { return should_quit; }
 SDL_Event Jkr::EventManager::GetEventHandle() const { return mEvent; }
 glm::vec2 Jkr::EventManager::GetMousePos() const { return mMousePos; }

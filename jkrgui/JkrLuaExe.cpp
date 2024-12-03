@@ -131,8 +131,6 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
     app.add_flag("--android-environment,--and-env", FlagCreateAndroidEnvironment);
     ///
     /// @brief These options are string options
-    /// @warning Use "" for giving them in the command line,
-    /// otherwise it won't recognize the name
     ///
     app.add_option("--appname", OptionAndroidAppName, "Android App Name");
     app.add_option("--dirname", OptionAndroidDirName, "Android Dir Name");

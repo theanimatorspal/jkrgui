@@ -21,13 +21,13 @@
     "cmake.loadCompileCommands": false,
     "cmake.debugConfig": {
         "console": "externalTerminal",
-        "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\csec",
+        "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\PresentTest-For-JkrGUI",
         "visualizerFile": "${workspaceFolder}/Visualizers/glm.natvis",
         "args": [
             "--gr",
             "--run",
             // "asst",
-            "app"
+            "src/app"
             // "jkrguipr"
             // "--android-environment",
             // "--appname \"tester\"",

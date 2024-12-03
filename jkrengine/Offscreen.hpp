@@ -13,6 +13,7 @@ namespace Renderer::_3D {
 class Simple3D;
 class World3D;
 class Uniform3D;
+class Camera3D;
 } // namespace Renderer::_3D
 
 using namespace ksai;
@@ -32,15 +33,17 @@ struct ShadowPass {
     GETTER &GetDepthImagePainterParameter() { return *mImage; }
 
     ShadowPass(Instance &inInstance, ui inWidth, ui inHeight);
+    void Update(Renderer::_3D::Camera3D &inCamera, glm::vec3 inLightPos);
 
     private:
     Instance &mInstance;
     Up<DepthImageType> mImage;
     Up<RenderPassType> mRenderpass;
     Up<FrameBufferType> mFrameBuffer;
-
     std::array<Cascade, CASCADE_COUNT> mCascades;
     Up<RenderPassType> mCascadedRenderpass;
+
+    float mCascadeSplitLambda = 0.75f;
 };
 
 struct DeferredPass {

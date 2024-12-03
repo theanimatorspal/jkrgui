@@ -151,7 +151,8 @@ constexpr std::string_view AndroidAppString = "AndroidApp";
 
 void CreateAndroidEnvironment(const sv inAndroidAppName,
                               const sv inAndroidAppDirectory,
-                              const sv inBuild) {
+                              const sv inBuild,
+                              const sv inArchitecture) {
     try {
         fs::path Src    = s(getenv("JKRGUI_DIR")) + "/Android/";
         fs::path Target = s(inAndroidAppDirectory);
@@ -191,25 +192,22 @@ void CreateAndroidEnvironment(const sv inAndroidAppName,
 
         fs::path jniLibsDir        = Target / "app" / "src" / "main" / "jniLibs";
         fs::path sdlsource         = s(getenv("JKRGUI_DIR"));
-        sdlsource                  = sdlsource / "libs" / "Android" / "libSDL2.so";
+        sdlsource                  = sdlsource / "libs" / "Android" / inArchitecture / "libSDL2.so";
         fs::path validation_layers = s(getenv("JKRGUI_DIR"));
-        validation_layers =
-             validation_layers / "libs" / "Android" / "libVkLayer_khronos_validation.so";
+        validation_layers          = validation_layers / "libs" / "Android" / inArchitecture /
+                            "libVkLayer_khronos_validation.so";
 
-        if (inBuild == "android-arm64-v8a" or inBuild == "android-arm64-v8a Release") {
-            fs::path source      = s(getenv("JKRGUI_DIR"));
-            source               = source / "out" / "build" / inBuild / "jkrgui";
-            fs::path destination = jniLibsDir / "arm64-v8a";
-            if (not fs::exists(destination)) fs::create_directory(destination);
-            fs::copy_file(source / "libjkrgui.so",
-                          destination / "libjkrgui.so",
-                          fs::copy_options::overwrite_existing);
-            fs::copy_file(
-                 sdlsource, destination / "libSDL2.so", fs::copy_options::overwrite_existing);
-            fs::copy_file(validation_layers,
-                          destination / "libVkLayer_khronos_validation.so",
-                          fs::copy_options::overwrite_existing);
-        }
+        fs::path source      = s(getenv("JKRGUI_DIR"));
+        source               = source / "out" / "build" / inBuild / "jkrgui";
+        fs::path destination = jniLibsDir / "arm64-v8a";
+        if (not fs::exists(destination)) fs::create_directory(destination);
+        fs::copy_file(source / "libjkrgui.so",
+                      destination / "libjkrgui.so",
+                      fs::copy_options::overwrite_existing);
+        fs::copy_file(sdlsource, destination / "libSDL2.so", fs::copy_options::overwrite_existing);
+        fs::copy_file(validation_layers,
+                      destination / "libVkLayer_khronos_validation.so",
+                      fs::copy_options::overwrite_existing);
 
     } catch (const std::exception &e) {
         std::cout << e.what() << "\n";

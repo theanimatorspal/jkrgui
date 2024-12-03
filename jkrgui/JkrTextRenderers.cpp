@@ -5,6 +5,14 @@ namespace JkrEXE {
 void CreateTextRendererBindings(sol::state &inState) {
     auto Jkr = inState["Jkr"].get_or_create<sol::table>();
     using namespace Jkr::Renderer;
+    ///@note this is used in AddTextureFromShapeImage in uniform3D (to get the mImgId)
+    Jkr.new_usertype<BestText_Alt::ImageId>("BestText_AltImageId",
+                                            sol::call_constructor,
+                                            sol::default_constructor,
+                                            "mRectId",
+                                            &BestText_Alt::ImageId::mRectId,
+                                            "mImgId",
+                                            &BestText_Alt::ImageId::mImgId);
     Jkr.new_usertype<BestText_base>("BestText_base",
                                     sol::call_constructor,
                                     sol::factories([]() { return mu<BestText_base>(); }),

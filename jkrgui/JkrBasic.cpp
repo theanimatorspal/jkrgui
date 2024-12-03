@@ -170,64 +170,67 @@ void CreateBasicBindings(sol::state &s) {
          &Jkr::Window::SetDefaultViewport);
 
     using namespace Jkr;
-    Jkr.new_usertype<Jkr::EventManager>("EventManager",
-                                        sol::call_constructor,
-                                        sol::factories([]() { return mu<Jkr::EventManager>(); }),
-                                        "ShouldQuit",
-                                        &Jkr::EventManager::ShouldQuit,
-                                        "ProcessEvents",
-                                        &EventManager::ProcessEvents,
-                                        "ProcessEventsEXT",
-                                        &EventManager::ProcessEventsEXT,
-                                        "ShouldQuit",
-                                        &EventManager::ShouldQuit,
-                                        "GetEventHandle",
-                                        &EventManager::GetEventHandle,
-                                        "GetMousePos",
-                                        &EventManager::GetMousePos,
-                                        "GetRelativeMousePos",
-                                        &EventManager::GetRelativeMousePos,
-                                        "GetMouseButtonValue",
-                                        &EventManager::GetMouseButtonValue,
-                                        "IsKeyPressedContinous",
-                                        &EventManager::IsKeyPressedContinous,
-                                        "IsLeftButtonPressedContinous",
-                                        &EventManager::IsLeftButtonPressedContinous,
-                                        "IsRightButtonPressedContinous",
-                                        &EventManager::IsRightButtonPressedContinous,
-                                        "IsLeftButtonPressed",
-                                        &EventManager::IsLeftButtonPressed,
-                                        "IsRightButtonPressed",
-                                        &EventManager::IsRightButtonPressed,
-                                        "IsKeyReleased",
-                                        &EventManager::IsKeyReleased,
-                                        "IsKeyPressed",
-                                        &EventManager::IsKeyPressed,
-                                        "IsCloseWindowEvent",
-                                        &EventManager::IsCloseWindowEvent,
-                                        "StartTextInput",
-                                        &EventManager::StartTextInput,
-                                        "StopTextInput",
-                                        &EventManager::StopTextInput,
-                                        "IsMouseWithinAtTopOfStack",
-                                        &EventManager::IsMouseWithinAtTopOfStack,
-                                        "IsMouseWithin",
-                                        &EventManager::IsMouseWithin,
-                                        "SetBoundedRect",
-                                        &EventManager::SetBoundedRect,
-                                        "UpdateBoundedRect",
-                                        &EventManager::UpdateBoundedRect,
-                                        "SetEventCallBack",
-                                        [](Jkr::EventManager &inManager, sol::function inFunction) {
-                                            inManager.SetEventCallBack([=]() {
-                                                auto result = inFunction();
-                                                if (not result.valid()) {
-                                                    sol::error error = result;
-                                                    std::cout << error.what();
-                                                    ksai_print(error.what());
-                                                }
-                                            });
-                                        });
+    Jkr.new_usertype<Jkr::EventManager>(
+         "EventManager",
+         sol::call_constructor,
+         sol::factories([]() { return mu<Jkr::EventManager>(); }),
+         "ShouldQuit",
+         &Jkr::EventManager::ShouldQuit,
+         "ProcessEvents",
+         &EventManager::ProcessEvents,
+         "ProcessEventsEXT",
+         &EventManager::ProcessEventsEXT,
+         "ShouldQuit",
+         &EventManager::ShouldQuit,
+         "GetEventHandle",
+         &EventManager::GetEventHandle,
+         "GetMousePos",
+         &EventManager::GetMousePos,
+         "GetRelativeMousePos",
+         &EventManager::GetRelativeMousePos,
+         "GetMouseButtonValue",
+         &EventManager::GetMouseButtonValue,
+         "IsKeyPressedContinous",
+         &EventManager::IsKeyPressedContinous,
+         "IsLeftButtonPressedContinous",
+         &EventManager::IsLeftButtonPressedContinous,
+         "IsRightButtonPressedContinous",
+         &EventManager::IsRightButtonPressedContinous,
+         "IsLeftButtonPressed",
+         &EventManager::IsLeftButtonPressed,
+         "IsRightButtonPressed",
+         &EventManager::IsRightButtonPressed,
+         "IsKeyReleased",
+         &EventManager::IsKeyReleased,
+         "IsKeyPressed",
+         &EventManager::IsKeyPressed,
+         "IsCloseWindowEvent",
+         &EventManager::IsCloseWindowEvent,
+         "StartTextInput",
+         &EventManager::StartTextInput,
+         "StopTextInput",
+         &EventManager::StopTextInput,
+         "IsMouseWithinAtTopOfStack",
+         &EventManager::IsMouseWithinAtTopOfStack,
+         "IsMouseWithin",
+         &EventManager::IsMouseWithin,
+         "SetBoundedRect",
+         &EventManager::SetBoundedRect,
+         "UpdateBoundedRect",
+         &EventManager::UpdateBoundedRect,
+         "SetEventCallBack",
+         [](Jkr::EventManager &inManager, sol::function inFunction) {
+             inManager.SetEventCallBack([=]() {
+                 auto result = inFunction();
+                 if (not result.valid()) {
+                     sol::error error = result;
+                     std::cout << error.what();
+                     ksai_print(error.what());
+                 }
+             });
+         },
+         "RemoveEventCallBacks",
+         &EventManager::RemoveEventCallBacks);
 
     auto PainterCacheTypeEnum = Jkr.new_enum<false>("PainterType",
                                                     "Default",

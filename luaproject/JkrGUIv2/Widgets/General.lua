@@ -94,6 +94,8 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                                  inColor,
                                  inBackgroundColor,
                                  inTextOreintation)
+            button.mPosition_3f = inPosition_3f
+            button.mDimension_3f = inDimension_3f
             local push = Jkr.Matrix2CustomImagePainterPushConstant()
             push.a = mat4(vec4(0.0), inBackgroundColor or button.mColor, vec4(0.0), vec4(0))
             button.quad:Update(inPosition_3f, inDimension_3f, push);

@@ -839,3 +839,12 @@ function FillTable(inTable, inValue)
         inTable[i] = nil
     end
 end
+
+function Jkr.FilePicker()
+    local file = io.popen([[
+    powershell -Command "Add-Type -AssemblyName System.Windows.Forms; $f = New-Object System.Windows.Forms.OpenFileDialog; $f.Filter = 'All Files (*.*)|*.*'; if ($f.ShowDialog() -eq 'OK') { $f.FileName }"
+    ]])
+    local filePath = file:read("*a"):gsub("%s+$", "") -- Read and trim output
+    file:close()
+    return filePath
+end
