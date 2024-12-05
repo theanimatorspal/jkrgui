@@ -140,6 +140,7 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
     app.parse(ArgCount, ArgStrings);
 
     if (FlagCreateAndroidEnvironment) {
+        /// @warning Architecture is not considered, arm64-v8a default
         BuildSystem::CreateAndroidEnvironment(
              OptionAndroidAppName, OptionAndroidDirName, OptionAndroidBuildDirName);
     }

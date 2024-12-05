@@ -1236,7 +1236,7 @@ PBR.IrradianceCubeF = Engine.Shader()
     //debugPrintfEXT("deltaPhi = %f, deltaTheta = %f, color: (%f, %f, %f)\n", consts.deltaPhi, consts.deltaTheta, color.x, color.y, color.z);
 	outFragColor = vec4(color, 1.0);
     ]]
-    .GlslMainEnd().Print()
+    .GlslMainEnd()
 
 
 PBR.BasicCompute = Engine.Shader()
@@ -1583,7 +1583,7 @@ TwoDimensionalIPs.Line =
             imageStore(storageImage, to_draw_at + offset, vec4(pct));
         }
     ]]
-    .GlslMainEnd().Print()
+    .GlslMainEnd()
 
 TwoDimensionalIPs.Clear = TwoDimensionalIPs.Header()
     .Append [[

@@ -89,7 +89,7 @@ ImportShared = function(inLibName)
         libName = "lib" .. inLibName .. ".so"
     end
     local f = package.loadlib(libName, "luaopen_" .. inLibName)
-    f()
+    return f()
 end
 
 Jkr.GetDefaultResource = function(inRenderer, inShaderType, inX, inY, inZ)
@@ -134,15 +134,14 @@ layout(location = 1) in vec2 inTexCoord;
 layout(location = 0) out vec2 outTexCoord;
 
 layout(push_constant, std430) uniform pc {
-	mat4 Matrix;
-	vec4 Color;
-	vec4 mParams;
+	mat4 Matrix1;
+	mat4 Matrix2;
 } push;
 
 
 void GlslMain() {
 	vec4 dx = vec4(inPosition.x, inPosition.y, inPosition.z, 1.0);
-	gl_Position = push.Matrix * dx;
+	gl_Position = push.Matrix2 * dx;
 	outTexCoord = inTexCoord;
 }
            ]]
@@ -155,14 +154,13 @@ layout(location = 0) out vec4 outColor;
 layout(location = 0) in vec2 inTexCoord;
 
 layout(push_constant, std430) uniform pc {
-	mat4 Matrix;
-	vec4 Color;
-	vec4 mParams;
+	mat4 Matrix1;
+	mat4 Matrix2;
 } push;
 
 void GlslMain()
 {
-	outColor = push.Color;
+	outColor = push.Matrix1[1];
 }
                 ]]
             elseif inRenderer == "ShapeImage" then
@@ -175,17 +173,18 @@ layout(set = 0, binding = 0) uniform sampler2D image;
 layout(location = 0) in vec2 inTexCoord;
 
 layout(push_constant, std430) uniform pc {
-	mat4 Matrix;
-	vec4 Color;
-	vec4 mParams;
+	mat4 Matrix1;
+	mat4 Matrix2;
 } push;
 
 void GlslMain()
 {
+    vec4 color_in = push.Matrix1[1];
 	vec4 color = texture(image, inTexCoord);
-	outColor = vec4(color.r * push.Color.r, color.g * push.Color.g, color.b * push.Color.b, color.a * push.Color.a);
+	outColor = vec4(color.r * color_in.r, color.g * color_in.g, color.b * color_in.b, color.a * color_in.a);
 }
                 ]]
+                -- @warning @todo remove this
             elseif inRenderer == "ShapeImageVarDes" then
                 return [[
 #version 450
@@ -254,6 +253,8 @@ void GlslMain()
             ]]
         end
     end
+
+    -- @warning @todo Remove all of the following
 
     --[============================================================[
          3D RENDERER RESOURCES
@@ -415,38 +416,42 @@ Jkr.GetDefaultCache = function(inInstance, inRend)
         end
         return DefaultCaches["Line"]
     elseif inRend == "Shape" then
-        DefaultCaches["Shape"] = Jkr.ShapeRendererResources()
-        DefaultCaches["Shape"]:Add(
-            inInstance,
-            Jkr.FillType.Fill,
-            Jkr.PipelineProperties.Default,
-            "cache2/ShapeFillCache.glsl",
-            Jkr.GetDefaultResource("ShapeFill", "Vertex"),
-            Jkr.GetDefaultResource("ShapeFill", "Fragment"),
-            Jkr.GetDefaultResource(nil, "Compute"),
-            ShouldLoadCaches_b
-        )
-        DefaultCaches["Shape"]:Add(
-            inInstance,
-            Jkr.FillType.Image,
-            Jkr.PipelineProperties.Default,
-            "cache2/ShapeImageCache.glsl",
-            Jkr.GetDefaultResource("ShapeImage", "Vertex"),
-            Jkr.GetDefaultResource("ShapeImage", "Fragment"),
-            Jkr.GetDefaultResource(nil, "Compute"),
-            ShouldLoadCaches_b
-        )
-        DefaultCaches["Shape"]:Add(
-            inInstance,
-            Jkr.FillType.ContinousLine,
-            Jkr.PipelineProperties.Line,
-            "cache2/ShapeFillCache.glsl",
-            Jkr.GetDefaultResource("ShapeFill", "Vertex"),
-            Jkr.GetDefaultResource("ShapeFill", "Fragment"),
-            Jkr.GetDefaultResource(nil, "Compute"),
-            ShouldLoadCaches_b
-        )
-        return DefaultCaches["Shape"]
+        if DefaultCaches["Shape"] then
+            return DefaultCaches["Shape"]
+        else
+            DefaultCaches["Shape"] = Jkr.ShapeRendererResources()
+            DefaultCaches["Shape"]:Add(
+                inInstance,
+                Jkr.FillType.Fill,
+                Jkr.PipelineProperties.Default,
+                "cache2/ShapeFillCache.glsl",
+                Jkr.GetDefaultResource("ShapeFill", "Vertex"),
+                Jkr.GetDefaultResource("ShapeFill", "Fragment"),
+                Jkr.GetDefaultResource(nil, "Compute"),
+                ShouldLoadCaches_b
+            )
+            DefaultCaches["Shape"]:Add(
+                inInstance,
+                Jkr.FillType.Image,
+                Jkr.PipelineProperties.Default,
+                "cache2/ShapeImageCache.glsl",
+                Jkr.GetDefaultResource("ShapeImage", "Vertex"),
+                Jkr.GetDefaultResource("ShapeImage", "Fragment"),
+                Jkr.GetDefaultResource(nil, "Compute"),
+                ShouldLoadCaches_b
+            )
+            DefaultCaches["Shape"]:Add(
+                inInstance,
+                Jkr.FillType.ContinousLine,
+                Jkr.PipelineProperties.Line,
+                "cache2/ShapeFillCache.glsl",
+                Jkr.GetDefaultResource("ShapeFill", "Vertex"),
+                Jkr.GetDefaultResource("ShapeFill", "Fragment"),
+                Jkr.GetDefaultResource(nil, "Compute"),
+                ShouldLoadCaches_b
+            )
+            return DefaultCaches["Shape"]
+        end
     end
 end
 
@@ -832,20 +837,24 @@ function IterateEachElementRecursively(inElement, inFunc_val)
     end
 end
 
+function FillTable(inTable, inValue)
+    local count = #inTable
+    for i = 1, count, 1 do
+        inTable[i] = nil
+    end
+end
 
--- @warning this eats up a lot of memory, @todo keep the locals, locally in this file
--- but before that, ensure that the multithreaded shader compilation works fine
-Engine.Shader = function()
-    local o                                       = {}
+function Jkr.FilePicker()
+    local file = io.popen([[
+    powershell -Command "Add-Type -AssemblyName System.Windows.Forms; $f = New-Object System.Windows.Forms.OpenFileDialog; $f.Filter = 'All Files (*.*)|*.*'; if ($f.ShowDialog() -eq 'OK') { $f.FileName }"
+    ]])
+    local filePath = file:read("*a"):gsub("%s+$", "") -- Read and trim output
+    file:close()
+    return filePath
+end
 
-    ---
-    ---
-    ---
-    --- FOR IMAGE PAINTER COMPUTE SHADER
-    ---
-    ---
-    ---
-    local ImagePainterPush                        = [[
+
+local ImagePainterPush          = [[
 layout(std430, push_constant) uniform pc {
         vec4 mPosDimen;
         vec4 mColor;
@@ -853,14 +862,14 @@ layout(std430, push_constant) uniform pc {
 } push;
     ]]
 
-    local ImagePainterPushMatrix2                 = [[
+local ImagePainterPushMatrix2   = [[
 layout(std430, push_constant) uniform pc {
     mat4 a;
     mat4 b;
 } push;
        ]]
 
-    local ImagePainterAssistMatrix2               = [[
+local ImagePainterAssistMatrix2 = [[
 uvec3 gID = gl_GlobalInvocationID;
 ivec2 image_size = ivec2(imageSize(storageImage));
 ivec2 to_draw_at = ivec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y);
@@ -874,7 +883,7 @@ vec4 p3 = push.a[2];
 vec4 p4 = push.a[3];
        ]]
 
-    local ImagePainterAssist                      = [[
+local ImagePainterAssist        = [[
 uvec3 gID = gl_GlobalInvocationID;
 ivec2 image_size = ivec2(imageSize(storageImage));
 ivec2 to_draw_at = ivec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y);
@@ -891,71 +900,8 @@ vec4 p2 = push.mColor;
 vec4 p3 = push.mParam;
       ]]
 
-    o.uImage2D                                    = function(inBinding, inImageName)
-        if not inBinding then inBinding = 0 end
-        if not inImageName then inImageName = "storageImage" end
-        o.NewLine()
-        o.Append(string.format([[
-layout(set = 0, binding = %d, rgba8) uniform image2D %s;
-    ]], inBinding, inImageName))
-        return o.NewLine()
-    end
 
-    o.CInvocationLayout                           = function(inX, inY, inZ)
-        o.NewLine()
-        o.Append(
-            string.format("layout(local_size_x = %d, local_size_y = %d, local_size_z = %d) in;", inX,
-                inY, inZ)
-        )
-        return o.NewLine()
-    end
-
-    o.ImagePainterPush                            = function()
-        o.NewLine()
-        o.Append(ImagePainterPush)
-        return o.NewLine()
-    end
-
-    o.ImagePainterPushMatrix2                     = function()
-        o.NewLine()
-        o.Append(ImagePainterPushMatrix2)
-        return o
-    end
-
-    o.ImagePainterAssistMatrix2                   = function()
-        o.NewLine()
-        o.Append(ImagePainterAssistMatrix2)
-        return o;
-    end
-
-    o.ImagePainterAssist                          = function()
-        o.NewLine()
-        o.Append(ImagePainterAssist)
-        return o.NewLine()
-    end
-
-    o.ImagePainterAssistConvolution               = function(inImageNameFrom, inImageNameTo)
-        o.NewLine()
-        o.Append(string.format(
-            [[
-
-            ]],
-            inImageNameFrom, inImageNameTo
-        ))
-        o.NewLine()
-        o.Append [[
-
-        ]]
-        return o.NewLine()
-    end
-
-    ---
-    ---
-    --- CUSTOM IMAGE PAINTER FOR 3D
-    ---
-    --- binding = 14 for storageVertex, and 15 for storageIndex
-
-    local storageVIBufferLayoutCustomImagePainter = [[
+local storageVIBufferLayoutCustomImagePainter = [[
         struct Vertex {
             vec3 mPosition;
             vec3 mNormal;
@@ -977,21 +923,8 @@ layout(set = 0, binding = %d, rgba8) uniform image2D %s;
         };
     ]]
 
-    o.vertexStorageBufferIndex                    = 14
-    o.indexStorageBufferIndex                     = 15
 
-    o.ImagePainterVIStorageLayout                 = function()
-        o.NewLine()
-        o.Append(storageVIBufferLayoutCustomImagePainter)
-        return o.NewLine()
-    end
-
-    ---
-    ---
-    --- MOSTLY FOR 3D
-    ---
-    ---
-    local vLayout                                 = [[
+local vLayout               = [[
 
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 inNormal;
@@ -999,14 +932,14 @@ layout(location = 2) in vec2 inUV;
 layout(location = 3) in vec3 inColor;
                     ]]
 
-    local push                                    = [[
+local push                  = [[
 
 layout(push_constant, std430) uniform pc {
 	mat4 model;
     mat4 m2;
 } Push;
 ]]
-    local Ubo                                     = [[
+local Ubo                   = [[
 
 layout(set = 0, binding = 0) uniform UBO {
    mat4 view;
@@ -1019,7 +952,7 @@ layout(set = 0, binding = 0) uniform UBO {
 } Ubo;
 ]]
 
-    local LinearizeDepth                          = [[
+local LinearizeDepth        = [[
 
 float LinearizeDepth(float depth, float near, float far)
 {
@@ -1030,7 +963,7 @@ float LinearizeDepth(float depth, float near, float far)
 }
           ]]
 
-    local ShadowTextureProject                    = [[
+local ShadowTextureProject  = [[
 
 float ShadowTextureProject(vec4 shadowCoord, vec2 off)
 {
@@ -1047,7 +980,7 @@ float ShadowTextureProject(vec4 shadowCoord, vec2 off)
 }
 ]]
 
-    local inJointInfluence                        = [[
+local inJointInfluence      = [[
 
 struct JointInfluence {
     vec4 mJointIndices;
@@ -1060,7 +993,7 @@ layout(std140, set = 1, binding = 2) readonly buffer JointInfluenceSSBOIn {
 
 ]]
 
-    local inTangent                               = [[
+local inTangent             = [[
         struct Tangent {
             vec4 mTangent;
         };
@@ -1070,13 +1003,13 @@ layout(std140, set = 1, binding = 2) readonly buffer JointInfluenceSSBOIn {
         };
     ]]
 
-    local inJointMatrices                         = [[
+local inJointMatrices       = [[
 
 layout(std140, set = 1, binding = 1) readonly buffer JointMatrixSSBOIn {
     mat4 inJointMatrices[ ];
 };
           ]]
-    local BiasMatrix                              = [[
+local BiasMatrix            = [[
 
     const mat4 BiasMatrix = mat4(
     0.5, 0.0, 0.0, 0.0,
@@ -1085,7 +1018,7 @@ layout(std140, set = 1, binding = 1) readonly buffer JointMatrixSSBOIn {
     0.5, 0.5, 0.0, 1.0 );
     ]]
 
-    local D_GGX                                   = [[
+local D_GGX                 = [[
 // Normal Distribution Function
 float D_GGX(float dotNH, float roughness)
 {
@@ -1097,7 +1030,7 @@ float D_GGX(float dotNH, float roughness)
 
     ]]
 
-    local G_SchlicksmithGGX                       = [[
+local G_SchlicksmithGGX     = [[
 // Geometric Shadowing Function
 float G_SchlicksmithGGX(float dotNL, float dotNV, float roughness)
 {
@@ -1109,7 +1042,7 @@ float G_SchlicksmithGGX(float dotNL, float dotNV, float roughness)
 }
     ]]
 
-    local F_Schlick                               = [[
+local F_Schlick             = [[
 // Fresnel Function
 vec3 F_Schlick(float cosTheta, float metallic)
 {
@@ -1125,14 +1058,14 @@ vec3 F_Schlick(float cosTheta, vec3 F0)
 
     ]]
 
-    local F_SchlickR                              = [[
+local F_SchlickR            = [[
 vec3 F_SchlickR(float cosTheta, vec3 F0, float roughness)
 {
 	return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
 }
     ]]
 
-    local PrefilteredReflection                   = [[
+local PrefilteredReflection = [[
 vec3 PrefilteredReflection(vec3 R, float roughness)
 {
 	const float MAX_REFLECTION_LOD = 9.0; // todo: param/const
@@ -1146,7 +1079,7 @@ vec3 PrefilteredReflection(vec3 R, float roughness)
     ]]
 
 
-    local BRDF                 = [[
+local BRDF                 = [[
 // Specular BRDF composition
 vec3 BRDF(vec3 L, vec3 V, vec3 N, float metallic, float roughness)
 {
@@ -1177,7 +1110,7 @@ vec3 BRDF(vec3 L, vec3 V, vec3 N, float metallic, float roughness)
 }
     ]]
 
-    local BRDF_LUT             = [[
+local BRDF_LUT             = [[
 vec2 BRDF(float NoV, float roughness)
 {
 	// Normal always points along z-axis for the 2D lookup
@@ -1207,8 +1140,8 @@ vec2 BRDF(float NoV, float roughness)
 
     ]]
 
-    local Uncharted2Tonemap    =
-    [[
+local Uncharted2Tonemap    =
+[[
         // From http://filmicworlds.com/blog/filmic-tonemapping-operators/
 vec3 Uncharted2Tonemap(vec3 color)
 {
@@ -1223,7 +1156,7 @@ vec3 Uncharted2Tonemap(vec3 color)
 }
     ]]
 
-    local Random               = [[
+local Random               = [[
 // Based omn http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
 float Random(vec2 co)
 {
@@ -1237,7 +1170,7 @@ float Random(vec2 co)
 
        ]]
 
-    local Hammerslay2d         = [[
+local Hammerslay2d         = [[
 vec2 Hammersley2d(uint i, uint N)
 {
 	// Radical inverse based on http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
@@ -1251,7 +1184,7 @@ vec2 Hammersley2d(uint i, uint N)
 }
        ]]
 
-    local ImportanceSample_GGX = [[
+local ImportanceSample_GGX = [[
         // Based on http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_slides.pdf
 vec3 ImportanceSample_GGX(vec2 Xi, float roughness, vec3 normal)
 {
@@ -1272,7 +1205,7 @@ vec3 ImportanceSample_GGX(vec2 Xi, float roughness, vec3 normal)
 }
        ]]
 
-    local SRGBtoLINEAR         = [[
+local SRGBtoLINEAR         = [[
 
 vec4 SRGBtoLINEAR(vec4 srgbIn)
 {
@@ -1309,7 +1242,7 @@ vec3 SRGBtoLINEAR(vec3 srgbIn)
 
 
 
-    local PrefilterEnvMap      = [[
+local PrefilterEnvMap      = [[
 
 vec3 PrefilterEnvMap(vec3 R, float roughness)
 {
@@ -1347,7 +1280,7 @@ vec3 PrefilterEnvMap(vec3 R, float roughness)
 
 ]]
 
-    local SpecularContribution = [[
+local SpecularContribution = [[
 vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float roughness)
 {
 	// Precalculate vectors and dot products	
@@ -1377,33 +1310,128 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
 }
 ]]
 
-    o.str                      = ""
 
-    o.Append                   = function(inStr)
+
+-- @warning this eats up a lot of memory, @todo keep the locals, locally in this file
+-- but before that, ensure that the multithreaded shader compilation works fine
+Engine.Shader = function()
+    local o                         = {}
+
+    ---
+    ---
+    ---
+    --- FOR IMAGE PAINTER COMPUTE SHADER
+    ---
+    ---
+    ---
+
+    o.uImage2D                      = function(inBinding, inImageName)
+        if not inBinding then inBinding = 0 end
+        if not inImageName then inImageName = "storageImage" end
+        o.NewLine()
+        o.Append(string.format([[
+layout(set = 0, binding = %d, rgba8) uniform image2D %s;
+    ]], inBinding, inImageName))
+        return o.NewLine()
+    end
+
+    o.CInvocationLayout             = function(inX, inY, inZ)
+        o.NewLine()
+        o.Append(
+            string.format("layout(local_size_x = %d, local_size_y = %d, local_size_z = %d) in;", inX,
+                inY, inZ)
+        )
+        return o.NewLine()
+    end
+
+    o.ImagePainterPush              = function()
+        o.NewLine()
+        o.Append(ImagePainterPush)
+        return o.NewLine()
+    end
+
+    o.ImagePainterPushMatrix2       = function()
+        o.NewLine()
+        o.Append(ImagePainterPushMatrix2)
+        return o
+    end
+
+    o.ImagePainterAssistMatrix2     = function()
+        o.NewLine()
+        o.Append(ImagePainterAssistMatrix2)
+        return o;
+    end
+
+    o.ImagePainterAssist            = function()
+        o.NewLine()
+        o.Append(ImagePainterAssist)
+        return o.NewLine()
+    end
+
+    o.ImagePainterAssistConvolution = function(inImageNameFrom, inImageNameTo)
+        o.NewLine()
+        o.Append(string.format(
+            [[
+
+            ]],
+            inImageNameFrom, inImageNameTo
+        ))
+        o.NewLine()
+        o.Append [[
+
+        ]]
+        return o.NewLine()
+    end
+
+    ---
+    ---
+    --- CUSTOM IMAGE PAINTER FOR 3D
+    ---
+    --- binding = 14 for storageVertex, and 15 for storageIndex
+
+
+    o.vertexStorageBufferIndex    = 14
+    o.indexStorageBufferIndex     = 15
+
+    o.ImagePainterVIStorageLayout = function()
+        o.NewLine()
+        o.Append(storageVIBufferLayoutCustomImagePainter)
+        return o.NewLine()
+    end
+
+    ---
+    ---
+    --- MOSTLY FOR 3D
+    ---
+    ---
+
+    o.str                         = ""
+
+    o.Append                      = function(inStr)
         o.str = o.str .. inStr
         return o.NewLine()
     end
 
-    o.DontAppend               = function(inStr)
+    o.DontAppend                  = function(inStr)
         return o -- do nothing
     end
 
-    o.Clear                    = function()
+    o.Clear                       = function()
         o.str = ""
         return o
     end
 
-    o.NewLine                  = function()
+    o.NewLine                     = function()
         o.str = o.str .. "\n"
         return o
     end
 
-    o.Indent                   = function()
+    o.Indent                      = function()
         o.str = o.str .. "\t"
         return o
     end
 
-    o.Header                   = function(inVersion)
+    o.Header                      = function(inVersion)
         o.str = o.str .. string.format("#version %d", inVersion)
         o.NewLine()
         o.str = o.str .. "#extension GL_EXT_debug_printf : enable"
@@ -1411,61 +1439,61 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
         return o.NewLine()
     end
 
-    o.VLayout                  = function()
+    o.VLayout                     = function()
         o.str = o.str .. vLayout
         return o.NewLine()
     end
 
-    o.Out                      = function(inLocation, inType, inName)
+    o.Out                         = function(inLocation, inType, inName)
         o.str = o.str .. string.format("layout (location = %d) out %s %s;", inLocation, inType, inName)
         return o.NewLine()
     end
 
-    o.In                       = function(inLocation, inType, inName)
+    o.In                          = function(inLocation, inType, inName)
         o.str = o.str .. string.format("layout (location = %d) in %s %s;", inLocation, inType, inName)
         return o.NewLine()
     end
 
-    o.outFragColor             = function()
+    o.outFragColor                = function()
         o.str = o.str .. "layout( location = 0 ) out vec4 outFragColor;"
         return o.NewLine()
     end
 
-    o.Push                     = function()
+    o.Push                        = function()
         o.str = o.str .. push
         return o.NewLine()
     end
 
-    o.Ubo                      = function()
+    o.Ubo                         = function()
         o.str = o.str .. Ubo
         return o.NewLine()
     end
 
-    o.GlslMainBegin            = function()
+    o.GlslMainBegin               = function()
         o.str = o.str .. "void GlslMain()"
         o.NewLine()
         o.str = o.str .. "{"
         return o.NewLine()
     end
 
-    o.GlslMainEnd              = function()
+    o.GlslMainEnd                 = function()
         o.str = o.str .. "}"
         return o.NewLine()
     end
 
-    o.ShadowGLPosition         = function()
+    o.ShadowGLPosition            = function()
         o.Indent()
         o.str = o.str .. "gl_Position = Ubo.proj * Ubo.shadowMatrix * Push.model * vec4(inPosition, 1.0);"
         return o.NewLine()
     end
 
-    o.InvertY                  = function()
+    o.InvertY                     = function()
         o.Indent()
         o.str = o.str .. "gl_Position.y = -gl_Position.y;"
         return o.NewLine()
     end
 
-    o.uSampler2D               = function(inBinding, inName, inSet)
+    o.uSampler2D                  = function(inBinding, inName, inSet)
         if inSet then
             o.str = o.str ..
                 string.format("layout(set = %d, binding = %d) uniform sampler2D %s;", inSet, inBinding, inName)
@@ -1476,7 +1504,7 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
         return o.NewLine()
     end
 
-    o.uSamplerCubeMap          = function(inBinding, inName, inSet)
+    o.uSamplerCubeMap             = function(inBinding, inName, inSet)
         if (inSet) then
             o.str = o.str ..
                 string.format("layout(set = %d, binding = %d) uniform samplerCube %s;", inSet, inBinding, inName)
@@ -1487,145 +1515,145 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
         return o.NewLine()
     end
 
-    o.LinearizeDepth           = function()
+    o.LinearizeDepth              = function()
         o.NewLine()
         o.str = o.str .. LinearizeDepth
         return o.NewLine()
     end
 
-    o.ShadowTextureProject     = function()
+    o.ShadowTextureProject        = function()
         o.NewLine()
         o.str = o.str .. ShadowTextureProject
         return o.NewLine()
     end
 
-    o.inJointInfluence         = function()
+    o.inJointInfluence            = function()
         o.Append(inJointInfluence)
         return o.NewLine()
     end
 
-    o.inJointMatrices          = function()
+    o.inJointMatrices             = function()
         o.Append(inJointMatrices)
         return o.NewLine()
     end
 
-    o.inTangent                = function()
+    o.inTangent                   = function()
         o.Append(inTangent)
         return o.NewLine()
     end
 
-    o.BiasMatrix               = function()
+    o.BiasMatrix                  = function()
         o.Append(BiasMatrix)
         return o.NewLine()
     end
 
-    o.PI                       = function()
+    o.PI                          = function()
         o.Append("const float PI = 3.14159;")
         return o.NewLine()
     end
 
-    o.D_GGX                    = function()
+    o.D_GGX                       = function()
         o.NewLine()
         o.Append(D_GGX)
         return o.NewLine()
     end
 
-    o.G_SchlicksmithGGX        = function()
+    o.G_SchlicksmithGGX           = function()
         o.NewLine()
         o.Append(G_SchlicksmithGGX)
         return o.NewLine()
     end
 
-    o.F_Schlick                = function()
+    o.F_Schlick                   = function()
         o.NewLine()
         o.Append(F_Schlick)
         return o.NewLine()
     end
 
-    o.F_SchlickR               = function()
+    o.F_SchlickR                  = function()
         o.NewLine()
         o.Append(F_SchlickR)
         return o.NewLine()
     end
 
-    o.BRDF                     = function()
+    o.BRDF                        = function()
         o.NewLine()
         o.Append(BRDF)
         return o.NewLine()
     end
 
-    o.Uncharted2Tonemap        = function()
+    o.Uncharted2Tonemap           = function()
         o.NewLine()
         o.Append(Uncharted2Tonemap)
         return o.NewLine()
     end
 
-    o.SRGBtoLINEAR             = function()
+    o.SRGBtoLINEAR                = function()
         o.NewLine()
         o.Append(SRGBtoLINEAR)
         return o.NewLine()
     end
 
-    o.Random                   = function()
+    o.Random                      = function()
         o.NewLine()
         o.Append(Random)
         return o.NewLine()
     end
 
-    o.Hammerslay2d             = function()
+    o.Hammerslay2d                = function()
         o.NewLine()
         o.Append(Hammerslay2d)
         return o.NewLine()
     end
 
-    o.ImportanceSample_GGX     = function()
+    o.ImportanceSample_GGX        = function()
         o.NewLine()
         o.Append(ImportanceSample_GGX)
         return o.NewLine()
     end
 
-    o.PrefilterEnvMap          = function()
+    o.PrefilterEnvMap             = function()
         o.NewLine()
         o.Append(PrefilterEnvMap)
         return o.NewLine()
     end
 
-    o.PrefilteredReflection    = function()
+    o.PrefilteredReflection       = function()
         o.NewLine()
         o.Append(PrefilteredReflection)
         return o.NewLine()
     end
 
-    o.SpecularContribution     = function()
+    o.SpecularContribution        = function()
         o.NewLine()
         o.Append(SpecularContribution)
         return o.NewLine()
     end
 
-    o.BRDF_LUT                 = function()
+    o.BRDF_LUT                    = function()
         o.NewLine()
         o.Append(BRDF_LUT)
         return o.NewLine()
     end
 
-    o.MaterialColorBegin       = function()
+    o.MaterialColorBegin          = function()
         o.str = o.str .. "vec3 MaterialColor()"
         o.NewLine()
         o.str = o.str .. "{"
         return o.NewLine()
     end
 
-    o.MaterialColorEnd         = function()
+    o.MaterialColorEnd            = function()
         o.str = o.str .. "}"
         return o.NewLine()
     end
 
-    o.Define                   = function(inName, inValue)
+    o.Define                      = function(inName, inValue)
         o.str = o.str .. string.format("#define %s %s", inName, inValue)
         return o.NewLine().NewLine()
     end
 
-    o.Print                    = function()
+    o.Print                       = function()
         local lineNumber = 13
 
         for line in o.str:gmatch("[^\n]+") do
@@ -1634,8 +1662,8 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
         end
         return o
     end
-    o.gltfMaterialTextures     = {}
-    o.gltfPutMaterialTextures  = function(inGLTF, inMaterialIndex)
+    o.gltfMaterialTextures        = {}
+    o.gltfPutMaterialTextures     = function(inGLTF, inMaterialIndex)
         if inGLTF then
             local Materials = inGLTF:GetMaterials()
             local Material = Materials[inMaterialIndex + 1]
@@ -2009,7 +2037,7 @@ PBR.PreFilterEnvMapF = Engine.Shader()
     consts.numSamples = uint(Push.m2[0].y);
     vec3 N = normalize(inPos);
     vec3 color = PrefilterEnvMap(N, consts.roughness);
-    debugPrintfEXT("PrefilterCubeMap:: Roughness: %f, Samples: %d, color: (%f, %f, %f)\n", consts.roughness, consts.numSamples, color.x, color.y, color.z);
+    //debugPrintfEXT("PrefilterCubeMap:: Roughness: %f, Samples: %d, color: (%f, %f, %f)\n", consts.roughness, consts.numSamples, color.x, color.y, color.z);
     outFragColor = vec4(color, 1.0);
 
     ]]
@@ -2047,14 +2075,19 @@ PBR.IrradianceCubeF = Engine.Shader()
 
 	for (float phi = 0.0; phi < TWO_PI; phi += consts.deltaPhi) {
 		for (float theta = 0.0; theta < HALF_PI; theta += consts.deltaTheta) {
-			vec3 tempVec = cos(phi) * right + sin(phi) * up;
-			vec3 sampleVector = cos(theta) * N + sin(theta) * tempVec;
-			color += texture(samplerEnv, sampleVector).rgb * cos(theta) * sin(theta);
+            float sinTheta = sin(theta);
+            float sinPhi = sin(phi);
+            float cosPhi = cos(phi);
+            float cosTheta = cos(theta);
+			vec3 tangentSample = vec3(sinTheta * cosPhi, sinTheta * sinPhi, cosTheta);
+			vec3 sampleVector = tangentSample.x * right + tangentSample.y * up + tangentSample.z * N;
+			color += texture(samplerEnv, sampleVector).rgb * cosTheta * sinTheta;
 			sampleCount++;
 		}
 	}
+
     color  = PI * color / float(sampleCount);
-    debugPrintfEXT("deltaPhi = %f, deltaTheta = %f, color: (%f, %f, %f)\n", consts.deltaPhi, consts.deltaTheta, color.x, color.y, color.z);
+    //debugPrintfEXT("deltaPhi = %f, deltaTheta = %f, color: (%f, %f, %f)\n", consts.deltaPhi, consts.deltaTheta, color.x, color.y, color.z);
 	outFragColor = vec4(color, 1.0);
     ]]
     .GlslMainEnd()
@@ -2073,7 +2106,7 @@ PBR.EquirectangularMapToMultiVShader = Engine.Shader()
     .GlslMainBegin()
     .Append [[
     localPos = inPosition;
-    gl_Position = Push.model * Push.m2 * vec4(localPos, 1.0);
+    gl_Position = Push.m2 * vec4(localPos, 1.0);
     ]]
     .GlslMainEnd()
 
@@ -2099,8 +2132,6 @@ PBR.EquirectangularMapToMultiFShader = Engine.Shader()
     outFragColor = vec4(color, 1.0);
     ]]
     .GlslMainEnd()
-
-
 
 Deferred = {}
 
@@ -2256,6 +2287,167 @@ Deferred.BasicFragment = Deferred.GetBasicFragmentHeader()
     ]]
     .GlslMainEnd()
 
+Shape2DShaders = {}
+Shape2DShaders.GeneralVShader = Engine.Shader()
+    .Header(450)
+    .In(0, "vec3", "inPosition")
+    .In(1, "vec2", "inTexCoord")
+    .Out(0, "vec2", "outTexCoord")
+    .ImagePainterPushMatrix2()
+    .GlslMainBegin()
+    .Append [[
+	vec4 dx = vec4(inPosition.x, inPosition.y, inPosition.z, 1.0);
+	gl_Position = push.b * dx;
+	outTexCoord = inTexCoord;
+]]
+    .GlslMainEnd()
+
+Shape2DShaders.RoundedRectangleFShader = Engine.Shader()
+    .Header(450)
+    .outFragColor()
+    .In(0, "vec2", "inTexCoord")
+    .ImagePainterPushMatrix2()
+    .GlslMainBegin()
+    .Append [[
+    vec4 p1 = push.a[0];
+    vec4 p2 = push.a[1]; // Color
+    vec4 p3 = push.a[3]; // Has Radius
+    vec2 center = vec2(p1.x, p1.y);
+    vec2 hw = vec2(p1.z, p1.w);
+    float radius = p3.x;
+    vec2 xy = inTexCoord * 2.0f - vec2(1.0f);
+    vec2 Q = abs(xy - center) - hw;
+
+    float color = distance(max(Q, vec2(0.0)), vec2(0.0)) + min(max(Q.x, Q.y), 0.0) - radius;
+    color = smoothstep(-0.05, 0.05, -color);
+    outFragColor = p2 * color;
+    ]].GlslMainEnd()
+
+Shape2DShaders.ShowImageFShader = Engine.Shader()
+    .Header(450)
+    .outFragColor()
+    .In(0, "vec2", "inTexCoord")
+    .Append [[
+        layout(set = 0, binding = 0) uniform sampler2D image;
+    ]]
+    .ImagePainterPushMatrix2()
+    .GlslMainBegin()
+    .Append [[
+    vec4 p1 = push.a[0];
+    vec4 p2 = push.a[1]; // Color
+    vec4 p3 = push.a[3]; // Has Radius
+    outFragColor = p2 * texture(image, inTexCoord);
+    ]].GlslMainEnd()
+
+
+TwoDimensionalIPs = {}
+TwoDimensionalIPs.Header = function()
+    return Engine.Shader()
+        .Header(450)
+        .CInvocationLayout(16, 16, 1)
+        .uImage2D()
+        ---@warning for uniform pipelinelayout for descriptors
+        .ImagePainterVIStorageLayout()
+        .ImagePainterPushMatrix2()
+        .GlslMainBegin()
+        .ImagePainterAssistMatrix2()
+end
+
+TwoDimensionalIPs.HeaderWithoutBegin = function()
+    return Engine.Shader()
+        .Header(450)
+        .CInvocationLayout(16, 16, 1)
+        .uImage2D()
+        ---@warning for uniform pipelinelayout for descriptors
+        .ImagePainterVIStorageLayout()
+        .ImagePainterPushMatrix2()
+end
+
+TwoDimensionalIPs.ConstantColor =
+    TwoDimensionalIPs.Header()
+    .Append [[
+        imageStore(storageImage, to_draw_at, p4);
+    ]]
+    .GlslMainEnd()
+
+TwoDimensionalIPs.RoundedRectangle =
+    TwoDimensionalIPs.Header()
+    .Append [[
+        vec2 center = vec2(p1.x, p1.y);
+        vec2 hw = vec2(p1.z, p1.w);
+        float radius = p3.x;
+        vec2 Q = abs(xy - center) - hw;
+
+        float color = distance(max(Q, vec2(0.0)), vec2(0.0)) + min(max(Q.x, Q.y), 0.0) - radius;
+        color = smoothstep(-0.05, 0.05, -color);
+
+        vec4 old_color = imageLoad(storageImage, to_draw_at);
+        vec4 final_color = vec4(p2.x * color, p2.y * color, p2.z * color, p2.w * color);
+        final_color = mix(final_color, old_color, p3.w);
+
+        imageStore(storageImage, to_draw_at, final_color);
+          ]]
+    .GlslMainEnd()
+
+---@note @todo Later make this ellipse
+TwoDimensionalIPs.Circle =
+    TwoDimensionalIPs.Header()
+    .Append [[
+        vec2 center = vec2(p1.x, p1.y);
+        float radius = p1.z;
+        vec2 Q = abs(xy - center);
+        float color = length(Q) - radius;
+        //color = smoothstep(-0.05, 0.05, -color);
+        color = -color;
+
+        vec4 old_color = imageLoad(storageImage, to_draw_at);
+        vec4 final_color = vec4(p2.x * color, p2.y * color, p2.z * color, p2.w * color);
+        final_color = mix(final_color, old_color, p3.w);
+        //debugPrintfEXT("final_color %f %f %f", final_color.x, final_color.y, final_color.z);
+
+        imageStore(storageImage, to_draw_at, final_color);
+          ]]
+    .GlslMainEnd()
+
+TwoDimensionalIPs.Line =
+    TwoDimensionalIPs.HeaderWithoutBegin()
+    .Append [[
+    float plot(vec2 st, float pct){
+        return  smoothstep( pct-0.05, pct, st.y) -
+                smoothstep( pct, pct+0.05, st.y);
+    }
+    ]]
+    .GlslMainBegin()
+    .ImagePainterAssistMatrix2()
+    .Append [[
+        vec2 pos = vec2(p1.x, p1.y);
+        vec2 dimen = vec2(p1.z, p1.w);
+        vec4 color = p2;
+        ivec2 offset = ivec2(int(p1.x), int(p1.y));
+
+        x_cart = (float(gl_GlobalInvocationID.x) - float(dimen.x) / float(2)) / (float((dimen.x) / float(2)));
+        y_cart = (float(dimen.y) / float(2) - float(gl_GlobalInvocationID.y)) / (float(dimen.y) / float(2));
+        xy.x = x_cart;
+        xy.y = y_cart;
+
+        float y = -xy.x;
+        float pct = plot(xy, y);
+        if (to_draw_at.x <= int(dimen.x) && to_draw_at.y <= int(dimen.y))
+        {
+            imageStore(storageImage, to_draw_at + offset, vec4(pct));
+        }
+    ]]
+    .GlslMainEnd()
+
+TwoDimensionalIPs.Clear = TwoDimensionalIPs.Header()
+    .Append [[
+    imageStore(storageImage, to_draw_at, p1);
+    ]]
+    .GlslMainEnd()
+
+
+
+
 Basics = {}
 
 Basics.GetVertexWithTangent = function()
@@ -2380,7 +2572,7 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
             end
         else
             fshader.Append [[
-                outFragColor = vec4(1, 0, 0, 1);
+                outFragColor = vec4(vColor.x, vColor.y, vColor.z, 1);
             ]]
         end
         fshader.GlslMainEnd()
@@ -2677,7 +2869,7 @@ Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
         .NewLine()
         .InvertY()
         .GlslMainEnd()
-        .NewLine().Print()
+        .NewLine()
 
     local fShader = Engine.Shader()
         .Header(450)
@@ -2687,6 +2879,7 @@ Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
         .In(2, "vec3", "vWorldPos")
         .In(3, "vec4", "vTangent")
         .In(4, "flat int", "vVertexIndex")
+        .uSamplerCubeMap(20, "samplerCubeMap", 0)
         .uSampler2D(23, "samplerBRDFLUT", 0)
         .uSamplerCubeMap(24, "samplerIrradiance", 0)
         .uSamplerCubeMap(25, "prefilteredMap", 0)
@@ -2809,7 +3002,7 @@ vec3 calculateNormal()
 
 
 	vec3 F0 = vec3(0.04);
-	F0 = mix(F0, SRGBtoLINEAR(vec4(ALBEDO, 1.0)).xyz, metallic);
+	F0 = mix(F0, vec4(ALBEDO, 1.0).xyz, metallic);
 	vec3 Lo = vec3(0.0);
 	for(int i = 0; i < Ubo.lights[i].length(); i++) {
 		vec3 L = normalize(Ubo.lights[i].xyz - vWorldPos) * Ubo.lights[i].w;
@@ -2817,8 +3010,8 @@ vec3 calculateNormal()
 	}
 	
 	vec2 brdf = texture(samplerBRDFLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
-	vec3 reflection = SRGBtoLINEAR(PrefilteredReflection(R, roughness)).rgb;	
-	vec3 irradiance = SRGBtoLINEAR(texture(samplerIrradiance, N)).rgb;
+	vec3 reflection = PrefilteredReflection(R, roughness).rgb;	
+	vec3 irradiance = texture(samplerIrradiance, N).rgb;
 
 	// Diffuse based on irradiance
 	vec3 diffuse = irradiance * ALBEDO;	
@@ -2851,7 +3044,7 @@ vec3 calculateNormal()
     vec3 color = ambient + Lo;
 
     // Tone mapping exposure = 1.5
-	color = Uncharted2Tonemap(color * 10);
+	color = Uncharted2Tonemap(color * 2.5);
 	color = color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
 	// Gamma correction gamma = 0.3
 	color = pow(color, vec3(1.0f / 2.2));
@@ -2891,7 +3084,8 @@ Engine.CreateObjectByGLTFPrimitiveAndUniform = function(inWorld3d,
 end
 
 
-Engine.AddObject = function(modObjectsVector, inId, inAssociatedModel, inUniformIndex, inSimple3dIndex, inGLTFHandle,
+Engine.AddObject = function(modObjects, modObjectsVector, inId, inAssociatedModel, inUniformIndex, inSimple3dIndex,
+                            inGLTFHandle,
                             inMeshIndex)
     local Object = Jkr.Object3D()
     if inId then Object.mId = inId end
@@ -2902,6 +3096,7 @@ Engine.AddObject = function(modObjectsVector, inId, inAssociatedModel, inUniform
         local NodeIndices = inGLTFHandle:GetNodeIndexByMeshIndex(inMeshIndex)
         Object.mMatrix = inGLTFHandle:GetNodeMatrixByIndex(NodeIndices)
     end
+    modObjects[#modObjects + 1] = Object
     modObjectsVector:add(Object)
     return #modObjectsVector
 end
@@ -2916,6 +3111,7 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
     local Meshes = gltfmodel:GetMeshesRef()
     Engine.GetGLTFInfo(gltfmodel)
     local Objects = {}
+    local materials = {}
 
     for NodeIndex = 1, #Nodes, 1 do
         local shouldload = false
@@ -2924,37 +3120,41 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
         for PrimitiveIndex = 1, #primitives, 1 do
             local inprimitive = primitives[PrimitiveIndex]
             local materialindex = inprimitive.mMaterialIndex
+            if not materials[materialindex] then
+                local uniform3dindex = inworld3d:AddUniform3D(Engine.i)
+                local uniform = inworld3d:GetUniform3D(uniform3dindex)
+                local shaderindex = inworld3d:AddSimple3D(Engine.i, w)
+                local shader = inworld3d:GetSimple3D(shaderindex)
+                local vshader, fshader = Engine.GetAppropriateShader(inshadertype, incompilecontext, gltfmodel,
+                    materialindex,
+                    inskinning)
+                shader:CompileEXT(
+                    Engine.i,
+                    w,
+                    "cache/constant_color.glsl",
+                    vshader.str,
+                    fshader.str,
+                    "",
+                    shouldload,
+                    incompilecontext
+                )
+                local allocate_for_skinning = false
+                local allocate_for_tangent = true
+                if inskinning then allocate_for_skinning = true end
+                uniform:Build(shader, gltfmodel, 0, allocate_for_skinning, allocate_for_tangent)
+                uniform:Build(shader, gltfmodel, primitives[PrimitiveIndex])
+                materials[materialindex] = { shaderindex = shaderindex, uniformindex = uniform3dindex }
+            end
 
             --@warning THIS IS BEING DUPLICATED, FIX THIS
             -- [[[[[[[[[[[[[[[[[[[[[[[[[[THIS IS NOT OPTIMAL]]]]]]]]]]]]]]]]]]]]]]]]]]
-            local uniform3dindex = inworld3d:AddUniform3D(Engine.i)
-            local uniform = inworld3d:GetUniform3D(uniform3dindex)
-            local shaderindex = inworld3d:AddSimple3D(Engine.i, w)
-            local shader = inworld3d:GetSimple3D(shaderindex)
-            local vshader, fshader = Engine.GetAppropriateShader(inshadertype, incompilecontext, gltfmodel, materialindex,
-                inskinning)
-            shader:CompileEXT(
-                Engine.i,
-                w,
-                "cache/constant_color.glsl",
-                vshader.str,
-                fshader.str,
-                "",
-                shouldload,
-                incompilecontext
-            )
-            local allocate_for_skinning = false
-            local allocate_for_tangent = true
-            if inskinning then allocate_for_skinning = true end
-            uniform:Build(shader, gltfmodel, 0, allocate_for_skinning, allocate_for_tangent)
-            uniform:Build(shader, gltfmodel, primitives[PrimitiveIndex])
             -- [[[[[[[[[[[[[[[[[[[[[[[[[[CHANGE THIS LATER]]]]]]]]]]]]]]]]]]]]]]]]]]
 
             local object = Jkr.Object3D()
             object.mId = shapeindex;
             object.mAssociatedModel = gltfmodelindex;
-            object.mAssociatedUniform = uniform3dindex;
-            object.mAssociatedSimple3D = shaderindex;
+            object.mAssociatedUniform = materials[materialindex].uniformindex;
+            object.mAssociatedSimple3D = materials[materialindex].shaderindex;
             object.mFirstIndex = inprimitive.mFirstIndex
             object.mIndexCount = inprimitive.mIndexCount
             object.mMatrix = Nodes[NodeIndex]:GetLocalMatrix()
@@ -2993,6 +3193,43 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
         end
     end
     return Objects
+end
+
+
+Engine.CreateWorld3D = function(w, inshaper3d)
+    local world3d = Jkr.World3D(inshaper3d)
+    local camera3d = Jkr.Camera3D()
+    camera3d:SetAttributes(vec3(0, 0, 0), vec3(0, 30, 30))
+    camera3d:SetPerspective(0.3, 16 / 9, 0.1, 10000)
+    world3d:AddCamera(camera3d)
+    local dummypipelineindex = world3d:AddSimple3D(Engine.i, w);
+    local dummypipeline = world3d:GetSimple3D(dummypipelineindex)
+    local light0 = {
+        pos = vec4(-1, -2, 2, 4),
+        dir = Jmath.Normalize(vec4(0, 0, 0, 0) - vec4(10, 10, -10, 1))
+    }
+    world3d:AddLight3D(light0.pos, light0.dir)
+
+    local vshader, fshader = Engine.GetAppropriateShader("CONSTANT_COLOR",
+        Jkr.CompileContext.Default, nil, nil, false, false
+    )
+
+    dummypipeline:CompileEXT(
+        Engine.i,
+        w,
+        "cache/dummyshader.glsl",
+        vshader.str,
+        fshader.str,
+        "",
+        false,
+        Jkr.CompileContext.Default
+    )
+
+    local globaluniformindex = world3d:AddUniform3D(Engine.i)
+    local globaluniformhandle = world3d:GetUniform3D(globaluniformindex)
+    globaluniformhandle:Build(dummypipeline) -- EUTA PIPELINE BANAUNU PRXA
+    world3d:AddWorldInfoToUniform3D(globaluniformindex)
+    return world3d, camera3d
 end
 
 
@@ -3046,10 +3283,11 @@ Jkr.CreateEventable = function(inFunction)
     return o
 end
 
-Jkr.CreateDrawable = function(inId, inBatchable, inDrawType, inImageId, inColor_4f)
+Jkr.CreateDrawable = function(inId, inBatchable, inDrawType, inImageId, inColor_4f, inPush)
     local o = {}
     o.mBatchable = inBatchable
     o.mImageId = inImageId
+    o.mPush = inPush
     if inColor_4f then
         o.mColor = inColor_4f
     else
@@ -3077,10 +3315,43 @@ Jkr.CreateCallBuffers = function() -- Similar to Comptable in JrkGUI v1
     o.mOneTimeDispatchables = {}
     o.mOneTimeUpdatables = {}
 
-    o.Push = function(self, inCall)
-        if inCall.mDrawType then
+    local sv_index_count = 1 ---@note Current Scissor OR Viewport
+    o.mSVs = {}
+    o.mDrawablesInSVs = {}
+    o.mDrawablesInSVs[1] = {}
+    o.mSVs[1] = {}
+
+    o.PushDraw = function(self, inCall, inSVid)
+        local itd = self.mDrawables
+        if inCall.mDrawType == "SCISSOR_VIEWPORT" then
+            sv_index_count = sv_index_count + 1
+            local sv_elements = {}
+            self.mDrawablesInSVs[sv_index_count] = sv_elements
+            self.mSVs[sv_index_count] = inCall
+            return sv_index_count
+        else
+            if not itd[inCall.mDrawType] then
+                itd[inCall.mDrawType] = {}
+            end
+
+            itd[inCall.mDrawType][#itd[inCall.mDrawType] + 1] = inCall
             self.mDrawables[#self.mDrawables + 1] = inCall
+
+            if not self.mDrawablesInSVs[inSVid][inCall.mDrawType] then
+                self.mDrawablesInSVs[inSVid][inCall.mDrawType] = {}
+            end
+
+            local l = self.mDrawablesInSVs[inSVid][inCall.mDrawType]
+            l[#l + 1] = inCall
+
             return #self.mDrawables
+        end
+    end
+
+    ---@note this inSVid is only needed for draw parameters
+    o.Push = function(self, inCall, inSVId)
+        if inCall.mDrawType then
+            return o:PushDraw(inCall, inSVId)
         elseif inCall.mUpdate then
             self.mUpdatables[#self.mUpdatables + 1] = inCall
             return #self.mUpdatables
@@ -3092,29 +3363,24 @@ Jkr.CreateCallBuffers = function() -- Similar to Comptable in JrkGUI v1
             return #self.mEventables
         end
     end
+
     o.PushOneTime = function(self, inCall, inFrame)
         if inCall.mDrawType then
             -- Optimize this
-            if self.mOneTimeDrawables[inFrame] then
-                self.mOneTimeDrawables[inFrame][#self.mOneTimeDrawables[inFrame] + 1] = inCall
-            else
+            if not self.mOneTimeDrawables[inFrame] then
                 self.mOneTimeDrawables[inFrame] = {}
-                self.mOneTimeDrawables[inFrame][#self.mOneTimeDrawables[inFrame] + 1] = inCall
             end
+            self.mOneTimeDrawables[inFrame][#self.mOneTimeDrawables[inFrame] + 1] = inCall
         elseif inCall.mUpdate then
-            if self.mOneTimeUpdatables[inFrame] then
-                self.mOneTimeUpdatables[inFrame][#self.mOneTimeUpdatables[inFrame] + 1] = inCall
-            else
+            if not self.mOneTimeUpdatables[inFrame] then
                 self.mOneTimeUpdatables[inFrame] = {}
-                self.mOneTimeUpdatables[inFrame][#self.mOneTimeUpdatables[inFrame] + 1] = inCall
             end
+            self.mOneTimeUpdatables[inFrame][#self.mOneTimeUpdatables[inFrame] + 1] = inCall
         elseif inCall.mDispatch then
-            if self.mOneTimeDispatchables[inFrame] then
-                self.mOneTimeDispatchables[inFrame][#self.mOneTimeDispatchables[inFrame] + 1] = inCall
-            else
+            if not self.mOneTimeDispatchables[inFrame] then
                 self.mOneTimeDispatchables[inFrame] = {}
-                self.mOneTimeDispatchables[inFrame][#self.mOneTimeDispatchables[inFrame] + 1] = inCall
             end
+            self.mOneTimeDispatchables[inFrame][#self.mOneTimeDispatchables[inFrame] + 1] = inCall
         end
     end
 
@@ -3333,12 +3599,35 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     local o = {}
     o.i = i
     o.w = w
-    o.s = Jkr.CreateShapeRenderer(o.i, o.w)
-    o.t = Jkr.CreateTextRendererBestTextAlt(o.i, o.s) -- for now the idea has been dropped
+    o.s = Jkr.CreateShapeRenderer(o.i, o.w, Jkr.GetDefaultCache(o.i, "Shape"))
+    o.st = Jkr.CreateShapeRenderer(o.i, o.w, Jkr.GetDefaultCache(o.i, "Shape"))
+    o.t = Jkr.CreateTextRendererBestTextAlt(o.i, o.st)
 
     o.c = Jkr.CreateCallBuffers()
     o.e = Jkr.CreateCallExecutor(o.c)
     o.WindowDimension = o.w:GetWindowDimension()
+
+    o.shape2dShaders = {}
+    o.shape2dShaders.roundedRectangle = Jkr.Simple3D(i, w)
+    o.shape2dShaders.roundedRectangle:Compile(
+        i,
+        w,
+        "cache2/o.shape2dShaders.roundedRectangle.glsl",
+        Shape2DShaders.GeneralVShader.str,
+        Shape2DShaders.RoundedRectangleFShader.str,
+        "",
+        false
+    )
+    o.shape2dShaders.showImage = Jkr.Simple3D(i, w)
+    o.shape2dShaders.showImage:Compile(
+        i,
+        w,
+        "cache2/o.shape2dShaders.showImage.glsl",
+        Shape2DShaders.GeneralVShader.str,
+        Shape2DShaders.ShowImageFShader.str,
+        "",
+        false
+    )
 
     o.CreateFont = function(inFontFileName, inFontSize)
         local font = {}
@@ -3349,18 +3638,72 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         return font
     end
 
+    ---@note Scissor are viewport both are created unifiedly i.e. both should always be in the same dimension
+
+    o.CreateScissor = function(inPosition_3f, inDimension_3f, inShouldSetViewport)
+        ---@warning mImageId -> inPosition_3f
+        ---@warning mColor -> inDimension_3f
+        ---@warning mPush -> inShouldSetViewport
+        return o.c:Push(Jkr.CreateDrawable("START", false, "SCISSOR_VIEWPORT", inPosition_3f, inDimension_3f,
+            inShouldSetViewport))
+    end
+
+    o.mCurrentScissor = 1
+
+    o.SetCurrentScissor = function(inScissorId)
+        if not inScissorId then
+            o.mCurrentScissor = 1
+        else
+            o.mCurrentScissor = inScissorId
+        end
+    end
+
+    o.UpdateScissor = function(inScissorId, inPosition_3f, inDimension_3f, inShouldSetViewport)
+        o.c.mSVs[inScissorId].mImageId = inPosition_3f
+        o.c.mSVs[inScissorId].mColor = inDimension_3f
+        o.c.mSVs[inScissorId].mPush = inShouldSetViewport
+    end
+
+
+    -- @warning inShape2DShader refers to the STRING value of o.shape2dShaders.<shader>
+    -- e.g. for rounded rectangle use "roundedRectangle"
+    -- @warning the second matrix in the push constant cannot be used for anything because it will be sent with the UIMatrix
+    o.CreateQuad = function(inPosition_3f, inDimension_3f, inPushConstant, inShape2DShader, inSampledImageId)
+        local quad = {}
+        local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill, uvec2(inDimension_3f.x, inDimension_3f.y))
+        quad.rect = o.s:Add(Rectangle, inPosition_3f)
+        quad.mColor = vec4(1, 1, 1, 1)
+
+        -- @warning This might not be batchable @todo create a parameter or do something else about it
+        quad.DrawId = o.c:Push(Jkr.CreateDrawable(quad.rect, true,
+            inShape2DShader,
+            inSampledImageId,
+            nil, inPushConstant), o.mCurrentScissor)
+
+        quad.Update = function(self, inPosition_3f, inDimension_3f, inPushConstant)
+            local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill,
+                uvec2(inDimension_3f.x, inDimension_3f.y))
+            o.s:Update(quad.rect, Rectangle, inPosition_3f)
+            if inPushConstant then
+                o.c.mDrawables[self.DrawId].mPush = inPushConstant
+            end
+        end
+
+        return quad
+    end
+
     --[============================================================[
                     TEXT LABEL
           ]============================================================]
-    -- Here for each widget we have to follow function(inPosition, inDimension) style
     o.CreateTextLabel = function(inPosition_3f, inDimension_3f, inFont, inText, inColor)
         local textLabel = {}
         textLabel.mText = inText
         textLabel.mFont = inFont
         textLabel.mId = o.t:Add(inFont.mId, inPosition_3f, inText)
-        textLabel.PushId = o.c:Push(Jkr.CreateDrawable(textLabel.mId, nil, "TEXT", nil, inColor))
+        textLabel.PushId = o.c:Push(Jkr.CreateDrawable(textLabel.mId, nil, "TEXT", nil, inColor), o.mCurrentScissor)
 
         textLabel.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inColor)
+            --tracy.ZoneBeginN("luatextUpdate")
             if inFont then self.mFont = inFont end
             if inText then self.mText = inText end
             if inText then
@@ -3371,6 +3714,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             if inColor then
                 o.c.mDrawables[self.PushId].mColor = inColor
             end
+            --tracy.ZoneEnd()
         end
 
         textLabel.Remove = function(self)
@@ -3379,6 +3723,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         return textLabel
     end
 
+    ---@todo remove inNoDraw paramter
     o.CreateSampledImage = function(inPosition_3f, inDimension_3f, inFileName, inNoDraw, inColor)
         local SampledImage = {}
         if (inFileName) then
@@ -3388,28 +3733,30 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             SampledImage.mId = o.s:AddImage(inDimension_3f.x, inDimension_3f.y)
             SampledImage.mActualSize = vec2(inDimension_3f.x, inDimension_3f.y)
         end
-        local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill, uvec2(inDimension_3f.x, inDimension_3f.y))
-        SampledImage.imageViewRect = o.s:Add(Rectangle, inPosition_3f)
-        SampledImage.mColor = vec4(1, 1, 1, 1)
+        -- local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill, uvec2(inDimension_3f.x, inDimension_3f.y))
+        -- SampledImage.imageViewRect = o.s:Add(Rectangle, inPosition_3f)
+        -- SampledImage.mColor = vec4(1, 1, 1, 1)
+
         if (inColor) then
             SampledImage.mColor = inColor
         end
 
-        if (not inNoDraw) then
-            SampledImage.DrawId = o.c:Push(Jkr.CreateDrawable(SampledImage.imageViewRect, false,
-                "IMAGE",
-                SampledImage.mId,
-                SampledImage.mColor))
-        end
+        ---@note @warning Sampled IMage is not for drawing
+        -- if (not inNoDraw) then
+        --     -- SampledImage.DrawId = o.c:Push(Jkr.CreateDrawable(SampledImage.imageViewRect, false,
+        --     --     "IMAGE",
+        --     --     SampledImage.mId,
+        --     --     SampledImage.mColor), o.mCurrentScissor)
+        -- end
 
-        SampledImage.Update = function(self, inPosition_3f, inDimension_3f, inColor)
-            local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill,
-                uvec2(inDimension_3f.x, inDimension_3f.y))
-            o.s:Update(SampledImage.imageViewRect, Rectangle, inPosition_3f)
-            if inColor then
-                o.c.mDrawables[self.DrawId].mColor = inColor
-            end
-        end
+        -- SampledImage.Update = function(self, inPosition_3f, inDimension_3f, inColor)
+        --     -- local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill,
+        --     --     uvec2(inDimension_3f.x, inDimension_3f.y))
+        --     -- o.s:Update(SampledImage.imageViewRect, Rectangle, inPosition_3f)
+        --     -- if inColor then
+        --     --     o.c.mDrawables[self.DrawId].mColor = inColor
+        --     -- end
+        -- end
 
         SampledImage.CopyToCompute = function(inComputeImage)
             o.s:CopyFromImage(SampledImage.mId, inComputeImage.handle)
@@ -3451,49 +3798,51 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         ComputeImage.CopyToSampled = function(inSampledImage)
             o.s:CopyToImage(inSampledImage.mId, ComputeImage.handle)
         end
+        ComputeImage.CopyFromWindowTargetImage = function(inw)
+            Jkr.CopyWindowRenderTargetImageToCustomPainterImage(o.w, inw, ComputeImage.handle)
+        end
         return ComputeImage
     end
 
     o.CreateButton = function(inPosition_3f, inDimension_3f, inOnClickFunction, inContinous)
         local Button = {}
-        Button.mBoundedRect = {}
-        Button.mBoundedRect.mDepthValue = math.int(inPosition_3f.z)
-        Button.mBoundedRect.mId = e:SetBoundedRect(vec2(inPosition_3f.x, inPosition_3f.y),
+        Button.mDepthValue = math.int(inPosition_3f.z)
+        Button.mId = e:SetBoundedRect(vec2(inPosition_3f.x, inPosition_3f.y),
             vec2(inDimension_3f.x, inDimension_3f.y), math.int(inPosition_3f.z))
         Button.mOnClickFunction = function() end
         Button.mOnHoverFunction = function() end
         if (inOnClickFunction) then
             Button.mOnClickFunction = inOnClickFunction
-        end
-        if inContinous then
-            Button.mBoundedRect.mPushId = o.c:Push(Jkr.CreateUpdatable(
-                function()
-                    local over = e:IsMouseWithinAtTopOfStack(
-                        Button.mBoundedRect.mId,
-                        Button.mBoundedRect.mDepthValue
-                    )
-                    if e:IsLeftButtonPressedContinous() and over then
-                        Button.mOnClickFunction()
+            if inContinous then
+                Button.mPushId = o.c:Push(Jkr.CreateUpdatable(
+                    function()
+                        local over = e:IsMouseWithinAtTopOfStack(
+                            Button.mId,
+                            Button.mDepthValue
+                        )
+                        if e:IsLeftButtonPressedContinous() and over then
+                            Button.mOnClickFunction()
+                        end
                     end
-                end
-            ))
-        else
-            Button.mBoundedRect.mPushId = o.c:Push(Jkr.CreateEventable(
-                function()
-                    local over = e:IsMouseWithinAtTopOfStack(
-                        Button.mBoundedRect.mId,
-                        Button.mBoundedRect.mDepthValue
-                    )
-                    if e:IsLeftButtonPressed() and over then
-                        Button.mOnClickFunction()
+                ))
+            else
+                Button.mPushId = o.c:Push(Jkr.CreateEventable(
+                    function()
+                        local over = e:IsMouseWithinAtTopOfStack(
+                            Button.mId,
+                            Button.mDepthValue
+                        )
+                        if e:IsLeftButtonPressed() and over then
+                            Button.mOnClickFunction()
+                        end
                     end
-                end
-            ))
+                ))
+            end
         end
         Button.Update = function(self, inPosition_3f, inDimension_3f)
-            Button.mBoundedRect.mDepthValue = math.int(inPosition_3f.z)
-            e:UpdateBoundedRect(Button.mBoundedRect.mId, vec2(inPosition_3f.x, inPosition_3f.y),
-                vec2(inDimension_3f.x, inDimension_3f.y), Button.mBoundedRect.mDepthValue)
+            Button.mDepthValue = math.int(inPosition_3f.z)
+            e:UpdateBoundedRect(Button.mId, vec2(inPosition_3f.x, inPosition_3f.y),
+                vec2(inDimension_3f.x, inDimension_3f.y), Button.mDepthValue)
         end
         return Button
     end
@@ -3516,25 +3865,106 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         self.c:Update()
     end
 
+    local w = o.w
+    local s = o.s
+    local st = o.st
+    local t = o.t
+    local cmdparam = Jkr.CmdParam.UI
+    local image_filltype = Jkr.FillType.Image
+    local fill_filltype = Jkr.FillType.Fill
+    local ui_matrix = o.UIMatrix
+    local s2ds = o.shape2dShaders
+    local DrawAll = function(inMap)
+        -- tracy.ZoneBeginN("luamainDrawALL")
+        s:BindShapes(w, cmdparam)
+        for key, value in pairs(inMap) do
+            if key ~= "TEXT" and key ~= "IMAGE" and key ~= "SCISSOR_VIEWPORT" then
+                local shader = s2ds[key]
+                shader:Bind(w, cmdparam)
+                local drawables = value
+                local drawables_count = #value
+                for i = 1, drawables_count, 1 do
+                    local drawable = drawables[i]
+                    if drawable.mImageId then
+                        s:BindFillMode(image_filltype, w, cmdparam)
+                        s:BindImage(w, drawable.mImageId, cmdparam)
+                    else
+                        s:BindFillMode(fill_filltype, w, cmdparam)
+                    end
+                    drawable.mPush.b = ui_matrix
+                    Jkr.DrawShape2DWithSimple3D(w, shader, s.handle, drawable.mPush, drawable.mId, drawable
+                        .mId,
+                        cmdparam)
+                end
+            end
+        end
+
+
+        st:BindFillMode(image_filltype, w, cmdparam)
+        st:BindShapes(w, cmdparam)
+        do
+            local drawables = inMap["TEXT"]
+            if drawables then
+                local drawables_count = #drawables
+                for i = 1, drawables_count, 1 do
+                    local drawable = drawables[i]
+                    t:Draw(drawable.mId, w, drawable.mColor, ui_matrix, cmdparam)
+                end
+            end
+        end
+        -- tracy.ZoneEnd()
+    end
+
     o.Draw = function(self)
-        -- Optimize this
-        self.s:BindShapes(self.w, Jkr.CmdParam.UI)
-        for i = 1, #self.c.mDrawables, 1 do
-            local drawable = self.c.mDrawables[i]
-            self.s:BindFillMode(Jkr.FillType.Image, self.w, Jkr.CmdParam.UI)
-            if drawable.mDrawType == "IMAGE" then
-                self.s:BindImage(self.w, drawable.mImageId, Jkr.CmdParam.UI)
-                self.s:Draw(self.w, drawable.mColor, drawable.mId, drawable.mId, self.UIMatrix,
-                    Jkr.CmdParam.UI)
+        tracy.ZoneBeginN("luamainDraw")
+        local SVs = o.c.mSVs
+        local DrawablesInSVs = o.c.mDrawablesInSVs
+        local count = #SVs
+        ---@note The First one is always without Scissors
+        DrawAll(DrawablesInSVs[1])
+        for i = 2, count, 1 do
+            local sv = SVs[i]
+
+            ---@note SetScissor + Viewport
+            if sv.mPush then
+                o.w:SetViewport(sv.mImageId, sv.mColor, cmdparam)
             end
-            if drawable.mDrawType == "TEXT" then
-                self.t:Draw(drawable.mId, self.w, drawable.mColor, self.UIMatrix, Jkr.CmdParam.UI)
+            o.w:SetScissor(sv.mImageId, sv.mColor, cmdparam)
+
+            DrawAll(DrawablesInSVs[i])
+
+            ---@note ResetScissor + Viewport
+            o.w:SetDefaultViewport(cmdparam)
+            o.w:SetDefaultScissor(cmdparam)
+        end
+        tracy.ZoneEnd()
+    end
+
+    o.DrawExplicit = function(self, inScissorIds)
+        local SVs = o.c.mSVs
+        local DrawablesInSVs = o.c.mDrawablesInSVs
+        local count = #inScissorIds
+        for i = 1, count, 1 do
+            local j = inScissorIds[i]
+            local sv = SVs[j]
+
+            ---@note SetScissor + Viewport
+            if sv.mPush then
+                o.w:SetViewport(sv.mImageId, sv.mColor, cmdparam)
             end
+            o.w:SetScissor(sv.mImageId, sv.mColor, cmdparam)
+
+            DrawAll(DrawablesInSVs[j])
+
+            ---@note ResetScissor + Viewport
+            o.w:SetDefaultViewport(cmdparam)
+            o.w:SetDefaultScissor(cmdparam)
         end
     end
 
     o.Dispatch = function(self)
-        self.s:Dispatch(self.w, Jkr.CmdParam.None)
+        s:Dispatch(w, Jkr.CmdParam.None)
+        st:Dispatch(w, Jkr.CmdParam.None)
         self.c:Dispatch()
     end
 
@@ -3544,6 +3974,9 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     return o
 end
 
+
+local CompileShaders
+
 Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
     local o = {}
     if not inWidgetRenderer then
@@ -3551,36 +3984,36 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
     end
 
     o.shaders = {}
-    o.shaders.roundedRectangle = Engine.Shader()
-        .Header(450)
-        .CInvocationLayout(1, 1, 1)
-        .uImage2D()
-        .ImagePainterPushMatrix2()
-        .GlslMainBegin()
-        .ImagePainterAssistMatrix2()
-        .Append [[
-        vec2 center = vec2(p1.x, p1.y);
-        vec2 hw = vec2(p1.z, p1.w);
-        float radius = p3.x;
-        vec2 Q = abs(xy - center) - hw;
-
-        float color = distance(max(Q, vec2(0.0)), vec2(0.0)) + min(max(Q.x, Q.y), 0.0) - radius;
-        color = smoothstep(-0.05, 0.05, -color);
-
-        vec4 old_color = imageLoad(storageImage, to_draw_at);
-        vec4 final_color = vec4(p2.x * color, p2.y * color, p2.z * color, p2.w * color);
-        final_color = mix(final_color, old_color, p3.w);
-
-        imageStore(storageImage, to_draw_at, final_color);
-          ]]
-        .GlslMainEnd().str
+    CompileShaders(o.shaders)
 
     o.prebuilts = {}
-    o.prebuilts.roundedRectanglePainter = Jkr.CreateCustomImagePainter("cache/o.prebuilts.roundedRectangle.glsl",
-        o.shaders.roundedRectangle)
-    o.prebuilts.roundedRectanglePainter:Store(i, w)
+    local op = o.prebuilts
+    op.roundedRectanglePainter =
+        Jkr.CreateCustomImagePainter(
+            "cache/op.roundedRectangle.glsl",
+            o.shaders.roundedRectangle
+        )
+    op.roundedRectanglePainter:Store(i, w)
+    op.roundedRectangle = o.CreateComputeImage(vec3(0), vec3(500, 500, 1))
+    op.roundedRectangle.RegisterPainter(op.roundedRectanglePainter)
 
-    local op = o.prebuilts;
+    o.c:PushOneTime(Jkr.CreateDispatchable(function()
+        op.roundedRectangle.BindPainter(op.roundedRectanglePainter)
+        PushConstant = Jkr.Matrix2CustomImagePainterPushConstant()
+        PushConstant.a = mat4(
+            vec4(0.0, 0.0, 0.85, 0.85),
+            vec4(1),
+            vec4(0.1, 0.5, 0.5, 0.0),
+            vec4(0)
+        )
+        op.roundedRectangle.DrawPainter(op.roundedRectanglePainter, PushConstant, 50,
+            50, 1)
+    end), 1)
+    op.sampledImage = o.CreateSampledImage(vec3(math.huge), vec3(500, 500, 1), nil, true,
+        vec4(1))
+    o.c:PushOneTime(Jkr.CreateDispatchable(function()
+        op.roundedRectangle.CopyToSampled(op.sampledImage)
+    end), 1)
 
 
     o.CreateGeneralButton = function(inPosition_3f,
@@ -3591,10 +4024,21 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                                      inText,
                                      inColor,
                                      inBackgroundColor,
-                                     inPushConstantForImagePainter,
+                                     inPushConstantForImagePainter, ---@todo Remove this
                                      inImageFilePath,
                                      inImagePainter)
         local button = {}
+        local push = Jkr.Matrix2CustomImagePainterPushConstant()
+        button.mColor = inBackgroundColor or vec4(1)
+        push.a = mat4(vec4(0.0), button.mColor, vec4(0.3), vec4(0.0))
+
+        if not inImageFilePath then
+            button.quad = o.CreateQuad(inPosition_3f, inDimension_3f, push, "showImage", op.sampledImage.mId)
+        else
+            button.sampledImage = o.CreateSampledImage(vec3(math.huge), vec3(100, 100, 1), inImageFilePath, true, vec4(1))
+            button.quad = o.CreateQuad(inPosition_3f, inDimension_3f, push, "showImage", button.sampledImage.mId)
+        end
+
         if inDimension_3f.x == 0 or inDimension_3f.y == 0 then
             button.shouldUpdateByDimension = vec3(inDimension_3f.x, inDimension_3f.y, inDimension_3f.z)
             inDimension_3f = vec3(100, 100, 1)
@@ -3610,49 +4054,30 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             inImagePainter = o.prebuilts.roundedRectanglePainter
         end
 
-
-        button.roundedRectangle = o.CreateComputeImage(inPosition_3f, inDimension_3f)
-        button.roundedRectangle.RegisterPainter(inImagePainter)
-
-        o.c:PushOneTime(Jkr.CreateDispatchable(function()
-            button.roundedRectangle.BindPainter(op.roundedRectanglePainter)
-            local PushConstant
-            if inPushConstantForImagePainter then
-                PushConstant = inPushConstantForImagePainter
-            else
-                PushConstant = Jkr.Matrix2CustomImagePainterPushConstant()
-                PushConstant.a = mat4(
-                    vec4(0.0, 0.0, 0.85, 0.85),
-                    vec4(1),
-                    vec4(0.1, 0.5, 0.5, 0.0),
-                    vec4(0)
-                )
-            end
-            button.roundedRectangle.DrawPainter(op.roundedRectanglePainter, PushConstant, math.int(inDimension_3f.x),
-                math.int(inDimension_3f.y), 1)
-        end), 1)
-
-        button.sampledImage = o.CreateSampledImage(inPosition_3f, inDimension_3f, inImageFilePath, nil, inBackgroundColor)
-        if not inImageFilePath then
-            o.c:PushOneTime(Jkr.CreateDispatchable(function()
-                button.roundedRectangle.CopyToSampled(button.sampledImage)
-            end), 1)
+        if not inImageFilePath and inFont and inText then
             button.sampledText = o.CreateTextLabel(inPosition_3f, inDimension_3f, inFont, inText, inColor)
-        else
-
         end
 
         button.padding = 10
-
-        button.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inColor, inBackgroundColor,
+        ---@warning Bad Design, Fix in Refactoring
+        button.Update = function(self,
+                                 inPosition_3f,
+                                 inDimension_3f,
+                                 inFont,
+                                 inText,
+                                 inColor,
+                                 inBackgroundColor,
                                  inTextOreintation)
-            button.sampledImage:Update(inPosition_3f, inDimension_3f, inBackgroundColor)
-
+            button.mPosition_3f = inPosition_3f
+            button.mDimension_3f = inDimension_3f
+            local push = Jkr.Matrix2CustomImagePainterPushConstant()
+            push.a = mat4(vec4(0.0), inBackgroundColor or button.mColor, vec4(0.0), vec4(0))
+            button.quad:Update(inPosition_3f, inDimension_3f, push);
             if button.parent then
                 button.parent:Update(inPosition_3f, inDimension_3f)
             end
 
-            if not inImageFilePath then
+            if not inImageFilePath and button.sampledText then
                 local DelDim = vec3(0, 0, 0)
                 local fontDim = button.sampledText.mFont:GetTextDimension(inText or Copy(button.sampledText.mText) or
                     " ")
@@ -3678,7 +4103,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                 end
             end
 
-            if inText then
+            if inText and button.sampledText then
                 button.sampledText.mText = Copy(inText)
             end
         end
@@ -3689,7 +4114,259 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
 
         return button
     end
+
+    o.CreateSlider = function(inPosition_3f, inDimension_3f, inRangeStart, inRangeEnd, inDefaultValue, inStep)
+        local slider = {}
+        local z_difference = 10
+        local knob = o.CreateGeneralButton(vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z - z_difference),
+            inDimension_3f)
+        local background = o.CreateGeneralButton(inPosition_3f, inDimension_3f)
+        local knob_button = o.CreateButton(vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z - z_difference),
+            inDimension_3f)
+        slider.range_start = inRangeStart
+        slider.range_end = inRangeEnd
+        slider.current_value = inDefaultValue
+        slider.knob_width = 0.1 * inDimension_3f.x
+        slider.knob_height_offset = 5
+        slider.knob_color = vec4(0.5)
+        slider.step = inStep
+
+
+
+        local current_pos, current_dim, knob_pos, knob_dim,
+        background_pos, background_dim, normalized_pos
+
+        slider.Update = function(self, inPosition_3f, inDimension_3f, inValue)
+            current_pos, current_dim = inPosition_3f, inDimension_3f
+            if not inValue then inValue = slider.current_value else slider.current_value = inValue end
+            normalized_pos = (slider.current_value - slider.range_start) / (slider.range_end - slider.range_start)
+            knob_pos = vec3(
+                -slider.knob_width / 2 + Jmath.Lerp(inPosition_3f.x,
+                    inPosition_3f.x + inDimension_3f.x,
+                    normalized_pos),
+                inPosition_3f.y - slider.knob_height_offset,
+                inPosition_3f.z - z_difference
+            )
+            knob_dim = vec3(slider.knob_width, inDimension_3f.y + slider.knob_height_offset * 2,
+                inDimension_3f.z)
+            background_pos = inPosition_3f
+            background_dim = inDimension_3f
+
+            knob:Update(knob_pos, knob_dim, nil, nil, nil, slider.knob_color)
+            background:Update(background_pos, background_dim)
+            knob_button:Update(knob_pos, knob_dim)
+        end
+
+        local isMoving = false
+        o.c:Push(Jkr.CreateUpdatable(function()
+            local mouseRel = e:GetRelativeMousePos().x
+            if e:IsLeftButtonPressedContinous() and (e:IsMouseWithinAtTopOfStack(knob_button.mId, knob_button.mDepthValue)) then
+                isMoving = true
+            end
+
+            if e:IsLeftButtonPressedContinous() and isMoving then
+                local oldValue = slider.current_value
+                local knob_x = current_pos.x + normalized_pos * current_dim.x
+                knob_x = Jmath.Clamp(knob_x + mouseRel, current_pos.x, current_dim.x + current_pos.x)
+                local newValue = Jmath.Lerp(slider.range_start, slider.range_end,
+                    (knob_x - current_pos.x) / current_dim.x)
+                slider.current_value = newValue
+                slider:Update(current_pos, current_dim)
+            else
+                isMoving = false
+            end
+        end), o.mCurrentScissor)
+
+        slider:Update(inPosition_3f, inDimension_3f, inDefaultValue)
+        return slider
+    end
+
+
+    o.CreateWindowScissor = function(inPosition_3f, inDimension_3f, inFont, inTitle, inTitlebarTextColor,
+                                     inTitlebarBackColor, inContentBackColor, inShouldSetViewport)
+        local ws = {}
+        local z_difference = 10
+        local titlebarheight = inFont:GetTextDimension("X").y + 10
+        local titlebarpos = vec3(inPosition_3f.x, inPosition_3f.y - titlebarheight, inPosition_3f.z + z_difference)
+        local titlebardimen = vec3(inDimension_3f.x, titlebarheight, inDimension_3f.z)
+        local backgroundpos = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z + z_difference)
+
+        local mTitlebar = o.CreateGeneralButton(titlebarpos,
+            titlebardimen,
+            nil,
+            nil,
+            inFont,
+            inTitle,
+            inTitlebarTextColor,
+            inTitlebarBackColor, nil, nil)
+
+        local mTitlebarButton = o.CreateButton(titlebarpos, titlebardimen)
+
+        local mBackground = o.CreateGeneralButton(backgroundpos, inDimension_3f, nil, nil, nil, nil, nil,
+            inContentBackColor, nil, nil
+        )
+
+        ---@note
+        ---@todo Create a General button here
+        ws.mId = o.CreateScissor(inPosition_3f, inDimension_3f, inShouldSetViewport)
+        ws.Set = function()
+            o.SetCurrentScissor(ws.mId)
+        end
+        ws.Reset = function()
+            o.SetCurrentScissor(1)
+        end
+
+        local isMoving = false
+        local mCurrentPosition = inPosition_3f
+        local mCurrentDimension = inDimension_3f
+        local mShouldSetViewport = inShouldSetViewport
+        ws.mCurrentPosition = inPosition_3f
+        ws.mCurrentDimension = inDimension_3f
+
+        local mCentralComponent
+        ws.SetCentralComponent = function(inComponent)
+            mCentralComponent = inComponent
+        end
+
+        ws.Update = function(self, inPosition_3f, inDimension_3f)
+            o.UpdateScissor(ws.mId, inPosition_3f, inDimension_3f, mShouldSetViewport)
+            local titlebarpos = vec3(inPosition_3f.x, inPosition_3f.y - titlebarheight, inPosition_3f.z + z_difference)
+            local titlebardimen = vec3(inDimension_3f.x, titlebarheight, inDimension_3f.z)
+            local backgroundpos = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z + z_difference)
+            mTitlebar:Update(titlebarpos, titlebardimen)
+            mTitlebarButton:Update(titlebarpos, titlebardimen)
+            mBackground:Update(backgroundpos, inDimension_3f)
+
+            if not mShouldSetViewport then
+                mCentralComponent:Update(inPosition_3f, inDimension_3f)
+            end
+            mCurrentPosition = inPosition_3f
+            mCurrentDimension = inDimension_3f
+            ws.mCurrentPosition = inPosition_3f
+            ws.mCurrentDimension = inDimension_3f
+        end
+
+        o.c:Push(Jkr.CreateUpdatable(function()
+            local mouseRel = e:GetRelativeMousePos()
+            if e:IsLeftButtonPressedContinous() and (e:IsMouseWithinAtTopOfStack(mTitlebarButton.mId, mTitlebarButton.mDepthValue)) then
+                isMoving = true
+            end
+            if e:IsLeftButtonPressedContinous() and isMoving then
+                ws.Update(nil,
+                    vec3(mCurrentPosition.x + mouseRel.x,
+                        mCurrentPosition.y + mouseRel.y,
+                        mCurrentPosition.z),
+                    mCurrentDimension
+                )
+            else
+                isMoving = false
+            end
+        end))
+        return ws
+    end
+
+    o.CreateMovableButton = function(inPosition_3f, inDimension_3f, inFont, inTitle, inTitlebarTextColor,
+                                     inTitlebarBackColor)
+        local ws = {}
+        local mTitlebar = o.CreateGeneralButton(inPosition_3f,
+            inDimension_3f,
+            nil,
+            nil,
+            inFont,
+            inTitle,
+            inTitlebarTextColor,
+            inTitlebarBackColor, nil, nil)
+
+        local mTitlebarButton = o.CreateButton(inPosition_3f, inDimension_3f)
+
+        local isMoving = false
+        local mCurrentPosition = inPosition_3f
+        local mCurrentDimension = inDimension_3f
+        ws.mCurrentPosition = inPosition_3f
+        ws.mCurrentDimension = inDimension_3f
+
+
+        ws.Update = function(self, inPosition_3f, inDimension_3f)
+            mTitlebar:Update(inPosition_3f, inDimension_3f)
+            mTitlebarButton:Update(inPosition_3f, inDimension_3f)
+
+            mCurrentPosition = inPosition_3f
+            mCurrentDimension = inDimension_3f
+            ws.mCurrentPosition = inPosition_3f
+            ws.mCurrentDimension = inDimension_3f
+        end
+
+        o.c:Push(Jkr.CreateUpdatable(function()
+            local mouseRel = e:GetRelativeMousePos()
+            if e:IsLeftButtonPressedContinous() and (e:IsMouseWithinAtTopOfStack(mTitlebarButton.mId, mTitlebarButton.mDepthValue)) then
+                isMoving = true
+            end
+            if e:IsLeftButtonPressedContinous() and isMoving then
+                ws.Update(nil,
+                    vec3(mCurrentPosition.x + mouseRel.x,
+                        mCurrentPosition.y + mouseRel.y,
+                        mCurrentPosition.z),
+                    mCurrentDimension
+                )
+            else
+                isMoving = false
+            end
+        end))
+        return ws
+    end
+
+    o.CreateTextParagraph = function(inPosition_3f, inDimension_3f, inText, inFont, inMaxRows, inTextColor)
+        local tp = {}
+        local texts = {}
+        local font = inFont
+        for i = 1, inMaxRows, 1 do
+            texts[#texts + 1] = o.CreateTextLabel(vec3(0, 0, 0), vec3(0, 0, 0), inFont, " ", inTextColor)
+        end
+
+        tp.Update = function(self, inPosition_3f, inDimension_3f, inText, inFont)
+            if inFont then font = inFont end
+            local WrappedTexts = font:WrapToTextVector(inText, inFont.mId, vec2(inDimension_3f.x, inDimension_3f.y))
+            local olddim = vec3(0, 0, 0)
+            for i = 1, #texts, 1 do
+                local dim = font:GetTextDimension(WrappedTexts[i])
+                local pos = vec3(inPosition_3f.x, inPosition_3f.y + olddim.y, inPosition_3f.z)
+                texts[i]:Update()
+                olddim.x = dim.x
+                olddim.y = dim.y
+            end
+        end
+
+        return tp
+    end
+
+
     return o
+end
+
+CompileShaders                   = function(shaders)
+    shaders.roundedRectangle = Engine.Shader()
+        .Header(450)
+        .CInvocationLayout(16, 16, 1)
+        .uImage2D()
+        .ImagePainterPushMatrix2()
+        .GlslMainBegin()
+        .ImagePainterAssistMatrix2()
+        .Append [[
+        vec2 center = vec2(p1.x, p1.y);
+        vec2 hw = vec2(p1.z, p1.w);
+        float radius = p3.x;
+        vec2 Q = abs(xy - center) - hw;
+
+        float color = distance(max(Q, vec2(0.0)), vec2(0.0)) + min(max(Q.x, Q.y), 0.0) - radius;
+        color = smoothstep(-0.05, 0.05, -color);
+
+        vec4 old_color = imageLoad(storageImage, to_draw_at);
+        vec4 final_color = vec4(p2.x * color, p2.y * color, p2.z * color, p2.w * color);
+        final_color = mix(final_color, old_color, p3.w);
+
+        imageStore(storageImage, to_draw_at, final_color);
+          ]]
+        .GlslMainEnd().str
 end
 
 

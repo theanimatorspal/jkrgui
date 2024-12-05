@@ -243,7 +243,7 @@ Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
         .NewLine()
         .InvertY()
         .GlslMainEnd()
-        .NewLine().Print()
+        .NewLine()
 
     local fShader = Engine.Shader()
         .Header(450)
@@ -571,24 +571,24 @@ end
 
 
 Engine.CreateWorld3D = function(w, inshaper3d)
-    local gworld3d = Jkr.World3D(inshaper3d)
-    local gcamera3d = Jkr.Camera3D()
-    gcamera3d:SetAttributes(vec3(0, 0, 0), vec3(0, 30, 30))
-    gcamera3d:SetPerspective(0.3, 16 / 9, 0.1, 10000)
-    gworld3d:AddCamera(gcamera3d)
-    local gdummypiplineindex = gworld3d:AddSimple3D(Engine.i, w);
-    local gdummypipline = gworld3d:GetSimple3D(gdummypiplineindex)
+    local world3d = Jkr.World3D(inshaper3d)
+    local camera3d = Jkr.Camera3D()
+    camera3d:SetAttributes(vec3(0, 0, 0), vec3(0, 30, 30))
+    camera3d:SetPerspective(0.3, 16 / 9, 0.1, 10000)
+    world3d:AddCamera(camera3d)
+    local dummypipelineindex = world3d:AddSimple3D(Engine.i, w);
+    local dummypipeline = world3d:GetSimple3D(dummypipelineindex)
     local light0 = {
         pos = vec4(-1, -2, 2, 4),
         dir = Jmath.Normalize(vec4(0, 0, 0, 0) - vec4(10, 10, -10, 1))
     }
-    gworld3d:AddLight3D(light0.pos, light0.dir)
+    world3d:AddLight3D(light0.pos, light0.dir)
 
     local vshader, fshader = Engine.GetAppropriateShader("CONSTANT_COLOR",
         Jkr.CompileContext.Default, nil, nil, false, false
     )
 
-    gdummypipline:CompileEXT(
+    dummypipeline:CompileEXT(
         Engine.i,
         w,
         "cache/dummyshader.glsl",
@@ -599,9 +599,9 @@ Engine.CreateWorld3D = function(w, inshaper3d)
         Jkr.CompileContext.Default
     )
 
-    local globaluniformindex = gworld3d:AddUniform3D(Engine.i)
-    local globaluniformhandle = gworld3d:GetUniform3D(globaluniformindex)
-    globaluniformhandle:Build(gdummypipline) -- EUTA PIPELINE BANAUNU PRXA
-    gworld3d:AddWorldInfoToUniform3D(globaluniformindex)
-    return gworld3d
+    local globaluniformindex = world3d:AddUniform3D(Engine.i)
+    local globaluniformhandle = world3d:GetUniform3D(globaluniformindex)
+    globaluniformhandle:Build(dummypipeline) -- EUTA PIPELINE BANAUNU PRXA
+    world3d:AddWorldInfoToUniform3D(globaluniformindex)
+    return world3d, camera3d
 end
