@@ -56,6 +56,8 @@ struct World3D {
     GETTER &GetSimple3Ds() { return mSimple3Ds; }
     GETTER &GetLights() { return mLights; }
 
+    SETTER SetWorldMatrix(glm::mat4 inMatrix) { mWorldMatrix = inMatrix; }
+
     /* ============================================================
 
         BuildBasic
@@ -115,5 +117,6 @@ struct World3D {
     float mCameraMovementSensitivity = 0.1f;
     float mCameraRotateSensitivity   = 0.1f;
     std::vector<Up<SkyboxImageType>> mSkyboxImages;
+    glm::mat4 mWorldMatrix = glm::identity<glm::mat4>();
 };
 } // namespace Jkr::Renderer::_3D

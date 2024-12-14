@@ -135,4 +135,8 @@ void DrawShape2DWithSimple3D(Window_base &inWindow,
                              ui inEndShapeId,
                              Window_base::ParameterContext inParam);
 
+///@brief Immediately submits copying operation and returns v<glm::vec4> for the image of arbritary
+/// pass
+///@param inIndex Index of the arbritary pass
+v<char> GetArbritaryPassImageToVector(Instance &inInstance, Window_base &inWindow, int inIndex);
 }; // namespace Jkr::Misc

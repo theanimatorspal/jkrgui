@@ -310,3 +310,25 @@ void DeferredPass::Prepare(Renderer::_3D::Simple3D &inCompositionSimple3D,
     mNormalImage->Register(0, 4, 0, mCompositionUniform3D->GetVulkanDescriptorSet(), Set);
     mAlbedoImage->Register(0, 5, 0, mCompositionUniform3D->GetVulkanDescriptorSet(), Set);
 }
+
+ArbritaryPass::ArbritaryPass(Instance &inInstance, int inWidth, int inHeight)
+    : mInstance(inInstance) {
+    mImage                   = MakeUp<ImageType>(mInstance);
+    mImage->mUniformImagePtr = mu<VulkanImageVMA>(inInstance.GetVMA(),
+                                                  mInstance.GetDevice(),
+                                                  inWidth,
+                                                  inHeight,
+                                                  ksai::ImageContext::Default,
+                                                  4,
+                                                  1,
+                                                  1,
+                                                  1,
+                                                  vk::ImageUsageFlagBits::eColorAttachment |
+                                                       vk::ImageUsageFlagBits::eSampled |
+                                                       vk::ImageUsageFlagBits::eTransferSrc,
+                                                  vk::ImageLayout::eGeneral,
+                                                  vk::Format::eR8G8B8A8Unorm);
+    mRenderpass              = mu<RenderPassType>(mInstance.GetDevice(), mImage->GetUniformImage());
+    mFrameBuffer =
+         mu<FrameBufferType>(mInstance.GetDevice(), *mRenderpass, *mImage->mUniformImagePtr);
+}

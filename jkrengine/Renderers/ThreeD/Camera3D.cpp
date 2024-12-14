@@ -28,11 +28,21 @@ void Camera3D::SetPerspective() {
     UpdateDirectionByAngles();
     mView       = glm::lookAt(mEye, mEye + mDirection, mCameraUp);
     mProjection = glm::perspective(mFov, mAspect, mNearZ, mFarZ);
+
+    glm::mat4 E = mView;
+    mPitch      = -glm::degrees(std::asin(E[1][2]));
+    mYaw        = 180.0f + glm::degrees(std::atan2(E[0][2], E[2][2]));
+    mRoll       = glm::degrees(std::atan2(-E[1][0], E[1][1]));
 }
 
 void Camera3D::SetPerspectiveTargeted() {
     mView       = glm::lookAt(mEye, mTarget, mCameraUp);
     mProjection = glm::perspective(mFov, mAspect, mNearZ, mFarZ);
+
+    glm::mat4 E = mView;
+    mPitch      = -glm::degrees(std::asin(E[1][2]));
+    mYaw        = 180.0f + glm::degrees(std::atan2(E[0][2], E[2][2]));
+    mRoll       = glm::degrees(std::atan2(-E[1][0], E[1][1]));
 }
 
 void Camera3D::SetPerspectiveQ(float inFov, float inAspect, float inNearZ, float inFarZ) {
@@ -61,6 +71,7 @@ void Camera3D::Pitch(float inDelPitch) {
     glm::quat rotation = glm::angleAxis(glm::radians(inDelPitch), mRight);
     mQuaternion        = rotation * mQuaternion;
 }
+
 void Camera3D::UpdateDirectionByAngles() {
     ///@note not letting the camera to go round up
     if (mPitch > 89.0f) mPitch = 89.0f;
@@ -71,8 +82,12 @@ void Camera3D::UpdateDirectionByAngles() {
     mDirection   = glm::normalize(mDirection);
     mQuaternion  = glm::quatLookAt(mDirection, mCameraUp);
 }
+
 void Camera3D::MoveForward(float inFactor) { mEye += mDirection * inFactor; }
 void Camera3D::MoveBackward(float inFactor) { mEye -= mDirection * inFactor; }
+void Camera3D::MoveUp(float inFactor) { mEye += mUp * inFactor; }
+void Camera3D::MoveDown(float inFactor) { mEye -= mUp * inFactor; }
+
 void Camera3D::MoveLeft(float inFactor) {
     mEye += glm::normalize(glm::cross(mCameraUp, mDirection)) * inFactor;
 }

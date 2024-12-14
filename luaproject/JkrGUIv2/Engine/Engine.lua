@@ -520,10 +520,6 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
                 materials[materialindex] = { shaderindex = shaderindex, uniformindex = uniform3dindex }
             end
 
-            --@warning THIS IS BEING DUPLICATED, FIX THIS
-            -- [[[[[[[[[[[[[[[[[[[[[[[[[[THIS IS NOT OPTIMAL]]]]]]]]]]]]]]]]]]]]]]]]]]
-            -- [[[[[[[[[[[[[[[[[[[[[[[[[[CHANGE THIS LATER]]]]]]]]]]]]]]]]]]]]]]]]]]
-
             local object = Jkr.Object3D()
             object.mId = shapeindex;
             object.mAssociatedModel = gltfmodelindex;
@@ -560,7 +556,6 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
         for j = 1, #Objects, 1 do
             if i ~= j then
                 if gltfmodel:IsNodeParentOf(Nodes[Objects[i].mP1], Nodes[Objects[j].mP1]) then
-                    print("PARENT")
                     Objects[i]:SetParent(Objects[j])
                 end
             end
@@ -573,7 +568,7 @@ end
 Engine.CreateWorld3D = function(w, inshaper3d)
     local world3d = Jkr.World3D(inshaper3d)
     local camera3d = Jkr.Camera3D()
-    camera3d:SetAttributes(vec3(0, 0, 0), vec3(0, 30, 30))
+    camera3d:SetAttributes(vec3(0, 0, 0), vec3(0, 0, 30))
     camera3d:SetPerspective(0.3, 16 / 9, 0.1, 10000)
     world3d:AddCamera(camera3d)
     local dummypipelineindex = world3d:AddSimple3D(Engine.i, w);

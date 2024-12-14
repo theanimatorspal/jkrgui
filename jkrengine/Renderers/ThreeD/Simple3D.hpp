@@ -12,12 +12,13 @@ class FileJkr;
 namespace Jkr::Renderer::_3D {
 class Simple3D {
     public:
-    enum class CompileContext {
-        Default,
-        ShadowPass,
-        Deferred,
-        DeferredShadow,
-        DeferredComposition
+    enum CompileContext : int {
+        Default             = -5,
+        ShadowPass          = -4,
+        Deferred            = -3,
+        DeferredShadow      = -2,
+        DeferredComposition = -1,
+        ArbritaryPass       = 0
     };
     GETTER &GetPainter() { return *mPainter; }
     GETTER &GetPainterCache() { return *mPainterCache; }

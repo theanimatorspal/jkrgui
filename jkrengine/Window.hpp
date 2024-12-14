@@ -23,10 +23,17 @@ class Window : public Window_base {
     auto GetCommandBuffers(PC in) -> VCBArray & override;
     GETTER &GetShadowPass() { return *mShadowPass; }
     GETTER &GetDeferredPass() { return *mDeferredPass; }
+    GETTER &GetArbritaryPassses() { return mArbritaryPasses; }
     void BuildShadowPass();
     void BeginShadowPass(float ind);
     void EndShadowPass();
 
+    ///@brief Arbritary passes, (do whatever you want here)
+    void BuildArbritaryPasses(int inNo, int inWidth, int inHeight);
+    void BeginArbritaryPass(int index, int inWidth, int inHeight, glm::vec4 inClearValue);
+    void EndArbritaryPass();
+
+    ///@brief Deferred pass
     void BuildDeferredPass();
     void PrepareDeferredPass(Renderer::_3D::Simple3D &inCompositionSimple3D,
                              Renderer::_3D::World3D &inWorld);
@@ -36,6 +43,7 @@ class Window : public Window_base {
     void EndDeferredDraws();
     void PresentDeferred();
 
+    ///@brief Main Functions
     void Wait();
     void AcquireImage();
     ///@brief begins the command buffer recording (for primary command buffer)
@@ -85,6 +93,7 @@ class Window : public Window_base {
     VulkanCommandBufferArray mSecondaryCommandBuffersUI;
     Up<ShadowPass> mShadowPass;
     Up<DeferredPass> mDeferredPass;
+    v<Up<ArbritaryPass>> mArbritaryPasses;
 };
 
 } // namespace Jkr

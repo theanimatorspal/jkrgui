@@ -40,6 +40,21 @@ void AndroidShowToast(const char *inMessage) {
     env->CallVoidMethod(g_context, methodId, jMessage);
 }
 
+void JavaCallVoidMethodNoArgs(sv inClass, sv inName) {
+    JNIEnv *env;
+    JavaVMAttachArgs args;
+    args.version = JNI_VERSION_1_6;
+    args.name    = NULL;
+    args.group   = NULL;
+    if (g_vm->AttachCurrentThread(&env, &args) != JNI_OK) {
+        ksai_print("Failed to attach current thread");
+        return;
+    }
+    jclass JkrGUIClass = env->FindClass("org/JkrGUI/JkrGUIActivity");
+    jmethodID methodId = env->GetMethodID(JkrGUIClass, "ShowToast", "()V");
+    env->CallVoidMethod(g_context, methodId);
+}
+
 glm::vec3 AndroidGetAccelerometerData() {
     glm::vec3 outValue{};
     JNIEnv *env;
@@ -94,6 +109,7 @@ void CreatePlatformBindings(sol::state &inS) {
     Jkr.set_function("ShowToastNotification", LuaShowToastNotification);
 #ifdef ANDROID
     Jkr.set_function("GetAccelerometerData", AndroidGetAccelerometerData);
+    Jkr.set_function("JavaCallVoidMethodNoArgs", &JavaCallVoidMethodNoArgs);
 #endif
 }
 

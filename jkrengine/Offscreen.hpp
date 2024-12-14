@@ -92,4 +92,16 @@ struct DeferredPass {
     glm::uvec2 mDimension{};
 };
 
+struct ArbritaryPass {
+    using FrameBufferType = VulkanFrameBuffer;
+    using RenderPassType  = VulkanRenderPass<RenderPassContext::SingleColorAttachment>;
+    using ImageType       = Jkr::PainterParameter<Jkr::PainterParameterContext::UniformImage>;
+
+    ArbritaryPass(Instance &inInstance, int inWidth, int inHeight);
+    Instance &mInstance;
+    Up<FrameBufferType> mFrameBuffer;
+    Up<RenderPassType> mRenderpass;
+    Up<ImageType> mImage;
+};
+
 } // namespace Jkr

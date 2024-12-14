@@ -461,7 +461,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     end
 
     o.Draw = function(self)
-        tracy.ZoneBeginN("luamainDraw")
+        --tracy.ZoneBeginN("luamainDraw")
         local SVs = o.c.mSVs
         local DrawablesInSVs = o.c.mDrawablesInSVs
         local count = #SVs
@@ -482,7 +482,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             o.w:SetDefaultViewport(cmdparam)
             o.w:SetDefaultScissor(cmdparam)
         end
-        tracy.ZoneEnd()
+        --tracy.ZoneEnd()
     end
 
     o.DrawExplicit = function(self, inScissorIds)

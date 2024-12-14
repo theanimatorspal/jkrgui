@@ -165,12 +165,22 @@ void CreateMiscBindings(sol::state &inState) {
          "Camera3D",
          sol::call_constructor,
          sol::factories([]() { return mu<Camera3D>(); }),
+         "GetPosition",
+         &Camera3D::GetPosition,
+         "GetTarget",
+         &Camera3D::GetTarget,
+         "GetDirection",
+         &Camera3D::GetDirection,
          "Pitch",
          &Camera3D::Pitch,
          "Yaw",
          &Camera3D::Yaw,
          "SetAttributes",
          &Camera3D::SetAttributes,
+         "MoveUp",
+         &Camera3D::MoveUp,
+         "MoveDown",
+         &Camera3D::MoveDown,
          "MoveForward",
          &Camera3D::MoveForward,
          "MoveBackward",
@@ -179,6 +189,8 @@ void CreateMiscBindings(sol::state &inState) {
          &Camera3D::MoveLeft,
          "MoveRight",
          &Camera3D::MoveRight,
+         "SetPerspectiveTargeted",
+         &Camera3D::SetPerspectiveTargeted,
          "SetPerspective",
          sol::overload(sol::resolve<void(float, float, float, float)>(&Camera3D::SetPerspective),
                        sol::resolve<void(void)>(&Camera3D::SetPerspective)),
@@ -319,7 +331,9 @@ void CreateMiscBindings(sol::state &inState) {
                               &World3D::SetCurrentCamera,
 
                               "AddSkyboxToUniform3D",
-                              &World3D::AddSkyboxToUniform3D);
+                              &World3D::AddSkyboxToUniform3D,
+                              "SetWorldMatrix",
+                              &World3D::SetWorldMatrix);
 
     Jkr.set_function("SleepForMiliSeconds", [](int inMiliSeconds) {
         std::this_thread::sleep_for(chrono::nanoseconds(inMiliSeconds * 1000000));

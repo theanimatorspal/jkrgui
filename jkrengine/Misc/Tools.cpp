@@ -1001,4 +1001,18 @@ void Window::SyncSubmitPresent(Window &inSw, Window &inPw) {
     }
     inSw.mCurrentFrame = (inSw.mCurrentFrame + 1) % mMaxFramesInFlight;
 }
+
+v<char> GetArbritaryPassImageToVector(Instance &inInstance, Window &inWindow, int inIndex) {
+    auto &Arbs  = inWindow.GetArbritaryPassses();
+    auto &Arb   = *Arbs[inIndex];
+    auto Extent = Arb.mImage->GetUniformImage().GetImageExtent();
+    auto Vect   = Arb.mImage->GetUniformImage().SubmitImmediateCmdGetImageToVector(
+         inInstance.GetTransferQueue(),
+         inInstance.GetStagingBuffer(Extent.height * Extent.height * 4),
+         inWindow.GetCommandBuffers(
+              Window_base::ParameterContext::None)[inWindow.GetCurrentFrame()],
+         inInstance.GetUtilCommandBufferFence());
+    return Vect;
+}
+
 } // namespace Jkr

@@ -16,10 +16,12 @@ using Shape3D  = Renderer::_3D::Shape;
 struct Camera3D {
     GETTER GetMatrix() const { return mProjection * mView; }
     GETTER GetPosition() const { return mEye; }
+    GETTER GetTarget() const { return mTarget; }
     GETTER GetView() const { return mView; }
     GETTER GetProjection() const { return mProjection; }
     GETTER GetNearZ() const { return mNearZ; }
     GETTER GetFarZ() const { return mFarZ; }
+    GETTER GetDirection() const { return mDirection; }
     void SetAttributes(glm::vec3 inTarget_3f, glm::vec3 inEye_3f);
     void SetPerspective(float inFov, float inAspect, float inNearZ, float inFarZ);
     void SetPerspective();
@@ -33,6 +35,8 @@ struct Camera3D {
     void Yaw(float inDelYaw);
     void Pitch(float inDelPitch);
     void UpdateDirectionByAngles();
+    void MoveUp(float inFactor);
+    void MoveDown(float inFactor);
     void MoveForward(float inFactor);
     void MoveBackward(float inFactor);
     void MoveLeft(float inFactor);

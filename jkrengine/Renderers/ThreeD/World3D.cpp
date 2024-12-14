@@ -95,7 +95,7 @@ void World3D::DrawObjectsExplicit(Window_base &inWindow,
                          inWindow, *mSimple3Ds[PreviousSimpleIndex], 1, inParam);
                 }
                 PushConstantDefault Push;
-                Push.m1 = ExplicitObject.GetLocalMatrix();
+                Push.m1 = mWorldMatrix * ExplicitObject.GetLocalMatrix();
                 Push.m2 = ExplicitObject.mMatrix2;
 
                 int Offset =

@@ -213,6 +213,22 @@ void Window::EndShadowPass() {
          vk::AccessFlagBits::eShaderRead);
 }
 
+void Window::BuildArbritaryPasses(int inCount, int inWidth, int inHeight) {
+    for (int i = 0; i < inCount; ++i) {
+        mArbritaryPasses.push_back(mu<ArbritaryPass>(*mInstance, inWidth, inHeight));
+    }
+}
+
+void Window::BeginArbritaryPass(int index, int inWidth, int inHeight, glm::vec4 inClearValue) {
+    mCommandBuffers[mCurrentFrame].BeginRenderPass(
+         *mArbritaryPasses[index]->mRenderpass,
+         vk::Extent2D{(uint32_t)inWidth, (uint32_t)inHeight},
+         *mArbritaryPasses[index]->mFrameBuffer,
+         std::to_array({inClearValue.x, inClearValue.y, inClearValue.z, inClearValue.w, 1.0f}));
+}
+
+void Window::EndArbritaryPass() { mCommandBuffers[mCurrentFrame].EndRenderPass(); }
+
 void Window::ExecuteThreadCommandBuffer(int inThreadId) {
     auto &cmd = GetCommandBuffers((Renderer::CmdParam)inThreadId)[mCurrentFrame];
     mCommandBuffers[mCurrentFrame].ExecuteCommands(cmd);

@@ -291,7 +291,8 @@ void CreateGLMBindings(sol::state &lua) {
          sol::call_constructor,
          sol::constructors<glm::mat3(float),
                            glm::mat3(const vec3 &, const vec3 &, const vec3 &),
-                           glm::mat3(glm::mat3)>(),
+                           glm::mat3(glm::mat3),
+                           glm::mat3(glm::mat4)>(),
          sol::meta_function::multiplication,
          mat3_multiply_overloads);
 

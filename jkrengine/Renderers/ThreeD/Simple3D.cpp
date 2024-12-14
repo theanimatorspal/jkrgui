@@ -184,4 +184,15 @@ void Simple3D::Compile(Jkr::Instance &inInstance,
         default:
             break;
     }
+
+    if (inContext >= 0) {
+        CompileWithCustomRenderPass(
+             inInstance,
+             *inCompatibleWindow.GetArbritaryPassses()[inContext]->mRenderpass,
+             inFilename,
+             inVertexShader,
+             inFragmentShader,
+             inComputeShader,
+             inShouldLoad);
+    }
 }
