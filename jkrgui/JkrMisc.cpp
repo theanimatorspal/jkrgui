@@ -360,7 +360,6 @@ void CreateMiscBindings(sol::state &inState) {
          &Jkr::Misc::FileJkr::Read<sol::function>);
 
     Jkr.set_function("SyncSubmitPresent", &Jkr::Window::SyncSubmitPresent);
-
     Jkr.set_function("CopyWindowDeferredImageToShapeImage",
                      &Jkr::Misc::CopyWindowDeferredImageToShapeImage);
     Jkr.set_function("CopyWindowRenderTargetImageToShapeImage",
@@ -387,6 +386,9 @@ void CreateMiscBindings(sol::state &inState) {
     Jkr.set_function("SerializeDeserializeShape3D", &Jkr::Misc::SerializeDeserializeShape3D);
     Jkr.set_function("SerializeDeserializeObjectVector",
                      &Jkr::Misc::SerializeDeserializeObjectVector);
+
+    Jkr.set_function("GetArbritaryPassImageToVector", &Jkr::Misc::GetArbritaryPassImageToVector);
+    Jkr.set_function("FillComputeImageWithVectorChar", &Jkr::Misc::FillComputeImageWithVectorChar);
 }
 
 } // namespace JkrEXE

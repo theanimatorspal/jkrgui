@@ -303,6 +303,7 @@ void CreateGLMBindings(sol::state &lua) {
     lua.set_function("std_vector_float", []() -> std::vector<float> { return {}; });
     lua.set_function("std_vector_int", []() -> std::vector<int> { return {}; });
     lua.set_function("std_vector_uint", []() -> std::vector<uint32_t> { return {}; });
+    lua.set_function("std_vector_char", []() -> std::vector<char> { return {}; });
     //	lua.set_function("std_vector_vertex3d", []() -> std::vector<ksai::std::Vertex3D> { return {};
     //});
 

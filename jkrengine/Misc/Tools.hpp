@@ -138,5 +138,10 @@ void DrawShape2DWithSimple3D(Window_base &inWindow,
 ///@brief Immediately submits copying operation and returns v<glm::vec4> for the image of arbritary
 /// pass
 ///@param inIndex Index of the arbritary pass
-v<char> GetArbritaryPassImageToVector(Instance &inInstance, Window_base &inWindow, int inIndex);
+v<char> GetArbritaryPassImageToVector(Instance &inInstance, Window &inWindow, int inIndex);
+
+///@brief Fill custom painter image with charactervector
+void FillComputeImageWithVectorChar(Instance &inInstance,
+                                    v<char> invector,
+                                    Renderer::CustomPainterImage &inCustomPainterImage);
 }; // namespace Jkr::Misc

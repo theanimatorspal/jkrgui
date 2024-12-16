@@ -2680,9 +2680,8 @@ Engine.Load = function(self, inEnableValidation)
                             return load(msg:GetFunction())
                         elseif id == 4 then
                             msg:GetFile(FileName)
-                        elseif id == 5 then
-                            print("Message Error: Invalid Message ID in the header");
                         end
+                        return msg
                     end
                 end
 
@@ -2740,13 +2739,17 @@ Engine.Load = function(self, inEnableValidation)
                     if type(inToSend) == "function" then
                         msg.mHeader.mId = 3
                         msg:InsertFunction(inToSend)
+                    else
+                        msg = inToSend
                     end
                     -- TODO Improve this client ID
                     Jkr.SendMessageFromClient(0, msg)
                 end
 
                 self.net.listenOnce = function(inFileName)
+                    print("HERE1")
                     if not Jkr.IsIncomingMessagesEmptyClient(0) then
+                        print("HERE2")
                         local msg = Jkr.PopFrontIncomingMessagesClient(0)
                         local id = msg.mHeader.mId
                         if id == 1 then
@@ -2762,9 +2765,8 @@ Engine.Load = function(self, inEnableValidation)
                             return load(msg:GetFunction())
                         elseif id == 4 then
                             return msg:GetFile(inFileName)
-                        elseif id == 5 then
-                            print("Message Error: Invalid Message ID in the header");
                         end
+                        return msg
                     end
                 end
             end,
@@ -2779,7 +2781,7 @@ Engine.Load = function(self, inEnableValidation)
                     local msg = Jkr.ConvertToVChar(inMessage)
                     Jkr.SendUDP(msg, inDestination, inPort)
                 end
-                self.net.listenOnce = function()
+                self.net.listenOnceUDP = function()
                     if not Jkr.IsMessagesBufferEmptyUDP() then
                         local msg = Jkr.PopFrontMessagesBufferUDP()
                         return Jkr.ConvertFromVChar(msg)
@@ -3146,10 +3148,6 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
                 materials[materialindex] = { shaderindex = shaderindex, uniformindex = uniform3dindex }
             end
 
-            --@warning THIS IS BEING DUPLICATED, FIX THIS
-            -- [[[[[[[[[[[[[[[[[[[[[[[[[[THIS IS NOT OPTIMAL]]]]]]]]]]]]]]]]]]]]]]]]]]
-            -- [[[[[[[[[[[[[[[[[[[[[[[[[[CHANGE THIS LATER]]]]]]]]]]]]]]]]]]]]]]]]]]
-
             local object = Jkr.Object3D()
             object.mId = shapeindex;
             object.mAssociatedModel = gltfmodelindex;
@@ -3176,7 +3174,7 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
             ---@note This is supposed to be used for storage of the abovematrix
             object.mMatrix3 = Nodes[NodeIndex]:GetLocalMatrix()
             object.mP1 = NodeIndex
-            object.mP2 = 1
+            object.mP2 = 1 -- This indicates the object is the root object
             Objects[#Objects + 1] = object
         end
     end
@@ -3186,11 +3184,14 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
         for j = 1, #Objects, 1 do
             if i ~= j then
                 if gltfmodel:IsNodeParentOf(Nodes[Objects[i].mP1], Nodes[Objects[j].mP1]) then
-                    print("PARENT")
                     Objects[i]:SetParent(Objects[j])
                 end
             end
         end
+    end
+    ---@note If there is a single object in the gltf file then it has to be the root object
+    if #Objects == 1 then
+        Objects[1].mP2 = 1
     end
     return Objects
 end
@@ -3199,7 +3200,7 @@ end
 Engine.CreateWorld3D = function(w, inshaper3d)
     local world3d = Jkr.World3D(inshaper3d)
     local camera3d = Jkr.Camera3D()
-    camera3d:SetAttributes(vec3(0, 0, 0), vec3(0, 30, 30))
+    camera3d:SetAttributes(vec3(0, 0, 0), vec3(0, 0, 30))
     camera3d:SetPerspective(0.3, 16 / 9, 0.1, 10000)
     world3d:AddCamera(camera3d)
     local dummypipelineindex = world3d:AddSimple3D(Engine.i, w);

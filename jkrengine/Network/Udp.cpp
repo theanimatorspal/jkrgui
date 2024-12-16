@@ -6,7 +6,6 @@ void UDP::Recieve(Func inRecieve) {
     mUDPSocket.async_receive(asio::buffer(mBuffer.data(), sizeof(char) * mBuffer.size()),
                              [=, this](std::error_code ec, size_t inSize) {
                                  if (not ec) {
-                                     std::cout << "Received:" << inSize << std::endl;
                                      inRecieve(mBuffer);
                                  } else {
                                      std::cout << "ERROR:" << ec.message() << std::endl;

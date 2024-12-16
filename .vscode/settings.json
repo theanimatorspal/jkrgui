@@ -27,7 +27,7 @@
             "--gr",
             "--run",
             // "asst",
-            "app"
+            "Experiment/app"
             // "jkrguipr"
             // "--android-environment",
             // "--appname \"tester\"",

@@ -952,6 +952,36 @@ void SerializeDeserializeObjectVector(sv inName,
     }
 }
 
+v<char> GetArbritaryPassImageToVector(Instance &inInstance, Window &inWindow, int inIndex) {
+    auto &Arbs  = inWindow.GetArbritaryPassses();
+    auto &Arb   = *Arbs[inIndex];
+    auto Extent = Arb.mImage->GetUniformImage().GetImageExtent();
+    auto Vect   = Arb.mImage->GetUniformImage().SubmitImmediateCmdGetImageToVector(
+         inInstance.GetTransferQueue(),
+         inInstance.GetStagingBuffer(Extent.height * Extent.height * 4),
+         inWindow.GetCommandBuffers(
+              Window_base::ParameterContext::None)[inWindow.GetCurrentFrame()],
+         inInstance.GetUtilCommandBufferFence());
+    //
+    return Vect;
+}
+
+void FillComputeImageWithVectorChar(Instance &inInstance,
+                                    v<char> invector,
+                                    Renderer::CustomPainterImage &inCustomPainterImage) {
+    auto &Image = *inCustomPainterImage.GetPainterParam().GetStorageImagePtr();
+    void *data  = invector.data();
+    Image.SubmitImmediateCmdCopyFromDataWithStagingBuffer(
+         inInstance.GetTransferQueue(),
+         inInstance.GetUtilCommandBuffer(),
+         inInstance.GetDevice(),
+         inInstance.GetUtilCommandBufferFence(),
+         &data,
+         invector.size() * sizeof(char),
+         inInstance.GetStagingBuffer(invector.size() * sizeof(char)),
+         vk::ImageLayout::eGeneral);
+}
+
 } // namespace Jkr::Misc
 
 namespace Jkr {
@@ -1000,19 +1030,6 @@ void Window::SyncSubmitPresent(Window &inSw, Window &inPw) {
         }
     }
     inSw.mCurrentFrame = (inSw.mCurrentFrame + 1) % mMaxFramesInFlight;
-}
-
-v<char> GetArbritaryPassImageToVector(Instance &inInstance, Window &inWindow, int inIndex) {
-    auto &Arbs  = inWindow.GetArbritaryPassses();
-    auto &Arb   = *Arbs[inIndex];
-    auto Extent = Arb.mImage->GetUniformImage().GetImageExtent();
-    auto Vect   = Arb.mImage->GetUniformImage().SubmitImmediateCmdGetImageToVector(
-         inInstance.GetTransferQueue(),
-         inInstance.GetStagingBuffer(Extent.height * Extent.height * 4),
-         inWindow.GetCommandBuffers(
-              Window_base::ParameterContext::None)[inWindow.GetCurrentFrame()],
-         inInstance.GetUtilCommandBufferFence());
-    return Vect;
 }
 
 } // namespace Jkr

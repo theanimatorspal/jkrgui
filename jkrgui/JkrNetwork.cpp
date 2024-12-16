@@ -95,10 +95,8 @@ static Message PopFrontIncomingMessagesClient(int inId) {
 static Jkr::Network::TsQueue<std::vector<char>> MessageBufferUDP;
 static Up<UDP> UDPHandle;
 
-auto OnReceive = [](v<char> inMessage) {
-    std::cout << "MESSAGE RECEIVED" << std::endl;
-    MessageBufferUDP.push_back(inMessage);
-};
+auto OnReceive = [](v<char> inMessage) { MessageBufferUDP.push_back(inMessage); };
+
 void StartUDP(int inPort) { UDPHandle = mu<UDP>(inPort); }
 void SendUDP(std::vector<char> inMessage, std::string inDestination, int inPort) {
     UDPHandle->Send(inMessage, inDestination, inPort);
@@ -188,7 +186,11 @@ void CreateNetworkBindings(sol::state &s) {
              std::ofstream file =
                   std::ofstream(std::string(inFileName), std::ios::binary | std::ios::trunc);
              file.write(Bytes.data(), Bytes.size());
-         });
+         },
+         "InsertVec3",
+         &Message::Insert<glm::vec3>,
+         "GetVec3",
+         &Message::Get<glm::vec3>);
 
     Jkr.set_function("StartServer", &StartServer);
     Jkr.set_function("StopServer", &StopServer);
@@ -215,7 +217,7 @@ void CreateNetworkBindings(sol::state &s) {
     Jkr.set_function("SendUDPBlocking", &SendUDPBlocking);
     Jkr.set_function("ReceiveUDP", &ReceiveUDP);
     Jkr.set_function("IsMessagesBufferEmptyUDP", [&]() {
-        ReceiveUDPBlocking();
+        ReceiveUDP();
         return MessageBufferUDP.empty();
     });
     Jkr.set_function("PopFrontMessagesBufferUDP", [&]() { return MessageBufferUDP.pop_front(); });

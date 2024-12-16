@@ -54,9 +54,8 @@ Engine.Load = function(self, inEnableValidation)
                             return load(msg:GetFunction())
                         elseif id == 4 then
                             msg:GetFile(FileName)
-                        elseif id == 5 then
-                            print("Message Error: Invalid Message ID in the header");
                         end
+                        return msg
                     end
                 end
 
@@ -73,14 +72,14 @@ Engine.Load = function(self, inEnableValidation)
                             msg.mHeader.mId = 1
                             msg:InsertString(inToSend)
                         end
-                    end
-                    if type(inToSend) == "number" then
+                    elseif type(inToSend) == "number" then
                         msg.mHeader.mId = 2
                         msg:InsertFloat(inToSend)
-                    end
-                    if type(inToSend) == "function" then
+                    elseif type(inToSend) == "function" then
                         msg.mHeader.mId = 3
                         msg:InsertFunction(inToSend)
+                    else
+                        msg = inToSend
                     end
                     -- TODO Improve this client ID
                     Jkr.BroadcastServer(msg)
@@ -106,14 +105,14 @@ Engine.Load = function(self, inEnableValidation)
                             msg.mHeader.mId = 1
                             msg:InsertString(inToSend)
                         end
-                    end
-                    if type(inToSend) == "number" then
+                    elseif type(inToSend) == "number" then
                         msg.mHeader.mId = 2
                         msg:InsertFloat(inToSend)
-                    end
-                    if type(inToSend) == "function" then
+                    elseif type(inToSend) == "function" then
                         msg.mHeader.mId = 3
                         msg:InsertFunction(inToSend)
+                    else
+                        msg = inToSend
                     end
                     -- TODO Improve this client ID
                     Jkr.SendMessageFromClient(0, msg)
@@ -136,9 +135,8 @@ Engine.Load = function(self, inEnableValidation)
                             return load(msg:GetFunction())
                         elseif id == 4 then
                             return msg:GetFile(inFileName)
-                        elseif id == 5 then
-                            print("Message Error: Invalid Message ID in the header");
                         end
+                        return msg
                     end
                 end
             end,
@@ -153,10 +151,10 @@ Engine.Load = function(self, inEnableValidation)
                     local msg = Jkr.ConvertToVChar(inMessage)
                     Jkr.SendUDP(msg, inDestination, inPort)
                 end
-                self.net.listenOnce = function()
+                self.net.listenOnceUDP = function(inTypeExample)
                     if not Jkr.IsMessagesBufferEmptyUDP() then
                         local msg = Jkr.PopFrontMessagesBufferUDP()
-                        return Jkr.ConvertFromVChar(msg)
+                        return Jkr.ConvertFromVChar(inTypeExample, msg)
                     end
                 end
             end
@@ -546,7 +544,7 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
             ---@note This is supposed to be used for storage of the abovematrix
             object.mMatrix3 = Nodes[NodeIndex]:GetLocalMatrix()
             object.mP1 = NodeIndex
-            object.mP2 = 1
+            object.mP2 = 1 -- This indicates the object is the root object
             Objects[#Objects + 1] = object
         end
     end
@@ -560,6 +558,10 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
                 end
             end
         end
+    end
+    ---@note If there is a single object in the gltf file then it has to be the root object
+    if #Objects == 1 then
+        Objects[1].mP2 = 1
     end
     return Objects
 end
