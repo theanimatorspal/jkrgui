@@ -40,6 +40,7 @@ void AndroidShowToast(const char *inMessage) {
     env->CallVoidMethod(g_context, methodId, jMessage);
 }
 
+///@warning remove this
 void JavaCallVoidMethodNoArgs(sv inClass, sv inName) {
     JNIEnv *env;
     JavaVMAttachArgs args;
@@ -53,6 +54,79 @@ void JavaCallVoidMethodNoArgs(sv inClass, sv inName) {
     jclass JkrGUIClass = env->FindClass("org/JkrGUI/JkrGUIActivity");
     jmethodID methodId = env->GetMethodID(JkrGUIClass, "ShowToast", "()V");
     env->CallVoidMethod(g_context, methodId);
+}
+
+///@warning remove this
+void JavaCallVoidMethodWithStringArgs(std::string_view inClass,
+                                      std::string_view inMethod,
+                                      std::string_view argument) {
+    JNIEnv *env;
+    JavaVMAttachArgs args;
+    args.version = JNI_VERSION_1_6;
+    args.name    = nullptr;
+    args.group   = nullptr;
+
+    if (g_vm->AttachCurrentThread(&env, &args) != JNI_OK) {
+        printf("Failed to attach current thread\n");
+        return;
+    }
+
+    jclass javaClass = env->FindClass(inClass.data());
+    if (javaClass == nullptr) {
+        printf("Failed to find class: %s\n", inClass.data());
+        return;
+    }
+
+    jmethodID methodId = env->GetMethodID(javaClass, inMethod.data(), "(Ljava/lang/String;)V");
+    if (methodId == nullptr) {
+        printf("Failed to find method: %s\n", inMethod.data());
+        env->DeleteLocalRef(javaClass);
+        return;
+    }
+
+    jstring jArg = env->NewStringUTF(argument.data());
+    env->CallVoidMethod(g_context, methodId, jArg);
+    env->DeleteLocalRef(jArg);
+    env->DeleteLocalRef(javaClass);
+}
+
+std::vector<char> JavaCallVCharMethodStringArg(std::string_view className,
+                                               std::string_view methodName,
+                                               std::string_view argument) {
+    std::vector<char> result;
+    JNIEnv *env;
+    if (g_vm->AttachCurrentThread(&env, nullptr) != JNI_OK) {
+        std::cerr << "Failed to attach current thread to JVM" << std::endl;
+        return result;
+    }
+    jclass javaClass = env->FindClass(className.data());
+    if (!javaClass) {
+        std::cerr << "Failed to find Java class: " << className << std::endl;
+        return result;
+    }
+    jmethodID methodId = env->GetMethodID(
+         javaClass, methodName.data(), "(Ljava/lang/String;)[C"); // (String) -> char[]
+    if (!methodId) {
+        std::cerr << "Failed to find Java method: " << methodName << std::endl;
+        env->DeleteLocalRef(javaClass);
+        return result;
+    }
+    jstring jArg         = env->NewStringUTF(argument.data());
+    jcharArray charArray = (jcharArray)env->CallObjectMethod(g_context, methodId, jArg);
+    if (charArray) {
+        jsize length = env->GetArrayLength(charArray);
+        jchar *chars = env->GetCharArrayElements(charArray, nullptr);
+
+        for (jsize i = 0; i < length; ++i) {
+            result.push_back(static_cast<char>(chars[i])); // Convert jchar to char
+        }
+        env->ReleaseCharArrayElements(charArray, chars, JNI_ABORT);
+        env->DeleteLocalRef(charArray);
+    }
+    env->DeleteLocalRef(jArg);
+    env->DeleteLocalRef(javaClass);
+
+    return result;
 }
 
 glm::vec3 AndroidGetAccelerometerData() {
@@ -110,6 +184,8 @@ void CreatePlatformBindings(sol::state &inS) {
 #ifdef ANDROID
     Jkr.set_function("GetAccelerometerData", AndroidGetAccelerometerData);
     Jkr.set_function("JavaCallVoidMethodNoArgs", &JavaCallVoidMethodNoArgs);
+    Jkr.set_function("JavaCallVoidMethodWithStringArgs", &JavaCallVoidMethodWithStringArgs);
+    Jkr.set_function("JavaCallVCharMethodStringArg", &JavaCallVCharMethodStringArg);
 #endif
 }
 

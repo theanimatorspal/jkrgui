@@ -848,3 +848,12 @@ function Jkr.FilePicker()
     file:close()
     return filePath
 end
+
+Jkr.Java = {}
+setmetatable(Jkr.Java, {
+    __index = function(_, methodName)
+        return function(inString)
+            return Jkr.JavaCallVCharMethodStringArg("org/JkrGUI/JkrGUIActivity", methodName, inString)
+        end
+    end
+})
