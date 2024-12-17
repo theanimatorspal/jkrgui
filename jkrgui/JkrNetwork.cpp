@@ -95,7 +95,11 @@ static Message PopFrontIncomingMessagesClient(int inId) {
 static Jkr::Network::TsQueue<std::vector<char>> MessageBufferUDP;
 static Up<UDP> UDPHandle;
 
-auto OnReceive = [](v<char> inMessage) { MessageBufferUDP.push_back(inMessage); };
+auto OnReceive = [](v<char> inMessage) {
+    if (MessageBufferUDP.count() < 3) {
+        MessageBufferUDP.push_back(inMessage);
+    }
+};
 
 void StartUDP(int inPort) { UDPHandle = mu<UDP>(inPort); }
 void SendUDP(std::vector<char> inMessage, std::string inDestination, int inPort) {
@@ -104,7 +108,15 @@ void SendUDP(std::vector<char> inMessage, std::string inDestination, int inPort)
 void SendUDPBlocking(std::vector<char> inMessage, std::string inDestination, int inPort) {
     UDPHandle->SendBlocking(inMessage, inDestination, inPort);
 }
-void ReceiveUDP() { UDPHandle->Recieve(OnReceive); }
+
+static bool FirstTime = true;
+void ReceiveUDP() {
+    if (FirstTime) {
+        UDPHandle->Recieve(OnReceive);
+        FirstTime = false;
+    }
+}
+
 void ReceiveUDPBlocking() { UDPHandle->RecieveBlocking(OnReceive); }
 
 template <typename T> std::vector<char> ConvertToVChar(T inT) {

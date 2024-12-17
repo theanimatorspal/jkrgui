@@ -10,6 +10,7 @@ void UDP::Recieve(Func inRecieve) {
                                  } else {
                                      std::cout << "ERROR:" << ec.message() << std::endl;
                                  }
+                                 this->Recieve(inRecieve);
                              });
 }
 

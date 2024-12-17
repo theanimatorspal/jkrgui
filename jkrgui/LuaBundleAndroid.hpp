@@ -2698,14 +2698,14 @@ Engine.Load = function(self, inEnableValidation)
                             msg.mHeader.mId = 1
                             msg:InsertString(inToSend)
                         end
-                    end
-                    if type(inToSend) == "number" then
+                    elseif type(inToSend) == "number" then
                         msg.mHeader.mId = 2
                         msg:InsertFloat(inToSend)
-                    end
-                    if type(inToSend) == "function" then
+                    elseif type(inToSend) == "function" then
                         msg.mHeader.mId = 3
                         msg:InsertFunction(inToSend)
+                    else
+                        msg = inToSend
                     end
                     -- TODO Improve this client ID
                     Jkr.BroadcastServer(msg)
@@ -2731,12 +2731,10 @@ Engine.Load = function(self, inEnableValidation)
                             msg.mHeader.mId = 1
                             msg:InsertString(inToSend)
                         end
-                    end
-                    if type(inToSend) == "number" then
+                    elseif type(inToSend) == "number" then
                         msg.mHeader.mId = 2
                         msg:InsertFloat(inToSend)
-                    end
-                    if type(inToSend) == "function" then
+                    elseif type(inToSend) == "function" then
                         msg.mHeader.mId = 3
                         msg:InsertFunction(inToSend)
                     else
@@ -2747,9 +2745,7 @@ Engine.Load = function(self, inEnableValidation)
                 end
 
                 self.net.listenOnce = function(inFileName)
-                    print("HERE1")
                     if not Jkr.IsIncomingMessagesEmptyClient(0) then
-                        print("HERE2")
                         local msg = Jkr.PopFrontIncomingMessagesClient(0)
                         local id = msg.mHeader.mId
                         if id == 1 then
@@ -2781,10 +2777,10 @@ Engine.Load = function(self, inEnableValidation)
                     local msg = Jkr.ConvertToVChar(inMessage)
                     Jkr.SendUDP(msg, inDestination, inPort)
                 end
-                self.net.listenOnceUDP = function()
+                self.net.listenOnceUDP = function(inTypeExample)
                     if not Jkr.IsMessagesBufferEmptyUDP() then
                         local msg = Jkr.PopFrontMessagesBufferUDP()
-                        return Jkr.ConvertFromVChar(msg)
+                        return Jkr.ConvertFromVChar(inTypeExample, msg)
                     end
                 end
             end
