@@ -59,6 +59,10 @@ import androidx.core.content.ContextCompat;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.util.Collections;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+
 
 import org.libsdl.app.SDLActivity;
 
@@ -110,31 +114,36 @@ public class JkrGUIActivity extends SDLActivity implements SensorEventListener {
                 });
     }
 
+    private HandlerThread mHandlerThread;
+    private Handler mBackgroundHandler;
     private static final int CAMERA_PERMISSION_CODE = 100;
     private CameraDevice cameraDevice;
     private ImageReader imageReader;
     private CameraCaptureSession captureSession;
     private String cameraId;
-    private char[] lastCapturedImage;
+    private byte[] lastCapturedImage;
 
-    public char[] InitializeCamera(String inString) {
+    public byte[] InitializeCamera(String inString) {
+        mHandlerThread = new HandlerThread("ImageReaderThread");
+        mHandlerThread.start();
+        mBackgroundHandler = new Handler(mHandlerThread.getLooper());
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
-            return new char[]{0};   
+            return new byte[]{0};   
         } else {
-            if (inString == "FRONT")
+            if (inString.equals("FRONT"))
             {
                 openCamera(1);
-            } else if (inString == "BACK")
+            } else if (inString.equals("BACK"))
             {
                 openCamera(0);
             }
-            return new char[]{1};
+            return new byte[]{1};
         }
     }
 
-    public char[] ShutdownCamera(String inString) {
+    public byte[] ShutdownCamera(String inString) {
         try {
             if (captureSession != null) {
                 captureSession.close();
@@ -151,10 +160,10 @@ public class JkrGUIActivity extends SDLActivity implements SensorEventListener {
         } catch (Exception e) {
             Log.e("CameraActivity", "Error shutting down camera", e);
         }
-        return new char[]{1};
+        return new byte[]{1};
     }
 
-    public char[] GetCameraImage(String inString) {
+    public byte[] GetCameraImage(String inString) {
         return lastCapturedImage;
     }
 
@@ -172,11 +181,12 @@ public class JkrGUIActivity extends SDLActivity implements SensorEventListener {
             }
 
             imageReader = ImageReader.newInstance(640, 480, android.graphics.ImageFormat.JPEG, 2);
-            imageReader.setOnImageAvailableListener(imageAvailableListener, null);
+            // imageReader.setOnImageAvailableListener(imageAvailableListener, null);
+            imageReader.setOnImageAvailableListener(imageAvailableListener, mBackgroundHandler);
 
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                     == PackageManager.PERMISSION_GRANTED) {
-                cameraManager.openCamera(cameraId, stateCallback, null);
+                cameraManager.openCamera(cameraId, stateCallback, mBackgroundHandler);
             }
         } catch (Exception e) {
             Log.e("CameraActivity", "Error opening camera", e);
@@ -246,13 +256,11 @@ public class JkrGUIActivity extends SDLActivity implements SensorEventListener {
         }
     };
 
-    private char[] imageToCharArray(Image image) {
+    private byte[] imageToCharArray(Image image) {
         ByteBuffer buffer = image.getPlanes()[0].getBuffer();
         byte[] bytes = new byte[buffer.remaining()];
         buffer.get(bytes);
-
-        String base64String = Base64.encodeToString(bytes, Base64.DEFAULT);
-        return base64String.toCharArray();
+        return bytes;
     }
 
     public void copyFileOrDir(String path, String inPackageName) {

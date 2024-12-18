@@ -4,6 +4,7 @@
 #include <Pipeline/VulkanDescriptorUpdateHandler.hpp>
 #include <Renderers/ThreeD/Uniform3D.hpp>
 #include "JkrFile.hpp"
+#include <stb_image_write.h>
 
 namespace Jkr::Misc {
 void CopyWindowDeferredImageToShapeImage(Window &inWindow, Renderer::Shape &inShape2d, int inId) {
@@ -980,6 +981,31 @@ void FillComputeImageWithVectorChar(Instance &inInstance,
          invector.size() * sizeof(char),
          inInstance.GetStagingBuffer(invector.size() * sizeof(char)),
          vk::ImageLayout::eGeneral);
+}
+
+void SavePNGFileFromVChar(
+     v<char> &inCharVector, sv inFileName, int inWidth, int inHeight, int inComp) {
+    const auto *CharData = (const stbi_uc *)inCharVector.data();
+    int x, y, channels_in_file;
+    int desired_channels = 4;
+    auto Image_data      = stbi_load_from_memory(
+         CharData, inCharVector.size(), &x, &y, &channels_in_file, desired_channels);
+    stbi_write_bmp(inFileName.data(), inWidth, inHeight, inComp, Image_data);
+}
+
+v<char> GetVCharRawFromVCharImage(v<char> &inCharVector, int inWidth, int inHeight) {
+    v<char> Out;
+    int x, y, channels_in_file;
+    int desired_channels = 4;
+    auto Image_data      = stbi_load_from_memory((const stbi_uc *)inCharVector.data(),
+                                            inCharVector.size(),
+                                            &x,
+                                            &y,
+                                            &channels_in_file,
+                                            desired_channels);
+    Out.resize(x * y * desired_channels);
+    std::memcpy(Out.data(), Image_data, x * y * desired_channels);
+    return Out;
 }
 
 } // namespace Jkr::Misc

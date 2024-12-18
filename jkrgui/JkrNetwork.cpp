@@ -200,13 +200,13 @@ void CreateNetworkBindings(sol::state &s) {
              file.write(Bytes.data(), Bytes.size());
          },
          "InsertVec3",
-         &Message::Insert<glm::vec3>,
+         &Message::InsertEXT<glm::vec3>,
          "GetVec3",
-         &Message::Get<glm::vec3>,
+         &Message::GetEXT<glm::vec3>,
          "InsertVChar",
-         &Message::Insert<v<char>>,
+         &Message::InsertEXT<v<char>>,
          "GetVChar",
-         &Message::Get<v<char>>);
+         &Message::GetEXT<v<char>>);
 
     Jkr.set_function("StartServer", &StartServer);
     Jkr.set_function("StopServer", &StopServer);

@@ -853,6 +853,15 @@ function Jkr.FilePicker()
     return filePath
 end
 
+Jkr.Java = {}
+setmetatable(Jkr.Java, {
+    __index = function(_, methodName)
+        return function(inString)
+            return Jkr.JavaCallVCharMethodStringArg("org/JkrGUI/JkrGUIActivity", methodName, inString)
+        end
+    end
+})
+
 
 local ImagePainterPush          = [[
 layout(std430, push_constant) uniform pc {

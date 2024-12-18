@@ -389,6 +389,9 @@ void CreateMiscBindings(sol::state &inState) {
 
     Jkr.set_function("GetArbritaryPassImageToVector", &Jkr::Misc::GetArbritaryPassImageToVector);
     Jkr.set_function("FillComputeImageWithVectorChar", &Jkr::Misc::FillComputeImageWithVectorChar);
+
+    Jkr.set_function("SavePNGFileFromVChar", &Jkr::Misc::SavePNGFileFromVChar);
+    Jkr.set_function("GetVCharRawFromVCharImage", &Jkr::Misc::GetVCharRawFromVCharImage);
 }
 
 } // namespace JkrEXE

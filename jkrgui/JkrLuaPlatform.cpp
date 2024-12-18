@@ -104,24 +104,23 @@ std::vector<char> JavaCallVCharMethodStringArg(std::string_view className,
         std::cerr << "Failed to find Java class: " << className << std::endl;
         return result;
     }
-    jmethodID methodId = env->GetMethodID(
-         javaClass, methodName.data(), "(Ljava/lang/String;)[C"); // (String) -> char[]
+    jmethodID methodId = env->GetMethodID(javaClass, methodName.data(), "(Ljava/lang/String;)[B");
     if (!methodId) {
         std::cerr << "Failed to find Java method: " << methodName << std::endl;
         env->DeleteLocalRef(javaClass);
         return result;
     }
     jstring jArg         = env->NewStringUTF(argument.data());
-    jcharArray charArray = (jcharArray)env->CallObjectMethod(g_context, methodId, jArg);
-    if (charArray) {
-        jsize length = env->GetArrayLength(charArray);
-        jchar *chars = env->GetCharArrayElements(charArray, nullptr);
+    jbyteArray byteArray = (jbyteArray)env->CallObjectMethod(g_context, methodId, jArg);
+    if (byteArray) {
+        jsize length = env->GetArrayLength(byteArray);
+        jbyte *bytes = env->GetByteArrayElements(byteArray, nullptr);
 
         for (jsize i = 0; i < length; ++i) {
-            result.push_back(static_cast<char>(chars[i])); // Convert jchar to char
+            result.push_back(static_cast<char>(bytes[i]));
         }
-        env->ReleaseCharArrayElements(charArray, chars, JNI_ABORT);
-        env->DeleteLocalRef(charArray);
+        env->ReleaseByteArrayElements(byteArray, bytes, JNI_ABORT);
+        env->DeleteLocalRef(byteArray);
     }
     env->DeleteLocalRef(jArg);
     env->DeleteLocalRef(javaClass);

@@ -144,4 +144,9 @@ v<char> GetArbritaryPassImageToVector(Instance &inInstance, Window &inWindow, in
 void FillComputeImageWithVectorChar(Instance &inInstance,
                                     v<char> invector,
                                     Renderer::CustomPainterImage &inCustomPainterImage);
+
+void SavePNGFileFromVChar(
+     v<char> &inCharVector, sv inFileName, int inWidth, int inHeight, int inComp);
+
+v<char> GetVCharRawFromVCharImage(v<char> &inCharVector, int inWidth, int inHeight);
 }; // namespace Jkr::Misc
