@@ -2,6 +2,36 @@ require "JkrGUIv2.Widgets.Basic"
 require "JkrGUIv2.Engine.Shader"
 
 local CompileShaders
+function Jkr.GetLayoutsAsVH()
+    function V(inComponents, inComponentsRatio)
+        if not inComponents and not inComponentsRatio then
+            return Jkr.VLayout:New()
+        else
+            local v = Jkr.VLayout:New()
+            v:Add(inComponents, inComponentsRatio)
+            return v
+        end
+    end
+
+    function H(inComponents, inComponentsRatio)
+        if not inComponents and not inComponentsRatio then
+            return Jkr.HLayout:New()
+        else
+            local h = Jkr.HLayout:New()
+            h:Add(inComponents, inComponentsRatio)
+            return h
+        end
+    end
+
+    -- function U(inValue)
+    --     if not inValue then inValue = {} end
+    --     inValue.Update = function(self, inPosition_3f, inDimension_3f)
+    --         inValue.d = vec3(inDimension_3f)
+    --         inValue.p = vec3(inPosition_3f)
+    --     end
+    --     return inValue
+    -- end
+end
 
 Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
     local o = {}

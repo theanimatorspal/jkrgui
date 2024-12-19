@@ -5,9 +5,66 @@ namespace Jkr::Misc {
 using namespace ksai;
 using namespace std;
 
+FileJkr::FileJkr() { mOnlyInMemory = true; }
+
+void FileJkr::PutDataFromMemory(v<char> &inData) {
+    std::stringstream sstream;
+    sstream << sv(inData.begin(), inData.end());
+    char id[IdSize];
+    size_type HeaderSize = 0;
+    sstream.read(id, IdSize);
+    if (strcmp(id, "HEADER_START") == 0) {
+        sstream.read(reinterpret_cast<char *>(&HeaderSize),
+                     sizeof(size_type)); // Skip the location
+        sstream.read(reinterpret_cast<char *>(&HeaderSize), sizeof(size_type));
+
+        while (strcmp(id, "HEADER_END") != 0) {
+            sstream.read(id, IdSize);
+            size_type location, size;
+            sstream.read(reinterpret_cast<char *>(&location), sizeof(size_type));
+            sstream.read(reinterpret_cast<char *>(&size), sizeof(size_type));
+            auto header = Header{"", location, size};
+            strcpy(header.mId, id);
+            mFileContents[s(id)] = header;
+            if (strcmp(id, "HEADER_END") != 0) {
+                PushVector(mHeader, Serialize(header));
+            }
+        }
+
+        auto Datasize = mFileContents["HEADER_END"].mSize;
+        mData.resize(Datasize);
+        sstream.read(mData.data(), Datasize);
+    } else {
+        std::cout << "This File Seems not to be a JkrGUI file, it will be overriden\n";
+    }
+}
+
+v<char> FileJkr::GetDataFromMemory() {
+    auto fileheader_start = Serialize(Header{"HEADER_START", 0, mHeader.size()});
+    auto &headercontents  = mHeader;
+    auto fileheader_end   = Serialize(Header{"HEADER_END", 0, mData.size()});
+    auto &data            = mData;
+
+    v<char> out;
+    out.resize(fileheader_start.size() + headercontents.size() + fileheader_end.size() +
+               data.size());
+
+    auto O = out.begin();
+    std::copy(fileheader_start.begin(), fileheader_start.end(), O);
+    std::copy(headercontents.begin(), headercontents.end(), O + fileheader_start.size());
+    std::copy(fileheader_end.begin(),
+              fileheader_end.end(),
+              O + fileheader_start.size() + headercontents.size());
+    std::copy(data.begin(),
+              data.end(),
+              O + fileheader_start.size() + headercontents.size() + fileheader_end.size());
+    return out;
+}
+
 FileJkr::FileJkr(s inFileName) {
-    mFileName   = inFileName;
-    bool exists = false;
+    mOnlyInMemory = true;
+    mFileName     = inFileName;
+    bool exists   = false;
     if (filesystem::exists(inFileName)) {
         mFile = std::fstream(inFileName, ios_base::in | ios_base::out | ios_base::binary);
         try {
@@ -47,12 +104,14 @@ FileJkr::FileJkr(s inFileName) {
 }
 
 FileJkr::~FileJkr() {
-    Commit();
-    std::cout << mDebugStringStream.str() << std::endl;
+    if (not mOnlyInMemory) {
+        Commit();
+        std::cout << mDebugStringStream.str() << std::endl;
+    }
 }
 
 void FileJkr::Commit() {
-    if (mWrites > 0) {
+    if (mWrites > 0 and not mOnlyInMemory) {
         auto fileheader_start = Serialize(Header{"HEADER_START", 0, mHeader.size()});
         auto &headercontents  = mHeader;
         auto fileheader_end   = Serialize(Header{"HEADER_END", 0, mData.size()});

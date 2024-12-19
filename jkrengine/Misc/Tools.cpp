@@ -991,6 +991,7 @@ void SavePNGFileFromVChar(
     auto Image_data      = stbi_load_from_memory(
          CharData, inCharVector.size(), &x, &y, &channels_in_file, desired_channels);
     stbi_write_bmp(inFileName.data(), inWidth, inHeight, inComp, Image_data);
+    stbi_image_free(Image_data);
 }
 
 v<char> GetVCharRawFromVCharImage(v<char> &inCharVector, int inWidth, int inHeight) {
@@ -1005,6 +1006,7 @@ v<char> GetVCharRawFromVCharImage(v<char> &inCharVector, int inWidth, int inHeig
                                             desired_channels);
     Out.resize(x * y * desired_channels);
     std::memcpy(Out.data(), Image_data, x * y * desired_channels);
+    stbi_image_free(Image_data);
     return Out;
 }
 

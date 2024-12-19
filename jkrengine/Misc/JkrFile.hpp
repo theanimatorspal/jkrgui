@@ -68,6 +68,10 @@ SIZE_OF_ID
 
 */
 
+///
+/// @warning  This implementation is vulnerable to Buffer Overflow attack LOL
+///
+///
 struct FileJkr {
     struct Header {
         char mId[IdSize];
@@ -77,6 +81,7 @@ struct FileJkr {
     GETTER GetFileName() const { return mFileName; }
     GETTER &GetFileContents() { return mFileContents; }
 
+    FileJkr();
     FileJkr(s inFileName);
     ~FileJkr();
     template <typename T> void Write(const char inId[IdSize], T inData) {
@@ -94,6 +99,12 @@ struct FileJkr {
         }
         mWrites++;
     }
+    bool HasEntry(const char inId[IdSize]) {
+        if (mFileContents.contains(s(inId))) {
+            return true;
+        }
+        return false;
+    }
     template <typename T> T Read(const char inId[IdSize]) {
         auto header = mFileContents[s(inId)];
         mDebugStringStream << "READ::> " << header.mId << " : " << header.mLocation << " : "
@@ -105,7 +116,11 @@ struct FileJkr {
     }
     void Commit();
 
+    void PutDataFromMemory(v<char> &inData);
+    v<char> GetDataFromMemory();
+
     private:
+    bool mOnlyInMemory = false;
     v<char> mData;
     v<char> mHeader;
     umap<s, Header> mFileContents; // This is for retrieval

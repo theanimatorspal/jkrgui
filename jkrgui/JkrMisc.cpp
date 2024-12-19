@@ -342,7 +342,14 @@ void CreateMiscBindings(sol::state &inState) {
     Jkr.new_usertype<Jkr::Misc::FileJkr>(
          "FileJkr",
          sol::call_constructor,
-         sol::factories([](s inName) { return mu<Jkr::Misc::FileJkr>(inName); }),
+         sol::factories([]() { return mu<Jkr::Misc::FileJkr>(); },
+                        [](s inName) { return mu<Jkr::Misc::FileJkr>(inName); }),
+         "HasEntry",
+         &Jkr::Misc::FileJkr::HasEntry,
+         "GetDataFromMemory",
+         &Jkr::Misc::FileJkr::GetDataFromMemory,
+         "PutDataFromMemory",
+         &Jkr::Misc::FileJkr::PutDataFromMemory,
          "WriteObject3DVector",
          sol::overload(&Jkr::Misc::FileJkr::Write<v<Object3D>>,
                        [](Jkr::Misc::FileJkr &inFileJkr, std::string inId, v<Object3D *> inO3Ds) {
@@ -357,7 +364,15 @@ void CreateMiscBindings(sol::state &inState) {
          "WriteFunction",
          &Jkr::Misc::FileJkr::Write<sol::function>,
          "ReadFunction",
-         &Jkr::Misc::FileJkr::Read<sol::function>);
+         &Jkr::Misc::FileJkr::Read<sol::function>,
+         "WriteVChar",
+         &Jkr::Misc::FileJkr::Write<v<char>>,
+         "ReadVChar",
+         &Jkr::Misc::FileJkr::Read<v<char>>,
+         "WriteVec4",
+         &Jkr::Misc::FileJkr::Write<glm::vec4>,
+         "ReadVec4",
+         &Jkr::Misc::FileJkr::Read<glm::vec4>);
 
     Jkr.set_function("SyncSubmitPresent", &Jkr::Window::SyncSubmitPresent);
     Jkr.set_function("CopyWindowDeferredImageToShapeImage",
