@@ -1769,4 +1769,29 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
 
         return vshader, fshader
     end
+
+    if inShaderType == "PBR" then
+        local out = Engine.CreatePBRShaderByGLTFMaterial(gltfmodel, materialindex)
+        return out.vShader, out.fShader
+    end
+end
+
+
+PBR.Setup = function(w, world3d, buffer3d, inSkyboxModelId, inWorldUniformHandle, cacheprefix, hdr_path)
+    Jkr.SetupPBR(Engine.i,
+        w,
+        inWorldUniformHandle,
+        world3d,
+        buffer3d, -- shape 3d
+        math.floor(inSkyboxModelId),
+        cacheprefix,
+        PBR.GenBrdfLutV.str,
+        PBR.GenBrdfLutF.str,
+        PBR.FilterCubeV.str,
+        PBR.IrradianceCubeF.str,
+        PBR.FilterCubeV.str,
+        PBR.PreFilterEnvMapF.str,
+        PBR.EquirectangularMapToMultiVShader.str,
+        PBR.EquirectangularMapToMultiFShader.str,
+        hdr_path);
 end

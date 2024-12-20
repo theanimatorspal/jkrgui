@@ -473,14 +473,27 @@ Engine.AddObject = function(modObjects, modObjectsVector, inId, inAssociatedMode
     return #modObjectsVector
 end
 
-Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmodelname, inshadertype, incompilecontext,
-                                             inskinning)
+Engine.AddAndConfigureGLTFToWorld = function(w,
+                                             inworld3d,
+                                             inshape3d,
+                                             ingltfmodelname,
+                                             inshadertype,
+                                             incompilecontext,
+                                             inskinning,
+                                             inhdrenvfilename)
     if not incompilecontext then incompilecontext = Jkr.CompileContext.Default end
+    local skyboxId
+    if inshadertype == "PBR" then
+        local globaluniformindex = inworld3d:AddUniform3D(Engine.i)
+        local globaluniformhandle = inworld3d:GetUniform3D(globaluniformindex)
+        local Skybox = Jkr.Generator(Jkr.Shapes.Cube3D, vec3(1, 1, 1))
+        local skyboxId = inshape3d:Add(Skybox, vec3(0, 0, 0))
+        PBR.Setup(w, inworld3d, inshape3d, skyboxId, globaluniformhandle, "PBR_FREAK", inhdrenvfilename)
+    end
     local gltfmodelindex = inworld3d:AddGLTFModel(ingltfmodelname)
     local gltfmodel = inworld3d:GetGLTFModel(gltfmodelindex)
     local shapeindex = inshape3d:Add(gltfmodel) -- this ACUTALLY loads the GLTF Model
     local Nodes = gltfmodel:GetNodesRef()
-    local Meshes = gltfmodel:GetMeshesRef()
     Engine.GetGLTFInfo(gltfmodel)
     local Objects = {}
     local materials = {}
@@ -563,7 +576,7 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
     if #Objects == 1 then
         Objects[1].mP2 = 1
     end
-    return Objects
+    return Objects, skyboxId
 end
 
 

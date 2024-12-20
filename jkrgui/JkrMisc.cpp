@@ -346,10 +346,14 @@ void CreateMiscBindings(sol::state &inState) {
                         [](s inName) { return mu<Jkr::Misc::FileJkr>(inName); }),
          "HasEntry",
          &Jkr::Misc::FileJkr::HasEntry,
+         "IsEmpty",
+         &Jkr::Misc::FileJkr::IsEmpty,
          "GetDataFromMemory",
          &Jkr::Misc::FileJkr::GetDataFromMemory,
          "PutDataFromMemory",
          &Jkr::Misc::FileJkr::PutDataFromMemory,
+         "Clear",
+         &Jkr::Misc::FileJkr::Clear,
          "WriteObject3DVector",
          sol::overload(&Jkr::Misc::FileJkr::Write<v<Object3D>>,
                        [](Jkr::Misc::FileJkr &inFileJkr, std::string inId, v<Object3D *> inO3Ds) {
@@ -360,19 +364,25 @@ void CreateMiscBindings(sol::state &inState) {
                            inFileJkr.Write(inId.c_str(), Obj3ds);
                        }),
          "ReadObject3DVector",
-         &Jkr::Misc::FileJkr::Read<v<Object3D>>,
+         &Jkr::Misc::FileJkr::ReadAndErase<v<Object3D>>,
          "WriteFunction",
-         &Jkr::Misc::FileJkr::Write<sol::function>,
+         [](Jkr::Misc::FileJkr &inFile, std::string inId, sol::function inFunction) {
+             auto bytecode = inFunction.dump();
+             inFile.Write<decltype(bytecode)>(inId.c_str(), bytecode);
+         },
          "ReadFunction",
-         &Jkr::Misc::FileJkr::Read<sol::function>,
+         [](Jkr::Misc::FileJkr &inFile, std::string inId) {
+             sol::basic_bytecode<> code = inFile.ReadAndErase<decltype(code)>(inId.c_str());
+             return std::string(code.as_string_view());
+         },
          "WriteVChar",
          &Jkr::Misc::FileJkr::Write<v<char>>,
          "ReadVChar",
-         &Jkr::Misc::FileJkr::Read<v<char>>,
+         &Jkr::Misc::FileJkr::ReadAndErase<v<char>>,
          "WriteVec4",
          &Jkr::Misc::FileJkr::Write<glm::vec4>,
          "ReadVec4",
-         &Jkr::Misc::FileJkr::Read<glm::vec4>);
+         &Jkr::Misc::FileJkr::ReadAndErase<glm::vec4>);
 
     Jkr.set_function("SyncSubmitPresent", &Jkr::Window::SyncSubmitPresent);
     Jkr.set_function("CopyWindowDeferredImageToShapeImage",

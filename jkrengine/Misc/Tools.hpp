@@ -74,9 +74,6 @@ void SetupPBR(Instance &inInstance,
               Renderer::_3D::Shape &inShape3D,
               int inSkyboxModelIndex,
 
-              ///@todo Remove this
-              Misc::FileJkr &inJkrFile,
-
               sv inCachePrefix,
               sv inBRDF_vs,
               sv inBRDF_fs,

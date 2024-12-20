@@ -105,6 +105,7 @@ struct FileJkr {
         }
         return false;
     }
+    bool IsEmpty() { return mFileContents.empty(); }
     template <typename T> T Read(const char inId[IdSize]) {
         auto header = mFileContents[s(inId)];
         mDebugStringStream << "READ::> " << header.mId << " : " << header.mLocation << " : "
@@ -114,10 +115,17 @@ struct FileJkr {
 
         return Retrive<T>(out);
     }
+    template <typename T> T ReadAndErase(const char inId[IdSize]) {
+        auto out = Read<T>(inId);
+        mFileContents.erase(std::string(inId));
+        return out;
+    }
+
     void Commit();
 
     void PutDataFromMemory(v<char> &inData);
     v<char> GetDataFromMemory();
+    void Clear();
 
     private:
     bool mOnlyInMemory = false;
@@ -128,8 +136,6 @@ struct FileJkr {
     ///@note This is for debugging, IDK why it is not printing whole thing (std::cout)
     std::stringstream mDebugStringStream;
 
-    ///@note this is what it is going to be written to the file after you hit Commit
-    v<char> mCommittedData;
     std::fstream mFile;
     s mFileName;
     int mWrites = 0;

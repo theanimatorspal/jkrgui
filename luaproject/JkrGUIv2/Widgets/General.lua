@@ -394,7 +394,50 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
 
         return tp
     end
+    local alerp = function(a, b, t)
+        return (a * (1 - t) + t * b) * (1 - t) + b * t
+    end
 
+    local alerp_2f = function(a, b, t)
+        return vec2(alerp(a.x, b.x, t), alerp(a.y, b.y, t))
+    end
+
+    local alerp_3f = function(a, b, t)
+        return vec3(alerp(a.x, b.x, t), alerp(a.y, b.y, t), alerp(a.z, b.z, t))
+    end
+
+    local alerp_4f = function(a, b, t)
+        return vec4(alerp(a.x, b.x, t), alerp(a.y, b.y, t), alerp(a.z, b.z, t), alerp(a.w, b.w, t))
+    end
+
+    o.AnimationPush = function(inElement,
+                               inStartPosition_3f, inEndPosition_3f,
+                               inStartDimension_3f, inEndDimension_3f,
+                               step)
+        if not step then
+            step = 0.1
+        end
+        local t = 0
+        local sp = vec2(inStartPosition_3f)
+        local ep = vec2(inEndPosition_3f)
+        local sd = vec2(inStartDimension_3f)
+        local ed = vec2(inEndDimension_3f)
+        local el = inElement
+        local Frame = 1
+        while t <= 1 do
+            local np = alerp_2f(sp, ep, t)
+            local nd = alerp_2f(sd, ed, t)
+            local np3 = vec3(np, inStartPosition_3f.z)
+            local nd3 = vec3(nd, inStartDimension_3f.z)
+            o.c:PushOneTime(Jkr.CreateUpdatable(
+                function()
+                    el:Update(np3, nd3)
+                end
+            ), Frame)
+            Frame = Frame + 1
+            t = t + step
+        end
+    end
 
     return o
 end

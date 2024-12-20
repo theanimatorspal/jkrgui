@@ -488,7 +488,6 @@ void SetupPBR(Jkr::Instance &inInstance,
               Renderer::_3D::World3D &inWorld3D,
               Renderer::_3D::Shape &inShape3D,
               int inSkyboxModelIndex,
-              Misc::FileJkr &inJkrFile,
               sv inCachePrefix,
               sv inBRDF_vs,
               sv inBRDF_fs,
@@ -500,7 +499,7 @@ void SetupPBR(Jkr::Instance &inInstance,
               sv inEquirectangularToCubeMap_fs,
               sv inEquirectangularCubeMapHDR) {
     uint32_t Dim = 512;
-    inInstance.GetStagingBuffer(512 * 512 * 10 * 24);
+    inInstance.GetStagingBuffer(Dim * Dim * 10 * 24);
     std::string prefix = s(inCachePrefix);
     using namespace std;
 

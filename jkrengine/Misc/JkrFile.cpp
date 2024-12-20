@@ -125,4 +125,10 @@ void FileJkr::Commit() {
     }
 }
 
+void FileJkr::Clear() {
+    mHeader.clear();
+    mData.clear();
+    mFileContents.clear();
+}
+
 } // namespace Jkr::Misc

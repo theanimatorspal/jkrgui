@@ -29,7 +29,10 @@ void CreateGLMBindings(sol::state &lua) {
     lua.new_usertype<glm::vec2>(
          "vec2",
          sol::call_constructor,
-         sol::constructors<glm::vec2(float), glm::vec2(float, float), glm::vec2(glm::vec2)>(),
+         sol::constructors<glm::vec2(float),
+                           glm::vec2(float, float),
+                           glm::vec2(glm::vec2),
+                           glm::vec2(glm::vec3)>(),
          "x",
          &glm::vec2::x,
          "y",
@@ -74,7 +77,8 @@ void CreateGLMBindings(sol::state &lua) {
          sol::call_constructor,
          sol::constructors<glm::vec3(float),
                            glm::vec3(float, float, float),
-                           glm::vec3(glm::vec3)>(),
+                           glm::vec3(glm::vec3),
+                           glm::vec3(glm::vec2, float)>(),
          "x",
          &glm::vec3::x,
          "y",
@@ -303,7 +307,11 @@ void CreateGLMBindings(sol::state &lua) {
     lua.set_function("std_vector_float", []() -> std::vector<float> { return {}; });
     lua.set_function("std_vector_int", []() -> std::vector<int> { return {}; });
     lua.set_function("std_vector_uint", []() -> std::vector<uint32_t> { return {}; });
-    lua.set_function("std_vector_char", []() -> std::vector<char> { return {}; });
+    lua.set_function("std_vector_char", [](int inSize) -> std::vector<char> {
+        std::vector<char> c;
+        c.resize(inSize, 0);
+        return c;
+    });
     //	lua.set_function("std_vector_vertex3d", []() -> std::vector<ksai::std::Vertex3D> { return {};
     //});
 
