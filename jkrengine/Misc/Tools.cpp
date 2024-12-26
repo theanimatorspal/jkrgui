@@ -1061,11 +1061,10 @@ v<char> GetVCharRawFromVCharImage(v<char> &inCharVector, int inWidth, int inHeig
 
 void RegisterShadowPassImageToUniform3D(Window &inWindow,
                                         Renderer::_3D::Uniform3D &inUniform3D,
-                                        int inIndex,
-                                        int inSet) {
+                                        int inIndex) {
     auto &ShadowPass = inWindow.GetShadowPass();
     auto &Image      = ShadowPass.GetDepthImagePainterParameter();
-    Image.Register(0, inIndex, 0, inUniform3D.GetVulkanDescriptorSet(), inSet);
+    Image.Register(0, inIndex, 0, inUniform3D.GetVulkanDescriptorSet(), 0);
 }
 
 void RegisterShape2DImageToUniform3D(Renderer::Shape &inShape,

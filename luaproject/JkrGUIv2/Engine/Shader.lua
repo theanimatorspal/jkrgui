@@ -1915,11 +1915,11 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
             .Push()
             .Ubo()
             .Out(0, "vec2", "outUV")
-            .Append [[
-            out gl_PerVertex {
-                vec4 gl_Position;
-            };
-            ]]
+            -- .Append [[
+            -- out gl_PerVertex {
+            --     vec4 gl_Position;
+            -- };
+            -- ]]
             .GlslMainBegin()
             .Append [[
                 vec4 Index = Push.m2[0];

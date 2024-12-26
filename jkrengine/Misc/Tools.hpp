@@ -149,8 +149,7 @@ v<char> GetVCharRawFromVCharImage(v<char> &inCharVector, int inWidth, int inHeig
 
 void RegisterShadowPassImageToUniform3D(Window &inWindow,
                                         Renderer::_3D::Uniform3D &inUniform3D,
-                                        int inIndex,
-                                        int inSet);
+                                        int inIndex);
 
 void RegisterShape2DImageToUniform3D(Renderer::Shape &inShape,
                                      Renderer::_3D::Uniform3D &inUniform3D,
