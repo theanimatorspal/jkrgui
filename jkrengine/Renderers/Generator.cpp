@@ -231,7 +231,9 @@ void Jkr::Generator::operator()(float inX,
                  {1, 2, 6, 5}  // Front
             };
 
-            int start = inStartVertexIndex;
+            ///@warning here the modVertices that are actually the vertices with 0 size
+            /// so start = 0
+            int start = 0;
             for (int i = 0; i < 6; ++i) {
                 for (int j = 0; j < 4; ++j) {
                     int FaceIndex        = faceIndices[i][j];

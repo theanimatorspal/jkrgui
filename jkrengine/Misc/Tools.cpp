@@ -6,6 +6,56 @@
 #include "JkrFile.hpp"
 #include <stb_image_write.h>
 
+namespace Jkr {
+///@note
+///@param inSw inSubmitWindow the window that has to be submitted before present (this should be a
+/// NoWindow Window i.e. Create the Window using Jkr.CreateWindowNoWindow in lua and appropriate
+/// constructor in C++)
+///@param inPw inPresentWindow the window to present to
+void Window::SyncSubmitPresent(Window &inSw, Window &inPw) {
+    auto Scf = inSw.mCurrentFrame;
+    auto Pcf = inPw.mCurrentFrame;
+
+    vk::PipelineStageFlags SWaitFlags(vk::PipelineStageFlagBits::eTopOfPipe);
+    vk::SubmitInfo sinfo;
+    sinfo = vk::SubmitInfo({},
+                           {},
+                           inSw.mCommandBuffers[Scf].GetCommandBufferHandle(),
+                           inSw.mRenderFinishedSemaphores[Scf].GetSemaphoreHandle());
+
+    auto PWaitFlags =
+         std::to_array({vk::PipelineStageFlags(vk::PipelineStageFlagBits::eColorAttachmentOutput),
+                        vk::PipelineStageFlags(vk::PipelineStageFlagBits::eTopOfPipe)});
+    vk::SubmitInfo pinfo;
+    auto Arr = std::to_array({inPw.mImageAvailableSemaphores[Pcf].GetSemaphoreHandle(),
+                              inSw.mRenderFinishedSemaphores[Scf].GetSemaphoreHandle()});
+    pinfo    = vk::SubmitInfo(Arr,
+                           PWaitFlags,
+                           inPw.mCommandBuffers[Pcf].GetCommandBufferHandle(),
+                           inPw.mRenderFinishedSemaphores[Pcf].GetSemaphoreHandle());
+
+    inSw.mInstance->GetGraphicsQueue().GetQueueHandle().submit(sinfo,
+                                                               inSw.mFences[Scf].GetFenceHandle());
+    inPw.mInstance->GetGraphicsQueue().GetQueueHandle().submit(pinfo,
+                                                               inPw.mFences[Pcf].GetFenceHandle());
+    {
+        uint32_t Result =
+             inPw.mInstance->GetGraphicsQueue().Present<SubmitContext::ColorAttachment>(
+                  inPw.mSwapChain,
+                  inPw.mRenderFinishedSemaphores[inPw.mCurrentFrame],
+                  inPw.mAcquiredImageIndex);
+
+        if (inPw.mSwapChain.ImageIsNotOptimal(Result)) {
+            inPw.Refresh();
+        } else {
+            inPw.mCurrentFrame = (inPw.mCurrentFrame + 1) % mMaxFramesInFlight;
+        }
+    }
+    inSw.mCurrentFrame = (inSw.mCurrentFrame + 1) % mMaxFramesInFlight;
+}
+
+} // namespace Jkr
+
 namespace Jkr::Misc {
 void CopyWindowDeferredImageToShapeImage(Window &inWindow, Renderer::Shape &inShape2d, int inId) {
     using namespace vk;
@@ -1009,54 +1059,21 @@ v<char> GetVCharRawFromVCharImage(v<char> &inCharVector, int inWidth, int inHeig
     return Out;
 }
 
-} // namespace Jkr::Misc
-
-namespace Jkr {
-///@note
-///@param inSw inSubmitWindow the window that has to be submitted before present (this should be a
-/// NoWindow Window i.e. Create the Window using Jkr.CreateWindowNoWindow in lua and appropriate
-/// constructor in C++)
-///@param inPw inPresentWindow the window to present to
-void Window::SyncSubmitPresent(Window &inSw, Window &inPw) {
-    auto Scf = inSw.mCurrentFrame;
-    auto Pcf = inPw.mCurrentFrame;
-
-    vk::PipelineStageFlags SWaitFlags(vk::PipelineStageFlagBits::eTopOfPipe);
-    vk::SubmitInfo sinfo;
-    sinfo = vk::SubmitInfo({},
-                           {},
-                           inSw.mCommandBuffers[Scf].GetCommandBufferHandle(),
-                           inSw.mRenderFinishedSemaphores[Scf].GetSemaphoreHandle());
-
-    auto PWaitFlags =
-         std::to_array({vk::PipelineStageFlags(vk::PipelineStageFlagBits::eColorAttachmentOutput),
-                        vk::PipelineStageFlags(vk::PipelineStageFlagBits::eTopOfPipe)});
-    vk::SubmitInfo pinfo;
-    auto Arr = std::to_array({inPw.mImageAvailableSemaphores[Pcf].GetSemaphoreHandle(),
-                              inSw.mRenderFinishedSemaphores[Scf].GetSemaphoreHandle()});
-    pinfo    = vk::SubmitInfo(Arr,
-                           PWaitFlags,
-                           inPw.mCommandBuffers[Pcf].GetCommandBufferHandle(),
-                           inPw.mRenderFinishedSemaphores[Pcf].GetSemaphoreHandle());
-
-    inSw.mInstance->GetGraphicsQueue().GetQueueHandle().submit(sinfo,
-                                                               inSw.mFences[Scf].GetFenceHandle());
-    inPw.mInstance->GetGraphicsQueue().GetQueueHandle().submit(pinfo,
-                                                               inPw.mFences[Pcf].GetFenceHandle());
-    {
-        uint32_t Result =
-             inPw.mInstance->GetGraphicsQueue().Present<SubmitContext::ColorAttachment>(
-                  inPw.mSwapChain,
-                  inPw.mRenderFinishedSemaphores[inPw.mCurrentFrame],
-                  inPw.mAcquiredImageIndex);
-
-        if (inPw.mSwapChain.ImageIsNotOptimal(Result)) {
-            inPw.Refresh();
-        } else {
-            inPw.mCurrentFrame = (inPw.mCurrentFrame + 1) % mMaxFramesInFlight;
-        }
-    }
-    inSw.mCurrentFrame = (inSw.mCurrentFrame + 1) % mMaxFramesInFlight;
+void RegisterShadowPassImageToUniform3D(Window &inWindow,
+                                        Renderer::_3D::Uniform3D &inUniform3D,
+                                        int inIndex,
+                                        int inSet) {
+    auto &ShadowPass = inWindow.GetShadowPass();
+    auto &Image      = ShadowPass.GetDepthImagePainterParameter();
+    Image.Register(0, inIndex, 0, inUniform3D.GetVulkanDescriptorSet(), inSet);
 }
 
-} // namespace Jkr
+void RegisterShape2DImageToUniform3D(Renderer::Shape &inShape,
+                                     Renderer::_3D::Uniform3D &inUniform3D,
+                                     int inImageIndex,
+                                     int inBindingIndex) {
+    inShape.GetImages()[inImageIndex]->Register(
+         0, inBindingIndex, 0, inUniform3D.GetVulkanDescriptorSet(), 1);
+}
+
+} // namespace Jkr::Misc

@@ -75,7 +75,8 @@ enum Uniform : int {
     World Info Uniform
 
 ============================================================== */
-constexpr int LightCount = 8;
+constexpr int LightCount   = 8;
+constexpr int CascadeCount = 4;
 struct WorldInfoUniform {
     alignas(16) glm::mat4 mView;
     alignas(16) glm::mat4 mProjection;
@@ -84,6 +85,7 @@ struct WorldInfoUniform {
     alignas(16) glm::vec4 mLights[LightCount];
     alignas(16) glm::mat4 mShadowMatrix;
     alignas(16) glm::vec4 mLightsDirections[LightCount];
+    alignas(16) glm::mat4 mShadowMatrixCascades[CascadeCount];
 };
 constexpr int GeneralUsageDescriptorSetIndex3D = 1;
 

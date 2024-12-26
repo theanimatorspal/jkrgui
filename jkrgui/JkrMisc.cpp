@@ -417,6 +417,11 @@ void CreateMiscBindings(sol::state &inState) {
 
     Jkr.set_function("SavePNGFileFromVChar", &Jkr::Misc::SavePNGFileFromVChar);
     Jkr.set_function("GetVCharRawFromVCharImage", &Jkr::Misc::GetVCharRawFromVCharImage);
+
+    Jkr.set_function("RegisterShadowPassImageToUniform3D",
+                     &Jkr::Misc::RegisterCustomPainterImageToCustomPainterImage);
+    Jkr.set_function("RegisterShape2DImageToUniform3D",
+                     &Jkr::Misc::RegisterShape2DImageToUniform3D);
 }
 
 } // namespace JkrEXE

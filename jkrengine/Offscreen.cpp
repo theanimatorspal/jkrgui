@@ -8,12 +8,6 @@
 using namespace Jkr;
 
 ShadowPass::ShadowPass(Instance &inInstance, ui inWidth, ui inHeight) : mInstance(inInstance) {
-    mImage = mu<DepthImageType>(inInstance);
-    mImage->SetupDepth(inWidth, inHeight);
-    mRenderpass = mu<RenderPassType>(inInstance.GetDevice(), mImage->GetDepthImage());
-    mFrameBuffer =
-         mu<FrameBufferType>(inInstance.GetDevice(), *mRenderpass, mImage->GetDepthImage());
-
     ///@note new one from here
     mImage                   = mu<ImageType>(inInstance);
     mImage->mUniformImagePtr = mu<VulkanImageVMA>();
@@ -39,6 +33,7 @@ ShadowPass::ShadowPass(Instance &inInstance, ui inWidth, ui inHeight) : mInstanc
     mCascadedRenderpass = mu<RenderPassType>(inInstance.GetDevice(), CascadeImage);
 
     for (int i = 0; auto &Cascade : mCascades) {
+        Cascade.mFrameBuffer.SetExtent(vk::Extent2D{inWidth, inHeight});
         Cascade.mFrameBuffer.Init(inInstance.GetDevice(), *mCascadedRenderpass, ImageViews[i]);
         ++i;
     }
@@ -47,7 +42,6 @@ ShadowPass::ShadowPass(Instance &inInstance, ui inWidth, ui inHeight) : mInstanc
 ///@note from Sascha willems' code
 ///@note i.e from https://johanmedestrom.wordpress.com/2016/03/18/opengl-cascaded-shadow-maps/
 void Jkr::ShadowPass::Update(Renderer::_3D::Camera3D &inCamera, glm::vec3 inLightPos) {
-    float cascadeSplits[CASCADE_COUNT];
     float nearClip  = inCamera.GetNearZ();
     float farClip   = inCamera.GetFarZ();
     float clipRange = farClip - nearClip;
@@ -59,16 +53,16 @@ void Jkr::ShadowPass::Update(Renderer::_3D::Camera3D &inCamera, glm::vec3 inLigh
     float ratio     = maxZ / minZ;
 
     for (uint32_t i = 0; i < CASCADE_COUNT; ++i) {
-        float p          = (i + 1) / static_cast<float>(CASCADE_COUNT);
-        float log        = minZ * std::pow(ratio, p);
-        float uniform    = minZ + range * p;
-        float d          = mCascadeSplitLambda * (log - uniform) + uniform;
-        cascadeSplits[i] = (d - nearClip) / clipRange;
+        float p           = (i + 1) / static_cast<float>(CASCADE_COUNT);
+        float log         = minZ * std::pow(ratio, p);
+        float uniform     = minZ + range * p;
+        float d           = mCascadeSplitLambda * (log - uniform) + uniform;
+        mCascadeSplits[i] = (d - nearClip) / clipRange;
     }
 
     float lastSplitDist = 0.0f;
     for (uint32_t i = 0; i < CASCADE_COUNT; ++i) {
-        float splitDist             = cascadeSplits[i];
+        float splitDist             = mCascadeSplits[i];
         glm::vec3 frustumCorners[8] = {
              glm::vec3(-1.0f, 1.0f, 0.0f),
              glm::vec3(1.0f, 1.0f, 0.0f),
@@ -121,7 +115,7 @@ void Jkr::ShadowPass::Update(Renderer::_3D::Camera3D &inCamera, glm::vec3 inLigh
                                                 maxExtents.z - minExtents.z);
         mCascades[i].mSplitDepth     = (inCamera.GetNearZ() + splitDist * clipRange) * -1.0f;
         mCascades[i].mViewProjMatrix = lightOrthoMatrix * lightViewMatrix;
-        lastSplitDist                = cascadeSplits[i];
+        lastSplitDist                = mCascadeSplits[i];
     }
 }
 

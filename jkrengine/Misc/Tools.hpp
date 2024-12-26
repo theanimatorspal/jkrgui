@@ -146,4 +146,14 @@ void SavePNGFileFromVChar(
      v<char> &inCharVector, sv inFileName, int inWidth, int inHeight, int inComp);
 
 v<char> GetVCharRawFromVCharImage(v<char> &inCharVector, int inWidth, int inHeight);
+
+void RegisterShadowPassImageToUniform3D(Window &inWindow,
+                                        Renderer::_3D::Uniform3D &inUniform3D,
+                                        int inIndex,
+                                        int inSet);
+
+void RegisterShape2DImageToUniform3D(Renderer::Shape &inShape,
+                                     Renderer::_3D::Uniform3D &inUniform3D,
+                                     int inImageIndex,
+                                     int inBindingIndex);
 }; // namespace Jkr::Misc

@@ -33,6 +33,7 @@ class VulkanFrameBuffer : public VulkanFrameBufferBase {
     /// like Init(device, renderPass, extent2d, imageview1, imageview2);
     ///
     ///
+    void SetExtent(vk::Extent2D inExtent) { mExtent = inExtent; };
     void Init(VulkanDevice &inDevice, VulkanRenderPassBase &inRenderPass, const auto &...inT) {
         mDevice = &inDevice.GetDeviceHandle();
         (
@@ -40,8 +41,6 @@ class VulkanFrameBuffer : public VulkanFrameBufferBase {
                  if constexpr (Has_GetImageViewHandle<decltype(inT)>) {
                      Attachments.push_back(inT.GetImageViewHandle());
                      mExtent = inT.GetImageExtent();
-                 } else if constexpr (std::is_same_v<decltype(inT), vk::Extent2D>) {
-                     mExtent = inT;
                  } else {
                      Attachments.push_back(inT);
                  }

@@ -131,12 +131,15 @@ bool SpirvHelper::GLSLtoSPV(vk::ShaderStageFlagBits shader_type,
                             std::vector<unsigned int> &spirv) {
     EShLanguage stage = FindLanguage(shader_type);
     glslang::TShader shader(stage);
+#if _DEBUG
+    shader.setDebugInfo(true);
+#endif
     const char *shaderStrings[1];
     TBuiltInResource Resources = {};
     InitResources(Resources);
 
     // Enable SPIR-V and Vulkan rules when parsing GLSL
-    EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules);
+    EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules | EShMsgDebugInfo);
 
     shaderStrings[0]     = pshader;
     shader.setStrings(shaderStrings, 1);
@@ -166,6 +169,21 @@ bool SpirvHelper::GLSLtoSPV(vk::ShaderStageFlagBits shader_type,
         return false;
     }
 
-    glslang::GlslangToSpv(*program.getIntermediate(stage), spirv);
+    glslang::SpvOptions Options;
+#if _DEBUG
+    Options.generateDebugInfo                = true;
+    Options.emitNonSemanticShaderDebugSource = true;
+    Options.emitNonSemanticShaderDebugInfo   = true;
+    Options.stripDebugInfo                   = false;
+    Options.disableOptimizer                 = true;
+#else
+    Options.generateDebugInfo                = false;
+    Options.emitNonSemanticShaderDebugSource = false;
+    Options.emitNonSemanticShaderDebugInfo   = false;
+    Options.stripDebugInfo                   = true;
+    Options.disableOptimizer                 = false;
+#endif
+
+    glslang::GlslangToSpv(*program.getIntermediate(stage), spirv, &Options);
     return true;
 }

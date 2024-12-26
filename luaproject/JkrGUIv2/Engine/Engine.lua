@@ -315,36 +315,51 @@ Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
         .PrefilteredReflection()
         .SpecularContribution()
         .SRGBtoLINEAR()
-        .Append [[
 
+    if Material.mNormalTextureIndex ~= -1 then
+        fShader
+            .Append [[
 vec3 calculateNormal()
 {
     vec3 tangentNormal = texture(uNormalTexture, vUV).xyz * 2.0 - 1.0;
-
     vec3 N = normalize(vNormal);
     vec3 T = normalize(vTangent.xyz);
     vec3 B = normalize(cross(N, T));
     mat3 TBN = mat3(T, B, N);
     return normalize(TBN * tangentNormal);
 }
-
         ]]
+    else
+        fShader.Append [[
+vec3 calculateNormal()
+{
+    return vec3(0, 0, 1);
+}
+        ]]
+    end
+
 
     fShader.GlslMainBegin()
-    fShader.Append [[
-
+    if Material.mNormalTextureIndex ~= -1 then
+        fShader.Append [[
     vec3 N = calculateNormal();
-    //vec3 N = vNormal;
-    vec3 V = normalize(Ubo.campos - vWorldPos);
-	vec3 R = reflect(-V, N);
+    ]]
+    else
+        fShader.Append [[
+    vec3 N = vNormal;
+    ]]
+    end
 
+    fShader.Append [[
+    vec3 V = normalize(Ubo.campos - vWorldPos);
+    vec3 R = reflect(-V, N);
     ]]
 
     if (Material.mMetallicRoughnessTextureIndex ~= -1) then
         fShader.Append [[
 
             float metallic = texture(uMetallicRoughnessTexture, vUV).b;
-	        float roughness = texture(uMetallicRoughnessTexture, vUV).g;
+            float roughness = texture(uMetallicRoughnessTexture, vUV).g;
             // metallic = 0;
             // roughness = 0.5;
          ]]
@@ -352,7 +367,7 @@ vec3 calculateNormal()
         fShader.Append [[
 
             float metallic = material.metallic;
-	        float roughness = material.roughness;
+            float roughness = material.roughness;
 
          ]]
     end
@@ -366,62 +381,64 @@ vec3 calculateNormal()
     else
         fShader.Append [[
 
-    vec3 Emissive = vec3(1);
+    vec3 Emissive = vec3(0);
         ]]
     end
 
     fShader.Append [[
 
 
-	vec3 F0 = vec3(0.04);
-	F0 = mix(F0, vec4(ALBEDO, 1.0).xyz, metallic);
-	vec3 Lo = vec3(0.0);
-	for(int i = 0; i < Ubo.lights[i].length(); i++) {
-		vec3 L = normalize(Ubo.lights[i].xyz - vWorldPos) * Ubo.lights[i].w;
-		Lo += SpecularContribution(L, V, N, F0, metallic, roughness);
-	}
-	
-	vec2 brdf = texture(samplerBRDFLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
-	vec3 reflection = PrefilteredReflection(R, roughness).rgb;	
-	vec3 irradiance = texture(samplerIrradiance, N).rgb;
+    vec3 F0 = vec3(0.04);
+    F0 = mix(F0, vec4(ALBEDO, 1.0).xyz, metallic);
+    vec3 Lo = vec3(0.0);
+    for(int i = 0; i < Ubo.lights[i].length(); i++) {
+        vec3 L = normalize(Ubo.lights[i].xyz - vWorldPos) * Ubo.lights[i].w;
+        Lo += SpecularContribution(L, V, N, F0, metallic, roughness);
+    }
 
-	// Diffuse based on irradiance
-	vec3 diffuse = irradiance * ALBEDO;	
+    vec2 brdf = texture(samplerBRDFLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+    vec3 reflection = PrefilteredReflection(R, roughness).rgb;	
+    vec3 irradiance = texture(samplerIrradiance, N).rgb;
 
-	vec3 F = F_SchlickR(max(dot(N, V), 0.0), F0, roughness);
+    // Diffuse based on irradiance
+    vec3 diffuse = irradiance * ALBEDO;	
 
-	// Specular reflectance
-	vec3 specular = reflection * (F * brdf.x + brdf.y);
+    vec3 F = F_SchlickR(max(dot(N, V), 0.0), F0, roughness);
 
-	// Ambient part
-	vec3 kD = 1.0 - F;
-	kD *= 1.0 - metallic;	
+    // Specular reflectance
+    vec3 specular = reflection * (F * brdf.x + brdf.y);
+
+    // Ambient part
+    vec3 kD = 1.0 - F;
+    kD *= 1.0 - metallic;	
 
     ]]
 
     if (Material.mOcclusionTextureIndex ~= -1) then
         fShader.Append [[
 
-            	vec3 ambient = (kD * diffuse + specular) * texture(uOcclusionTexture, vUV).rrr;
+                vec3 ambient = (kD * diffuse + specular) * texture(uOcclusionTexture, vUV).rrr;
         ]]
     else
         fShader.Append [[
 
-            	vec3 ambient = (kD * diffuse + specular);
+                vec3 ambient = (kD * diffuse + specular);
         ]]
     end
 
     fShader.Append [[
 
+    vec4 p1 = Push.m2[0];
+    vec4 p2 = Push.m2[1];
+    vec4 p3 = Push.m2[2];
+    vec4 p4 = Push.m2[3];
+
     vec3 color = ambient + Lo;
+    color = Uncharted2Tonemap(color * p4.x); // Tone mapping exposure = 1.5
+    color = color * (1.0f / Uncharted2Tonemap(vec3(p4.y)));	// norma 11.2
+    color = pow(color, vec3(p4.z)); // Gamma correction gamma = 1/2.2
 
-    // Tone mapping exposure = 1.5
-	color = Uncharted2Tonemap(color * 2.5);
-	color = color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
-	// Gamma correction gamma = 0.3
-	color = pow(color, vec3(1.0f / 2.2));
-
-	outFragColor = vec4(color + Emissive, 1.0);
+    outFragColor = vec4(color + Emissive, 1.0);
     ]]
 
     fShader.GlslMainEnd()
@@ -473,6 +490,11 @@ Engine.AddObject = function(modObjects, modObjectsVector, inId, inAssociatedMode
     return #modObjectsVector
 end
 
+
+local WorldTo = {
+
+}
+
 Engine.AddAndConfigureGLTFToWorld = function(w,
                                              inworld3d,
                                              inshape3d,
@@ -481,15 +503,33 @@ Engine.AddAndConfigureGLTFToWorld = function(w,
                                              incompilecontext,
                                              inskinning,
                                              inhdrenvfilename)
+    local shouldload = false
+    print("inworld3d:", inworld3d)
     if not incompilecontext then incompilecontext = Jkr.CompileContext.Default end
-    local skyboxId
+    local SkyboxObject
     if inshadertype == "PBR" then
-        local globaluniformindex = inworld3d:AddUniform3D(Engine.i)
-        local globaluniformhandle = inworld3d:GetUniform3D(globaluniformindex)
+        local globaluniformhandle = inworld3d:GetUniform3D(0)
         local Skybox = Jkr.Generator(Jkr.Shapes.Cube3D, vec3(1, 1, 1))
         local skyboxId = inshape3d:Add(Skybox, vec3(0, 0, 0))
         PBR.Setup(w, inworld3d, inshape3d, skyboxId, globaluniformhandle, "PBR_FREAK", inhdrenvfilename)
+        SkyboxObject = Jkr.Object3D()
+        SkyboxObject.mId = skyboxId
+        local skybox_shaderindex = inworld3d:AddSimple3D(Engine.i, w)
+        local skybox_shader = inworld3d:GetSimple3D(skybox_shaderindex)
+        local vshader, fshader = Engine.GetAppropriateShader("SKYBOX")
+        skybox_shader:CompileEXT(
+            Engine.i,
+            w,
+            "cache/constant_color.glsl",
+            vshader.str,
+            fshader.str,
+            "",
+            shouldload,
+            incompilecontext
+        )
+        SkyboxObject.mAssociatedSimple3D = skybox_shaderindex
     end
+
     local gltfmodelindex = inworld3d:AddGLTFModel(ingltfmodelname)
     local gltfmodel = inworld3d:GetGLTFModel(gltfmodelindex)
     local shapeindex = inshape3d:Add(gltfmodel) -- this ACUTALLY loads the GLTF Model
@@ -499,7 +539,6 @@ Engine.AddAndConfigureGLTFToWorld = function(w,
     local materials = {}
 
     for NodeIndex = 1, #Nodes, 1 do
-        local shouldload = false
         local primitives = Nodes[NodeIndex].mMesh.mPrimitives
 
         for PrimitiveIndex = 1, #primitives, 1 do
@@ -576,7 +615,8 @@ Engine.AddAndConfigureGLTFToWorld = function(w,
     if #Objects == 1 then
         Objects[1].mP2 = 1
     end
-    return Objects, skyboxId
+    Objects[#Objects + 1] = SkyboxObject
+    return Objects
 end
 
 
@@ -594,7 +634,7 @@ Engine.CreateWorld3D = function(w, inshaper3d)
     }
     world3d:AddLight3D(light0.pos, light0.dir)
 
-    local vshader, fshader = Engine.GetAppropriateShader("CONSTANT_COLOR",
+    local vshader, fshader = Engine.GetAppropriateShader("GENERAL_UNIFORM",
         Jkr.CompileContext.Default, nil, nil, false, false
     )
 

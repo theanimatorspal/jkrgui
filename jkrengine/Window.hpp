@@ -25,7 +25,7 @@ class Window : public Window_base {
     GETTER &GetDeferredPass() { return *mDeferredPass; }
     GETTER &GetArbritaryPassses() { return mArbritaryPasses; }
     void BuildShadowPass();
-    void BeginShadowPass(float ind);
+    void BeginShadowPass(int inI, float ind);
     void EndShadowPass();
 
     ///@brief Arbritary passes, (do whatever you want here)

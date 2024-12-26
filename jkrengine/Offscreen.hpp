@@ -28,8 +28,8 @@ struct ShadowPass {
         float mSplitDepth;
         glm::mat4 mViewProjMatrix;
     };
-    GETTER &GetRenderPass() { return *mRenderpass; }
-    GETTER &GetFrameBuffer() { return *mFrameBuffer; }
+    GETTER &GetRenderPass() { return *mCascadedRenderpass; }
+    GETTER &GetFrameBuffer(int i) { return mCascades[i].mFrameBuffer; }
     GETTER &GetDepthImagePainterParameter() { return *mImage; }
 
     ShadowPass(Instance &inInstance, ui inWidth, ui inHeight);
@@ -38,11 +38,11 @@ struct ShadowPass {
     private:
     Instance &mInstance;
     Up<DepthImageType> mImage;
-    Up<RenderPassType> mRenderpass;
     Up<FrameBufferType> mFrameBuffer;
     std::array<Cascade, CASCADE_COUNT> mCascades;
     Up<RenderPassType> mCascadedRenderpass;
 
+    float mCascadeSplits[CASCADE_COUNT];
     float mCascadeSplitLambda = 0.75f;
 };
 

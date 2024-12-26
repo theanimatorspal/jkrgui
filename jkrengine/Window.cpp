@@ -194,24 +194,14 @@ void Window::ExecuteUIs() {
 }
 
 using namespace Jkr;
-void Window::BeginShadowPass(float ind) {
+void Window::BeginShadowPass(int inI, float ind) {
     mCommandBuffers[mCurrentFrame].BeginRenderPass(
          mShadowPass->GetRenderPass(),
          vk::Extent2D(mOffscreenFrameSize.x, mOffscreenFrameSize.y),
-         mShadowPass->GetFrameBuffer(),
+         mShadowPass->GetFrameBuffer(inI),
          {1.0f, 1.0f, 1.0f, 1.0f, ind});
 }
-void Window::EndShadowPass() {
-    mCommandBuffers[mCurrentFrame].EndRenderPass();
-    mShadowPass->GetDepthImagePainterParameter().GetDepthImage().CmdTransitionImageLayout(
-         mCommandBuffers[mCurrentFrame],
-         vk::ImageLayout::eDepthStencilReadOnlyOptimal,
-         vk::ImageLayout::eGeneral,
-         vk::PipelineStageFlagBits::eLateFragmentTests,
-         vk::PipelineStageFlagBits::eFragmentShader,
-         vk::AccessFlagBits::eDepthStencilAttachmentWrite,
-         vk::AccessFlagBits::eShaderRead);
-}
+void Window::EndShadowPass() { mCommandBuffers[mCurrentFrame].EndRenderPass(); }
 
 void Window::BuildArbritaryPasses(int inCount, int inWidth, int inHeight) {
     for (int i = 0; i < inCount; ++i) {
@@ -247,7 +237,9 @@ void Window::EndThreadCommandBuffer(int inThreadId) {
 }
 
 void Window::BuildShadowPass() {
-    mShadowPass = mu<ShadowPass>(*mInstance, mOffscreenFrameSize.x, mOffscreenFrameSize.y);
+    if (not mShadowPass) {
+        mShadowPass = mu<ShadowPass>(*mInstance, mOffscreenFrameSize.x, mOffscreenFrameSize.y);
+    }
 }
 
 void Window::BuildDeferredPass() {

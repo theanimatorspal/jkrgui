@@ -82,7 +82,7 @@ void Shape::Add(Generator &inGenerator, glm::vec3 inPosition, ui &outId) {
                 0,
                 Vertices,
                 Indices);
-    CheckAndResize(Vertices.size(), Indices.size());
+    CheckAndResize(Indices.size(), Vertices.size());
     gb::Add(Vertices, Indices, outId);
     const auto OffsetId = (uint32_t)outId;
     const auto ModelId  = (uint32_t)outId;
