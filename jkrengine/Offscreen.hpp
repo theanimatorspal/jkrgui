@@ -28,6 +28,7 @@ struct ShadowPass {
         float mSplitDepth;
         glm::mat4 mViewProjMatrix;
     };
+    GETTER &GetCascades() { return mCascades; }
     GETTER &GetRenderPass() { return *mCascadedRenderpass; }
     GETTER &GetFrameBuffer(int i) { return mCascades[i].mFrameBuffer; }
     GETTER &GetDepthImagePainterParameter() { return *mImage; }

@@ -185,7 +185,7 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance &inInstance,
          glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
     };
 
-    inWorld3D.UpdateWorldInfoToUniform3D(Uniform);
+    inWorld3D.UpdateWorldInfoToUniform3D(Uniform, inWindow);
 
     Cmd.Begin();
 
@@ -379,7 +379,7 @@ Up<VulkanImageVMA> PBR::GeneratePrefilteredCube(Instance &inInstance,
          glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
     };
 
-    inWorld3D.UpdateWorldInfoToUniform3D(Uniform);
+    inWorld3D.UpdateWorldInfoToUniform3D(Uniform, inWindow);
 
     Cmd.Begin();
     inEnvironmentCubeMap.CmdTransitionImageLayout(Cmd,

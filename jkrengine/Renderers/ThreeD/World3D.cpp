@@ -2,6 +2,7 @@
 #include "EventManager.hpp"
 #include "Global/Standards.hpp"
 #include "Renderers/ThreeD/Uniform3D.hpp"
+
 using namespace Jkr::Renderer::_3D;
 using namespace Jkr;
 using namespace ksai::kstd;
@@ -113,7 +114,9 @@ void World3D::Event(Jkr::EventManager &inEvent) {
 }
 
 // TODO Remove this
-void World3D::Update(Jkr::EventManager &inEvent) { UpdateWorldInfoToUniform3D(0); }
+void World3D::Update(Jkr::EventManager &inEvent, Jkr::Window &inWindow) {
+    UpdateWorldInfoToUniform3D(0, inWindow);
+}
 
 void World3D::AddWorldInfoToUniform3D(int inId) {
     mUniforms[inId]->AddUniformBuffer(kstd::BindingIndex::Uniform::WorldInfo,
@@ -127,7 +130,7 @@ void World3D::AddWorldInfoToUniform3DEXT(Uniform3D &inUniform) {
                                WorldInfoDescriptorSetIndex);
 }
 
-WorldInfoUniform World3D::GetWorldInfo() {
+WorldInfoUniform World3D::GetWorldInfo(Jkr::Window &inWindow) {
     WorldInfoUniform Uniform;
     Camera3D LightCamera;
     auto CurrentCamera = GetCurrentCamera();
@@ -153,15 +156,23 @@ WorldInfoUniform World3D::GetWorldInfo() {
                                  CurrentCamera->GetNearZ(),
                                  CurrentCamera->GetFarZ());
     Uniform.mShadowMatrix = LightCamera.GetView();
+
+    inWindow.GetShadowPass().Update(*GetCurrentCamera(), glm::vec3(mLights[0].mPosition));
+
+    for (int i = 0; i < CASCADE_COUNT; ++i) {
+        Uniform.mShadowMatrixCascades[i] =
+             inWindow.GetShadowPass().GetCascades()[i].mViewProjMatrix;
+    }
     return Uniform;
 }
 
-void World3D::UpdateWorldInfoToUniform3D(int inId) {
-    mUniforms[inId]->UpdateUniformBuffer(kstd::BindingIndex::Uniform::WorldInfo, GetWorldInfo());
+void World3D::UpdateWorldInfoToUniform3D(int inId, Jkr::Window &inWindow) {
+    mUniforms[inId]->UpdateUniformBuffer(kstd::BindingIndex::Uniform::WorldInfo,
+                                         GetWorldInfo(inWindow));
 }
 
-void World3D::UpdateWorldInfoToUniform3D(Uniform3D &inUniform) {
-    inUniform.UpdateUniformBuffer(kstd::BindingIndex::Uniform::WorldInfo, GetWorldInfo());
+void World3D::UpdateWorldInfoToUniform3D(Uniform3D &inUniform, Jkr::Window &inWindow) {
+    inUniform.UpdateUniformBuffer(kstd::BindingIndex::Uniform::WorldInfo, GetWorldInfo(inWindow));
 }
 
 void World3D::AddWorldPrimitiveToUniform3D(Instance &inInstance, Uniform3D &inUniform3D, int inId) {

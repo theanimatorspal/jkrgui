@@ -1703,7 +1703,7 @@ end
 Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel, materialindex, inskinning, intangent,
                                        inextraInfo)
     if intangent == nil then if gltfmodel then intangent = true else intangent = false end end
-    if inShaderType == "CONSTANT_COLOR" and incompilecontext == Jkr.CompileContext.Default then
+    if inShaderType == "NORMAL" and incompilecontext == Jkr.CompileContext.Default then
         local vshader
         if intangent then
             vshader = Basics.GetBasicVertexHeaderWithTangent()
@@ -1784,6 +1784,35 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
                 outFragColor = vec4(vColor.x, vColor.y, vColor.z, 1);
             ]]
         end
+        fshader.GlslMainEnd()
+        return vshader, fshader
+    end
+    if inShaderType == "CONSTANT_COLOR" and incompilecontext == Jkr.CompileContext.Default then
+        local vshader
+        if intangent then
+            vshader = Basics.GetBasicVertexHeaderWithTangent()
+        else
+            vshader = Basics.GetBasicVertexHeaderWithoutTangent()
+        end
+        vshader.GlslMainBegin()
+        vshader.Append [[
+                    gl_Position = Ubo.proj * Ubo.view * Push.model * vec4(inPosition, 1);
+                    vWorldPos = vec3(Push.model * vec4(inPosition, 1));
+                    mat3 mNormal = transpose(inverse(mat3(Push.model)));
+                    vNormal = mNormal * normalize(inNormal.xyz);
+                    vUV = inUV;
+                    vColor = inColor;
+                    ]]
+        vshader.InvertY()
+        vshader.GlslMainEnd()
+
+        local fshader = Basics.GetConstantFragmentHeader()
+        PBR.PreCalcImages(fshader)
+        fshader.GlslMainBegin()
+        fshader.Append [[
+            vec4 param = Push.m2[0];
+            outFragColor = param;
+        ]]
         fshader.GlslMainEnd()
         return vshader, fshader
     end
@@ -1931,7 +1960,11 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
 
         local fShader = Engine.Shader()
             .Header(450)
+            .Ubo()
             .Push()
+
+        PBR.PreCalcImages(fShader)
+        fShader
             .outFragColor()
             .GlslMainBegin()
             .Append [[ outFragColor = vec4(1.0); ]]

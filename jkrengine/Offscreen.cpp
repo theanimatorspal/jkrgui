@@ -270,7 +270,7 @@ void DeferredPass::ExecuteDeferredComposition(Window &inWindow,
     Barrier(mPositionImage, cmd);
     Barrier(mNormalImage, cmd);
     Barrier(mAlbedoImage, cmd);
-    inWorld3D.UpdateWorldInfoToUniform3D(*mCompositionUniform3D);
+    inWorld3D.UpdateWorldInfoToUniform3D(*mCompositionUniform3D, inWindow);
 
     cmd.BeginRenderPass(*mCompositionRenderPass,
                         vk::Extent2D{mDimension.x, mDimension.y},

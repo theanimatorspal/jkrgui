@@ -48,7 +48,7 @@ struct World3D {
     GETTER GetSkyboxImageBase(int inId) -> VulkanImageBase & {
         return mSkyboxImages[inId]->GetUniformImage();
     }
-    WorldInfoUniform GetWorldInfo();
+    WorldInfoUniform GetWorldInfo(Jkr::Window &inWindow);
 
     GETTER &GetCamras() { return mCameras; }
     GETTER &GetModels() { return mGLTFModels; }
@@ -82,7 +82,7 @@ struct World3D {
                              v<Object3D *> &inExplicitObjectIds,
                              Renderer::CmdParam inParam);
     void Event(Jkr::EventManager &inEvent);
-    void Update(Jkr::EventManager &inEvent);
+    void Update(Jkr::EventManager &inEvent, Jkr::Window &inWindow);
 
     /* ============================================================
 
@@ -97,14 +97,14 @@ struct World3D {
 
     void AddShadowMapToUniform3D(Window &inWindow, int inId, int inSet);
     void AddWorldPrimitiveToUniform3D(Instance &inInstance, Uniform3D &inUniform3D, int inId);
-    void UpdateWorldInfoToUniform3D(Uniform3D &inUniform);
+    void UpdateWorldInfoToUniform3D(Uniform3D &inUniform, Jkr::Window &inWindow);
 
-    /* PBR Routines */
+    /* For Shadow Mapping */
     World3D(Shape3D &inShape) : mShape(inShape) {}
 
     private:
     using SkyboxImageType = Jkr::PainterParameter<PainterParameterContext::SkyboxImage>;
-    void UpdateWorldInfoToUniform3D(int inId);
+    void UpdateWorldInfoToUniform3D(int inId, Jkr::Window &inWindow);
     Shape3D &mShape;
     int mCurrentCamera = 0;
     v<Camera3D> mCameras;
