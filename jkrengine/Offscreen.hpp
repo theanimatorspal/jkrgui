@@ -44,7 +44,7 @@ struct ShadowPass {
     Up<RenderPassType> mCascadedRenderpass;
 
     float mCascadeSplits[CASCADE_COUNT];
-    float mCascadeSplitLambda = 0.75f;
+    float mCascadeSplitLambda = 0.95f;
 };
 
 struct DeferredPass {

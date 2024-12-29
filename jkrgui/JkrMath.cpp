@@ -2,6 +2,7 @@
 #include "glm/fwd.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+#include <Renderers/ThreeD/World3D.hpp>
 
 namespace JkrEXE {
 
@@ -312,8 +313,10 @@ void CreateGLMBindings(sol::state &lua) {
         c.resize(inSize, 0);
         return c;
     });
-    //	lua.set_function("std_vector_vertex3d", []() -> std::vector<ksai::std::Vertex3D> { return {};
-    //});
+    lua.set_function("std_vector_Object3D",
+                     []() -> std::vector<Jkr::Renderer::_3D::Object3D> { return {}; });
+    //     lua.set_function("std_vector_Vertex3D",
+    //                      []() -> std::vector<ksai::kstd::Vertex3D> { return {}; });
 
     lua.set_function("Distance",
                      sol::overload([](glm::vec2 &a, glm::vec2 &b) { return glm::distance(a, b); },

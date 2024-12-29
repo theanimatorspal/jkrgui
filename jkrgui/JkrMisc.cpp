@@ -287,6 +287,14 @@ void CreateMiscBindings(sol::state &inState) {
          "GetMatrix",
          &World3D::Object3D::GetMatrix);
 
+    Jkr.new_usertype<World3D::Light3D>("Light3D",
+                                       sol::call_constructor,
+                                       sol::default_constructor,
+                                       "mPosition",
+                                       &World3D::Light3D::mPosition,
+                                       "mDirection",
+                                       &World3D::Light3D::mDirection);
+
     Jkr.new_usertype<World3D>("World3D",
                               sol::call_constructor,
                               sol::factories(&World3D::CreateWorld3D),
@@ -314,6 +322,8 @@ void CreateMiscBindings(sol::state &inState) {
                               &World3D::Update,
                               "GetCamera3D",
                               &World3D::GetCamera3D,
+                              "GetLight3D",
+                              &World3D::GetLight3D,
                               "GetCurrentCamera",
                               &World3D::GetCurrentCamera,
                               "GetGLTFModel",

@@ -40,6 +40,7 @@ struct World3D {
     ============================================================== */
     GETTER MakeExplicitObjectsVector() -> v<Object3D *> { return {}; }
     GETTER GetCamera3D(int inId) { return &mCameras[inId]; }
+    GETTER GetLight3D(int inId) { return &mLights[inId]; }
     GETTER GetCurrentCamera() { return &mCameras[mCurrentCamera]; }
     GETTER GetGLTFModel(int inId) { return mGLTFModels[inId].get(); }
     GETTER GetUniform3D(int inId) { return mUniforms[inId].get(); }

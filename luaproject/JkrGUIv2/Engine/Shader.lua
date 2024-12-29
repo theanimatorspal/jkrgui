@@ -1866,6 +1866,10 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
         local out = Engine.CreatePBRShaderByGLTFMaterial(gltfmodel, materialindex)
         return out.vShader, out.fShader
     end
+    if inShaderType == "PBR_SHADOW" then
+        local out = Engine.CreatePBRShaderByGLTFMaterial(gltfmodel, materialindex)
+        return out.vShader, out.fShader
+    end
     if inShaderType == "GENERAL_UNIFORM" then
         local vShader = Engine.Shader()
             .Header(450)
@@ -1944,16 +1948,11 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
             .Push()
             .Ubo()
             .Out(0, "vec2", "outUV")
-            -- .Append [[
-            -- out gl_PerVertex {
-            --     vec4 gl_Position;
-            -- };
-            -- ]]
             .GlslMainBegin()
             .Append [[
                 vec4 Index = Push.m2[0];
                 outUV = inUV;
-                vec3 pos = inPosition + vec3(Ubo.lights[int(Index.x)]);
+                vec3 pos = inPosition + vec3(Ubo.lights[int(Index.y)]);
                 gl_Position = Ubo.shadowMatrixCascades[int(Index.x)] * vec4(pos, 1.0);
             ]]
             .GlslMainEnd()

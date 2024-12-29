@@ -206,7 +206,7 @@ end
 
 Engine.GetGLTFInfo = Engine.PrintGLTFInfo
 
-Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
+Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex, inShadow)
     inMaterialIndex = inMaterialIndex + 1
     local Material = inGLTF:GetMaterialsRef()[inMaterialIndex]
     local vShader = Engine.Shader()
@@ -504,16 +504,16 @@ Engine.AddAndConfigureGLTFToWorld = function(w,
                                              inskinning,
                                              inhdrenvfilename)
     local shouldload = false
-    print("inworld3d:", inworld3d)
     if not incompilecontext then incompilecontext = Jkr.CompileContext.Default end
     local SkyboxObject
-    if inshadertype == "PBR" then
+    if inshadertype == "PBR" or inshadertype == "PBR_SHADOW" then
         local globaluniformhandle = inworld3d:GetUniform3D(0)
         local Skybox = Jkr.Generator(Jkr.Shapes.Cube3D, vec3(1, 1, 1))
         local skyboxId = inshape3d:Add(Skybox, vec3(0, 0, 0))
         PBR.Setup(w, inworld3d, inshape3d, skyboxId, globaluniformhandle, "PBR_FREAK", inhdrenvfilename)
         SkyboxObject = Jkr.Object3D()
         SkyboxObject.mId = skyboxId
+        SkyboxObject.mP2 = 1
         local skybox_shaderindex = inworld3d:AddSimple3D(Engine.i, w)
         local skybox_shader = inworld3d:GetSimple3D(skybox_shaderindex)
         local vshader, fshader = Engine.GetAppropriateShader("SKYBOX")
@@ -623,13 +623,13 @@ end
 Engine.CreateWorld3D = function(w, inshaper3d)
     local world3d = Jkr.World3D(inshaper3d)
     local camera3d = Jkr.Camera3D()
-    camera3d:SetAttributes(vec3(0, 0, 0), vec3(0, 0, 30))
-    camera3d:SetPerspective(0.3, 16 / 9, 0.1, 10000)
+    camera3d:SetAttributes(vec3(0, 0, 0), vec3(-0.12, 1.14, -2.25))
+    camera3d:SetPerspective(45.0 * 180.0 / math.pi, 16 / 9, 0.001, 10000)
     world3d:AddCamera(camera3d)
     local dummypipelineindex = world3d:AddSimple3D(Engine.i, w);
     local dummypipeline = world3d:GetSimple3D(dummypipelineindex)
     local light0 = {
-        pos = vec4(-1, -2, 2, 4),
+        pos = vec4(-1, 15, 3, 0.4) * 0.1,
         dir = Jmath.Normalize(vec4(0, 0, 0, 0) - vec4(10, 10, -10, 1))
     }
     world3d:AddLight3D(light0.pos, light0.dir)
