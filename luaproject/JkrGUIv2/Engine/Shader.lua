@@ -112,7 +112,7 @@ float LinearizeDepth(float depth, float near, float far)
 
 local ShadowTextureProject  = [[
 
-float ShadowTextureProject(vec4 shadowCoord, vec2 off)
+float ShadowTextureProject(vec4 shadowCoord, vec2 off, float ambient)
 {
     float shadow = 1.0;
     if ( shadowCoord.z > -1.0 && shadowCoord.z < 1.0 )
@@ -459,7 +459,7 @@ vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
 
 
 local shadow_textureProj = [[
-float textureProj(vec4 shadowCoord, vec2 offset, uint cascadeIndex)
+float textureProj(vec4 shadowCoord, vec2 offset, uint cascadeIndex, float ambient)
 {
     float shadow = 1.0;
     float bias = 0.005;
@@ -477,7 +477,7 @@ float textureProj(vec4 shadowCoord, vec2 offset, uint cascadeIndex)
 
 
 local filterPCF = [[
-float filterPCF(vec4 sc, uint cascadeIndex)
+float filterPCF(vec4 sc, uint cascadeIndex, float ambient)
 {
     ivec2 texDim = textureSize(shadowMap, 0).xy;
     float scale = 0.75;
@@ -490,7 +490,7 @@ float filterPCF(vec4 sc, uint cascadeIndex)
 
     for (int x = -range; x <= range; x++) {
         for (int y = -range; y <= range; y++) {
-            shadowFactor += textureProj(sc, vec2(dx*x, dy*y), cascadeIndex);
+            shadowFactor += textureProj(sc, vec2(dx*x, dy*y), cascadeIndex, ambient);
             count++;
         }
     }
@@ -840,6 +840,14 @@ layout(set = 0, binding = %d, rgba8) uniform image2D %s;
     o.Define                      = function(inName, inValue)
         o.str = o.str .. string.format("#define %s %s", inName, inValue)
         return o.NewLine().NewLine()
+    end
+
+    o.Shadow_textureProj          = function()
+        return o.Append(shadow_textureProj).NewLine()
+    end
+
+    o.filterPCF                   = function()
+        return o.Append(filterPCF).NewLine()
     end
 
     o.Print                       = function()
@@ -1600,31 +1608,51 @@ TwoDimensionalIPs.Circle =
 
 TwoDimensionalIPs.Line =
     TwoDimensionalIPs.HeaderWithoutBegin()
-    .Append [[
-    float plot(vec2 st, float pct){
-        return  smoothstep( pct-0.05, pct, st.y) -
-                smoothstep( pct, pct+0.05, st.y);
-    }
-    ]]
     .GlslMainBegin()
     .ImagePainterAssistMatrix2()
+
     .Append [[
-        vec2 pos = vec2(p1.x, p1.y);
-        vec2 dimen = vec2(p1.z, p1.w);
-        vec4 color = p2;
-        ivec2 offset = ivec2(int(p1.x), int(p1.y));
+    vec4 point1 = push.b * vec4(p1.x, p1.y, 0, 1);
+    vec4 point2 = push.b * vec4(p1.z, p1.w, 0, 1);
+    float x1 = point1.x;
+    float y1 = point1.y;
+    float x2 = point2.x;
+    float y2 = point2.y;
+    float x = float(gl_GlobalInvocationID.x);
+    float y = float(gl_GlobalInvocationID.y);
 
-        x_cart = (float(gl_GlobalInvocationID.x) - float(dimen.x) / float(2)) / (float((dimen.x) / float(2)));
-        y_cart = (float(dimen.y) / float(2) - float(gl_GlobalInvocationID.y)) / (float(dimen.y) / float(2));
-        xy.x = x_cart;
-        xy.y = y_cart;
+    float small_x = x1;
+    float large_x = x2;
+    if (x1 > x2)
+    {
+        large_x = x1;
+        small_x = x2;
+    }
 
-        float y = -xy.x;
-        float pct = plot(xy, y);
-        if (to_draw_at.x <= int(dimen.x) && to_draw_at.y <= int(dimen.y))
-        {
-            imageStore(storageImage, to_draw_at + offset, vec4(pct));
-        }
+    float small_y = y1;
+    float large_y = y2;
+    if (y1 > y2)
+    {
+        large_y = y1;
+        small_x = y2;
+    }
+    float thickness = p3.x;
+
+    // Calculate signed distance function
+    float sdf = 0;
+    if (abs(x2 - x1) < 0.0001) { // Handle vertical lines
+        sdf = abs(x - x1);
+    } else {
+        float slope = (y2 - y1) / (x2 - x1);
+        sdf = abs(y - y1 - slope * (x - x1));
+    }
+
+    vec4 color = p2;
+    if ((sdf < p3.x) && (x > small_x && x < large_x) && (y > small_y && y < large_y))  {
+        debugPrintfEXT("xKo:%f, yKo:%f", x, y);
+        imageStore(storageImage, to_draw_at, color * (p3.x - sdf));
+    }
+
     ]]
     .GlslMainEnd()
 
@@ -1755,6 +1783,9 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
 
         local fshader = Basics.GetConstantFragmentHeader()
             .gltfPutMaterialTextures(gltfmodel, materialindex)
+            .Append [[
+            layout(set = 0, binding = 32) uniform sampler2DArray shadowMap;
+            ]]
 
         if inextraInfo and inextraInfo.baseColorTexture == true then
             fshader.uSampler2D(3, "uBaseColorTexture")
@@ -1867,7 +1898,7 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
         return out.vShader, out.fShader
     end
     if inShaderType == "PBR_SHADOW" then
-        local out = Engine.CreatePBRShaderByGLTFMaterial(gltfmodel, materialindex)
+        local out = Engine.CreatePBRShaderByGLTFMaterial(gltfmodel, materialindex, true)
         return out.vShader, out.fShader
     end
     if inShaderType == "GENERAL_UNIFORM" then
@@ -1887,6 +1918,9 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
             .Header(450)
             .NewLine()
             .Ubo()
+            .Append [[
+            layout(set = 0, binding = 32) uniform sampler2DArray shadowMap;
+            ]]
 
         PBR.PreCalcImages(fShader)
 
@@ -1961,6 +1995,9 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
             .Header(450)
             .Ubo()
             .Push()
+            .Append [[
+            layout(set = 0, binding = 32) uniform sampler2DArray shadowMap;
+            ]]
 
         PBR.PreCalcImages(fShader)
         fShader
@@ -2027,7 +2064,6 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
             .Append(filterPCF)
             .GlslMainBegin()
             .Append [[
-            vec4 Index = Push.m2[0];
             vec4 cascadeSplits = Push.m2[1];
             int enablePCF = 1;
             uint cascadeIndex = 0;

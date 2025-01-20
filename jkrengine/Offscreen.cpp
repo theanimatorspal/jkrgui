@@ -11,7 +11,9 @@ ShadowPass::ShadowPass(Instance &inInstance, ui inWidth, ui inHeight) : mInstanc
     ///@note new one from here
     mImage                   = mu<ImageType>(inInstance);
     mImage->mUniformImagePtr = mu<VulkanImageVMA>();
-    auto &CascadeImage       = *mImage->mUniformImagePtr;
+    mImage->mSampler         = mu<VulkanSampler>();
+    mImage->mSampler->Init({&inInstance.GetDevice()});
+    auto &CascadeImage = *mImage->mUniformImagePtr;
     mImage->mUniformImagePtr->Init(
          {&inInstance.GetVMA(),
           &inInstance.GetDevice(),
@@ -31,6 +33,20 @@ ShadowPass::ShadowPass(Instance &inInstance, ui inWidth, ui inHeight) : mInstanc
     CascadeImage.BuildImageViewsByLayers();
     auto ImageViews     = CascadeImage.GetImageViews();
     mCascadedRenderpass = mu<RenderPassType>(inInstance.GetDevice(), CascadeImage);
+
+    inInstance.GetUtilCommandBufferFence().Wait();
+    inInstance.GetUtilCommandBufferFence().Reset();
+    inInstance.GetUtilCommandBuffer().Begin();
+    mImage->GetUniformImage().CmdTransitionImageLayout(inInstance.GetUtilCommandBuffer(),
+                                                       vk::ImageLayout::eUndefined,
+                                                       vk::ImageLayout::eGeneral,
+                                                       vk::PipelineStageFlagBits::eAllCommands,
+                                                       vk::PipelineStageFlagBits::eAllCommands,
+                                                       vk::AccessFlagBits::eNone,
+                                                       vk::AccessFlagBits::eNone);
+    inInstance.GetUtilCommandBuffer().End();
+    inInstance.GetTransferQueue().Submit<SubmitContext::SingleTime>(
+         inInstance.GetUtilCommandBuffer(), inInstance.GetUtilCommandBufferFence());
 
     for (int i = 0; auto &Cascade : mCascades) {
         Cascade.mFrameBuffer.SetExtent(vk::Extent2D{inWidth, inHeight});

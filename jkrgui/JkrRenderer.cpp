@@ -56,6 +56,14 @@ void CreateRendererBindings(sol::state &inState) {
          "Add",
          &ShapeRendererResources::Add);
 
+    Jkr.new_usertype<CustomShape3D>("CustomShape3D",
+                                    sol::call_constructor,
+                                    sol::default_constructor,
+                                    "mVertices",
+                                    &CustomShape3D::mVertices,
+                                    "mIndices",
+                                    &CustomShape3D::mIndices);
+
     Jkr.new_enum<false>("Shapes",
                         "EllipseWire",
                         Jkr::Shapes::EllipseWire,
@@ -69,6 +77,8 @@ void CreateRendererBindings(sol::state &inState) {
                         Jkr::Shapes::Bezier2_8Wire,
                         "Zeros3D",
                         Jkr::Shapes::Zeros3D,
+                        "CustomShape3D",
+                        Jkr::Shapes::CustomShape3D,
                         "Triangles3D",
                         Jkr::Shapes::Triangles3D,
                         "Cube3D",

@@ -165,6 +165,14 @@ void CreateMiscBindings(sol::state &inState) {
          "Camera3D",
          sol::call_constructor,
          sol::factories([]() { return mu<Camera3D>(); }),
+         "GetProjectionMatrix",
+         &Camera3D::GetProjectionMatrix,
+         "GetViewMatrix",
+         &Camera3D::GetViewMatrix,
+         "SetProjectionMatrix",
+         &Camera3D::SetProjectionMatrix,
+         "SetViewMatrix",
+         &Camera3D::SetViewMatrix,
          "GetPosition",
          &Camera3D::GetPosition,
          "GetTarget",
@@ -429,7 +437,7 @@ void CreateMiscBindings(sol::state &inState) {
     Jkr.set_function("GetVCharRawFromVCharImage", &Jkr::Misc::GetVCharRawFromVCharImage);
 
     Jkr.set_function("RegisterShadowPassImageToUniform3D",
-                     &Jkr::Misc::RegisterCustomPainterImageToCustomPainterImage);
+                     &Jkr::Misc::RegisterShadowPassImageToUniform3D);
     Jkr.set_function("RegisterShape2DImageToUniform3D",
                      &Jkr::Misc::RegisterShape2DImageToUniform3D);
 

@@ -65,6 +65,11 @@ Generator::Generator(Shapes inShape, Arguments inArgs) : mArgs(inArgs), mShape(i
             case Shapes::Icosphere3D:
                 // TODO Implement
                 break;
+            case Shapes::CustomShape3D:
+                auto &CustomShape = std::get<CustomShape3D>(mArgs);
+                mVertexCount      = CustomShape.mVertices.size();
+                mIndexCount       = CustomShape.mIndices.size();
+                break;
         }
     } catch (const std::exception &e) {
         // throw std::exception("The parameters passed to generate the object is not compatible.");
@@ -181,6 +186,25 @@ void Jkr::Generator::operator()(float inX,
             modVertices.resize(mVertexCount + modVertices.size(), {});
             modIndices.resize(mIndexCount + modIndices.size(), {});
         } break;
+        case Shapes::CustomShape3D: {
+            modVertices.resize(mVertexCount + modVertices.size(), {});
+            modIndices.resize(mIndexCount + modIndices.size(), {});
+            auto &CustomShape = std::get<CustomShape3D>(mArgs);
+            {
+                int i = 0;
+                for (auto &Vertex : CustomShape.mVertices) {
+                    modVertices[i] = Vertex;
+                    ++i;
+                }
+            }
+            {
+                int i = 0;
+                for (auto index : CustomShape.mIndices) {
+                    modIndices[inStartIndexIndex + i] = index + inStartVertexIndex;
+                    ++i;
+                }
+            }
+        } break;
         case Shapes::Triangles3D: {
             modVertices.resize(mVertexCount * 3 + modVertices.size(), {});
             modIndices.resize(mIndexCount * 3 + modIndices.size(), {});
@@ -241,7 +265,7 @@ void Jkr::Generator::operator()(float inX,
                          .mPosition = positions[FaceIndex],
                          .mNormal   = normals[i],
                          .mUV       = uvs[j],
-                         .mColor    = glm::vec4(1, 1, 1, 1),
+                         .mColor    = glm::vec4(1),
                     };
                 }
             }

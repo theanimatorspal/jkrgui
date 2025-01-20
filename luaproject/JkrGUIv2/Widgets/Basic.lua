@@ -185,12 +185,15 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
 
     ---@note Scissor are viewport both are created unifiedly i.e. both should always be in the same dimension
 
-    o.CreateScissor = function(inPosition_3f, inDimension_3f, inShouldSetViewport)
+    o.scissor_matrices = {}
+    o.CreateScissor = function(inPosition_3f, inDimension_3f, inShouldSetViewport, inMatrix)
         ---@warning mImageId -> inPosition_3f
         ---@warning mColor -> inDimension_3f
         ---@warning mPush -> inShouldSetViewport
-        return o.c:Push(Jkr.CreateDrawable("START", false, "SCISSOR_VIEWPORT", inPosition_3f, inDimension_3f,
+        local sci = o.c:Push(Jkr.CreateDrawable("START", false, "SCISSOR_VIEWPORT", inPosition_3f, inDimension_3f,
             inShouldSetViewport))
+        o.scissor_matrices[sci] = inMatrix or Jmath.GetIdentityMatrix4x4()
+        return sci
     end
 
     o.mCurrentScissor = 1
@@ -240,13 +243,14 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     --[============================================================[
                     TEXT LABEL
           ]============================================================]
-    o.CreateTextLabel = function(inPosition_3f, inDimension_3f, inFont, inText, inColor)
+    o.CreateTextLabel = function(inPosition_3f, inDimension_3f, inFont, inText, inColor, inNotDraw)
         local textLabel = {}
         textLabel.mText = inText
         textLabel.mFont = inFont
         textLabel.mId = o.t:Add(inFont.mId, inPosition_3f, inText)
-        textLabel.PushId = o.c:Push(Jkr.CreateDrawable(textLabel.mId, nil, "TEXT", nil, inColor), o.mCurrentScissor)
-
+        if not inNotDraw then
+            textLabel.PushId = o.c:Push(Jkr.CreateDrawable(textLabel.mId, nil, "TEXT", nil, inColor), o.mCurrentScissor)
+        end
         textLabel.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inColor)
             --tracy.ZoneBeginN("luatextUpdate")
             if inFont then self.mFont = inFont end
@@ -419,7 +423,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     local fill_filltype = Jkr.FillType.Fill
     local ui_matrix = o.UIMatrix
     local s2ds = o.shape2dShaders
-    local DrawAll = function(inMap)
+    local DrawAll = function(inMap, inindex)
         -- tracy.ZoneBeginN("luamainDrawALL")
         s:BindShapes(w, cmdparam)
         for key, value in pairs(inMap) do
@@ -436,7 +440,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
                     else
                         s:BindFillMode(fill_filltype, w, cmdparam)
                     end
-                    drawable.mPush.b = ui_matrix
+                    drawable.mPush.b = ui_matrix * (o.scissor_matrices[inindex] or Jmath.GetIdentityMatrix4x4())
                     Jkr.DrawShape2DWithSimple3D(w, shader, s.handle, drawable.mPush, drawable.mId, drawable
                         .mId,
                         cmdparam)
@@ -466,7 +470,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         local DrawablesInSVs = o.c.mDrawablesInSVs
         local count = #SVs
         ---@note The First one is always without Scissors
-        DrawAll(DrawablesInSVs[1])
+        DrawAll(DrawablesInSVs[1], 1)
         for i = 2, count, 1 do
             local sv = SVs[i]
 
@@ -476,7 +480,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             end
             o.w:SetScissor(sv.mImageId, sv.mColor, cmdparam)
 
-            DrawAll(DrawablesInSVs[i])
+            DrawAll(DrawablesInSVs[i], i)
 
             ---@note ResetScissor + Viewport
             o.w:SetDefaultViewport(cmdparam)
@@ -499,7 +503,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             end
             o.w:SetScissor(sv.mImageId, sv.mColor, cmdparam)
 
-            DrawAll(DrawablesInSVs[j])
+            DrawAll(DrawablesInSVs[j], j)
 
             ---@note ResetScissor + Viewport
             o.w:SetDefaultViewport(cmdparam)

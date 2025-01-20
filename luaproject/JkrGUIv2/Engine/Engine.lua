@@ -218,6 +218,7 @@ Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex, inShado
         .Out(2, "vec3", "vWorldPos")
         .Out(3, "vec4", "vTangent")
         .Out(4, "int", "vVertexIndex")
+        .Out(5, "vec3", "vViewPos")
         .Push()
         .Ubo()
         .inTangent()
@@ -236,6 +237,8 @@ Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex, inShado
               vec4 IN_Tangent = inTangent[gl_VertexIndex].mTangent;
               vec3 tangentttt = mNormal * normalize(IN_Tangent.w > 0 ? IN_Tangent.xyz : vec3(-IN_Tangent.x, IN_Tangent.y, IN_Tangent.z));
               vTangent = vec4(tangentttt, 1.0f);
+              vec3 pos = inPosition + Ubo.lights[0].xyz;
+              vViewPos = (Ubo.view * vec4(pos.xyz, 1.0)).xyz;
         ]]
         )
         .NewLine()
@@ -251,13 +254,32 @@ Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex, inShado
         .In(2, "vec3", "vWorldPos")
         .In(3, "vec4", "vTangent")
         .In(4, "flat int", "vVertexIndex")
+        .In(5, "vec3", "vViewPos")
         .uSamplerCubeMap(20, "samplerCubeMap", 0)
         .uSampler2D(23, "samplerBRDFLUT", 0)
         .uSamplerCubeMap(24, "samplerIrradiance", 0)
         .uSamplerCubeMap(25, "prefilteredMap", 0)
-        .Ubo()
+        .Append [[
+        layout (set = 0, binding = 32) uniform sampler2DArray shadowMap;
+        ]]
+
+    fShader.Ubo()
         .outFragColor()
         .Push()
+
+    if inShadow then
+        fShader.Append [[
+        const mat4 biasMat = mat4(
+            0.5, 0.0, 0.0, 0.0,
+            0.0, 0.5, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
+            0.5, 0.5, 0.0, 1.0
+        );
+        ]]
+            .Shadow_textureProj()
+            .filterPCF()
+    end
+    fShader
         .Append [[
 
     struct PushConsts {
@@ -426,6 +448,31 @@ vec3 calculateNormal()
         ]]
     end
 
+    if inShadow then
+        fShader.Append [[
+    int SHADOW_MAP_CASCADE_COUNT = 4;
+    vec4 cascadeSplits = Push.m2[1];
+    int enablePCF = 0;
+    uint cascadeIndex = 0;
+    for(uint i = 0; i < SHADOW_MAP_CASCADE_COUNT; ++i)
+    {
+        if(vViewPos.z < cascadeSplits[i])
+        {
+            cascadeIndex = i + 1;
+        }
+    }
+    vec4 shadowCoord = (biasMat * Ubo.shadowMatrix[cascadeIndex]) * vec4 (vWorldPos + Ubo.lights[0].xyz, 1.0);
+
+    float shadow = 0;
+    if (enablePCF == 1) {
+        shadow = filterPCF(shadowCoord / shadowCoord.w, cascadeIndex, length(ambient));
+    } else {
+        shadow = textureProj(shadowCoord / shadowCoord.w, vec2(0.0), cascadeIndex, length(ambient));
+    }
+    ambient *= shadow;
+        ]]
+    end
+
     fShader.Append [[
 
     vec4 p1 = Push.m2[0];
@@ -440,6 +487,11 @@ vec3 calculateNormal()
 
     outFragColor = vec4(color + Emissive, 1.0);
     ]]
+    -- if inShadow then
+    --     fShader.Append [[
+    --    outFragColor = outFragColor.rgba * shadow;
+    --    ]]
+    -- end
 
     fShader.GlslMainEnd()
 
@@ -470,6 +522,9 @@ Engine.CreateObjectByGLTFPrimitiveAndUniform = function(inWorld3d,
     Object3D.mMatrix = gltf:GetNodeMatrixByIndex(NodeIndices)
 
     return Object3D
+        .Append [[
+            layout(set = 0, binding = 32) uniform sampler2DArray shadowMap;
+            ]]
 end
 
 
@@ -489,11 +544,6 @@ Engine.AddObject = function(modObjects, modObjectsVector, inId, inAssociatedMode
     modObjectsVector:add(Object)
     return #modObjectsVector
 end
-
-
-local WorldTo = {
-
-}
 
 Engine.AddAndConfigureGLTFToWorld = function(w,
                                              inworld3d,
@@ -629,7 +679,7 @@ Engine.CreateWorld3D = function(w, inshaper3d)
     local dummypipelineindex = world3d:AddSimple3D(Engine.i, w);
     local dummypipeline = world3d:GetSimple3D(dummypipelineindex)
     local light0 = {
-        pos = vec4(-1, 15, 3, 0.4) * 0.1,
+        pos = vec4(-1, 5, 3, 40),
         dir = Jmath.Normalize(vec4(0, 0, 0, 0) - vec4(10, 10, -10, 1))
     }
     world3d:AddLight3D(light0.pos, light0.dir)
@@ -651,7 +701,8 @@ Engine.CreateWorld3D = function(w, inshaper3d)
 
     local globaluniformindex = world3d:AddUniform3D(Engine.i)
     local globaluniformhandle = world3d:GetUniform3D(globaluniformindex)
-    globaluniformhandle:Build(dummypipeline) -- EUTA PIPELINE BANAUNU PRXA
+    globaluniformhandle:Build(dummypipeline)
     world3d:AddWorldInfoToUniform3D(globaluniformindex)
+    Jkr.RegisterShadowPassImageToUniform3D(w, globaluniformhandle, 32)
     return world3d, camera3d
 end

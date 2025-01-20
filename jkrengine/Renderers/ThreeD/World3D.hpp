@@ -74,7 +74,10 @@ struct World3D {
 
     ============================================================== */
 
-    void AddCamera(Camera3D &inCamera) { mCameras.push_back(inCamera); }
+    int AddCamera(Camera3D &inCamera) {
+        mCameras.push_back(inCamera);
+        return mCameras.size() - 1;
+    }
     int AddGLTFModel(std::string_view inFileName);
     int AddSimple3D(Jkr::Instance &inInstance, Window_base &inWindow);
     int AddUniform3D(Jkr::Instance &inInstance);

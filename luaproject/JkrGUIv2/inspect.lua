@@ -338,14 +338,23 @@ function Inspector:putValue(v)
 
             puts(buf, '}')
         end
-    elseif type(v) == "userdata" and v.x and v.y and v.z and v.w then
-        puts(buf, fmt('<%.2f, %.2f, %.2f, %.2f>', v.x, v.y, v.z, v.w))
-    elseif type(v) == "userdata" and v.x and v.y and v.z then
-        puts(buf, fmt('<%.2f, %.2f, %.2f>', v.x, v.y, v.z))
-    elseif type(v) == "userdata" and v.x and v.y then
-        puts(buf, fmt('<%.2f, %.2f>', v.x, v.y, v.z))
-    else
-        puts(buf, fmt('<%s %d>', tv, self:getId(v)))
+    elseif tv == "userdata" then
+        if v.x and v.y and v.z and v.w then
+            puts(buf, fmt('<%.2f, %.2f, %.2f, %.2f>', v.x, v.y, v.z, v.w))
+        elseif v.x and v.y and v.z then
+            puts(buf, fmt('<%.2f, %.2f, %.2f>', v.x, v.y, v.z))
+        elseif v.x and v.y then
+            puts(buf, fmt('<%.2f, %.2f>', v.x, v.y))
+        elseif v[0] and v[1] and v[2] and v[3] then
+            puts(buf, '{ ')
+            self:putValue(v[1])
+            self:putValue(v[2])
+            self:putValue(v[3])
+            self:putValue(v[4])
+            puts(buf, '}')
+        else
+            puts(buf, fmt('<%s %d>', tv, self:getId(v)))
+        end
     end
 end
 

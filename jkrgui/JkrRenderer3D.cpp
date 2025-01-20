@@ -17,6 +17,17 @@ struct DefaultPushConstant3DCompute {
 void CreateRenderer3DBindings(sol::state &s) {
     auto Jkr = s["Jkr"].get_or_create<sol::table>();
     using namespace Jkr::Renderer::_3D;
+    Jkr.new_usertype<kstd::Vertex3D>("Vertex3D",
+                                     sol::call_constructor,
+                                     sol::default_constructor,
+                                     "mPosition",
+                                     &kstd::Vertex3D::mPosition,
+                                     "mNormal",
+                                     &kstd::Vertex3D::mNormal,
+                                     "mUV",
+                                     &kstd::Vertex3D::mUV,
+                                     "mColor",
+                                     &kstd::Vertex3D::mColor);
     Jkr.new_usertype<DefaultPushConstant3D>("DefaultPushConstant3D",
                                             sol::call_constructor,
                                             sol::default_constructor,

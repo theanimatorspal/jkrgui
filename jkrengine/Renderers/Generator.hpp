@@ -12,6 +12,7 @@ enum class Shapes {
     RectangleFill,
     Bezier2_8Wire,
     Zeros3D,
+    CustomShape3D,
     Triangles3D,
     Cube3D,
     Sphere3D,
@@ -19,6 +20,10 @@ enum class Shapes {
     Cone3D,
     Torus3D,
     Icosphere3D
+};
+struct CustomShape3D {
+    std::vector<kstd::Vertex3D> mVertices;
+    std::vector<uint32_t> mIndices;
 };
 struct Generator {
     using Arguments = std::variant<glm::uvec2,
@@ -28,7 +33,8 @@ struct Generator {
                                    glm::vec4,
                                    glm::vec3,
                                    glm::vec2,
-                                   std::vector<kstd::Vertex3D>>;
+                                   std::vector<kstd::Vertex3D>,
+                                   CustomShape3D>;
     Generator()     = default;
     Generator(Shapes inShape, Arguments inArgs);
     void operator()(float inX,

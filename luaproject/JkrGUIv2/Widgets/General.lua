@@ -115,6 +115,12 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         end
 
         button.padding = 10
+        button.UpdateBackgroundColor = function(self, inBackgroundColor)
+            local push = Jkr.Matrix2CustomImagePainterPushConstant()
+            push.a = mat4(vec4(0.0), inBackgroundColor or button.mColor, vec4(0.0), vec4(0))
+            button.quad:Update(button.mPosition_3f, button.mDimension_3f, push);
+            button.mColor = inBackgroundColor
+        end
         ---@warning Bad Design, Fix in Refactoring
         button.Update = function(self,
                                  inPosition_3f,
@@ -321,17 +327,22 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         return ws
     end
 
-    o.CreateMovableButton = function(inPosition_3f, inDimension_3f, inFont, inTitle, inTitlebarTextColor,
-                                     inTitlebarBackColor)
+    o.CreateMovableButton = function(inPosition_3f, inDimension_3f,
+                                     inOnClick, inContinous, inFont, inTitle,
+                                     inTitlebarTextColor,
+                                     inTitlebarBackColor, inPushConstantForImagePainter, inImageFilePath,
+                                     inMovingColor_4f,
+                                     inHoverColor_4f
+    )
         local ws = {}
         local mTitlebar = o.CreateGeneralButton(inPosition_3f,
             inDimension_3f,
-            nil,
-            nil,
+            inOnClick,
+            inContinous,
             inFont,
             inTitle,
             inTitlebarTextColor,
-            inTitlebarBackColor, nil, nil)
+            inTitlebarBackColor, inPushConstantForImagePainter, inImageFilePath)
 
         local mTitlebarButton = o.CreateButton(inPosition_3f, inDimension_3f)
 
@@ -352,12 +363,14 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             ws.mCurrentDimension = inDimension_3f
         end
 
+        local color = vec4(mTitlebar.mColor)
         o.c:Push(Jkr.CreateUpdatable(function()
             local mouseRel = e:GetRelativeMousePos()
             if e:IsLeftButtonPressedContinous() and (e:IsMouseWithinAtTopOfStack(mTitlebarButton.mId, mTitlebarButton.mDepthValue)) then
                 isMoving = true
             end
             if e:IsLeftButtonPressedContinous() and isMoving then
+                mTitlebar:UpdateBackgroundColor(inMovingColor_4f or vec4(1, 0, 0, 1))
                 ws.Update(nil,
                     vec3(mCurrentPosition.x + mouseRel.x,
                         mCurrentPosition.y + mouseRel.y,
@@ -366,6 +379,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                 )
             else
                 isMoving = false
+                mTitlebar:UpdateBackgroundColor(color)
             end
         end))
         return ws

@@ -151,12 +151,15 @@ WorldInfoUniform World3D::GetWorldInfo(Jkr::Window &inWindow) {
         Uniform.mLightsDirections[i] = mLights[i].mDirection;
     }
 
-    Uniform.mNearFar      = glm::vec4(CurrentCamera->GetNearZ(),
+    Uniform.mNearFar = glm::vec4(CurrentCamera->GetNearZ(),
                                  CurrentCamera->GetFarZ(),
                                  CurrentCamera->GetNearZ(),
                                  CurrentCamera->GetFarZ());
-    Uniform.mShadowMatrix = LightCamera.GetView();
-
+    ///@warning The mShadowMatrix is not used anymore, so let [0] be cascadeSplits
+    auto CascadeSplits    = inWindow.GetShadowPass().GetCascadeSplits();
+    Uniform.mShadowMatrix = identity<mat4>();
+    Uniform.mShadowMatrix[0] =
+         vec4(CascadeSplits[0], CascadeSplits[1], CascadeSplits[2], CascadeSplits[3]);
     inWindow.GetShadowPass().Update(*GetCurrentCamera(), glm::vec3(mLights[0].mPosition));
 
     for (int i = 0; i < CASCADE_COUNT; ++i) {

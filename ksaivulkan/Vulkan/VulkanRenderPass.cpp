@@ -86,7 +86,7 @@ VulkanRenderPass<RenderPassContext::Shadow>::VulkanRenderPass(VulkanDevice &inDe
     vk::AttachmentDescription DepthAttachment =
          vk::AttachmentDescription(vk::AttachmentDescriptionFlags(), DepthImageFormat)
               .setInitialLayout(vk::ImageLayout::eUndefined)
-              .setFinalLayout(vk::ImageLayout::eDepthStencilReadOnlyOptimal)
+              .setFinalLayout(vk::ImageLayout::eGeneral)
               .setLoadOp(vk::AttachmentLoadOp::eClear)
               .setStoreOp(vk::AttachmentStoreOp::eStore);
     vk::AttachmentReference DepthAttachmentRef(0, vk::ImageLayout::eDepthStencilAttachmentOptimal);

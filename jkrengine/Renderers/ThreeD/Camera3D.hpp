@@ -15,6 +15,11 @@ using Shape3D  = Renderer::_3D::Shape;
 
 struct Camera3D {
     GETTER GetMatrix() const { return mProjection * mView; }
+    GETTER GetProjectionMatrix() { return mProjection; }
+    GETTER GetViewMatrix() { return mView; }
+    SETTER SetProjectionMatrix(glm::mat4 inMatrix) { mProjection = inMatrix; }
+    SETTER SetViewMatrix(glm::mat4 inMatrix) { mView = inMatrix; }
+
     GETTER GetPosition() const { return mEye; }
     GETTER GetTarget() const { return mTarget; }
     GETTER GetView() const { return mView; }

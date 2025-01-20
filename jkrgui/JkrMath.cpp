@@ -256,6 +256,9 @@ void CreateGLMBindings(sol::state &lua) {
                            glm::mat4(glm::mat4)>(),
          sol::meta_function::multiplication,
          mat4_multiply_overloads,
+         sol::meta_function::index,
+         sol::overload([](glm::mat4 &inMat4, int inIndex) { return inMat4[inIndex - 1]; },
+                       [](glm::mat4 &inMat4, std::string_view inString) { return false; }),
          "GetTranslationComponent",
          [](glm::mat4 &inMatrix) {
              glm::vec3 scale;
@@ -315,8 +318,8 @@ void CreateGLMBindings(sol::state &lua) {
     });
     lua.set_function("std_vector_Object3D",
                      []() -> std::vector<Jkr::Renderer::_3D::Object3D> { return {}; });
-    //     lua.set_function("std_vector_Vertex3D",
-    //                      []() -> std::vector<ksai::kstd::Vertex3D> { return {}; });
+    lua.set_function("std_vector_Vertex3D",
+                     []() -> std::vector<ksai::kstd::Vertex3D> { return {}; });
 
     lua.set_function("Distance",
                      sol::overload([](glm::vec2 &a, glm::vec2 &b) { return glm::distance(a, b); },

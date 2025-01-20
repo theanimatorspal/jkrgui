@@ -32,6 +32,7 @@ struct ShadowPass {
     GETTER &GetRenderPass() { return *mCascadedRenderpass; }
     GETTER &GetFrameBuffer(int i) { return mCascades[i].mFrameBuffer; }
     GETTER &GetDepthImagePainterParameter() { return *mImage; }
+    GETTER &GetCascadeSplits() { return mCascadeSplits; }
 
     ShadowPass(Instance &inInstance, ui inWidth, ui inHeight);
     void Update(Renderer::_3D::Camera3D &inCamera, glm::vec3 inLightPos);
