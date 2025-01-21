@@ -445,7 +445,7 @@ void CreateMiscBindings(sol::state &inState) {
 #if defined(_WIN32) || defined(_WIN64)
         __debugbreak(); // Windows intrinsic
 #elif defined(__APPLE__) || defined(__linux__)
-    raise(SIGTRAP); // Send a SIGTRAP signal
+    // raise(SIGTRAP); // Send a SIGTRAP signal
 #elif defined(__ANDROID__)
     __builtin_trap(); // Intrinsic for Android and Clang-compatible compilers
 #else
