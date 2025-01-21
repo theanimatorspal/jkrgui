@@ -23,7 +23,13 @@ else()
      add_executable(jkrgui ${JKR_SOURCES})
 endif()
 
-set_target_properties(jkrgui PROPERTIES OUTPUT_NAME "jkrgui")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+     set_target_properties(jkrgui PROPERTIES OUTPUT_NAME "jkrgui")
+endif()
+
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+     set_target_properties(jkrgui PROPERTIES OUTPUT_NAME "jkrgui-r")
+endif()
 
 PrecompileStdHeaders(jkrgui)
 target_link_libraries(jkrgui ksaivulkan jkrengine)

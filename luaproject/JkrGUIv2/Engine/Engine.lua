@@ -669,7 +669,6 @@ Engine.AddAndConfigureGLTFToWorld = function(w,
     return Objects
 end
 
-
 Engine.CreateWorld3D = function(w, inshaper3d)
     local world3d = Jkr.World3D(inshaper3d)
     local camera3d = Jkr.Camera3D()
