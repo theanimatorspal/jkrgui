@@ -1,12 +1,10 @@
 # Set the path to Vulkan SDK based on the platform
-set(CMAKE_JKRGUI_DIR "C:/Users/sansk/OneDrive/Pictures/jkrgui")
+set(CMAKE_JKRGUI_DIR "C:/Users/dipes/Desktop/Major Project/jkrgui")
 if(APPLE)
     set(CMAKE_JKRGUI_DIR "/Users/bishaljaiswal/Documents/Minor Project 2/jkrgui")
     set(VULKAN_SDK "/Users/bishaljaiswal/VulkanSDK")
     set(VULKAN_VERSION "1.3.280.1")
 elseif(WIN32)
     set(VULKAN_SDK "C:/VulkanSDK")
-    set(VULKAN_VERSION "1.3.275.0")
+    set(VULKAN_VERSION "1.3.280.0")
 endif()
-
-# For Now
