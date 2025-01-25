@@ -15,7 +15,7 @@ using namespace ksai;
 class Shape_base {
     public:
     void Add(Jkr::Generator &inShape, int inX, int inY, uint32_t inZ, uint32_t &outId);
-    void Update(Jkr::Generator &inShape, uint32_t inId, int inX, int inY, uint32_t inZ);
+    void Update(Jkr::Generator &inShape, uint32_t inId, int inX, int inY, int inZ);
     GETTER GetVertexBufferData() { return reinterpret_cast<void *>(mVertices.data()); }
     GETTER GetIndexBufferData() { return reinterpret_cast<void *>(mIndices.data()); }
     GETTER VertexCountToBytes(uint32_t inVertexCount) {

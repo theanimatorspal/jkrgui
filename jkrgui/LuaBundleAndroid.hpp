@@ -497,8 +497,8 @@ end
 
 
 Jkr.CreateInstance = function(inEnableValidation, inVarDesSet, inPoolSize, inThreadsCount)
-    if not inVarDesSet then inVarDesSet = 1000 end
-    if not inPoolSize then inPoolSize = 1000 end
+    if not inVarDesSet then inVarDesSet = 100000 end
+    if not inPoolSize then inPoolSize = 100000 end
     if not inThreadsCount then inThreadsCount = 7 end
     return Jkr.Instance(inVarDesSet, inPoolSize, inEnableValidation)
 end
@@ -944,7 +944,7 @@ layout(location = 3) in vec3 inColor;
 local push                  = [[
 
 layout(push_constant, std430) uniform pc {
-	mat4 model;
+    mat4 model;
     mat4 m2;
 } Push;
 ]]
@@ -958,6 +958,7 @@ layout(set = 0, binding = 0) uniform UBO {
    vec4 lights[8];
    mat4 shadowMatrix;
    vec4 lightDirections[8];
+   mat4 shadowMatrixCascades[4];
 } Ubo;
 ]]
 
@@ -974,18 +975,18 @@ float LinearizeDepth(float depth, float near, float far)
 
 local ShadowTextureProject  = [[
 
-float ShadowTextureProject(vec4 shadowCoord, vec2 off)
+float ShadowTextureProject(vec4 shadowCoord, vec2 off, float ambient)
 {
-	float shadow = 1.0;
-	if ( shadowCoord.z > -1.0 && shadowCoord.z < 1.0 )
-	{
-		float dist = LinearizeDepth(texture(%s, shadowCoord.st + off ).r);
-		if ( shadowCoord.w > 0.0 && dist < shadowCoord.z )
-		{
-			shadow = ambient;
-		}
-	}
-	return shadow;
+    float shadow = 1.0;
+    if ( shadowCoord.z > -1.0 && shadowCoord.z < 1.0 )
+    {
+        float dist = LinearizeDepth(texture(%s, shadowCoord.st + off ).r);
+        if ( shadowCoord.w > 0.0 && dist < shadowCoord.z )
+        {
+            shadow = ambient;
+        }
+    }
+    return shadow;
 }
 ]]
 
@@ -1062,7 +1063,7 @@ vec3 F_Schlick(float cosTheta, float metallic)
 
 vec3 F_Schlick(float cosTheta, vec3 F0)
 {
-	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
     ]]
@@ -1070,20 +1071,20 @@ vec3 F_Schlick(float cosTheta, vec3 F0)
 local F_SchlickR            = [[
 vec3 F_SchlickR(float cosTheta, vec3 F0, float roughness)
 {
-	return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
 }
     ]]
 
 local PrefilteredReflection = [[
 vec3 PrefilteredReflection(vec3 R, float roughness)
 {
-	const float MAX_REFLECTION_LOD = 9.0; // todo: param/const
-	float lod = roughness * MAX_REFLECTION_LOD;
-	float lodf = floor(lod);
-	float lodc = ceil(lod);
-	vec3 a = textureLod(prefilteredMap, R, lodf).rgb;
-	vec3 b = textureLod(prefilteredMap, R, lodc).rgb;
-	return mix(a, b, lod - lodf);
+    const float MAX_REFLECTION_LOD = 9.0; // todo: param/const
+    float lod = roughness * MAX_REFLECTION_LOD;
+    float lodf = floor(lod);
+    float lodc = ceil(lod);
+    vec3 a = textureLod(prefilteredMap, R, lodf).rgb;
+    vec3 b = textureLod(prefilteredMap, R, lodc).rgb;
+    return mix(a, b, lod - lodf);
 }
     ]]
 
@@ -1122,29 +1123,29 @@ vec3 BRDF(vec3 L, vec3 V, vec3 N, float metallic, float roughness)
 local BRDF_LUT             = [[
 vec2 BRDF(float NoV, float roughness)
 {
-	// Normal always points along z-axis for the 2D lookup
-	const vec3 N = vec3(0.0, 0.0, 1.0);
-	vec3 V = vec3(sqrt(1.0 - NoV*NoV), 0.0, NoV);
+    // Normal always points along z-axis for the 2D lookup
+    const vec3 N = vec3(0.0, 0.0, 1.0);
+    vec3 V = vec3(sqrt(1.0 - NoV*NoV), 0.0, NoV);
 
-	vec2 LUT = vec2(0.0);
-	for(uint i = 0u; i < NUM_SAMPLES; i++) {
-		vec2 Xi = Hammersley2d(i, NUM_SAMPLES);
-		vec3 H = ImportanceSample_GGX(Xi, roughness, N);
-		vec3 L = 2.0 * dot(V, H) * H - V;
+    vec2 LUT = vec2(0.0);
+    for(uint i = 0u; i < NUM_SAMPLES; i++) {
+        vec2 Xi = Hammersley2d(i, NUM_SAMPLES);
+        vec3 H = ImportanceSample_GGX(Xi, roughness, N);
+        vec3 L = 2.0 * dot(V, H) * H - V;
 
-		float dotNL = max(dot(N, L), 0.0);
-		float dotNV = max(dot(N, V), 0.0);
-		float dotVH = max(dot(V, H), 0.0);
-		float dotNH = max(dot(H, N), 0.0);
+        float dotNL = max(dot(N, L), 0.0);
+        float dotNV = max(dot(N, V), 0.0);
+        float dotVH = max(dot(V, H), 0.0);
+        float dotNH = max(dot(H, N), 0.0);
 
-		if (dotNL > 0.0) {
-			float G = G_SchlicksmithGGX(dotNL, dotNV, roughness);
-			float G_Vis = (G * dotVH) / (dotNH * dotNV);
-			float Fc = pow(1.0 - dotVH, 5.0);
-			LUT += vec2((1.0 - Fc) * G_Vis, Fc * G_Vis);
-		}
-	}
-	return LUT / float(NUM_SAMPLES);
+        if (dotNL > 0.0) {
+            float G = G_SchlicksmithGGX(dotNL, dotNV, roughness);
+            float G_Vis = (G * dotVH) / (dotNH * dotNV);
+            float Fc = pow(1.0 - dotVH, 5.0);
+            LUT += vec2((1.0 - Fc) * G_Vis, Fc * G_Vis);
+        }
+    }
+    return LUT / float(NUM_SAMPLES);
 }
 
     ]]
@@ -1154,14 +1155,14 @@ local Uncharted2Tonemap    =
         // From http://filmicworlds.com/blog/filmic-tonemapping-operators/
 vec3 Uncharted2Tonemap(vec3 color)
 {
-	float A = 0.15;
-	float B = 0.50;
-	float C = 0.10;
-	float D = 0.20;
-	float E = 0.02;
-	float F = 0.30;
-	float W = 11.2;
-	return ((color*(A*color+C*B)+D*E)/(color*(A*color+B)+D*F))-E/F;
+    float A = 0.15;
+    float B = 0.50;
+    float C = 0.10;
+    float D = 0.20;
+    float E = 0.02;
+    float F = 0.30;
+    float W = 11.2;
+    return ((color*(A*color+C*B)+D*E)/(color*(A*color+B)+D*F))-E/F;
 }
     ]]
 
@@ -1169,12 +1170,12 @@ local Random               = [[
 // Based omn http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
 float Random(vec2 co)
 {
-	float a = 12.9898;
-	float b = 78.233;
-	float c = 43758.5453;
-	float dt= dot(co.xy ,vec2(a,b));
-	float sn= mod(dt,3.14);
-	return fract(sin(sn) * c);
+    float a = 12.9898;
+    float b = 78.233;
+    float c = 43758.5453;
+    float dt= dot(co.xy ,vec2(a,b));
+    float sn= mod(dt,3.14);
+    return fract(sin(sn) * c);
 }
 
        ]]
@@ -1182,14 +1183,14 @@ float Random(vec2 co)
 local Hammerslay2d         = [[
 vec2 Hammersley2d(uint i, uint N)
 {
-	// Radical inverse based on http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
-	uint bits = (i << 16u) | (i >> 16u);
-	bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
-	bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
-	bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
-	bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
-	float rdi = float(bits) * 2.3283064365386963e-10;
-	return vec2(float(i) /float(N), rdi);
+    // Radical inverse based on http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
+    uint bits = (i << 16u) | (i >> 16u);
+    bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
+    bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
+    bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
+    bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
+    float rdi = float(bits) * 2.3283064365386963e-10;
+    return vec2(float(i) /float(N), rdi);
 }
        ]]
 
@@ -1197,20 +1198,20 @@ local ImportanceSample_GGX = [[
         // Based on http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_slides.pdf
 vec3 ImportanceSample_GGX(vec2 Xi, float roughness, vec3 normal)
 {
-	// Maps a 2D point to a hemisphere with spread based on roughness
-	float alpha = roughness * roughness;
-	float phi = 2.0 * PI * Xi.x + Random(normal.xz) * 0.1;
-	float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (alpha*alpha - 1.0) * Xi.y));
-	float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
-	vec3 H = vec3(sinTheta * cos(phi), sinTheta * sin(phi), cosTheta);
+    // Maps a 2D point to a hemisphere with spread based on roughness
+    float alpha = roughness * roughness;
+    float phi = 2.0 * PI * Xi.x + Random(normal.xz) * 0.1;
+    float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (alpha*alpha - 1.0) * Xi.y));
+    float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
+    vec3 H = vec3(sinTheta * cos(phi), sinTheta * sin(phi), cosTheta);
 
-	// Tangent space
-	vec3 up = abs(normal.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
-	vec3 tangentX = normalize(cross(up, normal));
-	vec3 tangentY = normalize(cross(normal, tangentX));
+    // Tangent space
+    vec3 up = abs(normal.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
+    vec3 tangentX = normalize(cross(up, normal));
+    vec3 tangentY = normalize(cross(normal, tangentX));
 
-	// Convert to world Space
-	return normalize(tangentX * H.x + tangentY * H.y + normal * H.z);
+    // Convert to world Space
+    return normalize(tangentX * H.x + tangentY * H.y + normal * H.z);
 }
        ]]
 
@@ -1218,34 +1219,34 @@ local SRGBtoLINEAR         = [[
 
 vec4 SRGBtoLINEAR(vec4 srgbIn)
 {
-	#define MANUAL_SRGB 1
-	#ifdef MANUAL_SRGB
-	#ifdef SRGB_FAST_APPROXIMATION
-	vec3 linOut = pow(srgbIn.xyz,vec3(2.2));
-	#else //SRGB_FAST_APPROXIMATION
-	vec3 bLess = step(vec3(0.04045),srgbIn.xyz);
-	vec3 linOut = mix( srgbIn.xyz/vec3(12.92), pow((srgbIn.xyz+vec3(0.055))/vec3(1.055),vec3(2.4)), bLess );
-	#endif //SRGB_FAST_APPROXIMATION
-	return vec4(linOut,srgbIn.w);;
-	#else //MANUAL_SRGB
-	return srgbIn;
-	#endif //MANUAL_SRGB
+    #define MANUAL_SRGB 1
+    #ifdef MANUAL_SRGB
+    #ifdef SRGB_FAST_APPROXIMATION
+    vec3 linOut = pow(srgbIn.xyz,vec3(2.2));
+    #else //SRGB_FAST_APPROXIMATION
+    vec3 bLess = step(vec3(0.04045),srgbIn.xyz);
+    vec3 linOut = mix( srgbIn.xyz/vec3(12.92), pow((srgbIn.xyz+vec3(0.055))/vec3(1.055),vec3(2.4)), bLess );
+    #endif //SRGB_FAST_APPROXIMATION
+    return vec4(linOut,srgbIn.w);;
+    #else //MANUAL_SRGB
+    return srgbIn;
+    #endif //MANUAL_SRGB
 }
 
 vec3 SRGBtoLINEAR(vec3 srgbIn)
 {
-	#define MANUAL_SRGB 1
-	#ifdef MANUAL_SRGB
-	#ifdef SRGB_FAST_APPROXIMATION
-	vec3 linOut = pow(srgbIn.xyz,vec3(2.2));
-	#else //SRGB_FAST_APPROXIMATION
-	vec3 bLess = step(vec3(0.04045),srgbIn.xyz);
-	vec3 linOut = mix( srgbIn.xyz/vec3(12.92), pow((srgbIn.xyz+vec3(0.055))/vec3(1.055),vec3(2.4)), bLess );
-	#endif //SRGB_FAST_APPROXIMATION
-	return linOut;
-	#else //MANUAL_SRGB
-	return srgbIn;
-	#endif //MANUAL_SRGB
+    #define MANUAL_SRGB 1
+    #ifdef MANUAL_SRGB
+    #ifdef SRGB_FAST_APPROXIMATION
+    vec3 linOut = pow(srgbIn.xyz,vec3(2.2));
+    #else //SRGB_FAST_APPROXIMATION
+    vec3 bLess = step(vec3(0.04045),srgbIn.xyz);
+    vec3 linOut = mix( srgbIn.xyz/vec3(12.92), pow((srgbIn.xyz+vec3(0.055))/vec3(1.055),vec3(2.4)), bLess );
+    #endif //SRGB_FAST_APPROXIMATION
+    return linOut;
+    #else //MANUAL_SRGB
+    return srgbIn;
+    #endif //MANUAL_SRGB
 }
 ]]
 
@@ -1255,36 +1256,36 @@ local PrefilterEnvMap      = [[
 
 vec3 PrefilterEnvMap(vec3 R, float roughness)
 {
-	vec3 N = R;
-	vec3 V = R;
-	vec3 color = vec3(0.0);
-	float totalWeight = 0.0;
-	float envMapDim = float(textureSize(samplerEnv, 0).s);
-	for(uint i = 0u; i < consts.numSamples; i++) {
-		vec2 Xi = Hammersley2d(i, consts.numSamples);
-		vec3 H = ImportanceSample_GGX(Xi, roughness, N);
-		vec3 L = 2.0 * dot(V, H) * H - V;
-		float dotNL = clamp(dot(N, L), 0.0, 1.0);
-		if(dotNL > 0.0) {
-			// Filtering based on https://placeholderart.wordpress.com/2015/07/28/implementation-notes-runtime-environment-map-filtering-for-image-based-lighting/
+    vec3 N = R;
+    vec3 V = R;
+    vec3 color = vec3(0.0);
+    float totalWeight = 0.0;
+    float envMapDim = float(textureSize(samplerEnv, 0).s);
+    for(uint i = 0u; i < consts.numSamples; i++) {
+        vec2 Xi = Hammersley2d(i, consts.numSamples);
+        vec3 H = ImportanceSample_GGX(Xi, roughness, N);
+        vec3 L = 2.0 * dot(V, H) * H - V;
+        float dotNL = clamp(dot(N, L), 0.0, 1.0);
+        if(dotNL > 0.0) {
+            // Filtering based on https://placeholderart.wordpress.com/2015/07/28/implementation-notes-runtime-environment-map-filtering-for-image-based-lighting/
 
-			float dotNH = clamp(dot(N, H), 0.0, 1.0);
-			float dotVH = clamp(dot(V, H), 0.0, 1.0);
+            float dotNH = clamp(dot(N, H), 0.0, 1.0);
+            float dotVH = clamp(dot(V, H), 0.0, 1.0);
 
-			// Probability Distribution Function
-			float pdf = D_GGX(dotNH, roughness) * dotNH / (4.0 * dotVH) + 0.0001;
-			// Slid angle of current smple
-			float omegaS = 1.0 / (float(consts.numSamples) * pdf);
-			// Solid angle of 1 pixel across all cube faces
-			float omegaP = 4.0 * PI / (6.0 * envMapDim * envMapDim);
-			// Biased (+1.0) mip level for better result
-			float mipLevel = roughness == 0.0 ? 0.0 : max(0.5 * log2(omegaS / omegaP) + 1.0, 0.0f);
-			color += textureLod(samplerEnv, L, mipLevel).rgb * dotNL;
-			totalWeight += dotNL;
+            // Probability Distribution Function
+            float pdf = D_GGX(dotNH, roughness) * dotNH / (4.0 * dotVH) + 0.0001;
+            // Slid angle of current smple
+            float omegaS = 1.0 / (float(consts.numSamples) * pdf);
+            // Solid angle of 1 pixel across all cube faces
+            float omegaP = 4.0 * PI / (6.0 * envMapDim * envMapDim);
+            // Biased (+1.0) mip level for better result
+            float mipLevel = roughness == 0.0 ? 0.0 : max(0.5 * log2(omegaS / omegaP) + 1.0, 0.0f);
+            color += textureLod(samplerEnv, L, mipLevel).rgb * dotNL;
+            totalWeight += dotNL;
 
-		}
-	}
-	return (color / totalWeight);
+        }
+    }
+    return (color / totalWeight);
 }
 
 ]]
@@ -1292,33 +1293,75 @@ vec3 PrefilterEnvMap(vec3 R, float roughness)
 local SpecularContribution = [[
 vec3 SpecularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float roughness)
 {
-	// Precalculate vectors and dot products	
-	vec3 H = normalize (V + L);
-	float dotNH = clamp(dot(N, H), 0.0, 1.0);
-	float dotNV = clamp(dot(N, V), 0.0, 1.0);
-	float dotNL = clamp(dot(N, L), 0.0, 1.0);
+    // Precalculate vectors and dot products	
+    vec3 H = normalize (V + L);
+    float dotNH = clamp(dot(N, H), 0.0, 1.0);
+    float dotNV = clamp(dot(N, V), 0.0, 1.0);
+    float dotNL = clamp(dot(N, L), 0.0, 1.0);
 
-	// Light color fixed
-	vec3 lightColor = vec3(1.0);
+    // Light color fixed
+    vec3 lightColor = vec3(1.0);
 
-	vec3 color = vec3(0.0);
+    vec3 color = vec3(0.0);
 
-	if (dotNL > 0.0) {
-		// D = Normal distribution (Distribution of the microfacets)
-		float D = D_GGX(dotNH, roughness);
-		// G = Geometric shadowing term (Microfacets shadowing)
-		float G = G_SchlicksmithGGX(dotNL, dotNV, roughness);
-		// F = Fresnel factor (Reflectance depending on angle of incidence)
-		vec3 F = F_Schlick(dotNV, F0);		
-		vec3 spec = D * F * G / (4.0 * dotNL * dotNV + 0.001);		
-		vec3 kD = (vec3(1.0) - F) * (1.0 - metallic);			
-		color += (kD * ALBEDO / PI + spec) * dotNL;
-	}
+    if (dotNL > 0.0) {
+        // D = Normal distribution (Distribution of the microfacets)
+        float D = D_GGX(dotNH, roughness);
+        // G = Geometric shadowing term (Microfacets shadowing)
+        float G = G_SchlicksmithGGX(dotNL, dotNV, roughness);
+        // F = Fresnel factor (Reflectance depending on angle of incidence)
+        vec3 F = F_Schlick(dotNV, F0);		
+        vec3 spec = D * F * G / (4.0 * dotNL * dotNV + 0.001);		
+        vec3 kD = (vec3(1.0) - F) * (1.0 - metallic);			
+        color += (kD * ALBEDO / PI + spec) * dotNL;
+    }
 
-	return color;
+    return color;
 }
 ]]
 
+
+local shadow_textureProj = [[
+float textureProj(vec4 shadowCoord, vec2 offset, uint cascadeIndex, float ambient)
+{
+    float shadow = 1.0;
+    float bias = 0.005;
+
+    if ( shadowCoord.z > -1.0 && shadowCoord.z < 1.0 ) {
+        float dist = texture(shadowMap, vec3(shadowCoord.st + offset, cascadeIndex)).r;
+        if (shadowCoord.w > 0 && dist < shadowCoord.z - bias) {
+            shadow = ambient;
+        }
+    }
+    return shadow;
+
+}
+]]
+
+
+local filterPCF = [[
+float filterPCF(vec4 sc, uint cascadeIndex, float ambient)
+{
+    ivec2 texDim = textureSize(shadowMap, 0).xy;
+    float scale = 0.75;
+    float dx = scale * 1.0 / float(texDim.x);
+    float dy = scale * 1.0 / float(texDim.y);
+
+    float shadowFactor = 0.0;
+    int count = 0;
+    int range = 1;
+
+    for (int x = -range; x <= range; x++) {
+        for (int y = -range; y <= range; y++) {
+            shadowFactor += textureProj(sc, vec2(dx*x, dy*y), cascadeIndex, ambient);
+            count++;
+        }
+    }
+    return shadowFactor / count;
+}
+]]
+
+-- STRING_STRING
 
 
 -- @warning this eats up a lot of memory, @todo keep the locals, locally in this file
@@ -1662,6 +1705,14 @@ layout(set = 0, binding = %d, rgba8) uniform image2D %s;
         return o.NewLine().NewLine()
     end
 
+    o.Shadow_textureProj          = function()
+        return o.Append(shadow_textureProj).NewLine()
+    end
+
+    o.filterPCF                   = function()
+        return o.Append(filterPCF).NewLine()
+    end
+
     o.Print                       = function()
         local lineNumber = 13
 
@@ -1746,12 +1797,12 @@ PBR.Skybox3dF = Engine.Shader()
     vec3 Color = texture(samplerCubeMap, vVertUV).rgb;
     // Tone mapping
     // 0.5 = exposure
-	Color = Uncharted2Tonemap(Color * 0.5);
-	Color = Color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
-	// Gamma correction
+    Color = Uncharted2Tonemap(Color * 0.5);
+    Color = Color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
+    // Gamma correction
           // 2.2 = gamma
-	Color = pow(Color, vec3(1.0f / 0.3));
-	outFragColor = vec4(Color, 1.0);
+    Color = pow(Color, vec3(1.0f / 0.3));
+    outFragColor = vec4(Color, 1.0);
         ]])
     .GlslMainEnd()
     .NewLine()
@@ -1769,11 +1820,11 @@ PBR.IBLV = Engine.Shader()
     .GlslMainBegin()
     .Append [[
     vec3 locPos = vec3(Push.model * vec4(inPosition, 1.0));
-	vWorldPos = locPos;// + pushConsts.objPos;
-	vNormal = mat3(Push.model) * inNormal;
-	vUV = inUV;
-	vUV.t = 1.0 - inUV.t;
-	gl_Position =  Ubo.proj * Ubo.view * vec4(vWorldPos, 1.0);
+    vWorldPos = locPos;// + pushConsts.objPos;
+    vNormal = mat3(Push.model) * inNormal;
+    vUV = inUV;
+    vUV.t = 1.0 - inUV.t;
+    gl_Position =  Ubo.proj * Ubo.view * vec4(vWorldPos, 1.0);
     ]]
     .GlslMainEnd()
 
@@ -1835,8 +1886,8 @@ PBR.IBLF = Engine.Shader()
 
     vec3 Lo = vec3(0.0);
     for(int i = 0; i < Ubo.lights.length(); i++) {
-    	vec3 L = normalize(Ubo.lights[i].xyz - vWorldPos);
-    	Lo += SpecularContribution(L, V, N, F0, metallic, roughness) * Ubo.lights[i].w;
+        vec3 L = normalize(Ubo.lights[i].xyz - vWorldPos);
+        Lo += SpecularContribution(L, V, N, F0, metallic, roughness) * Ubo.lights[i].w;
     }
 
     vec2 brdf = texture(samplerBRDFLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
@@ -1930,46 +1981,46 @@ vec3 calculateNormal()
     .Append [[
     vec3 N = calculateNormal();
     vec3 V = normalize(ubo.campos - vWorldPos);
-	vec3 R = reflect(-V, N);
+    vec3 R = reflect(-V, N);
 
-	float metallic = texture(metallicMap, vUV).r;
-	float roughness = texture(roughnessMap, vUV).r;
+    float metallic = texture(metallicMap, vUV).r;
+    float roughness = texture(roughnessMap, vUV).r;
 
-	vec3 F0 = vec3(0.04);
-	F0 = mix(F0, ALBEDO, metallic);
+    vec3 F0 = vec3(0.04);
+    F0 = mix(F0, ALBEDO, metallic);
 
-	vec3 Lo = vec3(0.0);
-	for(int i = 0; i < uboParams.lights[i].length(); i++) {
-		vec3 L = normalize(uboParams.lights[i].xyz - inWorldPos);
-		Lo += specularContribution(L, V, N, F0, metallic, roughness);
-	}
-	
-	vec2 brdf = texture(samplerBRDFLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
-	vec3 reflection = prefilteredReflection(R, roughness).rgb;	
-	vec3 irradiance = texture(samplerIrradiance, N).rgb;
+    vec3 Lo = vec3(0.0);
+    for(int i = 0; i < uboParams.lights[i].length(); i++) {
+        vec3 L = normalize(uboParams.lights[i].xyz - inWorldPos);
+        Lo += specularContribution(L, V, N, F0, metallic, roughness);
+    }
 
-	// Diffuse based on irradiance
-	vec3 diffuse = irradiance * ALBEDO;	
+    vec2 brdf = texture(samplerBRDFLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+    vec3 reflection = prefilteredReflection(R, roughness).rgb;	
+    vec3 irradiance = texture(samplerIrradiance, N).rgb;
 
-	vec3 F = F_SchlickR(max(dot(N, V), 0.0), F0, roughness);
+    // Diffuse based on irradiance
+    vec3 diffuse = irradiance * ALBEDO;	
 
-	// Specular reflectance
-	vec3 specular = reflection * (F * brdf.x + brdf.y);
+    vec3 F = F_SchlickR(max(dot(N, V), 0.0), F0, roughness);
 
-	// Ambient part
-	vec3 kD = 1.0 - F;
-	kD *= 1.0 - metallic;	
-	vec3 ambient = (kD * diffuse + specular) * texture(aoMap, vUV).rrr;
-	
-	vec3 color = ambient + Lo;
+    // Specular reflectance
+    vec3 specular = reflection * (F * brdf.x + brdf.y);
 
-	// Tone mapping exposure = 1.5
-	color = Uncharted2Tonemap(color * 1.5);
-	color = color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
-	// Gamma correction gamma = 0.3
-	color = pow(color, vec3(1.0f / 0.3));
+    // Ambient part
+    vec3 kD = 1.0 - F;
+    kD *= 1.0 - metallic;	
+    vec3 ambient = (kD * diffuse + specular) * texture(aoMap, vUV).rrr;
 
-	outFragColor = vec4(color, 1.0);
+    vec3 color = ambient + Lo;
+
+    // Tone mapping exposure = 1.5
+    color = Uncharted2Tonemap(color * 1.5);
+    color = color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
+    // Gamma correction gamma = 0.3
+    color = pow(color, vec3(1.0f / 0.3));
+
+    outFragColor = vec4(color, 1.0);
     ]]
     .GlslMainEnd()
 
@@ -1981,7 +2032,7 @@ PBR.GenBrdfLutV = Engine.Shader()
     .Out(0, "vec2", "vUV")
     .GlslMainBegin()
     .Append [[
-    	vUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+        vUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
         gl_Position = vec4(vUV * 2.0f - 1.0f, 0.0f, 1.0f);
     ]].InvertY()
     .GlslMainEnd()
@@ -2071,33 +2122,33 @@ PBR.IrradianceCubeF = Engine.Shader()
     consts.deltaPhi = Push.m2[0].x;
     consts.deltaTheta = Push.m2[0].y;
 
-	vec3 N = normalize(vUVW);
-	vec3 up = vec3(0.0, 1.0, 0.0);
-	vec3 right = normalize(cross(up, N));
-	up = cross(N, right);
+    vec3 N = normalize(vUVW);
+    vec3 up = vec3(0.0, 1.0, 0.0);
+    vec3 right = normalize(cross(up, N));
+    up = cross(N, right);
 
-	const float TWO_PI = PI * 2.0;
-	const float HALF_PI = PI * 0.5;
+    const float TWO_PI = PI * 2.0;
+    const float HALF_PI = PI * 0.5;
 
-	uint sampleCount = 0u;
-	vec3 color = vec3(0.0);
+    uint sampleCount = 0u;
+    vec3 color = vec3(0.0);
 
-	for (float phi = 0.0; phi < TWO_PI; phi += consts.deltaPhi) {
-		for (float theta = 0.0; theta < HALF_PI; theta += consts.deltaTheta) {
+    for (float phi = 0.0; phi < TWO_PI; phi += consts.deltaPhi) {
+        for (float theta = 0.0; theta < HALF_PI; theta += consts.deltaTheta) {
             float sinTheta = sin(theta);
             float sinPhi = sin(phi);
             float cosPhi = cos(phi);
             float cosTheta = cos(theta);
-			vec3 tangentSample = vec3(sinTheta * cosPhi, sinTheta * sinPhi, cosTheta);
-			vec3 sampleVector = tangentSample.x * right + tangentSample.y * up + tangentSample.z * N;
-			color += texture(samplerEnv, sampleVector).rgb * cosTheta * sinTheta;
-			sampleCount++;
-		}
-	}
+            vec3 tangentSample = vec3(sinTheta * cosPhi, sinTheta * sinPhi, cosTheta);
+            vec3 sampleVector = tangentSample.x * right + tangentSample.y * up + tangentSample.z * N;
+            color += texture(samplerEnv, sampleVector).rgb * cosTheta * sinTheta;
+            sampleCount++;
+        }
+    }
 
     color  = PI * color / float(sampleCount);
     //debugPrintfEXT("deltaPhi = %f, deltaTheta = %f, color: (%f, %f, %f)\n", consts.deltaPhi, consts.deltaTheta, color.x, color.y, color.z);
-	outFragColor = vec4(color, 1.0);
+    outFragColor = vec4(color, 1.0);
     ]]
     .GlslMainEnd()
 
@@ -2305,9 +2356,9 @@ Shape2DShaders.GeneralVShader = Engine.Shader()
     .ImagePainterPushMatrix2()
     .GlslMainBegin()
     .Append [[
-	vec4 dx = vec4(inPosition.x, inPosition.y, inPosition.z, 1.0);
-	gl_Position = push.b * dx;
-	outTexCoord = inTexCoord;
+    vec4 dx = vec4(inPosition.x, inPosition.y, inPosition.z, 1.0);
+    gl_Position = push.b * dx;
+    outTexCoord = inTexCoord;
 ]]
     .GlslMainEnd()
 
@@ -2420,31 +2471,51 @@ TwoDimensionalIPs.Circle =
 
 TwoDimensionalIPs.Line =
     TwoDimensionalIPs.HeaderWithoutBegin()
-    .Append [[
-    float plot(vec2 st, float pct){
-        return  smoothstep( pct-0.05, pct, st.y) -
-                smoothstep( pct, pct+0.05, st.y);
-    }
-    ]]
     .GlslMainBegin()
     .ImagePainterAssistMatrix2()
+
     .Append [[
-        vec2 pos = vec2(p1.x, p1.y);
-        vec2 dimen = vec2(p1.z, p1.w);
-        vec4 color = p2;
-        ivec2 offset = ivec2(int(p1.x), int(p1.y));
+    vec4 point1 = push.b * vec4(p1.x, p1.y, 0, 1);
+    vec4 point2 = push.b * vec4(p1.z, p1.w, 0, 1);
+    float x1 = point1.x;
+    float y1 = point1.y;
+    float x2 = point2.x;
+    float y2 = point2.y;
+    float x = float(gl_GlobalInvocationID.x);
+    float y = float(gl_GlobalInvocationID.y);
 
-        x_cart = (float(gl_GlobalInvocationID.x) - float(dimen.x) / float(2)) / (float((dimen.x) / float(2)));
-        y_cart = (float(dimen.y) / float(2) - float(gl_GlobalInvocationID.y)) / (float(dimen.y) / float(2));
-        xy.x = x_cart;
-        xy.y = y_cart;
+    float small_x = x1;
+    float large_x = x2;
+    if (x1 > x2)
+    {
+        large_x = x1;
+        small_x = x2;
+    }
 
-        float y = -xy.x;
-        float pct = plot(xy, y);
-        if (to_draw_at.x <= int(dimen.x) && to_draw_at.y <= int(dimen.y))
-        {
-            imageStore(storageImage, to_draw_at + offset, vec4(pct));
-        }
+    float small_y = y1;
+    float large_y = y2;
+    if (y1 > y2)
+    {
+        large_y = y1;
+        small_x = y2;
+    }
+    float thickness = p3.x;
+
+    // Calculate signed distance function
+    float sdf = 0;
+    if (abs(x2 - x1) < 0.0001) { // Handle vertical lines
+        sdf = abs(x - x1);
+    } else {
+        float slope = (y2 - y1) / (x2 - x1);
+        sdf = abs(y - y1 - slope * (x - x1));
+    }
+
+    vec4 color = p2;
+    if ((sdf < p3.x) && (x > small_x && x < large_x) && (y > small_y && y < large_y))  {
+        debugPrintfEXT("xKo:%f, yKo:%f", x, y);
+        imageStore(storageImage, to_draw_at, color * (p3.x - sdf));
+    }
+
     ]]
     .GlslMainEnd()
 
@@ -2513,10 +2584,17 @@ Basics.GetBasicVertexHeaderWithoutTangent = function()
     return Deferred.GetBasicVertexHeader()
 end
 
+PBR.PreCalcImages = function(inShader)
+    return inShader.uSamplerCubeMap(20, "samplerCubeMap", 0)
+        .uSampler2D(23, "samplerBRDFLUT", 0)
+        .uSamplerCubeMap(24, "samplerIrradiance", 0)
+        .uSamplerCubeMap(25, "prefilteredMap", 0)
+end
 
-Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel, materialindex, inskinning, intangent)
-    if intangent == nil then intangent = true end
-    if inShaderType == "CONSTANT_COLOR" and incompilecontext == Jkr.CompileContext.Default then
+Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel, materialindex, inskinning, intangent,
+                                       inextraInfo)
+    if intangent == nil then if gltfmodel then intangent = true else intangent = false end end
+    if inShaderType == "NORMAL" and incompilecontext == Jkr.CompileContext.Default then
         local vshader
         if intangent then
             vshader = Basics.GetBasicVertexHeaderWithTangent()
@@ -2568,7 +2646,17 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
 
         local fshader = Basics.GetConstantFragmentHeader()
             .gltfPutMaterialTextures(gltfmodel, materialindex)
-            .GlslMainBegin()
+            .Append [[
+            layout(set = 0, binding = 32) uniform sampler2DArray shadowMap;
+            ]]
+
+        if inextraInfo and inextraInfo.baseColorTexture == true then
+            fshader.uSampler2D(3, "uBaseColorTexture")
+        end
+
+        PBR.PreCalcImages(fshader)
+
+        fshader.GlslMainBegin()
         if fshader.gltfMaterialTextures.mBaseColorTexture == true then
             if fshader.gltfMaterialTextures.mEmissiveTextureIndex == true then
                 fshader.Append [[
@@ -2579,11 +2667,46 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
                     outFragColor = texture(uBaseColorTexture, vUV);
                     ]]
             end
+        elseif inextraInfo and inextraInfo.baseColorTexture == true then
+            fshader.Append [[
+                    vec4 color = Push.m2[0];
+                    vec4 outC = texture(uBaseColorTexture, vUV);
+                    outFragColor = vec4(outC.x * color.x, outC.y * color.y, outC.z * color.z, outC.w * color.w);
+                    ]]
         else
             fshader.Append [[
                 outFragColor = vec4(vColor.x, vColor.y, vColor.z, 1);
             ]]
         end
+        fshader.GlslMainEnd()
+        return vshader, fshader
+    end
+    if inShaderType == "CONSTANT_COLOR" and incompilecontext == Jkr.CompileContext.Default then
+        local vshader
+        if intangent then
+            vshader = Basics.GetBasicVertexHeaderWithTangent()
+        else
+            vshader = Basics.GetBasicVertexHeaderWithoutTangent()
+        end
+        vshader.GlslMainBegin()
+        vshader.Append [[
+                    gl_Position = Ubo.proj * Ubo.view * Push.model * vec4(inPosition, 1);
+                    vWorldPos = vec3(Push.model * vec4(inPosition, 1));
+                    mat3 mNormal = transpose(inverse(mat3(Push.model)));
+                    vNormal = mNormal * normalize(inNormal.xyz);
+                    vUV = inUV;
+                    vColor = inColor;
+                    ]]
+        vshader.InvertY()
+        vshader.GlslMainEnd()
+
+        local fshader = Basics.GetConstantFragmentHeader()
+        PBR.PreCalcImages(fshader)
+        fshader.GlslMainBegin()
+        fshader.Append [[
+            vec4 param = Push.m2[0];
+            outFragColor = param;
+        ]]
         fshader.GlslMainEnd()
         return vshader, fshader
     end
@@ -2632,6 +2755,229 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
 
         return vshader, fshader
     end
+
+    if inShaderType == "PBR" then
+        local out = Engine.CreatePBRShaderByGLTFMaterial(gltfmodel, materialindex)
+        return out.vShader, out.fShader
+    end
+    if inShaderType == "PBR_SHADOW" then
+        local out = Engine.CreatePBRShaderByGLTFMaterial(gltfmodel, materialindex, true)
+        return out.vShader, out.fShader
+    end
+    if inShaderType == "GENERAL_UNIFORM" then
+        local vShader = Engine.Shader()
+            .Header(450)
+            .NewLine()
+            .VLayout()
+            .Push()
+            .Ubo()
+            .GlslMainBegin()
+            .Append [[
+                    gl_Position = Ubo.proj * Ubo.view * Push.model * vec4(inPosition, 1);
+            ]]
+            .GlslMainEnd()
+
+        local fShader = Engine.Shader()
+            .Header(450)
+            .NewLine()
+            .Ubo()
+            .Append [[
+            layout(set = 0, binding = 32) uniform sampler2DArray shadowMap;
+            ]]
+
+        PBR.PreCalcImages(fShader)
+
+        fShader.outFragColor()
+            .GlslMainBegin()
+            .Append
+            [[
+                outFragColor = vec4(0.0f);
+            ]]
+            .GlslMainEnd()
+        return vShader, fShader
+    end
+    if inShaderType == "SKYBOX" then
+        local vShader = Engine.Shader()
+            .Header(450)
+            .NewLine()
+            .VLayout()
+            .Out(0, "vec3", "vVertUV")
+            .Push()
+            .Ubo()
+            .GlslMainBegin()
+            .Indent()
+            .Append([[
+                vec3 position = mat3(Ubo.view * Push.model) * inPosition.xyz;
+                gl_Position = (Ubo.proj * vec4(position, 0.0)).xyzz;
+                vVertUV = inPosition.xyz;
+        ]])
+            .NewLine()
+            .GlslMainEnd()
+            .NewLine()
+
+        local fShader = Engine.Shader()
+            .Header(450)
+            .NewLine()
+            .In(0, "vec3", "vVertUV")
+            .outFragColor()
+            .Ubo()
+
+        PBR.PreCalcImages(fShader)
+        fShader
+            .Push()
+            .GlslMainBegin()
+            .Indent()
+            .Append([[
+            outFragColor = texture(prefilteredMap, vVertUV) * 0.5;
+            outFragColor = texture(samplerIrradiance, vVertUV) * 0.5;
+            outFragColor = texture(samplerCubeMap, vVertUV) * 1;
+        ]])
+            .GlslMainEnd()
+            .NewLine()
+        return vShader, fShader
+    end
+
+    if inShaderType == "CASCADED_SHADOW_DEPTH_PASS" then
+        local vShader = Engine.Shader()
+            .Header(450)
+            .VLayout()
+            .Define("SHADOW_MAP_CASCADE_COUNT", "4")
+            .Push()
+            .Ubo()
+            .Out(0, "vec2", "outUV")
+            .GlslMainBegin()
+            .Append [[
+                vec4 Index = Push.m2[0];
+                outUV = inUV;
+                vec3 pos = inPosition + vec3(Ubo.lights[int(Index.y)]);
+                gl_Position = Ubo.shadowMatrixCascades[int(Index.x)] * vec4(pos, 1.0);
+            ]]
+            .GlslMainEnd()
+
+        local fShader = Engine.Shader()
+            .Header(450)
+            .Ubo()
+            .Push()
+            .Append [[
+            layout(set = 0, binding = 32) uniform sampler2DArray shadowMap;
+            ]]
+
+        PBR.PreCalcImages(fShader)
+        fShader
+            .outFragColor()
+            .GlslMainBegin()
+            .Append [[ outFragColor = vec4(1.0); ]]
+            .GlslMainEnd()
+        return vShader, fShader
+    end
+
+    if inShaderType == "CASCADE_SHADOWED" then
+        local vShader = Engine.Shader()
+            .Header(450)
+            .VLayout()
+            .Ubo()
+            .Push()
+            .Out(0, "vec3", "outNormal")
+            .Out(1, "vec3", "outColor")
+            .Out(2, "vec3", "outViewPos")
+            .Out(3, "vec3", "outPos")
+            .Out(4, "vec2", "outUV")
+            .Append [[
+            out gl_PerVertex {
+                vec4 gl_Position;
+            };
+            ]]
+            .GlslMainBegin()
+            .Append [[
+                vec4 Index = Push.m2[0];
+                outColor = inColor;
+                outNormal = inNormal;
+                outUV = inUV;
+                vec3 pos = inPosition + Ubo.lights[int(Index.x)].xyz;
+                outPos = pos;
+                outViewPos = (Ubo.view * vec4(pos.xyz, 1.0)).xyz;
+                gl_Position = Ubo.proj * Ubo.view * Push.model * vec4(pos.xyz, 1.0);
+            ]]
+            .GlslMainEnd()
+
+        local fShader = Engine.Shader()
+            .Header(450)
+            .Define("SHADOW_MAP_CASCADE_COUNT", "4")
+            .Append [[
+            layout(set = 0, binding = 1) uniform sampler2DArray shadowMap;
+            ]]
+            .In(0, "vec3", "inNormal")
+            .In(1, "vec3", "inColor")
+            .In(2, "vec3", "inViewPos")
+            .In(3, "vec3", "inPos")
+            .In(4, "vec2", "inUV")
+            .outFragColor()
+            .Define("ambient", "0.3")
+            .Ubo()
+            .Push()
+            .Append [[
+            const mat4 biasMat = mat4(
+                0.5, 0.0, 0.0, 0.0,
+                0.0, 0.5, 0.0, 0.0,
+                0.0, 0.0, 1.0, 0.0,
+                0.5, 0.5, 0.0, 1.0
+            );
+            ]]
+            .Append(shadow_textureProj)
+            .Append(filterPCF)
+            .GlslMainBegin()
+            .Append [[
+            vec4 cascadeSplits = Push.m2[1];
+            int enablePCF = 1;
+            uint cascadeIndex = 0;
+            for(uint i = 0; i < SHADOW_MAP_CASCADE_COUNT; ++i)
+            {
+                if(inViewPos.z < cascadeSplits[i])
+                {
+                    cascadeIndex = i + 1;
+                }
+            }
+            vec4 shadowCoord = (biasMat * Ubo.shadowMatrix[cascadeIndex]) * vec4 (inPos, 1.0);
+
+            float shadow = 0;
+            if (enablePCF == 1) {
+                shadow = filterPCF(shadowCoord / shadowCoord.w, cascadeIndex);
+            } else {
+                shadow = textureProj(shadowCoord / shadowCoord.w, vec2(0.0), cascadeIndex);
+            }
+
+            vec3 N = normalize(inNormal);
+            vec4 lightDir = -(Ubo.lightDirections[int(Index.x)]);
+            vec3 L = normalize(vec3(lightDir.x, lightDir.y, lightDir.z));
+            vec3 H = normalize(L + inViewPos);
+            float diffuse = max(dot(N, L), ambient);
+            vec3 lightColor = vec3(1.0);
+            outFragColor.rgb = max(lightColor * (diffuse), vec3(0.0));
+            outFragColor.rgba *= shadow;
+            ]]
+            .GlslMainEnd()
+        return vShader, fShader
+    end
+end
+
+
+PBR.Setup = function(w, world3d, buffer3d, inSkyboxModelId, inWorldUniformHandle, cacheprefix, hdr_path)
+    Jkr.SetupPBR(Engine.i,
+        w,
+        inWorldUniformHandle,
+        world3d,
+        buffer3d, -- shape 3d
+        math.floor(inSkyboxModelId),
+        cacheprefix,
+        PBR.GenBrdfLutV.str,
+        PBR.GenBrdfLutF.str,
+        PBR.FilterCubeV.str,
+        PBR.IrradianceCubeF.str,
+        PBR.FilterCubeV.str,
+        PBR.PreFilterEnvMapF.str,
+        PBR.EquirectangularMapToMultiVShader.str,
+        PBR.EquirectangularMapToMultiFShader.str,
+        hdr_path);
 end
 
 
@@ -2841,7 +3187,7 @@ end
 
 Engine.GetGLTFInfo = Engine.PrintGLTFInfo
 
-Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
+Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex, inShadow)
     inMaterialIndex = inMaterialIndex + 1
     local Material = inGLTF:GetMaterialsRef()[inMaterialIndex]
     local vShader = Engine.Shader()
@@ -2853,6 +3199,7 @@ Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
         .Out(2, "vec3", "vWorldPos")
         .Out(3, "vec4", "vTangent")
         .Out(4, "int", "vVertexIndex")
+        .Out(5, "vec3", "vViewPos")
         .Push()
         .Ubo()
         .inTangent()
@@ -2871,6 +3218,8 @@ Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
               vec4 IN_Tangent = inTangent[gl_VertexIndex].mTangent;
               vec3 tangentttt = mNormal * normalize(IN_Tangent.w > 0 ? IN_Tangent.xyz : vec3(-IN_Tangent.x, IN_Tangent.y, IN_Tangent.z));
               vTangent = vec4(tangentttt, 1.0f);
+              vec3 pos = inPosition + Ubo.lights[0].xyz;
+              vViewPos = (Ubo.view * vec4(pos.xyz, 1.0)).xyz;
         ]]
         )
         .NewLine()
@@ -2886,13 +3235,32 @@ Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
         .In(2, "vec3", "vWorldPos")
         .In(3, "vec4", "vTangent")
         .In(4, "flat int", "vVertexIndex")
+        .In(5, "vec3", "vViewPos")
         .uSamplerCubeMap(20, "samplerCubeMap", 0)
         .uSampler2D(23, "samplerBRDFLUT", 0)
         .uSamplerCubeMap(24, "samplerIrradiance", 0)
         .uSamplerCubeMap(25, "prefilteredMap", 0)
-        .Ubo()
+        .Append [[
+        layout (set = 0, binding = 32) uniform sampler2DArray shadowMap;
+        ]]
+
+    fShader.Ubo()
         .outFragColor()
         .Push()
+
+    if inShadow then
+        fShader.Append [[
+        const mat4 biasMat = mat4(
+            0.5, 0.0, 0.0, 0.0,
+            0.0, 0.5, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
+            0.5, 0.5, 0.0, 1.0
+        );
+        ]]
+            .Shadow_textureProj()
+            .filterPCF()
+    end
+    fShader
         .Append [[
 
     struct PushConsts {
@@ -2950,36 +3318,51 @@ Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex)
         .PrefilteredReflection()
         .SpecularContribution()
         .SRGBtoLINEAR()
-        .Append [[
 
+    if Material.mNormalTextureIndex ~= -1 then
+        fShader
+            .Append [[
 vec3 calculateNormal()
 {
     vec3 tangentNormal = texture(uNormalTexture, vUV).xyz * 2.0 - 1.0;
-
     vec3 N = normalize(vNormal);
     vec3 T = normalize(vTangent.xyz);
     vec3 B = normalize(cross(N, T));
     mat3 TBN = mat3(T, B, N);
     return normalize(TBN * tangentNormal);
 }
-
         ]]
+    else
+        fShader.Append [[
+vec3 calculateNormal()
+{
+    return vec3(0, 0, 1);
+}
+        ]]
+    end
+
 
     fShader.GlslMainBegin()
-    fShader.Append [[
-
+    if Material.mNormalTextureIndex ~= -1 then
+        fShader.Append [[
     vec3 N = calculateNormal();
-    //vec3 N = vNormal;
-    vec3 V = normalize(Ubo.campos - vWorldPos);
-	vec3 R = reflect(-V, N);
+    ]]
+    else
+        fShader.Append [[
+    vec3 N = vNormal;
+    ]]
+    end
 
+    fShader.Append [[
+    vec3 V = normalize(Ubo.campos - vWorldPos);
+    vec3 R = reflect(-V, N);
     ]]
 
     if (Material.mMetallicRoughnessTextureIndex ~= -1) then
         fShader.Append [[
 
             float metallic = texture(uMetallicRoughnessTexture, vUV).b;
-	        float roughness = texture(uMetallicRoughnessTexture, vUV).g;
+            float roughness = texture(uMetallicRoughnessTexture, vUV).g;
             // metallic = 0;
             // roughness = 0.5;
          ]]
@@ -2987,7 +3370,7 @@ vec3 calculateNormal()
         fShader.Append [[
 
             float metallic = material.metallic;
-	        float roughness = material.roughness;
+            float roughness = material.roughness;
 
          ]]
     end
@@ -3001,63 +3384,95 @@ vec3 calculateNormal()
     else
         fShader.Append [[
 
-    vec3 Emissive = vec3(1);
+    vec3 Emissive = vec3(0);
         ]]
     end
 
     fShader.Append [[
 
 
-	vec3 F0 = vec3(0.04);
-	F0 = mix(F0, vec4(ALBEDO, 1.0).xyz, metallic);
-	vec3 Lo = vec3(0.0);
-	for(int i = 0; i < Ubo.lights[i].length(); i++) {
-		vec3 L = normalize(Ubo.lights[i].xyz - vWorldPos) * Ubo.lights[i].w;
-		Lo += SpecularContribution(L, V, N, F0, metallic, roughness);
-	}
-	
-	vec2 brdf = texture(samplerBRDFLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
-	vec3 reflection = PrefilteredReflection(R, roughness).rgb;	
-	vec3 irradiance = texture(samplerIrradiance, N).rgb;
+    vec3 F0 = vec3(0.04);
+    F0 = mix(F0, vec4(ALBEDO, 1.0).xyz, metallic);
+    vec3 Lo = vec3(0.0);
+    for(int i = 0; i < Ubo.lights[i].length(); i++) {
+        vec3 L = normalize(Ubo.lights[i].xyz - vWorldPos) * Ubo.lights[i].w;
+        Lo += SpecularContribution(L, V, N, F0, metallic, roughness);
+    }
 
-	// Diffuse based on irradiance
-	vec3 diffuse = irradiance * ALBEDO;	
+    vec2 brdf = texture(samplerBRDFLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+    vec3 reflection = PrefilteredReflection(R, roughness).rgb;	
+    vec3 irradiance = texture(samplerIrradiance, N).rgb;
 
-	vec3 F = F_SchlickR(max(dot(N, V), 0.0), F0, roughness);
+    // Diffuse based on irradiance
+    vec3 diffuse = irradiance * ALBEDO;	
 
-	// Specular reflectance
-	vec3 specular = reflection * (F * brdf.x + brdf.y);
+    vec3 F = F_SchlickR(max(dot(N, V), 0.0), F0, roughness);
 
-	// Ambient part
-	vec3 kD = 1.0 - F;
-	kD *= 1.0 - metallic;	
+    // Specular reflectance
+    vec3 specular = reflection * (F * brdf.x + brdf.y);
+
+    // Ambient part
+    vec3 kD = 1.0 - F;
+    kD *= 1.0 - metallic;	
 
     ]]
 
     if (Material.mOcclusionTextureIndex ~= -1) then
         fShader.Append [[
 
-            	vec3 ambient = (kD * diffuse + specular) * texture(uOcclusionTexture, vUV).rrr;
+                vec3 ambient = (kD * diffuse + specular) * texture(uOcclusionTexture, vUV).rrr;
         ]]
     else
         fShader.Append [[
 
-            	vec3 ambient = (kD * diffuse + specular);
+                vec3 ambient = (kD * diffuse + specular);
+        ]]
+    end
+
+    if inShadow then
+        fShader.Append [[
+    int SHADOW_MAP_CASCADE_COUNT = 4;
+    vec4 cascadeSplits = Push.m2[1];
+    int enablePCF = 0;
+    uint cascadeIndex = 0;
+    for(uint i = 0; i < SHADOW_MAP_CASCADE_COUNT; ++i)
+    {
+        if(vViewPos.z < cascadeSplits[i])
+        {
+            cascadeIndex = i + 1;
+        }
+    }
+    vec4 shadowCoord = (biasMat * Ubo.shadowMatrix[cascadeIndex]) * vec4 (vWorldPos + Ubo.lights[0].xyz, 1.0);
+
+    float shadow = 0;
+    if (enablePCF == 1) {
+        shadow = filterPCF(shadowCoord / shadowCoord.w, cascadeIndex, length(ambient));
+    } else {
+        shadow = textureProj(shadowCoord / shadowCoord.w, vec2(0.0), cascadeIndex, length(ambient));
+    }
+    ambient *= shadow;
         ]]
     end
 
     fShader.Append [[
 
+    vec4 p1 = Push.m2[0];
+    vec4 p2 = Push.m2[1];
+    vec4 p3 = Push.m2[2];
+    vec4 p4 = Push.m2[3];
+
     vec3 color = ambient + Lo;
+    color = Uncharted2Tonemap(color * p4.x); // Tone mapping exposure = 1.5
+    color = color * (1.0f / Uncharted2Tonemap(vec3(p4.y)));	// norma 11.2
+    color = pow(color, vec3(p4.z)); // Gamma correction gamma = 1/2.2
 
-    // Tone mapping exposure = 1.5
-	color = Uncharted2Tonemap(color * 2.5);
-	color = color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
-	// Gamma correction gamma = 0.3
-	color = pow(color, vec3(1.0f / 2.2));
-
-	outFragColor = vec4(color + Emissive, 1.0);
+    outFragColor = vec4(color + Emissive, 1.0);
     ]]
+    -- if inShadow then
+    --     fShader.Append [[
+    --    outFragColor = outFragColor.rgba * shadow;
+    --    ]]
+    -- end
 
     fShader.GlslMainEnd()
 
@@ -3088,6 +3503,9 @@ Engine.CreateObjectByGLTFPrimitiveAndUniform = function(inWorld3d,
     Object3D.mMatrix = gltf:GetNodeMatrixByIndex(NodeIndices)
 
     return Object3D
+        .Append [[
+            layout(set = 0, binding = 32) uniform sampler2DArray shadowMap;
+            ]]
 end
 
 
@@ -3108,20 +3526,50 @@ Engine.AddObject = function(modObjects, modObjectsVector, inId, inAssociatedMode
     return #modObjectsVector
 end
 
-Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmodelname, inshadertype, incompilecontext,
-                                             inskinning)
+Engine.AddAndConfigureGLTFToWorld = function(w,
+                                             inworld3d,
+                                             inshape3d,
+                                             ingltfmodelname,
+                                             inshadertype,
+                                             incompilecontext,
+                                             inskinning,
+                                             inhdrenvfilename)
+    local shouldload = false
     if not incompilecontext then incompilecontext = Jkr.CompileContext.Default end
+    local SkyboxObject
+    if inshadertype == "PBR" or inshadertype == "PBR_SHADOW" then
+        local globaluniformhandle = inworld3d:GetUniform3D(0)
+        local Skybox = Jkr.Generator(Jkr.Shapes.Cube3D, vec3(1, 1, 1))
+        local skyboxId = inshape3d:Add(Skybox, vec3(0, 0, 0))
+        PBR.Setup(w, inworld3d, inshape3d, skyboxId, globaluniformhandle, "PBR_FREAK", inhdrenvfilename)
+        SkyboxObject = Jkr.Object3D()
+        SkyboxObject.mId = skyboxId
+        SkyboxObject.mP2 = 1
+        local skybox_shaderindex = inworld3d:AddSimple3D(Engine.i, w)
+        local skybox_shader = inworld3d:GetSimple3D(skybox_shaderindex)
+        local vshader, fshader = Engine.GetAppropriateShader("SKYBOX")
+        skybox_shader:CompileEXT(
+            Engine.i,
+            w,
+            "cache/constant_color.glsl",
+            vshader.str,
+            fshader.str,
+            "",
+            shouldload,
+            incompilecontext
+        )
+        SkyboxObject.mAssociatedSimple3D = skybox_shaderindex
+    end
+
     local gltfmodelindex = inworld3d:AddGLTFModel(ingltfmodelname)
     local gltfmodel = inworld3d:GetGLTFModel(gltfmodelindex)
     local shapeindex = inshape3d:Add(gltfmodel) -- this ACUTALLY loads the GLTF Model
     local Nodes = gltfmodel:GetNodesRef()
-    local Meshes = gltfmodel:GetMeshesRef()
     Engine.GetGLTFInfo(gltfmodel)
     local Objects = {}
     local materials = {}
 
     for NodeIndex = 1, #Nodes, 1 do
-        local shouldload = false
         local primitives = Nodes[NodeIndex].mMesh.mPrimitives
 
         for PrimitiveIndex = 1, #primitives, 1 do
@@ -3198,25 +3646,25 @@ Engine.AddAndConfigureGLTFToWorld = function(w, inworld3d, inshape3d, ingltfmode
     if #Objects == 1 then
         Objects[1].mP2 = 1
     end
+    Objects[#Objects + 1] = SkyboxObject
     return Objects
 end
-
 
 Engine.CreateWorld3D = function(w, inshaper3d)
     local world3d = Jkr.World3D(inshaper3d)
     local camera3d = Jkr.Camera3D()
-    camera3d:SetAttributes(vec3(0, 0, 0), vec3(0, 0, 30))
-    camera3d:SetPerspective(0.3, 16 / 9, 0.1, 10000)
+    camera3d:SetAttributes(vec3(0, 0, 0), vec3(-0.12, 1.14, -2.25))
+    camera3d:SetPerspective(45.0 * 180.0 / math.pi, 16 / 9, 0.001, 10000)
     world3d:AddCamera(camera3d)
     local dummypipelineindex = world3d:AddSimple3D(Engine.i, w);
     local dummypipeline = world3d:GetSimple3D(dummypipelineindex)
     local light0 = {
-        pos = vec4(-1, -2, 2, 4),
+        pos = vec4(-1, 5, 3, 40),
         dir = Jmath.Normalize(vec4(0, 0, 0, 0) - vec4(10, 10, -10, 1))
     }
     world3d:AddLight3D(light0.pos, light0.dir)
 
-    local vshader, fshader = Engine.GetAppropriateShader("CONSTANT_COLOR",
+    local vshader, fshader = Engine.GetAppropriateShader("GENERAL_UNIFORM",
         Jkr.CompileContext.Default, nil, nil, false, false
     )
 
@@ -3233,8 +3681,9 @@ Engine.CreateWorld3D = function(w, inshaper3d)
 
     local globaluniformindex = world3d:AddUniform3D(Engine.i)
     local globaluniformhandle = world3d:GetUniform3D(globaluniformindex)
-    globaluniformhandle:Build(dummypipeline) -- EUTA PIPELINE BANAUNU PRXA
+    globaluniformhandle:Build(dummypipeline)
     world3d:AddWorldInfoToUniform3D(globaluniformindex)
+    Jkr.RegisterShadowPassImageToUniform3D(w, globaluniformhandle, 32)
     return world3d, camera3d
 end
 
@@ -3646,12 +4095,15 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
 
     ---@note Scissor are viewport both are created unifiedly i.e. both should always be in the same dimension
 
-    o.CreateScissor = function(inPosition_3f, inDimension_3f, inShouldSetViewport)
+    o.scissor_matrices = {}
+    o.CreateScissor = function(inPosition_3f, inDimension_3f, inShouldSetViewport, inMatrix)
         ---@warning mImageId -> inPosition_3f
         ---@warning mColor -> inDimension_3f
         ---@warning mPush -> inShouldSetViewport
-        return o.c:Push(Jkr.CreateDrawable("START", false, "SCISSOR_VIEWPORT", inPosition_3f, inDimension_3f,
+        local sci = o.c:Push(Jkr.CreateDrawable("START", false, "SCISSOR_VIEWPORT", inPosition_3f, inDimension_3f,
             inShouldSetViewport))
+        o.scissor_matrices[sci] = inMatrix or Jmath.GetIdentityMatrix4x4()
+        return sci
     end
 
     o.mCurrentScissor = 1
@@ -3701,13 +4153,14 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     --[============================================================[
                     TEXT LABEL
           ]============================================================]
-    o.CreateTextLabel = function(inPosition_3f, inDimension_3f, inFont, inText, inColor)
+    o.CreateTextLabel = function(inPosition_3f, inDimension_3f, inFont, inText, inColor, inNotDraw)
         local textLabel = {}
         textLabel.mText = inText
         textLabel.mFont = inFont
         textLabel.mId = o.t:Add(inFont.mId, inPosition_3f, inText)
-        textLabel.PushId = o.c:Push(Jkr.CreateDrawable(textLabel.mId, nil, "TEXT", nil, inColor), o.mCurrentScissor)
-
+        if not inNotDraw then
+            textLabel.PushId = o.c:Push(Jkr.CreateDrawable(textLabel.mId, nil, "TEXT", nil, inColor), o.mCurrentScissor)
+        end
         textLabel.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inColor)
             --tracy.ZoneBeginN("luatextUpdate")
             if inFont then self.mFont = inFont end
@@ -3880,7 +4333,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     local fill_filltype = Jkr.FillType.Fill
     local ui_matrix = o.UIMatrix
     local s2ds = o.shape2dShaders
-    local DrawAll = function(inMap)
+    local DrawAll = function(inMap, inindex)
         -- tracy.ZoneBeginN("luamainDrawALL")
         s:BindShapes(w, cmdparam)
         for key, value in pairs(inMap) do
@@ -3897,7 +4350,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
                     else
                         s:BindFillMode(fill_filltype, w, cmdparam)
                     end
-                    drawable.mPush.b = ui_matrix
+                    drawable.mPush.b = ui_matrix * (o.scissor_matrices[inindex] or Jmath.GetIdentityMatrix4x4())
                     Jkr.DrawShape2DWithSimple3D(w, shader, s.handle, drawable.mPush, drawable.mId, drawable
                         .mId,
                         cmdparam)
@@ -3927,7 +4380,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         local DrawablesInSVs = o.c.mDrawablesInSVs
         local count = #SVs
         ---@note The First one is always without Scissors
-        DrawAll(DrawablesInSVs[1])
+        DrawAll(DrawablesInSVs[1], 1)
         for i = 2, count, 1 do
             local sv = SVs[i]
 
@@ -3937,7 +4390,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             end
             o.w:SetScissor(sv.mImageId, sv.mColor, cmdparam)
 
-            DrawAll(DrawablesInSVs[i])
+            DrawAll(DrawablesInSVs[i], i)
 
             ---@note ResetScissor + Viewport
             o.w:SetDefaultViewport(cmdparam)
@@ -3960,7 +4413,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             end
             o.w:SetScissor(sv.mImageId, sv.mColor, cmdparam)
 
-            DrawAll(DrawablesInSVs[j])
+            DrawAll(DrawablesInSVs[j], j)
 
             ---@note ResetScissor + Viewport
             o.w:SetDefaultViewport(cmdparam)
@@ -3982,6 +4435,36 @@ end
 
 
 local CompileShaders
+function Jkr.GetLayoutsAsVH()
+    function V(inComponents, inComponentsRatio)
+        if not inComponents and not inComponentsRatio then
+            return Jkr.VLayout:New()
+        else
+            local v = Jkr.VLayout:New()
+            v:Add(inComponents, inComponentsRatio)
+            return v
+        end
+    end
+
+    function H(inComponents, inComponentsRatio)
+        if not inComponents and not inComponentsRatio then
+            return Jkr.HLayout:New()
+        else
+            local h = Jkr.HLayout:New()
+            h:Add(inComponents, inComponentsRatio)
+            return h
+        end
+    end
+
+    -- function U(inValue)
+    --     if not inValue then inValue = {} end
+    --     inValue.Update = function(self, inPosition_3f, inDimension_3f)
+    --         inValue.d = vec3(inDimension_3f)
+    --         inValue.p = vec3(inPosition_3f)
+    --     end
+    --     return inValue
+    -- end
+end
 
 Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
     local o = {}
@@ -4065,6 +4548,12 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         end
 
         button.padding = 10
+        button.UpdateBackgroundColor = function(self, inBackgroundColor)
+            local push = Jkr.Matrix2CustomImagePainterPushConstant()
+            push.a = mat4(vec4(0.0), inBackgroundColor or button.mColor, vec4(0.0), vec4(0))
+            button.quad:Update(button.mPosition_3f, button.mDimension_3f, push);
+            button.mColor = inBackgroundColor
+        end
         ---@warning Bad Design, Fix in Refactoring
         button.Update = function(self,
                                  inPosition_3f,
@@ -4271,17 +4760,22 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         return ws
     end
 
-    o.CreateMovableButton = function(inPosition_3f, inDimension_3f, inFont, inTitle, inTitlebarTextColor,
-                                     inTitlebarBackColor)
+    o.CreateMovableButton = function(inPosition_3f, inDimension_3f,
+                                     inOnClick, inContinous, inFont, inTitle,
+                                     inTitlebarTextColor,
+                                     inTitlebarBackColor, inPushConstantForImagePainter, inImageFilePath,
+                                     inMovingColor_4f,
+                                     inHoverColor_4f
+    )
         local ws = {}
         local mTitlebar = o.CreateGeneralButton(inPosition_3f,
             inDimension_3f,
-            nil,
-            nil,
+            inOnClick,
+            inContinous,
             inFont,
             inTitle,
             inTitlebarTextColor,
-            inTitlebarBackColor, nil, nil)
+            inTitlebarBackColor, inPushConstantForImagePainter, inImageFilePath)
 
         local mTitlebarButton = o.CreateButton(inPosition_3f, inDimension_3f)
 
@@ -4302,12 +4796,14 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             ws.mCurrentDimension = inDimension_3f
         end
 
+        local color = vec4(mTitlebar.mColor)
         o.c:Push(Jkr.CreateUpdatable(function()
             local mouseRel = e:GetRelativeMousePos()
             if e:IsLeftButtonPressedContinous() and (e:IsMouseWithinAtTopOfStack(mTitlebarButton.mId, mTitlebarButton.mDepthValue)) then
                 isMoving = true
             end
             if e:IsLeftButtonPressedContinous() and isMoving then
+                mTitlebar:UpdateBackgroundColor(inMovingColor_4f or vec4(1, 0, 0, 1))
                 ws.Update(nil,
                     vec3(mCurrentPosition.x + mouseRel.x,
                         mCurrentPosition.y + mouseRel.y,
@@ -4316,6 +4812,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                 )
             else
                 isMoving = false
+                mTitlebar:UpdateBackgroundColor(color)
             end
         end))
         return ws
@@ -4344,7 +4841,50 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
 
         return tp
     end
+    local alerp = function(a, b, t)
+        return (a * (1 - t) + t * b) * (1 - t) + b * t
+    end
 
+    local alerp_2f = function(a, b, t)
+        return vec2(alerp(a.x, b.x, t), alerp(a.y, b.y, t))
+    end
+
+    local alerp_3f = function(a, b, t)
+        return vec3(alerp(a.x, b.x, t), alerp(a.y, b.y, t), alerp(a.z, b.z, t))
+    end
+
+    local alerp_4f = function(a, b, t)
+        return vec4(alerp(a.x, b.x, t), alerp(a.y, b.y, t), alerp(a.z, b.z, t), alerp(a.w, b.w, t))
+    end
+
+    o.AnimationPush = function(inElement,
+                               inStartPosition_3f, inEndPosition_3f,
+                               inStartDimension_3f, inEndDimension_3f,
+                               step)
+        if not step then
+            step = 0.1
+        end
+        local t = 0
+        local sp = vec2(inStartPosition_3f)
+        local ep = vec2(inEndPosition_3f)
+        local sd = vec2(inStartDimension_3f)
+        local ed = vec2(inEndDimension_3f)
+        local el = inElement
+        local Frame = 1
+        while t <= 1 do
+            local np = alerp_2f(sp, ep, t)
+            local nd = alerp_2f(sd, ed, t)
+            local np3 = vec3(np, inStartPosition_3f.z)
+            local nd3 = vec3(nd, inStartDimension_3f.z)
+            o.c:PushOneTime(Jkr.CreateUpdatable(
+                function()
+                    el:Update(np3, nd3)
+                end
+            ), Frame)
+            Frame = Frame + 1
+            t = t + step
+        end
+    end
 
     return o
 end
