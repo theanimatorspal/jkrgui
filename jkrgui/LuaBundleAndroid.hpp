@@ -2825,6 +2825,9 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
         PBR.PreCalcImages(fShader)
         fShader
             .Push()
+            .Append [[
+            layout(set = 0, binding = 32) uniform sampler2DArray shadowMap;
+            ]]
             .GlslMainBegin()
             .Indent()
             .Append([[

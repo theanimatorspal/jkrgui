@@ -156,6 +156,7 @@ function(configure_target TARGET_NAME)
             OSDependent
             GenericCodeGen
             glslang-default-resource-limits
+            glslang
             spirv-cross-c-shared
             spirv-cross-c
             spirv-cross-core
@@ -236,6 +237,7 @@ function(configure_target TARGET_NAME)
             OSDependent
             GenericCodeGen
             glslang-default-resource-limits
+            glslang
             spirv-cross-c-shared
             spirv-cross-c
             spirv-cross-core
@@ -271,6 +273,7 @@ function(configure_target TARGET_NAME)
             OSDependentd
             GenericCodeGend
             glslang-default-resource-limitsd
+            glslangd
             spirv-cross-c-sharedd
             spirv-cross-cd
             spirv-cross-cored
