@@ -75,7 +75,7 @@ void VulkanSwapChain::Init(CreateInfo inCreateInfo) {
                                            inSurface.GetSurfaceCapabilities().maxImageCount))
               .setImageFormat(inSurface.GetSurfaceImageFormat())
               .setImageExtent(inSurface.GetExtent())
-              //   .setImageColorSpace(inSurface.GetColorSpace())
+              //.setImageColorSpace(inSurface.GetColorSpace())
               .setImageUsage(vk::ImageUsageFlagBits::eColorAttachment |
                              vk::ImageUsageFlagBits::eTransferDst)
               .setImageSharingMode(vk::SharingMode::eExclusive)

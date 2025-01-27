@@ -493,8 +493,8 @@ end
 
 
 Jkr.CreateInstance = function(inEnableValidation, inVarDesSet, inPoolSize, inThreadsCount)
-    if not inVarDesSet then inVarDesSet = 100000 end
-    if not inPoolSize then inPoolSize = 100000 end
+    if not inVarDesSet then inVarDesSet = 1000 end
+    if not inPoolSize then inPoolSize = 1000 end
     if not inThreadsCount then inThreadsCount = 7 end
     return Jkr.Instance(inVarDesSet, inPoolSize, inEnableValidation)
 end
