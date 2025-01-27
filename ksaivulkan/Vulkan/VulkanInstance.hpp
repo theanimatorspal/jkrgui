@@ -29,7 +29,7 @@ class VulkanInstance {
 
     void Init(CreateInfo inCreateInfo);
     void Destroy();
-    vk::DynamicLoader mDynamicLoader;
+    // vk::DynamicLoader mDynamicLoader;
 
     private:
     static DeletionQueueType gDeletionQueue;

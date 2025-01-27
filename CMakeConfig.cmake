@@ -6,7 +6,7 @@ if(APPLE)
     set(VULKAN_VERSION "1.3.280.1")
 elseif(WIN32)
     set(VULKAN_SDK "C:/VulkanSDK")
-    set(VULKAN_VERSION "1.3.275.0")
+    set(VULKAN_VERSION "1.4.304.0")
 endif()
 
 # For Now

@@ -138,7 +138,6 @@ bool SpirvHelper::GLSLtoSPV(vk::ShaderStageFlagBits shader_type,
     TBuiltInResource Resources = {};
     InitResources(Resources);
 
-    // Enable SPIR-V and Vulkan rules when parsing GLSL
     EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules | EShMsgDebugInfo);
 
     shaderStrings[0]     = pshader;
@@ -150,15 +149,11 @@ bool SpirvHelper::GLSLtoSPV(vk::ShaderStageFlagBits shader_type,
         puts(shader.getInfoLog());
         puts(shader.getInfoDebugLog());
         fflush(stdout);
-        return false; // something didn't work
+        return false;
     }
 
     glslang::TProgram program;
     program.addShader(&shader);
-
-    //
-    // Program-level processing...
-    //
 
     if (!program.link(messages)) {
         std::string stuff        = program.getInfoLog();
