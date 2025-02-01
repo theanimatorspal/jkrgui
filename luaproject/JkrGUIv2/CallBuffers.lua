@@ -50,7 +50,7 @@ Jkr.CreateEventable = function(inFunction)
     return o
 end
 
-Jkr.CreateDrawable = function(inId, inBatchable, inDrawType, inImageId, inColor_4f, inPush)
+Jkr.CreateDrawable = function(inId, inBatchable, inDrawType, inImageId, inColor_4f, inPush, inMatrix)
     local o = {}
     o.mBatchable = inBatchable
     o.mImageId = inImageId
@@ -63,6 +63,7 @@ Jkr.CreateDrawable = function(inId, inBatchable, inDrawType, inImageId, inColor_
     o.mId = inId
     o.mImageId = inImageId
     o.mDrawType = inDrawType -- LINE, SHAPE, TEXT
+    o.mMatrix = inMatrix
     return o
 end
 

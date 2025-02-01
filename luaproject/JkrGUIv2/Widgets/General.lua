@@ -82,14 +82,15 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                                      inBackgroundColor,
                                      inPushConstantForImagePainter, ---@todo Remove this
                                      inImageFilePath,
-                                     inImagePainter)
+                                     inImagePainter,
+                                     inMatrix)
         local button = {}
         local push = Jkr.Matrix2CustomImagePainterPushConstant()
         button.mColor = inBackgroundColor or vec4(1)
         push.a = mat4(vec4(0.0), button.mColor, vec4(0.3), vec4(0.0))
 
         if not inImageFilePath then
-            button.quad = o.CreateQuad(inPosition_3f, inDimension_3f, push, "showImage", op.sampledImage.mId)
+            button.quad = o.CreateQuad(inPosition_3f, inDimension_3f, push, "showImage", op.sampledImage.mId, inMatrix)
         else
             button.sampledImage = o.CreateSampledImage(vec3(math.huge), vec3(100, 100, 1), inImageFilePath, true, vec4(1))
             button.quad = o.CreateQuad(inPosition_3f, inDimension_3f, push, "showImage", button.sampledImage.mId)
@@ -129,12 +130,12 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                                  inText,
                                  inColor,
                                  inBackgroundColor,
-                                 inTextOreintation)
+                                 inTextOreintation, inMatrix)
             button.mPosition_3f = inPosition_3f
             button.mDimension_3f = inDimension_3f
             local push = Jkr.Matrix2CustomImagePainterPushConstant()
             push.a = mat4(vec4(0.0), inBackgroundColor or button.mColor, vec4(0.0), vec4(0))
-            button.quad:Update(inPosition_3f, inDimension_3f, push);
+            button.quad:Update(inPosition_3f, inDimension_3f, push, inMatrix);
             if button.parent then
                 button.parent:Update(inPosition_3f, inDimension_3f)
             end
@@ -150,17 +151,19 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                     fontDim = button.sampledText.mFont:GetTextDimension(substr)
                     DelDim = vec3((inDimension_3f.x - fontDim.x) / 2, (inDimension_3f.y - fontDim.y) / 2, 0)
                 end
-                button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, substr, inColor)
+                button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, substr, inColor, inMatrix)
 
                 if inTextOreintation then
                     if inTextOreintation == "LEFT" then
                         DelDim.x = button.padding
-                        button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, substr, inColor)
+                        button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, substr, inColor,
+                            inMatrix)
                     end
                     if inTextOreintation == "RIGHT" then
                         DelDim.x = inPosition_3f.x - fontDim.x - button.padding
                         DelDim.x = inPosition_3f.x
-                        button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, substr, inColor)
+                        button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, substr, inColor,
+                            inMatrix)
                     end
                 end
             end
