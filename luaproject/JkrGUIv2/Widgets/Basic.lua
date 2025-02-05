@@ -216,7 +216,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     -- @warning inShape2DShader refers to the STRING value of o.shape2dShaders.<shader>
     -- e.g. for rounded rectangle use "roundedRectangle"
     -- @warning the second matrix in the push constant cannot be used for anything because it will be sent with the UIMatrix
-    o.CreateQuad = function(inPosition_3f, inDimension_3f, inPushConstant, inShape2DShader, inSampledImageId)
+    o.CreateQuad = function(inPosition_3f, inDimension_3f, inPushConstant, inShape2DShader, inSampledImageId, inMatrix)
         local quad = {}
         local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill, uvec2(inDimension_3f.x, inDimension_3f.y))
         quad.rect = o.s:Add(Rectangle, inPosition_3f)
@@ -226,14 +226,17 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         quad.DrawId = o.c:Push(Jkr.CreateDrawable(quad.rect, true,
             inShape2DShader,
             inSampledImageId,
-            nil, inPushConstant), o.mCurrentScissor)
+            nil, inPushConstant, inMatrix), o.mCurrentScissor)
 
-        quad.Update = function(self, inPosition_3f, inDimension_3f, inPushConstant)
+        quad.Update = function(self, inPosition_3f, inDimension_3f, inPushConstant, inMatrix)
             local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill,
                 uvec2(inDimension_3f.x, inDimension_3f.y))
             o.s:Update(quad.rect, Rectangle, inPosition_3f)
             if inPushConstant then
                 o.c.mDrawables[self.DrawId].mPush = inPushConstant
+            end
+            if inMatrix then
+                o.c.mDrawables[self.DrawId].mMatrix = inMatrix
             end
         end
 
@@ -243,15 +246,16 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     --[============================================================[
                     TEXT LABEL
           ]============================================================]
-    o.CreateTextLabel = function(inPosition_3f, inDimension_3f, inFont, inText, inColor, inNotDraw)
+    o.CreateTextLabel = function(inPosition_3f, inDimension_3f, inFont, inText, inColor, inNotDraw, inMatrix)
         local textLabel = {}
         textLabel.mText = inText
         textLabel.mFont = inFont
         textLabel.mId = o.t:Add(inFont.mId, inPosition_3f, inText)
         if not inNotDraw then
-            textLabel.PushId = o.c:Push(Jkr.CreateDrawable(textLabel.mId, nil, "TEXT", nil, inColor), o.mCurrentScissor)
+            textLabel.PushId = o.c:Push(Jkr.CreateDrawable(textLabel.mId, nil, "TEXT", nil, inColor, nil, inMatrix),
+                o.mCurrentScissor)
         end
-        textLabel.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inColor)
+        textLabel.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inColor, inMatrix)
             --tracy.ZoneBeginN("luatextUpdate")
             if inFont then self.mFont = inFont end
             if inText then self.mText = inText end
@@ -262,6 +266,9 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             end
             if inColor then
                 o.c.mDrawables[self.PushId].mColor = inColor
+            end
+            if inMatrix then
+                o.c.mDrawables[self.PushId].mMatrix = inMatrix
             end
             --tracy.ZoneEnd()
         end
@@ -410,6 +417,10 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     o.FrameDimension = o.w:GetOffscreenFrameDimension()
     o.UIMatrix = Jmath.Ortho(0.0, o.FrameDimension.x, 0.0, o.FrameDimension.y, 1000, -1000)
 
+    o.SetUIMatrix = function(inMatrix)
+        o.UIMatrix = inMatrix
+    end
+
     o.Update = function(self)
         self.c:Update()
     end
@@ -423,7 +434,9 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     local fill_filltype = Jkr.FillType.Fill
     local ui_matrix = o.UIMatrix
     local s2ds = o.shape2dShaders
+    local identity_matrix = Jmath.GetIdentityMatrix4x4()
     local DrawAll = function(inMap, inindex)
+        local scissor_matrix = o.scissor_matrices[inindex]
         -- tracy.ZoneBeginN("luamainDrawALL")
         s:BindShapes(w, cmdparam)
         for key, value in pairs(inMap) do
@@ -440,7 +453,9 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
                     else
                         s:BindFillMode(fill_filltype, w, cmdparam)
                     end
-                    drawable.mPush.b = ui_matrix * (o.scissor_matrices[inindex] or Jmath.GetIdentityMatrix4x4())
+                    drawable.mPush.b =
+                        (drawable.mMatrix or ui_matrix) *
+                        (scissor_matrix or identity_matrix)
                     Jkr.DrawShape2DWithSimple3D(w, shader, s.handle, drawable.mPush, drawable.mId, drawable
                         .mId,
                         cmdparam)
@@ -457,7 +472,10 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
                 local drawables_count = #drawables
                 for i = 1, drawables_count, 1 do
                     local drawable = drawables[i]
-                    t:Draw(drawable.mId, w, drawable.mColor, ui_matrix, cmdparam)
+                    t:Draw(drawable.mId, w, drawable.mColor,
+                        (drawable.mMatrix or ui_matrix) *
+                        (scissor_matrix or identity_matrix),
+                        cmdparam)
                 end
             end
         end

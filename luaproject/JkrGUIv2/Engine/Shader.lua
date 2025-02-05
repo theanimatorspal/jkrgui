@@ -1801,18 +1801,24 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
                     ]]
             else
                 fshader.Append [[
-                    outFragColor = texture(uBaseColorTexture, vUV);
+                    vec4 color = Push.m2[0];
+                    vec4 emission_color = Push.m2[1];
+                    vec4 outC = texture(uBaseColorTexture, vUV);
+                    outFragColor = vec4(outC.x * color.x, outC.y * color.y, outC.z * color.z, outC.w * color.w) + emission_color;
                     ]]
             end
         elseif inextraInfo and inextraInfo.baseColorTexture == true then
             fshader.Append [[
                     vec4 color = Push.m2[0];
+                    vec4 emission_color = Push.m2[1];
                     vec4 outC = texture(uBaseColorTexture, vUV);
-                    outFragColor = vec4(outC.x * color.x, outC.y * color.y, outC.z * color.z, outC.w * color.w);
+                    outFragColor = vec4(outC.x * color.x, outC.y * color.y, outC.z * color.z, outC.w * color.w) + emission_color;
                     ]]
         else
             fshader.Append [[
-                outFragColor = vec4(vColor.x, vColor.y, vColor.z, 1);
+                vec4 color = Push.m2[0];
+                vec4 emission_color = Push.m2[1];
+                outFragColor = vec4(vColor.x * color.x, vColor.y * color.y, vColor.z * color.z, 1 * color.w) + emission_color;
             ]]
         end
         fshader.GlslMainEnd()
