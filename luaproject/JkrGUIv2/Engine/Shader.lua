@@ -1816,7 +1816,9 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
                     ]]
         else
             fshader.Append [[
-                outFragColor = vec4(vColor.x, vColor.y, vColor.z, 1);
+                vec4 color = Push.m2[0];
+                vec4 emission_color = Push.m2[1];
+                outFragColor = vec4(vColor.x * color.x, vColor.y * color.y, vColor.z * color.z, 1 * color.w) + emission_color;
             ]]
         end
         fshader.GlslMainEnd()

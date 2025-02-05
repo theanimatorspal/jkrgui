@@ -28,8 +28,8 @@
             "--run",
             // "asst",
             // "Experiment/app"
-            "jkrguipr2",
-            // "jkrguipr"
+            // "test",
+            "jkrguipr"
             // "--android-environment",
             // "--appname \"tester\"",
             // "--dirname \"android\"",
