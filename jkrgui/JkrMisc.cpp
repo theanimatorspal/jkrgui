@@ -165,6 +165,8 @@ void CreateMiscBindings(sol::state &inState) {
          "Camera3D",
          sol::call_constructor,
          sol::factories([]() { return mu<Camera3D>(); }),
+         "GetEye",
+         &Camera3D::GetPosition,
          "GetProjectionMatrix",
          &Camera3D::GetProjectionMatrix,
          "GetViewMatrix",

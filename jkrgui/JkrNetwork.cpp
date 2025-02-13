@@ -246,6 +246,36 @@ void CreateNetworkBindings(sol::state &s) {
                      sol::overload(&ConvertToVChar<glm::vec2>,
                                    &ConvertToVChar<glm::vec3>,
                                    &ConvertToVChar<glm::vec4>));
+
+    Jkr.new_usertype<Jkr::Network::ServerInterface>(
+         "ServerInterface",
+         sol::call_constructor,
+         sol::constructors<Jkr::Network::ServerInterface(uint16_t)>(),
+         "Start",
+         &Jkr::Network::ServerInterface::Start,
+         "Stop",
+         &Jkr::Network::ServerInterface::Stop,
+         "WaitForClientConnection",
+         &Jkr::Network::ServerInterface::WaitForClientConnection,
+         "MessageClient",
+         &Jkr::Network::ServerInterface::MessageClient,
+         "MessageAllClient",
+         &Jkr::Network::ServerInterface::MessageAllClient,
+         "Update",
+         &Jkr::Network::ServerInterface::Update);
+
+    Jkr.new_usertype<Jkr::Network::ClientInterface>(
+         "ClientInterface",
+         sol::call_constructor,
+         sol::constructors<Jkr::Network::ClientInterface()>(),
+         "Connect",
+         &Jkr::Network::ClientInterface::Connect,
+         "Disconnect",
+         &Jkr::Network::ClientInterface::Disconnect,
+         "Send",
+         &Jkr::Network::ClientInterface::Send,
+         "IsConnected",
+         &Jkr::Network::ClientInterface::IsConnected);
 }
 
 } // namespace JkrEXE

@@ -50,32 +50,32 @@
                 "scope": "keyword",
                 "settings": {
                     "fontStyle": "underline",
-                    "foreground": "#8850ff"
+                    // "foreground": "#8850ff"
                 }
             },
             {
                 "scope": "'variable.parameter",
                 "settings": {
-                    "foreground": "#00aa09"
+                    // "foreground": "#00aa09"
                 }
             },
             {
                 "scope": "variable.language",
                 "settings": {
-                    "foreground": "#0f09ff"
+                    // "foreground": "#0f09ff"
                 }
             },
             {
                 "scope": "string",
                 "settings": {
-                    "foreground": "#aa08f0"
+                    // "foreground": "#aa08f0"
                 }
             },
             {
                 "scope": "entity.name.function",
                 "settings": {
                     "fontStyle": "bold",
-                    "foreground": "#0f89ff"
+                    // "foreground": "#0f89ff"
                 }
             },
             {
@@ -85,7 +85,7 @@
                     "comment.block.documentation"
                 ],
                 "settings": {
-                    "foreground": "#FF0000",
+                    // "foreground": "#FF0000",
                     "fontStyle": "bold"
                 }
             }
@@ -145,4 +145,5 @@
         "StateId"
     ],
     "vim.enableNeovim": true,
+    "codetogether.virtualCursorJoin": "ownVirtualCursor",
 }

@@ -20,7 +20,7 @@ struct Camera3D {
     SETTER SetProjectionMatrix(glm::mat4 inMatrix) { mProjection = inMatrix; }
     SETTER SetViewMatrix(glm::mat4 inMatrix) { mView = inMatrix; }
 
-    GETTER GetPosition() const { return mEye; }
+    GETTER GetPosition() const { return mEye; } // rename to GetEye
     GETTER GetTarget() const { return mTarget; }
     GETTER GetView() const { return mView; }
     GETTER GetProjection() const { return mProjection; }

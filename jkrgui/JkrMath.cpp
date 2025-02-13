@@ -257,8 +257,14 @@ void CreateGLMBindings(sol::state &lua) {
          sol::meta_function::multiplication,
          mat4_multiply_overloads,
          sol::meta_function::index,
-         sol::overload([](glm::mat4 &inMat4, int inIndex) { return inMat4[inIndex - 1]; },
+         sol::overload([](glm::mat4 &inMat4, int inIndex) { return &inMat4[inIndex - 1]; },
                        [](glm::mat4 &inMat4, std::string_view inString) { return false; }),
+         sol::meta_function::new_index,
+         sol::overload([](glm::mat4 &inMat4, int inIndex) { return &inMat4[inIndex - 1]; },
+                       [](glm::mat4 &inMat4, std::string_view inString) { return false; }),
+         //     "SetValue",
+         //     [](glm::mat4 &inMat4, int inX, int inY, float value) { inMat4[inX - 1][inY - 1] =
+         //     value; },
          "GetTranslationComponent",
          [](glm::mat4 &inMatrix) {
              glm::vec3 scale;
