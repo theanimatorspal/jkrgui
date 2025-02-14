@@ -1,14 +1,104 @@
+include(FetchContent)
 # SET C++ STANDARD TO C++20
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 cmake_policy(SET CMP0069 NEW) 
 set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-
 if(WIN32)
     add_definitions(-DWIN32_LEAN_AND_MEAN -DNOMINMAX)
 endif()
 
+# Fetch SDL2
+FetchContent_Declare(
+  SDL2
+  GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+  GIT_TAG release-2.30.8       # Use the specific tag for version 2.30.8
+  GIT_SHALLOW TRUE             # Fetch only the latest commit
+)
+
+# Make the content available
+FetchContent_MakeAvailable(SDL2)
+
+# Fetch SPIRV-Headers
+FetchContent_Declare(
+  spirv-headers
+  GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
+  GIT_TAG vulkan-sdk-1.4.304.0     
+  GIT_SHALLOW TRUE          
+)
+FetchContent_MakeAvailable(spirv-headers)
+
+# Fetch SPIRV-Tools
+set(SPIRV_TOOLS_BUILD_STATIC ON CACHE BOOL "Build SPIRV-Tools as a static library" FORCE)
+set(SPIRV_SKIP_TESTS ON CACHE BOOL "Disable tests in SPIRV-Tools" FORCE)
+set(SPIRV_SKIP_EXECUTABLES ON CACHE BOOL "Disable executables in SPIRV-Tools" FORCE)
+FetchContent_Declare(
+  spirv-tools
+  GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
+  GIT_TAG vulkan-sdk-1.4.304.0     
+  GIT_SHALLOW TRUE          
+)
+FetchContent_MakeAvailable(spirv-tools)
+
+FetchContent_Declare(
+  spirv-cross
+  GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Cross.git
+  GIT_TAG vulkan-sdk-1.4.304.0     
+  GIT_SHALLOW TRUE          
+)
+FetchContent_MakeAvailable(spirv-cross)
+
+# Fetch glslang
+set(ENABLE_SPVREMAPPER ON CACHE BOOL "Disable building spirv-remap tool" FORCE)
+set(ENABLE_GLSLANG_BINARIES OFF CACHE BOOL "Disable building glslangValidator and other binaries" FORCE)
+set(BUILD_TESTING OFF CACHE BOOL "Disable testing in glslang" FORCE)
+FetchContent_Declare(
+  glslang
+  GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
+  GIT_TAG vulkan-sdk-1.4.304.0  
+  GIT_SHALLOW TRUE            
+)
+FetchContent_MakeAvailable(glslang)
+
+
+# Fetch Brotli
+FetchContent_Declare(
+  brotli
+  GIT_REPOSITORY https://github.com/google/brotli.git
+  GIT_TAG v1.1.0
+  GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(brotli)
+
+# Fetch Freetype
+FetchContent_Declare(
+  freetype
+  GIT_REPOSITORY https://gitlab.freedesktop.org/freetype/freetype.git
+  GIT_TAG VER-2-13-2
+  GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(freetype)
+
+# Fetch Harfbuzz
+FetchContent_Declare(
+  harfbuzz
+  GIT_REPOSITORY https://github.com/harfbuzz/harfbuzz.git
+  GIT_TAG 8.2.2
+  GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(harfbuzz)
+
+# Fetch libpng
+FetchContent_Declare(
+  libpng
+  GIT_REPOSITORY https://github.com/glennrp/libpng.git
+  GIT_TAG v1.6.40
+  GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(libpng)
+
+
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 # Include directories
 include_directories(${CMAKE_JKRGUI_DIR}/application)
 include_directories(${CMAKE_JKRGUI_DIR}/jkrengine)
@@ -180,39 +270,39 @@ function(configure_target TARGET_NAME)
         android
         log
         # jnigraphics
-        brotlicommon-static
-		brotlidec-static
-		brotlienc-static
-		bz2
-		freetype
-		GenericCodeGen
-		glslang-default-resource-limits
-		glslang
-		harfbuzz-subset
-		harfbuzz
-		lua
-		MachineIndependent
-		OSDependent
-		png
-		png16
-		SDL2
-		spirv-cross-c
-		spirv-cross-core
-		spirv-cross-cpp
-		spirv-cross-glsl
-		spirv-cross-hlsl
-		spirv-cross-msl
-		spirv-cross-reflect
-		spirv-cross-util
-		SPIRV-Tools-diff
-		SPIRV-Tools-link
-		SPIRV-Tools-lint
-		SPIRV-Tools-opt
-		SPIRV-Tools-reduce
-		SPIRV-Tools
-		SPIRV
-		SPVRemapper
-		z
+        # brotlicommon-static
+        # brotlidec-static
+        # brotlienc-static
+        # bz2
+        freetype
+        GenericCodeGen
+        glslang-default-resource-limits
+        glslang
+        harfbuzz-subset
+        harfbuzz
+        lua
+        MachineIndependent
+        OSDependent
+        # png
+        # png16
+        SDL2
+        spirv-cross-c
+        spirv-cross-core
+        spirv-cross-cpp
+        spirv-cross-glsl
+        spirv-cross-hlsl
+        spirv-cross-msl
+        spirv-cross-reflect
+        spirv-cross-util
+        SPIRV-Tools-diff
+        SPIRV-Tools-link
+        SPIRV-Tools-lint
+        SPIRV-Tools-opt
+        SPIRV-Tools-reduce
+        SPIRV-Tools
+        SPIRV
+        SPVRemapper
+        z
    )
 endfunction()
 

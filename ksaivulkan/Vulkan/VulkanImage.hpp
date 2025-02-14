@@ -1,7 +1,6 @@
 #pragma once
 #include "VulkanImageContext.hpp"
 #include "VulkanQueue.hpp"
-#include <vulkan/vulkan_raii.hpp>
 
 namespace ksai {
 

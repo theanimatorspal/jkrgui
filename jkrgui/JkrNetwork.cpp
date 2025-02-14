@@ -247,35 +247,54 @@ void CreateNetworkBindings(sol::state &s) {
                                    &ConvertToVChar<glm::vec3>,
                                    &ConvertToVChar<glm::vec4>));
 
-    Jkr.new_usertype<Jkr::Network::ServerInterface>(
-         "ServerInterface",
-         sol::call_constructor,
-         sol::constructors<Jkr::Network::ServerInterface(uint16_t)>(),
-         "Start",
-         &Jkr::Network::ServerInterface::Start,
-         "Stop",
-         &Jkr::Network::ServerInterface::Stop,
-         "WaitForClientConnection",
-         &Jkr::Network::ServerInterface::WaitForClientConnection,
-         "MessageClient",
-         &Jkr::Network::ServerInterface::MessageClient,
-         "MessageAllClient",
-         &Jkr::Network::ServerInterface::MessageAllClient,
-         "Update",
-         &Jkr::Network::ServerInterface::Update);
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    using namespace Jkr::Network;
 
-    Jkr.new_usertype<Jkr::Network::ClientInterface>(
+    Jkr.new_usertype<Connection>("Connection");
+
+    Jkr.new_usertype<ClientInterface>(
          "ClientInterface",
          sol::call_constructor,
-         sol::constructors<Jkr::Network::ClientInterface()>(),
+         sol::default_constructor,
          "Connect",
-         &Jkr::Network::ClientInterface::Connect,
+         [](ClientInterface &inInterface, sv inHost, int inPort) {
+             inInterface.Connect(OnClientValidationFunction, inHost, inPort);
+         },
          "Disconnect",
-         &Jkr::Network::ClientInterface::Disconnect,
-         "Send",
-         &Jkr::Network::ClientInterface::Send,
+         &ClientInterface::Disconnect,
          "IsConnected",
-         &Jkr::Network::ClientInterface::IsConnected);
+         &ClientInterface::IsConnected,
+         "Send",
+         &ClientInterface::Send);
+
+    Jkr.new_usertype<ServerInterface>(
+         "ServerInterface",
+         sol::call_constructor,
+         sol::constructors<ServerInterface(uint16_t)>(),
+         "Start",
+         [](ServerInterface &inServer) {
+             inServer.Start(OnClientValidationFunction, OnClientConnectionFunction);
+         },
+         "Stop",
+         &ServerInterface::Stop,
+         "MessageClient",
+         [](ServerInterface &inServer, sp<Connection> inClient, const Message &inMsg) {
+             inServer.MessageClient(inClient, inMsg, OnClientDisConnectionFunction);
+         },
+         "MessageAllClient",
+         [](ServerInterface &inServer, const Message &inMsg) {
+             inServer.MessageAllClient(inMsg, OnClientDisConnectionFunction);
+         },
+         "Update",
+         [](ServerInterface &inServer, int inMaxMessages, bool inWait) {
+             inServer.Update(OnMessageFunction, inMaxMessages, inWait);
+         });
 }
 
 } // namespace JkrEXE

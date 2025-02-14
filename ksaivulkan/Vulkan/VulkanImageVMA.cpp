@@ -81,13 +81,13 @@ void VulkanImageVMA::Init(CreateInfo inCreateInfo) {
                    &Image_C,
                    &mAllocation,
                    nullptr);
-    mImage = Image_C;
+    mImage = (vk::Image)Image_C;
     CreateImageView(mImage);
     mInitialized = true;
 }
 
 void VulkanImageVMA::Destroy() {
     mDevice->waitIdle();
-    vmaDestroyImage(mVMA->GetVMAHandle(), mImage, mAllocation);
+    vmaDestroyImage(mVMA->GetVMAHandle(), (VkImage)mImage, mAllocation);
     mInitialized = false;
 }

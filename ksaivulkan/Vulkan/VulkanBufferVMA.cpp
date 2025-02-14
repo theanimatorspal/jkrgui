@@ -59,13 +59,13 @@ void VulkanBufferVMA::Init(CreateInfo info) {
                     &Buffer_C,
                     &mAllocation,
                     nullptr);
-    mBufferHandle = Buffer_C;
+    mBufferHandle = (vk::Buffer)Buffer_C;
     mInitialized  = true;
 }
 
 void VulkanBufferVMA::Destroy() {
     if (mMemoryMapped) vmaUnmapMemory(mAllocator->GetVMAHandle(), mAllocation);
     mDevice->waitIdle();
-    vmaDestroyBuffer(mAllocator->GetVMAHandle(), mBufferHandle, mAllocation);
+    vmaDestroyBuffer(mAllocator->GetVMAHandle(), (VkBuffer)mBufferHandle, mAllocation);
     mInitialized = false;
 }

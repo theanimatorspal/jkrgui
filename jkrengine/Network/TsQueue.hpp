@@ -4,20 +4,20 @@
 namespace Jkr::Network {
 template <typename T> class TsQueue {
     public:
-    TsQueue()                  = default;
-    TsQueue(const TsQueue<T>&) = delete;
+    TsQueue()                   = default;
+    TsQueue(const TsQueue<T> &) = delete;
     ~TsQueue() { clear(); }
-    const T& front() {
+    const T &front() {
         std::scoped_lock<std::mutex> lock(mQueueMutex);
         return mQueue.front();
     }
 
-    const T& back() {
+    const T &back() {
         std::scoped_lock<std::mutex> lock(mQueueMutex);
         return mQueue.back();
     }
 
-    void push_back(const T& inItem) {
+    void push_back(const T &inItem) {
         std::scoped_lock<std::mutex> lock(mQueueMutex);
         mQueue.push_back(std::move(inItem));
 
@@ -25,7 +25,7 @@ template <typename T> class TsQueue {
         mCVBlocking.notify_one();
     }
 
-    void push_front(const T& inItem) {
+    void push_front(const T &inItem) {
         std::scoped_lock<std::mutex> lock(mQueueMutex);
         mQueue.push_front(std::move(inItem));
 
@@ -67,6 +67,16 @@ template <typename T> class TsQueue {
             std::unique_lock<std::mutex> ul(mBlockingMutex);
             mCVBlocking.wait(ul);
         }
+    }
+
+    auto begin() {
+        std::scoped_lock<std::mutex> lock(mQueueMutex);
+        return mQueue.begin();
+    }
+
+    auto end() {
+        std::scoped_lock<std::mutex> lock(mQueueMutex);
+        return mQueue.end();
     }
 
     protected:
