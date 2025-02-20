@@ -84,6 +84,7 @@ struct FileJkr {
     FileJkr();
     FileJkr(s inFileName);
     ~FileJkr();
+    ///@todo Replace inId as const char with std::string
     template <typename T> void Write(const char inId[IdSize], T inData) {
         auto data   = Serialize(inData);
         auto header = Header{"", mData.size(), data.size()};

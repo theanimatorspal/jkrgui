@@ -11,6 +11,7 @@ jkrgui --and-env --appname appname --dirname dirname --builddir builddirname
 
 example:
 jkrgui --and-env --appname JkrGUIConnect --dirname android
+jkrgui --and-env --appname JkrGUIConnect --dirname android android-arm64-v8a\ Release
 
 Here,
 -> android-arm64-v8a is default builddir, it refers to the location of jkrgui.so file

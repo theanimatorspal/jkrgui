@@ -705,3 +705,197 @@ Engine.CreateWorld3D = function(w, inshaper3d)
     Jkr.RegisterShadowPassImageToUniform3D(w, globaluniformhandle, 32)
     return world3d, camera3d
 end
+
+-- Define ANSI color codes for different log levels
+local colors = {
+    INFO = "\27[34m",    -- Blue
+    WARNING = "\27[33m", -- Yellow
+    ERROR = "\27[31m",   -- Red
+    DEBUG = "\27[36m",   -- Cyan
+    RESET = "\27[0m"     -- Reset color
+}
+
+Engine.log = function(msg, type)
+    type = type or "INFO"
+    local color = colors[type] or colors.INFO -- Default to blue if type is unknown
+
+    local log = string.format("%s[JKR %s]: %s%s\n", color, type, msg, colors.RESET)
+    io.write(log)
+end
+
+Engine.GameFramework = function(inf)
+    local f = inf or {}
+    Engine:Load(f.validation)
+    Jkr.GetLayoutsAsVH()
+    f.els = {}                       -- 2D elements
+    f.run = true
+    f.fd  = f.fd or vec2(800, 800)   -- frame dimenstion offscreen
+    f.wd  = f.wd or vec2(800, 800)   -- initialwindow dimension
+    f.bc  = f.bc or vec4(1, 0, 0, 1) -- background color
+    f.tc  = f.tc or 3                -- thread count
+    f.bd  = f.bd or 50               -- base depth, from camera
+    f.nfs = f.nfs or 16              -- normal fontsize
+    f.lfs = f.lfs or 24              -- normal fontsize
+    f.sfs = f.sfs or 8               -- normal fontsize
+    f.e   = Engine.e
+    f.i   = Engine.i
+    f.w   = Jkr.CreateWindow(Engine.i, inf.heading or "Game Framework", f.wd, f.tc, f.fd)
+    f.w:BuildShadowPass()
+    Engine.log("")
+    Engine.log("Built Shadow Pass")
+    f.wr = Jkr.CreateGeneralWidgetsRenderer(nil, Engine.i, f.w, f.e)
+    Engine.log("Created Widgets Renderer")
+    try(
+        function()
+            f.nf = f.wr.CreateFont("res/font.ttf", f.nfs)
+            f.lf = f.wr.CreateFont("res/font.ttf", f.lfs)
+            f.sf = f.wr.CreateFont("res/font.ttf", f.sfs)
+        end, "res/font.ttf not found, place it there"
+    )
+    Engine.log(string.format("Created Fonts [%s] -> %d, %d, %d", "res/font.ttf", f.nfs, f.lfs, f.sfs))
+
+    if not f.validation then
+        Engine.log("Validation Disabled", "WARNING")
+    end
+    -- ThreeD
+    f.sha        = Jkr.CreateShapeRenderer3D(f.i, f.w)
+    f.wor, f.cam = Engine.CreateWorld3D(f.w, f.sha)
+
+    if f.initialize_painters then
+        if not f.painters then
+            f.painters = {}
+            f.painters.line = Jkr.CreateCustomImagePainter("cache/LINE2D.glsl", TwoDimensionalIPs.Line.str)
+            f.painters.clear = Jkr.CreateCustomImagePainter("cache/CLEAR2D.glsl", TwoDimensionalIPs.Clear.str)
+            f.painters.line:Store(f.i, f.w)
+            f.painters.clear:Store(f.i, f.w)
+            Engine.log("Painters Initialized Successfully", "INFO")
+        end
+    end
+    Engine.e:SetEventCallBack(
+        function()
+            f.wr:Event()
+        end
+    )
+    local currentTime  = f.w:GetWindowCurrentTime()
+    local residualTime = 0
+    f.stepTime         = f.stepTime or 0.001
+    f.loop             = function()
+        local e = f.e
+        local w = f.w
+        local bc = f.bc
+        local Update = f.Update
+        local Dispatch = f.Dispatch
+        local Draw = f.Draw
+        local stepTime = f.stepTime
+        while (not e:ShouldQuit()) and f.run do
+            local deltaTime = (w:GetWindowCurrentTime() - currentTime) / 1000
+            if deltaTime > stepTime then
+                Update()
+                residualTime = deltaTime
+                currentTime = w:GetWindowCurrentTime()
+            else
+                residualTime = residualTime / 1000 + stepTime - deltaTime
+            end
+            e:ProcessEventsEXT(w)
+            w:Wait()
+            w:AcquireImage()
+            w:BeginRecording()
+            Dispatch()
+            w:BeginUIs()
+            Draw()
+            w:EndUIs()
+
+            w:BeginDraws(bc.x, bc.y, bc.z, bc.w, 1)
+            w:ExecuteUIs()
+            w:EndDraws()
+
+            w:BlitImage()
+            w:EndRecording()
+
+            w:Present()
+        end
+    end
+    f.PC               = function(a, b)
+        local o = Jkr.Matrix2CustomImagePainterPushConstant()
+        o.a = a or Jmath.GetIdentityMatrix4x4()
+        o.b = b or Jmath.GetIdentityMatrix4x4()
+        return o
+    end
+    f.I                = function(inPosition_3f, inDimension_3f)
+        local o = {}
+        local p = f.PC()
+        p.a = mat4(vec4(0), vec4(1), vec4(0.3), vec4(0.0))
+        o[1] = f.wr.CreateComputeImage(vec3(0), inDimension_3f)
+        o[2] = f.wr.CreateSampledImage(vec3(0), inDimension_3f)
+        o[3] = f.wr.CreateQuad(inPosition_3f, inDimension_3f, p, "showImage", o[2].mId)
+        o[1].RegisterPainter(f.painters.line)
+
+        o.Bind = function(inPainter)
+            inPainter:Bind(f.w, Jkr.CmdParam.None)
+            inPainter:BindImageFromImage(f.w, o[1], Jkr.CmdParam.None)
+        end
+        o.Update = function(inPosition_3f, inDimension_3f)
+            o[3]:Update(inPosition_3f, inDimension_3f)
+        end
+        o.Draw = function(inPainter, inPC)
+            inPainter:Draw(f.w, inPC, math.ceil(inDimension_3f.x / 16.0), math.ceil(inDimension_3f.y / 16.0), 1,
+                Jkr.CmdParam.None)
+        end
+        o.DrawDebugLines = function(t)
+            f.painters.line:Bind(f.w, Jkr.CmdParam.None)
+            f.painters.line:BindImageFromImage(f.w, o[1], Jkr.CmdParam.None)
+            t = t or 1
+            local line1 = vec4(0, 0, inDimension_3f.x, 0)
+            local line2 = vec4(0, 0, 0, inDimension_3f.y)
+            local line3 = vec4(inDimension_3f.x - t, t, inDimension_3f.x - t, inDimension_3f.y - t)
+            local line4 = vec4(t, inDimension_3f.y - t, inDimension_3f.x - t, inDimension_3f.y - t)
+            local color = vec4(1, 0, 0, 1)
+            local thickness = vec4(t)
+            o.Draw(f.painters.line, f.PC(mat4(line1, color, thickness, vec4(0))))
+            o.Draw(f.painters.line, f.PC(mat4(line2, color, thickness, vec4(0))))
+            o.Draw(f.painters.line, f.PC(mat4(line3, color, thickness, vec4(0))))
+            o.Draw(f.painters.line, f.PC(mat4(line4, color, thickness, vec4(0))))
+        end
+        o.Copy = function()
+            o[1].CopyToSampled(o[2])
+            o[1].handle:SyncAfter(f.w, Jkr.CmdParam.None)
+        end
+        return o
+    end
+    f.B                = function(v)
+        if not v.e then
+            v.p = v.p or vec3(0, 0, f.bd)
+            v.onclick = v.onclick or function() end
+            v.c = v.c or vec4(vec3(0), 1)
+            v.bc = v.bc or vec4(0.9, 0.8, 0.95, 0.6)
+            v.f = v.f or f.nf
+            local dim = v.f:GetTextDimension(v.t or " ")
+            v.d = v.d or vec3(dim.x + 5, dim.y + 5, 1)
+            local Value = f.wr.CreateGeneralButton(
+                v.p,
+                v.d,
+                v.onclick,
+                v.continous,
+                v.f,
+                v.t,
+                v.c,
+                v.bc,
+                v.pc,
+                v.img,
+                v.imgp,
+                v.matrix
+            )
+            Value:Update(v.p, v.d)
+            if v.en then
+                f.els[v.en] = Value
+            end
+            v = {}
+            v = Value
+        else
+            v.Update = function(self, _, _) end
+        end
+        return v
+    end
+
+    return f
+end

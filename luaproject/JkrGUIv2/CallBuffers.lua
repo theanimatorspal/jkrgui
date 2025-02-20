@@ -8,6 +8,72 @@ local lerp_3f = function(a, b, t)
     return vec3(lerp(a.x, b.x, t), lerp(a.y, b.y, t), lerp(a.z, b.z, t))
 end
 
+local glerp, glerp_2f, glerp_3f, glerp_4f, glerp_mat4f
+local gSetInterpolationType = function(inType)
+    if inType == "QUADLINEAR" then
+        glerp = function(a, b, t)
+            return (a * (1 - t) + t * b) * (1 - t) + b * t
+        end
+    elseif inType == "LINEAR" then
+        glerp = function(a, b, t)
+            return a * (1 - t) + t * b
+        end
+    end
+    glerp_2f = function(a, b, t)
+        return vec2(glerp(a.x, b.x, t), glerp(a.y, b.y, t))
+    end
+
+    glerp_3f = function(a, b, t)
+        return vec3(glerp(a.x, b.x, t), glerp(a.y, b.y, t), glerp(a.z, b.z, t))
+    end
+
+    glerp_4f = function(a, b, t)
+        return vec4(glerp(a.x, b.x, t), glerp(a.y, b.y, t), glerp(a.z, b.z, t), glerp(a.w, b.w, t))
+    end
+    glerp_mat4f = function(a, b, t)
+        return mat4(
+            glerp_4f(a[1], b[1], t),
+            glerp_4f(a[2], b[2], t),
+            glerp_4f(a[3], b[3], t),
+            glerp_4f(a[4], b[4], t)
+        )
+    end
+end
+
+gSetInterpolationType("QUADLINEAR")
+
+Jkr.CreateCustomAnimation = function(inCallBuffer, inValue1, inValue2, funcable, inFrame, inInverseSpeed)
+    local InverseSpeed = 0.01
+    local t = 0
+    if inInverseSpeed then
+        InverseSpeed = inInverseSpeed
+    end
+    local Frame = inFrame or 1
+    if type(inValue1) == "userdata" then
+        while t <= 1 do
+            local mat = glerp_mat4f(inValue1, inValue2)
+            inCallBuffer:PushOneTime(function()
+                funcable(mat)
+            end, Frame)
+            t = t + InverseSpeed
+            Frame = Frame + 1
+        end
+    elseif type(inValue1) == "table" then
+        while t <= 1 do
+            local value = {}
+            for i = 1, #inValue1 do
+                value[#value + 1] = glerp_mat4f(inValue1[i], inValue2[i])
+            end
+            inCallBuffer:PushOneTime(function()
+                funcable(value)
+            end, Frame)
+            t = t + InverseSpeed
+            Frame = Frame + 1
+        end
+    end
+    return Frame
+end
+
 Jkr.CreateAnimationPosDimen = function(inCallBuffer, inFrom, inTo, inComponent, inInverseSpeed)
     local InverseSpeed = 0.01
     local t = 0

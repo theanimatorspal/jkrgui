@@ -17,6 +17,7 @@
 using namespace ksai;
 using namespace std;
 
+#ifndef __ANDROID__
 namespace BuildSystem {
 const string_view DefaultCMakeListsFile = R"CmakeListsFile(cmake_minimum_required(VERSION 3.27)
 set(CMAKE_CXX_STANDARD 20)
@@ -254,3 +255,4 @@ void CreateLuaLibraryEnvironment(sv inLibraryName,
 }
 
 }; // namespace BuildSystem
+#endif

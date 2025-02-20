@@ -101,7 +101,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             inDimension_3f = vec3(100, 100, 1)
         end
 
-        if (inOnClickFunction) then
+        if type(inOnClickFunction) == "function" then
             button.parent = o.CreateButton(inPosition_3f, inDimension_3f, inOnClickFunction, inContinous)
             setmetatable(button, button.parent)
             button.__index = button.parent

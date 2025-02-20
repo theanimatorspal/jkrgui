@@ -1,4 +1,27 @@
 include(FetchContent)
+# the number of parallel builds
+set(CMAKE_BUILD_PARALLEL_LEVEL 8)
+add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
+# Define additional flags based on the platform and build type
+if(ANDROID)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS -DLUA_USE_LINUX)
+elseif(APPLE)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED)
+else()
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED -DTRACY_ENABLE)
+    else()
+        add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED)
+    endif()
+endif()
+
+# Set debug information format for MSVC
+if(MSVC)
+    if(POLICY CMP0141)
+        cmake_policy(SET CMP0141 NEW)
+        set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
+    endif()
+endif()
 # SET C++ STANDARD TO C++20
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -8,94 +31,99 @@ if(WIN32)
     add_definitions(-DWIN32_LEAN_AND_MEAN -DNOMINMAX)
 endif()
 
-# Fetch SDL2
-FetchContent_Declare(
-  SDL2
-  GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-  GIT_TAG release-2.30.8       # Use the specific tag for version 2.30.8
-  GIT_SHALLOW TRUE             # Fetch only the latest commit
-)
+set(FETCH_AND_COMP OFF)
 
-# Make the content available
-FetchContent_MakeAvailable(SDL2)
+if(ANDROID)
+    set(FETCH_AND_COMP ON)
+endif()
 
-# Fetch SPIRV-Headers
-FetchContent_Declare(
-  spirv-headers
-  GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
-  GIT_TAG vulkan-sdk-1.4.304.0     
-  GIT_SHALLOW TRUE          
-)
-FetchContent_MakeAvailable(spirv-headers)
+if(FETCH_AND_COMP)
+    # Fetch SDL2
+    FetchContent_Declare(
+    SDL2
+    GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+    GIT_TAG release-2.30.8       # Use the specific tag for version 2.30.8
+    GIT_SHALLOW TRUE             # Fetch only the latest commit
+    )
 
-# Fetch SPIRV-Tools
-set(SPIRV_TOOLS_BUILD_STATIC ON CACHE BOOL "Build SPIRV-Tools as a static library" FORCE)
-set(SPIRV_SKIP_TESTS ON CACHE BOOL "Disable tests in SPIRV-Tools" FORCE)
-set(SPIRV_SKIP_EXECUTABLES ON CACHE BOOL "Disable executables in SPIRV-Tools" FORCE)
-FetchContent_Declare(
-  spirv-tools
-  GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
-  GIT_TAG vulkan-sdk-1.4.304.0     
-  GIT_SHALLOW TRUE          
-)
-FetchContent_MakeAvailable(spirv-tools)
+    # Make the content available
+    FetchContent_MakeAvailable(SDL2)
 
-FetchContent_Declare(
-  spirv-cross
-  GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Cross.git
-  GIT_TAG vulkan-sdk-1.4.304.0     
-  GIT_SHALLOW TRUE          
-)
-FetchContent_MakeAvailable(spirv-cross)
+    # Fetch SPIRV-Headers
+    FetchContent_Declare(
+    spirv-headers
+    GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
+    GIT_TAG vulkan-sdk-1.4.304.0     
+    GIT_SHALLOW TRUE          
+    )
+    FetchContent_MakeAvailable(spirv-headers)
 
-# Fetch glslang
-set(ENABLE_SPVREMAPPER ON CACHE BOOL "Disable building spirv-remap tool" FORCE)
-set(ENABLE_GLSLANG_BINARIES OFF CACHE BOOL "Disable building glslangValidator and other binaries" FORCE)
-set(BUILD_TESTING OFF CACHE BOOL "Disable testing in glslang" FORCE)
-FetchContent_Declare(
-  glslang
-  GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
-  GIT_TAG vulkan-sdk-1.4.304.0  
-  GIT_SHALLOW TRUE            
-)
-FetchContent_MakeAvailable(glslang)
+    # Fetch SPIRV-Tools
+    set(SPIRV_TOOLS_BUILD_STATIC ON CACHE BOOL "Build SPIRV-Tools as a static library" FORCE)
+    set(SPIRV_SKIP_TESTS ON CACHE BOOL "Disable tests in SPIRV-Tools" FORCE)
+    set(SPIRV_SKIP_EXECUTABLES ON CACHE BOOL "Disable executables in SPIRV-Tools" FORCE)
+    FetchContent_Declare(
+    spirv-tools
+    GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
+    GIT_TAG vulkan-sdk-1.4.304.0     
+    GIT_SHALLOW TRUE          
+    )
+    FetchContent_MakeAvailable(spirv-tools)
+
+    set(SPIRV_CROSS_SKIP_EXECUTABLES ON CACHE BOOL "Disable SPIRV-Cross executables" FORCE)
+    FetchContent_Declare(
+    spirv-cross
+    GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Cross.git
+    GIT_TAG vulkan-sdk-1.4.304.0     
+    GIT_SHALLOW TRUE          
+    )
+    FetchContent_MakeAvailable(spirv-cross)
+
+    # Fetch glslang
+    set(ENABLE_SPVREMAPPER ON CACHE BOOL "Disable building spirv-remap tool" FORCE)
+    set(ENABLE_GLSLANG_BINARIES OFF CACHE BOOL "Disable building glslangValidator and other binaries" FORCE)
+    set(BUILD_TESTING OFF CACHE BOOL "Disable testing in glslang" FORCE)
+    FetchContent_Declare(
+    glslang
+    GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
+    GIT_TAG vulkan-sdk-1.4.304.0  
+    GIT_SHALLOW TRUE            
+    )
+    FetchContent_MakeAvailable(glslang)
+
+    set(FT_DISABLE_BZIP2 ON CACHE BOOL "" FORCE)
+    set(FT_DISABLE_PNG ON CACHE BOOL "" FORCE)
+    set(FT_DISABLE_ZLIB ON CACHE BOOL "" FORCE)
+    set(FT_DISABLE_HARFBUZZ ON CACHE BOOL "" FORCE)
+    set(FT_DISABLE_BROTLI ON CACHE BOOL "" FORCE)
+    set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)  # Ensure static build
+    # Fetch Freetype
+    FetchContent_Declare(
+    freetype
+    GIT_REPOSITORY https://gitlab.freedesktop.org/freetype/freetype.git
+    GIT_TAG VER-2-13-2
+    GIT_SHALLOW TRUE
+    )
+    FetchContent_MakeAvailable(freetype)
 
 
-# Fetch Brotli
-FetchContent_Declare(
-  brotli
-  GIT_REPOSITORY https://github.com/google/brotli.git
-  GIT_TAG v1.1.0
-  GIT_SHALLOW TRUE
-)
-FetchContent_MakeAvailable(brotli)
-
-# Fetch Freetype
-FetchContent_Declare(
-  freetype
-  GIT_REPOSITORY https://gitlab.freedesktop.org/freetype/freetype.git
-  GIT_TAG VER-2-13-2
-  GIT_SHALLOW TRUE
-)
-FetchContent_MakeAvailable(freetype)
-
-# Fetch Harfbuzz
-FetchContent_Declare(
-  harfbuzz
-  GIT_REPOSITORY https://github.com/harfbuzz/harfbuzz.git
-  GIT_TAG 8.2.2
-  GIT_SHALLOW TRUE
-)
-FetchContent_MakeAvailable(harfbuzz)
-
-# Fetch libpng
-FetchContent_Declare(
-  libpng
-  GIT_REPOSITORY https://github.com/glennrp/libpng.git
-  GIT_TAG v1.6.40
-  GIT_SHALLOW TRUE
-)
-FetchContent_MakeAvailable(libpng)
+    set(HARFBUZZ_BUILD_STANDALONE OFF CACHE BOOL "Build Harfbuzz as a dependency" FORCE)
+    set(HARFBUZZ_USE_ICU OFF)
+    # Fetch Harfbuzz
+    FetchContent_Declare(
+    harfbuzz
+    GIT_REPOSITORY https://github.com/harfbuzz/harfbuzz.git
+    GIT_TAG 8.2.2
+    GIT_SHALLOW TRUE
+    )
+    FetchContent_MakeAvailable(harfbuzz)
+    if(WIN32)
+        if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+            target_link_libraries(freetype msvcrtd)
+            target_link_libraries(glslang msvcrtd)
+        endif()
+    endif()
+endif()
 
 
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
@@ -159,29 +187,7 @@ else()
     set(VULKAN_LIBRARY_PATH "${VULKAN_SDK}/${VULKAN_VERSION}/Lib/")
 endif()
 
-# Set the number of parallel builds
-set(CMAKE_BUILD_PARALLEL_LEVEL 8)
-add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
-# Define additional flags based on the platform and build type
-if(ANDROID)
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS -DLUA_USE_LINUX)
-elseif(APPLE)
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED)
-else()
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED -DTRACY_ENABLE)
-    else()
-        add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SDL_MAIN_HANDLED)
-    endif()
-endif()
-
-# Set debug information format for MSVC
-if(MSVC)
-    if(POLICY CMP0141)
-        cmake_policy(SET CMP0141 NEW)
-        set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
-    endif()
-endif()
+# Set 
 
 # Add platform-specific definitions
 if(ANDROID)

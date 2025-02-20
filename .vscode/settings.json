@@ -21,7 +21,8 @@
     "cmake.loadCompileCommands": false,
     "cmake.debugConfig": {
         "console": "externalTerminal",
-        "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\PresentTest-For-JkrGUI",
+        "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\JkrGame\\ufri",
+        // "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\PresentTest-For-JkrGUI",
         "visualizerFile": "${workspaceFolder}/Visualizers/glm.natvis",
         "args": [
             "--gr",
@@ -29,7 +30,7 @@
             // "asst",
             // "Experiment/app"
             // "test",
-            "jkrguipr"
+            "app"
             // "--android-environment",
             // "--appname \"tester\"",
             // "--dirname \"android\"",

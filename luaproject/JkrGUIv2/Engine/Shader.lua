@@ -1555,9 +1555,20 @@ TwoDimensionalIPs.HeaderWithoutBegin = function()
         .Header(450)
         .CInvocationLayout(16, 16, 1)
         .uImage2D()
-        ---@warning for uniform pipelinelayout for descriptors
+        ---@warning for uniform pipelinelayout for descriptors (spirv reflect)
         .ImagePainterVIStorageLayout()
         .ImagePainterPushMatrix2()
+        .Append [[
+
+vec2 NormalizeToImage(vec2 inVec, ivec2 image_size)
+{
+    return vec2(
+        (inVec.x - image_size.x / 2.0f) / (image_size.x / 2.0f),
+        (image_size.y / 2.0f - inVec.y) / (image_size.y / 2.0f)
+    );
+}
+
+        ]]
 end
 
 TwoDimensionalIPs.ConstantColor =
@@ -1610,49 +1621,23 @@ TwoDimensionalIPs.Line =
     TwoDimensionalIPs.HeaderWithoutBegin()
     .GlslMainBegin()
     .ImagePainterAssistMatrix2()
-
     .Append [[
-    vec4 point1 = push.b * vec4(p1.x, p1.y, 0, 1);
-    vec4 point2 = push.b * vec4(p1.z, p1.w, 0, 1);
-    float x1 = point1.x;
-    float y1 = point1.y;
-    float x2 = point2.x;
-    float y2 = point2.y;
-    float x = float(gl_GlobalInvocationID.x);
-    float y = float(gl_GlobalInvocationID.y);
+            vec2 point1 = vec2(push.b * vec4(p1.x, p1.y, 0, 1));
+            vec2 point2 = vec2(push.b * vec4(p1.z, p1.w, 0, 1));
+            float thickness = p3.x;
+            vec2 np_1 = NormalizeToImage(point1, image_size);
+            vec2 np_2 = NormalizeToImage(point2, image_size);
+            vec2 pa = xy - np_1;
+            vec2 ba = np_2 - np_1;
+            float h = min(1.0,
+                    max(0.0, dot(pa, ba) / dot(ba, ba))
+            );
+            float k = 1 - (length(pa - ba * h) - 0.001);
 
-    float small_x = x1;
-    float large_x = x2;
-    if (x1 > x2)
-    {
-        large_x = x1;
-        small_x = x2;
-    }
-
-    float small_y = y1;
-    float large_y = y2;
-    if (y1 > y2)
-    {
-        large_y = y1;
-        small_x = y2;
-    }
-    float thickness = p3.x;
-
-    // Calculate signed distance function
-    float sdf = 0;
-    if (abs(x2 - x1) < 0.0001) { // Handle vertical lines
-        sdf = abs(x - x1);
-    } else {
-        float slope = (y2 - y1) / (x2 - x1);
-        sdf = abs(y - y1 - slope * (x - x1));
-    }
-
-    vec4 color = p2;
-    if ((sdf < p3.x) && (x > small_x && x < large_x) && (y > small_y && y < large_y))  {
-        debugPrintfEXT("xKo:%f, yKo:%f", x, y);
-        imageStore(storageImage, to_draw_at, color * (p3.x - sdf));
-    }
-
+            if (k > 0)
+            {
+                imageStore(storageImage, to_draw_at, p2 * k);
+            }
     ]]
     .GlslMainEnd()
 

@@ -857,3 +857,11 @@ setmetatable(Jkr.Java, {
         end
     end
 })
+
+try = function(inFunction, inMessage)
+    local success, ret = pcall(inFunction)
+    if not success then
+        Engine.log(inMessage, "ERROR")
+    end
+    return ret
+end
