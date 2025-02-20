@@ -1624,7 +1624,9 @@ TwoDimensionalIPs.Line =
     .Append [[
             vec2 point1 = vec2(push.b * vec4(p1.x, p1.y, 0, 1));
             vec2 point2 = vec2(push.b * vec4(p1.z, p1.w, 0, 1));
-            float thickness = p3.x;
+            float inv_thickness = p3.x;
+            float radius = p3.y;
+            float draw_thickness = p3.z;
             vec2 np_1 = NormalizeToImage(point1, image_size);
             vec2 np_2 = NormalizeToImage(point2, image_size);
             vec2 pa = xy - np_1;
@@ -1632,9 +1634,8 @@ TwoDimensionalIPs.Line =
             float h = min(1.0,
                     max(0.0, dot(pa, ba) / dot(ba, ba))
             );
-            float k = 1 - (length(pa - ba * h) - 0.001);
-
-            if (k > 0)
+            float k = 1 - (length(pa - ba * h) * inv_thickness * 10 - radius);
+            if (k > draw_thickness)
             {
                 imageStore(storageImage, to_draw_at, p2 * k);
             }

@@ -841,16 +841,16 @@ Engine.GameFramework = function(inf)
             inPainter:Draw(f.w, inPC, math.ceil(inDimension_3f.x / 16.0), math.ceil(inDimension_3f.y / 16.0), 1,
                 Jkr.CmdParam.None)
         end
-        o.DrawDebugLines = function(t)
+        o.DrawDebugLines = function(inv_t)
             f.painters.line:Bind(f.w, Jkr.CmdParam.None)
             f.painters.line:BindImageFromImage(f.w, o[1], Jkr.CmdParam.None)
-            t = t or 1
+            inv_t = inv_t or 4
             local line1 = vec4(0, 0, inDimension_3f.x, 0)
             local line2 = vec4(0, 0, 0, inDimension_3f.y)
-            local line3 = vec4(inDimension_3f.x - t, t, inDimension_3f.x - t, inDimension_3f.y - t)
-            local line4 = vec4(t, inDimension_3f.y - t, inDimension_3f.x - t, inDimension_3f.y - t)
+            local line3 = vec4(inDimension_3f.x, 0, inDimension_3f.x, inDimension_3f.y)
+            local line4 = vec4(0, inDimension_3f.y, inDimension_3f.x, inDimension_3f.y)
             local color = vec4(1, 0, 0, 1)
-            local thickness = vec4(t)
+            local thickness = vec4(inv_t, 0, 0, 0)
             o.Draw(f.painters.line, f.PC(mat4(line1, color, thickness, vec4(0))))
             o.Draw(f.painters.line, f.PC(mat4(line2, color, thickness, vec4(0))))
             o.Draw(f.painters.line, f.PC(mat4(line3, color, thickness, vec4(0))))
