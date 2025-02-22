@@ -42,12 +42,12 @@ ksai::VulkanPipelineCache::~VulkanPipelineCache() { mDevice.destroyPipelineCache
 std::vector<uint8_t> ksai::VulkanPipelineCache::Get() {
     std::vector<unsigned char> PipelineCacheData;
     size_t CacheSize  = 0;
-    vk::Result Result = mDevice.getPipelineCacheData(mPipelineCache, &CacheSize, nullptr);
-    if (Result != vk::Result::eSuccess) std::cout << "Error";
+    vk::Result Result = mDevice.getPipelineCacheData(mPipelineCache, &CacheSize, nullptr); 
+    if (Result != vk::Result::eSuccess) Log("IDK What PipelineCache", "ERROR");
 
     PipelineCacheData.resize(CacheSize);
     Result = mDevice.getPipelineCacheData(mPipelineCache, &CacheSize, PipelineCacheData.data());
-    if (Result != vk::Result::eSuccess) std::cout << "Error";
+    if (Result != vk::Result::eSuccess) Log("IDK What PipelineCache", "ERROR");
     // TODO Fix this
     return {};
 }

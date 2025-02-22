@@ -8,7 +8,7 @@ void UDP::Recieve(Func inRecieve) {
                                  if (not ec) {
                                      inRecieve(mBuffer);
                                  } else {
-                                     std::cout << "ERROR:" << ec.message() << std::endl;
+                                     Log(ec.message(), "ERROR");
                                  }
                                  this->Recieve(inRecieve);
                              });
@@ -27,9 +27,9 @@ void UDP::Send(v<char> inData, std::string inDestination, int inPort) {
                              Remote,
                              [&](std::error_code ec, size_t inSize) {
                                  if (not ec) {
-                                     std::cout << "Sent" << inSize << std::endl;
+                                     Log("Sent :" + std::to_string(inSize));
                                  } else {
-                                     std::cout << "ERROR:" << ec.message() << std::endl;
+                                     Log(ec.message(), "ERROR");
                                  }
                              });
 }

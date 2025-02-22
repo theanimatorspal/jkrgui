@@ -35,8 +35,7 @@ static bool hasLayers(std::span<char const *> const &layers,
     return std::all_of(layers.begin(), layers.end(), [&properties](char const *name) {
         return std::any_of(
              properties.begin(), properties.end(), [&name](vk::LayerProperties const &property) {
-                 ksai_print("LEFT:", property.layerName);
-                 ksai_print("RIGHT:", name);
+                 Log(s(property.layerName) + ", " + name);
                  return strcmp(property.layerName, name) == 0;
              });
     });
@@ -86,15 +85,12 @@ void VulkanInstance::Init(CreateInfo inCreateInfo) {
 #endif
 
     if (not hasLayers(mInstanceLayerNames, instanceLayerProperties)) {
-        std::cout << "Set the Environment VK_LAYER_PATH to point to the location your layers"
-                  << std::endl;
-        ksai_print("Set the Environment VK_LAYER_PATH to pont to the locatioon, layer not found");
-        exit(1);
+        Log("Set the Environment VK_LAYER_PATH to pont to the locatioon, layer not found", "ERROR");
     }
 
     if (SDL_Init(SDL_INIT_EVERYTHING) == -1) {
-        ksai_print("SDL returned error");
-        ksai_print("Couldn't INitialize SDL: %s", SDL_GetError());
+        Log("SDL returned error");
+        Log("Couldn't INitialize SDL: %s", SDL_GetError());
     }
     SDL_Window *Window =
          SDL_CreateWindow("Test", 0, 0, 100, 100, SDL_WINDOW_HIDDEN | SDL_WINDOW_VULKAN);
@@ -110,7 +106,7 @@ void VulkanInstance::Init(CreateInfo inCreateInfo) {
 
     for (int i = 0; i < pCount; i++) {
         mInstanceExtensionNames.push_back((char const *)extensions[i]);
-        ksai_print(extensions[i]);
+        Log(extensions[i]);
     }
 
     if (inCreateInfo.mEnableValiation) {
@@ -130,8 +126,7 @@ void VulkanInstance::Init(CreateInfo inCreateInfo) {
     auto ApplicationInfo = vk::ApplicationInfo("JkrGUI", 1, "JkrEngine", 1, VK_API_VERSION_1_1);
 #endif
     if (!hasExtensions(mInstanceExtensionNames, ExtensionProperties)) {
-        std::cout << "Something Went Very Wrong : Extension not found" << std::endl;
-        ksai_print("Extension Not Found");
+        Log("Extension Not Found", "ERROR");
     }
 
 #ifdef __APPLE__
@@ -160,9 +155,9 @@ void VulkanInstance::Init(CreateInfo inCreateInfo) {
     }
 
 #else
-    ksai_print("Instance print");
+    Log("Instance print");
     mInstance = vk::createInstance(InstanceCreateInfo);
-    ksai_print("Instance print created");
+    Log("Instance print created");
 #endif
     mInitialized = true;
 }

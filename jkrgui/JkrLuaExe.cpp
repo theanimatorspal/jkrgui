@@ -75,13 +75,12 @@ void RunScript() {
     CreateMainBindings(mainState);
 
 #ifdef ANDROID
-    ksai_print("========================Main Function Entered=============================");
+    Log("========================Main Function Entered=============================");
     sol::protected_function_result result =
          mainState.safe_script(LuaBundleScript, &sol::script_pass_on_error);
     if (not result.valid()) {
         sol::error error = result;
-        std::cout << error.what();
-        ksai_print(std::string_view("KSAI::ERROR:%s"), error.what());
+        Log(error.what(), "ERROR");
         LuaShowToastNotification(std::string(error.what()));
     }
 #endif
@@ -92,8 +91,7 @@ void RunScript() {
          mainState.safe_script_file(OptionRun, &sol::script_pass_on_error);
     if (not result_.valid()) {
         sol::error error = result_;
-        std::cout << error.what();
-        ksai_print(std::string_view("KSAI::ERROR:%s"), error.what());
+        Log(error.what(), "ERROR");
         LuaShowToastNotification(std::string(error.what()));
     }
 }
@@ -149,9 +147,9 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
         filesystem::path src = std::string(getenv("JKRGUI_DIR"));
         src /= "luaproject";
         filesystem::path dest = filesystem::current_path();
-        std::cout << "Current Directory:" << filesystem::current_path() << "\n";
-        std::cout << "SRC:" << src << "\n";
-        std::cout << "DEST:" << dest << "\n";
+        Log("Current Directory: " + filesystem::current_path().string());
+        Log("SRC:" + src.string());
+        Log("DEST:" + dest.string());
         filesystem::copy(src,
                          dest,
                          filesystem::copy_options::recursive |
@@ -225,7 +223,7 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
                     if (scope.empty()) {
                         auto Lock = std::scoped_lock(mutex);
                         mainThreadStatements.push_back(input);
-                        std::cout << "\n";
+                        printf("\n");
                         break;
                     }
                 }
@@ -244,7 +242,7 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
                     mainThreadStatements.clear();
                 }
             } catch (const std::exception &e) {
-                std::cout << "ERROR:: " << e.what() << "\n";
+                Log(e.what(), "ERROR");
                 mainThreadStatements.clear();
             }
         }
@@ -261,7 +259,7 @@ JKR_EXPORT int main(int ArgCount, char **ArgStrings) {
     try {
         RunScript();
     } catch (const std::exception &e) {
-        std::cout << "ERROR:: " << e.what() << "\n";
+        Log(e.what(), "ERROR");
     }
     return 0;
 }

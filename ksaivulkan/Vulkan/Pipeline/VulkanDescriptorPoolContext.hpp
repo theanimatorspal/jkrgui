@@ -14,14 +14,15 @@ constexpr auto DescriptorPoolArraySize = 11;
 
 namespace ksai {
 class VulkanDescriptorPoolContext {
-    const std::array<std::pair<vk::DescriptorType, float>, DescriptorPoolArraySize> PoolItemsWithPercent = { { { vk::DescriptorType::eSampler, 0.5f },
-        { vk::DescriptorType::eCombinedImageSampler, 4.f },
-        { vk::DescriptorType::eSampledImage, 4.f },
-        { vk::DescriptorType::eStorageImage, 1.f },
+    const std::array<std::pair<vk::DescriptorType, float>, DescriptorPoolArraySize> PoolItemsWithPercent = { 
+        { { vk::DescriptorType::eSampler, 0.5f },
+        { vk::DescriptorType::eCombinedImageSampler, 10.f },
+        { vk::DescriptorType::eSampledImage, 1.f },
+        { vk::DescriptorType::eStorageImage, 10.f },
         { vk::DescriptorType::eUniformTexelBuffer, 1.f },
         { vk::DescriptorType::eStorageTexelBuffer, 1.f },
-        { vk::DescriptorType::eUniformBuffer, 2.f },
-        { vk::DescriptorType::eStorageBuffer, 2.f },
+        { vk::DescriptorType::eUniformBuffer, 10.f },
+        { vk::DescriptorType::eStorageBuffer, 4.f },
         { vk::DescriptorType::eUniformBufferDynamic, 1.f },
         { vk::DescriptorType::eStorageBufferDynamic, 1.f },
         { vk::DescriptorType::eInputAttachment, 0.5f } } };

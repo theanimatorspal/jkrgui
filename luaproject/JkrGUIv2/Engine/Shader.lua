@@ -737,7 +737,7 @@ layout(set = 0, binding = %d, rgba8) uniform image2D %s;
     end
 
     o.PI                          = function()
-        o.Append("const float PI = 3.14159;")
+        o.Append("const float PI = 3.141592653;")
         return o.NewLine()
     end
 
@@ -1648,6 +1648,25 @@ TwoDimensionalIPs.Clear = TwoDimensionalIPs.Header()
     ]]
     .GlslMainEnd()
 
+
+TwoDimensionalIPs.Sound = TwoDimensionalIPs.Header()
+    .PI()
+    .Append [[
+    float at_ = float(to_draw_at.x + (to_draw_at.y * image_size.x));
+    float Base = p1.x;
+    float Frequency = p1.y;
+    float Amplitude = p1.z;
+    float sample1 = Base + Amplitude * sin(2.0 * PI * Frequency * at_ / 44100.0f);
+    float sample2 = Base + Amplitude * sin(2.0 * PI * Frequency * (at_ + 1.0) / 44100.0f);
+    vec4 new_s = vec4(
+            sample1 * p2.x,
+            sample1 * p2.y,
+            sample2 * p2.z,
+            sample2 * p2.w
+        ) / 255.0;
+    imageStore(storageImage, to_draw_at, new_s);
+]]
+    .GlslMainEnd()
 
 
 

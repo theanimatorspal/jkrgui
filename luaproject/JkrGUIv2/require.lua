@@ -865,3 +865,52 @@ try = function(inFunction, inMessage)
     end
     return ret
 end
+
+--- MATH
+local GetLerp = function(inType)
+    inType = inType or "QUADLINEAR"
+    if inType == "QUADLINEAR" then
+        return function(a, b, t)
+            return (a * (1 - t) + t * b) * (1 - t) + b * t
+        end
+    elseif inType == "LINEAR" then
+        return function(a, b, t)
+            return a + (1 - t) * b
+        end
+    elseif inType == "LINEAR_CLAMPED" then
+    end
+end
+
+Jmath.Clamp = function(a, b, t)
+    if t < a then
+        return a
+    elseif t > b then
+        return b
+    else
+        return t
+    end
+end
+
+Jmath.GetLerps = function(inType)
+    local lerp = GetLerp(inType)
+    local lerp_2f = function(a, b, t)
+        return vec2(lerp(a.x, b.x, t), lerp(a.y, b.y, t))
+    end
+
+    local lerp_3f = function(a, b, t)
+        return vec3(lerp(a.x, b.x, t), lerp(a.y, b.y, t), lerp(a.z, b.z, t))
+    end
+
+    local lerp_4f = function(a, b, t)
+        return vec4(lerp(a.x, b.x, t), lerp(a.y, b.y, t), lerp(a.z, b.z, t), lerp(a.w, b.w, t))
+    end
+    local lerp_mat4f = function(a, b, t)
+        return mat4(
+            lerp_4f(a[1], b[1], t),
+            lerp_4f(a[2], b[2], t),
+            lerp_4f(a[3], b[3], t),
+            lerp_4f(a[4], b[4], t)
+        )
+    end
+    return lerp, lerp_2f, lerp_3f, lerp_4f, lerp_mat4f
+end

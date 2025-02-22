@@ -317,6 +317,7 @@ void CreateGLMBindings(sol::state &lua) {
     lua.set_function("std_vector_float", []() -> std::vector<float> { return {}; });
     lua.set_function("std_vector_int", []() -> std::vector<int> { return {}; });
     lua.set_function("std_vector_uint", []() -> std::vector<uint32_t> { return {}; });
+    lua.set_function("std_vector_uchar", []() -> std::vector<uint8_t> { return {}; });
     lua.set_function("std_vector_char", [](int inSize) -> std::vector<char> {
         std::vector<char> c;
         c.resize(inSize, 0);
@@ -373,9 +374,9 @@ void CreateGLMBindings(sol::state &lua) {
          [](glm::mat4 inMatrix) {
              for (int y = 0; y < 4; ++y) {
                  for (int x = 0; x < 4; ++x) {
-                     std::cout << inMatrix[x][y] << "\t";
+                     printf("%2.f \t", inMatrix[x][y]);
                  }
-                 std::cout << "\n";
+                 printf("\n");
              }
          }
 

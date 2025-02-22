@@ -68,8 +68,7 @@ void MultiThreading::AddJobF(sol::function inFunction) {
         auto result = state.safe_script(f.as_string_view(), &sol::script_pass_on_error);
         if (not result.valid()) {
             sol::error error = result;
-            std::cout << error.what();
-            ksai_print(error.what());
+            Log(error.what(), "ERROR");
         }
     });
 }
@@ -84,8 +83,7 @@ void MultiThreading::AddJobFIndex(sol::function inFunction, int inIndex) {
              auto result = state.safe_script(f.as_string_view(), &sol::script_pass_on_error);
              if (not result.valid()) {
                  sol::error error = result;
-                 std::cout << error.what();
-                 ksai_print(error.what());
+                 Log(error.what(), "ERROR");
              }
          },
          ThreadIndex);
@@ -98,16 +96,14 @@ void MultiThreading::ExecuteAll(sol::function inFunction) {
         auto result = mStates[i].safe_script(f.as_string_view());
         if (not result.valid()) {
             sol::error error = result;
-            std::cout << error.what();
-            ksai_print(error.what());
+            Log(error.what(), "ERROR");
         }
     }
     std::scoped_lock<std::recursive_mutex> Lock(mGateMutex);
     auto result = mGateState.safe_script(f.as_string_view());
     if (not result.valid()) {
         sol::error error = result;
-        std::cout << error.what();
-        ksai_print(error.what());
+        Log(error.what(), "ERROR");
     }
 }
 

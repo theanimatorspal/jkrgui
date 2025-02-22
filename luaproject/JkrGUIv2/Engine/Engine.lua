@@ -741,7 +741,6 @@ Engine.GameFramework = function(inf)
     f.i   = Engine.i
     f.w   = Jkr.CreateWindow(Engine.i, inf.heading or "Game Framework", f.wd, f.tc, f.fd)
     f.w:BuildShadowPass()
-    Engine.log("")
     Engine.log("Built Shadow Pass")
     f.wr = Jkr.CreateGeneralWidgetsRenderer(nil, Engine.i, f.w, f.e)
     Engine.log("Created Widgets Renderer")
@@ -766,8 +765,10 @@ Engine.GameFramework = function(inf)
             f.painters = {}
             f.painters.line = Jkr.CreateCustomImagePainter("cache/LINE2D.glsl", TwoDimensionalIPs.Line.str)
             f.painters.clear = Jkr.CreateCustomImagePainter("cache/CLEAR2D.glsl", TwoDimensionalIPs.Clear.str)
+            f.painters.sound = Jkr.CreateCustomImagePainter("cache/SOUND.glsl", TwoDimensionalIPs.Sound.str)
             f.painters.line:Store(f.i, f.w)
             f.painters.clear:Store(f.i, f.w)
+            f.painters.sound:Store(f.i, f.w)
             Engine.log("Painters Initialized Successfully", "INFO")
         end
     end
@@ -859,6 +860,9 @@ Engine.GameFramework = function(inf)
         o.Copy = function()
             o[1].CopyToSampled(o[2])
             o[1].handle:SyncAfter(f.w, Jkr.CmdParam.None)
+        end
+        o.GetVector = function()
+            return o[1].handle:GetVector(f.i)
         end
         return o
     end

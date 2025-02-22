@@ -8,17 +8,17 @@ bool ServerInterface::Start(OnClientValidationFunctionType &inOnClientValidation
         WaitForClientConnection(inOnClientValidationFunction, inOnClientConnectFunction);
         mThreadContext = std::thread([this]() { mAsioContext.run(); });
     } catch (const std::exception &e) {
-        ksai_print("[SERVER] Exception: ");
-        ksai_print(e.what());
+        Log("[SERVER] Exception: ");
+        Log(e.what());
     }
 
-    ksai_print("[SERVER] Started\n");
+    Log("[SERVER] Started\n");
     return false;
 }
 void ServerInterface::Stop() {
     mAsioContext.stop();
     if (mThreadContext.joinable()) mThreadContext.join();
-    ksai_print("[SERVER] Stopped");
+    Log("[SERVER] Stopped");
 }
 
 // ASYNC
@@ -27,24 +27,24 @@ void ServerInterface::WaitForClientConnection(
      OnClientConnectionFunctionType &inOnClientConnectFunction) {
     mAsioAcceptor.async_accept([&, this](std::error_code ec, asio::ip::tcp::socket socket) {
         if (not ec) {
-            ksai_print("[SERVER]  New Connection: ");
-            ksai_print(socket.remote_endpoint());
+            Log("[SERVER]  New Connection: ");
+            Log(socket.remote_endpoint().address().to_string());
             auto newCon = mksh<Connection>(
                  Connection::Owner::Server, mAsioContext, std::move(socket), mQMessagesIn);
 
             if (inOnClientConnectFunction(newCon)) {
                 mQConnections.push_back(std::move(newCon));
                 mQConnections.back()->ConnectToClient(inOnClientValidationFunction, mIdCounter++);
-                ksai_print((s("[") + std::to_string(mQConnections.back()->GetId()) +
+                Log((s("[") + std::to_string(mQConnections.back()->GetId()) +
                             s("] Connection Approved"))
                                 .c_str());
             } else {
-                ksai_print("[-----] Connection Denied");
+                Log("[-----] Connection Denied");
             }
 
         } else {
-            ksai_print("[SERVER] New Connection Error: ");
-            ksai_print(ec.message().c_str());
+            Log("[SERVER] New Connection Error: ");
+            Log(ec.message().c_str());
         }
 
         WaitForClientConnection(inOnClientValidationFunction, inOnClientConnectFunction);

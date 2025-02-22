@@ -122,7 +122,7 @@ using bb = BestText_base;
 
 bb::BestText_base() {
     if (FT_Init_FreeType(&mFtLibrary)) {
-        std::cout << "Cnnot initialize freetype\n";
+        Log("Cannot initialize freetype", "ERROR");
         exit(1);
     }
 }
@@ -140,11 +140,11 @@ void bb::AddFontFace(const sv inFontFilePathName, size_t inFontSize, ui &outFont
     mFaces.resize(mFontFaceCount);
     mHbFonts.resize(mFontFaceCount);
     if (FT_New_Face(mFtLibrary, inFontFilePathName.data(), 0, &mFaces[FaceIndex])) {
-        std::cout << "Font Face Load Failed" << '\n';
+        Log("Font Face Load Failed", "ERROR");
     }
     if (FT_Set_Char_Size(
              mFaces[FaceIndex], ToFontUnits(inFontSize), ToFontUnits(inFontSize), 96, 96)) {
-        std::cout << "Font Char Size Set Failed" << '\n';
+        Log("Font Char Size Set Failed", "ERROR");
     }
     FT_Set_Transform(mFaces[FaceIndex], 0, 0);
     mHbFonts[FaceIndex] = hb_ft_font_create(mFaces[FaceIndex], 0);
@@ -499,7 +499,7 @@ void bb::LoadTextToKeyMap(unsigned int len,
 
             if (not mCharacterBitmapSet.contains(key)) {
                 if (FT_Load_Glyph(mFaces[inFontShapeId], info[i].codepoint, FT_LOAD_RENDER))
-                    std::cout << "Error Font Glyph loading" << '\n';
+                    Log("Error Font Glyph loading", "ERROR");
                 FT_GlyphSlot slot = mFaces[inFontShapeId]->glyph;
                 CharacterInfo character_info{.mGlyphPos     = pos[i],
                                              .mGlyphInfo    = info[i],

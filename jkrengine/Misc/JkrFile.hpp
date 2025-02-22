@@ -84,11 +84,11 @@ struct FileJkr {
     FileJkr();
     FileJkr(s inFileName);
     ~FileJkr();
-    ///@todo Replace inId as const char with std::string
-    template <typename T> void Write(const char inId[IdSize], T inData) {
+    template <typename T> void Write(const sv inId, T inData) {
         auto data   = Serialize(inData);
         auto header = Header{"", mData.size(), data.size()};
-        strcpy(header.mId, inId);
+        auto hash = Hash(inId);
+        strcpy(header.mId, hash.data());
 
         if (not mFileContents.contains(s(inId))) {
             mDebugStringStream << "WROTE::> " << header.mId << " : " << header.mLocation << " : "
@@ -100,15 +100,15 @@ struct FileJkr {
         }
         mWrites++;
     }
-    bool HasEntry(const char inId[IdSize]) {
-        if (mFileContents.contains(s(inId))) {
+    bool HasEntry(const sv inId) {
+        if (mFileContents.contains(Hash(inId))) {
             return true;
         }
         return false;
     }
     bool IsEmpty() { return mFileContents.empty(); }
-    template <typename T> T Read(const char inId[IdSize]) {
-        auto header = mFileContents[s(inId)];
+    template <typename T> T Read(const sv inId) {
+        auto header = mFileContents[Hash(inId)];
         mDebugStringStream << "READ::> " << header.mId << " : " << header.mLocation << " : "
                            << header.mSize / 1024.0f << " KiB" << std::endl;
         auto out = v<char>(mData.begin() + header.mLocation,
@@ -116,25 +116,24 @@ struct FileJkr {
 
         return Retrive<T>(out);
     }
-    template <typename T> T ReadAndErase(const char inId[IdSize]) {
+    template <typename T> T ReadAndErase(const sv inId) {
         auto out = Read<T>(inId);
-        mFileContents.erase(std::string(inId));
+        mFileContents.erase(Hash(inId));
         return out;
     }
-
-    void Commit();
-
     void PutDataFromMemory(v<char> &inData);
     v<char> GetDataFromMemory();
+
+    void Commit();
     void Clear();
 
     private:
+    s Hash(const sv input);
     bool mOnlyInMemory = false;
     v<char> mData;
     v<char> mHeader;
     umap<s, Header> mFileContents; // This is for retrieval
-
-    ///@note This is for debugging, IDK why it is not printing whole thing (std::cout)
+    ///@note This is for debugging, IDK why it is not printing whole thing
     std::stringstream mDebugStringStream;
 
     std::fstream mFile;

@@ -8,7 +8,7 @@ jobject g_context = nullptr;
 
 extern "C" JNIEXPORT void JNICALL Java_org_JkrGUI_JkrGUIActivity_InitJNI(JNIEnv *env,
                                                                          jobject thiz) {
-    ksai_print("INITIALIZED::JNI");
+    Log("INITIALIZED::JNI");
     env->GetJavaVM(&g_vm);
     g_context = env->NewGlobalRef(thiz);
 }
@@ -31,7 +31,7 @@ void AndroidShowToast(const char *inMessage) {
     args.name    = NULL;
     args.group   = NULL;
     if (g_vm->AttachCurrentThread(&env, &args) != JNI_OK) {
-        ksai_print("Failed to attach current thread");
+        Log("Failed to attach current thread");
         return;
     }
     jstring jMessage   = env->NewStringUTF(Message.c_str());
@@ -48,7 +48,7 @@ void JavaCallVoidMethodNoArgs(sv inClass, sv inName) {
     args.name    = NULL;
     args.group   = NULL;
     if (g_vm->AttachCurrentThread(&env, &args) != JNI_OK) {
-        ksai_print("Failed to attach current thread");
+        Log("Failed to attach current thread");
         return;
     }
     jclass JkrGUIClass = env->FindClass("org/JkrGUI/JkrGUIActivity");
@@ -136,7 +136,7 @@ glm::vec3 AndroidGetAccelerometerData() {
     args.name    = NULL;
     args.group   = NULL;
     if (g_vm->AttachCurrentThread(&env, &args) != JNI_OK) {
-        ksai_print("Failed to attach current thread");
+        Log("Failed to attach current thread");
         return outValue;
     }
     jclass JkrGUIClass = env->FindClass("org/JkrGUI/JkrGUIActivity");
@@ -150,7 +150,7 @@ glm::vec3 AndroidGetAccelerometerData() {
         outValue.y = data[1];
         outValue.z = data[2];
     } else {
-        ksai_print("ERROR: Length of Accelerometer Data is <= 3");
+        Log("ERROR: Length of Accelerometer Data is <= 3");
     }
 
     env->ReleaseFloatArrayElements(accelerometerDataArray, data, 0);
@@ -163,7 +163,7 @@ void LuaShowToastNotification(const std::string inMessage) {
 #ifdef ANDROID
     AndroidShowToast(inMessage.c_str());
 #else
-    std::cout << inMessage.data();
+    Log(inMessage.data());
 #endif
 }
 

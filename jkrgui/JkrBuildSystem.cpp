@@ -54,7 +54,7 @@ const string_view DefaultLuaLibraryFile = R"LuaLibraryString(#include <sol/sol.h
 extern "C" DLLEXPORT int luaopen_{0}(lua_State *L) {{
         sol::state_view s(L);
         auto jkrguiApp = s["jkrguiApp"].get_or_create<sol::table>();
-        jkrguiApp.set_function("hello", []() {{ std::cout << "Hello World from jkrguiApp\n"; }});
+        jkrguiApp.set_function("hello", []() {{ printf("Hello from JkrGUI\n");}});
         return 1;
 }}
 )LuaLibraryString";
@@ -99,7 +99,7 @@ static void ReplaceStringInFile(fs::path filePath,
     if (ShouldRewrite) {
         std::ofstream fileOut(filePath);
         fileOut << content;
-        std::cout << "Replaced in file: " << filePath << std::endl;
+        Log("Replaced in file: " + filePath.string());
     }
 }
 
@@ -126,7 +126,7 @@ static void RenameFileName(const fs::path &path,
             filesystem::remove_all(newPath);
         }
         fs::rename(path, newPath);
-        std::cout << "Renamed: " << path << " to " << newPath << std::endl;
+        Log("Renamed: " + path.string() + " to " + newPath.string());
     }
 }
 
@@ -211,7 +211,7 @@ void CreateAndroidEnvironment(const sv inAndroidAppName,
                       fs::copy_options::overwrite_existing);
 
     } catch (const std::exception &e) {
-        std::cout << e.what() << "\n";
+        Log(e.what(), "ERROR");
     }
 }
 
@@ -237,7 +237,7 @@ void CreateLuaLibraryEnvironment(sv inLibraryName,
             if (cmakeListsFile.is_open()) {
                 cmakeListsFile << GetLuaCMakeListsDefaultString(inLibraryName);
             } else {
-                std::cout << "Fuck, Files are not open";
+                Log("Files are not open", "ERROR");
             }
             if (not fs::exists(cmakePresetsFilePath))
                 fs::copy_file(cmakePresetsJkrGuiLibraryPath, cmakePresetsFilePath);
@@ -248,7 +248,7 @@ void CreateLuaLibraryEnvironment(sv inLibraryName,
             if (mainCppFile.is_open()) {
                 mainCppFile << GetLuaLibraryDefaultString(inLibraryName);
             } else {
-                std::cout << "Fuck, File is not open";
+                Log("Files are not open", "ERROR");
             }
         }
     }

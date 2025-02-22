@@ -16,7 +16,7 @@ KsaiDebugMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverit
                            VkDebugUtilsMessengerCallbackDataEXT const *pCallbackData,
                            void * /*pUserData*/) {
 
-    ksai_print("Triggered VALIDATION ERROR:::: JKR");
+    Log("Triggered VALIDATION ERROR:::: JKR");
 
     std::ostringstream message;
     message << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(messageSeverity))
@@ -66,30 +66,25 @@ KsaiDebugMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverit
 
     std::string messageString = message.str();
 
-#ifdef _WIN32
-    std::cout << messageString << std::endl;
     bool isError       = messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
     bool isWarning     = messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
     bool isInfo        = messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
     bool isPerformance = messageTypes & VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-
+#ifdef _WIN32
     if (isError) {
         MessageBoxA(NULL, messageString.c_str(), "Error", MB_ICONERROR);
         assert("Error" && false);
     } else if (isWarning && !(isPerformance)) {
         MessageBoxA(NULL, messageString.c_str(), "Warning", MB_ICONWARNING);
         assert("Warning" && false);
-    } else if (isInfo) {
-        std::cout << messageString.c_str() << '\n';
-    } else if (isPerformance) {
-        std::cout << "=========================PERFORMANCE================================\n";
-        std::cout << messageString << '\n';
     }
-#else
-    std::cout << messageString << std::endl;
 #endif
 
-    ksai_print(messageString.c_str());
+    Log(messageString, isInfo ? "INFO" : 
+        (isError ? "ERROR" : 
+            (isWarning ? "WARNING" : 
+                "INFO"
+            )));
     return VK_FALSE;
 }
 
@@ -118,20 +113,13 @@ VulkanMessenger::VulkanMessenger(VulkanInstance &inInstance)
     pfnVkCreateDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
          Instance.getProcAddr("vkCreateDebugUtilsMessengerEXT"));
     if (!pfnVkCreateDebugUtilsMessengerEXT) {
-        std::cout
-             << "GetInstanceProcAddr: Unable to find pfnVkCreateDebugUtilsMessengerEXT function."
-             << std::endl;
-        ksai_print("Unable to Find pfnVkCreateDebg");
+        Log("GetInstanceProcAddr: Unable to find pfnVkCreateDebugUtilsMessengerEXT function", "ERROR");
     }
 
     pfnVkDestroyDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
          Instance.getProcAddr("vkDestroyDebugUtilsMessengerEXT"));
     if (!pfnVkDestroyDebugUtilsMessengerEXT) {
-        std::cout
-             << "GetInstanceProcAddr: Unable to find pfnVkDestroyDebugUtilsMessengerEXT function."
-             << std::endl;
-        ksai_print("Unable to Find pfnVkCreateDebg");
-        exit(1);
+        Log("GetInstanceProcAddr: Unable to find pfnVkDestroyDebugUtilsMessengerEXT function", "ERROR");
     }
 
     vk::DebugUtilsMessageSeverityFlagsEXT severityFlags(

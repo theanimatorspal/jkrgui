@@ -159,3 +159,13 @@ void CustomImagePainter::BindImageFromImage(Window_base &inWindow,
          inImage.mVulkanDescriptorSet->GetDescriptorSetHandle(),
          {});
 }
+
+v<char> CustomPainterImage::GetVector(Instance &inInstance) {
+    auto size = mPainterParam->GetStorageImage().GetImageExtent().height *
+                mPainterParam->GetStorageImage().GetImageExtent().width * 4;
+    return mPainterParam->GetStorageImage().SubmitImmediateCmdGetImageToVector(
+         inInstance.GetGraphicsQueue(),
+         inInstance.GetStagingBuffer(size),
+         inInstance.GetUtilCommandBuffer(),
+         inInstance.GetUtilCommandBufferFence());
+}

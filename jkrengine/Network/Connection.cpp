@@ -38,7 +38,7 @@ void Connection::ReadHeader() {
                                  AddToIncomingMessageQueue();
                              }
                          } else {
-                             ksai_print(s("[") + std::to_string(mId) + s("] Read Header Failed."));
+                             Log(s("[") + std::to_string(mId) + s("] Read Header Failed."));
                              mSocket.close();
                          }
                      });
@@ -51,7 +51,7 @@ void Connection::ReadBody() {
              if (not ec) {
                  AddToIncomingMessageQueue();
              } else {
-                 ksai_print(s("[") + std::to_string(mId) + s("] Read Body Failed."));
+                 Log(s("[") + std::to_string(mId) + s("] Read Body Failed."));
                  mSocket.close();
              }
          });
@@ -71,7 +71,7 @@ void Connection::WriteHeader() {
                                   }
                               }
                           } else {
-                              ksai_print(s("[") + std::to_string(mId) +
+                              Log(s("[") + std::to_string(mId) +
                                          s("] Write Header Failed."));
                               mSocket.close();
                           }
@@ -89,7 +89,7 @@ void Connection::WriteBody() {
                      WriteHeader();
                  }
              } else {
-                 ksai_print(s("[") + std::to_string(mId) + s("] Write Body Failed."));
+                 Log(s("[") + std::to_string(mId) + s("] Write Body Failed."));
                  mSocket.close();
              }
          });
@@ -155,8 +155,8 @@ void Connection::WriteValidation() {
                               if (mOwnerType == Owner::Client) ReadHeader();
                           } else {
                               mSocket.close();
-                              ksai_print("Error Wirte Validation:");
-                              ksai_print(ec.message().c_str());
+                              Log("Error Wirte Validation:");
+                              Log(ec.message().c_str());
                           }
                       });
 }
@@ -169,11 +169,11 @@ void Connection::ReadValidation(OnClientValidationFunctionType& inOnClientValida
                          if (not ec) {
                              if (mOwnerType == Owner::Server) {
                                  if (mHandShakeIn == mHandshakeCheck) {
-                                     ksai_print("Client Validated");
+                                     Log("Client Validated");
                                      inOnClientValidated(this->shared_from_this());
                                      ReadHeader();
                                  } else {
-                                     ksai_print("Client Disconnected (Failed Validation)");
+                                     Log("Client Disconnected (Failed Validation)");
                                      mSocket.close();
                                  }
                              } else {
@@ -181,7 +181,7 @@ void Connection::ReadValidation(OnClientValidationFunctionType& inOnClientValida
                                  WriteValidation();
                              }
                          } else {
-                             ksai_print("Client Disconnected (Read Validation)");
+                             Log("Client Disconnected (Read Validation)");
                              mSocket.close();
                          }
                      });

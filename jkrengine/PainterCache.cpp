@@ -10,11 +10,11 @@ ShaderCompiler::ShaderCompiler(const std::string_view inVertexShaderString,
     if (inVertexShaderString != "" and inFragmentShaderString != "") {
         bool success = SpirvHelper::GLSLtoSPV(
              vk::ShaderStageFlagBits::eVertex, inVertexShaderString.data(), outVertexShaderModule);
-        if (!success) std::cout << "VertexShader Failed=============================\n";
+        if (!success) Log("VertexShader Failed", "ERROR");
         success = SpirvHelper::GLSLtoSPV(vk::ShaderStageFlagBits::eFragment,
                                          inFragmentShaderString.data(),
                                          outFragmentShaderModule);
-        if (!success) std::cout << "FragmentShader Failed=============================\n";
+        if (!success) Log("FragmentShader Failed", "ERROR");
     }
 }
 
@@ -24,7 +24,7 @@ ShaderCompiler::ShaderCompiler(const std::string_view inComputeShaderString,
         bool success = SpirvHelper::GLSLtoSPV(vk::ShaderStageFlagBits::eCompute,
                                               inComputeShaderString.data(),
                                               outComputeShaderModule);
-        if (!success) std::cout << "ComputeShader Failed=============================\n";
+        if (!success) Log("ComputeShader Failed", "ERROR");
     }
 }
 

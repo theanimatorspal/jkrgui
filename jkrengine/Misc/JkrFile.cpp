@@ -35,7 +35,7 @@ void FileJkr::PutDataFromMemory(v<char> &inData) {
         mData.resize(Datasize);
         sstream.read(mData.data(), Datasize);
     } else {
-        std::cout << "This File Seems not to be a JkrGUI file, it will be overriden\n";
+        Log("This File Seems not to be a JkrGUI file, it will be overriden", "WARNING");
     }
 }
 
@@ -93,10 +93,10 @@ FileJkr::FileJkr(s inFileName) {
                 mData.resize(Datasize);
                 mFile.read(mData.data(), Datasize);
             } else {
-                std::cout << "This File Seems not to be a JkrGUI file, it will be overriden\n";
+                Log("This File Seems not to be a JkrGUI file, it will be overriden", "ERROR");
             }
         } catch (const std::exception &e) {
-            std::cout << "ERROR:" << e.what() << std::endl;
+            Log(e.what(), "ERROR");
         }
     } else {
         mFile = std::fstream(inFileName, ios_base::out | ios_base::binary);
@@ -106,7 +106,7 @@ FileJkr::FileJkr(s inFileName) {
 FileJkr::~FileJkr() {
     if (not mOnlyInMemory) {
         Commit();
-        std::cout << mDebugStringStream.str() << std::endl;
+        Log(mDebugStringStream.str());
     }
 }
 
@@ -129,6 +129,16 @@ void FileJkr::Clear() {
     mHeader.clear();
     mData.clear();
     mFileContents.clear();
+}
+
+s FileJkr::Hash(const sv input) {
+    std::hash<sv> hasher;
+    size_t hash = hasher(input); 
+
+    std::ostringstream oss;
+    oss << std::hex << std::setw(28) << std::setfill('0') << hash;
+
+    return oss.str().substr(0, 28); 
 }
 
 } // namespace Jkr::Misc

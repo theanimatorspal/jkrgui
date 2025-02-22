@@ -131,7 +131,7 @@ void glTF_Model::Load(ui inInitialVertexOffset) {
         }
         CalculateTangents(GetVerticesExtRef(), GetIndicesRef(), inInitialVertexOffset);
     } else {
-        std::cout << "File Not Loaded, Not found with the name:" << mFileName << '\n';
+        Log("GLTF File Not Loaded, Not found with the name:" + mFileName, "ERROR");
     }
 }
 
@@ -163,7 +163,7 @@ void glTF_Model::Load(FillVertexCallBack inVertexCallback, FillIndexCallBack inI
             UpdateJoints(Node.get());
         }
     } else {
-        std::cout << "File Not Loaded, Not found with the name:" << mFileName << '\n';
+        Log("File Not Loaded, Not found with the name:" + mFileName);
     }
 }
 
@@ -426,7 +426,7 @@ void glTF_Model::LoadAnimations(tinygltf::Model &input) {
                         break;
                     }
                     default: {
-                        std::cout << "unknown type" << std::endl;
+                        Log("GLTF Accessor type unknown", "ERROR");
                         break;
                     }
                 }
@@ -539,7 +539,7 @@ void glTF_Model::LoadNode(const tinygltf::Node &inputNode,
                     PosMax = glm::vec3(
                          accessor.maxValues[0], accessor.maxValues[1], accessor.maxValues[2]);
                 } else {
-                    std::cout << "No POSITION in GLTF File \n";
+                    Log("No POSITION in GLTF File", "WARNING");
                 }
 
                 /* Get Buffer Data From Vertex Normals */
@@ -837,7 +837,7 @@ void glTF_Model::UpdateAnimationNormalizedTime(ui inActiveAnimation,
         AnimationSampler &sampler = Animation.mSamplers[channel.mSamplerIndex];
         for (size_t i = 0; i < sampler.mInputs.size() - 1; i++) {
             if (sampler.mInterpolation != "LINEAR" and sampler.mInterpolation != "STEP") {
-                std::cout << "Only Linear is Supported Yet"; // TODO Support Others
+                Log("GLTF Only Linear Interpolation is Supported Yet", "WARNING"); // TODO Support Others
                 continue;
             }
 
@@ -905,7 +905,7 @@ void glTF_Model::UpdateAnimation(ui inActiveAnimation, float inDeltaTime, bool i
         AnimationSampler &sampler = Animation.mSamplers[channel.mSamplerIndex];
         for (size_t i = 0; i < sampler.mInputs.size() - 1; i++) {
             if (sampler.mInterpolation != "LINEAR" and sampler.mInterpolation != "STEP") {
-                std::cout << "Only Linear is Supported Yet"; // TODO Support Others
+                Log("GLTF Only Linear Interpolation is Supported Yet", "WARNING"); // TODO Support Others
                 continue;
             }
 
@@ -981,7 +981,6 @@ void glTF_Model::UpdateBlendCombineAnimation(float inDelTime,
         AnimationSampler &sampler = Animation.mSamplers[channel.mSamplerIndex];
         for (size_t i = 0; i < sampler.mInputs.size() - 1; i++) {
             if (sampler.mInterpolation != "LINEAR" and sampler.mInterpolation != "STEP") {
-                std::cout << "Only Linear is Supported Yet"; // TODO Support Others
                 continue;
             }
 
@@ -1054,7 +1053,7 @@ void glTF_Model::BlendCombineAnimationToArbritaryTime(float inDestinationTime,
         AnimationSampler &sampler = Animation.mSamplers[channel.mSamplerIndex];
         for (size_t i = 0; i < sampler.mInputs.size() - 1; i++) {
             if (sampler.mInterpolation != "LINEAR" and sampler.mInterpolation != "STEP") {
-                std::cout << "Only Linear is Supported Yet"; // TODO Support Others
+                Log("GLTF Only Linear Interpolation is Supported Yet", "WARNING"); // TODO Support Others
                 continue;
             }
 

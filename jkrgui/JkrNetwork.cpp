@@ -13,12 +13,12 @@ static Jkr::Network::TsQueue<Message> MessageBuffer;
 OnClientValidationFunctionType OnClientValidationFunction = [](sp<Connection> inConnection) {};
 
 OnClientConnectionFunctionType OnClientConnectionFunction = [](sp<Connection> inConnection) {
-    std::cout << "A Client has Connected" << "\n";
+    Log("A Client has Connected");
     return true;
 };
 
 OnClientDisConnectionFunctionType OnClientDisConnectionFunction = [](sp<Connection>) {
-    std::cout << "Client has been disconnected\n";
+    Log("Client has been disconnected");
     return true;
 };
 

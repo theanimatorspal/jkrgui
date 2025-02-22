@@ -54,13 +54,11 @@ VulkanQueueContext::VulkanQueueContext(VulkanInstance &inInstance, VulkanPhysica
     }
     bool NoQueueForGraphicsOrPresent = (mGraphicsQueueIndex == mQueueFamilyProperties.size()) ||
                                        (mPresentQueueIndex == mQueueFamilyProperties.size());
-    ksai_print("GraphicsQueue Index:");
-    ksai_print(std::to_string(mGraphicsQueueIndex).c_str());
-    ksai_print("PresentQueueIndex:");
-    ksai_print(std::to_string(mPresentQueueIndex).c_str());
+    Log("GraphicsQueue Index: " + std::to_string(mGraphicsQueueIndex));
+    Log("PresentQueue Index: " + std::to_string(mPresentQueueIndex));
 
     if (NoQueueForGraphicsOrPresent) {
-        ksai_print("No Queue For Graphics Or Present");
+        Log("No Queue For Graphics Or Present");
         throw std::runtime_error("Error : Count not find a suitable queue for graphics or present");
     }
     SDL_DestroyWindow(Window);

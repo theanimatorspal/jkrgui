@@ -15,7 +15,7 @@ class UDP {
             try {
                 mContext.run();
             } catch (std::exception &e) {
-                std::cout << e.what() << std::endl;
+                Log(e.what(), "ERROR");
             }
         });
     }

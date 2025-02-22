@@ -29,7 +29,7 @@
 //                         auto timeNow = std::chrono::system_clock::now();
 //                         std::chrono::system_clock::time_point timeThen;
 //                         Msg >> timeThen;
-//                         ksai_print(s("Time Duration:") +
+//                         Log(s("Time Duration:") +
 //                                    std::to_string(
 //                                         std::chrono::duration<double>(timeNow -
 //                                         timeThen).count()));
@@ -38,7 +38,7 @@
 //             }
 
 //         } else {
-//             ksai_print("Server Down");
+//             Log("Server Down");
 //             Quit = true;
 //         }
 

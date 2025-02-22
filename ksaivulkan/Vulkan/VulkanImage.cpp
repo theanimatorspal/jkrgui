@@ -195,7 +195,7 @@ void ksai::VulkanImageBase::GetImageTiling(vk::Format inFormat,
         Tiling = vk::ImageTiling::eOptimal;
     } else {
         Tiling = vk::ImageTiling::eOptimal;
-        std::cout << "Error Image Tiling\n";
+        Log("Image Tiling not supported", "ERROR");
         return;
     }
 

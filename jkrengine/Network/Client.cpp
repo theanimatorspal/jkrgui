@@ -18,8 +18,7 @@ bool ClientInterface::Connect(OnClientValidationFunctionType& inFunction,
         mThreadContext = std::thread([this]() { mContext.run(); });
 
     } catch (std::exception& e) {
-        ksai_print("Client Exception:");
-        ksai_print(e.what());
+        Log(e.what(), "ERROR");
     }
     return false;
 }

@@ -77,8 +77,7 @@ void VulkanSurface::Init(CreateInfo inCreateInfo) {
 
     SDL_bool Error = SDL_Vulkan_CreateSurface(mWindow, *mInstance, (VkSurfaceKHR *)&mSurface);
     if (Error == SDL_FALSE) {
-        ksai_print("Surface Creation Error");
-        std::cout << "Error Surface Create\n";
+        Log("Surface Creation Error", "ERROR");
     }
     mInitialized = true;
 }

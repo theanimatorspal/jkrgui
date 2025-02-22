@@ -871,7 +871,6 @@ void SerializeDeserializeWorld3D(Instance &ini,
             inWorld3D.AddUniform3D(ini);
             auto Simple3DEntryName  = Prefix + "UNIFORMS" + std::to_string(i) + "SIMPLE3DINDEX";
             auto AssociatedSimple3D = inJkrFile.Read<int>(Simple3DEntryName.c_str());
-            std::cout << "UNIFORM i = " << i << "; SIMPLE" << AssociatedSimple3D << "\n";
             inWorld3D.GetUniforms()[i]->Build(*inWorld3D.GetSimple3Ds()[AssociatedSimple3D]);
             SerializeDeserializeUniform3D(ini,
                                           s(inIdName) + "UNIFORMS" + std::to_string(i),
@@ -905,7 +904,6 @@ void SerializeDeserializeWorld3D(Instance &ini,
             ///@note Here
             auto AssociatedSimple3D = CacheFileEntryNameToWorldSimple3DIndex
                  [Uniform->GetAssociatedSimple3D()->GetPainterCache().GetCacheFileEntryName()];
-            std::cout << "UNIFORM i = " << i << "; SIMPLE" << AssociatedSimple3D << "\n";
             inJkrFile.Write((Prefix + "UNIFORMS" + std::to_string(i) + "SIMPLE3DINDEX").c_str(),
                             AssociatedSimple3D);
             SerializeDeserializeUniform3D(

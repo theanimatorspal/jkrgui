@@ -5,6 +5,7 @@
 #include <Misc/RecycleBin.hpp>
 #include <Misc/Tools.hpp>
 #include <Misc/JkrFile.hpp>
+#include <Audio/Sound.hpp>
 
 namespace JkrEXE {
 extern void CreateMainBindings(sol::state &s);
@@ -59,14 +60,14 @@ void CreateMiscBindings(sol::state &inState) {
                   return mu<Jkr::Renderer::CustomPainterImage>(
                        inInstance, inWindow, inWidth, inHeight);
               }),
-         //     "GetImageToVector",
-         //     &Jkr::Renderer::CustomPainterImage::GetImageToVector,
          "Register",
          &Jkr::Renderer::CustomPainterImage::Register,
          "SyncBefore",
          &Jkr::Renderer::CustomPainterImage::SyncBefore,
          "SyncAfter",
-         &Jkr::Renderer::CustomPainterImage::SyncAfter);
+         &Jkr::Renderer::CustomPainterImage::SyncAfter,
+         "GetVector",
+         &Jkr::Renderer::CustomPainterImage::GetVector);
 
     Jkr.new_usertype<DefaultCustomImagePainterPushConstant>(
          "DefaultCustomImagePainterPushConstant",

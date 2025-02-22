@@ -224,8 +224,7 @@ void CreateBasicBindings(sol::state &s) {
                  auto result = inFunction();
                  if (not result.valid()) {
                      sol::error error = result;
-                     std::cout << error.what();
-                     ksai_print(error.what());
+                     Log(error.what(), "ERROR");
                  }
              });
          },
