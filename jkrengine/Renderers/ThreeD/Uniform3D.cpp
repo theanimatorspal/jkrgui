@@ -235,7 +235,7 @@ void Uniform3D::AddGenerateBRDFLookupTable(Instance &inInstance,
                                            std::string_view inVertexShader,
                                            std::string_view inFragmentShader,
                                            std::string_view inComputeShader,
-                                           bool inShouldLoad,
+                                           Jkr::Misc::File& inFile,
                                            int inDstBinding,
                                            int inDstSet) {
     auto VMAimage                           = Renderer::PBR::GenerateBRDFLookupTable(inInstance,
@@ -244,7 +244,7 @@ void Uniform3D::AddGenerateBRDFLookupTable(Instance &inInstance,
                                                            inVertexShader,
                                                            inFragmentShader,
                                                            inComputeShader,
-                                                           inShouldLoad);
+                                                           inFile);
 
     mImages[inDstBinding]                   = MakeUp<ImageType>(inInstance);
     mImages[inDstBinding]->mUniformImagePtr = mv(VMAimage);
@@ -263,7 +263,7 @@ void Uniform3D::AddGenerateIrradianceCube(Instance &inInstance,
                                           std::string_view inVertexShader,
                                           std::string_view inFragmentShader,
                                           std::string_view inComputeShader,
-                                          bool inShouldLoad,
+                                          Jkr::Misc::File& inFile,
                                           int inDstBinding,
                                           int inDstSet) {
     auto VMAimage                           = Renderer::PBR::GenerateIrradianceCube(inInstance,
@@ -275,7 +275,7 @@ void Uniform3D::AddGenerateIrradianceCube(Instance &inInstance,
                                                           inVertexShader,
                                                           inFragmentShader,
                                                           inComputeShader,
-                                                          inShouldLoad,
+                                                          inFile,
                                                           inWorld);
     mImages[inDstBinding]                   = MakeUp<ImageType>(inInstance);
     mImages[inDstBinding]->mUniformImagePtr = mv(VMAimage);
@@ -298,7 +298,7 @@ void Uniform3D::AddGeneratePrefilteredCube(Instance &inInstance,
                                            std::string_view inVertexShader,
                                            std::string_view inFragmentShader,
                                            std::string_view inComputeShader,
-                                           bool inShouldLoad,
+                                           Jkr::Misc::File& inFile,
                                            int inDstBinding,
                                            int inDstSet) {
     auto VMAimage                           = Renderer::PBR::GeneratePrefilteredCube(inInstance,
@@ -310,7 +310,7 @@ void Uniform3D::AddGeneratePrefilteredCube(Instance &inInstance,
                                                            inVertexShader,
                                                            inFragmentShader,
                                                            inComputeShader,
-                                                           inShouldLoad,
+                                                           inFile,
                                                            inWorld);
     mImages[inDstBinding]                   = MakeUp<ImageType>(inInstance);
     mImages[inDstBinding]->mUniformImagePtr = mv(VMAimage);

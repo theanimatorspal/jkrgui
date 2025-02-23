@@ -24,7 +24,7 @@ Up<VulkanImageVMA> GenerateBRDFLookupTable(Instance &inInstance,
                                            std::string_view inVertexShader,
                                            std::string_view inFragmentShader,
                                            std::string_view inComputeShader,
-                                           bool inShouldLoad);
+                                           Jkr::Misc::File& inFile);
 ///@warning I dont fucking know why this call if called before GeneratePrefilteredCube gives a
 /// HAZARD READ_AFTER_WRITE for inEnvironmentCube, @todo Fix this
 Up<VulkanImageVMA> GenerateIrradianceCube(Instance &inInstance,
@@ -36,7 +36,7 @@ Up<VulkanImageVMA> GenerateIrradianceCube(Instance &inInstance,
                                           std::string_view inVertexShader,
                                           std::string_view inFragmentShader,
                                           std::string_view inComputeShader,
-                                          bool inShouldLoad,
+                                          Jkr::Misc::File& inFile,
                                           _3D::World3D &inWorld);
 Up<VulkanImageVMA> GeneratePrefilteredCube(Instance &inInstance,
                                            Window &inWindow,
@@ -47,7 +47,7 @@ Up<VulkanImageVMA> GeneratePrefilteredCube(Instance &inInstance,
                                            std::string_view inVertexShader,
                                            std::string_view inFragmentShader,
                                            std::string_view inComputeShader,
-                                           bool inShouldLoad,
+                                           Jkr::Misc::File& inFile,
                                            _3D::World3D &inWorld3D);
 }; // namespace PBR
 

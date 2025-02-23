@@ -62,15 +62,9 @@ CustomImagePainter::CustomImagePainter(
     mFragmentStream << gmain_function_null;
 }
 
-void CustomImagePainter::Load(Instance &inInstance, Window_base &inWindow) {
+void CustomImagePainter::Store(Instance &inInstance, Window_base &inWindow, Jkr::Misc::File& inFile) {
     mCustomPainterCache = MakeUp<PainterCache>(inInstance);
-    mCustomPainterCache->Load(mCustomPainterFileName);
-    mPainter = MakeUp<Painter>(inInstance, inWindow, *mCustomPainterCache);
-}
-
-void CustomImagePainter::Store(Instance &inInstance, Window_base &inWindow) {
-    mCustomPainterCache = MakeUp<PainterCache>(inInstance);
-    mCustomPainterCache->Store(
+    mCustomPainterCache->Store(inFile,
          mCustomPainterFileName, mVertexStream.str(), mFragmentStream.str(), mComputeStream.str());
     mPainter = MakeUp<Painter>(inInstance, inWindow, *mCustomPainterCache);
 }

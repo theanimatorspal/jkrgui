@@ -136,9 +136,9 @@ s File::Hash(const sv input) {
     size_t hash = hasher(input); 
 
     std::ostringstream oss;
-    oss << std::hex << std::setw(28) << std::setfill('0') << hash;
+    oss << std::hex << std::setw(IdSize - 1) << std::setfill('0') << hash;
 
-    return oss.str().substr(0, 28); 
+    return oss.str().substr(0, IdSize - 1); 
 }
 
 } // namespace Jkr::Misc

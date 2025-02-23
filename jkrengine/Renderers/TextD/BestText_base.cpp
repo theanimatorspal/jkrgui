@@ -139,32 +139,12 @@ bb::~BestText_base() {
 /// @param inMemory 
 /// @param inFontSize 
 /// @param outFontId 
-void bb::AddFontFaceFromMemory(v<char>& inMemory, size_t inFontSize, uint32_t &outFontId) {
+void bb::AddFontFace(v<char>& inMemory, size_t inFontSize, uint32_t &outFontId) {
     ui FaceIndex = mFontFaceCount++;
     mFaces.resize(mFontFaceCount);
     mHbFonts.resize(mFontFaceCount);
-    auto data = (uc*) inMemory.data()
-    if (FT_New_Memory_Face(mFtLibrary, data, 0, &mFaces[FaceIndex])) {
-        Log("Font Face Load Failed", "ERROR");
-    }
-    if (FT_Set_Char_Size(
-             mFaces[FaceIndex], ToFontUnits(inFontSize), ToFontUnits(inFontSize), 96, 96)) {
-        Log("Font Char Size Set Failed", "ERROR");
-    }
-    FT_Set_Transform(mFaces[FaceIndex], 0, 0);
-    mHbFonts[FaceIndex] = hb_ft_font_create(mFaces[FaceIndex], 0);
-    outFontId           = FaceIndex;
-}
-
-/// @brief To be removed
-/// @param inFontFilePathName 
-/// @param inFontSize 
-/// @param outFontId 
-void bb::AddFontFace(const sv inFontFilePathName, size_t inFontSize, ui &outFontId) {
-    ui FaceIndex = mFontFaceCount++;
-    mFaces.resize(mFontFaceCount);
-    mHbFonts.resize(mFontFaceCount);
-    if (FT_New_Face(mFtLibrary, inFontFilePathName.data(), 0, &mFaces[FaceIndex])) {
+    const auto data = (uc*) inMemory.data();
+    if (FT_New_Memory_Face(mFtLibrary, data, inMemory.size(), 0, &mFaces[FaceIndex])) {
         Log("Font Face Load Failed", "ERROR");
     }
     if (FT_Set_Char_Size(
@@ -589,9 +569,9 @@ glm::vec4 Jkr::Renderer::BestText_base::GetTextDimensionsEXT(const std::string_v
     return glm::vec4(dimen.mWidth, dimen.mHeight, dimen.mYBearing, dimen.mDelY);
 }
 
-ksai::ui Jkr::Renderer::BestText_base::AddFontFaceEXT(const std::string_view inFontFilePathName,
+ksai::ui Jkr::Renderer::BestText_base::AddFontFaceEXT(v<char> &inFont,
                                                       size_t inFontSize) {
     ui i;
-    AddFontFace(inFontFilePathName, inFontSize, i);
+    AddFontFace(inFont, inFontSize, i);
     return i;
 }

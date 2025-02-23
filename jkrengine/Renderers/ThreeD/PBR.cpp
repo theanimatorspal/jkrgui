@@ -11,7 +11,7 @@ Up<VulkanImageVMA> PBR::GenerateBRDFLookupTable(Instance &inInstance,
                                                 std::string_view inVertexShader,
                                                 std::string_view inFragmentShader,
                                                 std::string_view inComputeShader,
-                                                bool inShouldLoad) {
+                                                Jkr::Misc::File& inFile) {
     const int Dim                   = BRDFLUTDimension;
     Up<VulkanImageVMA> BRDFLUTImage = MakeUp<VulkanImageVMA>(
          inInstance.GetVMA(),
@@ -35,7 +35,7 @@ Up<VulkanImageVMA> PBR::GenerateBRDFLookupTable(Instance &inInstance,
                                          inVertexShader,
                                          inFragmentShader,
                                          inComputeShader,
-                                         inShouldLoad);
+                                         inFile);
 
     VulkanCommandBuffer CommandBuffer(inInstance.GetDevice(), inInstance.GetCommandPool());
 
@@ -71,7 +71,7 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance &inInstance,
                                                std::string_view inVertexShader,
                                                std::string_view inFragmentShader,
                                                std::string_view inComputeShader,
-                                               bool inShouldLoad,
+                                               Jkr::Misc::File& inFile,
                                                _3D::World3D &inWorld3D) {
     const uint32_t Dim     = IrradianceCubeDimension;
     const uint32_t NumMips = static_cast<uint32_t>(floor(log2(Dim))) + 1;
@@ -126,7 +126,7 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance &inInstance,
                                          inVertexShader,
                                          inFragmentShader,
                                          inComputeShader,
-                                         inShouldLoad);
+                                         inFile);
 
     VulkanDescriptorPool DescriptorPool(inInstance.GetDevice(), 10, 10);
     _3D::Uniform3D Uniform(inInstance);
@@ -274,7 +274,7 @@ Up<VulkanImageVMA> PBR::GeneratePrefilteredCube(Instance &inInstance,
                                                 std::string_view inVertexShader,
                                                 std::string_view inFragmentShader,
                                                 std::string_view inComputeShader,
-                                                bool inShouldLoad,
+                                                Jkr::Misc::File& inFile,
                                                 _3D::World3D &inWorld3D) {
     const int32_t Dim            = PrefilteredCubeDimension;
     const uint32_t NumMips       = static_cast<uint32_t>(floor(log2(Dim))) + 1;
@@ -329,7 +329,7 @@ Up<VulkanImageVMA> PBR::GeneratePrefilteredCube(Instance &inInstance,
                                          inVertexShader,
                                          inFragmentShader,
                                          inComputeShader,
-                                         inShouldLoad);
+                                         inFile);
 
     VulkanDescriptorPool DescriptorPool(inInstance.GetDevice(), 10, 10);
     _3D::Uniform3D Uniform(inInstance);

@@ -161,7 +161,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         Shape2DShaders.GeneralVShader.str,
         Shape2DShaders.RoundedRectangleFShader.str,
         "",
-        false
+        MAIN_JKR_FILE
     )
     o.shape2dShaders.showImage = Jkr.Simple3D(i, w)
     o.shape2dShaders.showImage:Compile(
@@ -171,7 +171,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         Shape2DShaders.GeneralVShader.str,
         Shape2DShaders.ShowImageFShader.str,
         "",
-        false
+        MAIN_JKR_FILE
     )
 
     o.CreateFont = function(inFontFileName, inFontSize)

@@ -246,22 +246,17 @@ void CreateBasicBindings(sol::state &s) {
          },
          "Store",
          [](Jkr::PainterCache &inCache,
+            Jkr::Misc::File& inFile,
             string_view inFilename,
             string_view inVertexShader,
             string_view inFragmentShader,
             string_view inComputeShader) {
-             inCache.Store(string(inFilename),
+             inCache.Store(inFile,
+                           string(inFilename),
                            string(inVertexShader),
                            string(inFragmentShader),
                            string(inComputeShader));
-         },
-         "Load",
-         [](Jkr::PainterCache &inCache, string_view inFilename) {
-             inCache.Load(string(inFilename));
          }
-         // TODO Sort
-         // Variable
-         // Descriptors
     );
 }
 

@@ -5,6 +5,7 @@
 #include <Vulkan/Pipeline/VulkanPipelineCache.hpp>
 #include <Vulkan/Pipeline/VulkanPipelineContext.hpp>
 #include <Vulkan/Pipeline/VulkanShaderModule.hpp>
+#include <Misc/JkrFile.hpp>
 
 namespace Jkr {
 class ShaderCompiler {
@@ -45,17 +46,11 @@ class PainterCache {
     public:
     explicit PainterCache(Instance &inInstance,
                           PipelinePropertiesContext inContext = PipelinePropertiesContext::Default);
-    void SetCacheFile(Jkr::Misc::File *inFileJkr) { mCacheFile = inFileJkr; };
-    void WriteToCacheFile(Jkr::Misc::File &inFileJkr, std::string inEntry);
-    void ReadFromCacheFile(Jkr::Misc::File &inFileJkr, std::string inEntry);
-    std::string GetCacheFileEntryName() const { return mCacheFileEntryName; }
-    GETTER GetCacheFile() { return mCacheFile; }
-    PainterCache &Store(const std::string_view fileName,
+    PainterCache &Store(Jkr::Misc::File& inFile, const std::string_view fileName,
                         const std::string_view inVertexShader   = "",
                         const std::string_view inFragmentShader = "",
                         const std::string_view inComputeShader  = "",
                         ui inVarDescount                        = -1);
-    PainterCache &Load(const std::string &fileName, ui inVarDescount = -1);
 
     GETTER &GetPipelineContext() { return mPipelineContext; }
     GETTER &GetPipelineCache() { return *mPtrPipelineCache; }
@@ -84,8 +79,8 @@ class PainterCache {
     using VertexFragmentDescriptorSetLayout =
          VulkanDescriptorSetLayout<2, ShaderModuleContext::Vertex, ShaderModuleContext::Fragment>;
     std::array<std::vector<uint32_t>, 2> mVertexFragmentShaderSPIRV = {};
-    void StoreSPIRVsToFile(const std::string_view inFileName);
-    void LoadSPIRVsFromFile(const std::string_view inFileName);
+    void StoreSPIRVsToFile(Jkr::Misc::File& inFile, const std::string_view inFileName);
+    void LoadSPIRVsFromFile(Jkr::Misc::File& inFile, const std::string_view inFileName);
     Up<VertexFragmentDescriptorSetLayout> mPtrVertexFragmentDescriptorSetLayout     = nullptr;
     Up<VertexFragmentDescriptorSetLayout> mPtrVertexFragmentDescriptorSetLayout_EXT = nullptr;
     Up<VulkanPipelineLayout<2>> mPtrVertexFragmentPipelineLayout                    = nullptr;
@@ -96,9 +91,5 @@ class PainterCache {
     Up<ComputeDescriptorSetLayout> mPtrComputeDescriptorSetLayout     = nullptr;
     Up<ComputeDescriptorSetLayout> mPtrComputeDescriptorSetLayout_EXT = nullptr;
     Up<VulkanPipelineLayout<1>> mPtrComputePipelineLayout             = nullptr;
-
-    private:
-    Jkr::Misc::File *mCacheFile = nullptr;
-    std::string mCacheFileEntryName;
 };
 } // namespace Jkr

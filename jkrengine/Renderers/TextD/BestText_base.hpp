@@ -45,15 +45,13 @@ class BestText_base {
     BestText_base();
     ~BestText_base();
     void
-    AddFontFaceFromMemory(v<char>& inMemory, size_t inFontSize, uint32_t &outFontId);
-    void
-    AddFontFace(const std::string_view inFontFilePathName, size_t inFontSize, uint32_t &outFontId);
+    AddFontFace(v<char>& inMemory, size_t inFontSize, uint32_t &outFontId);
     TextDimensions GetTextDimensions(const std::string_view inString, uint32_t inFontShapeId);
     void SetTextProperty(TextProperty inProp) { mCurrentTextProp = inProp; };
     GETTER GetTextProperty() const { return mCurrentTextProp; };
 
     glm::vec4 GetTextDimensionsEXT(const std::string_view inString, uint32_t inFontShapeId);
-    ui AddFontFaceEXT(const std::string_view inFontFilePathName, size_t inFontSize);
+    ui AddFontFaceEXT(v<char>& inFont, size_t inFontSize);
 
     protected:
     TextDimensions GetTextDimensions(const std::string_view inString,

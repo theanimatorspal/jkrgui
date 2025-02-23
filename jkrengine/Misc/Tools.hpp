@@ -66,48 +66,6 @@ void RegisterCustomPainterImageToCustomPainterImage(
      Renderer::CustomPainterImage &inCustomPainterImageTobeRegistered,
      int inIndex);
 
-/// @note This function also supports HDR file formats. (.hdr) for skybox/cubemap.
-void SetupPBR(Instance &inInstance,
-              Window &inWindow,
-              Renderer::_3D::Uniform3D &inUniform3D,
-              Renderer::_3D::World3D &inWorld3D,
-              Renderer::_3D::Shape &inShape3D,
-              int inSkyboxModelIndex,
-
-              sv inCachePrefix,
-              sv inBRDF_vs,
-              sv inBRDF_fs,
-              sv inIrradianceCube_vs,
-              sv inIrradianceCube_fs,
-              sv inPrefilteredCube_vs,
-              sv inPrefilteredCube_fs,
-              sv inEquirectangularToCubeMap_vs,
-              sv inEquirectangularToCubeMap_fs,
-              sv inEnvironmentCubeMapHDR);
-
-///@brief This serializes the Uniform3D
-void SerializeDeserializeUniform3D(Instance &ini,
-                                   sv inIdName,
-                                   Misc::File &inJkrFile,
-                                   Renderer::_3D::Uniform3D &inUniform3D);
-
-///@brief Serializes a Whole World
-void SerializeDeserializeWorld3D(Instance &ini,
-                                 Window &inw,
-                                 sv inIdName,
-                                 Misc::File &inJkrFile,
-                                 Renderer::_3D::World3D &inWorld3D);
-///@brief This function is to be used with the SerializeDeserializeWorld3D function
-void SerializeDeserializeShape3D(Instance &ini,
-                                 sv inIdName,
-                                 Misc::File &inJkrFile,
-                                 Renderer::_3D::Shape &inShape);
-
-///@brief for Objects in World3D
-void SerializeDeserializeObjectVector(sv inIdName,
-                                      v<Renderer::_3D::Object3D> &inObject3d,
-                                      Misc::File &inJkrFile);
-
 ///@brief This assists to use external shaders for Shape (2D rendering), using Simple3D, the
 /// simple
 /// 3D should be created externally and should be compatible with the shape2d shaders. Shape2d

@@ -7,7 +7,7 @@ namespace Jkr::Misc {
 using namespace ksai;
 using size_type = size_t;
 ///@todo Rename this to FileHeaderIdSize or something similar
-constexpr int IdSize = 128;
+constexpr int IdSize = 16;
 
 template <typename T>
 concept IsContainer = requires(T &t) {
@@ -68,10 +68,6 @@ SIZE_OF_ID
 
 */
 
-///
-/// @warning  This implementation is vulnerable to Buffer Overflow attack LOL
-///
-///
 struct File {
     struct Header {
         char mId[IdSize];

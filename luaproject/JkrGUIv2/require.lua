@@ -401,15 +401,11 @@ local DefaultCaches = {}
 Jkr.GetDefaultCache = function(inInstance, inRend)
     if inRend == "Line" then
         DefaultCaches["Line"] = Jkr.PainterCache(inInstance, Jkr.PainterType.Line)
-        if ShouldLoadCaches_b then
-            DefaultCaches["Line"]:Load("cache2/LineRendererCache.glsl")
-        else
-            DefaultCaches["Line"]:Store("cache2/LineRendererCache.glsl",
-                Jkr.GetDefaultResource("Line", "Vertex"),
-                Jkr.GetDefaultResource("Line", "Fragment"),
-                Jkr.GetDefaultResource(nil, "Compute")
-            )
-        end
+        DefaultCaches["Line"]:Store(MAIN_JKR_FILE, "cache2/LineRendererCache.glsl",
+            Jkr.GetDefaultResource("Line", "Vertex"),
+            Jkr.GetDefaultResource("Line", "Fragment"),
+            Jkr.GetDefaultResource(nil, "Compute")
+        )
         return DefaultCaches["Line"]
     elseif inRend == "Shape" then
         if DefaultCaches["Shape"] then
@@ -424,7 +420,7 @@ Jkr.GetDefaultCache = function(inInstance, inRend)
                 Jkr.GetDefaultResource("ShapeFill", "Vertex"),
                 Jkr.GetDefaultResource("ShapeFill", "Fragment"),
                 Jkr.GetDefaultResource(nil, "Compute"),
-                ShouldLoadCaches_b
+                MAIN_JKR_FILE
             )
             DefaultCaches["Shape"]:Add(
                 inInstance,
@@ -434,7 +430,7 @@ Jkr.GetDefaultCache = function(inInstance, inRend)
                 Jkr.GetDefaultResource("ShapeImage", "Vertex"),
                 Jkr.GetDefaultResource("ShapeImage", "Fragment"),
                 Jkr.GetDefaultResource(nil, "Compute"),
-                ShouldLoadCaches_b
+                MAIN_JKR_FILE
             )
             DefaultCaches["Shape"]:Add(
                 inInstance,
@@ -444,7 +440,7 @@ Jkr.GetDefaultCache = function(inInstance, inRend)
                 Jkr.GetDefaultResource("ShapeFill", "Vertex"),
                 Jkr.GetDefaultResource("ShapeFill", "Fragment"),
                 Jkr.GetDefaultResource(nil, "Compute"),
-                ShouldLoadCaches_b
+                MAIN_JKR_FILE
             )
             return DefaultCaches["Shape"]
         end
@@ -461,7 +457,7 @@ Jkr.GetDefaultShapeRendererResources = function(inInstance)
         Jkr.GetDefaultResource("ShapeFill", "Vertex"),
         Jkr.GetDefaultResource("ShapeFill", "Fragment"),
         Jkr.GetDefaultResource(nil, "Compute"),
-        ShouldLoadCaches_b
+        MAIN_JKR_FILE
     )
     Resource:Add(
         inInstance,
@@ -471,7 +467,7 @@ Jkr.GetDefaultShapeRendererResources = function(inInstance)
         Jkr.GetDefaultResource("ShapeImage", "Vertex"),
         Jkr.GetDefaultResource("ShapeImage", "Fragment"),
         Jkr.GetDefaultResource(nil, "Compute"),
-        ShouldLoadCaches_b
+        MAIN_JKR_FILE
     )
     Resource:Add(
         inInstance,
@@ -481,7 +477,7 @@ Jkr.GetDefaultShapeRendererResources = function(inInstance)
         Jkr.GetDefaultResource("ShapeFill", "Vertex"),
         Jkr.GetDefaultResource("ShapeFill", "Fragment"),
         Jkr.GetDefaultResource(nil, "Compute"),
-        ShouldLoadCaches_b
+        MAIN_JKR_FILE
     )
     return Resource
 end
@@ -708,12 +704,8 @@ Jkr.CreateCustomImagePainter = function(inCacheFileName, inComputeShader)
     local o = {}
     o.handle = CreateCustomImagePainter(inCacheFileName, inComputeShader)
 
-    o.Load = function(self, i, w)
-        o.handle:Load(i, w)
-    end
-
-    o.Store = function(self, i, w)
-        o.handle:Store(i, w)
+    o.Store = function(self, file, i, w)
+        o.handle:Store(i, w, file)
     end
 
     o.Bind = function(self, w, inCmdParam)

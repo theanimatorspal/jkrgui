@@ -73,7 +73,7 @@ class Uniform3D {
                                     std::string_view inVertexShader,
                                     std::string_view inFragmentShader,
                                     std::string_view inComputeShader,
-                                    bool inShouldLoad,
+                                    Jkr::Misc::File& inFile,
                                     int inDstBinding = 3 +
                                                        kstd::BindingIndex::Uniform::CubeMapImage,
                                     int inDstSet = 0);
@@ -88,7 +88,7 @@ class Uniform3D {
                                    std::string_view inVertexShader,
                                    std::string_view inFragmentShader,
                                    std::string_view inComputeShader,
-                                   bool inShouldLoad,
+                                   Jkr::Misc::File& inFile,
                                    int inDstBinding = 4 + kstd::BindingIndex::Uniform::CubeMapImage,
                                    int inDstSet     = 0);
 
@@ -102,7 +102,7 @@ class Uniform3D {
                                     std::string_view inVertexShader,
                                     std::string_view inFragmentShader,
                                     std::string_view inComputeShader,
-                                    bool inShouldLoad,
+                                    Jkr::Misc::File& inFile,
                                     int inDstBinding = 5 +
                                                        kstd::BindingIndex::Uniform::CubeMapImage,
                                     int inDstSet = 0);

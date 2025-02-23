@@ -49,7 +49,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             "cache/op.roundedRectangle.glsl",
             o.shaders.roundedRectangle
         )
-    op.roundedRectanglePainter:Store(i, w)
+    op.roundedRectanglePainter:Store(MAIN_JKR_FILE, i, w)
     op.roundedRectangle = o.CreateComputeImage(vec3(0), vec3(500, 500, 1))
     op.roundedRectangle.RegisterPainter(op.roundedRectanglePainter)
 

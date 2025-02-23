@@ -21,19 +21,15 @@ void Simple3D::CompileDefault(Jkr::Instance &inInstance,
                               std::string_view inVertexShader,
                               std::string_view inFragmentShader,
                               std::string_view inComputeShader,
-                              bool inShouldLoad) {
+                              Jkr::Misc::File& inFile) {
     if (not mPainterCache) {
         mPainterCache = mu<PainterCache>(inInstance);
     }
     using namespace std;
-    if (not inShouldLoad) {
-        mPainterCache->Store(string(inFileName),
-                             string(inVertexShader),
-                             string(inFragmentShader),
-                             string(inComputeShader));
-    } else {
-        mPainterCache->Load(string(inFileName));
-    }
+    mPainterCache->Store(inFile, string(inFileName),
+                            string(inVertexShader),
+                            string(inFragmentShader),
+                            string(inComputeShader));
     mPainter = mu<Painter>(inInstance, inCompatibleWindow, *mPainterCache, mPipelineContext);
 }
 
@@ -43,8 +39,7 @@ void Simple3D::CompileForShadowOffscreen(Jkr::Instance &inInstance,
                                          std::string_view inVertexShader,
                                          std::string_view inFragmentShader,
                                          std::string_view inComputeShader,
-                                         bool inShouldLoad
-
+                                         Jkr::Misc::File& inFile
 ) {
     mPipelineContext = ksai::PipelineContext::Shadow;
     CompileWithCustomRenderPass(inInstance,
@@ -53,7 +48,7 @@ void Simple3D::CompileForShadowOffscreen(Jkr::Instance &inInstance,
                                 inVertexShader,
                                 inFragmentShader,
                                 inComputeShader,
-                                inShouldLoad,
+                                inFile,
                                 mPipelineContext);
 }
 
@@ -63,7 +58,7 @@ void Simple3D::CompileWithCustomRenderPass(Jkr::Instance &inInstance,
                                            std::string_view inVertexShader,
                                            std::string_view inFragmentShader,
                                            std::string_view inComputeShader,
-                                           bool inShouldLoad,
+                                           Jkr::Misc::File& inFile,
                                            PipelineContext inPipelineContext) {
 
     mPipelineContext = inPipelineContext;
@@ -71,14 +66,10 @@ void Simple3D::CompileWithCustomRenderPass(Jkr::Instance &inInstance,
         mPainterCache = mu<PainterCache>(inInstance);
     }
     using namespace std;
-    if (not inShouldLoad) {
-        mPainterCache->Store(string(inFilename),
-                             string(inVertexShader),
-                             string(inFragmentShader),
-                             string(inComputeShader));
-    } else {
-        mPainterCache->Load(string(inFilename));
-    }
+    mPainterCache->Store(inFile, string(inFilename),
+                            string(inVertexShader),
+                            string(inFragmentShader),
+                            string(inComputeShader));
     mPainter = mu<Painter>(inInstance, inRenderPass, *mPainterCache, mPipelineContext);
 }
 
@@ -88,21 +79,17 @@ void Simple3D::CompileForDeferredOffscreen(Jkr::Instance &inInstance,
                                            std::string_view inVertexShader,
                                            std::string_view inFragmentShader,
                                            std::string_view inComputeShader,
-                                           bool inShouldLoad) {
+                                           Jkr::Misc::File& inFile) {
 
     mPipelineContext = PipelineContext::DefaultSingleSampled; // TODO Modify for multi sampeld
     if (not mPainterCache) {
         mPainterCache = mu<PainterCache>(inInstance);
     }
     using namespace std;
-    if (not inShouldLoad) {
-        mPainterCache->Store(string(inFilename),
-                             string(inVertexShader),
-                             string(inFragmentShader),
-                             string(inComputeShader));
-    } else {
-        mPainterCache->Load(string(inFilename));
-    }
+    mPainterCache->Store(inFile, string(inFilename),
+                            string(inVertexShader),
+                            string(inFragmentShader),
+                            string(inComputeShader));
     mPainter = mu<Painter>(inInstance,
                            inCompatibleWindow.GetDeferredPass().GetRenderPass(),
                            *mPainterCache,
@@ -115,20 +102,16 @@ void Simple3D::CompileForDeferredCompositionOffscreen(Jkr::Instance &inInstance,
                                                       std::string_view inVertexShader,
                                                       std::string_view inFragmentShader,
                                                       std::string_view inComputeShader,
-                                                      bool inShouldLoad) {
+                                                      Jkr::Misc::File& inFile) {
     mPipelineContext = PipelineContext::DefaultSingleSampled;
     if (not mPainterCache) {
         mPainterCache = mu<PainterCache>(inInstance);
     }
     using namespace std;
-    if (not inShouldLoad) {
-        mPainterCache->Store(string(inFilename),
-                             string(inVertexShader),
-                             string(inFragmentShader),
-                             string(inComputeShader));
-    } else {
-        mPainterCache->Load(string(inFilename));
-    }
+    mPainterCache->Store(inFile, string(inFilename),
+                            string(inVertexShader),
+                            string(inFragmentShader),
+                            string(inComputeShader));
     mPainter = mu<Painter>(inInstance,
                            inCompatibleWindow.GetDeferredPass().GetCompositionRenderPass(),
                            *mPainterCache,
@@ -141,7 +124,7 @@ void Simple3D::Compile(Jkr::Instance &inInstance,
                        std::string_view inVertexShader,
                        std::string_view inFragmentShader,
                        std::string_view inComputeShader,
-                       bool inShouldLoad,
+                       Jkr::Misc::File& inFile,
                        CompileContext inContext) {
     mCompileContext = inContext;
     switch (inContext) {
@@ -152,7 +135,7 @@ void Simple3D::Compile(Jkr::Instance &inInstance,
                            inVertexShader,
                            inFragmentShader,
                            inComputeShader,
-                           inShouldLoad);
+                           inFile);
             break;
         case CompileContext::ShadowPass:
             CompileForShadowOffscreen(inInstance,
@@ -161,7 +144,7 @@ void Simple3D::Compile(Jkr::Instance &inInstance,
                                       inVertexShader,
                                       inFragmentShader,
                                       inComputeShader,
-                                      inShouldLoad);
+                                      inFile);
             break;
         case CompileContext::Deferred:
             CompileForDeferredOffscreen(inInstance,
@@ -170,7 +153,7 @@ void Simple3D::Compile(Jkr::Instance &inInstance,
                                         inVertexShader,
                                         inFragmentShader,
                                         inComputeShader,
-                                        inShouldLoad);
+                                        inFile);
             break;
         case CompileContext::DeferredComposition:
             CompileForDeferredCompositionOffscreen(inInstance,
@@ -179,7 +162,7 @@ void Simple3D::Compile(Jkr::Instance &inInstance,
                                                    inVertexShader,
                                                    inFragmentShader,
                                                    inComputeShader,
-                                                   inShouldLoad);
+                                                   inFile);
             break;
         default:
             break;
@@ -193,6 +176,6 @@ void Simple3D::Compile(Jkr::Instance &inInstance,
              inVertexShader,
              inFragmentShader,
              inComputeShader,
-             inShouldLoad);
+             inFile);
     }
 }

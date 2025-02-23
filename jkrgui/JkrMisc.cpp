@@ -95,8 +95,6 @@ void CreateMiscBindings(sol::state &inState) {
          sol::factories([](sv inCacheFileName, sv inComputeShader) {
              return mu<Jkr::Renderer::CustomImagePainter>(inCacheFileName, inComputeShader);
          }),
-         "Load",
-         &Jkr::Renderer::CustomImagePainter::Load,
          "Store",
          &Jkr::Renderer::CustomImagePainter::Store,
          "Bind",
@@ -375,6 +373,23 @@ void CreateMiscBindings(sol::state &inState) {
          &Jkr::Misc::File::PutDataFromMemory,
          "Clear",
          &Jkr::Misc::File::Clear,
+         "WriteFile",
+         [](Jkr::Misc::File& inFile, std::string inId, std::string inFileName) {
+            std::ifstream File(inFileName, std::ios::binary | std::ios::ate);
+            if (not File)
+            {
+                Log("Failed to Open the file", "ERROR");
+            }
+            std::streamsize FileSize = File.tellg();
+            File.seekg(0, std::ios::beg);
+            v<char> FileData(FileSize);
+            if(not File.read(FileData.data(), FileSize))
+            {
+                Log("Failed to read file", "ERROR");
+            }
+            Log("File Loaded Into Memory : " + std::to_string(FileSize) + " bytes");
+            inFile.Write<v<char>>(inId, FileData);
+         },
          sol::meta_function::new_index,
          sol::overload(
             [](Jkr::Misc::File &inFile, std::string inId, sol::function inFunction) {
@@ -401,7 +416,8 @@ void CreateMiscBindings(sol::state &inState) {
                 return std::string(code.as_string_view());
             },
             &Jkr::Misc::File::ReadType<int>,
-            &Jkr::Misc::File::ReadType<float>
+            &Jkr::Misc::File::ReadType<float>,
+            &Jkr::Misc::File::ReadType<v<char>>
          ));
 
     Jkr.set_function("SyncSubmitPresent", &Jkr::Window::SyncSubmitPresent);
@@ -417,20 +433,20 @@ void CreateMiscBindings(sol::state &inState) {
     Jkr.set_function("RegisterShapeRenderer3DToCustomPainterImage",
                      &Jkr::Misc::RegisterShapeRenderer3DToCustomPainterImage);
 
-    Jkr.set_function("SetupPBR", &Jkr::Misc::SetupPBR);
+    // Jkr.set_function("SetupPBR", &Jkr::Misc::SetupPBR);
     Jkr.set_function("DrawShape2DWithSimple3D", &DrawShape2DWithSimple3D);
-    Jkr.set_function("SetCacheFile",
-                     [](Jkr::Renderer::_3D::Simple3D &inSimple3D, Jkr::Misc::File *inFile) {
-                         inSimple3D.GetPainterCache().SetCacheFile(inFile);
-                     });
-    Jkr.set_function("GetCacheFile", [](Jkr::Renderer::_3D::Simple3D &inSimple3D) {
-        return inSimple3D.GetPainterCache().GetCacheFile();
-    });
+    // Jkr.set_function("SetCacheFile",
+    //                  [](Jkr::Renderer::_3D::Simple3D &inSimple3D, Jkr::Misc::File *inFile) {
+    //                      inSimple3D.GetPainterCache().SetCacheFile(inFile);
+    //                  });
+    // Jkr.set_function("GetCacheFile", [](Jkr::Renderer::_3D::Simple3D &inSimple3D) {
+    //     return inSimple3D.GetPainterCache().GetCacheFile();
+    // });
 
-    Jkr.set_function("SerializeDeserializeWorld3D", &Jkr::Misc::SerializeDeserializeWorld3D);
-    Jkr.set_function("SerializeDeserializeShape3D", &Jkr::Misc::SerializeDeserializeShape3D);
-    Jkr.set_function("SerializeDeserializeObjectVector",
-                     &Jkr::Misc::SerializeDeserializeObjectVector);
+    // Jkr.set_function("SerializeDeserializeWorld3D", &Jkr::Misc::SerializeDeserializeWorld3D);
+    // Jkr.set_function("SerializeDeserializeShape3D", &Jkr::Misc::SerializeDeserializeShape3D);
+    // Jkr.set_function("SerializeDeserializeObjectVector",
+    //                  &Jkr::Misc::SerializeDeserializeObjectVector);
 
     Jkr.set_function("GetArbritaryPassImageToVector", &Jkr::Misc::GetArbritaryPassImageToVector);
     Jkr.set_function("FillComputeImageWithVectorChar", &Jkr::Misc::FillComputeImageWithVectorChar);

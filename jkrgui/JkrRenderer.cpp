@@ -18,7 +18,7 @@ struct ShapeRendererResources {
              std::string_view inVertexShader,
              std::string_view inFragmentShader,
              std::string_view inComputeShader,
-             bool inShouldLoad);
+             Jkr::Misc::File& inFile);
     std::unordered_map<FillType, up<PainterCache>> mCaches;
 };
 
@@ -164,15 +164,11 @@ inline void ShapeRendererResources::Add(Jkr::Instance &inInstance,
                                         std::string_view inVertexShader,
                                         std::string_view inFragmentShader,
                                         std::string_view inComputeShader,
-                                        bool inShouldLoad) {
+                                        Jkr::Misc::File& inFile) {
     mCaches[inFillType] = mu<PainterCache>(inInstance, inContext);
-    if (not inShouldLoad) {
-        mCaches[inFillType]->Store(string(inFileName),
-                                   string(inVertexShader),
-                                   string(inFragmentShader),
-                                   string(inComputeShader));
-    } else {
-        mCaches[inFillType]->Load(string(inFileName));
-    }
+    mCaches[inFillType]->Store(inFile, string(inFileName),
+                                string(inVertexShader),
+                                string(inFragmentShader),
+                                string(inComputeShader));
 }
 } // namespace JkrEXE

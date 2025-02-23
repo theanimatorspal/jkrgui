@@ -28,5 +28,9 @@ namespace ksai {
         std::stringstream stream;
         stream << color << "[KSAI " << type << "]: " << msg << "\033[0m";
         ksai_print(stream.str().data());
+        if (type == "ERROR")
+        {
+            exit(-1);
+        }
     }
 }

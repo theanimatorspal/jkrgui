@@ -694,7 +694,7 @@ Engine.CreateWorld3D = function(w, inshaper3d)
         vshader.str,
         fshader.str,
         "",
-        false,
+        MAIN_JKR_FILE,
         Jkr.CompileContext.Default
     )
 
@@ -725,6 +725,10 @@ end
 
 Engine.GameFramework = function(inf)
     local f = inf or {}
+    MAIN_JKR_FILE = MAIN_JKR_FILE or Jkr.File(MAIN_JKR)
+    f.GetResource = function(inFileName)
+        return MAIN_JKR_FILE:Read(inFileName, std_vector_char(0))
+    end
     Engine:Load(f.validation)
     Jkr.GetLayoutsAsVH()
     f.els = {}                       -- 2D elements
@@ -744,13 +748,9 @@ Engine.GameFramework = function(inf)
     Engine.log("Built Shadow Pass")
     f.wr = Jkr.CreateGeneralWidgetsRenderer(nil, Engine.i, f.w, f.e)
     Engine.log("Created Widgets Renderer")
-    try(
-        function()
-            f.nf = f.wr.CreateFont("res/font.ttf", f.nfs)
-            f.lf = f.wr.CreateFont("res/font.ttf", f.lfs)
-            f.sf = f.wr.CreateFont("res/font.ttf", f.sfs)
-        end, "res/font.ttf not found, place it there"
-    )
+    f.nf = f.wr.CreateFont(f.GetResource("res/font.ttf"), f.nfs)
+    f.lf = f.wr.CreateFont(f.GetResource("res/font.ttf"), f.lfs)
+    f.sf = f.wr.CreateFont(f.GetResource("res/font.ttf"), f.sfs)
     Engine.log(string.format("Created Fonts [%s] -> %d, %d, %d", "res/font.ttf", f.nfs, f.lfs, f.sfs))
 
     if not f.validation then
@@ -766,9 +766,9 @@ Engine.GameFramework = function(inf)
             f.painters.line = Jkr.CreateCustomImagePainter("cache/LINE2D.glsl", TwoDimensionalIPs.Line.str)
             f.painters.clear = Jkr.CreateCustomImagePainter("cache/CLEAR2D.glsl", TwoDimensionalIPs.Clear.str)
             f.painters.sound = Jkr.CreateCustomImagePainter("cache/SOUND.glsl", TwoDimensionalIPs.Sound.str)
-            f.painters.line:Store(f.i, f.w)
-            f.painters.clear:Store(f.i, f.w)
-            f.painters.sound:Store(f.i, f.w)
+            f.painters.line:Store(MAIN_JKR_FILE, f.i, f.w)
+            f.painters.clear:Store(MAIN_JKR_FILE, f.i, f.w)
+            f.painters.sound:Store(MAIN_JKR_FILE, f.i, f.w)
             Engine.log("Painters Initialized Successfully", "INFO")
         end
     end

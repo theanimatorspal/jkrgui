@@ -25,8 +25,7 @@ struct CustomImagePainter {
          sv inName, sv inComputeShaderFunction, sv inPushConstantSignature, ui inX, ui inY, ui inZ);
     CustomImagePainter(sv inName, sv inComputeShader);
     GETTER &GetPainter() { return *mPainter; }
-    void Load(Instance &inInstance, Window_base &inWindow);
-    void Store(Instance &inInstance, Window_base &inWindow);
+    void Store(Instance &inInstance, Window_base &inWindow, Jkr::Misc::File& inFile);
     void Bind(Window_base &inWindow, ComPar inPar = ComPar::None) {
         mPainter->BindComputePipeline(inWindow, inPar);
     }
