@@ -88,25 +88,25 @@ void SetupPBR(Instance &inInstance,
 ///@brief This serializes the Uniform3D
 void SerializeDeserializeUniform3D(Instance &ini,
                                    sv inIdName,
-                                   Misc::FileJkr &inJkrFile,
+                                   Misc::File &inJkrFile,
                                    Renderer::_3D::Uniform3D &inUniform3D);
 
 ///@brief Serializes a Whole World
 void SerializeDeserializeWorld3D(Instance &ini,
                                  Window &inw,
                                  sv inIdName,
-                                 Misc::FileJkr &inJkrFile,
+                                 Misc::File &inJkrFile,
                                  Renderer::_3D::World3D &inWorld3D);
 ///@brief This function is to be used with the SerializeDeserializeWorld3D function
 void SerializeDeserializeShape3D(Instance &ini,
                                  sv inIdName,
-                                 Misc::FileJkr &inJkrFile,
+                                 Misc::File &inJkrFile,
                                  Renderer::_3D::Shape &inShape);
 
 ///@brief for Objects in World3D
 void SerializeDeserializeObjectVector(sv inIdName,
                                       v<Renderer::_3D::Object3D> &inObject3d,
-                                      Misc::FileJkr &inJkrFile);
+                                      Misc::File &inJkrFile);
 
 ///@brief This assists to use external shaders for Shape (2D rendering), using Simple3D, the
 /// simple

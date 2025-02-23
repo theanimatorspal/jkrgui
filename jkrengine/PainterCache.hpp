@@ -38,16 +38,16 @@ class ShaderModules {
 };
 
 namespace Misc {
-class FileJkr;
+class File;
 }
 
 class PainterCache {
     public:
     explicit PainterCache(Instance &inInstance,
                           PipelinePropertiesContext inContext = PipelinePropertiesContext::Default);
-    void SetCacheFile(Jkr::Misc::FileJkr *inFileJkr) { mCacheFile = inFileJkr; };
-    void WriteToCacheFile(Jkr::Misc::FileJkr &inFileJkr, std::string inEntry);
-    void ReadFromCacheFile(Jkr::Misc::FileJkr &inFileJkr, std::string inEntry);
+    void SetCacheFile(Jkr::Misc::File *inFileJkr) { mCacheFile = inFileJkr; };
+    void WriteToCacheFile(Jkr::Misc::File &inFileJkr, std::string inEntry);
+    void ReadFromCacheFile(Jkr::Misc::File &inFileJkr, std::string inEntry);
     std::string GetCacheFileEntryName() const { return mCacheFileEntryName; }
     GETTER GetCacheFile() { return mCacheFile; }
     PainterCache &Store(const std::string_view fileName,
@@ -98,7 +98,7 @@ class PainterCache {
     Up<VulkanPipelineLayout<1>> mPtrComputePipelineLayout             = nullptr;
 
     private:
-    Jkr::Misc::FileJkr *mCacheFile = nullptr;
+    Jkr::Misc::File *mCacheFile = nullptr;
     std::string mCacheFileEntryName;
 };
 } // namespace Jkr

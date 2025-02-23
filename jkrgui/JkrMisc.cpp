@@ -360,50 +360,49 @@ void CreateMiscBindings(sol::state &inState) {
         std::this_thread::sleep_for(chrono::nanoseconds(inMiliSeconds * 1000000));
     });
 
-    Jkr.new_usertype<Jkr::Misc::FileJkr>(
-         "FileJkr",
+    Jkr.new_usertype<Jkr::Misc::File>(
+         "File",
          sol::call_constructor,
-         sol::factories([]() { return mu<Jkr::Misc::FileJkr>(); },
-                        [](s inName) { return mu<Jkr::Misc::FileJkr>(inName); }),
+         sol::factories([]() { return mu<Jkr::Misc::File>(); },
+                        [](s inName) { return mu<Jkr::Misc::File>(inName); }),
          "HasEntry",
-         &Jkr::Misc::FileJkr::HasEntry,
+         &Jkr::Misc::File::HasEntry,
          "IsEmpty",
-         &Jkr::Misc::FileJkr::IsEmpty,
+         &Jkr::Misc::File::IsEmpty,
          "GetDataFromMemory",
-         &Jkr::Misc::FileJkr::GetDataFromMemory,
+         &Jkr::Misc::File::GetDataFromMemory,
          "PutDataFromMemory",
-         &Jkr::Misc::FileJkr::PutDataFromMemory,
+         &Jkr::Misc::File::PutDataFromMemory,
          "Clear",
-         &Jkr::Misc::FileJkr::Clear,
-         "WriteObject3DVector",
-         sol::overload(&Jkr::Misc::FileJkr::Write<v<Object3D>>,
-                       [](Jkr::Misc::FileJkr &inFileJkr, std::string inId, v<Object3D *> inO3Ds) {
+         &Jkr::Misc::File::Clear,
+         sol::meta_function::new_index,
+         sol::overload(
+            [](Jkr::Misc::File &inFile, std::string inId, sol::function inFunction) {
+                auto bytecode = inFunction.dump();
+                inFile.Write<decltype(bytecode)>(inId.c_str(), bytecode);
+            },
+            &Jkr::Misc::File::Write<int>,
+            &Jkr::Misc::File::Write<float>,
+            &Jkr::Misc::File::Write<v<char>>,
+            &Jkr::Misc::File::Write<glm::vec4>,
+            &Jkr::Misc::File::Write<v<Object3D>>,
+                       [](Jkr::Misc::File &inFileJkr, std::string inId, v<Object3D *> inO3Ds) {
                            v<Object3D> Obj3ds;
                            for (auto ptr : inO3Ds) {
                                Obj3ds.push_back(*ptr);
                            }
                            inFileJkr.Write(inId.c_str(), Obj3ds);
-                       }),
-         "ReadObject3DVector",
-         &Jkr::Misc::FileJkr::ReadAndErase<v<Object3D>>,
-         "WriteFunction",
-         [](Jkr::Misc::FileJkr &inFile, std::string inId, sol::function inFunction) {
-             auto bytecode = inFunction.dump();
-             inFile.Write<decltype(bytecode)>(inId.c_str(), bytecode);
-         },
-         "ReadFunction",
-         [](Jkr::Misc::FileJkr &inFile, std::string inId) {
-             sol::basic_bytecode<> code = inFile.ReadAndErase<decltype(code)>(inId.c_str());
-             return std::string(code.as_string_view());
-         },
-         "WriteVChar",
-         &Jkr::Misc::FileJkr::Write<v<char>>,
-         "ReadVChar",
-         &Jkr::Misc::FileJkr::ReadAndErase<v<char>>,
-         "WriteVec4",
-         &Jkr::Misc::FileJkr::Write<glm::vec4>,
-         "ReadVec4",
-         &Jkr::Misc::FileJkr::ReadAndErase<glm::vec4>);
+                       }
+         ),
+         "Read",
+         sol::overload(
+            [](Jkr::Misc::File &inFile, std::string inId, sol::function inFunction) {
+                sol::basic_bytecode<> code = inFile.Read<decltype(code)>(inId);
+                return std::string(code.as_string_view());
+            },
+            &Jkr::Misc::File::ReadType<int>,
+            &Jkr::Misc::File::ReadType<float>
+         ));
 
     Jkr.set_function("SyncSubmitPresent", &Jkr::Window::SyncSubmitPresent);
     Jkr.set_function("CopyWindowDeferredImageToShapeImage",
@@ -421,7 +420,7 @@ void CreateMiscBindings(sol::state &inState) {
     Jkr.set_function("SetupPBR", &Jkr::Misc::SetupPBR);
     Jkr.set_function("DrawShape2DWithSimple3D", &DrawShape2DWithSimple3D);
     Jkr.set_function("SetCacheFile",
-                     [](Jkr::Renderer::_3D::Simple3D &inSimple3D, Jkr::Misc::FileJkr *inFile) {
+                     [](Jkr::Renderer::_3D::Simple3D &inSimple3D, Jkr::Misc::File *inFile) {
                          inSimple3D.GetPainterCache().SetCacheFile(inFile);
                      });
     Jkr.set_function("GetCacheFile", [](Jkr::Renderer::_3D::Simple3D &inSimple3D) {

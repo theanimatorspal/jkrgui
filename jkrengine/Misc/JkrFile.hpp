@@ -72,7 +72,7 @@ SIZE_OF_ID
 /// @warning  This implementation is vulnerable to Buffer Overflow attack LOL
 ///
 ///
-struct FileJkr {
+struct File {
     struct Header {
         char mId[IdSize];
         size_type mLocation;
@@ -81,20 +81,20 @@ struct FileJkr {
     GETTER GetFileName() const { return mFileName; }
     GETTER &GetFileContents() { return mFileContents; }
 
-    FileJkr();
-    FileJkr(s inFileName);
-    ~FileJkr();
+    File();
+    File(s inFileName);
+    ~File();
     template <typename T> void Write(const sv inId, T inData) {
         auto data   = Serialize(inData);
         auto header = Header{"", mData.size(), data.size()};
         auto hash = Hash(inId);
         strcpy(header.mId, hash.data());
 
-        if (not mFileContents.contains(s(inId))) {
+        if (not mFileContents.contains(hash)) {
             mDebugStringStream << "WROTE::> " << header.mId << " : " << header.mLocation << " : "
                                << header.mSize / 1024.0f << " KiB\n";
 
-            mFileContents[s(inId)] = header;
+            mFileContents[hash] = header;
             PushVector(mHeader, Serialize(header));
             PushVector(mData, data);
         }
@@ -115,6 +115,10 @@ struct FileJkr {
                            mData.begin() + header.mLocation + header.mSize);
 
         return Retrive<T>(out);
+    }
+    template <typename T> T ReadType(const sv inId, T inType)
+    {
+        return Read<T>(inId);
     }
     template <typename T> T ReadAndErase(const sv inId) {
         auto out = Read<T>(inId);

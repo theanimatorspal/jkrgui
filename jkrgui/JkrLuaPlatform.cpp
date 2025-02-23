@@ -162,8 +162,6 @@ glm::vec3 AndroidGetAccelerometerData() {
 void LuaShowToastNotification(const std::string inMessage) {
 #ifdef ANDROID
     AndroidShowToast(inMessage.c_str());
-#else
-    Log(inMessage.data());
 #endif
 }
 

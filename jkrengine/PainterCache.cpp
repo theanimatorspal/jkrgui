@@ -217,13 +217,13 @@ void Jkr::PainterCache::LoadSPIRVsFromFile(const std::string_view inFileName) {
     mCacheFileEntryName = s(inFileName);
 }
 
-void Jkr::PainterCache::WriteToCacheFile(Jkr::Misc::FileJkr &inFileJkr, std::string inEntry) {
+void Jkr::PainterCache::WriteToCacheFile(Jkr::Misc::File &inFileJkr, std::string inEntry) {
     inFileJkr.Write((inEntry + "VS").c_str(), mVertexFragmentShaderSPIRV[0]);
     inFileJkr.Write((inEntry + "FS").c_str(), mVertexFragmentShaderSPIRV[1]);
     inFileJkr.Write((inEntry + "CS").c_str(), mComputeShaderSPIRV[0]);
     mCacheFileEntryName = inEntry;
 }
-void Jkr::PainterCache::ReadFromCacheFile(Jkr::Misc::FileJkr &inFileJkr, std::string inEntry) {
+void Jkr::PainterCache::ReadFromCacheFile(Jkr::Misc::File &inFileJkr, std::string inEntry) {
     mVertexFragmentShaderSPIRV[0] = inFileJkr.Read<v<uint32_t>>((inEntry + "VS").c_str());
     mVertexFragmentShaderSPIRV[1] = inFileJkr.Read<v<uint32_t>>((inEntry + "FS").c_str());
     mComputeShaderSPIRV[0]        = inFileJkr.Read<v<uint32_t>>((inEntry + "CS").c_str());

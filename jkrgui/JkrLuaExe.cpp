@@ -256,10 +256,7 @@ JKR_EXPORT int main(int ArgCount, char **ArgStrings) {
 #ifndef ANDROID
     ProcessCmdLine(ArgCount, ArgStrings);
 #endif
-    try {
-        RunScript();
-    } catch (const std::exception &e) {
-        Log(e.what(), "ERROR");
-    }
+    RunScript();
+    // Log(e.what(), "ERROR");
     return 0;
 }

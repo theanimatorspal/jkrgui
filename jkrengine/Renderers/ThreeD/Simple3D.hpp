@@ -7,7 +7,7 @@
 #include <string_view>
 
 namespace Jkr::Misc {
-class FileJkr;
+class File;
 }
 namespace Jkr::Renderer::_3D {
 class Simple3D {

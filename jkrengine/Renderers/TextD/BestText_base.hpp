@@ -45,6 +45,8 @@ class BestText_base {
     BestText_base();
     ~BestText_base();
     void
+    AddFontFaceFromMemory(v<char>& inMemory, size_t inFontSize, uint32_t &outFontId);
+    void
     AddFontFace(const std::string_view inFontFilePathName, size_t inFontSize, uint32_t &outFontId);
     TextDimensions GetTextDimensions(const std::string_view inString, uint32_t inFontShapeId);
     void SetTextProperty(TextProperty inProp) { mCurrentTextProp = inProp; };

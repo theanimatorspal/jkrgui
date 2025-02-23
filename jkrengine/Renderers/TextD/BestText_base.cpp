@@ -135,6 +135,31 @@ bb::~BestText_base() {
     FT_Done_FreeType(mFtLibrary);
 }
 
+/// @brief Takes the font from v<char>, use JkrFile for this shit
+/// @param inMemory 
+/// @param inFontSize 
+/// @param outFontId 
+void bb::AddFontFaceFromMemory(v<char>& inMemory, size_t inFontSize, uint32_t &outFontId) {
+    ui FaceIndex = mFontFaceCount++;
+    mFaces.resize(mFontFaceCount);
+    mHbFonts.resize(mFontFaceCount);
+    auto data = (uc*) inMemory.data()
+    if (FT_New_Memory_Face(mFtLibrary, data, 0, &mFaces[FaceIndex])) {
+        Log("Font Face Load Failed", "ERROR");
+    }
+    if (FT_Set_Char_Size(
+             mFaces[FaceIndex], ToFontUnits(inFontSize), ToFontUnits(inFontSize), 96, 96)) {
+        Log("Font Char Size Set Failed", "ERROR");
+    }
+    FT_Set_Transform(mFaces[FaceIndex], 0, 0);
+    mHbFonts[FaceIndex] = hb_ft_font_create(mFaces[FaceIndex], 0);
+    outFontId           = FaceIndex;
+}
+
+/// @brief To be removed
+/// @param inFontFilePathName 
+/// @param inFontSize 
+/// @param outFontId 
 void bb::AddFontFace(const sv inFontFilePathName, size_t inFontSize, ui &outFontId) {
     ui FaceIndex = mFontFaceCount++;
     mFaces.resize(mFontFaceCount);

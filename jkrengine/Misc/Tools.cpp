@@ -623,7 +623,7 @@ static auto ImgToFile(auto &ini, auto &inJkrFile, auto image_prefix, auto &img) 
     }
 }
 
-static auto FileToImage(Instance &ini, FileJkr &inJkrFile, auto image_prefix) {
+static auto FileToImage(Instance &ini, File &inJkrFile, auto image_prefix) {
     Up<VulkanImageVMA> Image = mu<VulkanImageVMA>();
     ImageProperties Props    = inJkrFile.Read<ImageProperties>((image_prefix + "PROPS").c_str());
     VulkanImageVMA::CreateInfo Info;
@@ -657,7 +657,7 @@ static auto FileToImage(Instance &ini, FileJkr &inJkrFile, auto image_prefix) {
 
 void SerializeDeserializeUniform3D(Instance &ini,
                                    sv inIdName,
-                                   Misc::FileJkr &inJkrFile,
+                                   Misc::File &inJkrFile,
                                    Renderer::_3D::Uniform3D &inUniform3D) {
     auto prefix            = s(inIdName);
     auto image_prefix      = prefix + "IMG";
@@ -835,7 +835,7 @@ void SerializeDeserializeUniform3D(Instance &ini,
 void SerializeDeserializeWorld3D(Instance &ini,
                                  Window &inw,
                                  sv inIdName,
-                                 Misc::FileJkr &inJkrFile,
+                                 Misc::File &inJkrFile,
                                  Renderer::_3D::World3D &inWorld3D) {
     auto &Cameras   = inWorld3D.GetCamras();
     auto &Models    = inWorld3D.GetModels();
@@ -917,7 +917,7 @@ void SerializeDeserializeWorld3D(Instance &ini,
 
 void SerializeDeserializeShape3D(Instance &ini,
                                  sv inIdName,
-                                 Misc::FileJkr &inJkrFile,
+                                 Misc::File &inJkrFile,
                                  Renderer::_3D::Shape &inShape) {
     auto vid  = s(inIdName) + "vbuffer";
     auto iid  = s(inIdName) + "fbuffer";
@@ -990,7 +990,7 @@ void SerializeDeserializeShape3D(Instance &ini,
 
 void SerializeDeserializeObjectVector(sv inName,
                                       v<Renderer::_3D::Object3D> &inObject3d,
-                                      Misc::FileJkr &inJkrFile) {
+                                      Misc::File &inJkrFile) {
     if (inJkrFile.GetFileContents().contains(s(inName))) {
 
         ///@todo change this to name.data() everywhere

@@ -5,9 +5,9 @@ namespace Jkr::Misc {
 using namespace ksai;
 using namespace std;
 
-FileJkr::FileJkr() { mOnlyInMemory = true; }
+File::File() { mOnlyInMemory = true; }
 
-void FileJkr::PutDataFromMemory(v<char> &inData) {
+void File::PutDataFromMemory(v<char> &inData) {
     std::stringstream sstream;
     sstream << sv(inData.begin(), inData.end());
     char id[IdSize];
@@ -39,7 +39,7 @@ void FileJkr::PutDataFromMemory(v<char> &inData) {
     }
 }
 
-v<char> FileJkr::GetDataFromMemory() {
+v<char> File::GetDataFromMemory() {
     auto fileheader_start = Serialize(Header{"HEADER_START", 0, mHeader.size()});
     auto &headercontents  = mHeader;
     auto fileheader_end   = Serialize(Header{"HEADER_END", 0, mData.size()});
@@ -61,8 +61,8 @@ v<char> FileJkr::GetDataFromMemory() {
     return out;
 }
 
-FileJkr::FileJkr(s inFileName) {
-    mOnlyInMemory = true;
+File::File(s inFileName) {
+    mOnlyInMemory = false;
     mFileName     = inFileName;
     bool exists   = false;
     if (filesystem::exists(inFileName)) {
@@ -93,7 +93,7 @@ FileJkr::FileJkr(s inFileName) {
                 mData.resize(Datasize);
                 mFile.read(mData.data(), Datasize);
             } else {
-                Log("This File Seems not to be a JkrGUI file, it will be overriden", "ERROR");
+                Log("This file seems not to be a JkrGUI file, or is empty, failed to retrive the contents of the file", "WARNING");
             }
         } catch (const std::exception &e) {
             Log(e.what(), "ERROR");
@@ -103,14 +103,14 @@ FileJkr::FileJkr(s inFileName) {
     }
 }
 
-FileJkr::~FileJkr() {
+File::~File() {
     if (not mOnlyInMemory) {
         Commit();
         Log(mDebugStringStream.str());
     }
 }
 
-void FileJkr::Commit() {
+void File::Commit() {
     if (mWrites > 0 and not mOnlyInMemory) {
         auto fileheader_start = Serialize(Header{"HEADER_START", 0, mHeader.size()});
         auto &headercontents  = mHeader;
@@ -125,13 +125,13 @@ void FileJkr::Commit() {
     }
 }
 
-void FileJkr::Clear() {
+void File::Clear() {
     mHeader.clear();
     mData.clear();
     mFileContents.clear();
 }
 
-s FileJkr::Hash(const sv input) {
+s File::Hash(const sv input) {
     std::hash<sv> hasher;
     size_t hash = hasher(input); 
 
