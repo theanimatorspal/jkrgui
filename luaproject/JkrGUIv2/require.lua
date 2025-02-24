@@ -1,5 +1,6 @@
 Engine = {}
-
+MAIN_JKR = "main.jkr"
+MAIN_JKR_FILE = MAIN_JKR_FILE or Jkr.File(MAIN_JKR)
 -- True : Will compile and store cachesC-- False: Will load caches instead of compiling the shaders
 local ShouldLoadCaches_b = false
 

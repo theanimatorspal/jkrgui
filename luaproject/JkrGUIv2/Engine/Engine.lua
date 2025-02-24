@@ -725,7 +725,6 @@ end
 
 Engine.GameFramework = function(inf)
     local f = inf or {}
-    MAIN_JKR_FILE = MAIN_JKR_FILE or Jkr.File(MAIN_JKR)
     f.GetResource = function(inFileName)
         return MAIN_JKR_FILE:Read(inFileName, std_vector_char(0))
     end

@@ -23,12 +23,12 @@ else()
      add_executable(jkrgui ${JKR_SOURCES})
 endif()
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-     set_target_properties(jkrgui PROPERTIES OUTPUT_NAME "jkrgui")
-endif()
+set_target_properties(jkrgui PROPERTIES OUTPUT_NAME "jkrgui")
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
+if(NOT ANDROID)
      set_target_properties(jkrgui PROPERTIES OUTPUT_NAME "jkrgui-r")
+endif()
 endif()
 
 PrecompileStdHeaders(jkrgui)

@@ -1,7 +1,8 @@
 
   function jkrgui()
           Engine = {}
-
+MAIN_JKR = "main.jkr"
+MAIN_JKR_FILE = MAIN_JKR_FILE or Jkr.File(MAIN_JKR)
 -- True : Will compile and store cachesC-- False: Will load caches instead of compiling the shaders
 local ShouldLoadCaches_b = false
 
@@ -3767,7 +3768,6 @@ end
 
 Engine.GameFramework = function(inf)
     local f = inf or {}
-    MAIN_JKR_FILE = MAIN_JKR_FILE or Jkr.File(MAIN_JKR)
     f.GetResource = function(inFileName)
         return MAIN_JKR_FILE:Read(inFileName, std_vector_char(0))
     end

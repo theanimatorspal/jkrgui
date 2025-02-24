@@ -3,6 +3,7 @@
 #include "JkrLuaExe.hpp"
 #include <SDLWindow.hpp>
 #include <CLI11/CLI11.hpp>
+#include <Misc/JkrFile.hpp>
 
 #ifdef _WIN32
     #include <TracyLua.hpp>
@@ -17,7 +18,7 @@ bool FlagCreateAndroidEnvironment     = false;
 std::string OptionAndroidAppName      = "JkrGUIv2";
 std::string OptionAndroidDirName      = "android";
 std::string OptionAndroidBuildDirName = "android-arm64-v8a";
-std::string OptionRun                 = "app.lua";
+std::string OptionRun                 = "";
 
 extern void LuaShowToastNotification(const std::string inMessage);
 
@@ -56,7 +57,7 @@ void CreateMainBindings(sol::state &s) {
     CreateAudioBindings(s);
     CreatePlatformBindings(s);
     CreateNetworkBindings(s);
-#ifndef _WIN32
+#ifdef _WIN32
     tracy::LuaRegister(s);
 #endif
 }
@@ -68,26 +69,33 @@ sol::state &GetMainStateRef() { return mainState; }
 
 void RunScript() {
     CreateMainBindings(mainState);
-
-#ifdef ANDROID
-    Log("========================Main Function Entered=============================");
-    sol::protected_function_result result =
-         mainState.safe_script(LuaBundleScript, &sol::script_pass_on_error);
-    if (not result.valid()) {
-        sol::error error = result;
-        Log(error.what(), "ERROR");
-        LuaShowToastNotification(std::string(error.what()));
-    }
-#endif
-    if (OptionRun.find(".lua") == s::npos) {
-        OptionRun = OptionRun + ".lua";
-    }
-    sol::protected_function_result result_ =
-         mainState.safe_script_file(OptionRun, &sol::script_pass_on_error);
-    if (not result_.valid()) {
-        sol::error error = result_;
-        Log(error.what(), "ERROR");
-        LuaShowToastNotification(std::string(error.what()));
+    if(OptionRun == "")
+    {
+        LuaShowToastNotification("JkrGUI Started");
+        auto File = Jkr::Misc::File("main.jkr");
+        int fcount = File.Read<int>("func_count");
+        for(int i = 1; i <= fcount; ++i)
+        {
+                sol::basic_bytecode<> code = File.Read<decltype(code)>(s("func") + std::to_string(i));
+                sol::protected_function_result result = 
+                GetMainStateRef().script(std::string(code.as_string_view()));
+                if (not result.valid()) {
+                    sol::error error = result;
+                    Log(error.what(), "ERROR");
+                    LuaShowToastNotification(std::string(error.what()));
+                }
+        }
+    } else {
+        if (OptionRun.find(".lua") == s::npos) {
+            OptionRun = OptionRun + ".lua";
+        }
+        sol::protected_function_result result_ =
+            mainState.safe_script_file(OptionRun, &sol::script_pass_on_error);
+        if (not result_.valid()) {
+            sol::error error = result_;
+            Log(error.what(), "ERROR");
+            LuaShowToastNotification(std::string(error.what()));
+        }
     }
 }
 
