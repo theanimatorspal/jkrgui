@@ -15,3 +15,5 @@ jkrgui --and-env --appname JkrGUIConnect --dirname android android-arm64-v8a\ Re
 
 Here,
 -> android-arm64-v8a is default builddir, it refers to the location of jkrgui.so file
+
+# please call bundle.py if you have done ANY changes in luaproject/ folder

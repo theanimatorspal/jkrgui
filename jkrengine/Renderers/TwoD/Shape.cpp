@@ -6,6 +6,11 @@
 
 using namespace Jkr::Renderer;
 
+/// @brief @todo यो inPainterCaches भन्ने अबदेखि चाहिन्न । 
+/// @param inInstance 
+/// @param inCompatibleWindow 
+/// @param inPainterCaches 
+/// @param inVarDesCount 
 Shape::Shape(Instance &inInstance,
              Window_base &inCompatibleWindow,
              std::unordered_map<FillType, Up<PainterCache>> &inPainterCaches,
@@ -67,7 +72,6 @@ void Shape::Add(Jkr::Generator &inShape, float inX, float inY, float inZ, ui &ou
 }
 
 void Shape::AddImage(const std::string_view inFileName, ui &outIndex) {
-#ifndef JKR_USE_VARIABLE_DES_INDEXING
     Up<VulkanDescriptorSet> Desset = MakeUp<VulkanDescriptorSet>(
          mInstance.GetDevice(),
          mInstance.GetDescriptorPool(),
@@ -78,18 +82,9 @@ void Shape::AddImage(const std::string_view inFileName, ui &outIndex) {
     outIndex = mImages.size();
     mImages.push_back(std::move(Image));
     mVulkanPerImageDescriptorSets.push_back(std::move(Desset));
-#else
-    Up<ImageType> Image = MakeUp<ImageType>(mInstance);
-    Image->Setup(inFileName);
-    ui CurrentIndex = mImages.size();
-    Image->Register(0, 0, CurrentIndex, *mVarDesVulkanDescriptorSet);
-    outIndex = mImages.size();
-    mImages.push_back(std::move(Image));
-#endif
 }
 
 void Shape::AddImage(ui inWidth, ui inHeight, ui &outIndex) {
-#ifndef JKR_USE_VARIABLE_DES_INDEXING
     Up<VulkanDescriptorSet> Desset = MakeUp<VulkanDescriptorSet>(
          mInstance.GetDevice(),
          mInstance.GetDescriptorPool(),
@@ -103,21 +98,9 @@ void Shape::AddImage(ui inWidth, ui inHeight, ui &outIndex) {
     outIndex = mImages.size();
     mImages.push_back(std::move(Image));
     mVulkanPerImageDescriptorSets.push_back(std::move(Desset));
-#else
-    Up<ImageType> Image = MakeUp<ImageType>(mInstance);
-    v<uint8_t> image;
-    image.resize(inWidth * inHeight * 4);
-    void *data = image.data();
-    Image->Setup(&data, inWidth, inHeight, 4);
-    ui CurrentIndex = mImages.size();
-    Image->Register(0, 0, CurrentIndex, *mVarDesVulkanDescriptorSet);
-    outIndex = mImages.size();
-    mImages.push_back(std::move(Image));
-#endif
 }
 
 void Shape::AddImage(v<uc> &inImage, ui inWidth, ui inHeight, ui &outIndex) {
-#ifndef JKR_USE_VARIABLE_DES_INDEXING
     Up<VulkanDescriptorSet> Desset = MakeUp<VulkanDescriptorSet>(
          mInstance.GetDevice(),
          mInstance.GetDescriptorPool(),
@@ -129,19 +112,9 @@ void Shape::AddImage(v<uc> &inImage, ui inWidth, ui inHeight, ui &outIndex) {
     outIndex = mImages.size();
     mImages.push_back(std::move(Image));
     mVulkanPerImageDescriptorSets.push_back(std::move(Desset));
-#else
-    Up<ImageType> Image = MakeUp<ImageType>(mInstance);
-    void *data          = inImage.data();
-    Image->Setup(&data, inWidth, inHeight, 4);
-    ui CurrentIndex = mImages.size();
-    Image->Register(0, 0, CurrentIndex, *mVarDesVulkanDescriptorSet);
-    outIndex = mImages.size();
-    mImages.push_back(std::move(Image));
-#endif
 }
 
 void Shape::UpdateImage(ui inId, v<uc> &inImage, ui inWidth, ui inHeight) {
-#ifndef JKR_USE_VARIABLE_DES_INDEXING
     Up<ImageType> Image = MakeUp<ImageType>(mInstance);
     void *data          = inImage.data();
     // Image->mUniformImagePtr = mu<VulkanImageVMA>(
@@ -149,13 +122,6 @@ void Shape::UpdateImage(ui inId, v<uc> &inImage, ui inWidth, ui inHeight) {
     Image->Setup(reinterpret_cast<void **>(&data), inWidth, inHeight, 4);
     Image->Register(0, 0, 0, *mVulkanPerImageDescriptorSets[inId]);
     mImages[inId] = std::move(Image);
-#else
-    Up<ImageType> Image = MakeUp<ImageType>(mInstance);
-    void *data          = inImage.data();
-    Image->Setup(&data, inWidth, inHeight, 4);
-    Image->Register(0, 0, inId, *mVarDesVulkanDescriptorSet);
-    mImages[inId] = std::move(Image);
-#endif
 }
 
 void Shape::CopyFromImage(uint32_t inId, CustomPainterImage &inPainterImage) {

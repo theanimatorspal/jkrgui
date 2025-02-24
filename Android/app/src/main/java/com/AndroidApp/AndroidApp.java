@@ -25,7 +25,7 @@ public class AndroidApp extends JkrGUIActivity {
                     InitiateSensors();
 
                     copyFileOrDir("app.lua", this.getPackageName());
-                    copyFileOrDir("font.ttf", this.getPackageName());
+                    copyFileOrDir("main.jkr", this.getPackageName());
                     ChangeDirectory("/data/data/" + this.getPackageName() + "/");
                     super.onCreate(savedInstanceState);
                     RunMain();

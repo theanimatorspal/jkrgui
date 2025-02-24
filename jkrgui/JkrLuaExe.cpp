@@ -3,12 +3,9 @@
 #include "JkrLuaExe.hpp"
 #include <SDLWindow.hpp>
 #include <CLI11/CLI11.hpp>
-#ifndef ANDROID
-#ifndef __APPLE__
-#include <TracyLua.hpp>
-#endif
-#else
-#include "LuaBundleAndroid.hpp"
+
+#ifdef _WIN32
+    #include <TracyLua.hpp>
 #endif
 
 // For Command Line Stuff
@@ -59,10 +56,8 @@ void CreateMainBindings(sol::state &s) {
     CreateAudioBindings(s);
     CreatePlatformBindings(s);
     CreateNetworkBindings(s);
-#ifndef ANDROID
-#ifndef __APPLE__
+#ifndef _WIN32
     tracy::LuaRegister(s);
-#endif
 #endif
 }
 } // namespace JkrEXE
@@ -96,6 +91,7 @@ void RunScript() {
     }
 }
 
+#ifndef ANDROID
 static bool IsBoundary(char c) { return std::isspace(c) or std::ispunct(c) or c == '\0'; }
 
 int c(const std::string &str, const std::string &sub) {
@@ -250,13 +246,12 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
         Thread.join();
     }
 }
+#endif
 
 JKR_EXPORT int main(int ArgCount, char **ArgStrings) {
-
 #ifndef ANDROID
     ProcessCmdLine(ArgCount, ArgStrings);
 #endif
     RunScript();
-    // Log(e.what(), "ERROR");
     return 0;
 }

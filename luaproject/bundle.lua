@@ -1,7 +1,6 @@
-#pragma once
-#include <string_view>
-std::string_view LuaBundleScript = R"ijum(
-        Engine = {}
+
+  function jkrgui()
+          Engine = {}
 
 -- True : Will compile and store cachesC-- False: Will load caches instead of compiling the shaders
 local ShouldLoadCaches_b = false
@@ -404,15 +403,11 @@ local DefaultCaches = {}
 Jkr.GetDefaultCache = function(inInstance, inRend)
     if inRend == "Line" then
         DefaultCaches["Line"] = Jkr.PainterCache(inInstance, Jkr.PainterType.Line)
-        if ShouldLoadCaches_b then
-            DefaultCaches["Line"]:Load("cache2/LineRendererCache.glsl")
-        else
-            DefaultCaches["Line"]:Store("cache2/LineRendererCache.glsl",
-                Jkr.GetDefaultResource("Line", "Vertex"),
-                Jkr.GetDefaultResource("Line", "Fragment"),
-                Jkr.GetDefaultResource(nil, "Compute")
-            )
-        end
+        DefaultCaches["Line"]:Store(MAIN_JKR_FILE, "cache2/LineRendererCache.glsl",
+            Jkr.GetDefaultResource("Line", "Vertex"),
+            Jkr.GetDefaultResource("Line", "Fragment"),
+            Jkr.GetDefaultResource(nil, "Compute")
+        )
         return DefaultCaches["Line"]
     elseif inRend == "Shape" then
         if DefaultCaches["Shape"] then
@@ -427,7 +422,7 @@ Jkr.GetDefaultCache = function(inInstance, inRend)
                 Jkr.GetDefaultResource("ShapeFill", "Vertex"),
                 Jkr.GetDefaultResource("ShapeFill", "Fragment"),
                 Jkr.GetDefaultResource(nil, "Compute"),
-                ShouldLoadCaches_b
+                MAIN_JKR_FILE
             )
             DefaultCaches["Shape"]:Add(
                 inInstance,
@@ -437,7 +432,7 @@ Jkr.GetDefaultCache = function(inInstance, inRend)
                 Jkr.GetDefaultResource("ShapeImage", "Vertex"),
                 Jkr.GetDefaultResource("ShapeImage", "Fragment"),
                 Jkr.GetDefaultResource(nil, "Compute"),
-                ShouldLoadCaches_b
+                MAIN_JKR_FILE
             )
             DefaultCaches["Shape"]:Add(
                 inInstance,
@@ -447,7 +442,7 @@ Jkr.GetDefaultCache = function(inInstance, inRend)
                 Jkr.GetDefaultResource("ShapeFill", "Vertex"),
                 Jkr.GetDefaultResource("ShapeFill", "Fragment"),
                 Jkr.GetDefaultResource(nil, "Compute"),
-                ShouldLoadCaches_b
+                MAIN_JKR_FILE
             )
             return DefaultCaches["Shape"]
         end
@@ -464,7 +459,7 @@ Jkr.GetDefaultShapeRendererResources = function(inInstance)
         Jkr.GetDefaultResource("ShapeFill", "Vertex"),
         Jkr.GetDefaultResource("ShapeFill", "Fragment"),
         Jkr.GetDefaultResource(nil, "Compute"),
-        ShouldLoadCaches_b
+        MAIN_JKR_FILE
     )
     Resource:Add(
         inInstance,
@@ -474,7 +469,7 @@ Jkr.GetDefaultShapeRendererResources = function(inInstance)
         Jkr.GetDefaultResource("ShapeImage", "Vertex"),
         Jkr.GetDefaultResource("ShapeImage", "Fragment"),
         Jkr.GetDefaultResource(nil, "Compute"),
-        ShouldLoadCaches_b
+        MAIN_JKR_FILE
     )
     Resource:Add(
         inInstance,
@@ -484,7 +479,7 @@ Jkr.GetDefaultShapeRendererResources = function(inInstance)
         Jkr.GetDefaultResource("ShapeFill", "Vertex"),
         Jkr.GetDefaultResource("ShapeFill", "Fragment"),
         Jkr.GetDefaultResource(nil, "Compute"),
-        ShouldLoadCaches_b
+        MAIN_JKR_FILE
     )
     return Resource
 end
@@ -711,12 +706,8 @@ Jkr.CreateCustomImagePainter = function(inCacheFileName, inComputeShader)
     local o = {}
     o.handle = CreateCustomImagePainter(inCacheFileName, inComputeShader)
 
-    o.Load = function(self, i, w)
-        o.handle:Load(i, w)
-    end
-
-    o.Store = function(self, i, w)
-        o.handle:Store(i, w)
+    o.Store = function(self, file, i, w)
+        o.handle:Store(i, w, file)
     end
 
     o.Bind = function(self, w, inCmdParam)
@@ -860,6 +851,63 @@ setmetatable(Jkr.Java, {
         end
     end
 })
+
+try = function(inFunction, inMessage)
+    local success, ret = pcall(inFunction)
+    if not success then
+        Engine.log(inMessage, "ERROR")
+    end
+    return ret
+end
+
+--- MATH
+local GetLerp = function(inType)
+    inType = inType or "QUADLINEAR"
+    if inType == "QUADLINEAR" then
+        return function(a, b, t)
+            return (a * (1 - t) + t * b) * (1 - t) + b * t
+        end
+    elseif inType == "LINEAR" then
+        return function(a, b, t)
+            return a + (1 - t) * b
+        end
+    elseif inType == "LINEAR_CLAMPED" then
+    end
+end
+
+Jmath.Clamp = function(a, b, t)
+    if t < a then
+        return a
+    elseif t > b then
+        return b
+    else
+        return t
+    end
+end
+
+Jmath.GetLerps = function(inType)
+    local lerp = GetLerp(inType)
+    local lerp_2f = function(a, b, t)
+        return vec2(lerp(a.x, b.x, t), lerp(a.y, b.y, t))
+    end
+
+    local lerp_3f = function(a, b, t)
+        return vec3(lerp(a.x, b.x, t), lerp(a.y, b.y, t), lerp(a.z, b.z, t))
+    end
+
+    local lerp_4f = function(a, b, t)
+        return vec4(lerp(a.x, b.x, t), lerp(a.y, b.y, t), lerp(a.z, b.z, t), lerp(a.w, b.w, t))
+    end
+    local lerp_mat4f = function(a, b, t)
+        return mat4(
+            lerp_4f(a[1], b[1], t),
+            lerp_4f(a[2], b[2], t),
+            lerp_4f(a[3], b[3], t),
+            lerp_4f(a[4], b[4], t)
+        )
+    end
+    return lerp, lerp_2f, lerp_3f, lerp_4f, lerp_mat4f
+end
 
 
 local ImagePainterPush          = [[
@@ -1599,7 +1647,7 @@ layout(set = 0, binding = %d, rgba8) uniform image2D %s;
     end
 
     o.PI                          = function()
-        o.Append("const float PI = 3.14159;")
+        o.Append("const float PI = 3.141592653;")
         return o.NewLine()
     end
 
@@ -2417,9 +2465,20 @@ TwoDimensionalIPs.HeaderWithoutBegin = function()
         .Header(450)
         .CInvocationLayout(16, 16, 1)
         .uImage2D()
-        ---@warning for uniform pipelinelayout for descriptors
+        ---@warning for uniform pipelinelayout for descriptors (spirv reflect)
         .ImagePainterVIStorageLayout()
         .ImagePainterPushMatrix2()
+        .Append [[
+
+vec2 NormalizeToImage(vec2 inVec, ivec2 image_size)
+{
+    return vec2(
+        (inVec.x - image_size.x / 2.0f) / (image_size.x / 2.0f),
+        (image_size.y / 2.0f - inVec.y) / (image_size.y / 2.0f)
+    );
+}
+
+        ]]
 end
 
 TwoDimensionalIPs.ConstantColor =
@@ -2472,49 +2531,24 @@ TwoDimensionalIPs.Line =
     TwoDimensionalIPs.HeaderWithoutBegin()
     .GlslMainBegin()
     .ImagePainterAssistMatrix2()
-
     .Append [[
-    vec4 point1 = push.b * vec4(p1.x, p1.y, 0, 1);
-    vec4 point2 = push.b * vec4(p1.z, p1.w, 0, 1);
-    float x1 = point1.x;
-    float y1 = point1.y;
-    float x2 = point2.x;
-    float y2 = point2.y;
-    float x = float(gl_GlobalInvocationID.x);
-    float y = float(gl_GlobalInvocationID.y);
-
-    float small_x = x1;
-    float large_x = x2;
-    if (x1 > x2)
-    {
-        large_x = x1;
-        small_x = x2;
-    }
-
-    float small_y = y1;
-    float large_y = y2;
-    if (y1 > y2)
-    {
-        large_y = y1;
-        small_x = y2;
-    }
-    float thickness = p3.x;
-
-    // Calculate signed distance function
-    float sdf = 0;
-    if (abs(x2 - x1) < 0.0001) { // Handle vertical lines
-        sdf = abs(x - x1);
-    } else {
-        float slope = (y2 - y1) / (x2 - x1);
-        sdf = abs(y - y1 - slope * (x - x1));
-    }
-
-    vec4 color = p2;
-    if ((sdf < p3.x) && (x > small_x && x < large_x) && (y > small_y && y < large_y))  {
-        debugPrintfEXT("xKo:%f, yKo:%f", x, y);
-        imageStore(storageImage, to_draw_at, color * (p3.x - sdf));
-    }
-
+            vec2 point1 = vec2(push.b * vec4(p1.x, p1.y, 0, 1));
+            vec2 point2 = vec2(push.b * vec4(p1.z, p1.w, 0, 1));
+            float inv_thickness = p3.x;
+            float radius = p3.y;
+            float draw_thickness = p3.z;
+            vec2 np_1 = NormalizeToImage(point1, image_size);
+            vec2 np_2 = NormalizeToImage(point2, image_size);
+            vec2 pa = xy - np_1;
+            vec2 ba = np_2 - np_1;
+            float h = min(1.0,
+                    max(0.0, dot(pa, ba) / dot(ba, ba))
+            );
+            float k = 1 - (length(pa - ba * h) * inv_thickness * 10 - radius);
+            if (k > draw_thickness)
+            {
+                imageStore(storageImage, to_draw_at, p2 * k);
+            }
     ]]
     .GlslMainEnd()
 
@@ -2524,6 +2558,25 @@ TwoDimensionalIPs.Clear = TwoDimensionalIPs.Header()
     ]]
     .GlslMainEnd()
 
+
+TwoDimensionalIPs.Sound = TwoDimensionalIPs.Header()
+    .PI()
+    .Append [[
+    float at_ = float(to_draw_at.x + (to_draw_at.y * image_size.x));
+    float Base = p1.x;
+    float Frequency = p1.y;
+    float Amplitude = p1.z;
+    float sample1 = Base + Amplitude * sin(2.0 * PI * Frequency * at_ / 44100.0f);
+    float sample2 = Base + Amplitude * sin(2.0 * PI * Frequency * (at_ + 1.0) / 44100.0f);
+    vec4 new_s = vec4(
+            sample1 * p2.x,
+            sample1 * p2.y,
+            sample2 * p2.z,
+            sample2 * p2.w
+        ) / 255.0;
+    imageStore(storageImage, to_draw_at, new_s);
+]]
+    .GlslMainEnd()
 
 
 
@@ -2663,18 +2716,24 @@ Engine.GetAppropriateShader = function(inShaderType, incompilecontext, gltfmodel
                     ]]
             else
                 fshader.Append [[
-                    outFragColor = texture(uBaseColorTexture, vUV);
+                    vec4 color = Push.m2[0];
+                    vec4 emission_color = Push.m2[1];
+                    vec4 outC = texture(uBaseColorTexture, vUV);
+                    outFragColor = vec4(outC.x * color.x, outC.y * color.y, outC.z * color.z, outC.w * color.w) + emission_color;
                     ]]
             end
         elseif inextraInfo and inextraInfo.baseColorTexture == true then
             fshader.Append [[
                     vec4 color = Push.m2[0];
+                    vec4 emission_color = Push.m2[1];
                     vec4 outC = texture(uBaseColorTexture, vUV);
-                    outFragColor = vec4(outC.x * color.x, outC.y * color.y, outC.z * color.z, outC.w * color.w);
+                    outFragColor = vec4(outC.x * color.x, outC.y * color.y, outC.z * color.z, outC.w * color.w) + emission_color;
                     ]]
         else
             fshader.Append [[
-                outFragColor = vec4(vColor.x, vColor.y, vColor.z, 1);
+                vec4 color = Push.m2[0];
+                vec4 emission_color = Push.m2[1];
+                outFragColor = vec4(vColor.x * color.x, vColor.y * color.y, vColor.z * color.z, 1 * color.w) + emission_color;
             ]]
         end
         fshader.GlslMainEnd()
@@ -3677,7 +3736,7 @@ Engine.CreateWorld3D = function(w, inshaper3d)
         vshader.str,
         fshader.str,
         "",
-        false,
+        MAIN_JKR_FILE,
         Jkr.CompileContext.Default
     )
 
@@ -3689,13 +3748,237 @@ Engine.CreateWorld3D = function(w, inshaper3d)
     return world3d, camera3d
 end
 
+-- Define ANSI color codes for different log levels
+local colors = {
+    INFO = "\27[34m",    -- Blue
+    WARNING = "\27[33m", -- Yellow
+    ERROR = "\27[31m",   -- Red
+    DEBUG = "\27[36m",   -- Cyan
+    RESET = "\27[0m"     -- Reset color
+}
 
-local lerp = function(a, b, t)
-    return (a * (1 - t) + t * b) * (1 - t) + b * t
+Engine.log = function(msg, type)
+    type = type or "INFO"
+    local color = colors[type] or colors.INFO -- Default to blue if type is unknown
+
+    local log = string.format("%s[JKR %s]: %s%s\n", color, type, msg, colors.RESET)
+    io.write(log)
 end
 
-local lerp_3f = function(a, b, t)
-    return vec3(lerp(a.x, b.x, t), lerp(a.y, b.y, t), lerp(a.z, b.z, t))
+Engine.GameFramework = function(inf)
+    local f = inf or {}
+    MAIN_JKR_FILE = MAIN_JKR_FILE or Jkr.File(MAIN_JKR)
+    f.GetResource = function(inFileName)
+        return MAIN_JKR_FILE:Read(inFileName, std_vector_char(0))
+    end
+    Engine:Load(f.validation)
+    Jkr.GetLayoutsAsVH()
+    f.els = {}                       -- 2D elements
+    f.run = true
+    f.fd  = f.fd or vec2(800, 800)   -- frame dimenstion offscreen
+    f.wd  = f.wd or vec2(800, 800)   -- initialwindow dimension
+    f.bc  = f.bc or vec4(1, 0, 0, 1) -- background color
+    f.tc  = f.tc or 3                -- thread count
+    f.bd  = f.bd or 50               -- base depth, from camera
+    f.nfs = f.nfs or 16              -- normal fontsize
+    f.lfs = f.lfs or 24              -- normal fontsize
+    f.sfs = f.sfs or 8               -- normal fontsize
+    f.e   = Engine.e
+    f.i   = Engine.i
+    f.w   = Jkr.CreateWindow(Engine.i, inf.heading or "Game Framework", f.wd, f.tc, f.fd)
+    f.w:BuildShadowPass()
+    Engine.log("Built Shadow Pass")
+    f.wr = Jkr.CreateGeneralWidgetsRenderer(nil, Engine.i, f.w, f.e)
+    Engine.log("Created Widgets Renderer")
+    f.nf = f.wr.CreateFont(f.GetResource("res/font.ttf"), f.nfs)
+    f.lf = f.wr.CreateFont(f.GetResource("res/font.ttf"), f.lfs)
+    f.sf = f.wr.CreateFont(f.GetResource("res/font.ttf"), f.sfs)
+    Engine.log(string.format("Created Fonts [%s] -> %d, %d, %d", "res/font.ttf", f.nfs, f.lfs, f.sfs))
+
+    if not f.validation then
+        Engine.log("Validation Disabled", "WARNING")
+    end
+    -- ThreeD
+    f.sha        = Jkr.CreateShapeRenderer3D(f.i, f.w)
+    f.wor, f.cam = Engine.CreateWorld3D(f.w, f.sha)
+
+    if f.initialize_painters then
+        if not f.painters then
+            f.painters = {}
+            f.painters.line = Jkr.CreateCustomImagePainter("cache/LINE2D.glsl", TwoDimensionalIPs.Line.str)
+            f.painters.clear = Jkr.CreateCustomImagePainter("cache/CLEAR2D.glsl", TwoDimensionalIPs.Clear.str)
+            f.painters.sound = Jkr.CreateCustomImagePainter("cache/SOUND.glsl", TwoDimensionalIPs.Sound.str)
+            f.painters.line:Store(MAIN_JKR_FILE, f.i, f.w)
+            f.painters.clear:Store(MAIN_JKR_FILE, f.i, f.w)
+            f.painters.sound:Store(MAIN_JKR_FILE, f.i, f.w)
+            Engine.log("Painters Initialized Successfully", "INFO")
+        end
+    end
+    Engine.e:SetEventCallBack(
+        function()
+            f.wr:Event()
+        end
+    )
+    local currentTime  = f.w:GetWindowCurrentTime()
+    local residualTime = 0
+    f.stepTime         = f.stepTime or 0.001
+    f.loop             = function()
+        local e = f.e
+        local w = f.w
+        local bc = f.bc
+        local Update = f.Update
+        local Dispatch = f.Dispatch
+        local Draw = f.Draw
+        local stepTime = f.stepTime
+        while (not e:ShouldQuit()) and f.run do
+            local deltaTime = (w:GetWindowCurrentTime() - currentTime) / 1000
+            if deltaTime > stepTime then
+                Update()
+                residualTime = deltaTime
+                currentTime = w:GetWindowCurrentTime()
+            else
+                residualTime = residualTime / 1000 + stepTime - deltaTime
+            end
+            e:ProcessEventsEXT(w)
+            w:Wait()
+            w:AcquireImage()
+            w:BeginRecording()
+            Dispatch()
+            w:BeginUIs()
+            Draw()
+            w:EndUIs()
+
+            w:BeginDraws(bc.x, bc.y, bc.z, bc.w, 1)
+            w:ExecuteUIs()
+            w:EndDraws()
+
+            w:BlitImage()
+            w:EndRecording()
+
+            w:Present()
+        end
+    end
+    f.PC               = function(a, b)
+        local o = Jkr.Matrix2CustomImagePainterPushConstant()
+        o.a = a or Jmath.GetIdentityMatrix4x4()
+        o.b = b or Jmath.GetIdentityMatrix4x4()
+        return o
+    end
+    f.I                = function(inPosition_3f, inDimension_3f)
+        local o = {}
+        local p = f.PC()
+        p.a = mat4(vec4(0), vec4(1), vec4(0.3), vec4(0.0))
+        o[1] = f.wr.CreateComputeImage(vec3(0), inDimension_3f)
+        o[2] = f.wr.CreateSampledImage(vec3(0), inDimension_3f)
+        o[3] = f.wr.CreateQuad(inPosition_3f, inDimension_3f, p, "showImage", o[2].mId)
+        o[1].RegisterPainter(f.painters.line)
+
+        o.Bind = function(inPainter)
+            inPainter:Bind(f.w, Jkr.CmdParam.None)
+            inPainter:BindImageFromImage(f.w, o[1], Jkr.CmdParam.None)
+        end
+        o.Update = function(inPosition_3f, inDimension_3f)
+            o[3]:Update(inPosition_3f, inDimension_3f)
+        end
+        o.Draw = function(inPainter, inPC)
+            inPainter:Draw(f.w, inPC, math.ceil(inDimension_3f.x / 16.0), math.ceil(inDimension_3f.y / 16.0), 1,
+                Jkr.CmdParam.None)
+        end
+        o.DrawDebugLines = function(inv_t)
+            f.painters.line:Bind(f.w, Jkr.CmdParam.None)
+            f.painters.line:BindImageFromImage(f.w, o[1], Jkr.CmdParam.None)
+            inv_t = inv_t or 4
+            local line1 = vec4(0, 0, inDimension_3f.x, 0)
+            local line2 = vec4(0, 0, 0, inDimension_3f.y)
+            local line3 = vec4(inDimension_3f.x, 0, inDimension_3f.x, inDimension_3f.y)
+            local line4 = vec4(0, inDimension_3f.y, inDimension_3f.x, inDimension_3f.y)
+            local color = vec4(1, 0, 0, 1)
+            local thickness = vec4(inv_t, 0, 0, 0)
+            o.Draw(f.painters.line, f.PC(mat4(line1, color, thickness, vec4(0))))
+            o.Draw(f.painters.line, f.PC(mat4(line2, color, thickness, vec4(0))))
+            o.Draw(f.painters.line, f.PC(mat4(line3, color, thickness, vec4(0))))
+            o.Draw(f.painters.line, f.PC(mat4(line4, color, thickness, vec4(0))))
+        end
+        o.Copy = function()
+            o[1].CopyToSampled(o[2])
+            o[1].handle:SyncAfter(f.w, Jkr.CmdParam.None)
+        end
+        o.GetVector = function()
+            return o[1].handle:GetVector(f.i)
+        end
+        return o
+    end
+    f.B                = function(v)
+        if not v.e then
+            v.p = v.p or vec3(0, 0, f.bd)
+            v.onclick = v.onclick or function() end
+            v.c = v.c or vec4(vec3(0), 1)
+            v.bc = v.bc or vec4(0.9, 0.8, 0.95, 0.6)
+            v.f = v.f or f.nf
+            local dim = v.f:GetTextDimension(v.t or " ")
+            v.d = v.d or vec3(dim.x + 5, dim.y + 5, 1)
+            local Value = f.wr.CreateGeneralButton(
+                v.p,
+                v.d,
+                v.onclick,
+                v.continous,
+                v.f,
+                v.t,
+                v.c,
+                v.bc,
+                v.pc,
+                v.img,
+                v.imgp,
+                v.matrix
+            )
+            Value:Update(v.p, v.d)
+            if v.en then
+                f.els[v.en] = Value
+            end
+            v = {}
+            v = Value
+        else
+            v.Update = function(self, _, _) end
+        end
+        return v
+    end
+
+    return f
+end
+
+
+local glerp, glerp_2f, glerp_3f, glerp_4f, glerp_mat4f = Jmath.GetLerps()
+
+Jkr.CreateCustomAnimation = function(inCallBuffer, inValue1, inValue2, funcable, inFrame, inInverseSpeed)
+    local InverseSpeed = 0.01
+    local t = 0
+    if inInverseSpeed then
+        InverseSpeed = inInverseSpeed
+    end
+    local Frame = inFrame or 1
+    if type(inValue1) == "userdata" then
+        while t <= 1 do
+            local mat = glerp_mat4f(inValue1, inValue2)
+            inCallBuffer:PushOneTime(function()
+                funcable(mat)
+            end, Frame)
+            t = t + InverseSpeed
+            Frame = Frame + 1
+        end
+    elseif type(inValue1) == "table" then
+        while t <= 1 do
+            local value = {}
+            for i = 1, #inValue1 do
+                value[#value + 1] = glerp_mat4f(inValue1[i], inValue2[i])
+            end
+            inCallBuffer:PushOneTime(function()
+                funcable(value)
+            end, Frame)
+            t = t + InverseSpeed
+            Frame = Frame + 1
+        end
+    end
+    return Frame
 end
 
 Jkr.CreateAnimationPosDimen = function(inCallBuffer, inFrom, inTo, inComponent, inInverseSpeed)
@@ -3711,8 +3994,8 @@ Jkr.CreateAnimationPosDimen = function(inCallBuffer, inFrom, inTo, inComponent, 
         local to_pos        = inTo.mPosition_3f
         local from_dimen    = inFrom.mDimension_3f
         local to_dimen      = inTo.mDimension_3f
-        local current_pos   = lerp_3f(from_pos, to_pos, t)
-        local current_dimen = lerp_3f(from_dimen, to_dimen, t)
+        local current_pos   = glerp_3f(from_pos, to_pos, t)
+        local current_dimen = glerp_3f(from_dimen, to_dimen, t)
         inCallBuffer:PushOneTime(Jkr.CreateUpdatable(
             function()
                 inComponent:Update(current_pos, current_dimen)
@@ -3740,7 +4023,7 @@ Jkr.CreateEventable = function(inFunction)
     return o
 end
 
-Jkr.CreateDrawable = function(inId, inBatchable, inDrawType, inImageId, inColor_4f, inPush)
+Jkr.CreateDrawable = function(inId, inBatchable, inDrawType, inImageId, inColor_4f, inPush, inMatrix)
     local o = {}
     o.mBatchable = inBatchable
     o.mImageId = inImageId
@@ -3753,6 +4036,7 @@ Jkr.CreateDrawable = function(inId, inBatchable, inDrawType, inImageId, inColor_
     o.mId = inId
     o.mImageId = inImageId
     o.mDrawType = inDrawType -- LINE, SHAPE, TEXT
+    o.mMatrix = inMatrix
     return o
 end
 
@@ -4073,7 +4357,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         Shape2DShaders.GeneralVShader.str,
         Shape2DShaders.RoundedRectangleFShader.str,
         "",
-        false
+        MAIN_JKR_FILE
     )
     o.shape2dShaders.showImage = Jkr.Simple3D(i, w)
     o.shape2dShaders.showImage:Compile(
@@ -4083,7 +4367,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         Shape2DShaders.GeneralVShader.str,
         Shape2DShaders.ShowImageFShader.str,
         "",
-        false
+        MAIN_JKR_FILE
     )
 
     o.CreateFont = function(inFontFileName, inFontSize)
@@ -4128,7 +4412,7 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     -- @warning inShape2DShader refers to the STRING value of o.shape2dShaders.<shader>
     -- e.g. for rounded rectangle use "roundedRectangle"
     -- @warning the second matrix in the push constant cannot be used for anything because it will be sent with the UIMatrix
-    o.CreateQuad = function(inPosition_3f, inDimension_3f, inPushConstant, inShape2DShader, inSampledImageId)
+    o.CreateQuad = function(inPosition_3f, inDimension_3f, inPushConstant, inShape2DShader, inSampledImageId, inMatrix)
         local quad = {}
         local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill, uvec2(inDimension_3f.x, inDimension_3f.y))
         quad.rect = o.s:Add(Rectangle, inPosition_3f)
@@ -4138,14 +4422,17 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         quad.DrawId = o.c:Push(Jkr.CreateDrawable(quad.rect, true,
             inShape2DShader,
             inSampledImageId,
-            nil, inPushConstant), o.mCurrentScissor)
+            nil, inPushConstant, inMatrix), o.mCurrentScissor)
 
-        quad.Update = function(self, inPosition_3f, inDimension_3f, inPushConstant)
+        quad.Update = function(self, inPosition_3f, inDimension_3f, inPushConstant, inMatrix)
             local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill,
                 uvec2(inDimension_3f.x, inDimension_3f.y))
             o.s:Update(quad.rect, Rectangle, inPosition_3f)
             if inPushConstant then
                 o.c.mDrawables[self.DrawId].mPush = inPushConstant
+            end
+            if inMatrix then
+                o.c.mDrawables[self.DrawId].mMatrix = inMatrix
             end
         end
 
@@ -4155,15 +4442,16 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     --[============================================================[
                     TEXT LABEL
           ]============================================================]
-    o.CreateTextLabel = function(inPosition_3f, inDimension_3f, inFont, inText, inColor, inNotDraw)
+    o.CreateTextLabel = function(inPosition_3f, inDimension_3f, inFont, inText, inColor, inNotDraw, inMatrix)
         local textLabel = {}
         textLabel.mText = inText
         textLabel.mFont = inFont
         textLabel.mId = o.t:Add(inFont.mId, inPosition_3f, inText)
         if not inNotDraw then
-            textLabel.PushId = o.c:Push(Jkr.CreateDrawable(textLabel.mId, nil, "TEXT", nil, inColor), o.mCurrentScissor)
+            textLabel.PushId = o.c:Push(Jkr.CreateDrawable(textLabel.mId, nil, "TEXT", nil, inColor, nil, inMatrix),
+                o.mCurrentScissor)
         end
-        textLabel.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inColor)
+        textLabel.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inColor, inMatrix)
             --tracy.ZoneBeginN("luatextUpdate")
             if inFont then self.mFont = inFont end
             if inText then self.mText = inText end
@@ -4174,6 +4462,9 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             end
             if inColor then
                 o.c.mDrawables[self.PushId].mColor = inColor
+            end
+            if inMatrix then
+                o.c.mDrawables[self.PushId].mMatrix = inMatrix
             end
             --tracy.ZoneEnd()
         end
@@ -4322,6 +4613,10 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     o.FrameDimension = o.w:GetOffscreenFrameDimension()
     o.UIMatrix = Jmath.Ortho(0.0, o.FrameDimension.x, 0.0, o.FrameDimension.y, 1000, -1000)
 
+    o.SetUIMatrix = function(inMatrix)
+        o.UIMatrix = inMatrix
+    end
+
     o.Update = function(self)
         self.c:Update()
     end
@@ -4335,7 +4630,9 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     local fill_filltype = Jkr.FillType.Fill
     local ui_matrix = o.UIMatrix
     local s2ds = o.shape2dShaders
+    local identity_matrix = Jmath.GetIdentityMatrix4x4()
     local DrawAll = function(inMap, inindex)
+        local scissor_matrix = o.scissor_matrices[inindex]
         -- tracy.ZoneBeginN("luamainDrawALL")
         s:BindShapes(w, cmdparam)
         for key, value in pairs(inMap) do
@@ -4352,7 +4649,9 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
                     else
                         s:BindFillMode(fill_filltype, w, cmdparam)
                     end
-                    drawable.mPush.b = ui_matrix * (o.scissor_matrices[inindex] or Jmath.GetIdentityMatrix4x4())
+                    drawable.mPush.b =
+                        (drawable.mMatrix or ui_matrix) *
+                        (scissor_matrix or identity_matrix)
                     Jkr.DrawShape2DWithSimple3D(w, shader, s.handle, drawable.mPush, drawable.mId, drawable
                         .mId,
                         cmdparam)
@@ -4369,7 +4668,10 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
                 local drawables_count = #drawables
                 for i = 1, drawables_count, 1 do
                     local drawable = drawables[i]
-                    t:Draw(drawable.mId, w, drawable.mColor, ui_matrix, cmdparam)
+                    t:Draw(drawable.mId, w, drawable.mColor,
+                        (drawable.mMatrix or ui_matrix) *
+                        (scissor_matrix or identity_matrix),
+                        cmdparam)
                 end
             end
         end
@@ -4484,7 +4786,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             "cache/op.roundedRectangle.glsl",
             o.shaders.roundedRectangle
         )
-    op.roundedRectanglePainter:Store(i, w)
+    op.roundedRectanglePainter:Store(MAIN_JKR_FILE, i, w)
     op.roundedRectangle = o.CreateComputeImage(vec3(0), vec3(500, 500, 1))
     op.roundedRectangle.RegisterPainter(op.roundedRectanglePainter)
 
@@ -4517,14 +4819,15 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                                      inBackgroundColor,
                                      inPushConstantForImagePainter, ---@todo Remove this
                                      inImageFilePath,
-                                     inImagePainter)
+                                     inImagePainter,
+                                     inMatrix)
         local button = {}
         local push = Jkr.Matrix2CustomImagePainterPushConstant()
         button.mColor = inBackgroundColor or vec4(1)
         push.a = mat4(vec4(0.0), button.mColor, vec4(0.3), vec4(0.0))
 
         if not inImageFilePath then
-            button.quad = o.CreateQuad(inPosition_3f, inDimension_3f, push, "showImage", op.sampledImage.mId)
+            button.quad = o.CreateQuad(inPosition_3f, inDimension_3f, push, "showImage", op.sampledImage.mId, inMatrix)
         else
             button.sampledImage = o.CreateSampledImage(vec3(math.huge), vec3(100, 100, 1), inImageFilePath, true, vec4(1))
             button.quad = o.CreateQuad(inPosition_3f, inDimension_3f, push, "showImage", button.sampledImage.mId)
@@ -4535,7 +4838,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             inDimension_3f = vec3(100, 100, 1)
         end
 
-        if (inOnClickFunction) then
+        if type(inOnClickFunction) == "function" then
             button.parent = o.CreateButton(inPosition_3f, inDimension_3f, inOnClickFunction, inContinous)
             setmetatable(button, button.parent)
             button.__index = button.parent
@@ -4564,12 +4867,12 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                                  inText,
                                  inColor,
                                  inBackgroundColor,
-                                 inTextOreintation)
+                                 inTextOreintation, inMatrix)
             button.mPosition_3f = inPosition_3f
             button.mDimension_3f = inDimension_3f
             local push = Jkr.Matrix2CustomImagePainterPushConstant()
             push.a = mat4(vec4(0.0), inBackgroundColor or button.mColor, vec4(0.0), vec4(0))
-            button.quad:Update(inPosition_3f, inDimension_3f, push);
+            button.quad:Update(inPosition_3f, inDimension_3f, push, inMatrix);
             if button.parent then
                 button.parent:Update(inPosition_3f, inDimension_3f)
             end
@@ -4585,17 +4888,19 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                     fontDim = button.sampledText.mFont:GetTextDimension(substr)
                     DelDim = vec3((inDimension_3f.x - fontDim.x) / 2, (inDimension_3f.y - fontDim.y) / 2, 0)
                 end
-                button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, substr, inColor)
+                button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, substr, inColor, inMatrix)
 
                 if inTextOreintation then
                     if inTextOreintation == "LEFT" then
                         DelDim.x = button.padding
-                        button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, substr, inColor)
+                        button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, substr, inColor,
+                            inMatrix)
                     end
                     if inTextOreintation == "RIGHT" then
                         DelDim.x = inPosition_3f.x - fontDim.x - button.padding
                         DelDim.x = inPosition_3f.x
-                        button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, substr, inColor)
+                        button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, substr, inColor,
+                            inMatrix)
                     end
                 end
             end
@@ -4918,4 +5223,6 @@ CompileShaders                   = function(shaders)
 end
 
 
-          )ijum";
+  end
+  jkrgui()
+  

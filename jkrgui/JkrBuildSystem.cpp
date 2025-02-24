@@ -168,7 +168,7 @@ void CreateAndroidEnvironment(const sv inAndroidAppName,
         RenameFilesInDirectory(Target, AndroidAppString, inAndroidAppName);
 
         fs::path Assets               = Target / "app" / "src" / "main" / "assets";
-        const v<sv> EntriesToBeCopied = {"cache2", "JkrGUIv2", "res", "src", "app.lua", "font.ttf"};
+        const v<sv> EntriesToBeCopied = {"app.lua", "main.jkr"};
 
         if (not filesystem::exists(Assets)) {
             filesystem::create_directory(Assets);

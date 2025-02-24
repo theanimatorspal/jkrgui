@@ -367,6 +367,8 @@ void CreateMiscBindings(sol::state &inState) {
          &Jkr::Misc::File::HasEntry,
          "IsEmpty",
          &Jkr::Misc::File::IsEmpty,
+         "Commit",
+         &Jkr::Misc::File::Commit,
          "GetDataFromMemory",
          &Jkr::Misc::File::GetDataFromMemory,
          "PutDataFromMemory",
