@@ -1,5 +1,9 @@
 #include "JkrFile.hpp"
 
+#include <sstream>
+#include <iomanip>
+#include <filesystem>
+
 namespace Jkr::Misc {
 
 using namespace ksai;

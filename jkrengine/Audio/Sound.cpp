@@ -17,8 +17,11 @@ void Sound::FromFile(sv inFileName) {
 }
 
 Sound::~Sound() {
-    if (not mGenerated) {
-        SDL_FreeWAV(mAudioBuffer);
+    if(mGenerated.has_value())
+    {
+        if (not mGenerated) {
+            SDL_FreeWAV(mAudioBuffer);
+        }
     }
     if (mDeviceId) {
         SDL_CloseAudioDevice(mDeviceId);

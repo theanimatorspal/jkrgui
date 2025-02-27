@@ -1,5 +1,6 @@
 #include "Instance.hpp"
 #include <Renderers/BestText_Alt.hpp>
+#include <sol/sol.hpp>
 
 namespace JkrEXE {
 void CreateTextRendererBindings(sol::state &inState) {

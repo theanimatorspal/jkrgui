@@ -1,4 +1,18 @@
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+if(NOT WIN32)
+set(BUILD_SHARED_LIBS FALSE)
+else()
+set(BUILD_SHARED_LIBS TRUE)
+endif()
+
+if(ANDROID)
+set(BUILD_SHARED_LIBS FALSE)
+endif()
+
 include(FetchContent)
+set(FETCHCONTENT_QUIET OFF)     # Show download progress
+set(FETCHCONTENT_FULLY_DISCONNECTED OFF)  # Ensure re-download if needed
 # the number of parallel builds
 set(CMAKE_BUILD_PARALLEL_LEVEL 8)
 add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
@@ -40,21 +54,30 @@ endif()
 if(FETCH_AND_COMP)
     # Fetch SDL2
     FetchContent_Declare(
-    SDL2
-    GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-    GIT_TAG release-2.30.8       # Use the specific tag for version 2.30.8
-    GIT_SHALLOW TRUE             # Fetch only the latest commit
+        SDL2
+        GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+        GIT_TAG release-2.30.8       # Use the specific tag for version 2.30.8
+        GIT_SHALLOW TRUE             # Fetch only the latest commit
+        GIT_PROGRESS TRUE
     )
 
+    set(SDL_VIDEO ON CACHE BOOL "" FORCE)       # Keep video but disable renderers
+    set(SDL_RENDER OFF CACHE BOOL "" FORCE)     # Disable SDL's software/hardware renderer
+    set(SDL_OPENGL OFF CACHE BOOL "" FORCE)     # Disable OpenGL support
+    set(SDL_METAL OFF CACHE BOOL "" FORCE)      # Disable Metal support
+    set(SDL_VULKAN ON CACHE BOOL "" FORCE)      # Keep Vulkan support enabled
+    # set(SDL_SHARED ON CACHE BOOL "" FORCE)
+    # set(SDL_STATIC OFF CACHE BOOL "" FORCE)
     # Make the content available
     FetchContent_MakeAvailable(SDL2)
 
     # Fetch SPIRV-Headers
     FetchContent_Declare(
-    spirv-headers
-    GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
-    GIT_TAG vulkan-sdk-1.4.304.0     
-    GIT_SHALLOW TRUE          
+        spirv-headers
+        GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
+        GIT_TAG vulkan-sdk-1.4.304.0     
+        GIT_SHALLOW TRUE          
+        GIT_PROGRESS TRUE
     )
     FetchContent_MakeAvailable(spirv-headers)
 
@@ -63,19 +86,21 @@ if(FETCH_AND_COMP)
     set(SPIRV_SKIP_TESTS ON CACHE BOOL "Disable tests in SPIRV-Tools" FORCE)
     set(SPIRV_SKIP_EXECUTABLES ON CACHE BOOL "Disable executables in SPIRV-Tools" FORCE)
     FetchContent_Declare(
-    spirv-tools
-    GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
-    GIT_TAG vulkan-sdk-1.4.304.0     
-    GIT_SHALLOW TRUE          
+        spirv-tools
+        GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
+        GIT_TAG vulkan-sdk-1.4.304.0     
+        GIT_SHALLOW TRUE          
+        GIT_PROGRESS TRUE
     )
     FetchContent_MakeAvailable(spirv-tools)
 
     set(SPIRV_CROSS_SKIP_EXECUTABLES ON CACHE BOOL "Disable SPIRV-Cross executables" FORCE)
     FetchContent_Declare(
-    spirv-cross
-    GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Cross.git
-    GIT_TAG vulkan-sdk-1.4.304.0     
-    GIT_SHALLOW TRUE          
+        spirv-cross
+        GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Cross.git
+        GIT_TAG vulkan-sdk-1.4.304.0     
+        GIT_SHALLOW TRUE          
+        GIT_PROGRESS TRUE
     )
     FetchContent_MakeAvailable(spirv-cross)
 
@@ -84,10 +109,11 @@ if(FETCH_AND_COMP)
     set(ENABLE_GLSLANG_BINARIES OFF CACHE BOOL "Disable building glslangValidator and other binaries" FORCE)
     set(BUILD_TESTING OFF CACHE BOOL "Disable testing in glslang" FORCE)
     FetchContent_Declare(
-    glslang
-    GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
-    GIT_TAG vulkan-sdk-1.4.304.0  
-    GIT_SHALLOW TRUE            
+        glslang
+        GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
+        GIT_TAG vulkan-sdk-1.4.304.0  
+        GIT_SHALLOW TRUE            
+        GIT_PROGRESS TRUE
     )
     FetchContent_MakeAvailable(glslang)
 
@@ -99,10 +125,11 @@ if(FETCH_AND_COMP)
     set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)  # Ensure static build
     # Fetch Freetype
     FetchContent_Declare(
-    freetype
-    GIT_REPOSITORY https://gitlab.freedesktop.org/freetype/freetype.git
-    GIT_TAG VER-2-13-2
-    GIT_SHALLOW TRUE
+        freetype
+        GIT_REPOSITORY https://gitlab.freedesktop.org/freetype/freetype.git
+        GIT_TAG VER-2-13-2
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
     )
     FetchContent_MakeAvailable(freetype)
 
@@ -111,10 +138,11 @@ if(FETCH_AND_COMP)
     set(HARFBUZZ_USE_ICU OFF)
     # Fetch Harfbuzz
     FetchContent_Declare(
-    harfbuzz
-    GIT_REPOSITORY https://github.com/harfbuzz/harfbuzz.git
-    GIT_TAG 8.2.2
-    GIT_SHALLOW TRUE
+        harfbuzz
+        GIT_REPOSITORY https://github.com/harfbuzz/harfbuzz.git
+        GIT_TAG 8.2.2
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
     )
     FetchContent_MakeAvailable(harfbuzz)
     if(WIN32)
@@ -139,33 +167,136 @@ include_directories(${CMAKE_JKRGUI_DIR}/libs/)
 include_directories(${CMAKE_JKRGUI_DIR}/vendor/lua)
 
 function(PrecompileStdHeaders TARGET_NAME)
-target_precompile_headers ( ${TARGET_NAME}
-    PRIVATE
-        <vector>
-        <format>
-        <map>
-        <unordered_map>
+    target_precompile_headers(${TARGET_NAME} PRIVATE
+        # Standard C++ Headers
+        <algorithm>
+        <any>
         <array>
-        <optional>
-        <expected>
-        <fstream>
-        <filesystem>
-        <functional>
+        <atomic>
+        <bit>
+        <bitset>
+        <cassert>
+        <cctype>
+        <cerrno>
+        <cfenv>
+        <charconv>
+        <chrono>
+        <cinttypes>
+        <climits>
+        <clocale>
+        <cmath>
+        <codecvt>
+        <compare>
+        <complex>
         <concepts>
-        <memory>
-        <string>
+        <condition_variable>
+        <coroutine>
+        <csetjmp>
+        <csignal>
+        <cstdarg>
+        <cstddef>
         <cstdint>
-        <sol/sol.hpp>
-        <vulkan/vulkan.hpp>
-        <glm/glm.hpp>
-        <glm/fwd.hpp>
-        <glm/gtc/matrix_transform.hpp>
-        <glm/gtx/matrix_decompose.hpp>
-)
+        <cstdio>
+        <cstdlib>
+        <cstring>
+        <ctime>
+        <deque>
+        <exception>
+        <execution>
+        <expected>
+        <filesystem>
+        <format>
+        <forward_list>
+        <fstream>
+        <functional>
+        <future>
+        <initializer_list>
+        <iomanip>
+        <ios>
+        <iosfwd>
+        <iostream>
+        <istream>
+        <iterator>
+        <limits>
+        <list>
+        <locale>
+        <map>
+        <memory>
+        <memory_resource>
+        <mutex>
+        <new>
+        <numbers>
+        <numeric>
+        <optional>
+        <ostream>
+        <queue>
+        <random>
+        <ranges>
+        <ratio>
+        <regex>
+        <scoped_allocator>
+        <set>
+        <shared_mutex>
+        <source_location>
+        <span>
+        <sstream>
+        <stack>
+        <stdexcept>
+        <stop_token>
+        <streambuf>
+        <string>
+        <string_view>
+        <syncstream>
+        <system_error>
+        <thread>
+        <tuple>
+        <type_traits>
+        <typeindex>
+        <typeinfo>
+        <unordered_map>
+        <unordered_set>
+        <utility>
+        <valarray>
+        <variant>
+        <vector>
+        <version>
+
+        # C Standard Library Headers (as C++ headers)
+        <cctype>
+        <cerrno>
+        <cfenv>
+        <cfloat>
+        <climits>
+        <clocale>
+        <cmath>
+        <csetjmp>
+        <csignal>
+        <cstdarg>
+        <cstddef>
+        <cstdint>
+        <cstdio>
+        <cstdlib>
+        <cstring>
+        <ctime>
+        <cwchar>
+        <cwctype>
+
+        # Third-Party Headers (Example: Vulkan, GLM, Sol2)
+    #     <sol/sol.hpp>
+    #     <vulkan/vulkan.hpp>
+    #     <glm/glm.hpp>
+    #     <glm/fwd.hpp>
+    #     <glm/gtc/matrix_transform.hpp>
+    #     <glm/gtx/matrix_decompose.hpp>
+    #     <glm/gtc/type_ptr.hpp>
+    #     <glm/gtx/quaternion.hpp>
+    #     <glm/ext.hpp>
+    #     <glm/gtx/transform.hpp>
+    )
 endfunction()
 
-# If building for Android, set specific compiler flags
 
+# If building for Android, set specific compiler flags
 # Define debug flags for Android builds
 if(ANDROID)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wl,--exclude-libs,ALL")
@@ -220,7 +351,7 @@ endif()
 include_directories(${VULKAN_INCLUDE_PATH})
 # Link directories based on platform
 if(ANDROID)
-    link_directories("${CMAKE_JKRGUI_DIR}/libs/Android/android-${CMAKE_ANDROID_ARCH_ABI}/")
+#link_directories("${CMAKE_JKRGUI_DIR}/libs/Android/android-${CMAKE_ANDROID_ARCH_ABI}/")
 else()
     link_directories(${VULKAN_LIBRARY_PATH})
     link_directories("${CMAKE_JKRGUI_DIR}/libs/")

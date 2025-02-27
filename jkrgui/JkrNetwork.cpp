@@ -2,6 +2,7 @@
 #include <Network/Client.hpp>
 #include <Network/Server.hpp>
 #include <Network/Udp.hpp>
+#include <filesystem>
 
 using namespace Jkr::Network;
 

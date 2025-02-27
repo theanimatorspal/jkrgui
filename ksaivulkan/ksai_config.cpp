@@ -23,7 +23,7 @@ namespace ksai {
             { "DEBUG",   "\033[36m" }   // Cyan
         };
 
-        sv color = colors.contains(type) ? colors.at(type) : colors.at("INFO"); // Default to blue
+        sv color = colors.contains(type) ? colors.at(type) : colors.at(sv("INFO")); // Default to blue
 
         std::stringstream stream;
         stream << color << "[KSAI " << type << "]: " << msg << "\033[0m";

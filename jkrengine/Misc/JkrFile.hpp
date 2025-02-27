@@ -1,7 +1,7 @@
 #pragma once
 #include <fstream>
+#include <sstream>
 #include "ksai_config.hpp"
-
 namespace Jkr::Misc {
 
 using namespace ksai;

@@ -13,7 +13,7 @@ class Sound {
     void FromFile(sv inFileName);
 
     private:
-    bool mGenerated = false;
+    opt<bool> mGenerated = std::nullopt;
     SDL_AudioDeviceID mDeviceId;
     SDL_AudioSpec mAudioSpec;
     uint8_t *mAudioBuffer;

@@ -5,6 +5,7 @@
 #include "Renderers/TwoD/Shape.hpp"
 #include <Misc/RecycleBin.hpp>
 #include <Renderers/TwoD/Shape.hpp>
+#include <sol/sol.hpp>
 #include <Window.hpp>
 
 namespace JkrEXE {
@@ -94,7 +95,7 @@ void CreateRendererBindings(sol::state &inState) {
                         "Icosphere3D",
                         Jkr::Shapes::Icosphere3D);
 
-    Jkr.new_usertype<Jkr::Renderer::Generator::Arguments>("Arguments");
+    Jkr.new_usertype<Jkr::Renderer::Generator::Arguments>("Arguments", sol::call_constructor, sol::factories([]() {return Jkr::Renderer::Generator::Arguments(glm::vec2(0, 0));}));
 
     Jkr.new_usertype<Jkr::Renderer::Generator>(
          "Generator",

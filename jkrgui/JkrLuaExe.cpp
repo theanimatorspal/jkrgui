@@ -69,23 +69,12 @@ sol::state &GetMainStateRef() { return mainState; }
 
 void RunScript() {
     CreateMainBindings(mainState);
-    if(OptionRun == "")
+    auto Jkr = GetMainStateRef()["Jkr"].get_or_create<sol::table>();
+    if (OptionRun != "")
     {
-        LuaShowToastNotification("JkrGUI Started");
-        auto File = Jkr::Misc::File("main.jkr");
-        int fcount = File.Read<int>("func_count");
-        for(int i = 1; i <= fcount; ++i)
-        {
-                sol::basic_bytecode<> code = File.Read<decltype(code)>(s("func") + std::to_string(i));
-                sol::protected_function_result result = 
-                GetMainStateRef().script(std::string(code.as_string_view()));
-                if (not result.valid()) {
-                    sol::error error = result;
-                    Log(error.what(), "ERROR");
-                    LuaShowToastNotification(std::string(error.what()));
-                }
-        }
-    } else {
+#ifndef ANDROID
+        Jkr.set_function("CreateAndroidEnvironment", &BuildSystem::CreateAndroidEnvironment);
+#endif
         if (OptionRun.find(".lua") == s::npos) {
             OptionRun = OptionRun + ".lua";
         }
@@ -95,6 +84,24 @@ void RunScript() {
             sol::error error = result_;
             Log(error.what(), "ERROR");
             LuaShowToastNotification(std::string(error.what()));
+        }
+    } else { 
+        if(std::filesystem::exists("main.jkr"))
+        {
+            LuaShowToastNotification("JkrGUI Started");
+            auto File = Jkr::Misc::File("main.jkr");
+            int fcount = File.Read<int>("func_count");
+            for(int i = 1; i <= fcount; ++i)
+            {
+                    sol::basic_bytecode<> code = File.Read<decltype(code)>(s("func") + std::to_string(i));
+                    sol::protected_function_result result = 
+                    GetMainStateRef().script(std::string(code.as_string_view()));
+                    if (not result.valid()) {
+                        sol::error error = result;
+                        Log(error.what(), "ERROR");
+                        LuaShowToastNotification(std::string(error.what()));
+                    }
+            }
         }
     }
 }
@@ -152,12 +159,12 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
         src /= "luaproject";
         filesystem::path dest = filesystem::current_path();
         Log("Current Directory: " + filesystem::current_path().string());
-        Log("SRC:" + src.string());
-        Log("DEST:" + dest.string());
-        filesystem::copy(src,
-                         dest,
-                         filesystem::copy_options::recursive |
-                              filesystem::copy_options::update_existing);
+        Log("Copying from:" + src.string());
+        Log("Copying to:" + dest.string());
+        filesystem::copy(src / "bundle.lua", dest / "bundle.lua", filesystem::copy_options::update_existing);
+        filesystem::copy(src / "app.lua", dest / "app.lua", filesystem::copy_options::skip_existing);
+        filesystem::copy(src / "res", dest / "res", filesystem::copy_options::recursive | filesystem::copy_options::skip_existing);
+        filesystem::copy(src / ".vscode", dest / ".vscode", filesystem::copy_options::recursive | filesystem::copy_options::skip_existing);
     };
     if (FlagGenerate) {
         Update();
