@@ -157,7 +157,7 @@ WorldInfoUniform World3D::GetWorldInfo(Jkr::Window &inWindow) {
                                  CurrentCamera->GetFarZ());
     ///@warning The mShadowMatrix is not used anymore, so let [0] be cascadeSplits
     auto CascadeSplits    = inWindow.GetShadowPass().GetCascadeSplits();
-    Uniform.mShadowMatrix = identity<mat4>();
+    Uniform.mShadowMatrix = glm::identity<mat4>();
     Uniform.mShadowMatrix[0] =
          vec4(CascadeSplits[0], CascadeSplits[1], CascadeSplits[2], CascadeSplits[3]);
     inWindow.GetShadowPass().Update(*GetCurrentCamera(), glm::vec3(mLights[0].mPosition));

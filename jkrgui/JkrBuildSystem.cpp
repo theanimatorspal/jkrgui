@@ -192,13 +192,16 @@ void CreateAndroidEnvironment(const sv inAndroidAppName,
 
         auto JKRGUI_DIR = fs::path(getenv("JKRGUI_DIR"));
         fs::path jniLibsDir        = Target / "app" / "src" / "main" / "jniLibs";
+        fs::path androidlibs = JKRGUI_DIR / "libs" / "Android" / inArchitecture;
         fs::path validation_layers = JKRGUI_DIR / "libs" / "Android" / inArchitecture / "libVkLayer_khronos_validation.so";
         fs::path source      = JKRGUI_DIR / "out" / "build" / inBuild / "jkrgui";
         fs::path destination = jniLibsDir / inArchitecture;
 
         if (not fs::exists(destination)) fs::create_directory(destination);
+        fs::copy_file(androidlibs / "libSDL2.so", destination / "libSDL2.so");
+        fs::copy_file(androidlibs / "libVkLayer_khronos_validation.so", destination / "libVkLayer_khronos_validation.so");
         fs::copy_file(source / "libjkrgui.so", destination / "libjkrgui.so", fs::copy_options::overwrite_existing);
-        fs::copy_file(JKRGUI_DIR / "out" / "build" / inBuild / "_deps" / "sdl2-build" / "libSDL2.so", destination / "libSDL2.so", fs::copy_options::overwrite_existing);
+        // fs::copy_file(JKRGUI_DIR / "out" / "build" / inBuild / "_deps" / "sdl2-build" / "libSDL2.so", destination / "libSDL2.so", fs::copy_options::overwrite_existing);
         fs::copy_file(validation_layers, destination / "libVkLayer_khronos_validation.so", fs::copy_options::overwrite_existing);
 
     } catch (const std::exception &e) {

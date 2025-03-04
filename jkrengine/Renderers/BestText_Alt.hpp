@@ -1,3 +1,4 @@
+#pragma once
 #include "Instance.hpp"
 #include "TextD/BestText_base.hpp"
 #include "TwoD/Shape.hpp"

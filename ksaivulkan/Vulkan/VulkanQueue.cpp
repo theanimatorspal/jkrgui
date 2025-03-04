@@ -44,20 +44,20 @@ void VulkanQueue<QueueContext::Graphics>::Submit<SubmitContext::ColorAttachment>
 template <>
 template <>
 void VulkanQueue<QueueContext::Graphics>::Submit<SubmitContext::SingleTime>(
-     VulkanCommandBuffer &inCommandBuffer) {
+     VulkanCommandBuffer &inCommandBuffer, VulkanFence &inFence) {
     vk::SubmitInfo SubmitInfo({}, {}, inCommandBuffer.GetCommandBufferHandle(), {});
     std::scoped_lock<std::mutex> Lock(SubmitMutex);
-    mQueue.submit(SubmitInfo);
-    mQueue.waitIdle();
+    mQueue.submit(SubmitInfo, inFence.GetFenceHandle());
 }
 
 template <>
 template <>
 void VulkanQueue<QueueContext::Graphics>::Submit<SubmitContext::SingleTime>(
-     VulkanCommandBuffer &inCommandBuffer, VulkanFence &inFence) {
+     VulkanCommandBuffer &inCommandBuffer) {
     vk::SubmitInfo SubmitInfo({}, {}, inCommandBuffer.GetCommandBufferHandle(), {});
     std::scoped_lock<std::mutex> Lock(SubmitMutex);
-    mQueue.submit(SubmitInfo, inFence.GetFenceHandle());
+    mQueue.submit(SubmitInfo);
+    mQueue.waitIdle();
 }
 
 template <>

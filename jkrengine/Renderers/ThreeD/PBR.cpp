@@ -74,7 +74,7 @@ Up<VulkanImageVMA> PBR::GenerateIrradianceCube(Instance &inInstance,
                                                Jkr::Misc::File& inFile,
                                                _3D::World3D &inWorld3D) {
     const uint32_t Dim     = IrradianceCubeDimension;
-    const uint32_t NumMips = static_cast<uint32_t>(floor(log2(Dim))) + 1;
+    const uint32_t NumMips = static_cast<uint32_t>(floor(std::log2(Dim))) + 1;
     auto IrradianceCubeMap = MakeUp<VulkanImageVMA>(inInstance.GetVMA(),
                                                     inInstance.GetDevice(),
                                                     Dim,
@@ -277,7 +277,7 @@ Up<VulkanImageVMA> PBR::GeneratePrefilteredCube(Instance &inInstance,
                                                 Jkr::Misc::File& inFile,
                                                 _3D::World3D &inWorld3D) {
     const int32_t Dim            = PrefilteredCubeDimension;
-    const uint32_t NumMips       = static_cast<uint32_t>(floor(log2(Dim))) + 1;
+    const uint32_t NumMips       = static_cast<uint32_t>(floor(std::log2(Dim))) + 1;
     auto PrefilteredCubeMapImage = MakeUp<VulkanImageVMA>(inInstance.GetVMA(),
                                                           inInstance.GetDevice(),
                                                           Dim,

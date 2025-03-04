@@ -4,7 +4,7 @@
 #include "vulkan/vulkan_enums.hpp"
 #include <glm/ext/matrix_clip_space.hpp>
 
-using namespace Jkr::Renderer;
+namespace Jkr::Renderer {
 
 /// @brief @todo यो inPainterCaches भन्ने अबदेखि चाहिन्न । 
 /// @param inInstance 
@@ -503,4 +503,5 @@ void Jkr::Renderer::Shape::DrawEXT(Window_base &inWindow,
          sb::GetIndexOffsetAbsolute(inStartShapeId),
          0,
          inParam);
+}
 }

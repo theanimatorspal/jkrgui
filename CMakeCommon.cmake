@@ -1,9 +1,10 @@
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 if(NOT WIN32)
-set(BUILD_SHARED_LIBS FALSE)
+    set(BUILD_SHARED_LIBS FALSE)
 else()
-set(BUILD_SHARED_LIBS TRUE)
+    set(BUILD_SHARED_LIBS TRUE)
+    set(BUILD_SHARED_LIBS FALSE)
 endif()
 
 if(ANDROID)
@@ -47,9 +48,9 @@ endif()
 
 set(FETCH_AND_COMP OFF)
 
-if(ANDROID)
-    set(FETCH_AND_COMP ON)
-endif()
+# if(ANDROID)
+#     set(FETCH_AND_COMP ON)
+# endif()
 
 if(FETCH_AND_COMP)
     # Fetch SDL2
@@ -61,11 +62,11 @@ if(FETCH_AND_COMP)
         GIT_PROGRESS TRUE
     )
 
-    set(SDL_VIDEO ON CACHE BOOL "" FORCE)       # Keep video but disable renderers
-    set(SDL_RENDER OFF CACHE BOOL "" FORCE)     # Disable SDL's software/hardware renderer
-    set(SDL_OPENGL OFF CACHE BOOL "" FORCE)     # Disable OpenGL support
-    set(SDL_METAL OFF CACHE BOOL "" FORCE)      # Disable Metal support
-    set(SDL_VULKAN ON CACHE BOOL "" FORCE)      # Keep Vulkan support enabled
+    # set(SDL_VIDEO ON CACHE BOOL "" FORCE)       # Keep video but disable renderers
+    # set(SDL_RENDER OFF CACHE BOOL "" FORCE)     # Disable SDL's software/hardware renderer
+    # set(SDL_OPENGL OFF CACHE BOOL "" FORCE)     # Disable OpenGL support
+    # set(SDL_METAL OFF CACHE BOOL "" FORCE)      # Disable Metal support
+    # set(SDL_VULKAN ON CACHE BOOL "" FORCE)      # Keep Vulkan support enabled
     # set(SDL_SHARED ON CACHE BOOL "" FORCE)
     # set(SDL_STATIC OFF CACHE BOOL "" FORCE)
     # Make the content available
@@ -242,11 +243,9 @@ function(PrecompileStdHeaders TARGET_NAME)
         <sstream>
         <stack>
         <stdexcept>
-        <stop_token>
         <streambuf>
         <string>
         <string_view>
-        <syncstream>
         <system_error>
         <thread>
         <tuple>
@@ -351,7 +350,7 @@ endif()
 include_directories(${VULKAN_INCLUDE_PATH})
 # Link directories based on platform
 if(ANDROID)
-#link_directories("${CMAKE_JKRGUI_DIR}/libs/Android/android-${CMAKE_ANDROID_ARCH_ABI}/")
+link_directories("${CMAKE_JKRGUI_DIR}/libs/Android/${CMAKE_ANDROID_ARCH_ABI}/")
 else()
     link_directories(${VULKAN_LIBRARY_PATH})
     link_directories("${CMAKE_JKRGUI_DIR}/libs/")
@@ -407,10 +406,11 @@ function(configure_target TARGET_NAME)
         android
         log
         # jnigraphics
-        # brotlicommon-static
-        # brotlidec-static
-        # brotlienc-static
-        # bz2
+        brotlicommon-static
+        brotlidec-static
+        brotlienc-static
+        bz2
+
         freetype
         GenericCodeGen
         glslang-default-resource-limits
@@ -420,8 +420,10 @@ function(configure_target TARGET_NAME)
         lua
         MachineIndependent
         OSDependent
-        # png
-        # png16
+
+        png
+        png16
+
         SDL2
         spirv-cross-c
         spirv-cross-core

@@ -1,6 +1,6 @@
 #include "VulkanSemaphore.hpp"
 
-using namespace ksai;
+namespace ksai {
 
 VulkanSemaphore::VulkanSemaphore(VulkanDevice &inDevice) { Init({&inDevice}); }
 
@@ -20,4 +20,6 @@ void VulkanSemaphore::Destroy() {
     if (mSemaphore) {
         mDevice->destroySemaphore(mSemaphore);
     }
+}
+
 }

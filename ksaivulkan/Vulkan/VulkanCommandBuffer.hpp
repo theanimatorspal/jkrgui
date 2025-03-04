@@ -89,4 +89,17 @@ class VulkanCommandBuffer {
     bool mInitialized = false;
 };
 
+template <>
+template <>
+void VulkanQueue<QueueContext::Graphics>::Submit<SubmitContext::SingleTime>(
+    VulkanCommandBuffer &inCommandBuffer);
+
+template <>
+template <>
+void VulkanQueue<QueueContext::Graphics>::Submit<SubmitContext::SingleTime>(
+    VulkanCommandBuffer &inCommandBuffer, VulkanFence &inFence);
+
+template <> void VulkanCommandBuffer::Begin<VulkanCommandBuffer::BeginContext::Normal>();
+template <> void VulkanCommandBuffer::Begin<VulkanCommandBuffer::BeginContext::ContinueRenderPass>();
+
 } // namespace ksai

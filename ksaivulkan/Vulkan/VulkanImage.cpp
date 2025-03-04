@@ -3,7 +3,7 @@
 #include "vulkan/vulkan_enums.hpp"
 #include <VulkanBufferVMA.hpp>
 #include <iostream>
-#include <Vendor/stbi/stb_image_write.h>
+#include "stb_image_write.h"
 using namespace ksai;
 
 ksai::VulkanImageBase::VulkanImageBase(VulkanDevice &inDevice, bool inDestroyImageView) {

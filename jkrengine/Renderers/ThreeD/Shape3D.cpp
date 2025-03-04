@@ -4,7 +4,7 @@
 #include "glTF_Model.hpp"
 #include <filesystem>
 
-using namespace Jkr::Renderer::_3D;
+namespace Jkr::Renderer::_3D {
 ///@warning Code repetition
 
 Shape::Shape(Instance &inInstance) : mInstance(&inInstance) {
@@ -176,4 +176,5 @@ ui Shape::AddEXT(glTF_Model &inModel) {
     ui i;
     Add(inModel, i);
     return i;
+}
 }

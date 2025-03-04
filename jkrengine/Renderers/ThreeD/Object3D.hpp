@@ -1,3 +1,4 @@
+#pragma once
 #include "Renderers/ThreeD/glTF_Model.hpp"
 
 namespace Jkr::Renderer::_3D {

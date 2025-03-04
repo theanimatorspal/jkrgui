@@ -3,9 +3,10 @@ include("CMakeConfig.cmake")
 include("CMakeCommon.cmake")
 
 
-
-
 project("jkrengine")
+set(CMAKE_UNITY_BUILD_BATCH_SIZE 1000)
+set(CMAKE_UNITY_BUILD ON)
+
 if(ANDROID)
 find_package(JNI REQUIRED)
 endif()
