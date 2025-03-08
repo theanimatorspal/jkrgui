@@ -723,11 +723,14 @@ Engine.log = function(msg, type)
     io.write(log)
 end
 
+
+Engine.GetResource = function(inFileName)
+    return MAIN_JKR_FILE:Read(inFileName, std_vector_char(0))
+end
+
 Engine.GameFramework = function(inf)
     local f = inf or {}
-    f.GetResource = function(inFileName)
-        return MAIN_JKR_FILE:Read(inFileName, std_vector_char(0))
-    end
+    f.GetResource = Engine.GetResource
     Engine:Load(f.validation)
     Jkr.GetLayoutsAsVH()
     f.els = {}                       -- 2D elements

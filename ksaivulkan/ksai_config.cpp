@@ -15,15 +15,17 @@ void operator delete(void* ptr) noexcept
 }
 
 namespace ksai {
-    void Log(const sv msg, const sv type) {
-        static const std::unordered_map<sv, sv> colors = {
-            { "INFO",    "\033[34m" },  // Blue
-            { "WARNING", "\033[33m" },  // Yellow
-            { "ERROR",   "\033[31m" },  // Red
-            { "DEBUG",   "\033[36m" }   // Cyan
-        };
-
-        sv color = colors.contains(type) ? colors.at(type) : colors.at(sv("INFO")); // Default to blue
+    void Log(sv msg, sv type) {
+        sv color;
+        if (type == "WARNING") {
+            color = "\033[33m";
+        } else if (type == "ERROR") {
+            color = "\033[31m";
+        } else if (type == "DEBUG") {
+            color = "\033[36m";
+        } else {
+            color = "\033[32m";
+        }
 
         std::stringstream stream;
         stream << color << "[KSAI " << type << "]: " << msg << "\033[0m";

@@ -248,5 +248,41 @@ void CreateLuaLibraryEnvironment(sv inLibraryName,
     }
 }
 
+namespace fs = std::filesystem;
+
+void Push(const std::string& dir, const std::string& inFileName, std::ofstream& outputFile) {
+    for (const auto& entry : fs::recursive_directory_iterator(dir)) {
+        if (entry.is_regular_file() && entry.path().filename() == inFileName) {
+            std::ifstream infile(entry.path());
+            std::string line;
+            while (std::getline(infile, line)) {
+                if (line.find("require") == std::string::npos) { // Ignore lines starting with 'require'
+                    outputFile << line << '\n';
+                }
+            }
+            outputFile << '\n';
+        }
+    }
+}
+
+void Bundle(const std::string& outFileName) {
+    auto env = s(getenv("JKRGUI_DIR"));
+    std::ofstream outputFile(outFileName);
+    if (!outputFile) {
+        std::cerr << "Error opening output file!\n";
+        return;
+    }
+    
+    outputFile << "\nfunction jkrgui()\n";
+    
+    std::vector<std::string> files = {"require.lua", "Shader.lua", "Engine.lua", "CallBuffers.lua", "Basic.lua", "General.lua"};
+    for (const auto& file : files) {
+        Push( env + "/luaproject", file, outputFile);
+    }
+    
+    outputFile << "end\n\njkrgui()\n";
+    outputFile.close();
+}
+
 }; // namespace BuildSystem
 #endif

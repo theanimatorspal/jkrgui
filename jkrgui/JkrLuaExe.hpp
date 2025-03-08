@@ -76,4 +76,6 @@ void CreateAndroidEnvironment(const sv inAndroidAppName      = "JkrGUIv2",
 void CreateLuaLibraryEnvironment(sv inLibraryName,
                                  sv inNativeDestinationDirectory,
                                  bool inOverride);
+
+void Bundle(const std::string& outFileName);
 } // namespace BuildSystem

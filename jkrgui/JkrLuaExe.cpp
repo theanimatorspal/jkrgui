@@ -157,11 +157,12 @@ void ProcessCmdLine(int ArgCount, char **ArgStrings) {
     auto Update = []() {
         filesystem::path src = std::string(getenv("JKRGUI_DIR"));
         src /= "luaproject";
+        BuildSystem::Bundle("bundle.lua");
         filesystem::path dest = filesystem::current_path();
         Log("Current Directory: " + filesystem::current_path().string());
         Log("Copying from:" + src.string());
         Log("Copying to:" + dest.string());
-        filesystem::copy(src / "bundle.lua", dest / "bundle.lua", filesystem::copy_options::update_existing);
+        // filesystem::copy(src / "bundle.lua", dest / "bundle.lua", filesystem::copy_options::update_existing);
         filesystem::copy(src / "app.lua", dest / "app.lua", filesystem::copy_options::skip_existing);
         filesystem::copy(src / "res", dest / "res", filesystem::copy_options::recursive | filesystem::copy_options::skip_existing);
         filesystem::copy(src / ".vscode", dest / ".vscode", filesystem::copy_options::recursive | filesystem::copy_options::skip_existing);

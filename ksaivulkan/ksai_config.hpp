@@ -46,7 +46,7 @@ using uc                                     = unsigned char;
 #define mu std::make_unique
 #define mv std::move
 #define mksh std::make_shared
-void Log(const sv msg, const sv type = "INFO");
+void Log(sv msg, sv type = "INFO");
 } // namespace ksai
 
 #ifdef ANDROID
