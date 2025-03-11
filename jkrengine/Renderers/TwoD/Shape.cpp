@@ -106,12 +106,25 @@ void Shape::AddImage(v<uc> &inImage, ui inWidth, ui inHeight, ui &outIndex) {
          mInstance.GetDescriptorPool(),
          mPainterCaches[FillType::Image]->GetVertexFragmentDescriptorSetLayout());
     Up<ImageType> Image = MakeUp<ImageType>(mInstance);
-    void *data          = inImage.data();
-    Image->Setup(reinterpret_cast<void **>(&data), inWidth, inHeight, 4);
-    Image->Register(0, 0, 0, *Desset);
-    outIndex = mImages.size();
-    mImages.push_back(std::move(Image));
-    mVulkanPerImageDescriptorSets.push_back(std::move(Desset));
+
+    if (inWidth > 0 and inHeight > 0)
+    {
+        void *data          = inImage.data();
+        Image->Setup(reinterpret_cast<void **>(&data), inWidth, inHeight, 4);
+        Image->Register(0, 0, 0, *Desset);
+        outIndex = mImages.size();
+        mImages.push_back(std::move(Image));
+        mVulkanPerImageDescriptorSets.push_back(std::move(Desset));
+    } else {
+        int x, y, channels;
+        auto data = stbi_load_from_memory(inImage.data(), inImage.size(), &x, &y, &channels, 4);
+        Image->Setup(reinterpret_cast<void **>(&data), x, y, 4);
+        Image->Register(0, 0, 0, *Desset);
+        outIndex = mImages.size();
+        mImages.push_back(std::move(Image));
+        mVulkanPerImageDescriptorSets.push_back(std::move(Desset));
+        stbi_image_free(data);
+    }
 }
 
 void Shape::UpdateImage(ui inId, v<uc> &inImage, ui inWidth, ui inHeight) {
@@ -455,6 +468,15 @@ glm::vec2 Jkr::Renderer::Shape::GetImageSize(const sv inFileName) {
     int y;
     int comp;
     stbi_info(inFileName.data(), &x, &y, &comp);
+    return glm::vec2{x, y};
+}
+
+glm::vec2 Jkr::Renderer::Shape::GetImageSize(v<char>& inFileName) {
+    int x;
+    int y;
+    int comp;
+    unsigned char* data = reinterpret_cast<unsigned char*>(inFileName.data()); 
+    stbi_info_from_memory(data, inFileName.size(), &x, &y, &comp);
     return glm::vec2{x, y};
 }
 

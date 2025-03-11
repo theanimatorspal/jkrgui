@@ -1647,11 +1647,21 @@ TwoDimensionalIPs.Line3D =
     .GlslMainBegin()
     .ImagePainterAssistMatrix2()
     .Append [[
-            vec2 point1 = vec2(push.b * vec4(p1.x, p1.y, p1.z, 1));
-            vec2 point2 = vec2(push.b * vec4(p2.x, p2.y, p2.z, 1));
+            vec4 pointj1 = push.b * vec4(p1.xyz, 1);
+            vec4 pointj2 = push.b * vec4(p2.xyz, 1);
+
+            vec2 point1 = pointj1.xy / pointj1.w;
+            vec2 point2 = pointj2.xy / pointj2.w;
+
+            point1.x = (point1.x * 0.5 + 0.5) * image_size.x;
+            point1.y = (point1.y * 0.5 + 0.5) * image_size.y;
+
+            point2.x = (point2.x * 0.5 + 0.5) * image_size.x;
+            point2.y = (point2.y * 0.5 + 0.5) * image_size.y;
+
             float inv_thickness = p3.x;
             float radius = p3.y;
-            float draw_thickness = p3.z;
+            float draw_thickness = p3.z + sin(xy.x * p1.w);
             vec2 np_1 = NormalizeToImage(point1, image_size);
             vec2 np_2 = NormalizeToImage(point2, image_size);
             vec2 pa = xy - np_1;
@@ -1660,6 +1670,7 @@ TwoDimensionalIPs.Line3D =
                     max(0.0, dot(pa, ba) / dot(ba, ba))
             );
             float k = 1 - (length(pa - ba * h) * inv_thickness * 10 - radius);
+            //debugPrintfEXT("FUCK: %.2f", point1.x, point1.y);
             if (k > draw_thickness)
             {
                 imageStore(storageImage, to_draw_at, p4 * k);

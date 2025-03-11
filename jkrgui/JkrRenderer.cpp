@@ -119,9 +119,17 @@ void CreateRendererBindings(sol::state &inState) {
          "AddImage",
          sol::overload(sol::resolve<ui(const string_view)>(&Jkr::Renderer::Shape::AddImageEXT),
                        sol::resolve<ui(ui, ui)>(&Jkr::Renderer::Shape::AddImageEXT),
-                       sol::resolve<ui(vector<uc>, ui, ui)>(&Jkr::Renderer::Shape::AddImageEXT)),
+                       sol::resolve<ui(vector<uc>, ui, ui)>(&Jkr::Renderer::Shape::AddImageEXT),
+                       [](Jkr::Renderer::Shape& inShape, vector<char> inVec) {
+                            v<uc> vuc;
+                            vuc.resize(inVec.size());
+                            std::copy(inVec.begin(), inVec.end(), vuc.begin());
+                            return inShape.AddImageEXT(vuc, 0, 0);
+                       }),
          "GetImageSize",
-         &Jkr::Renderer::Shape::GetImageSize,
+         sol::overload(sol::resolve<glm::vec2(const sv)>(&Jkr::Renderer::Shape::GetImageSize), 
+                       sol::resolve<glm::vec2(v<char>&)>(&Jkr::Renderer::Shape::GetImageSize)
+         ),
          "BindShapes",
          &Jkr::Renderer::Shape::BindShapes,
          "BindImage",

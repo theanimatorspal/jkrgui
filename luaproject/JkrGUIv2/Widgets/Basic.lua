@@ -303,23 +303,6 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             SampledImage.mColor = inColor
         end
 
-        ---@note @warning Sampled IMage is not for drawing
-        -- if (not inNoDraw) then
-        --     -- SampledImage.DrawId = o.c:Push(Jkr.CreateDrawable(SampledImage.imageViewRect, false,
-        --     --     "IMAGE",
-        --     --     SampledImage.mId,
-        --     --     SampledImage.mColor), o.mCurrentScissor)
-        -- end
-
-        -- SampledImage.Update = function(self, inPosition_3f, inDimension_3f, inColor)
-        --     -- local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill,
-        --     --     uvec2(inDimension_3f.x, inDimension_3f.y))
-        --     -- o.s:Update(SampledImage.imageViewRect, Rectangle, inPosition_3f)
-        --     -- if inColor then
-        --     --     o.c.mDrawables[self.DrawId].mColor = inColor
-        --     -- end
-        -- end
-
         SampledImage.CopyToCompute = function(inComputeImage)
             o.s:CopyFromImage(SampledImage.mId, inComputeImage.handle)
         end

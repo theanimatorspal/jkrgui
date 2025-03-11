@@ -57,6 +57,7 @@ class Shape : public Shape_base, Renderer_base {
     void BindImage(Window_base &inWindow, uint32_t inImageId, CmdParam inParam = CmdParam::UI);
 
     glm::vec2 GetImageSize(const sv inFileName);
+    glm::vec2 GetImageSize(v<char>& inFile);
     ui AddImageEXT(const std::string_view inFileName);
     ui AddImageEXT(uint32_t inWidth, uint32_t inHeight);
     ui AddImageEXT(v<uc> inImage, ui inWidth, ui inHeight);

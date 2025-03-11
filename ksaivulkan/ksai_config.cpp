@@ -32,6 +32,7 @@ namespace ksai {
         ksai_print(stream.str().data());
         if (type == "ERROR")
         {
+            assert("ERROR" && false);
             exit(-1);
         }
     }

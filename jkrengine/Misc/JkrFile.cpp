@@ -110,7 +110,7 @@ File::File(s inFileName) {
 File::~File() {
     if (not mOnlyInMemory) {
         Commit();
-        Log(mDebugStringStream.str());
+        // Log(mDebugStringStream.str());
     }
 }
 

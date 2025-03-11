@@ -275,7 +275,7 @@ void Bundle(const std::string& outFileName) {
     
     outputFile << "\nfunction jkrgui()\n";
     
-    std::vector<std::string> files = {"require.lua", "Shader.lua", "Engine.lua", "CallBuffers.lua", "Basic.lua", "General.lua"};
+    std::vector<std::string> files = {"require.lua", "Shader.lua", "Engine.lua", "CallBuffers.lua", "Basic.lua", "General.lua", "inspect.lua"};
     for (const auto& file : files) {
         Push( env + "/luaproject", file, outputFile);
     }

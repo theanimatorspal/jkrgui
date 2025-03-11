@@ -15,9 +15,6 @@ KsaiDebugMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverit
                            VkDebugUtilsMessageTypeFlagsEXT messageTypes,
                            VkDebugUtilsMessengerCallbackDataEXT const *pCallbackData,
                            void * /*pUserData*/) {
-
-    Log("Triggered VALIDATION ERROR:::: JKR");
-
     std::ostringstream message;
     message << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(messageSeverity))
             << ": " << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(messageTypes))
@@ -70,21 +67,20 @@ KsaiDebugMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverit
     bool isWarning     = messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
     bool isInfo        = messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
     bool isPerformance = messageTypes & VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+
 #ifdef _WIN32
     if (isError) {
         MessageBoxA(NULL, messageString.c_str(), "Error", MB_ICONERROR);
-        assert("Error" && false);
     } else if (isWarning && !(isPerformance)) {
         MessageBoxA(NULL, messageString.c_str(), "Warning", MB_ICONWARNING);
-        assert("Warning" && false);
     }
 #endif
-
     Log(messageString, isInfo ? "INFO" : 
         (isError ? "ERROR" : 
             (isWarning ? "WARNING" : 
                 "INFO"
             )));
+
     return VK_FALSE;
 }
 
