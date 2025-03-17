@@ -88,59 +88,13 @@ CalculateTangents(v<Vertex3DExt> &inVertices, v<ui> &inIndices, ui inInitialVert
     }
 }
 
-// TODO Merge these two functions
-void glTF_Model::Load(ui inInitialVertexOffset) {
+void glTF_Model::Load(ui inInitialVertexOffset, FillVertexCallBack inVertexCallback) {
     std::scoped_lock<std::mutex> Lock(mUpdateMutex);
     tinygltf::Model glTFInput;
     tinygltf::TinyGLTF gltfContext;
     s error, warning;
     bool file_loaded = false;
-    s fileName       = s(mFileName);
-    if (s(mFileName).find(".glb") != std::string::npos) {
-        file_loaded = gltfContext.LoadBinaryFromFile(&glTFInput, &error, &warning, s(mFileName));
-    } else {
-        file_loaded = gltfContext.LoadASCIIFromFile(&glTFInput, &error, &warning, s(mFileName));
-    }
-    if (file_loaded) {
-        this->LoadImages(glTFInput);
-        this->LoadMaterials(glTFInput);
-        this->LoadTextures(glTFInput);
-        const tinygltf::Scene &scene = glTFInput.scenes[0]; // TODO Fix This
-        for (size_t i = 0; i < scene.nodes.size(); i++) {
-            ui index                  = 0;
-            const tinygltf::Node node = glTFInput.nodes[scene.nodes[i]];
-            this->LoadNode(
-                 node,
-                 glTFInput,
-                 nullptr,
-                 scene.nodes[i],
-                 mIndexBuffer,
-                 mVertexBuffer,
-                 [&](Vertex3DExt inVertex) {
-                     return Vertex3D{.mPosition = inVertex.mPosition,
-                                     .mNormal   = inVertex.mNormal,
-                                     .mUV       = inVertex.mUV,
-                                     .mColor    = inVertex.mColor};
-                 },
-                 [=](ui inIndex) { return (inIndex) + inInitialVertexOffset; });
-        }
-        this->LoadSkins(glTFInput);
-        this->LoadAnimations(glTFInput);
-        for (auto &Node : mNodes) {
-            UpdateJoints(Node.get());
-        }
-        CalculateTangents(GetVerticesExtRef(), GetIndicesRef(), inInitialVertexOffset);
-    } else {
-        Log("GLTF File Not Loaded, Not found with the name:" + mFileName, "ERROR");
-    }
-}
-
-void glTF_Model::Load(FillVertexCallBack inVertexCallback, FillIndexCallBack inIndexCallback) {
-    std::scoped_lock<std::mutex> Lock(mUpdateMutex);
-    tinygltf::Model glTFInput;
-    tinygltf::TinyGLTF gltfContext;
-    s error, warning;
-    bool file_loaded = gltfContext.LoadASCIIFromFile(&glTFInput, &error, &warning, s(mFileName));
+    file_loaded = gltfContext.LoadBinaryFromMemory(&glTFInput, &error, &warning, (const unsigned char*) mFileInMemory.data(), mFileInMemory.size());
     if (file_loaded) {
         this->LoadImages(glTFInput);
         this->LoadMaterials(glTFInput);
@@ -155,17 +109,96 @@ void glTF_Model::Load(FillVertexCallBack inVertexCallback, FillIndexCallBack inI
                            mIndexBuffer,
                            mVertexBuffer,
                            inVertexCallback,
-                           inIndexCallback);
+                           [=](ui inUI) { return inUI + inInitialVertexOffset;});
         }
         this->LoadSkins(glTFInput);
         this->LoadAnimations(glTFInput);
         for (auto &Node : mNodes) {
             UpdateJoints(Node.get());
         }
+        CalculateTangents(GetVerticesExtRef(), GetIndicesRef(), inInitialVertexOffset);
     } else {
         Log("File Not Loaded, Not found with the name:" + mFileName);
     }
 }
+// // TODO Merge these two functions
+// void glTF_Model::Load(ui inInitialVertexOffset) {
+//     std::scoped_lock<std::mutex> Lock(mUpdateMutex);
+//     tinygltf::Model glTFInput;
+//     tinygltf::TinyGLTF gltfContext;
+//     s error, warning;
+//     bool file_loaded = false;
+//     s fileName       = s(mFileName);
+//     if (s(mFileName).find(".glb") != std::string::npos) {
+//         file_loaded = gltfContext.LoadBinaryFromFile(&glTFInput, &error, &warning, s(mFileName));
+//     } else {
+//         file_loaded = gltfContext.LoadASCIIFromFile(&glTFInput, &error, &warning, s(mFileName));
+//     }
+//     if (file_loaded) {
+//         this->LoadImages(glTFInput);
+//         this->LoadMaterials(glTFInput);
+//         this->LoadTextures(glTFInput);
+//         const tinygltf::Scene &scene = glTFInput.scenes[0]; // TODO Fix This
+//         for (size_t i = 0; i < scene.nodes.size(); i++) {
+//             ui index                  = 0;
+//             const tinygltf::Node node = glTFInput.nodes[scene.nodes[i]];
+//             this->LoadNode(
+//                  node,
+//                  glTFInput,
+//                  nullptr,
+//                  scene.nodes[i],
+//                  mIndexBuffer,
+//                  mVertexBuffer,
+//                  [&](Vertex3DExt inVertex) {
+//                      return Vertex3D{.mPosition = inVertex.mPosition,
+//                                      .mNormal   = inVertex.mNormal,
+//                                      .mUV       = inVertex.mUV,
+//                                      .mColor    = inVertex.mColor};
+//                  },
+//                  [=](ui inIndex) { return (inIndex) + inInitialVertexOffset; });
+//         }
+//         this->LoadSkins(glTFInput);
+//         this->LoadAnimations(glTFInput);
+//         for (auto &Node : mNodes) {
+//             UpdateJoints(Node.get());
+//         }
+//         CalculateTangents(GetVerticesExtRef(), GetIndicesRef(), inInitialVertexOffset);
+//     } else {
+//         Log("GLTF File Not Loaded, Not found with the name:" + mFileName, "ERROR");
+//     }
+// }
+
+// void glTF_Model::Load(FillVertexCallBack inVertexCallback, FillIndexCallBack inIndexCallback) {
+//     std::scoped_lock<std::mutex> Lock(mUpdateMutex);
+//     tinygltf::Model glTFInput;
+//     tinygltf::TinyGLTF gltfContext;
+//     s error, warning;
+//     bool file_loaded = gltfContext.LoadASCIIFromFile(&glTFInput, &error, &warning, s(mFileName));
+//     if (file_loaded) {
+//         this->LoadImages(glTFInput);
+//         this->LoadMaterials(glTFInput);
+//         this->LoadTextures(glTFInput);
+//         const tinygltf::Scene &scene = glTFInput.scenes[0]; // TODO Fix this
+//         for (size_t i = 0; i < scene.nodes.size(); i++) {
+//             const tinygltf::Node node = glTFInput.nodes[scene.nodes[i]];
+//             this->LoadNode(node,
+//                            glTFInput,
+//                            nullptr,
+//                            scene.nodes[i],
+//                            mIndexBuffer,
+//                            mVertexBuffer,
+//                            inVertexCallback,
+//                            inIndexCallback);
+//         }
+//         this->LoadSkins(glTFInput);
+//         this->LoadAnimations(glTFInput);
+//         for (auto &Node : mNodes) {
+//             UpdateJoints(Node.get());
+//         }
+//     } else {
+//         Log("File Not Loaded, Not found with the name:" + mFileName);
+//     }
+// }
 
 void glTF_Model::LoadImages(tinygltf::Model &input) {
     // Images can be stored inside the glTF (which is the case for the sample model), so instead of

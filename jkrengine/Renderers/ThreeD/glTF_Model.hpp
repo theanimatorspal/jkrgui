@@ -189,9 +189,16 @@ class glTF_Model {
     bool IsNodeParentOf(Node *inNode, Node *inCheckIfParentNode);
     bool IsNodeParentOfByIndex(int inNode, int inCheckIfParentNode);
 
-    void Load(ui inInitialVertexOffset = 0);
-    void Load(FillVertexCallBack inVertexCallback, FillIndexCallBack inIndexCallback);
-    void Load(const sv inFilePath, ui inInitialVertexOffset = 0);
+    // void Load(ui inInitialVertexOffset = 0);
+    // void Load(FillVertexCallBack inVertexCallback, FillIndexCallBack inIndexCallback);
+    // void Load(const sv inFilePath, ui inInitialVertexOffset = 0);
+    void Load(ui inInitialVertexOffset = 0, FillVertexCallBack inVertexCallback = 
+              [](Vertex3DExt inVertex) {
+                  return Vertex3D{.mPosition = inVertex.mPosition,
+                                  .mNormal   = inVertex.mNormal,
+                                  .mUV       = inVertex.mUV,
+                                  .mColor    = inVertex.mColor};
+              });
     void LoadImages(tinygltf::Model &input);
     void LoadTextures(tinygltf::Model &input);
     void LoadMaterials(tinygltf::Model &input);
@@ -242,7 +249,7 @@ class glTF_Model {
         mVertexBuffer.shrink_to_fit();
     }
 
-    glTF_Model(const std::string_view inFileName) : mFileName(inFileName) {}
+    glTF_Model(v<char>& inFileInMemory) : mFileInMemory(inFileInMemory) {}
 
     private:
     std::mutex mUpdateMutex;
@@ -258,6 +265,7 @@ class glTF_Model {
     v<Animation> mAnimations;
 
     v<Mesh> mMeshes;
+    v<char>& mFileInMemory;
 };
 
 } // namespace Jkr::Renderer::_3D

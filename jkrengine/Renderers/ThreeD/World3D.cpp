@@ -22,9 +22,9 @@ Up<World3D> World3D::CreateWorld3D(Shape3D &inShape) {
     return O;
 }
 static std::mutex AddGltfMutex;
-int World3D::AddGLTFModel(std::string_view inFileName) {
+int World3D::AddGLTFModel(v<char>& inGLTFModelInMemory) {
     std::scoped_lock<std::mutex> Guard(AddGltfMutex);
-    mGLTFModels.emplace_back(mu<Renderer::_3D::glTF_Model>(inFileName));
+    mGLTFModels.emplace_back(mu<Renderer::_3D::glTF_Model>(inGLTFModelInMemory));
     return mGLTFModels.size() - 1;
 }
 

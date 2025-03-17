@@ -239,7 +239,7 @@ void CreateRenderer3DBindings(sol::state &s) {
     Jkr.new_usertype<Jkr::Renderer::_3D::glTF_Model>(
          "glTF_Model",
          sol::call_constructor,
-         sol::factories([](string_view inFileName) { return mu<glTF_Model>(inFileName); }),
+         sol::factories([](v<char>& inFileInMemory) { return mu<glTF_Model>(inFileInMemory); }),
 
          "IsNodeParentOfByIndex",
          &Jkr::Renderer::_3D::glTF_Model::IsNodeParentOfByIndex,

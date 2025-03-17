@@ -570,11 +570,11 @@ Engine.AddAndConfigureGLTFToWorld = function(w,
         skybox_shader:CompileEXT(
             Engine.i,
             w,
-            "cache/constant_color.glsl",
+            "cache/gltf_skybox_shader_3d.glsl",
             vshader.str,
             fshader.str,
             "",
-            shouldload,
+            MAIN_JKR_FILE,
             incompilecontext
         )
         SkyboxObject.mAssociatedSimple3D = skybox_shaderindex
@@ -609,7 +609,7 @@ Engine.AddAndConfigureGLTFToWorld = function(w,
                     vshader.str,
                     fshader.str,
                     "",
-                    shouldload,
+                    MAIN_JKR_FILE,
                     incompilecontext
                 )
                 local allocate_for_skinning = false
