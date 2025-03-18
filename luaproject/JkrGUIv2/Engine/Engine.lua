@@ -584,7 +584,7 @@ Engine.AddAndConfigureGLTFToWorld = function(w,
     local gltfmodel = inworld3d:GetGLTFModel(gltfmodelindex)
     local shapeindex = inshape3d:Add(gltfmodel) -- this ACUTALLY loads the GLTF Model
     local Nodes = gltfmodel:GetNodesRef()
-    Engine.GetGLTFInfo(gltfmodel)
+    -- Engine.GetGLTFInfo(gltfmodel)
     local Objects = {}
     local materials = {}
 

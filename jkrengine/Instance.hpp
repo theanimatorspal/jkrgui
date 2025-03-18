@@ -3,6 +3,7 @@
 #include "TestUtils.hpp"
 #include "VulkanQueue.hpp"
 #include "ksai_thread.hpp"
+#include <VulkanCommandBuffer.hpp>
 
 namespace ksai {
 class VulkanInstance;
@@ -38,7 +39,9 @@ class Instance {
     GETTER &GetTransferQueue() const { return *mGraphicsPresentQueue; };
     GETTER &GetCommandPool() const { return *mCommandPool; }
     GETTER &GetUtilCommandBuffer() const { return *mUtilCommandBuffer; }
+    GETTER &GetUtilCommandBuffers() { return mUtilCommandBuffers; }
     GETTER &GetUtilCommandBufferFence() const { return *mUtilCommandBufferFence; }
+    GETTER &GetUtilCommandBufferFences() { return mUtilCommandBufferFences; }
     GETTER &GetDescriptorPool() const { return *mDescriptorPool; }
     GETTER &GetVMA() const { return *mVmaAllocator; }
     GETTER &GetThreadPool() { return mThreadPool; }
@@ -57,7 +60,9 @@ class Instance {
     Up<VulkanQueue<QueueContext::Graphics>> mGraphicsPresentQueue;
     Up<VulkanCommandPool> mCommandPool;
     Up<VulkanCommandBuffer> mUtilCommandBuffer;
+    std::array<VulkanCommandBuffer, 2U> mUtilCommandBuffers;
     Up<VulkanFence> mUtilCommandBufferFence;
+    std::array<up<VulkanFence>, 2U> mUtilCommandBufferFences;
     Up<VulkanDescriptorPool> mDescriptorPool;
     Up<VulkanVMA> mVmaAllocator;
     ksai::ThreadPool mThreadPool;

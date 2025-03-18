@@ -39,6 +39,14 @@ Jkr::Instance::Instance(uint32_t inNoOfDescriptors, uint32_t inPoolSize, bool in
     mCommandPool            = MakeUp<VulkanCommandPool>(*mDevice, *mQueueContext);
     mUtilCommandBuffer      = MakeUp<VulkanCommandBuffer>(*mDevice, *mCommandPool);
     mUtilCommandBufferFence = MakeUp<VulkanFence>(*mDevice);
+    for(auto& c : mUtilCommandBuffers)
+    {
+        c.Init({mDevice.get(), mCommandPool.get()});
+    }
+    for (auto& f : mUtilCommandBufferFences)
+    {
+        f = MakeUp<VulkanFence>(*mDevice);
+    }
 }
 
 Jkr::Instance::~Instance() { SpirvHelper::Finalize(); }

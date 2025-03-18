@@ -29,6 +29,8 @@ void CreateRendererBindings(sol::state &inState) {
     auto CmdParamEnumType       = Jkr.new_enum<false>("CmdParam",
                                                 "UI",
                                                 CmdParam::UI,
+                                                "Immediate",
+                                                CmdParam::Immediate,
                                                 "Background",
                                                 CmdParam::Background,
                                                 "None",

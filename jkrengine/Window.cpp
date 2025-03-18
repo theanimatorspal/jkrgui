@@ -72,6 +72,8 @@ std::array<VulkanCommandBuffer, 2U> &Window::GetCommandBuffers(ParameterContext 
     switch (inParameter) {
         case Window_base::None:
             return mCommandBuffers;
+        case Window_base::Immediate:
+            return mInstance->GetUtilCommandBuffers();
         case Window_base::UI:
             return mSecondaryCommandBuffersUI;
         default:
@@ -325,6 +327,16 @@ void Window::PresentDeferred() {
     } else {
         mCurrentFrame = (mCurrentFrame + 1) % mMaxFramesInFlight;
     }
+}
+void Window::BeginImmediate() {
+    mInstance->GetUtilCommandBufferFences()[mCurrentFrame]->Wait();
+    mInstance->GetUtilCommandBufferFences()[mCurrentFrame]->Reset();
+    mInstance->GetUtilCommandBuffers()[mCurrentFrame].Begin();
+}
+
+void Window::EndImmediate() {
+    mInstance->GetUtilCommandBuffers()[mCurrentFrame].End();
+    mInstance->GetGraphicsQueue().Submit<SubmitContext::SingleTime>(mInstance->GetUtilCommandBuffers()[mCurrentFrame], *mInstance->GetUtilCommandBufferFences()[mCurrentFrame]);
 }
 
 } // namespace Jkr

@@ -67,6 +67,9 @@ class Window : public Window_base {
     void EndThreadCommandBuffer(int inThreadId);
     void ExecuteThreadCommandBuffer(int inThreadId);
 
+    void BeginImmediate();
+    void EndImmediate();
+
     static void SyncSubmitPresent(Window &inSubmitWindow, Window &inPresentWindow);
 
     Window(Instance &inInstance,

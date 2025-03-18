@@ -133,6 +133,11 @@ void CreateBasicBindings(sol::state &s) {
          "ExecuteUIs",
          &Jkr::Window::ExecuteUIs,
 
+         "BeginImmediate",
+         &Jkr::Window::BeginImmediate,
+         "EndImmediate",
+         &Jkr::Window::EndImmediate,
+
          "BeginThreadCommandBuffer",
          &Jkr::Window::BeginThreadCommandBuffer,
          "EndThreadCommandBuffer",

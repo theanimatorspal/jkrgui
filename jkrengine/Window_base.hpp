@@ -15,7 +15,7 @@ class Window_base : public SDLWindow {
     public:
     using SwapChainVulkanImages = std::vector<ksai::VulkanImageExternalHandled>;
     using FrameBufferType       = VulkanFrameBuffer;
-    enum ParameterContext : int { None = -3, UI = -1, Background = -1 };
+    enum ParameterContext : int { None = -4, Immediate = -3, UI = -2, Background = -1 };
 
     Window_base()                              = default;
     Window_base(Window_base &other)            = delete;

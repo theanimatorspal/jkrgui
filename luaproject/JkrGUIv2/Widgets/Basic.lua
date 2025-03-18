@@ -333,12 +333,12 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             if not inIndex then inIndex = 0 end
             ComputeImage.handle:Register(o.i, inPainter.handle, inIndex)
         end
-        ComputeImage.BindPainter = function(inPainter)
-            inPainter:Bind(o.w, Jkr.CmdParam.None)
-            inPainter:BindImageFromImage(o.w, ComputeImage, Jkr.CmdParam.None)
+        ComputeImage.BindPainter = function(inPainter, inCmd)
+            inPainter:Bind(o.w, inCmd or Jkr.CmdParam.None)
+            inPainter:BindImageFromImage(o.w, ComputeImage, inCmd or Jkr.CmdParam.None)
         end
-        ComputeImage.DrawPainter = function(inPainter, inPushConstant, inX, inY, inZ)
-            inPainter:Draw(o.w, inPushConstant, inX, inY, inZ, Jkr.CmdParam.None)
+        ComputeImage.DrawPainter = function(inPainter, inPushConstant, inX, inY, inZ, inCmd)
+            inPainter:Draw(o.w, inPushConstant, inX, inY, inZ, inCmd or Jkr.CmdParam.None)
         end
         ComputeImage.CopyToSampled = function(inSampledImage)
             o.s:CopyToImage(inSampledImage.mId, ComputeImage.handle)
