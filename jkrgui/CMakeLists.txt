@@ -16,6 +16,10 @@
     "JkrNetwork.cpp"
 )
 
+# if(WIN32)
+#     list(APPEND JKR_SOURCES "../ksaivulkan/Vendor/Tracy/TracyClient.cpp")
+# endif()
+
 if(ANDROID)
      add_library(jkrgui SHARED ${JKR_SOURCES})
      set_target_properties(jkrgui PROPERTIES LINK_FLAGS "-Wl,--export-dynamic-symbol=main")
@@ -30,6 +34,7 @@ if(NOT ANDROID)
      set_target_properties(jkrgui PROPERTIES OUTPUT_NAME "jkrgui-r")
 endif()
 endif()
+
 
 PrecompileStdHeaders(jkrgui)
 target_link_libraries(jkrgui ksaivulkan jkrengine)

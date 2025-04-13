@@ -32,7 +32,7 @@ include("{0}/out/build/${{CMAKE_PRESET_NAME}}/jkrengineExport.cmake")
 
 project({1})
 add_library({1} SHARED {1}.cpp)
-target_link_libraries({1} lua ksaivulkan jkrgui)
+target_link_libraries({1} lua ksaivulkan jkrengine)
 configure_target({1})
 
 add_custom_command(

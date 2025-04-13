@@ -762,17 +762,15 @@ Engine.GameFramework = function(inf)
     f.sha        = Jkr.CreateShapeRenderer3D(f.i, f.w)
     f.wor, f.cam = Engine.CreateWorld3D(f.w, f.sha)
 
-    if f.initialize_painters then
-        if not f.painters then
-            f.painters = {}
-            f.painters.line = Jkr.CreateCustomImagePainter("cache/LINE2D.glsl", TwoDimensionalIPs.Line.str)
-            f.painters.clear = Jkr.CreateCustomImagePainter("cache/CLEAR2D.glsl", TwoDimensionalIPs.Clear.str)
-            f.painters.sound = Jkr.CreateCustomImagePainter("cache/SOUND.glsl", TwoDimensionalIPs.Sound.str)
-            f.painters.line:Store(MAIN_JKR_FILE, f.i, f.w)
-            f.painters.clear:Store(MAIN_JKR_FILE, f.i, f.w)
-            f.painters.sound:Store(MAIN_JKR_FILE, f.i, f.w)
-            Engine.log("Painters Initialized Successfully", "INFO")
-        end
+    if not f.painters then
+        f.painters = {}
+        f.painters.line = Jkr.CreateCustomImagePainter("cache/LINE2D.glsl", TwoDimensionalIPs.Line.str)
+        f.painters.clear = Jkr.CreateCustomImagePainter("cache/CLEAR2D.glsl", TwoDimensionalIPs.Clear.str)
+        f.painters.sound = Jkr.CreateCustomImagePainter("cache/SOUND.glsl", TwoDimensionalIPs.Sound.str)
+        f.painters.line:Store(MAIN_JKR_FILE, f.i, f.w)
+        f.painters.clear:Store(MAIN_JKR_FILE, f.i, f.w)
+        f.painters.sound:Store(MAIN_JKR_FILE, f.i, f.w)
+        Engine.log("Painters Initialized Successfully", "INFO")
     end
     Engine.e:SetEventCallBack(
         function()
@@ -783,6 +781,9 @@ Engine.GameFramework = function(inf)
     local residualTime = 0
     f.stepTime         = f.stepTime or 0.001
     f.loop             = function()
+        if not (f.Update and f.Dispatch and f.Draw) then
+            Engine.log("Where is Update, Dispatch and Draw, add those", "ERROR")
+        end
         local e = f.e
         local w = f.w
         local bc = f.bc
@@ -840,9 +841,12 @@ Engine.GameFramework = function(inf)
         o.Update = function(inPosition_3f, inDimension_3f)
             o[3]:Update(inPosition_3f, inDimension_3f)
         end
+
+        local copied
         o.Draw = function(inPainter, inPC)
             inPainter:Draw(f.w, inPC, math.ceil(inDimension_3f.x / 16.0), math.ceil(inDimension_3f.y / 16.0), 1,
                 Jkr.CmdParam.None)
+            copied = false
         end
         o.DrawDebugLines = function(inv_t)
             f.painters.line:Bind(f.w, Jkr.CmdParam.None)
@@ -858,10 +862,12 @@ Engine.GameFramework = function(inf)
             o.Draw(f.painters.line, f.PC(mat4(line2, color, thickness, vec4(0))))
             o.Draw(f.painters.line, f.PC(mat4(line3, color, thickness, vec4(0))))
             o.Draw(f.painters.line, f.PC(mat4(line4, color, thickness, vec4(0))))
+            o.Copy()
         end
         o.Copy = function()
             o[1].CopyToSampled(o[2])
             o[1].handle:SyncAfter(f.w, Jkr.CmdParam.None)
+            copied = true
         end
         o.GetVector = function()
             return o[1].handle:GetVector(f.i)

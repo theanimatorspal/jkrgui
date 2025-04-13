@@ -22,7 +22,8 @@
     "cmake.debugConfig": {
         "console": "externalTerminal",
         // "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\JkrGame\\ufri",
-        "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\PresentTest-For-JkrGUI",
+        // "cwd": "C:\\Users\\sansk\\OneDrive\\Desktop\\PresentTest-For-JkrGUI",
+        "cwd": "C:\\Users\\sansk\\Music\\ksai_HFT",
         "visualizerFile": "${workspaceFolder}/Visualizers/glm.natvis",
         "args": [
             "--gr",
@@ -30,7 +31,7 @@
             // "asst",
             // "Experiment/app"
             // "test",
-            "app"
+            "hftsimr"
             // "--android-environment",
             // "--appname \"tester\"",
             // "--dirname \"android\"",

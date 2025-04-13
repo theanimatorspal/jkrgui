@@ -261,10 +261,27 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             textLabel.PushId = o.c:Push(Jkr.CreateDrawable(textLabel.mId, nil, "TEXT", nil, inColor, nil, inMatrix),
                 o.mCurrentScissor)
         end
+        local align = -1
+        textLabel.Align = function(inAlign)
+            if inAlign == "LEFT" then
+                align = -1
+            elseif inAlign == "CENTER" then
+                align = 0
+            elseif inAlign == "RIGHT" then
+                align = 1
+            end
+        end
         textLabel.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inColor, inMatrix)
             --tracy.ZoneBeginN("luatextUpdate")
             if inFont then self.mFont = inFont end
             if inText then self.mText = inText end
+            if align == 0 then
+                local fd = inFont:GetTextDimension(self.mText)
+                inPosition_3f.x = inPosition_3f.x + fd.x / 2
+            elseif align == -1 then
+                local fd = inFont:GetTextDimension(self.mText)
+                inPosition_3f.x = inPosition_3f.x - fd.x
+            end
             if inText then
                 o.t:Update(self.mId, self.mFont.mId, inPosition_3f, self.mText)
             else

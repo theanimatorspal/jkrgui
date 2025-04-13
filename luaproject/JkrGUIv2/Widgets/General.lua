@@ -456,6 +456,113 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         end
     end
 
+    do
+        --- Widgets for Graphing
+        local m_label_pool = {}
+        local m_current_label_pool_index = 1
+        local CreateLabelPool = function(inFont)
+            if #m_label_pool == 0 then
+                for _ = 1, 100 do
+                    m_label_pool[#m_label_pool + 1] = o.CreateTextLabel(
+                        vec3(100000), vec3(10000), inFont, " ")
+                end
+            end
+        end
+
+        local GetLabelFromPool = function(inIndex)
+            if (not inIndex) or inIndex >= m_current_label_pool_index then
+                local label = m_label_pool[m_current_label_pool_index]
+                m_current_label_pool_index = m_current_label_pool_index + 1
+                return label
+            else
+                return m_label_pool[inIndex]
+            end
+        end
+
+        local calculate_tickers = function(inPosition_3f, inDimension_3f, inFrom_3f, inTo_3f, inStep_3f, inFormatX,
+                                           inFormatY)
+            local x_texts = {}
+            local y_texts = {}
+            local x_ticks = math.floor((inTo_3f.x - inFrom_3f.x) / inStep_3f.x)
+            local y_ticks = math.floor((inTo_3f.y - inFrom_3f.y) / inStep_3f.y)
+
+            local iii = 0
+            while (inFrom_3f.x <= inTo_3f.x) do
+                x_texts[#x_texts + 1] = { string.format(inFormatX, inFrom_3f.x),
+                    inPosition_3f.x + inDimension_3f.x / x_ticks * iii,
+                    inPosition_3f.y + inDimension_3f.y,
+                }
+                inFrom_3f.x = inFrom_3f.x + inStep_3f.x
+                iii = iii + 1
+            end
+
+            local iii = 0
+            while (inFrom_3f.y <= inTo_3f.y) do
+                y_texts[#y_texts + 1] = {
+                    string.format(inFormatY, inFrom_3f.y),
+                    inPosition_3f.x,
+                    inPosition_3f.y + inDimension_3f.y - inDimension_3f.y / y_ticks * iii
+                }
+                inFrom_3f.y = inFrom_3f.y + inStep_3f.y
+                iii = iii + 1
+            end
+            return x_texts, y_texts
+        end
+
+        o.CreateScale2D = function(inPosition_3f, inDimension_3f, inFont,
+                                   inTo_3f, inFrom_3f, inStep_3f, inFormatX,
+                                   inFormatY,
+                                   inColor,
+                                   inMatrix)
+            inFormatX = inFormatX or "%d"
+            inFormatY = inFormatY or "%d"
+            local inTo_3f = vec3(inTo_3f)
+            local inFrom_3f = vec3(inFrom_3f)
+            local inStep_3f = vec3(inStep_3f)
+            CreateLabelPool(inFont)
+
+            local scale2d = {}
+            local x_texts, y_texts = calculate_tickers(inPosition_3f, inDimension_3f, inFrom_3f, inTo_3f, inStep_3f,
+                inFormatX,
+                inFormatY)
+
+            scale2d.label_pool_index = m_current_label_pool_index
+
+            local construct = function(x_texts, y_texts)
+                local x = 0
+                for i = 1, #x_texts do
+                    local t = x_texts[i]
+                    GetLabelFromPool(scale2d.label_pool_index + x):Update(vec3(t[2], t[3], inPosition_3f.z),
+                        inDimension_3f,
+                        inFont,
+                        t[1], inColor,
+                        inMatrix)
+                    x = x + 1
+                end
+
+                for i = 1, #y_texts do
+                    local t = y_texts[i]
+                    local label = GetLabelFromPool(scale2d.label_pool_index + x)
+                    label.Align("LEFT")
+                    label:Update(vec3(t[2], t[3], inPosition_3f.z), inDimension_3f, inFont,
+                        t[1], inColor,
+                        inMatrix)
+                    x = x + 1
+                end
+            end
+            construct(x_texts, y_texts)
+
+            scale2d.Update = function(inPosition_3f, inDimension_3f, inFont,
+                                      inTo_3f, inFrom_3f, inStep_3f, inFormatX,
+                                      inFormatY, inColor, inMatrix)
+                local x_texts, y_texts = calculate_tickers(inPosition_3f, inDimension_3f, inFrom_3f, inTo_3f, inStep_3f,
+                    inFormatX, inFormatY)
+                construct(x_texts, y_texts)
+            end
+            return scale2d
+        end
+    end
+
     return o
 end
 
