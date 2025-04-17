@@ -455,32 +455,49 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             t = t + step
         end
     end
+    o.AnimationGeneralPush = function(inLerpFunction, inStep)
+        for i = 1, 1 / inStep do
+            o.c:PushOneTime(Jkr.CreateUpdatable(
+                function()
+                    inLerpFunction(i * inStep)
+                end
+            ), i)
+        end
+    end
 
     do
         --- Widgets for Graphing
-        local m_label_pool = {}
+        o.m_label_pool = {}
         local m_current_label_pool_index = 1
         local CreateLabelPool = function(inFont)
-            if #m_label_pool == 0 then
+            if #o.m_label_pool == 0 then
                 for _ = 1, 100 do
-                    m_label_pool[#m_label_pool + 1] = o.CreateTextLabel(
+                    o.m_label_pool[#o.m_label_pool + 1] = o.CreateTextLabel(
                         vec3(100000), vec3(10000), inFont, " ")
                 end
             end
         end
 
-        local GetLabelFromPool = function(inIndex)
-            if (not inIndex) or inIndex >= m_current_label_pool_index then
-                local label = m_label_pool[m_current_label_pool_index]
-                m_current_label_pool_index = m_current_label_pool_index + 1
-                return label
-            else
-                return m_label_pool[inIndex]
+        local ClearLabelTexts = function(inFont, inCount)
+            for i = 1, inCount do
+                o.m_label_pool[i]:Update(vec3(1000000), vec3(10000), inFont, " ")
             end
+        end
+
+        local GetLabelFromPool = function(inIndex)
+            if inIndex > m_current_label_pool_index then
+                local la = o.m_label_pool[inIndex]
+                m_current_label_pool_index = m_current_label_pool_index + 1
+                return la
+            end
+            return o.m_label_pool[inIndex]
         end
 
         local calculate_tickers = function(inPosition_3f, inDimension_3f, inFrom_3f, inTo_3f, inStep_3f, inFormatX,
                                            inFormatY)
+            inFrom_3f = vec3(inFrom_3f)
+            inTo_3f = vec3(inTo_3f)
+            inStep_3f = vec3(inStep_3f)
             local x_texts = {}
             local y_texts = {}
             local x_ticks = math.floor((inTo_3f.x - inFrom_3f.x) / inStep_3f.x)
@@ -509,6 +526,27 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             return x_texts, y_texts
         end
 
+        local construct = function(scale2d, inPosition_3f, inDimension_3f, x_texts, y_texts, inFont, inColor, inMatrix)
+            ClearLabelTexts(inFont, scale2d.label_pool_index + #x_texts + #y_texts)
+            local x = 0
+            for i = 1, #x_texts do
+                local t = x_texts[i]
+                local label = GetLabelFromPool(scale2d.label_pool_index + x)
+                label.Align("LEFT", "BOTTOM")
+                label:Update(vec3(t[2], t[3], inPosition_3f.z),
+                    inDimension_3f, inFont, t[1], inColor, inMatrix)
+                x = x + 1
+            end
+
+            for i = 1, #y_texts do
+                local t = y_texts[i]
+                local label = GetLabelFromPool(scale2d.label_pool_index + x)
+                label.Align("LEFT")
+                label:Update(vec3(t[2], t[3], inPosition_3f.z), inDimension_3f, inFont,
+                    t[1], inColor, inMatrix)
+                x = x + 1
+            end
+        end
         o.CreateScale2D = function(inPosition_3f, inDimension_3f, inFont,
                                    inTo_3f, inFrom_3f, inStep_3f, inFormatX,
                                    inFormatY,
@@ -527,37 +565,14 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                 inFormatY)
 
             scale2d.label_pool_index = m_current_label_pool_index
-
-            local construct = function(x_texts, y_texts)
-                local x = 0
-                for i = 1, #x_texts do
-                    local t = x_texts[i]
-                    GetLabelFromPool(scale2d.label_pool_index + x):Update(vec3(t[2], t[3], inPosition_3f.z),
-                        inDimension_3f,
-                        inFont,
-                        t[1], inColor,
-                        inMatrix)
-                    x = x + 1
-                end
-
-                for i = 1, #y_texts do
-                    local t = y_texts[i]
-                    local label = GetLabelFromPool(scale2d.label_pool_index + x)
-                    label.Align("LEFT")
-                    label:Update(vec3(t[2], t[3], inPosition_3f.z), inDimension_3f, inFont,
-                        t[1], inColor,
-                        inMatrix)
-                    x = x + 1
-                end
-            end
-            construct(x_texts, y_texts)
+            construct(scale2d, inPosition_3f, inDimension_3f, x_texts, y_texts, inFont, inColor, inMatrix)
 
             scale2d.Update = function(inPosition_3f, inDimension_3f, inFont,
                                       inTo_3f, inFrom_3f, inStep_3f, inFormatX,
                                       inFormatY, inColor, inMatrix)
                 local x_texts, y_texts = calculate_tickers(inPosition_3f, inDimension_3f, inFrom_3f, inTo_3f, inStep_3f,
                     inFormatX, inFormatY)
-                construct(x_texts, y_texts)
+                construct(scale2d, inPosition_3f, inDimension_3f, x_texts, y_texts, inFont, inColor, inMatrix)
             end
             return scale2d
         end

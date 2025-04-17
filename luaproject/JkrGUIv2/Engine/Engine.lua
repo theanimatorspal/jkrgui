@@ -750,9 +750,10 @@ Engine.GameFramework = function(inf)
     Engine.log("Built Shadow Pass")
     f.wr = Jkr.CreateGeneralWidgetsRenderer(nil, Engine.i, f.w, f.e)
     Engine.log("Created Widgets Renderer")
-    f.nf = f.wr.CreateFont(f.GetResource("res/font.ttf"), f.nfs)
-    f.lf = f.wr.CreateFont(f.GetResource("res/font.ttf"), f.lfs)
-    f.sf = f.wr.CreateFont(f.GetResource("res/font.ttf"), f.sfs)
+    f.f_resource = f.GetResource("res/font.ttf")
+    f.nf = f.wr.CreateFont(f.f_resource, f.nfs)
+    f.lf = f.wr.CreateFont(f.f_resource, f.lfs)
+    f.sf = f.wr.CreateFont(f.f_resource, f.sfs)
     Engine.log(string.format("Created Fonts [%s] -> %d, %d, %d", "res/font.ttf", f.nfs, f.lfs, f.sfs))
 
     if not f.validation then
@@ -865,15 +866,78 @@ Engine.GameFramework = function(inf)
             o.Copy()
         end
         o.Copy = function()
-            o[1].CopyToSampled(o[2])
-            o[1].handle:SyncAfter(f.w, Jkr.CmdParam.None)
-            copied = true
+            if not copied then
+                o[1].CopyToSampled(o[2])
+                o[1].handle:SyncAfter(f.w, Jkr.CmdParam.None)
+                copied = true
+            end
         end
         o.GetVector = function()
             return o[1].handle:GetVector(f.i)
         end
         return o
     end
+    f.Graph            = function()
+        local g = {}
+        g.config = {
+            p = vec3(f.fd.x / 2 - 500 / 2, f.fd.y / 2 - 500 / 2, 1),
+            d = vec3(500, 500, 1),
+            from = vec3(0),
+            to = vec3(4),
+            step = vec3(1),
+            formatx = "%d",
+            formaty = "%d",
+            color = vec4(1)
+        }
+        g.Config = function(inTable)
+            g.config = Default(inTable, g.config)
+            if not g.gpic then
+                g.gpic = f.I(g.config.p, g.config.d)
+            end
+            return g
+        end
+        g.Scale = function()
+            local config = g.config
+            if not g.scale then
+                g.scale = f.wr.CreateScale2D(config.p, config.d, config.f or f.nf, config.to, config.from,
+                    config.step, config.formatx, config.formaty, config.color)
+            else
+                g.scale.Update(config.p, config.d, config.f or f.nf, config.to, config.from,
+                    config.step, config.formatx, config.formaty, config.color)
+            end
+            return g
+        end
+        g.Clear = function()
+            f.wr.c:PushOneTime(Jkr.CreateDispatchable(function()
+                g.gpic.Bind(f.painters.line)
+                g.gpic.Draw(f.painters.clear, f.PC(mat4(0.0), mat4(0.0)))
+                g.gpic.Copy()
+            end), 1)
+            return g
+        end
+        g.Points = function(inData)
+            local config = g.config
+            f.wr.c:PushOneTime(Jkr.CreateDispatchable(function()
+                g.gpic.Bind(f.painters.line)
+                for i = 1, #inData do
+                    local d = inData[i][1]
+                    local c = inData[i][2]
+                    local line = vec2(
+                        d.x * config.d.x / (config.to.x - config.from.x),
+                        config.d.y - (d.y * config.d.y / (config.to.y - config.from.y))
+                    )
+                    local line1 = vec4(line.x, line.y, line.x, line.y)
+                    local color = c
+                    local thickness = vec4(4, 0, 0, 0)
+                    g.gpic.Draw(f.painters.line, f.PC(mat4(line1, color, thickness, vec4(0))))
+                end
+                g.gpic.Copy()
+            end), 1)
+            return g
+        end
+        return g
+    end
+
     f.B                = function(v)
         if not v.e then
             v.p = v.p or vec3(0, 0, f.bd)

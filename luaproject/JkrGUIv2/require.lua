@@ -860,19 +860,6 @@ try = function(inFunction, inMessage)
 end
 
 --- MATH
-local GetLerp = function(inType)
-    inType = inType or "QUADLINEAR"
-    if inType == "QUADLINEAR" then
-        return function(a, b, t)
-            return (a * (1 - t) + t * b) * (1 - t) + b * t
-        end
-    elseif inType == "LINEAR" then
-        return function(a, b, t)
-            return a + (1 - t) * b
-        end
-    elseif inType == "LINEAR_CLAMPED" then
-    end
-end
 
 Jmath.Clamp = function(a, b, t)
     if t < a then
@@ -885,25 +872,109 @@ Jmath.Clamp = function(a, b, t)
 end
 
 Jmath.GetLerps = function(inType)
-    local lerp = GetLerp(inType)
-    local lerp_2f = function(a, b, t)
-        return vec2(lerp(a.x, b.x, t), lerp(a.y, b.y, t))
-    end
+    local lerp, lerp_2f, lerp_3f, lerp_4f, lerp_mat4f
+    if inType == "QUADLINEAR" then
+        lerp = function(a, b, t)
+            local it = 1 - t
+            return (a * it + b * t) * it + b * t
+        end
+        lerp_2f = function(a, b, t)
+            local it = 1 - t
+            return vec2(((a.x * it + b.x * t) * it + b.x * t), ((a.y * it + b.y * t) * it + b.y * t))
+        end
 
-    local lerp_3f = function(a, b, t)
-        return vec3(lerp(a.x, b.x, t), lerp(a.y, b.y, t), lerp(a.z, b.z, t))
-    end
+        lerp_3f = function(a, b, t)
+            local it = 1 - t
+            return vec3(
+                ((a.x * it + b.x * t) * it + b.x * t),
+                ((a.y * it + b.y * t) * it + b.y * t),
+                ((a.z * it + b.z * t) * it + b.z * t)
+            )
+        end
 
-    local lerp_4f = function(a, b, t)
-        return vec4(lerp(a.x, b.x, t), lerp(a.y, b.y, t), lerp(a.z, b.z, t), lerp(a.w, b.w, t))
-    end
-    local lerp_mat4f = function(a, b, t)
-        return mat4(
-            lerp_4f(a[1], b[1], t),
-            lerp_4f(a[2], b[2], t),
-            lerp_4f(a[3], b[3], t),
-            lerp_4f(a[4], b[4], t)
-        )
+        lerp_4f = function(a, b, t)
+            local it = 1 - t
+            return vec4(
+                ((a.x * it + b.x * t) * it + b.x * t),
+                ((a.y * it + b.y * t) * it + b.y * t),
+                ((a.z * it + b.z * t) * it + b.z * t),
+                ((a.w * it + b.w * t) * it + b.w * t)
+            )
+        end
+
+        lerp_mat4f = function(a, b, t)
+            local it = 1 - t
+            return mat4(
+                vec4(
+                    ((a[1].x * it + b[1].x * t) * it + b[1].x * t),
+                    ((a[1].y * it + b[1].y * t) * it + b[1].y * t),
+                    ((a[1].z * it + b[1].z * t) * it + b[1].z * t),
+                    ((a[1].w * it + b[1].w * t) * it + b[1].w * t)),
+                vec4(((a[2].x * it + b[2].x * t) * it + b[2].x * t),
+                    ((a[2].y * it + b[2].y * t) * it + b[2].y * t),
+                    ((a[2].z * it + b[2].z * t) * it + b[2].z * t),
+                    ((a[2].w * it + b[2].w * t) * it + b[2].w * t)),
+                vec4(((a[3].x * it + b[3].x * t) * it + b[3].x * t),
+                    ((a[3].y * it + b[3].y * t) * it + b[3].y * t),
+                    ((a[3].z * it + b[3].z * t) * it + b[3].z * t),
+                    ((a[3].w * it + b[3].w * t) * it + b[3].w * t)),
+                vec4(((a[4].x * it + b[4].x * t) * it + b[4].x * t),
+                    ((a[4].y * it + b[4].y * t) * it + b[4].y * t),
+                    ((a[4].z * it + b[4].z * t) * it + b[4].z * t),
+                    ((a[4].w * it + b[4].w * t) * it + b[4].w * t))
+            )
+        end
+    else -- LINEAR
+        lerp = function(a, b, t)
+            return a + (b - a) * t
+        end
+        lerp_2f = function(a, b, t)
+            return vec2(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t)
+        end
+
+        lerp_3f = function(a, b, t)
+            return vec3(
+                a.x + (b.x - a.x) * t,
+                a.y + (b.y - a.y) * t,
+                a.z + (b.z - a.z) * t
+            )
+        end
+
+        lerp_4f = function(a, b, t)
+            return vec4(
+                a.x + (b.x - a.x) * t,
+                a.y + (b.y - a.y) * t,
+                a.z + (b.z - a.z) * t,
+                a.w + (b.w - a.w) * t
+            )
+        end
+
+        lerp_mat4f = function(a, b, t)
+            return mat4(
+                vec4(a[1].x + (b[1].x - a[1].x) * t, a[1].y + (b[1].y - a[1].y) * t, a[1].z + (b[1].z - a[1].z) * t,
+                    a[1].w + (b[1].w - a[1].w) * t),
+                vec4(a[2].x + (b[2].x - a[2].x) * t, a[2].y + (b[2].y - a[2].y) * t, a[2].z + (b[2].z - a[2].z) * t,
+                    a[2].w + (b[2].w - a[2].w) * t),
+                vec4(a[3].x + (b[3].x - a[3].x) * t, a[3].y + (b[3].y - a[3].y) * t, a[3].z + (b[3].z - a[3].z) * t,
+                    a[3].w + (b[3].w - a[3].w) * t),
+                vec4(a[4].x + (b[4].x - a[4].x) * t, a[4].y + (b[4].y - a[4].y) * t, a[4].z + (b[4].z - a[4].z) * t,
+                    a[4].w + (b[4].w - a[4].w) * t)
+            )
+        end
     end
     return lerp, lerp_2f, lerp_3f, lerp_4f, lerp_mat4f
+end
+
+function Default(inTable, def)
+    if type(inTable) == "table" and type(def) == "table" then
+        for key, value in pairs(def) do
+            inTable[key] = Default(inTable[key], value)
+        end
+        return inTable
+    else
+        if type(inTable) == "boolean" then
+            return inTable
+        end
+        return inTable or def
+    end
 end
