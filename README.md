@@ -1,24 +1,6 @@
 <h1 align="center">🎮 JkrGUI</h1>
 <p align="center"><i>A Cross-Platform Vulkan-Based Graphics Library for Lua & C++</i></p>
-
-<table>
-  <tr>
-    <th>Platform</th>
-    <th>Support</th>
-  </tr>
-  <tr>
-    <td>Windows</td>
-    <td>✅</td>
-  </tr>
-  <tr>
-    <td>Android</td>
-    <td>✅</td>
-  </tr>
-  <tr>
-    <td>macOS</td>
-    <td>✅</td>
-  </tr>
-</table>
+<p align="center"><b>Platform Support:</b> Windows ✅ | Android ✅ | macOS ✅</p>
 
 ---
 
