@@ -1,29 +1,42 @@
-# JkrGUI
-A Cross Platform Vulkan Based Graphics library for Lua, C++.
+<h1 align="center">🎮 JkrGUI</h1>
+<p align="center"><i>A Cross-Platform Vulkan-Based Graphics Library for Lua & C++</i></p>
+<p align="center"><b>Platform Support:</b> Windows ✅ | Android ✅ | macOS ✅</p>
 
-| Platforms | Support |
-|:----------|:-------:|
-| Windows   |   ✅    |
-| Android   |   ✅    |
-| macOS     |   ✅    |
+---
 
+## 🚀 Projects Built with JkrGUI
 
-There are following projects using this library.
-  - https://github.com/theanimatorspal/SANN (A Simulated Anneling + Neural Network Visualizer)
-![image](https://github.com/user-attachments/assets/0ccc91be-2780-451a-bbf8-231a21313ca2)
+### 🔬 <a href="https://github.com/theanimatorspal/SANN">SANN – Simulated Annealing + Neural Network Visualizer</a>
+A visualizer built using JkrGUI to demonstrate how simulated annealing can optimize a neural network's learning process.
 
-    
-  - https://github.com/theanimatorspal/SampraharReturns (First 3D Game in this engine)
+<img src="https://github.com/user-attachments/assets/0ccc91be-2780-451a-bbf8-231a21313ca2" alt="SANN Visualizer" width="600"/>
 
-          This utilizes JkrGUI library's 3D Capabilities.
-          An Air Gun Third Person shooting game in which a cube has to be displaced by a character out of a platform.
-          
-          Current State of GamePlay::
-          
-          https://github.com/theanimatorspal/SampraharReturns/assets/133136356/9ad9eeb9-43a8-4168-abcd-60f970d642e8
+---
 
+### 🎯 <a href="https://github.com/theanimatorspal/SampraharReturns">Samprahar Returns – 3D Third-Person Shooter</a>  
+<b>The first 3D game developed with JkrGUI!</b>  
+A third-person air-gun shooting game where the player must push a cube off a platform using physics-based mechanics.
 
- - https://github.com/theanimatorspal/JkrGUI-PBRTest
-    ![image](https://github.com/user-attachments/assets/f66769ce-e3a7-4a18-b601-2b97e99c9055)
+> 🕹️ <i>This game showcases JkrGUI's 3D rendering and physics capabilities.</i>
 
- - https://github.com/theanimatorspal/PresentTest-for-JkrGUI
+<b>🎥 Current Gameplay Preview:</b>  
+<a href="https://github.com/theanimatorspal/SampraharReturns/assets/133136356/9ad9eeb9-43a8-4168-abcd-60f970d642e8">
+  <img src="https://github.com/theanimatorspal/SampraharReturns/assets/133136356/9ad9eeb9-43a8-4168-abcd-60f970d642e8" alt="Gameplay Preview" width="600"/>
+</a>
+
+---
+
+### ✨ <a href="https://github.com/theanimatorspal/JkrGUI-PBRTest">JkrGUI PBR Test</a>
+A physically-based rendering (PBR) test showcasing realistic lighting and material effects powered by Vulkan.
+
+<img src="https://github.com/user-attachments/assets/f66769ce-e3a7-4a18-b601-2b97e99c9055" alt="PBR Demo" width="600"/>
+
+---
+
+### 📦 <a href="https://github.com/theanimatorspal/PresentTest-for-JkrGUI">PresentTest-for-JkrGUI</a>
+A simple test project used to evaluate frame presentation, rendering loop performance, and cross-platform windowing using the JkrGUI backend.
+
+---
+
+> 🧠 <b>Want to contribute or build your own game or visualizer?</b>  
+Explore the source code, fork the repo, and start building with Vulkan-powered graphics for Lua and C++!
