@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/badge/bugs-features-informational?style=flat-square&logo=bugatti" />
   <img src="https://img.shields.io/badge/api-none-critical?style=flat-square&logo=postman" />
   <img src="https://img.shields.io/badge/docs-wiki%20hunt-yellow?style=flat-square&logo=readthedocs" />
-  <img src="https://img.shields.io/badge/memory%20leaks-certain-red?style=flat-square&logo=leakcanary" />
+  <img src="https://img.shields.io/badge/memory%20leaks-none%20modern%20cpp20-red?style=flat-square&logo=leakcanary" />
   <img src="https://img.shields.io/badge/fps-uncapped-lightgrey?style=flat-square&logo=directx" />
 </p>
 ---
