@@ -2,6 +2,14 @@
 <p align="center"><i>A Cross-Platform Vulkan-Based Graphics Library for Lua & C++</i></p>
 <p align="center"><b>Platform Support:</b> Windows ✅ | Android ✅ | macOS ✅</p>
 
+<p align="center">
+  <img src="https://img.shields.io/badge/build-chaotic-orange?style=flat-square&logo=github" />
+  <img src="https://img.shields.io/badge/bugs-features-informational?style=flat-square&logo=bugatti" />
+  <img src="https://img.shields.io/badge/api-none-critical?style=flat-square&logo=postman" />
+  <img src="https://img.shields.io/badge/docs-wiki%20hunt-yellow?style=flat-square&logo=readthedocs" />
+  <img src="https://img.shields.io/badge/memory%20leaks-certain-red?style=flat-square&logo=leakcanary" />
+  <img src="https://img.shields.io/badge/fps-uncapped-lightgrey?style=flat-square&logo=directx" />
+</p>
 ---
 ## 🛠️ Building JkrGUI from Source
 
