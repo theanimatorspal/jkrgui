@@ -931,9 +931,21 @@ Engine.GameFramework = function(inf)
                     local thickness = vec4(4, 0, 0, 0)
                     g.gpic.Draw(f.painters.line, f.PC(mat4(line1, color, thickness, vec4(0))))
                 end
+                g.gpic.DrawDebugLines()
                 g.gpic.Copy()
             end), 1)
             return g
+        end
+        g.Update = function(self, inP, inD)
+            g.config.p = inP or g.config.p
+            g.config.d = inD or g.config.d
+            vec3(inD)
+            if g.scale then
+                g.scale.Update(g.config.p, g.config.d)
+            end
+            if g.gpic then
+                g.gpic.Update(g.config.p, g.config.d)
+            end
         end
         return g
     end
@@ -971,6 +983,17 @@ Engine.GameFramework = function(inf)
             v.Update = function(self, _, _) end
         end
         return v
+    end
+    f.E                = f.B { e = true }
+
+    f.Pad              = function(inComponent, inPaddingX, inPaddingY)
+        inPaddingX = inPaddingX or 0.05
+        inPaddingY = inPaddingY or 0.05
+        return V({
+            f.E,
+            H({ f.E, inComponent, f.E }, { inPaddingX, 1 - 2 * inPaddingX, inPaddingX }),
+            f.E,
+        }, { inPaddingY, 1 - 2 * inPaddingY, inPaddingY })
     end
 
     return f

@@ -274,9 +274,9 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             if inAlignY == "TOP" then
                 aligny = -1
             elseif inAlignY == "BOTTOM" then
-                aligny = 0
-            elseif inAlignY == "CENTER" then
                 aligny = 1
+            elseif inAlignY == "CENTER" then
+                aligny = 0
             end
         end
         local text_dimension = textLabel.mFont:GetTextDimension(textLabel.mText)
@@ -288,14 +288,14 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
 
             if alignx == 0 then
                 inPosition_3f.x = inPosition_3f.x + text_dimension.x / 2
-            elseif alignx == -1 then
+            elseif alignx == 1 then
                 inPosition_3f.x = inPosition_3f.x - text_dimension.x
             end
 
             if aligny == 0 then
-                inPosition_3f.y = inPosition_3f.y + text_dimension.y / 2
-            elseif aligny == -1 then
                 inPosition_3f.y = inPosition_3f.y - text_dimension.y / 2
+            elseif aligny == 1 then
+                inPosition_3f.y = inPosition_3f.y - text_dimension.y
             end
 
             if inText then
@@ -419,7 +419,13 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             end
         end
         Button.Update = function(self, inPosition_3f, inDimension_3f)
-            Button.mDepthValue = math.int(inPosition_3f.z)
+            local new = math.int(inPosition_3f.z)
+            if new ~= Button.mDepthValue then
+                e:RemoveBoundedRect(Button.mId, Button.mDepthValue)
+                Button.mId = e:SetBoundedRect(vec2(inPosition_3f.x, inPosition_3f.y),
+                    vec2(inDimension_3f.x, inDimension_3f.y), new)
+                Button.mDepthValue = new
+            end
             e:UpdateBoundedRect(Button.mId, vec2(inPosition_3f.x, inPosition_3f.y),
                 vec2(inDimension_3f.x, inDimension_3f.y), Button.mDepthValue)
         end

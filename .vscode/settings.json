@@ -115,6 +115,9 @@
         "editor.wordBasedSuggestions": "allDocuments",
         "editor.suggest.insertMode": "replace",
         "editor.semanticHighlighting.enabled": true,
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true
     },
     "[lua]": {
         "editor.quickSuggestions": {
@@ -245,4 +248,5 @@
         "xtree": "cpp",
         "xutility": "cpp"
     },
+    "C_Cpp.clang_format_style": ".clang-format",
 }
