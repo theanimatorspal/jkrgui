@@ -3,6 +3,100 @@
 <p align="center"><b>Platform Support:</b> Windows ✅ | Android ✅ | macOS ✅</p>
 
 ---
+## 🛠️ Building JkrGUI from Source
+
+Follow these steps to build the JkrGUI engine on your platform. If it breaks, it’s probably your fault (or Vulkan’s).
+
+### 🔧 Step 1: Install Vulkan SDK
+
+1. Go to [https://vulkan.lunarg.com/sdk/home](https://vulkan.lunarg.com/sdk/home)
+2. Download and install the Vulkan SDK for your OS (Windows/macOS/Linux)
+3. Make sure the `VULKAN_SDK` environment variable is set correctly  
+   (e.g., `C:/VulkanSDK/1.3.275.0`)
+
+---
+
+### 🌀 Step 2: Clone the Repo
+
+```bash
+git clone https://github.com/theanimatorspal/jkrgui.git
+cd jkrgui
+```
+
+---
+
+### 📄 Step 3: Configure with `CMakeConfig.cmake`
+
+Create a file named `CMakeConfig.cmake` inside the `jkrgui/` folder with the following content:
+
+```cmake
+set(CMAKE_JKRGUI_DIR <path-to-jkrgui-folder>)
+set(VULKAN_SDK <path-to-vulkan-sdk>)
+set(VULKAN_VERSION <vulkan-version>)
+```
+
+**Example**:
+
+```cmake
+set(CMAKE_JKRGUI_DIR D:/Projects/jkrgui)
+set(VULKAN_SDK C:/VulkanSDK/1.3.275.0)
+set(VULKAN_VERSION 1.3.275.0)
+```
+
+---
+
+### 🧱 Step 4: Build with CMake
+
+#### 🪟 Windows (Visual Studio):
+
+```bash
+cmake -B out/build/VS -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=Release
+cmake --build out/build/VS --config Release
+```
+
+#### 🍎 macOS (Ninja):
+
+```bash
+brew install ninja
+cmake -B out/build/Ninja -G Ninja -DCMAKE_BUILD_TYPE=Release
+```
+
+#### 🤖 Android (with NDK):
+
+1. Install the Android NDK (via Android Studio or command line)
+2. Set the `ANDROID_NDK_HOME` environment variable
+3. Then run:
+
+```bash
+cmake -B out/build/Android \
+  -DCMAKE_TOOLCHAIN_FILE=%ANDROID_NDK_HOME%/build/cmake/android.toolchain.cmake \
+  -DANDROID_ABI=arm64-v8a \
+  -DANDROID_PLATFORM=android-24 \
+  -DCMAKE_BUILD_TYPE=Release
+```
+
+---
+
+### 🧩 Step 5: Final Setup
+
+After compiling, find your built executable here:
+
+```
+out/build/<Preset>/jkrgui/jkrgui(.exe on Windows)
+```
+
+If you want to run `jkrgui` globally from any terminal:
+
+- **Windows:** Add the path to your Environment Variables → `PATH`
+- **macOS/Linux:** Add it to your `.bashrc`, `.zshrc`, or equivalent shell config
+
+```bash
+export PATH=$PATH:/your/path/to/jkrgui
+```
+
+> 💡 Pro Tip: If something goes wrong, blame the SDK, not the code.
+
+
 
 ## 🚀 Projects Built with JkrGUI
 
@@ -40,3 +134,6 @@ A simple test project used to evaluate frame presentation, rendering loop perfor
 
 > 🧠 <b>Want to contribute or build your own game or visualizer?</b>  
 Explore the source code, fork the repo, and start building with Vulkan-powered graphics for Lua and C++!
+
+---
+
