@@ -60,7 +60,7 @@ ID
 LOCATION
 SIZE_OF_ID
 ID
-LOCATION
+LOCATIO
 SIZE_OF_ID
 ----------------------
 "HEADER_END" -> IdSize bytes
