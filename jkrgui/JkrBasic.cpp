@@ -4,10 +4,101 @@
 #include "Renderers/ThreeD/Uniform3D.hpp"
 #include "Renderers/ThreeD/World3D.hpp"
 #include "Window.hpp"
+#include "TinyGLTF/json.hpp"
 
 namespace JkrEXE {
 using namespace std;
 using namespace Jkr;
+using json = nlohmann::json;
+
+template <typename T> std::string dump_value(const T &value) {
+      if constexpr (std::is_same_v<T, std::string>) {
+            return value;
+      } else if constexpr (std::is_same_v<T, bool>) {
+            return value ? "true" : "false";
+      } else if constexpr (std::is_arithmetic_v<T>) {
+            return std::to_string(value);
+      } else {
+            return "<unsupported-type>";
+      }
+}
+
+template <> std::string dump_value<glm::vec4>(const glm::vec4 &vec) {
+      return std::format("{:.3f}, {:.3f}, {:.3f}, {:.3f}", vec.x, vec.y, vec.z, vec.w);
+}
+
+template <> std::string dump_value<glm::vec2>(const glm::vec2 &vec) {
+      return std::format("{:.3f}, {:.3f}", vec.x, vec.y);
+}
+
+template <> std::string dump_value<glm::vec3>(const glm::vec3 &vec) {
+      return std::format("{:.3f}, {:.3f}, {:.3f}", vec.x, vec.y, vec.z);
+}
+
+template <> std::string dump_value<glm::mat4>(const glm::mat4 &mat) {
+      std::string s;
+      for (int row = 0; row < 4; ++row) {
+            s += std::format("[{:.3f}, {:.3f}, {:.3f}, {:.3f}]",
+                             mat[row][0],
+                             mat[row][1],
+                             mat[row][2],
+                             mat[row][3]);
+            if (row < 3) s += ", ";
+      }
+      return s;
+}
+
+template <typename... Ts> std::string try_sol_cast(sol::object obj) {
+      std::string result = "<unknown>";
+      (..., (obj.is<Ts>() ? result = dump_value(obj.as<Ts>()) : void()));
+      return result;
+}
+
+json dump_table(const sol::table &table);
+
+json dump_object(const sol::object &obj) {
+      if (obj.is<sol::table>()) {
+            return dump_table(obj.as<sol::table>());
+      } else if (obj.is<std::string>()) {
+            return obj.as<std::string>();
+      } else if (obj.is<double>()) {
+            return obj.as<double>();
+      } else if (obj.is<bool>()) {
+            return obj.as<bool>();
+      } else if (obj.is<glm::vec2>()) {
+            return dump_value(obj.as<glm::vec2>());
+      } else if (obj.is<glm::vec3>()) {
+            return dump_value(obj.as<glm::vec3>());
+      } else if (obj.is<glm::vec4>()) {
+            return dump_value(obj.as<glm::vec4>());
+      } else if (obj.is<glm::mat4>()) {
+            return dump_value(obj.as<glm::mat4>());
+      }
+      return "<unknown>";
+}
+
+json dump_table(const sol::table &table) {
+      json j;
+
+      for (auto &kv : table) {
+            sol::object key   = kv.first;
+            sol::object value = kv.second;
+
+            std::string k;
+            if (key.is<std::string>()) {
+                  k = key.as<std::string>();
+            } else if (key.is<double>()) {
+                  k = std::to_string(key.as<double>());
+            } else {
+                  k = "<non-printable-key>";
+            }
+
+            j[k] = dump_object(value);
+      }
+
+      return j;
+}
+
 void CreateBasicBindings(sol::state &s) {
       auto Jkr = s["Jkr"].get_or_create<sol::table>();
       Jkr.new_usertype<Jkr::Instance>(
@@ -268,6 +359,47 @@ void CreateBasicBindings(sol::state &s) {
                                string(inFragmentShader),
                                string(inComputeShader));
            });
-}
 
+      Jkr.set_function("__breakpoint", [](sol::this_state s, int bp_id) {
+            sol::state_view lua(s);
+            sol::table debug = lua["debug"];
+
+            json dump;
+            dump["breakpoint"] = bp_id;
+            dump["stack"]      = json::array();
+
+            int level          = 1;
+            while (true) {
+                  sol::object info_obj = debug["getinfo"](level, "nSl");
+                  if (!info_obj.valid()) break;
+
+                  sol::table info = info_obj;
+                  json frame;
+
+                  frame["level"]  = level;
+                  frame["func"]   = info.get_or("name", std::string("unknown"));
+                  frame["source"] = info.get_or("short_src", std::string("??"));
+                  frame["line"]   = info.get_or("currentline", -1);
+                  frame["locals"] = json::object();
+
+                  int i           = 1;
+                  while (true) {
+                        sol::object name_obj = debug["getlocal"](info, i);
+                        if (!name_obj.valid()) break;
+
+                        std::string var_name      = name_obj.as<std::string>();
+                        sol::object var_value     = debug["getlocal"](info, i + 1);
+
+                        frame["locals"][var_name] = dump_object(var_value);
+
+                        i += 2;
+                  }
+
+                  dump["stack"].push_back(frame);
+                  ++level;
+            }
+
+            std::cout << std::setw(4) << dump << "\n";
+      });
+}
 } // namespace JkrEXE

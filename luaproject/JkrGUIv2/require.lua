@@ -987,6 +987,12 @@ function table.Produce(infunc, intimes)
     return t
 end
 
+function table.Operate(inTable, inFunc, inFrom, intimes)
+    for i = inFrom or 1, intimes or #inTable do
+        inFunc(inTable[i], i)
+    end
+end
+
 function table.Map(func, tbl)
     local result = {}
     for i, v in ipairs(tbl) do
@@ -1064,4 +1070,121 @@ function table.Some(tbl, pred)
         if pred(v, i) then return true end
     end
     return false
+end
+
+function string.ParseCSV(csv_string, delimiter)
+    delimiter = delimiter or ","
+    local result = {}
+
+    for line in csv_string:gmatch("[^\r\n]+") do
+        local row = {}
+        for cell in line:gmatch("([^" .. delimiter .. "]+)") do
+            table.insert(row, cell)
+        end
+        table.insert(result, row)
+    end
+
+    return result
+end
+
+file = {}
+
+function file.ReadAsString(path)
+    local f = assert(io.open(path, "r"))
+    local content = f:read("*a")
+    f:close()
+    return content
+end
+
+function file.ReadLines(path)
+    local lines = {}
+    for line in io.lines(path) do
+        table.insert(lines, line)
+    end
+    return lines
+end
+
+function file.EachLine(path, callback)
+    for line in io.lines(path) do
+        callback(line)
+    end
+end
+
+function file.Write(path, content)
+    local f = assert(io.open(path, "w"))
+    f:write(content)
+    f:close()
+end
+
+function file.Append(path, content)
+    local f = assert(io.open(path, "a"))
+    f:write(content)
+    f:close()
+end
+
+function file.WriteLines(path, lines)
+    local f = assert(io.open(path, "w"))
+    for _, line in ipairs(lines) do
+        f:write(line .. "\n")
+    end
+    f:close()
+end
+
+function file.Clear(path)
+    local f = assert(io.open(path, "w"))
+    f:close()
+end
+
+function file.Exists(path)
+    local f = io.open(path, "r")
+    if f then
+        f:close()
+        return true
+    end
+    return false
+end
+
+function file.LineCount(path)
+    local count = 0
+    for _ in io.lines(path) do
+        count = count + 1
+    end
+    return count
+end
+
+function file.ReadCSV(path, delimiter)
+    delimiter = delimiter or ","
+    local result = {}
+    for line in io.lines(path) do
+        local row = {}
+        for cell in line:gmatch("([^" .. delimiter .. "]+)") do
+            table.insert(row, cell)
+        end
+        table.insert(result, row)
+    end
+    return result
+end
+
+function file.TryRead(path)
+    local ok, res = pcall(file.ReadAsString, path)
+    return ok and res or nil
+end
+
+function file.ReadKeyValue(path)
+    local kv = {}
+    for line in io.lines(path) do
+        local k, v = line:match("^(.-)=(.*)$")
+        if k and v then
+            kv[k:match("^%s*(.-)%s*$")] = v:match("^%s*(.-)%s*$")
+        end
+    end
+    return kv
+end
+
+function file.DumpTable(path, tbl)
+    local f = assert(io.open(path, "w"))
+    for k, v in pairs(tbl) do
+        f:write(tostring(k) .. "=" .. tostring(v) .. "\n")
+    end
+    f:close()
 end

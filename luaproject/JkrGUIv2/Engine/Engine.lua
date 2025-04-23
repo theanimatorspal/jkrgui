@@ -972,7 +972,7 @@ Engine.GameFramework = function(inf)
                 v.imgp,
                 v.matrix
             )
-            Value:Update(v.p, v.d)
+            Value:Update(v.p, v.d, v.f, v.t, v.c, v.bc, nil, v.matrix)
             if v.en then
                 f.els[v.en] = Value
             end

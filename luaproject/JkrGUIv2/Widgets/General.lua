@@ -4,8 +4,44 @@ require "JkrGUIv2.Engine.Shader"
 local CompileShaders
 
 function CR(inComponents)
-    local each = 1 / #inComponents
-    return table.Produce(function() return each end, #inComponents)
+    if type(inComponents) == "number" then
+        local each = 1 / inComponents
+        return table.Produce(function() return each end, inComponents)
+    elseif type(inComponents) == "table" then
+        local totalFixed = 0
+        local panCount = 0
+        local result = {}
+
+        local has_pans = false
+        for _, v in ipairs(inComponents) do
+            if type(v) == "number" then
+                totalFixed = totalFixed + v
+            elseif type(v) == "string" and v == "pan" then
+                panCount = panCount + 1
+                has_pans = true
+            end
+        end
+
+        if not has_pans then
+            local each = 1 / #inComponents
+            return table.Produce(function() return each end, #inComponents)
+        end
+
+        local remaining = 1 - totalFixed
+        local eachPan = panCount > 0 and remaining / panCount or 0
+
+        for _, v in ipairs(inComponents) do
+            if type(v) == "number" then
+                table.insert(result, v)
+            elseif v == "pan" then
+                table.insert(result, eachPan)
+            end
+        end
+
+        return result
+    else
+        error("CR: Invalid input type - must be table or number")
+    end
 end
 
 function V(inComponents, inComponentsRatio)
@@ -477,10 +513,10 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         return tp
     end
 
-    o.CreateTable = function(inPosition_3f, inDimension_3f, inElementProducer, inDisplayRowCount, inDisplayColCount)
+    o.CreateDisplayTable = function(inPosition_3f, inDimension_3f, inElementProducer, inDisplayRowCount,
+                                    inDisplayColCount)
         inDisplayColCount = inDisplayColCount or 3
         inDisplayRowCount = inDisplayRowCount or 5
-        local rand = math.random(10000000)
         if not inElementProducer then
             Engine.log("Element Producer function(row, column, text) not supplied", "ERROR")
         end
@@ -501,19 +537,21 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         end
         vlayout = V(hlayouts, CR(hlayouts))
 
-        tb.data = {}
-        tb.Update = function(inPosition_3f, inDimension_3f, inData, inRowOffset)
+        tb.data = nil
+        tb.Update = function(self, inPosition_3f, inDimension_3f, inData, inRowOffset)
             tb.data = inData or tb.data or sampledata
+            inRowOffset = inRowOffset or 0
+            local tb_length = #tb.data
             for row = 1, inDisplayRowCount do
                 local columns = {}
                 for column = 1, inDisplayColCount do
                     local text = ""
-                    local actualRow = (#inData - 1) % inDisplayRowCount
-                    if row <= actualRow then
-                        text = string.format(inData[1][column], inData[row][column])
+                    local actualRow = math.floor(tb_length / inDisplayRowCount) + inRowOffset + row + 1
+                    if actualRow <= inDisplayRowCount and tb.data[actualRow] then
+                        text = string.format(tb.data[1][column], tb.data[actualRow][column])
                         columns[column] = inElementProducer(row, column, text)
                     else
-                        columns[column] = inElementProducer(row, column)
+                        columns[column] = inElementProducer(row, column, " ")
                     end
                 end
                 hlayouts[row] = H(columns, CR(columns))
