@@ -2,47 +2,51 @@ require "JkrGUIv2.Widgets.Basic"
 require "JkrGUIv2.Engine.Shader"
 
 local CompileShaders
-function Jkr.GetLayoutsAsVH()
-    function V(inComponents, inComponentsRatio)
-        if not inComponents and not inComponentsRatio then
-            return Jkr.VLayout:New()
-        else
-            local v = Jkr.VLayout:New()
-            v:Add(inComponents, inComponentsRatio)
-            return v
-        end
-    end
 
-    function H(inComponents, inComponentsRatio)
-        if not inComponents and not inComponentsRatio then
-            return Jkr.HLayout:New()
-        else
-            local h = Jkr.HLayout:New()
-            h:Add(inComponents, inComponentsRatio)
-            return h
-        end
-    end
-
-    function S(inComponents, inDeltaZ)
-        inDeltaZ = inDeltaZ or 5
-        if not inComponents then
-            return Jkr.StackLayout:New(inDeltaZ)
-        else
-            local h = Jkr.StackLayout:New(inDeltaZ)
-            h:Add(inComponents)
-            return h
-        end
-    end
-
-    -- function U(inValue)
-    --     if not inValue then inValue = {} end
-    --     inValue.Update = function(self, inPosition_3f, inDimension_3f)
-    --         inValue.d = vec3(inDimension_3f)
-    --         inValue.p = vec3(inPosition_3f)
-    --     end
-    --     return inValue
-    -- end
+function CR(inComponents)
+    local each = 1 / #inComponents
+    return table.Produce(function() return each end, #inComponents)
 end
+
+function V(inComponents, inComponentsRatio)
+    if not inComponents and not inComponentsRatio then
+        return Jkr.VLayout:New()
+    else
+        local v = Jkr.VLayout:New()
+        v:Add(inComponents, inComponentsRatio)
+        return v
+    end
+end
+
+function H(inComponents, inComponentsRatio)
+    if not inComponents and not inComponentsRatio then
+        return Jkr.HLayout:New()
+    else
+        local h = Jkr.HLayout:New()
+        h:Add(inComponents, inComponentsRatio)
+        return h
+    end
+end
+
+function S(inComponents, inDeltaZ)
+    inDeltaZ = inDeltaZ or 5
+    if not inComponents then
+        return Jkr.StackLayout:New(inDeltaZ)
+    else
+        local h = Jkr.StackLayout:New(inDeltaZ)
+        h:Add(inComponents)
+        return h
+    end
+end
+
+-- function U(inValue)
+--     if not inValue then inValue = {} end
+--     inValue.Update = function(self, inPosition_3f, inDimension_3f)
+--         inValue.d = vec3(inDimension_3f)
+--         inValue.p = vec3(inPosition_3f)
+--     end
+--     return inValue
+-- end
 
 Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
     local o = {}
@@ -472,6 +476,54 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
 
         return tp
     end
+
+    o.CreateTable = function(inPosition_3f, inDimension_3f, inElementProducer, inDisplayRowCount, inDisplayColCount)
+        inDisplayColCount = inDisplayColCount or 3
+        inDisplayRowCount = inDisplayRowCount or 5
+        local rand = math.random(10000000)
+        if not inElementProducer then
+            Engine.log("Element Producer function(row, column, text) not supplied", "ERROR")
+        end
+        local tb = {}
+        local sampledata = {
+            { "%d", "%s",   "%.2f" },
+            { 1,    "Shit", 425.312 },
+            { 2,    "Fuck", 315.3125 },
+        }
+        local hlayouts = {}
+        local vlayout
+        for row = 1, inDisplayRowCount do
+            local columns = {}
+            for column = 1, inDisplayColCount do
+                columns[column] = inElementProducer(row, column, "")
+            end
+            hlayouts[row] = H(columns, CR(columns))
+        end
+        vlayout = V(hlayouts, CR(hlayouts))
+
+        tb.data = {}
+        tb.Update = function(inPosition_3f, inDimension_3f, inData, inRowOffset)
+            tb.data = inData or tb.data or sampledata
+            for row = 1, inDisplayRowCount do
+                local columns = {}
+                for column = 1, inDisplayColCount do
+                    local text = ""
+                    local actualRow = (#inData - 1) % inDisplayRowCount
+                    if row <= actualRow then
+                        text = string.format(inData[1][column], inData[row][column])
+                        columns[column] = inElementProducer(row, column, text)
+                    else
+                        columns[column] = inElementProducer(row, column)
+                    end
+                end
+                hlayouts[row] = H(columns, CR(columns))
+            end
+            vlayout = V(hlayouts, CR(hlayouts))
+            vlayout:Update(inPosition_3f, inDimension_3f)
+        end
+        return tb
+    end
+
     local alerp = function(a, b, t)
         return (a * (1 - t) + t * b) * (1 - t) + b * t
     end

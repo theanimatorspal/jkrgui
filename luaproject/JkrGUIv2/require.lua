@@ -962,7 +962,7 @@ Jmath.GetLerps = function(inType)
             )
         end
     end
-    return lerp, lerp_2f, lerp_3f, lerp_4f, lerp_mat4f
+    return { lerp = lerp, lerp_2f = lerp_2f, lerp_3f = lerp_3f, lerp_4f = lerp_4f, lerp_mat4f = lerp_mat4f }
 end
 
 function Default(inTable, def)
@@ -977,4 +977,91 @@ function Default(inTable, def)
         end
         return inTable or def
     end
+end
+
+function table.Produce(infunc, intimes)
+    local t = {}
+    for i = 1, intimes do
+        t[i] = infunc(i)
+    end
+    return t
+end
+
+function table.Map(func, tbl)
+    local result = {}
+    for i, v in ipairs(tbl) do
+        result[i] = func(v, i)
+    end
+    return result
+end
+
+function table.Filter(func, tbl)
+    local result = {}
+    for i, v in ipairs(tbl) do
+        if func(v, i) then
+            table.insert(result, v)
+        end
+    end
+    return result
+end
+
+function table.Reduce(func, tbl, init)
+    local acc = init or tbl[1]
+    local start = init and 1 or 2
+    for i = start, #tbl do
+        acc = func(acc, tbl[i], i)
+    end
+    return acc
+end
+
+function table.Zip(t1, t2)
+    local result = {}
+    for i = 1, math.min(#t1, #t2) do
+        result[i] = { t1[i], t2[i] }
+    end
+    return result
+end
+
+function table.Range(a, b)
+    local t = {}
+    for i = a, b do
+        table.insert(t, i)
+    end
+    return t
+end
+
+function table.Clone(t)
+    local r = {}
+    for k, v in pairs(t) do
+        r[k] = v
+    end
+    return r
+end
+
+function table.Merge(t1, t2)
+    local t = table.Clone(t1)
+    for k, v in pairs(t2) do
+        t[k] = v
+    end
+    return t
+end
+
+function table.Find(tbl, pred)
+    for i, v in ipairs(tbl) do
+        if pred(v, i) then return v end
+    end
+end
+
+function table.Every(tbl, pred)
+    for i, v in ipairs(tbl) do
+        if not pred(v, i) then return false end
+    end
+    return true
+end
+
+function table.Some(tbl, pred)
+    for i, v in ipairs(tbl) do
+        if pred(v, i) then return true end
+    end
+    return false
 end

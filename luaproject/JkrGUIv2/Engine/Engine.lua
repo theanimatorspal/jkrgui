@@ -732,7 +732,6 @@ Engine.GameFramework = function(inf)
     local f = inf or {}
     f.GetResource = Engine.GetResource
     Engine:Load(f.validation)
-    Jkr.GetLayoutsAsVH()
     f.els = {}                       -- 2D elements
     f.run = true
     f.fd  = f.fd or vec2(800, 800)   -- frame dimenstion offscreen
@@ -959,7 +958,7 @@ Engine.GameFramework = function(inf)
             v.f = v.f or f.nf
             local dim = v.f:GetTextDimension(v.t or " ")
             v.d = v.d or vec3(dim.x + 5, dim.y + 5, 1)
-            local Value = f.wr.CreateGeneralButton(
+            local Value = f.els[v.en] or f.wr.CreateGeneralButton(
                 v.p,
                 v.d,
                 v.onclick,
