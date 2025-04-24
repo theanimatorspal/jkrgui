@@ -527,11 +527,6 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             Engine.log("Element Producer function(row, column, text) not supplied", "ERROR")
         end
         local tb = {}
-        local sampledata = {
-            { "%d", "%s",   "%.2f" },
-            { 1,    "Shit", 425.312 },
-            { 2,    "Fuck", 315.3125 },
-        }
         local hlayouts = {}
         local vlayout
         for row = 1, inDisplayRowCount do
@@ -543,19 +538,26 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         end
         vlayout = V(hlayouts, CR(hlayouts))
 
-        tb.data = nil
+        tb.data = {
+            { "%d", "%s",   "%.2f" },
+            { 1,    "Shit", 425.312 },
+            { 2,    "Fuck", 315.3125 },
+        }
         tb.Update = function(self, inP, inD, inData, inRowOffset)
             tb.mP = inP
             tb.mD = inD
-            tb.data = inData or tb.data or sampledata
+            tb.data = inData or tb.data
             inRowOffset = inRowOffset or 0
             local tb_length = #tb.data
             for row = 1, inDisplayRowCount do
                 local columns = {}
                 for column = 1, inDisplayColCount do
                     local text = ""
-                    local actualRow = math.floor(tb_length / inDisplayRowCount) + inRowOffset + row + 1
-                    if actualRow <= inDisplayRowCount and tb.data[actualRow] then
+                    local actualRow = inRowOffset + row + 1
+                    local offset = (actualRow - 1) % inDisplayRowCount
+                    if offset == 0 then offset = inDisplayRowCount end
+
+                    if offset == row and tb.data[actualRow] then
                         text = string.format(tb.data[1][column], tb.data[actualRow][column])
                         columns[column] = inElementProducer(row, column, text)
                     else
