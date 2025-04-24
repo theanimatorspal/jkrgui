@@ -64,15 +64,18 @@ using si                                     = int32_t;
 using sz                                     = size_t;
 using sc                                     = signed char;
 using uc                                     = unsigned char;
-using mtx = std::mutex;
-using randev = std::random_device;
-using rangen = std::mt19937;
+using mtx                                    = std::mutex;
+using randev                                 = std::random_device;
+using rangen                                 = std::mt19937;
 
 #define mu std::make_unique
 #define mv std::move
 #define mksh std::make_shared
 #define mkar std::to_array
 void Log(sv msg, sv type = "INFO");
+void SetLogCallBack(std::function<int(sv, sv, sv)> inCallBack);
+extern std::function<int(sv, sv, sv)> gksai_log_callback;
+
 } // namespace ksai
 
 #ifdef ANDROID
@@ -81,17 +84,17 @@ extern "C" int __android_log_print(int prio, const char *tag, const char *fmt, .
 
 template <typename... T> inline void ksai_print(std::string_view inT, T &&...t) {
 #ifdef ANDROID
-    __android_log_print(6, inT.data(), t...);
+      __android_log_print(6, inT.data(), t...);
 #else
-    printf(inT.data(), t...);
+      printf(inT.data(), t...);
 #endif // ANDROID
 }
 
 template <typename... T> inline void ksai_print(const char *inT, T &&...t) {
 #ifdef ANDROID
-    __android_log_print(6, inT, t...);
+      __android_log_print(6, inT, t...);
 #else
-    printf(inT, t...);
+      printf(inT, t...);
 #endif // ANDROID
 }
 
@@ -99,18 +102,18 @@ inline void ksai_print(const char *inT) { ksai_print("KSAI::%s", inT); }
 
 template <typename T> inline void ksai_print(T inT) {
 #ifdef ANDROID
-    __android_log_print(6, "KSAI::%s", "=================================");
-    if constexpr (std::is_same_v<T, ksai::s>) {
-        T t = inT;
-        __android_log_print(6, "KSAI::%s", t.c_str());
-    }
+      __android_log_print(6, "KSAI::%s", "=================================");
+      if constexpr (std::is_same_v<T, ksai::s>) {
+            T t = inT;
+            __android_log_print(6, "KSAI::%s", t.c_str());
+      }
 
-    if constexpr (std::is_same_v<T, ksai::sv>) {
-        T t = inT;
-        __android_log_print(6, "KSAI::%s", t.data());
-    }
+      if constexpr (std::is_same_v<T, ksai::sv>) {
+            T t = inT;
+            __android_log_print(6, "KSAI::%s", t.data());
+      }
 
 #else
-    std::cout << inT << "\n";
+      std::cout << inT << "\n";
 #endif // ANDROID
 }

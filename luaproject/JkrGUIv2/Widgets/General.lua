@@ -208,7 +208,9 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
 
         button.padding = 10
         button.UpdateBackgroundColor = function(self, inBackgroundColor)
-            push = inPushConstantForImagePainter or push
+            local push = Jkr.Matrix2CustomImagePainterPushConstant()
+            button.mColor = inBackgroundColor or vec4(1)
+            push.a = mat4(vec4(0.0), button.mColor, vec4(0.3), vec4(0.0))
             button.quad:Update(button.mPosition_3f, button.mDimension_3f, push);
             button.mColor = inBackgroundColor
         end
@@ -227,6 +229,10 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             button.quad:Update(inPosition_3f, inDimension_3f, push, inMatrix);
             if button.parent then
                 button.parent:Update(inPosition_3f, inDimension_3f)
+            end
+
+            if inBackgroundColor then
+                button:UpdateBackgroundColor(inBackgroundColor)
             end
 
             if not inImageFilePath and button.sampledText then

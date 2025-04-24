@@ -99,8 +99,18 @@ json dump_table(const sol::table &table) {
       return j;
 }
 
+static std::mutex log_mut;
 void CreateBasicBindings(sol::state &s) {
       auto Jkr = s["Jkr"].get_or_create<sol::table>();
+
+      Jkr.set_function("SetLogCallBack", [](sol::function inFunction) {
+            std::cout << "Log Call back set" << std::endl;
+            SetLogCallBack([=](sv inColor, sv inMessage, sv inType) {
+                  std::lock_guard<std::mutex> guard(log_mut);
+                  inFunction(inColor, inMessage, inType);
+                  return 22;
+            });
+      });
       Jkr.new_usertype<Jkr::Instance>(
            "Instance",
            sol::call_constructor,

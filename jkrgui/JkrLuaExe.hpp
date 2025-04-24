@@ -1,6 +1,10 @@
 ﻿#pragma once
+
+#ifdef _DEBUG
 #define SOL_PRINT_ERRORS 1
 #define SOL_ALL_SAFETIES_ON 1
+#endif
+
 #include "glm/glm.hpp"
 #include "ksai_config.hpp"
 #include <sol/sol.hpp>
