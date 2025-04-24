@@ -594,13 +594,13 @@ Jkr.CreateShapeRenderer = function(inInstance, inCompatibleWindow, inShapeRender
     o.handle = o.sr
 
     o.recycleBin = Jkr.RecycleBin()
-    o.Add = function(self, inGenerator, inPosition_3f)
+    o.Add = function(self, inGenerator, inP)
         if not self.recycleBin:IsEmpty() then
             local i = self.recycleBin:Get()
-            self.sr:Update(inGenerator, inPosition_3f)
+            self.sr:Update(inGenerator, inP)
             return i
         else
-            return self.sr:Add(inGenerator, inPosition_3f)
+            return self.sr:Add(inGenerator, inP)
         end
     end
 
@@ -616,8 +616,8 @@ Jkr.CreateShapeRenderer = function(inInstance, inCompatibleWindow, inShapeRender
         self.recycleBin:Add(inId)
     end
 
-    o.Update = function(self, inId, inGenerator, inPosition_3f)
-        self.sr:Update(inId, inGenerator, inPosition_3f.x, inPosition_3f.y, inPosition_3f.z) -- TODO Improve this
+    o.Update = function(self, inId, inGenerator, inP)
+        self.sr:Update(inId, inGenerator, inP.x, inP.y, inP.z) -- TODO Improve this
     end
     o.BindShapes = function(self, w, inCmdParam)
         self.sr:BindShapes(w, inCmdParam)
@@ -670,14 +670,14 @@ Jkr.CreateTextRendererBestTextAlt = function(inInstance, inShapeRenderer)
     o.AddFontFace = function(self, inFontFileName, inSize)
         return self.bt:AddFontFace(inFontFileName, inSize)
     end
-    o.Add = function(self, inFontId, inPosition_3f, inText)
-        return self.tr:Add(inFontId, inPosition_3f, inText)
+    o.Add = function(self, inFontId, inP, inText)
+        return self.tr:Add(inFontId, inP, inText)
     end
-    o.Update = function(self, inTextImageId, inFontId, inPosition_3f, inText)
-        self.tr:Update(inTextImageId, inFontId, inPosition_3f, inText)
+    o.Update = function(self, inTextImageId, inFontId, inP, inText)
+        self.tr:Update(inTextImageId, inFontId, inP, inText)
     end
-    o.UpdatePosOnly = function(self, inTextImageId, inFontId, inPosition_3f, inText)
-        self.tr:UpdatePosOnly(inTextImageId, inFontId, inPosition_3f, inText)
+    o.UpdatePosOnly = function(self, inTextImageId, inFontId, inP, inText)
+        self.tr:UpdatePosOnly(inTextImageId, inFontId, inP, inText)
     end
     o.Draw = function(self, inTextImageId, w, inColor, inMatrix, inCmdParam)
         self.tr:Draw(inTextImageId, w, inColor, inMatrix, inCmdParam)

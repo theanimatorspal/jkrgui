@@ -43,10 +43,10 @@ Jkr.CreateAnimationPosDimen = function(inCallBuffer, inFrom, inTo, inComponent, 
 
     local Frame = 1
     while t <= 1 do
-        local from_pos      = inFrom.mPosition_3f
-        local to_pos        = inTo.mPosition_3f
-        local from_dimen    = inFrom.mDimension_3f
-        local to_dimen      = inTo.mDimension_3f
+        local from_pos      = inFrom.mP
+        local to_pos        = inTo.mP
+        local from_dimen    = inFrom.mD
+        local to_dimen      = inTo.mD
         local current_pos   = glerp_3f(from_pos, to_pos, t)
         local current_dimen = glerp_3f(from_dimen, to_dimen, t)
         inCallBuffer:PushOneTime(Jkr.CreateUpdatable(

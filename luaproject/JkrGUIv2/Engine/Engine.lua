@@ -825,26 +825,26 @@ Engine.GameFramework = function(inf)
         o.b = b or Jmath.GetIdentityMatrix4x4()
         return o
     end
-    f.I                = function(inPosition_3f, inDimension_3f)
+    f.I                = function(inP, inD)
         local o = {}
         local p = f.PC()
         p.a = mat4(vec4(0), vec4(1), vec4(0.3), vec4(0.0))
-        o[1] = f.wr.CreateComputeImage(vec3(0), inDimension_3f)
-        o[2] = f.wr.CreateSampledImage(vec3(0), inDimension_3f)
-        o[3] = f.wr.CreateQuad(inPosition_3f, inDimension_3f, p, "showImage", o[2].mId)
+        o[1] = f.wr.CreateComputeImage(vec3(0), inD)
+        o[2] = f.wr.CreateSampledImage(vec3(0), inD)
+        o[3] = f.wr.CreateQuad(inP, inD, p, "showImage", o[2].mId)
         o[1].RegisterPainter(f.painters.line)
 
         o.Bind = function(inPainter)
             inPainter:Bind(f.w, Jkr.CmdParam.None)
             inPainter:BindImageFromImage(f.w, o[1], Jkr.CmdParam.None)
         end
-        o.Update = function(inPosition_3f, inDimension_3f)
-            o[3]:Update(inPosition_3f, inDimension_3f)
+        o.Update = function(inP, inD)
+            o[3]:Update(inP, inD)
         end
 
         local copied
         o.Draw = function(inPainter, inPC)
-            inPainter:Draw(f.w, inPC, math.ceil(inDimension_3f.x / 16.0), math.ceil(inDimension_3f.y / 16.0), 1,
+            inPainter:Draw(f.w, inPC, math.ceil(inD.x / 16.0), math.ceil(inD.y / 16.0), 1,
                 Jkr.CmdParam.None)
             copied = false
         end
@@ -852,10 +852,10 @@ Engine.GameFramework = function(inf)
             f.painters.line:Bind(f.w, Jkr.CmdParam.None)
             f.painters.line:BindImageFromImage(f.w, o[1], Jkr.CmdParam.None)
             inv_t = inv_t or 4
-            local line1 = vec4(0, 0, inDimension_3f.x, 0)
-            local line2 = vec4(0, 0, 0, inDimension_3f.y)
-            local line3 = vec4(inDimension_3f.x, 0, inDimension_3f.x, inDimension_3f.y)
-            local line4 = vec4(0, inDimension_3f.y, inDimension_3f.x, inDimension_3f.y)
+            local line1 = vec4(0, 0, inD.x, 0)
+            local line2 = vec4(0, 0, 0, inD.y)
+            local line3 = vec4(inD.x, 0, inD.x, inD.y)
+            local line4 = vec4(0, inD.y, inD.x, inD.y)
             local color = vec4(1, 0, 0, 1)
             local thickness = vec4(inv_t, 0, 0, 0)
             o.Draw(f.painters.line, f.PC(mat4(line1, color, thickness, vec4(0))))

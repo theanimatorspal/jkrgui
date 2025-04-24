@@ -77,9 +77,9 @@ end
 
 -- function U(inValue)
 --     if not inValue then inValue = {} end
---     inValue.Update = function(self, inPosition_3f, inDimension_3f)
---         inValue.d = vec3(inDimension_3f)
---         inValue.p = vec3(inPosition_3f)
+--     inValue.Update = function(self, inP, inD)
+--         inValue.d = vec3(inD)
+--         inValue.p = vec3(inP)
 --     end
 --     return inValue
 -- end
@@ -154,8 +154,8 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         return rrec
     end
 
-    o.CreateGeneralButton = function(inPosition_3f,
-                                     inDimension_3f,
+    o.CreateGeneralButton = function(inP,
+                                     inD,
                                      inOnClickFunction,
                                      inContinous,
                                      inFont,
@@ -174,26 +174,26 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
 
         if not inImageFilePath then
             if not inPushConstantForImagePainter then
-                button.quad = o.CreateQuad(inPosition_3f, inDimension_3f, push, "showImage", op.sampledImage.mId,
+                button.quad = o.CreateQuad(inP, inD, push, "showImage", op.sampledImage.mId,
                     inMatrix)
             else
                 button.customrec = CreateCustomRoundedRectangle(inPushConstantForImagePainter)
-                button.quad = o.CreateQuad(inPosition_3f, inDimension_3f, push, "showImage",
+                button.quad = o.CreateQuad(inP, inD, push, "showImage",
                     button.customrec.sampledImage2.mId,
                     inMatrix)
             end
         else
             button.sampledImage = o.CreateSampledImage(vec3(math.huge), vec3(100, 100, 1), inImageFilePath, true, vec4(1))
-            button.quad = o.CreateQuad(inPosition_3f, inDimension_3f, push, "showImage", button.sampledImage.mId)
+            button.quad = o.CreateQuad(inP, inD, push, "showImage", button.sampledImage.mId)
         end
 
-        if inDimension_3f.x == 0 or inDimension_3f.y == 0 then
-            button.shouldUpdateByDimension = vec3(inDimension_3f.x, inDimension_3f.y, inDimension_3f.z)
-            inDimension_3f = vec3(100, 100, 1)
+        if inD.x == 0 or inD.y == 0 then
+            button.shouldUpdateByDimension = vec3(inD.x, inD.y, inD.z)
+            inD = vec3(100, 100, 1)
         end
 
         if type(inOnClickFunction) == "function" then
-            button.parent = o.CreateButton(inPosition_3f, inDimension_3f, inOnClickFunction, inContinous)
+            button.parent = o.CreateButton(inP, inD, inOnClickFunction, inContinous)
             setmetatable(button, button.parent)
             button.__index = button.parent
         end
@@ -203,7 +203,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         end
 
         if not inImageFilePath and inFont and inText then
-            button.sampledText = o.CreateTextLabel(inPosition_3f, inDimension_3f, inFont, inText, inColor)
+            button.sampledText = o.CreateTextLabel(inP, inD, inFont, inText, inColor)
         end
 
         button.padding = 10
@@ -211,24 +211,24 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             local push = Jkr.Matrix2CustomImagePainterPushConstant()
             button.mColor = inBackgroundColor or vec4(1)
             push.a = mat4(vec4(0.0), button.mColor, vec4(0.3), vec4(0.0))
-            button.quad:Update(button.mPosition_3f, button.mDimension_3f, push);
+            button.quad:Update(button.mP, button.mD, push);
             button.mColor = inBackgroundColor
         end
         ---@warning Bad Design, Fix in Refactoring
         button.Update = function(self,
-                                 inPosition_3f,
-                                 inDimension_3f,
+                                 inP,
+                                 inD,
                                  inFont,
                                  inText,
                                  inColor,
                                  inBackgroundColor,
                                  inTextOreintation, inMatrix)
-            button.mPosition_3f = inPosition_3f
-            button.mDimension_3f = inDimension_3f
+            button.mP = inP
+            button.mD = inD
 
-            button.quad:Update(inPosition_3f, inDimension_3f, push, inMatrix);
+            button.quad:Update(inP, inD, push, inMatrix);
             if button.parent then
-                button.parent:Update(inPosition_3f, inDimension_3f)
+                button.parent:Update(inP, inD)
             end
 
             if inBackgroundColor then
@@ -239,25 +239,25 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                 local DelDim = vec3(0, 0, 0)
                 local fontDim = button.sampledText.mFont:GetTextDimension(inText or Copy(button.sampledText.mText) or
                     " ")
-                DelDim = vec3((inDimension_3f.x - fontDim.x) / 2, (inDimension_3f.y - fontDim.y) / 2, 0)
+                DelDim = vec3((inD.x - fontDim.x) / 2, (inD.y - fontDim.y) / 2, 0)
                 local substr = Copy(inText)
                 while DelDim.x < 0.0 and substr do
                     substr = string.sub(substr, 1, #substr - 1)
                     fontDim = button.sampledText.mFont:GetTextDimension(substr)
-                    DelDim = vec3((inDimension_3f.x - fontDim.x) / 2, (inDimension_3f.y - fontDim.y) / 2, 0)
+                    DelDim = vec3((inD.x - fontDim.x) / 2, (inD.y - fontDim.y) / 2, 0)
                 end
-                button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, substr, inColor, inMatrix)
+                button.sampledText:Update(inP + DelDim, inD, inFont, substr, inColor, inMatrix)
 
                 if inTextOreintation then
                     if inTextOreintation == "LEFT" then
                         DelDim.x = button.padding
-                        button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, substr, inColor,
+                        button.sampledText:Update(inP + DelDim, inD, inFont, substr, inColor,
                             inMatrix)
                     end
                     if inTextOreintation == "RIGHT" then
-                        DelDim.x = inPosition_3f.x - fontDim.x - button.padding
-                        DelDim.x = inPosition_3f.x
-                        button.sampledText:Update(inPosition_3f + DelDim, inDimension_3f, inFont, substr, inColor,
+                        DelDim.x = inP.x - fontDim.x - button.padding
+                        DelDim.x = inP.x
+                        button.sampledText:Update(inP + DelDim, inD, inFont, substr, inColor,
                             inMatrix)
                     end
                 end
@@ -269,24 +269,24 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         end
 
         if button.shouldUpdateByDimension then
-            button:Update(inPosition_3f, button.shouldUpdateByDimension)
+            button:Update(inP, button.shouldUpdateByDimension)
         end
 
         return button
     end
 
-    o.CreateSlider = function(inPosition_3f, inDimension_3f, inRangeStart, inRangeEnd, inDefaultValue, inStep)
+    o.CreateSlider = function(inP, inD, inRangeStart, inRangeEnd, inDefaultValue, inStep)
         local slider = {}
         local z_difference = 10
-        local knob = o.CreateGeneralButton(vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z - z_difference),
-            inDimension_3f)
-        local background = o.CreateGeneralButton(inPosition_3f, inDimension_3f)
-        local knob_button = o.CreateButton(vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z - z_difference),
-            inDimension_3f)
+        local knob = o.CreateGeneralButton(vec3(inP.x, inP.y, inP.z - z_difference),
+            inD)
+        local background = o.CreateGeneralButton(inP, inD)
+        local knob_button = o.CreateButton(vec3(inP.x, inP.y, inP.z - z_difference),
+            inD)
         slider.range_start = inRangeStart
         slider.range_end = inRangeEnd
         slider.current_value = inDefaultValue
-        slider.knob_width = 0.1 * inDimension_3f.x
+        slider.knob_width = 0.1 * inD.x
         slider.knob_height_offset = 5
         slider.knob_color = vec4(0.5)
         slider.step = inStep
@@ -296,21 +296,21 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         local current_pos, current_dim, knob_pos, knob_dim,
         background_pos, background_dim, normalized_pos
 
-        slider.Update = function(self, inPosition_3f, inDimension_3f, inValue)
-            current_pos, current_dim = inPosition_3f, inDimension_3f
+        slider.Update = function(self, inP, inD, inValue)
+            current_pos, current_dim = inP, inD
             if not inValue then inValue = slider.current_value else slider.current_value = inValue end
             normalized_pos = (slider.current_value - slider.range_start) / (slider.range_end - slider.range_start)
             knob_pos = vec3(
-                -slider.knob_width / 2 + Jmath.Lerp(inPosition_3f.x,
-                    inPosition_3f.x + inDimension_3f.x,
+                -slider.knob_width / 2 + Jmath.Lerp(inP.x,
+                    inP.x + inD.x,
                     normalized_pos),
-                inPosition_3f.y - slider.knob_height_offset,
-                inPosition_3f.z - z_difference
+                inP.y - slider.knob_height_offset,
+                inP.z - z_difference
             )
-            knob_dim = vec3(slider.knob_width, inDimension_3f.y + slider.knob_height_offset * 2,
-                inDimension_3f.z)
-            background_pos = inPosition_3f
-            background_dim = inDimension_3f
+            knob_dim = vec3(slider.knob_width, inD.y + slider.knob_height_offset * 2,
+                inD.z)
+            background_pos = inP
+            background_dim = inD
 
             knob:Update(knob_pos, knob_dim, nil, nil, nil, slider.knob_color)
             background:Update(background_pos, background_dim)
@@ -337,20 +337,20 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             end
         end), o.mCurrentScissor)
 
-        slider:Update(inPosition_3f, inDimension_3f, inDefaultValue)
+        slider:Update(inP, inD, inDefaultValue)
         return slider
     end
 
 
-    o.CreateWindowScissor = function(inPosition_3f, inDimension_3f, inFont, inTitle, inTitlebarTextColor,
+    o.CreateWindowScissor = function(inP, inD, inFont, inTitle, inTitlebarTextColor,
                                      inTitlebarBackColor, inContentBackColor, inShouldSetViewport, inIsNotMovable)
         local ws = {}
         local z_difference = 1
         local titlebarheight = inFont:GetTextDimension("X").y + 10
-        local titlebarpos = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z + z_difference)
-        local titlebardimen = vec3(inDimension_3f.x, titlebarheight, inDimension_3f.z)
-        local backgroundpos = vec3(inPosition_3f.x, inPosition_3f.y + titlebarheight, inPosition_3f.z + z_difference)
-        local backgrounddimen = vec3(inDimension_3f.x, inDimension_3f.y - titlebarheight, 1)
+        local titlebarpos = vec3(inP.x, inP.y, inP.z + z_difference)
+        local titlebardimen = vec3(inD.x, titlebarheight, inD.z)
+        local backgroundpos = vec3(inP.x, inP.y + titlebarheight, inP.z + z_difference)
+        local backgrounddimen = vec3(inD.x, inD.y - titlebarheight, 1)
 
         local push = Jkr.Matrix2CustomImagePainterPushConstant()
         push.a = mat4(
@@ -377,7 +377,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
 
         ---@note
         ---@todo Create a General button here
-        ws.mId = o.CreateScissor(inPosition_3f, inDimension_3f, inShouldSetViewport)
+        ws.mId = o.CreateScissor(inP, inD, inShouldSetViewport)
         ws.Set = function()
             o.SetCurrentScissor(ws.mId)
         end
@@ -386,23 +386,23 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         end
 
         local isMoving = false
-        local mCurrentPosition = inPosition_3f
-        local mCurrentDimension = inDimension_3f
+        local mCurrentPosition = inP
+        local mCurrentDimension = inD
         local mShouldSetViewport = inShouldSetViewport
-        ws.mCurrentPosition = inPosition_3f
-        ws.mCurrentDimension = inDimension_3f
+        ws.mCurrentPosition = inP
+        ws.mCurrentDimension = inD
 
         local mCentralComponent = { Update = function(a, b, c) end }
         ws.SetCentralComponent = function(inComponent)
             mCentralComponent = inComponent
         end
 
-        ws.Update = function(self, inPosition_3f, inDimension_3f)
-            o.UpdateScissor(ws.mId, inPosition_3f, inDimension_3f, mShouldSetViewport)
-            local titlebarpos = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z + z_difference)
-            local titlebardimen = vec3(inDimension_3f.x, titlebarheight, inDimension_3f.z)
-            local backgroundpos = vec3(inPosition_3f.x, inPosition_3f.y + titlebarheight, inPosition_3f.z + z_difference)
-            local backgrounddimen = vec3(inDimension_3f.x, inDimension_3f.y - titlebarheight, 1)
+        ws.Update = function(self, inP, inD)
+            o.UpdateScissor(ws.mId, inP, inD, mShouldSetViewport)
+            local titlebarpos = vec3(inP.x, inP.y, inP.z + z_difference)
+            local titlebardimen = vec3(inD.x, titlebarheight, inD.z)
+            local backgroundpos = vec3(inP.x, inP.y + titlebarheight, inP.z + z_difference)
+            local backgrounddimen = vec3(inD.x, inD.y - titlebarheight, 1)
             mTitlebar:Update(titlebarpos, titlebardimen)
             mTitlebarButton:Update(titlebarpos, titlebardimen)
             mBackground:Update(backgroundpos, backgrounddimen)
@@ -410,10 +410,10 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             if not mShouldSetViewport then
                 mCentralComponent:Update(backgroundpos, backgrounddimen)
             end
-            mCurrentPosition = inPosition_3f
-            mCurrentDimension = inDimension_3f
-            ws.mCurrentPosition = inPosition_3f
-            ws.mCurrentDimension = inDimension_3f
+            mCurrentPosition = inP
+            mCurrentDimension = inD
+            ws.mCurrentPosition = inP
+            ws.mCurrentDimension = inD
         end
 
         if not inIsNotMovable then
@@ -437,7 +437,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         return ws
     end
 
-    o.CreateMovableButton = function(inPosition_3f, inDimension_3f,
+    o.CreateMovableButton = function(inP, inD,
                                      inOnClick, inContinous, inFont, inTitle,
                                      inTitlebarTextColor,
                                      inTitlebarBackColor, inPushConstantForImagePainter, inImageFilePath,
@@ -445,8 +445,8 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                                      inHoverColor_4f
     )
         local ws = {}
-        local mTitlebar = o.CreateGeneralButton(inPosition_3f,
-            inDimension_3f,
+        local mTitlebar = o.CreateGeneralButton(inP,
+            inD,
             inOnClick,
             inContinous,
             inFont,
@@ -454,23 +454,23 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             inTitlebarTextColor,
             inTitlebarBackColor, inPushConstantForImagePainter, inImageFilePath)
 
-        local mTitlebarButton = o.CreateButton(inPosition_3f, inDimension_3f)
+        local mTitlebarButton = o.CreateButton(inP, inD)
 
         local isMoving = false
-        local mCurrentPosition = inPosition_3f
-        local mCurrentDimension = inDimension_3f
-        ws.mCurrentPosition = inPosition_3f
-        ws.mCurrentDimension = inDimension_3f
+        local mCurrentPosition = inP
+        local mCurrentDimension = inD
+        ws.mCurrentPosition = inP
+        ws.mCurrentDimension = inD
 
 
-        ws.Update = function(self, inPosition_3f, inDimension_3f)
-            mTitlebar:Update(inPosition_3f, inDimension_3f)
-            mTitlebarButton:Update(inPosition_3f, inDimension_3f)
+        ws.Update = function(self, inP, inD)
+            mTitlebar:Update(inP, inD)
+            mTitlebarButton:Update(inP, inD)
 
-            mCurrentPosition = inPosition_3f
-            mCurrentDimension = inDimension_3f
-            ws.mCurrentPosition = inPosition_3f
-            ws.mCurrentDimension = inDimension_3f
+            mCurrentPosition = inP
+            mCurrentDimension = inD
+            ws.mCurrentPosition = inP
+            ws.mCurrentDimension = inD
         end
 
         local color = vec4(mTitlebar.mColor)
@@ -495,7 +495,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         return ws
     end
 
-    o.CreateTextParagraph = function(inPosition_3f, inDimension_3f, inText, inFont, inMaxRows, inTextColor)
+    o.CreateTextParagraph = function(inP, inD, inText, inFont, inMaxRows, inTextColor)
         local tp = {}
         local texts = {}
         local font = inFont
@@ -503,13 +503,13 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             texts[#texts + 1] = o.CreateTextLabel(vec3(0, 0, 0), vec3(0, 0, 0), inFont, " ", inTextColor)
         end
 
-        tp.Update = function(self, inPosition_3f, inDimension_3f, inText, inFont)
+        tp.Update = function(self, inP, inD, inText, inFont)
             if inFont then font = inFont end
-            local WrappedTexts = font:WrapToTextVector(inText, inFont.mId, vec2(inDimension_3f.x, inDimension_3f.y))
+            local WrappedTexts = font:WrapToTextVector(inText, inFont.mId, vec2(inD.x, inD.y))
             local olddim = vec3(0, 0, 0)
             for i = 1, #texts, 1 do
                 local dim = font:GetTextDimension(WrappedTexts[i])
-                local pos = vec3(inPosition_3f.x, inPosition_3f.y + olddim.y, inPosition_3f.z)
+                local pos = vec3(inP.x, inP.y + olddim.y, inP.z)
                 texts[i]:Update()
                 olddim.x = dim.x
                 olddim.y = dim.y
@@ -519,7 +519,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         return tp
     end
 
-    o.CreateDisplayTable = function(inPosition_3f, inDimension_3f, inElementProducer, inDisplayRowCount,
+    o.CreateDisplayTable = function(inP, inD, inElementProducer, inDisplayRowCount,
                                     inDisplayColCount)
         inDisplayColCount = inDisplayColCount or 3
         inDisplayRowCount = inDisplayRowCount or 5
@@ -544,7 +544,9 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
         vlayout = V(hlayouts, CR(hlayouts))
 
         tb.data = nil
-        tb.Update = function(self, inPosition_3f, inDimension_3f, inData, inRowOffset)
+        tb.Update = function(self, inP, inD, inData, inRowOffset)
+            tb.mP = inP
+            tb.mD = inD
             tb.data = inData or tb.data or sampledata
             inRowOffset = inRowOffset or 0
             local tb_length = #tb.data
@@ -563,7 +565,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                 hlayouts[row] = H(columns, CR(columns))
             end
             vlayout = V(hlayouts, CR(hlayouts))
-            vlayout:Update(inPosition_3f, inDimension_3f)
+            vlayout:Update(inP, inD)
         end
         return tb
     end
@@ -585,24 +587,24 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
     end
 
     o.AnimationPush = function(inElement,
-                               inStartPosition_3f, inEndPosition_3f,
-                               inStartDimension_3f, inEndDimension_3f,
+                               inStartP, inEndP,
+                               inStartD, inEndD,
                                step)
         if not step then
             step = 0.1
         end
         local t = 0
-        local sp = vec2(inStartPosition_3f)
-        local ep = vec2(inEndPosition_3f)
-        local sd = vec2(inStartDimension_3f)
-        local ed = vec2(inEndDimension_3f)
+        local sp = vec2(inStartP)
+        local ep = vec2(inEndP)
+        local sd = vec2(inStartD)
+        local ed = vec2(inEndD)
         local el = inElement
         local Frame = 1
         while t <= 1 do
             local np = alerp_2f(sp, ep, t)
             local nd = alerp_2f(sd, ed, t)
-            local np3 = vec3(np, inStartPosition_3f.z)
-            local nd3 = vec3(nd, inStartDimension_3f.z)
+            local np3 = vec3(np, inStartP.z)
+            local nd3 = vec3(nd, inStartD.z)
             o.c:PushOneTime(Jkr.CreateUpdatable(
                 function()
                     el:Update(np3, nd3)
@@ -650,7 +652,7 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             return o.m_label_pool[inIndex]
         end
 
-        local calculate_tickers = function(inPosition_3f, inDimension_3f, inFrom_3f, inTo_3f, inStep_3f, inFormatX,
+        local calculate_tickers = function(inP, inD, inFrom_3f, inTo_3f, inStep_3f, inFormatX,
                                            inFormatY)
             inFrom_3f = vec3(inFrom_3f or vec3(0))
             inTo_3f = vec3(inTo_3f or vec3(2))
@@ -665,8 +667,8 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             local iii = 0
             while (inFrom_3f.x <= inTo_3f.x) do
                 x_texts[#x_texts + 1] = { string.format(inFormatX, inFrom_3f.x),
-                    inPosition_3f.x + inDimension_3f.x / x_ticks * iii,
-                    inPosition_3f.y + inDimension_3f.y,
+                    inP.x + inD.x / x_ticks * iii,
+                    inP.y + inD.y,
                 }
                 inFrom_3f.x = inFrom_3f.x + inStep_3f.x
                 iii = iii + 1
@@ -676,8 +678,8 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             while (inFrom_3f.y <= inTo_3f.y) do
                 y_texts[#y_texts + 1] = {
                     string.format(inFormatY, inFrom_3f.y),
-                    inPosition_3f.x,
-                    inPosition_3f.y + inDimension_3f.y - inDimension_3f.y / y_ticks * iii
+                    inP.x,
+                    inP.y + inD.y - inD.y / y_ticks * iii
                 }
                 inFrom_3f.y = inFrom_3f.y + inStep_3f.y
                 iii = iii + 1
@@ -685,14 +687,14 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             return x_texts, y_texts
         end
 
-        local construct = function(scale2d, inPosition_3f, inDimension_3f, x_texts, y_texts, inFont, inColor, inMatrix)
+        local construct = function(scale2d, inP, inD, x_texts, y_texts, inFont, inColor, inMatrix)
             local x = 0
             for i = 1, #x_texts do
                 local t = x_texts[i]
                 local label = GetLabelFromPool(scale2d.label_pool_index + x)
                 label.Align("RIGHT", "TOP")
-                label:Update(vec3(t[2], t[3], inPosition_3f.z),
-                    inDimension_3f, inFont, t[1], inColor, inMatrix)
+                label:Update(vec3(t[2], t[3], inP.z),
+                    inD, inFont, t[1], inColor, inMatrix)
                 x = x + 1
             end
 
@@ -700,12 +702,12 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
                 local t = y_texts[i]
                 local label = GetLabelFromPool(scale2d.label_pool_index + x)
                 label.Align("RIGHT", "CENTER")
-                label:Update(vec3(t[2], t[3], inPosition_3f.z), inDimension_3f, inFont,
+                label:Update(vec3(t[2], t[3], inP.z), inD, inFont,
                     t[1], inColor, inMatrix)
                 x = x + 1
             end
         end
-        o.CreateScale2D = function(inPosition_3f, inDimension_3f, inFont,
+        o.CreateScale2D = function(inP, inD, inFont,
                                    inTo_3f, inFrom_3f, inStep_3f, inFormatX,
                                    inFormatY,
                                    inColor,
@@ -718,19 +720,19 @@ Jkr.CreateGeneralWidgetsRenderer = function(inWidgetRenderer, i, w, e)
             CreateLabelPool(inFont)
 
             local scale2d = {}
-            local x_texts, y_texts = calculate_tickers(inPosition_3f, inDimension_3f, inFrom_3f, inTo_3f, inStep_3f,
+            local x_texts, y_texts = calculate_tickers(inP, inD, inFrom_3f, inTo_3f, inStep_3f,
                 inFormatX,
                 inFormatY)
 
             scale2d.label_pool_index = m_current_label_pool_index
-            construct(scale2d, inPosition_3f, inDimension_3f, x_texts, y_texts, inFont, inColor, inMatrix)
+            construct(scale2d, inP, inD, x_texts, y_texts, inFont, inColor, inMatrix)
 
-            scale2d.Update = function(inPosition_3f, inDimension_3f, inFont,
+            scale2d.Update = function(inP, inD, inFont,
                                       inTo_3f, inFrom_3f, inStep_3f, inFormatX,
                                       inFormatY, inColor, inMatrix)
-                local x_texts, y_texts = calculate_tickers(inPosition_3f, inDimension_3f, inFrom_3f, inTo_3f, inStep_3f,
+                local x_texts, y_texts = calculate_tickers(inP, inD, inFrom_3f, inTo_3f, inStep_3f,
                     inFormatX, inFormatY)
-                construct(scale2d, inPosition_3f, inDimension_3f, x_texts, y_texts, inFont, inColor, inMatrix)
+                construct(scale2d, inP, inD, x_texts, y_texts, inFont, inColor, inMatrix)
             end
 
             scale2d.Clear = function(inFont)

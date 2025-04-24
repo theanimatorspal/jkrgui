@@ -9,8 +9,8 @@ Jkr.HLayout     = {
     mComponents = nil,
     mRatioTable = nil,
     mPadding = nil,
-    mPosition_3f = nil,
-    mDimension_3f = nil,
+    mP = nil,
+    mD = nil,
 
     New = function(self, inPadding)
         local Obj = {
@@ -29,11 +29,11 @@ Jkr.HLayout     = {
         self.mRatioTable = inRatioTable
         return self
     end,
-    Update = function(self, inPosition_3f, inDimension_3f)
-        local position = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z)
-        local dimension = vec3(inDimension_3f.x, inDimension_3f.y, inDimension_3f.z)
-        self.mPosition_3f = inPosition_3f
-        self.mDimension_3f = inDimension_3f
+    Update = function(self, inP, inD)
+        local position = vec3(inP.x, inP.y, inP.z)
+        local dimension = vec3(inD.x, inD.y, inD.z)
+        self.mP = inP
+        self.mD = inD
 
         local paddingX = self.mPadding
 
@@ -49,8 +49,8 @@ Jkr.HLayout     = {
         end
     end,
     GetComponentPosition = function(self)
-        local position = vec3(self.mPosition_3f.x, self.mPosition_3f.y, self.mPosition_3f.z)
-        local dimension = vec3(self.mDimension_3f.x, self.mDimension_3f.y, self.mDimension_3f.z)
+        local position = vec3(self.mP.x, self.mP.y, self.mP.z)
+        local dimension = vec3(self.mD.x, self.mD.y, self.mD.z)
         local ComponentsPosition = {}
         for index, value in ipairs(self.mComponents) do
             ComponentsPosition[index] = vec3(position.x, position.y, position.z)
@@ -65,8 +65,8 @@ Jkr.VLayout     = {
     mComponents = nil,
     mRatioTable = nil,
     mPadding = nil,
-    mPosition_3f = nil,
-    mDimension_3f = nil,
+    mP = nil,
+    mD = nil,
 
     New = function(self, inPadding)
         local Obj = {
@@ -85,11 +85,11 @@ Jkr.VLayout     = {
         self.mRatioTable = inRatioTable
         return self
     end,
-    Update = function(self, inPosition_3f, inDimension_3f)
-        local position = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z)
-        local dimension = vec3(inDimension_3f.x, inDimension_3f.y, inDimension_3f.z)
-        self.mPosition_3f = vec3(position.x, position.y, position.z)
-        self.mDimension_3f = vec3(dimension.x, dimension.y, dimension.z)
+    Update = function(self, inP, inD)
+        local position = vec3(inP.x, inP.y, inP.z)
+        local dimension = vec3(inD.x, inD.y, inD.z)
+        self.mP = vec3(position.x, position.y, position.z)
+        self.mD = vec3(dimension.x, dimension.y, dimension.z)
         local paddingY = self.mPadding
         if self.mRatioTable then
             for index, value in ipairs(self.mComponents) do
@@ -105,8 +105,8 @@ Jkr.VLayout     = {
         end
     end,
     GetComponentPosition = function(self)
-        local position = vec3(self.mPosition_3f.x, self.mPosition_3f.y, self.mPosition_3f.z)
-        local dimension = vec3(self.mDimension_3f.x, self.mDimension_3f.y, self.mDimension_3f.z)
+        local position = vec3(self.mP.x, self.mP.y, self.mP.z)
+        local dimension = vec3(self.mD.x, self.mD.y, self.mD.z)
         local ComponentsPosition = {}
         for index, value in ipairs(self.mComponents) do
             ComponentsPosition[index] = vec3(position.x, position.y, position.z)
@@ -131,11 +131,11 @@ Jkr.StackLayout = {
         self.mComponents = inComponentListTable
         return self
     end,
-    Update = function(self, inPosition_3f, inDimension_3f)
-        local position = vec3(inPosition_3f.x, inPosition_3f.y, inPosition_3f.z)
-        local dimension = vec3(inDimension_3f.x, inDimension_3f.y, inDimension_3f.z)
-        self.mPosition_3f = inPosition_3f
-        self.mDimension_3f = inDimension_3f
+    Update = function(self, inP, inD)
+        local position = vec3(inP.x, inP.y, inP.z)
+        local dimension = vec3(inD.x, inD.y, inD.z)
+        self.mP = inP
+        self.mD = inD
         for index, value in ipairs(self.mComponents) do
             value:Update(vec3(position.x, position.y, position.z),
                 vec3(dimension.x, dimension.y, dimension.z),
@@ -192,11 +192,11 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     ---@note Scissor are viewport both are created unifiedly i.e. both should always be in the same dimension
 
     o.scissor_matrices = {}
-    o.CreateScissor = function(inPosition_3f, inDimension_3f, inShouldSetViewport, inMatrix)
-        ---@warning mImageId -> inPosition_3f
-        ---@warning mColor -> inDimension_3f
+    o.CreateScissor = function(inP, inD, inShouldSetViewport, inMatrix)
+        ---@warning mImageId -> inP
+        ---@warning mColor -> inD
         ---@warning mPush -> inShouldSetViewport
-        local sci = o.c:Push(Jkr.CreateDrawable("START", false, "SCISSOR_VIEWPORT", inPosition_3f, inDimension_3f,
+        local sci = o.c:Push(Jkr.CreateDrawable("START", false, "SCISSOR_VIEWPORT", inP, inD,
             inShouldSetViewport))
         o.scissor_matrices[sci] = inMatrix or Jmath.GetIdentityMatrix4x4()
         return sci
@@ -212,9 +212,9 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         end
     end
 
-    o.UpdateScissor = function(inScissorId, inPosition_3f, inDimension_3f, inShouldSetViewport)
-        o.c.mSVs[inScissorId].mImageId = inPosition_3f
-        o.c.mSVs[inScissorId].mColor = inDimension_3f
+    o.UpdateScissor = function(inScissorId, inP, inD, inShouldSetViewport)
+        o.c.mSVs[inScissorId].mImageId = inP
+        o.c.mSVs[inScissorId].mColor = inD
         o.c.mSVs[inScissorId].mPush = inShouldSetViewport
     end
 
@@ -222,10 +222,10 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     -- @warning inShape2DShader refers to the STRING value of o.shape2dShaders.<shader>
     -- e.g. for rounded rectangle use "roundedRectangle"
     -- @warning the second matrix in the push constant cannot be used for anything because it will be sent with the UIMatrix
-    o.CreateQuad = function(inPosition_3f, inDimension_3f, inPushConstant, inShape2DShader, inSampledImageId, inMatrix)
+    o.CreateQuad = function(inP, inD, inPushConstant, inShape2DShader, inSampledImageId, inMatrix)
         local quad = {}
-        local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill, uvec2(inDimension_3f.x, inDimension_3f.y))
-        quad.rect = o.s:Add(Rectangle, inPosition_3f)
+        local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill, uvec2(inD.x, inD.y))
+        quad.rect = o.s:Add(Rectangle, inP)
         quad.mColor = vec4(1, 1, 1, 1)
 
         -- @warning This might not be batchable @todo create a parameter or do something else about it
@@ -234,10 +234,10 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             inSampledImageId,
             nil, inPushConstant, inMatrix), o.mCurrentScissor)
 
-        quad.Update = function(self, inPosition_3f, inDimension_3f, inPushConstant, inMatrix)
+        quad.Update = function(self, inP, inD, inPushConstant, inMatrix)
             local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill,
-                uvec2(inDimension_3f.x, inDimension_3f.y))
-            o.s:Update(quad.rect, Rectangle, inPosition_3f)
+                uvec2(inD.x, inD.y))
+            o.s:Update(quad.rect, Rectangle, inP)
             if inPushConstant then
                 o.c.mDrawables[self.DrawId].mPush = inPushConstant
             end
@@ -252,11 +252,11 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     --[============================================================[
                     TEXT LABEL
           ]============================================================]
-    o.CreateTextLabel = function(inPosition_3f, inDimension_3f, inFont, inText, inColor, inNotDraw, inMatrix)
+    o.CreateTextLabel = function(inP, inD, inFont, inText, inColor, inNotDraw, inMatrix)
         local textLabel = {}
         textLabel.mText = inText
         textLabel.mFont = inFont
-        textLabel.mId = o.t:Add(inFont.mId, inPosition_3f, inText)
+        textLabel.mId = o.t:Add(inFont.mId, inP, inText)
         if not inNotDraw then
             textLabel.PushId = o.c:Push(Jkr.CreateDrawable(textLabel.mId, nil, "TEXT", nil, inColor, nil, inMatrix),
                 o.mCurrentScissor)
@@ -280,28 +280,28 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
             end
         end
         local text_dimension = textLabel.mFont:GetTextDimension(textLabel.mText)
-        textLabel.Update = function(self, inPosition_3f, inDimension_3f, inFont, inText, inColor, inMatrix)
+        textLabel.Update = function(self, inP, inD, inFont, inText, inColor, inMatrix)
             --tracy.ZoneBeginN("luatextUpdate")
             if inFont then self.mFont = inFont end
             if inText then self.mText = inText end
             text_dimension = self.mFont:GetTextDimension(self.mText)
 
             if alignx == 0 then
-                inPosition_3f.x = inPosition_3f.x + text_dimension.x / 2
+                inP.x = inP.x + text_dimension.x / 2
             elseif alignx == 1 then
-                inPosition_3f.x = inPosition_3f.x - text_dimension.x
+                inP.x = inP.x - text_dimension.x
             end
 
             if aligny == 0 then
-                inPosition_3f.y = inPosition_3f.y - text_dimension.y / 2
+                inP.y = inP.y - text_dimension.y / 2
             elseif aligny == 1 then
-                inPosition_3f.y = inPosition_3f.y - text_dimension.y
+                inP.y = inP.y - text_dimension.y
             end
 
             if inText then
-                o.t:Update(self.mId, self.mFont.mId, inPosition_3f, self.mText)
+                o.t:Update(self.mId, self.mFont.mId, inP, self.mText)
             else
-                o.t:UpdatePosOnly(self.mId, self.mFont.mId, inPosition_3f, self.mText)
+                o.t:UpdatePosOnly(self.mId, self.mFont.mId, inP, self.mText)
             end
 
             if inColor then
@@ -320,17 +320,17 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
     end
 
     ---@todo remove inNoDraw paramter
-    o.CreateSampledImage = function(inPosition_3f, inDimension_3f, inFileName, inNoDraw, inColor)
+    o.CreateSampledImage = function(inP, inD, inFileName, inNoDraw, inColor)
         local SampledImage = {}
         if (inFileName) then
             SampledImage.mId = o.s:AddImageByFileName(inFileName)
             SampledImage.mActualSize = o.s:GetImageSize(inFileName)
         else
-            SampledImage.mId = o.s:AddImage(inDimension_3f.x, inDimension_3f.y)
-            SampledImage.mActualSize = vec2(inDimension_3f.x, inDimension_3f.y)
+            SampledImage.mId = o.s:AddImage(inD.x, inD.y)
+            SampledImage.mActualSize = vec2(inD.x, inD.y)
         end
-        -- local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill, uvec2(inDimension_3f.x, inDimension_3f.y))
-        -- SampledImage.imageViewRect = o.s:Add(Rectangle, inPosition_3f)
+        -- local Rectangle = Jkr.Generator(Jkr.Shapes.RectangleFill, uvec2(inD.x, inD.y))
+        -- SampledImage.imageViewRect = o.s:Add(Rectangle, inP)
         -- SampledImage.mColor = vec4(1, 1, 1, 1)
 
         if (inColor) then
@@ -352,15 +352,15 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
                     rendering onto an image using compute shaders,
                     can also create a button by Image.CreateButton() routine
           ]============================================================]
-    o.CreateComputeImage = function(inPosition_3f, inDimension_3f, inOptCompatibleSampledImage)
+    o.CreateComputeImage = function(inP, inD, inOptCompatibleSampledImage)
         local ComputeImage = {}
         if inOptCompatibleSampledImage then
             ComputeImage.handle = Jkr.CreateCustomPainterImage(o.i, o.w,
                 math.int(inOptCompatibleSampledImage.mActualSize.x),
                 math.int(inOptCompatibleSampledImage.mActualSize.y))
         else
-            ComputeImage.handle = Jkr.CreateCustomPainterImage(o.i, o.w, math.int(inDimension_3f.x),
-                math.int(inDimension_3f.y))
+            ComputeImage.handle = Jkr.CreateCustomPainterImage(o.i, o.w, math.int(inD.x),
+                math.int(inD.y))
         end
 
         ComputeImage.RegisterPainter = function(inPainter, inIndex)
@@ -383,11 +383,11 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
         return ComputeImage
     end
 
-    o.CreateButton = function(inPosition_3f, inDimension_3f, inOnClickFunction, inContinous)
+    o.CreateButton = function(inP, inD, inOnClickFunction, inContinous)
         local Button = {}
-        Button.mDepthValue = math.int(inPosition_3f.z)
-        Button.mId = e:SetBoundedRect(vec2(inPosition_3f.x, inPosition_3f.y),
-            vec2(inDimension_3f.x, inDimension_3f.y), math.int(inPosition_3f.z))
+        Button.mDepthValue = math.int(inP.z)
+        Button.mId = e:SetBoundedRect(vec2(inP.x, inP.y),
+            vec2(inD.x, inD.y), math.int(inP.z))
         Button.mOnClickFunction = function() end
         Button.mOnHoverFunction = function() end
         if (inOnClickFunction) then
@@ -418,16 +418,16 @@ Jkr.CreateWidgetRenderer = function(i, w, e)
                 ))
             end
         end
-        Button.Update = function(self, inPosition_3f, inDimension_3f)
-            local new = math.int(inPosition_3f.z)
+        Button.Update = function(self, inP, inD)
+            local new = math.int(inP.z)
             if new ~= Button.mDepthValue then
                 e:RemoveBoundedRect(Button.mId, Button.mDepthValue)
-                Button.mId = e:SetBoundedRect(vec2(inPosition_3f.x, inPosition_3f.y),
-                    vec2(inDimension_3f.x, inDimension_3f.y), new)
+                Button.mId = e:SetBoundedRect(vec2(inP.x, inP.y),
+                    vec2(inD.x, inD.y), new)
                 Button.mDepthValue = new
             end
-            e:UpdateBoundedRect(Button.mId, vec2(inPosition_3f.x, inPosition_3f.y),
-                vec2(inDimension_3f.x, inDimension_3f.y), Button.mDepthValue)
+            e:UpdateBoundedRect(Button.mId, vec2(inP.x, inP.y),
+                vec2(inD.x, inD.y), Button.mDepthValue)
         end
         return Button
     end
