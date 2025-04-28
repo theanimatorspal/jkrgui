@@ -127,6 +127,16 @@ A third-person air-gun shooting game where the player must push a cube off a pla
   <img src="https://github.com/theanimatorspal/SampraharReturns/assets/133136356/9ad9eeb9-43a8-4168-abcd-60f970d642e8" alt="Gameplay Preview" width="600"/>
 </a>
 
+--- 
+
+### 📈 <a href="https://github.com/theanimatorspal/ksai_HFT"> HFT Simulator </a>
+A HFT simulator
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/5af4cd75-911b-4e6e-ba6b-00e668f5f08b" alt="Simulation Screenshot" width="600"/>
+  <br/>
+  <i>↑ Sample UI of traders ruining the simulated economy</i>
+</p>
+
 ---
 
 ### ✨ <a href="https://github.com/theanimatorspal/JkrGUI-PBRTest">JkrGUI PBR Test</a>
