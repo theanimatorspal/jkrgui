@@ -146,7 +146,7 @@ A physically-based rendering (PBR) test showcasing realistic lighting and materi
 
 ---
 
-### 📦 <a href="https://github.com/theanimatorspal/PresentTest-for-JkrGUI">PresentTest-for-JkrGUI</a>
+### 📦 <a href="https://github.com/theanimatorspal/Triyamik">Triyamik</a>
 A simple test project used to evaluate frame presentation, rendering loop performance, and cross-platform windowing using the JkrGUI backend.
 
 ---
