@@ -204,12 +204,12 @@ Meshes = %d
     ))
 end
 
-Engine.GetGLTFInfo = Engine.PrintGLTFInfo
+Engine.GetGLTFInfo = Jkr.PrintGLTFInfo
 
 Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex, inShadow)
     inMaterialIndex = inMaterialIndex + 1
     local Material = inGLTF:GetMaterialsRef()[inMaterialIndex]
-    local vShader = Engine.Shader()
+    local vShader = Jkr.Shader()
         .Header(450)
         .NewLine()
         .VLayout()
@@ -246,7 +246,7 @@ Engine.CreatePBRShaderByGLTFMaterial = function(inGLTF, inMaterialIndex, inShado
         .GlslMainEnd()
         .NewLine()
 
-    local fShader = Engine.Shader()
+    local fShader = Jkr.Shader()
         .Header(450)
         .NewLine()
         .In(0, "vec2", "vUV")
@@ -780,7 +780,7 @@ Engine.GameFramework = function(inf)
     local currentTime  = f.w:GetWindowCurrentTime()
     local residualTime = 0
     f.stepTime         = f.stepTime or 0.001
-    f.loop             = function()
+    f.loop             = function(inExitFunction)
         if not (f.Update and f.Dispatch and f.Draw) then
             Engine.log("Where is Update, Dispatch and Draw, add those", "ERROR")
         end
@@ -817,6 +817,9 @@ Engine.GameFramework = function(inf)
             w:EndRecording()
 
             w:Present()
+        end
+        if inExitFunction then
+            inExitFunction()
         end
     end
     f.PC               = function(a, b)
@@ -921,16 +924,20 @@ Engine.GameFramework = function(inf)
                 for i = 1, #inData do
                     local d = inData[i][1]
                     local c = inData[i][2]
-                    local line = vec2(
+                    local point1 = vec2(
                         d.x * config.d.x / (config.to.x - config.from.x),
                         config.d.y - (d.y * config.d.y / (config.to.y - config.from.y))
                     )
-                    local line1 = vec4(line.x, line.y, line.x, line.y)
+                    local point2 = vec2(
+                        d.z * config.d.x / (config.to.x - config.from.x),
+                        config.d.y - (d.w * config.d.y / (config.to.y - config.from.y))
+                    )
+                    local line1 = vec4(point1.x, point1.y, point2.x, point2.y)
                     local color = c
-                    local thickness = vec4(4, 0, 0, 0)
+                    local thickness = inData[i][3]
                     g.gpic.Draw(f.painters.line, f.PC(mat4(line1, color, thickness, vec4(0))))
                 end
-                g.gpic.DrawDebugLines()
+                -- g.gpic.DrawDebugLines()
                 g.gpic.Copy()
             end), 1)
             return g
@@ -993,6 +1000,48 @@ Engine.GameFramework = function(inf)
             H({ f.E, inComponent, f.E }, { inPaddingX, 1 - 2 * inPaddingX, inPaddingX }),
             f.E,
         }, { inPaddingY, 1 - 2 * inPaddingY, inPaddingY })
+    end
+
+    f.Sel              = function(inTable)
+        inTable.type = inTable.type or "h"
+        local enl = inTable.en .. "__l"
+        local enr = inTable.en .. "__r"
+        local enc = inTable.en .. "__c"
+        local display = " "
+        if type(inTable.display) == "string" then
+            display = inTable.display or " "
+        elseif type(inTable.display) == "function" then
+            display = inTable.display()
+        end
+        if inTable.type == "h" then
+            return S { f.E, H(
+                {
+                    f.B {
+                        t = "<",
+                        en = enl,
+                        onclick = function()
+                            display = inTable.fl()
+                            local bb = f.els[enc]
+                            bb:Update(bb.mP, bb.mD, inTable.f or f.nf, display)
+                        end
+                    },
+                    f.B {
+                        t = display,
+                        en = enc,
+                    },
+                    f.B {
+                        t = ">",
+                        en = enr,
+                        onclick = function()
+                            display = inTable.fr()
+                            local bb = f.els[enc]
+                            bb:Update(bb.mP, bb.mD, inTable.f or f.nf, display)
+                        end
+                    },
+                },
+                CR { 0.1, "pan", 0.1 }
+            ) }
+        end
     end
 
     return f
