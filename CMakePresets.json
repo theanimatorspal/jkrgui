@@ -1,0 +1,75 @@
+{
+  "version": 3,
+  "configurePresets": [     {
+      "name": "x64-windows-debug",
+      "displayName": "x64-windows Debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_PRESET_NAME": "${presetName}",
+        "CMAKE_TOOLCHAIN_FILE": "C:/Users/sansk/.kmake/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "x64-windows-release",
+      "displayName": "x64-windows Release",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_PRESET_NAME": "${presetName}",
+        "CMAKE_TOOLCHAIN_FILE": "C:/Users/sansk/.kmake/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "x64-windows-relwithdebinfo",
+      "displayName": "x64-windows RelWithDebInfo",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_PRESET_NAME": "${presetName}",
+        "CMAKE_TOOLCHAIN_FILE": "C:/Users/sansk/.kmake/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "x64-windows-minsizerel",
+      "displayName": "x64-windows MinSizeRel",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_PRESET_NAME": "${presetName}",
+        "CMAKE_TOOLCHAIN_FILE": "C:/Users/sansk/.kmake/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_BUILD_TYPE": "MinSizeRel"
+      }
+    } ] 
+}

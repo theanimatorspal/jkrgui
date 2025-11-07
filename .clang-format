@@ -1,21 +1,10 @@
 BasedOnStyle: LLVM
-IndentWidth: 6
-TabWidth: 1
+IndentWidth: 4
 ColumnLimit: 100
-AccessModifierOffset: -12
-AllowShortIfStatementsOnASingleLine: true
-AllowShortFunctionsOnASingleLine: true
-IndentCaseLabels: true
-SpaceBeforeAssignmentOperators: true
-PointerAlignment: Right
-ConstructorInitializerAllOnOneLineOrOnePerLine: true
-BinPackArguments: false
-BinPackParameters: false
-ContinuationIndentWidth: 5
-AlignAfterOpenBracket: Align
-# #BreakTemplateDeclarations: Yes
-AlignConsecutiveAssignments :
-    Enabled: true
-    AcrossEmptyLines: true
-    AcrossComments: false
-SortIncludes: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+KeepEmptyLinesAtTheStartOfBlocks: true
+
